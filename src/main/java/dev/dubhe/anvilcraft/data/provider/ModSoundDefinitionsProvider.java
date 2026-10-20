@@ -104,15 +104,6 @@ public class ModSoundDefinitionsProvider extends SoundDefinitionsProvider {
         );
 
         this.add(
-            ModSoundEvents.SMART_BLOCK_PLACER_SHULKER_OPEN.get(), SoundDefinitionsProvider.definition()
-                .subtitle("subtitles.anvilcraft.smart_block_placer_shulker_open")
-                .with(SoundDefinitionsProvider.sound(
-                    Identifier.withDefaultNamespace("block.shulker_box.open"),
-                    SoundDefinition.SoundType.EVENT
-                ))
-        );
-
-        this.add(
             ModSoundEvents.ANVIL_HAMMER_ROTATE_BLOCK.get(), SoundDefinitionsProvider.definition()
                 .subtitle("subtitles.anvilcraft.anvil_hammer_rotate_block")
                 .with(

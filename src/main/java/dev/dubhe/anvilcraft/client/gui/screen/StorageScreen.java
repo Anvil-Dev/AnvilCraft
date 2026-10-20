@@ -1002,7 +1002,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             if (slot >= StorageScreen.FLUID_SLOT_BASE) {
                 var entry = this.getFluidSlot(slot);
                 if (entry != null) {
-                    this.extractFluidIcon(graphics, entry, x, y);
+                    StorageScreen.renderFluidIcon(graphics, this.font, entry, x, y);
                     if (hovered) {
                         graphics.setTooltipForNextFrame(this.font, List.of(entry.icon().getHoverName().getVisualOrderText(),
                             Component.translatable("screen.anvilcraft.storage.fluid_amount",
@@ -1260,21 +1260,50 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 }
                 this.flyoutClickX = (int) event.x();
                 this.flyoutClickY = (int) event.y();
-                this.interactWithStorage(fluidSlot, event.button(), event.hasShiftDown()
-                    ? StorageInput.QUICK_MOVE_FROM_STORAGE : StorageInput.FLUID_BUCKET);
+                StorageInput action;
+                if (event.hasShiftDown()) {
+                    action = StorageInput.QUICK_MOVE_FROM_STORAGE;
+                } else if (this.craftingSpace && event.button() == 0 && this.carried.isEmpty()) {
+                    action = StorageInput.QUICK_MOVE_STACKS_FROM_STORAGE;
+                } else {
+                    action = StorageInput.FLUID_BUCKET;
+                }
+                this.interactWithStorage(fluidSlot, event.button(), action);
                 return true;
             }
             Integer storageSlot = this.getStorageSlot(event.x(), event.y());
             if (storageSlot != null && this.minecraft.gameMode != null) {
-                StorageInput action = event.hasShiftDown()
-                                      ? StorageInput.QUICK_MOVE_FROM_STORAGE
-                                      : StorageInput.PICKUP;
+                StorageInput action;
+                if (event.hasShiftDown()) {
+                    action = StorageInput.QUICK_MOVE_FROM_STORAGE;
+                } else if (this.craftingSpace && event.button() == 0 && this.carried.isEmpty()) {
+                    action = StorageInput.QUICK_MOVE_STACKS_FROM_STORAGE;
+                } else {
+                    action = StorageInput.PICKUP;
+                }
                 this.interactWithStorage(storageSlot, event.button(), action);
                 return true;
             }
 
             int slot = this.getInventorySlot(event.x(), event.y());
-            if (slot == -1 || this.minecraft.gameMode == null) {
+            if (slot == -1) {
+                boolean insideGui = event.x() >= this.left && event.x() < this.left + StorageScreen.BG_WIDTH
+                    && event.y() >= this.top && event.y() < this.top + StorageScreen.BG_HEIGHT;
+                if (!insideGui && !this.interactionPending && this.minecraft.gameMode != null && !this.carried.isEmpty()) {
+                    this.player.inventoryMenu.setCarried(this.carried);
+                    this.minecraft.gameMode.handleContainerInput(
+                        this.player.inventoryMenu.containerId,
+                        -999,
+                        event.button(),
+                        ContainerInput.PICKUP,
+                        this.player
+                    );
+                    this.carried = this.player.inventoryMenu.getCarried();
+                    return true;
+                }
+                return false;
+            }
+            if (this.minecraft.gameMode == null) {
                 return false;
             }
             this.lastClickedInventorySlot = slot;
@@ -1730,6 +1759,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
 
         if (this.search != null && this.search.isFocused()) {
+            this.craftingSpace = false;
             this.search.keyPressed(event);
             return true;
         }
@@ -1740,7 +1770,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             }, this.screenExecutor);
             return true;
         }
-        if (this.craftingMode && event.key() == InputConstants.KEY_SPACE) {
+        if (event.key() == InputConstants.KEY_SPACE) {
             this.craftingSpace = true;
             return true;
         }
@@ -2132,14 +2162,15 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         return filtered;
     }
 
-    private void extractFluidIcon(GuiGraphicsExtractor graphics, StorageServerStub.FluidEntry entry, int x, int y) {
-        var model = FluidRenderHelper.getModel(this.minecraft.getModelManager().getFluidStateModelSet(), entry.icon().getFluid());
+    public static void renderFluidIcon(GuiGraphicsExtractor graphics, Font font, StorageServerStub.FluidEntry entry, int x, int y) {
+        var models = Minecraft.getInstance().getModelManager().getFluidStateModelSet();
+        var model = FluidRenderHelper.getModel(models, entry.icon().getFluid());
         var tint = model.fluidTintSource();
         int color = tint == null ? -1 : tint.colorAsStack(entry.icon());
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, model.stillMaterial().sprite(), x, y, 16, 16, ARGB.opaque(color));
         Component amount = Component.literal(FluidAmountUtil.formatAmount(entry.amount()))
             .withStyle(style -> style.withFont(new FontDescription.Resource(StorageScreen.SMALL_FONT)));
-        StorageScreen.renderSlotCount(graphics, this.font, amount, entry.amount() == 0 ? 0xFFFFAA00 : -1, x, y);
+        StorageScreen.renderSlotCount(graphics, font, amount, entry.amount() == 0 ? 0xFFFFAA00 : -1, x, y);
     }
 
     private void showNotice(Component message) {

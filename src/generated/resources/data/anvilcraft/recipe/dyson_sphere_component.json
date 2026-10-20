@@ -2,17 +2,17 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": "anvilcraft:ember_metal_ingot",
-    "B": "anvilcraft:transcendium_ingot",
-    "C": "anvilcraft:heat_collector"
+    "A": "anvilcraft:transcendium_ingot",
+    "B": "anvilcraft:ember_metal_ingot",
+    "C": "anvilcraft:infinite_collector"
   },
   "pattern": [
     "ABA",
-    "CCC",
+    "BCB",
     "ABA"
   ],
   "result": {
-    "count": 4,
+    "count": 6,
     "id": "anvilcraft:dyson_sphere_component"
   }
 }

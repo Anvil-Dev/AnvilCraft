@@ -2,6 +2,8 @@ package dev.dubhe.anvilcraft.client.support;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.TerminalSessions;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
@@ -33,13 +35,17 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.fluids.FluidType;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public final class TerminalRemoteOverlay {
     private static final int SLOT_SIZE = 18;
@@ -54,6 +60,7 @@ public final class TerminalRemoteOverlay {
     private static final int TOOLTIP_GAP = 2;
     private static final int PANEL_OFFSET_X = 20;
     private static final int PANEL_OFFSET_Y = 14;
+    private static final Identifier NOTICE_BACKGROUND = AnvilCraft.of("flex_button/shaded_1px");
 
     private static @Nullable UUID storageId;
     private static int sizeMode;
@@ -64,6 +71,7 @@ public final class TerminalRemoteOverlay {
     private static String search = "";
     private static IntList order = new IntArrayList();
     private static IntList baseOrder = new IntArrayList();
+    private static List<StorageServerStub.FluidEntry> fluids = List.of();
     private static boolean fullSyncing;
     private static boolean fullSyncReplan;
     private static int fullSyncRetryRefresh;
@@ -79,6 +87,8 @@ public final class TerminalRemoteOverlay {
     private static int lastTooltipX;
     private static int lastTooltipY;
     private static boolean dismissed;
+    private static Component notice = Component.empty();
+    private static long noticeUntil;
 
     private TerminalRemoteOverlay() {
     }
@@ -157,7 +167,10 @@ public final class TerminalRemoteOverlay {
             UnlimitedItemStack stack = TerminalRemoteOverlay.CONTENTS.getOrDefault(slot, UnlimitedItemStack.EMPTY);
             int x = TerminalRemoteOverlay.left + TerminalRemoteOverlay.GRID_X + i % gridSize * TerminalRemoteOverlay.SLOT_SIZE;
             int y = TerminalRemoteOverlay.top + TerminalRemoteOverlay.GRID_Y + i / gridSize * TerminalRemoteOverlay.SLOT_SIZE;
-            if (!stack.isEmpty()) {
+            StorageServerStub.FluidEntry fluid = TerminalRemoteOverlay.getFluidSlot(slot);
+            if (fluid != null) {
+                StorageScreen.renderFluidIcon(graphics, font, fluid, x + 1, y + 1);
+            } else if (!stack.isEmpty()) {
                 ItemStack itemStack = stack.toStack();
                 graphics.fakeItem(itemStack, x + 1, y + 1);
             }
@@ -170,6 +183,25 @@ public final class TerminalRemoteOverlay {
             }
         }
         graphics.pose().popMatrix();
+        TerminalRemoteOverlay.renderNotice(graphics, font);
+    }
+
+    private static void renderNotice(GuiGraphicsExtractor graphics, Font font) {
+        if (Util.getMillis() >= TerminalRemoteOverlay.noticeUntil) return;
+        var window = Minecraft.getInstance().getWindow();
+        var lines = font.split(TerminalRemoteOverlay.notice, Math.max(1, window.getGuiScaledWidth() - 14));
+        int width = lines.stream().mapToInt(font::width).max().orElse(0) + 6;
+        int height = lines.size() * font.lineHeight + 6;
+        int y = TerminalRemoteOverlay.top - height - 4;
+        if (y < 4) y = TerminalRemoteOverlay.top + TerminalRemoteOverlay.panelH() + 4;
+        y = Mth.clamp(y, 4, Math.max(4, window.getGuiScaledHeight() - height - 4));
+        int x = Mth.clamp(TerminalRemoteOverlay.left + (TerminalRemoteOverlay.panelW() - width) / 2,
+            4, Math.max(4, window.getGuiScaledWidth() - width - 4));
+        graphics.nextStratum();
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, NOTICE_BACKGROUND, x, y, width, height, -1);
+        for (int index = 0; index < lines.size(); index++) {
+            graphics.text(font, lines.get(index), x + 3, y + 3 + index * font.lineHeight, 0xFFEE0000, false);
+        }
     }
 
     private static void renderSearchBox(GuiGraphicsExtractor graphics, Font font, float partialTick) {
@@ -436,11 +468,12 @@ public final class TerminalRemoteOverlay {
         IntArrayList missing = new IntArrayList();
         for (int i = 0; i < TerminalRemoteOverlay.baseOrder.size(); i++) {
             int slot = TerminalRemoteOverlay.baseOrder.getInt(i);
-            if (!TerminalRemoteOverlay.CONTENTS.containsKey(slot)) {
+            if (slot < StoragePortManager.FLUID_SLOT_BASE && !TerminalRemoteOverlay.CONTENTS.containsKey(slot)) {
                 missing.add(slot);
             }
         }
-        if (missing.isEmpty()) {
+        if (missing.isEmpty() && TerminalRemoteOverlay.baseOrder.intStream()
+            .noneMatch(slot -> slot >= StoragePortManager.FLUID_SLOT_BASE)) {
             TerminalRemoteOverlay.applyClientFilter();
             return;
         }
@@ -503,6 +536,15 @@ public final class TerminalRemoteOverlay {
         IntArrayList filtered = new IntArrayList(TerminalRemoteOverlay.baseOrder.size());
         for (int i = 0; i < TerminalRemoteOverlay.baseOrder.size(); i++) {
             int slot = TerminalRemoteOverlay.baseOrder.getInt(i);
+            if (slot >= StoragePortManager.FLUID_SLOT_BASE) {
+                StorageServerStub.FluidEntry fluid = TerminalRemoteOverlay.getFluidSlot(slot);
+                if (fluid != null) {
+                    String name = fluid.icon().getHoverName().getString().toLowerCase(Locale.ROOT);
+                    String path = BuiltInRegistries.FLUID.getKey(fluid.icon().getFluid()).getPath().toLowerCase(Locale.ROOT);
+                    if (name.contains(plain) || path.contains(plain)) filtered.add(slot);
+                }
+                continue;
+            }
             UnlimitedItemStack stack = TerminalRemoteOverlay.CONTENTS.get(slot);
             if (stack == null || stack.isEmpty()) {
                 continue;
@@ -589,6 +631,7 @@ public final class TerminalRemoteOverlay {
     }
 
     private static void applySync(StorageServerStub.SyncResult result) {
+        TerminalRemoteOverlay.fluids = List.copyOf(result.fluids());
         for (StorageServerStub.StackUpdate update : result.updates()) {
             if (update.stack().isEmpty()) {
                 TerminalRemoteOverlay.CONTENTS.remove(update.index());
@@ -612,30 +655,40 @@ public final class TerminalRemoteOverlay {
         ItemStack carried = minecraft.player != null
                             ? minecraft.player.containerMenu.getCarried()
                             : ItemStack.EMPTY;
-        if (shift) {
-            StorageTerminalClientStub.takeToInventory(id, slot, button).whenComplete((result, error) -> minecraft.execute(() -> {
-                if (expectedGeneration == generation) TerminalRemoteOverlay.taking = false;
-                if (error != null || !result.changed()) {
-                    return;
-                }
-                if (TerminalRemoteOverlay.isHoveringSame(id, expectedGeneration)) {
-                    TerminalRemoteOverlay.refresh();
-                }
-            }));
-            return;
-        }
-        StorageTerminalClientStub.take(id, slot, button, carried).whenComplete((result, error) -> minecraft.execute(() -> {
-            if (expectedGeneration == generation) TerminalRemoteOverlay.taking = false;
-            if (error != null || !result.changed()) {
+        CompletableFuture<StorageServerStub.InteractionResult> request;
+        if (slot >= StoragePortManager.FLUID_SLOT_BASE) {
+            StorageServerStub.FluidEntry fluid = TerminalRemoteOverlay.getFluidSlot(slot);
+            int pourButton = AnvilCraft.CLIENT_CONFIG.invertFluidPortBucketAction ? 1 : 0;
+            if (fluid == null || button != pourButton) {
+                TerminalRemoteOverlay.taking = false;
                 return;
             }
+            request = StorageTerminalClientStub.takeFluid(
+                id, fluid.icon().copyWithAmount(FluidType.BUCKET_VOLUME), shift, carried.copy());
+        } else {
+            request = shift ? StorageTerminalClientStub.takeToInventory(id, slot, button)
+                : StorageTerminalClientStub.take(id, slot, button, carried);
+        }
+        request.whenComplete((result, error) -> minecraft.execute(() -> {
+            if (expectedGeneration == generation) TerminalRemoteOverlay.taking = false;
+            if (error != null) return;
             if (minecraft.screen == origin && minecraft.player == actor) {
-                TerminalRemoteOverlay.applyCarriedIfCreative(result.carried());
+                if (result.changed() && !shift) TerminalRemoteOverlay.applyCarriedIfCreative(result.carried());
+                if (actor != null && result.notice() != StorageServerStub.FluidNotice.NONE
+                    && TerminalRemoteOverlay.isHoveringSame(id, expectedGeneration)) {
+                    TerminalRemoteOverlay.notice = result.notice().text();
+                    TerminalRemoteOverlay.noticeUntil = Util.getMillis() + 2000;
+                }
             }
-            if (TerminalRemoteOverlay.isHoveringSame(id, expectedGeneration)) {
+            if (result.changed() && TerminalRemoteOverlay.isHoveringSame(id, expectedGeneration)) {
                 TerminalRemoteOverlay.refresh();
             }
         }));
+    }
+
+    private static StorageServerStub.@Nullable FluidEntry getFluidSlot(int slot) {
+        int index = slot - StoragePortManager.FLUID_SLOT_BASE;
+        return index >= 0 && index < TerminalRemoteOverlay.fluids.size() ? TerminalRemoteOverlay.fluids.get(index) : null;
     }
 
     public static void applyCarriedIfCreative(ItemStack carried) {
@@ -752,6 +805,7 @@ public final class TerminalRemoteOverlay {
         TerminalRemoteOverlay.searchBox = null;
         TerminalRemoteOverlay.order = new IntArrayList();
         TerminalRemoteOverlay.baseOrder = new IntArrayList();
+        TerminalRemoteOverlay.fluids = List.of();
         TerminalRemoteOverlay.fullSyncing = false;
         TerminalRemoteOverlay.fullSyncReplan = false;
         TerminalRemoteOverlay.fullSyncRetryRefresh = 0;
@@ -762,5 +816,7 @@ public final class TerminalRemoteOverlay {
         TerminalRemoteOverlay.taking = false;
         TerminalRemoteOverlay.fastRetries = 0;
         TerminalRemoteOverlay.frameCounter = 0;
+        TerminalRemoteOverlay.notice = Component.empty();
+        TerminalRemoteOverlay.noticeUntil = 0;
     }
 }

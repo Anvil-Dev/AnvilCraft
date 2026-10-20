@@ -13,10 +13,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -190,6 +193,19 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
             true
         );
         graphics.pose().popMatrix();
+    }
+
+    default ItemStack getHoveredFilterItem(@Nullable Slot slot) {
+        if (!(slot instanceof SlotItemHandlerWithFilter filterSlot) || !filterSlot.isFilter() || filterSlot.hasItem()) {
+            return ItemStack.EMPTY;
+        }
+        int slotIndex = filterSlot.getContainerSlot();
+        return this.isSlotDisabled(slotIndex) ? ItemStack.EMPTY : this.getFilter(slotIndex);
+    }
+
+    default ItemStack getIncomingStack(@Nullable Player player, ContainerInput input, int button, ItemStack carried) {
+        if (input != ContainerInput.SWAP || player == null) return carried;
+        return player.getInventory().getItem(button).copy();
     }
 
     default int getOffsetY() {

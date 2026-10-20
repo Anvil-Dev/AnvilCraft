@@ -12,6 +12,7 @@ public enum StorageInput {
     CLONE,
     THROW(new int[] {0, 1, 2}),
     FLUID_BUCKET,
+    QUICK_MOVE_STACKS_FROM_STORAGE(new int[] {0}),
     ;
 
     public static final StreamCodec<ByteBuf, StorageInput> STREAM_CODEC = StreamCodecUtil.enumStreamCodec(StorageInput.class);

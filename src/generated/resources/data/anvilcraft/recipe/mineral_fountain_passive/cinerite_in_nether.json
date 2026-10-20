@@ -1,0 +1,7 @@
+{
+  "type": "anvilcraft:mineral_fountain_passive",
+  "dimension": "minecraft:the_nether",
+  "to_block": {
+    "block": "anvilcraft:cinerite"
+  }
+}

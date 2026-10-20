@@ -4,12 +4,13 @@
   "key": {
     "C": "anvilcraft:charge_collector",
     "H": "anvilcraft:heat_collector",
-    "T": "anvilcraft:transcendium_ingot"
+    "T": "anvilcraft:transcendium_ingot",
+    "V": "anvilcraft:void_energy_collector"
   },
   "pattern": [
-    " C ",
+    "CCC",
     "CHC",
-    "TTT"
+    "TVT"
   ],
   "result": {
     "id": "anvilcraft:infinite_collector"

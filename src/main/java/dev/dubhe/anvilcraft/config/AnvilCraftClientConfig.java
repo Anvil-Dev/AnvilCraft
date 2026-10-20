@@ -79,6 +79,11 @@ public class AnvilCraftClientConfig {
     @Comment("Swap insert/collect to left-click and keep extract/place on right-click (Left Collect, Right Place)")
     public boolean invertOverrideAction = false;
 
+    @SerializedName("Keep Charged Jump Charge")
+    @Comment("Whether the Charged Jump keeps its progress after releasing sneak. "
+        + "When disabled, releasing sneak clears the charge immediately")
+    public boolean keepChargedJumpCharge = false;
+
     @Comment("The mode of the anvil hammer goggle info")
     public GoggleMode goggleMode = GoggleMode.WEARING_OR_HOLDING_HAMMER;
 

@@ -4,8 +4,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
+import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
+import dev.dubhe.anvilcraft.block.power.consumer.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.DevourRange;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
@@ -18,7 +21,11 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -99,8 +106,19 @@ public class SubmitGeometryEventListener {
         double camX, double camY, double camZ
     ) {
         BlockPos blockPos = hit.getBlockPos();
-        if (Minecraft.getInstance().level == null) return;
-        BlockEntity e = Minecraft.getInstance().level.getBlockEntity(blockPos);
+        Level level = Minecraft.getInstance().level;
+        if (level == null) return;
+        BlockEntity e = level.getBlockEntity(blockPos);
+        BlockState state = level.getBlockState(blockPos);
+        if (state.is(ModBlocks.SMART_BLOCK_PLACER)) {
+            AABB bounds = e instanceof SmartBlockPlacerBlockEntity placer
+                ? placer.getPlacementRangeBounds()
+                : SmartBlockPlacerBlockEntity.positionModeRangeBounds(blockPos,
+                    state.getValue(HorizontalDirectionalBlock.FACING), state.getValue(SmartBlockPlacerBlock.UPSIDE_DOWN));
+            TooltipRenderHelper.renderOutline(pose, vertexConsumer3, camX, camY, camZ,
+                BlockPos.ZERO, Shapes.create(bounds), 0xFF00FFCC);
+            return;
+        }
         if (e == null) return;
         HudTooltipManager.INSTANCE.renderAffectRange(e, pose, vertexConsumer3, camX, camY, camZ);
     }

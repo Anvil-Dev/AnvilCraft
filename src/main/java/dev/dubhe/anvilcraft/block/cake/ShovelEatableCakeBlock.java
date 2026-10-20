@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.block.cake;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -72,6 +74,16 @@ public class ShovelEatableCakeBlock extends Block {
             return InteractionResult.PASS;
         } else {
             player.getFoodData().eat(foodLevel, saturationLevel);
+            if (!level.isClientSide()) {
+                level.playSound(
+                    null,
+                    pos,
+                    SoundEvents.GENERIC_EAT.value(),
+                    SoundSource.PLAYERS,
+                    1.0F,
+                    1.0F + (level.getRandom().nextFloat() - level.getRandom().nextFloat()) * 0.4F
+                );
+            }
             level.removeBlock(pos, false);
             level.gameEvent(player, GameEvent.BLOCK_DESTROY, pos);
             return InteractionResult.SUCCESS;

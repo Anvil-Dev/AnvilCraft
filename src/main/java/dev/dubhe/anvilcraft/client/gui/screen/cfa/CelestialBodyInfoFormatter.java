@@ -68,6 +68,7 @@ public final class CelestialBodyInfoFormatter {
     private static String typeKey(CelestialBodyData body) {
         if (body instanceof RockyPlanetData rocky) return CelestialBodyInfoFormatter.rockyTypeKey(rocky);
         if (body instanceof SpecialCelestialBodyData special) return CelestialBodyInfoFormatter.PREFIX + "class.special." + special.name();
+        if (body instanceof StarData star && star.specialRedDwarf()) return CelestialBodyInfoFormatter.PREFIX + "class.mutated_red_dwarf";
         return CelestialBodyInfoFormatter.PREFIX + "class." + body.bodyClass().name().toLowerCase(Locale.ROOT);
     }
 

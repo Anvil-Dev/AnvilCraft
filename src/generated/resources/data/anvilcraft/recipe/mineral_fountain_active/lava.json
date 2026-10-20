@@ -1,0 +1,26 @@
+{
+  "type": "anvilcraft:mineral_fountain_active",
+  "around": [
+    {
+      "block": {
+        "blocks": "minecraft:lava",
+        "properties": [
+          {
+            "level": "0"
+          }
+        ]
+      },
+      "count": 4
+    }
+  ],
+  "heat": {
+    "tier": "redhot"
+  },
+  "to_block": {
+    "block": "minecraft:lava"
+  },
+  "to_fluid": {
+    "amount": 1000,
+    "id": "minecraft:lava"
+  }
+}

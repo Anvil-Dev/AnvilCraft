@@ -4,8 +4,6 @@ import dev.dubhe.anvilcraft.client.gui.screen.ActiveSilencerScreen;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import lombok.Getter;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -13,7 +11,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,9 +69,7 @@ public class SilencerButton extends Button {
                 ChatFormatting.YELLOW);
         }
         this.setMessage(message);
-        int color = 16777215 | Mth.ceil(this.alpha * 255.0F) << 24;
-        Font font = Minecraft.getInstance().font;
-        graphics.centeredText(font, message, this.getX() + this.width / 2, this.getY() + 3, color);
+        this.extractDefaultLabel(graphics.textRendererForWidget(this, GuiGraphicsExtractor.HoveredTextEffects.NONE));
         if (this.isHovered()) {
             Component soundIdText = SilencerButton.highlighted(
                 soundId.toString(),

@@ -2761,15 +2761,17 @@ public class RegistrumBlockRecipeLoader {
     public static <T extends Block> void infiniteCollector(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
-            .pattern(" C ")
+            .pattern("CCC")
             .pattern("CHC")
-            .pattern("TTT")
+            .pattern("TVT")
             .define('C', ModBlocks.CHARGE_COLLECTOR)
             .define('H', ModBlocks.HEAT_COLLECTOR)
+            .define('V', ModBlocks.VOID_ENERGY_COLLECTOR)
             .define('T', ModItems.TRANSCENDIUM_INGOT)
             .unlockedBy("has_charge_collector", AnvilCraftDatagen.has(lookup, ModBlocks.CHARGE_COLLECTOR))
             .unlockedBy("has_heat_collector", AnvilCraftDatagen.has(lookup, ModBlocks.HEAT_COLLECTOR))
             .unlockedBy("has_transcendium", AnvilCraftDatagen.has(lookup, ModItems.TRANSCENDIUM_INGOT))
+            .unlockedBy("has_void_energy_collector", AnvilCraftDatagen.has(lookup, ModBlocks.VOID_ENERGY_COLLECTOR))
             .save(provider);
     }
 

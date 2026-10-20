@@ -32,8 +32,9 @@ import dev.dubhe.anvilcraft.recipe.anvil.wrap.TimeWarpRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.UnpackRecipe;
 import dev.dubhe.anvilcraft.recipe.frost.DeformationRecipe;
 import dev.dubhe.anvilcraft.recipe.frost.PermutationRecipe;
-import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainChanceRecipe;
-import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainActiveRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainPassiveRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainReplacementRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.Multiblock4DRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
@@ -86,11 +87,17 @@ public class ModRecipeTypes {
     public static final DeferredHolder<RecipeType<?>, RecipeType<MultiblockConversionRecipe>> MULTIBLOCK_CONVERSION = registerType(
         "multiblock_conversion"
     );
-    public static final DeferredHolder<RecipeType<?>, RecipeType<MineralFountainRecipe>> MINERAL_FOUNTAIN = registerType(
-        "mineral_fountain"
+    public static final DeferredHolder<RecipeType<?>, RecipeType<MineralFountainPassiveRecipe>>
+        MINERAL_FOUNTAIN_PASSIVE = registerType(
+        "mineral_fountain_passive"
     );
-    public static final DeferredHolder<RecipeType<?>, RecipeType<MineralFountainChanceRecipe>> MINERAL_FOUNTAIN_CHANCE = registerType(
-        "mineral_fountain_chance"
+    public static final DeferredHolder<RecipeType<?>, RecipeType<MineralFountainActiveRecipe>>
+        MINERAL_FOUNTAIN_ACTIVE = registerType(
+        "mineral_fountain_active"
+    );
+    public static final DeferredHolder<RecipeType<?>, RecipeType<MineralFountainReplacementRecipe>>
+        MINERAL_FOUNTAIN_REPLACEMENT = registerType(
+        "mineral_fountain_replacement"
     );
     public static final DeferredHolder<RecipeType<?>, RecipeType<JewelCraftingRecipe>> JEWEL_CRAFTING = registerType("jewel_crafting");
     public static final DeferredHolder<RecipeType<?>, RecipeType<ChargerChargingRecipe>> CHARGER_CHARGING = registerType(

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
+import dev.dubhe.anvilcraft.api.block.IItemSuctionContainer;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.entity.ProcessingTableBlockEntity;
@@ -42,7 +43,7 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
  * 加工台方块公共父类：冲压台、粉碎台、过筛台、拆包台的公共行为与水浸逻辑。
  */
 public abstract class ProcessingTableBlock extends Block implements
-    SimpleWaterloggedBlock, IHammerRemovable, IMoveableEntityBlock {
+    SimpleWaterloggedBlock, IHammerRemovable, IMoveableEntityBlock, IItemSuctionContainer {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     private static final VoxelShape SHAPE = Shapes.join(

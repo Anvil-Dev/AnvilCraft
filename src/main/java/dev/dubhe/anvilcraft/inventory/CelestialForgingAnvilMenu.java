@@ -142,7 +142,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
             return true;
         }
         if (id == 200) {
-            this.blockEntity.toggleLocked();
+            this.blockEntity.toggleLocked(player);
             return true;
         }
         if (id == 201) {

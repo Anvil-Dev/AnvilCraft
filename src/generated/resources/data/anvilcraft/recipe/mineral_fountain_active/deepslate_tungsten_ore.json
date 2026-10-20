@@ -1,0 +1,17 @@
+{
+  "type": "anvilcraft:mineral_fountain_active",
+  "around": [
+    {
+      "block": {
+        "blocks": "#c:storage_blocks/raw_tungsten"
+      },
+      "count": 4
+    }
+  ],
+  "from_block": {
+    "blocks": "minecraft:deepslate"
+  },
+  "to_block": {
+    "block": "anvilcraft:deepslate_tungsten_ore"
+  }
+}

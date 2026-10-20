@@ -194,7 +194,7 @@ public class ControlValveBlock extends BetterBaseEntityBlock
         if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer
             && level.getBlockEntity(pos) instanceof ControlValveBlockEntity be) {
             serverPlayer.openMenu(be, pos);
-            PacketDistributor.sendToPlayer(serverPlayer, new ControlValveInitPacket(be.getMaxRate(), be.getFilter(0)));
+            PacketDistributor.sendToPlayer(serverPlayer, new ControlValveInitPacket(be.getMaxRate(), be.getFilter(0), be.getFilterItem()));
         }
         return InteractionResult.SUCCESS;
     }
