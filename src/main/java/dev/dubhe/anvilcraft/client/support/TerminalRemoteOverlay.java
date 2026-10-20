@@ -35,6 +35,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidType;
@@ -59,6 +60,7 @@ public final class TerminalRemoteOverlay {
     private static final int TOOLTIP_GAP = 2;
     private static final int PANEL_OFFSET_X = 20;
     private static final int PANEL_OFFSET_Y = 14;
+    private static final Identifier NOTICE_BACKGROUND = AnvilCraft.of("flex_button/shaded_1px");
 
     private static @Nullable UUID storageId;
     private static int sizeMode;
@@ -85,6 +87,8 @@ public final class TerminalRemoteOverlay {
     private static int lastTooltipX;
     private static int lastTooltipY;
     private static boolean dismissed;
+    private static Component notice = Component.empty();
+    private static long noticeUntil;
 
     private TerminalRemoteOverlay() {
     }
@@ -179,6 +183,25 @@ public final class TerminalRemoteOverlay {
             }
         }
         graphics.pose().popMatrix();
+        TerminalRemoteOverlay.renderNotice(graphics, font);
+    }
+
+    private static void renderNotice(GuiGraphicsExtractor graphics, Font font) {
+        if (Util.getMillis() >= TerminalRemoteOverlay.noticeUntil) return;
+        var window = Minecraft.getInstance().getWindow();
+        var lines = font.split(TerminalRemoteOverlay.notice, Math.max(1, window.getGuiScaledWidth() - 14));
+        int width = lines.stream().mapToInt(font::width).max().orElse(0) + 6;
+        int height = lines.size() * font.lineHeight + 6;
+        int y = TerminalRemoteOverlay.top - height - 4;
+        if (y < 4) y = TerminalRemoteOverlay.top + TerminalRemoteOverlay.panelH() + 4;
+        y = Mth.clamp(y, 4, Math.max(4, window.getGuiScaledHeight() - height - 4));
+        int x = Mth.clamp(TerminalRemoteOverlay.left + (TerminalRemoteOverlay.panelW() - width) / 2,
+            4, Math.max(4, window.getGuiScaledWidth() - width - 4));
+        graphics.nextStratum();
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, NOTICE_BACKGROUND, x, y, width, height, -1);
+        for (int index = 0; index < lines.size(); index++) {
+            graphics.text(font, lines.get(index), x + 3, y + 3 + index * font.lineHeight, 0xFFEE0000, false);
+        }
     }
 
     private static void renderSearchBox(GuiGraphicsExtractor graphics, Font font, float partialTick) {
@@ -651,8 +674,10 @@ public final class TerminalRemoteOverlay {
             if (error != null) return;
             if (minecraft.screen == origin && minecraft.player == actor) {
                 if (result.changed() && !shift) TerminalRemoteOverlay.applyCarriedIfCreative(result.carried());
-                if (actor != null && result.notice() != StorageServerStub.FluidNotice.NONE) {
-                    actor.sendOverlayMessage(result.notice().text());
+                if (actor != null && result.notice() != StorageServerStub.FluidNotice.NONE
+                    && TerminalRemoteOverlay.isHoveringSame(id, expectedGeneration)) {
+                    TerminalRemoteOverlay.notice = result.notice().text();
+                    TerminalRemoteOverlay.noticeUntil = Util.getMillis() + 2000;
                 }
             }
             if (result.changed() && TerminalRemoteOverlay.isHoveringSame(id, expectedGeneration)) {
@@ -791,5 +816,7 @@ public final class TerminalRemoteOverlay {
         TerminalRemoteOverlay.taking = false;
         TerminalRemoteOverlay.fastRetries = 0;
         TerminalRemoteOverlay.frameCounter = 0;
+        TerminalRemoteOverlay.notice = Component.empty();
+        TerminalRemoteOverlay.noticeUntil = 0;
     }
 }
