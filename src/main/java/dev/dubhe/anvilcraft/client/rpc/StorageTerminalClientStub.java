@@ -74,10 +74,10 @@ public final class StorageTerminalClientStub {
     }
 
     public static CompletableFuture<StorageServerStub.InteractionResult> takeFluid(
-        UUID target, FluidStack fluid, int button, boolean intoInventory, ItemStack carried
+        UUID target, FluidStack fluid, boolean intoInventory, ItemStack carried
     ) {
         return invoke(target, token -> RPC.invoke(RpcTarget.server(), StorageServerStub::terminalTakeFluid,
-            Minecraft.getInstance().player.getUUID(), token, fluid, button, intoInventory, carried));
+            Minecraft.getInstance().player.getUUID(), token, fluid, intoInventory, carried));
     }
 
     public static CompletableFuture<StorageServerStub.InteractionResult> insert(UUID target, ItemStack carried) {

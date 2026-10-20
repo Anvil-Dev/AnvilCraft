@@ -664,7 +664,7 @@ public final class TerminalRemoteOverlay {
                 return;
             }
             request = StorageTerminalClientStub.takeFluid(
-                id, fluid.icon().copyWithAmount(FluidType.BUCKET_VOLUME), button, shift, carried.copy());
+                id, fluid.icon().copyWithAmount(FluidType.BUCKET_VOLUME), shift, carried.copy());
         } else {
             request = shift ? StorageTerminalClientStub.takeToInventory(id, slot, button)
                 : StorageTerminalClientStub.take(id, slot, button, carried);

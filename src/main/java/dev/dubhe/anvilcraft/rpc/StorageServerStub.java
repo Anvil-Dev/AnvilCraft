@@ -2045,7 +2045,7 @@ public final class StorageServerStub {
         ServerPlayer player, StorageView view, FluidStack fluid, boolean intoInventory, AbstractContainerMenu menu
     ) {
         FluidEntry entry = StoragePortManager.find(view.primary().getId(), fluid);
-        if (entry == null) return FilledBucket.failed(FluidNotice.NONE);
+        if (entry == null) return FilledBucket.failed(FluidNotice.NOT_ENOUGH);
         FluidStack target = entry.icon().copyWithAmount(FluidType.BUCKET_VOLUME);
         ItemStack filled = target.getFluidType().getBucket(target);
         if (filled.isEmpty()) return FilledBucket.failed(FluidNotice.NONE);
@@ -2304,14 +2304,14 @@ public final class StorageServerStub {
     public static InteractionResult terminalTakeFluid(
         UUID playerId, long sourcePos,
         @CallableParam(clazz = FluidStack.class, field = "OPTIONAL_STREAM_CODEC") FluidStack fluid,
-        int button, boolean intoInventory,
+        boolean intoInventory,
         @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack clientCarried
     ) {
         ServerPlayer player = getServerPlayer(playerId);
         StorageView view = getView(getAndClear(), playerId, sourcePos);
         AbstractContainerMenu menu = player.containerMenu;
         boolean blocked = player.hasInfiniteMaterials() ? !clientCarried.isEmpty() : !menu.getCarried().isEmpty();
-        if (button < 0 || button > 1 || blocked) return new InteractionResult(menu.getCarried(), false);
+        if (blocked) return new InteractionResult(menu.getCarried(), false);
         if (player.hasInfiniteMaterials()) menu.setCarried(ItemStack.EMPTY);
         FilledBucket filled = fillBucketFromStorage(player, view, fluid, intoInventory, menu);
         if (filled.stack().isEmpty()) return new InteractionResult(menu.getCarried(), false, 0, filled.notice());
