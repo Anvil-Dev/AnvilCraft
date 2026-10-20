@@ -11,6 +11,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RedStoneWireBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
@@ -31,6 +32,29 @@ public abstract class RedstoneWireBlockMixin implements ITooltipProviderExtensio
     @Shadow
     @Final
     public static IntegerProperty POWER;
+
+    @Shadow
+    protected abstract BlockState getConnectionState(BlockGetter level, BlockState state, BlockPos pos);
+
+    @Shadow
+    private static boolean isDot(BlockState state) {
+        throw new AssertionError();
+    }
+
+    @Inject(method = "onPlace", at = @At("TAIL"))
+    private void anvilcraft$refreshPlacedDustConnections(
+        BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston, CallbackInfo callback
+    ) {
+        if (level.isClientSide() || oldState.is(state.getBlock()) || isDot(state)) return;
+        BlockState current = level.getBlockState(pos);
+        if (!current.is(state.getBlock())) return;
+        for (Direction direction : Direction.Plane.HORIZONTAL) {
+            if (!(level.getBlockState(pos.relative(direction).below()).getBlock() instanceof RedstoneWireBlock)) continue;
+            BlockState connected = this.getConnectionState(level, current, pos);
+            if (connected != current) level.setBlock(pos, connected, Block.UPDATE_ALL);
+            return;
+        }
+    }
 
     @Override
     public List<Component> anvilcraft$getTooltip(BlockState state) {
