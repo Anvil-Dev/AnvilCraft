@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.dubhe.anvilcraft.api.injection.tooltip.ITooltipProviderExtension;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
+import dev.dubhe.anvilcraft.mixin.accessor.RedStoneWireBlockAccessor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -34,9 +35,6 @@ public abstract class RedstoneWireBlockMixin implements ITooltipProviderExtensio
     public static IntegerProperty POWER;
 
     @Shadow
-    protected abstract BlockState getConnectionState(BlockGetter level, BlockState state, BlockPos pos);
-
-    @Shadow
     private static boolean isDot(BlockState state) {
         throw new AssertionError();
     }
@@ -52,7 +50,7 @@ public abstract class RedstoneWireBlockMixin implements ITooltipProviderExtensio
             BlockState wire = level.getBlockState(pos.relative(direction).below());
             if (!(wire.getBlock() instanceof RedstoneWireBlock)
                 || wire.getValue(RedstoneWireBlock.ATTACHMENT) != direction.getOpposite()) continue;
-            BlockState connected = this.getConnectionState(level, current, pos);
+            BlockState connected = ((RedStoneWireBlockAccessor) this).anvilcraft$getConnectionState(level, current, pos);
             if (connected != current) level.setBlock(pos, connected, Block.UPDATE_ALL);
             return;
         }
