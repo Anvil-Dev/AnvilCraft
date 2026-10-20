@@ -41,6 +41,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import org.jspecify.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -62,10 +63,10 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
     private static final int BLOCK_SCALE = 12;
 
     private static final int[][] SIDE_POSITIONS = {
-        {40, 46, 3},
-        {56, 46, 3},
-        {40, 54, 17},
-        {56, 54, 17}
+        {40, 46},
+        {56, 46},
+        {40, 54},
+        {56, 54}
     };
     private static final int[][] SIDE_SLOT_AREAS = {
         {31, 38, 9, 14},
@@ -411,11 +412,15 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         List<Component> tooltips = new ArrayList<>();
         double chance = displayed == null ? recipe.totalChance() : recipe.chanceOf(displayed);
 
-        if (chance >= 0 && Math.round(chance * 100) < 100) {
+        if (chance >= 0 && chance < 1) {
+            String percentage = FORMATTER.format(chance * 100);
+            if (percentage.equals(FORMATTER.format(100))) {
+                percentage = BigDecimal.valueOf(chance).movePointRight(2).stripTrailingZeros().toPlainString();
+            }
             tooltips.add(
                 Component.translatable(
                     "gui.anvilcraft.category.chance",
-                    FORMATTER.format(chance * 100)
+                    percentage
                 ).withStyle(ChatFormatting.GRAY)
             );
         }
