@@ -4,10 +4,10 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.entity.IAnvilCraftEntityExtension;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import dev.dubhe.anvilcraft.entity.AnimateAscendingBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.util.MagnetUtil;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -124,7 +124,7 @@ public class MagnetBlock extends Block implements IHammerRemovable {
                 level.setBlockAndUpdate(magnetPos.below(), currentState);
                 level.setBlockAndUpdate(currentPos, Blocks.AIR.defaultBlockState());
 
-                AnimateAscendingBlockEntity.animate(level, currentPos, currentState, magnetPos.below());
+                MagnetUtil.animateAnvil(level, currentPos.getBottomCenter(), currentState, magnetPos.below());
                 TriggerUtil.liftingAnvil(level, currentPos);
                 break;
             }
@@ -139,7 +139,7 @@ public class MagnetBlock extends Block implements IHammerRemovable {
                     entity.discard();
                     level.destroyBlock(magnetPos.below(), true);
                     level.setBlockAndUpdate(magnetPos.below(), state2);
-                    AnimateAscendingBlockEntity.animate(level, currentPos, state2, magnetPos.below());
+                    MagnetUtil.animateAnvil(level, entity.position(), state2, magnetPos.below(), entity.getId());
                     TriggerUtil.liftingAnvil(level, currentPos);
                     break checkAnvil;
                 }
@@ -163,17 +163,6 @@ public class MagnetBlock extends Block implements IHammerRemovable {
         if (level.isClientSide()) return;
         if (movedByPiston && !state.getValue(LIT)) {
             chargeFromCopper(level, magnetPos);
-        }
-        int distance = AnvilCraft.CONFIG.equipment.magnetAttractsDistance;
-        BlockPos currentPos = magnetPos;
-        for (int i = 0; i < distance; i++) {
-            currentPos = currentPos.below();
-            List<AnimateAscendingBlockEntity> entities =
-                level.getEntitiesOfClass(AnimateAscendingBlockEntity.class, new AABB(currentPos));
-            for (AnimateAscendingBlockEntity entity : entities) {
-                entity.discard();
-            }
-            if (!level.isEmptyBlock(currentPos)) return;
         }
     }
 
