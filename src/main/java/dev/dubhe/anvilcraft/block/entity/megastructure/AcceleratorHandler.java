@@ -682,6 +682,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
     }
 
     private void finishAccelerator(CelestialForgingAnvilBlockEntity be) {
+        be.getMegastructureManager().discardBuiltMaterials(ModMegastructures.STELLAR_EVOLUTION_ACCELERATOR.getId());
         if (this.quenchedStarted && !this.quenchedSupernovaFired) this.sendQuenchedOutMusic(be, false);
         this.stage = 0;
         this.ticksRemaining = 0;

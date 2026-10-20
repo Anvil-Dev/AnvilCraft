@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import com.mojang.serialization.Codec;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorRegistry;
@@ -13,6 +15,8 @@ import lombok.Getter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
@@ -22,6 +26,8 @@ import java.util.Map;
 import java.util.Objects;
 
 public class CfaMegastructureManager {
+    private static final Codec<Map<Identifier, ItemStack>> MATERIALS_CODEC = Codec.unboundedMap(Identifier.CODEC, ItemStack.OPTIONAL_CODEC);
+    private final Map<Identifier, ItemStack> builtMaterials = new LinkedHashMap<>();
     private @Nullable Identifier activeMegastructureId;
     private int legacyActiveMegastructureIndex = -1;
     private @Nullable String legacyActiveMegastructureName;
@@ -197,6 +203,7 @@ public class CfaMegastructureManager {
 
     public void buildMegastructure(CelestialRefactorOption option, CelestialForgingAnvilBlockEntity be) {
         if (!this.canBuild(option, be)) return;
+        this.builtMaterials.put(option.id(), option.material().copyWithCount(option.materialCount()));
         IMegastructureHandler handler = this.handlers.get(option.id());
         if (option.auxiliary()) {
             if (handler != null) {
@@ -213,6 +220,7 @@ public class CfaMegastructureManager {
     }
 
     public void clearMegastructure(CelestialForgingAnvilBlockEntity be) {
+        this.builtMaterials.remove(this.getActiveId(be));
         if (this.hasActiveMegastructure()) {
             IMegastructureHandler handler = this.getActiveHandler(be);
             if (handler != null) {
@@ -227,10 +235,12 @@ public class CfaMegastructureManager {
     public void clearOtherMegastructures(CelestialForgingAnvilBlockEntity be) {
         IMegastructureHandler active = this.getActiveHandler(be);
         if (active != null && active != this.acceleratorHandler) {
+            this.builtMaterials.remove(this.activeMegastructureId);
             active.onClear(be);
             this.activeMegastructureId = null;
             this.clearLegacyIdentity();
         } else if (active == null && this.hasActiveMegastructure()) {
+            this.builtMaterials.remove(this.activeMegastructureId);
             this.activeMegastructureId = null;
             this.clearLegacyIdentity();
         }
@@ -238,6 +248,7 @@ public class CfaMegastructureManager {
             if (!definition.auxiliary()) continue;
             IMegastructureHandler handler = this.handlers.get(definition.id());
             if (handler != null && handler != this.acceleratorHandler && handler.isAuxiliaryActive(be)) {
+                this.builtMaterials.remove(definition.id());
                 handler.onClear(be);
             }
         }
@@ -249,17 +260,20 @@ public class CfaMegastructureManager {
         for (Megastructure definition : ModRegistries.MEGASTRUCTURE) {
             if (!definition.auxiliary()) continue;
             IMegastructureHandler handler = this.handlers.get(definition.id());
+            this.builtMaterials.remove(definition.id());
             if (handler != null && handler.isAuxiliaryActive(be)) {
                 handler.onClear(be);
                 acceleratorCleared |= handler == this.acceleratorHandler;
             }
         }
         if (!acceleratorCleared && this.acceleratorHandler.isAuxiliaryActive(be)) {
+            this.builtMaterials.remove(ModMegastructures.STELLAR_EVOLUTION_ACCELERATOR.getId());
             this.acceleratorHandler.onClear(be);
         }
     }
 
     public void clearAllMegastructures(CelestialForgingAnvilBlockEntity be) {
+        this.builtMaterials.clear();
         for (Megastructure megastructure : ModRegistries.MEGASTRUCTURE) {
             if (!megastructure.auxiliary()) continue;
             IMegastructureHandler handler = this.handlers.get(megastructure.id());
@@ -270,7 +284,52 @@ public class CfaMegastructureManager {
         this.clearMegastructure(be);
     }
 
+    public void refundBuiltMaterials(CelestialForgingAnvilBlockEntity be, Player player) {
+        Identifier activeId = this.getActiveId(be);
+        if (activeId != null) this.refundMaterials(activeId, player);
+        this.synchronizeRegistryHandlers();
+        for (Megastructure definition : ModRegistries.MEGASTRUCTURE) {
+            IMegastructureHandler handler = this.handlers.get(definition.id());
+            if (definition.auxiliary() && handler != null && handler.isAuxiliaryActive(be)) {
+                this.refundMaterials(definition.id(), player);
+            }
+        }
+    }
+
+    public void discardBuiltMaterials(Identifier id) {
+        this.builtMaterials.remove(id);
+    }
+
+    private void refundMaterials(Identifier id, Player player) {
+        ItemStack materials = this.builtMaterials.get(id);
+        if (materials == null) materials = CfaMegastructureManager.legacyMaterials(id);
+        if (materials.isEmpty()) return;
+        this.builtMaterials.put(id, ItemStack.EMPTY);
+        ItemStack refund = materials.copyWithCount(materials.getCount() / 2);
+        if (!refund.isEmpty() && !player.getInventory().add(refund)) player.drop(refund, false);
+    }
+
+    private static ItemStack legacyMaterials(Identifier id) {
+        if (!id.getNamespace().equals(AnvilCraft.MOD_ID)) return ItemStack.EMPTY;
+        Megastructure definition = ModRegistries.MEGASTRUCTURE.getValue(id);
+        if (definition == null) return ItemStack.EMPTY;
+        int count = switch (id.getPath()) {
+            case "planet_excavator", "planet_exctractor", "dyson_sphere_small" -> 16;
+            case "eco_station", "temple" -> 64;
+            case "monolith_deployer" -> 1;
+            case "giant_planet_exctractor", "dyson_sphere_large" -> 32;
+            case "dyson_sphere_brown_dwarf", "stellar_ring_collider", "penrose_sphere", "stellar_evolution_accelerator" -> 8;
+            case "magnetar_coil", "wormhole_stabilizer" -> 4;
+            case "matter_decompressor" -> 2;
+            default -> 0;
+        };
+        return definition.material().copyWithCount(count);
+    }
+
     public void saveAdditional(ValueOutput output) {
+        if (!this.builtMaterials.isEmpty()) {
+            output.store("builtMegastructureMaterials", MATERIALS_CODEC, this.builtMaterials);
+        }
         if (this.activeMegastructureId != null) {
             output.putString("activeMegastructureId", this.activeMegastructureId.toString());
         }
@@ -280,6 +339,8 @@ public class CfaMegastructureManager {
     }
 
     public void loadAdditional(ValueInput input) {
+        this.builtMaterials.clear();
+        this.builtMaterials.putAll(input.read("builtMegastructureMaterials", MATERIALS_CODEC).orElse(Map.of()));
         this.loadActiveIdentity(
             input.getStringOr("activeMegastructureId", ""),
             input.getStringOr("activeMegastructureName", ""),
