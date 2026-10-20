@@ -10,12 +10,14 @@ import dev.dubhe.anvilcraft.block.power.consumer.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.gui.component.StructureScannerButtonState;
 import dev.dubhe.anvilcraft.client.gui.component.TriStateButton;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
 import dev.dubhe.anvilcraft.network.SmartBlockPlacerActionPacket;
+import dev.dubhe.anvilcraft.util.BlockPlacementUtil;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -39,10 +41,13 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.joml.Matrix3x2f;
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
+import org.joml.Quaternionf;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -112,9 +117,16 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
     private static final int PREVIEW_BLOCK_SWITCH_INTERVAL = 80;
     private static final int STRUCTURE_INFO_MAX_WIDTH = 80;
+    private static final float PREVIEW_PADDING = 4.0F;
+    private static final float PREVIEW_YAW_OFFSET = 135.0F;
+    private static final int PLACER_PREVIEW_X = 2;
+    private static final int PLACER_PREVIEW_Y = 0;
+    private static final int PLACER_PREVIEW_Y_UPSIDE_DOWN = 4;
+    private static final int PLACER_PREVIEW_Z = 6;
 
     // LevelLike 缓存
     private @Nullable LevelLike cachedPreviewLevelLike;
+    private BlockPlacementUtil.@Nullable BlueprintExtent cachedBlueprintExtent;
     private boolean[] cachedLayerPositions = new boolean[SmartBlockPlacerBlockEntity.POSITION_COUNT];
     private int cachedViewLayer = -1;
     private boolean cachedShowAllLayers = true;
@@ -1020,8 +1032,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         Minecraft client = this.minecraft;
         if (blockEntity == null || client == null || client.level == null) return;
         LevelLike preview = this.getOrCreateCachedPreviewLevelLike(blockEntity, client.level);
-        this.renderPreviewWithFixedSize(preview, graphics, this.previewWindowX + this.previewWindowWidth / 2,
-            this.previewWindowY + this.previewWindowHeight / 2 + 5, this.previewRotationX, this.previewRotationY);
+        this.renderPreviewAutoScaled(preview, graphics);
         if (!this.isBlueprintMode && hasNoSelectedPositions(this.layerPositions)) {
             Component empty = Component.translatable("screen.anvilcraft.smart_block_placer.preview.empty");
             graphics.pose().pushMatrix();
@@ -1148,35 +1159,57 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         }
     }
 
-    /**
-     * 使用固定尺寸渲染预览
-     */
-    private void renderPreviewWithFixedSize(
-        LevelLike level, GuiGraphicsExtractor graphics, int posX, int posY, float rotationX, float rotationY
-    ) {
-        float scale = 80.0F / (5 * Mth.SQRT_OF_TWO);
+    private void renderPreviewAutoScaled(LevelLike level, GuiGraphicsExtractor graphics) {
+        AABB bounds = this.getPreviewBounds();
+        final VoxelShape rangeShape = this.createPlacementRangeShape();
+        Quaternionf rotation = Axis.XP.rotationDegrees(this.previewRotationX)
+            .mul(Axis.YP.rotationDegrees(this.previewRotationY + PREVIEW_YAW_OFFSET));
+        float scale = RenderSupport.autoScale(
+            rotation, bounds, this.previewWindowWidth, this.previewWindowHeight, PREVIEW_PADDING);
         PoseStack pose = new PoseStack();
-        pose.translate(0, -5 / scale, 0);
         pose.scale(-1, 1, -1);
-        pose.translate(-2.5F, -2.5F, 0);
-        pose.mulPose(Axis.XP.rotationDegrees(rotationX));
-        float yaw = rotationY + (this.isBlueprintMode ? 135 : 45);
-        pose.translate(2.5F, 0, 1.5F);
-        pose.mulPose(Axis.YP.rotationDegrees(yaw));
-        pose.translate(-2.5F, 0, -1.5F);
-        pose.translate(0.5F, 0.5F, -0.5F);
-        var outlineOffset = Axis.YP.rotationDegrees(yaw).conjugate()
-            .transform(new Vector3f(-0.05F, 0, 0)).add(0.05F, 0, 0);
+        pose.mulPose(rotation);
+        pose.translate(0.5 - (bounds.minX + bounds.maxX) / 2,
+            0.5 - (bounds.minY + bounds.maxY) / 2, 0.5 - (bounds.minZ + bounds.maxZ) / 2);
         int guiScale = this.minecraft.gameRenderer.getGameRenderState().windowRenderState.guiScale;
         int outlineOriginX = this.previewWindowX * guiScale;
         int outlineOriginY = this.previewWindowY * guiScale;
         graphics.submitPictureInPictureRenderState(new SmartPlacerPreviewRenderer.State(new StructurePipRenderingState(
-            level, new BlockPos(0, 0, 0), new BlockPos(4, 4, 6),
+            level, BlockPos.containing(bounds.minX, bounds.minY, bounds.minZ),
+            BlockPos.containing(bounds.maxX - 1, bounds.maxY - 1, bounds.maxZ - 1),
             this.previewWindowX, this.previewWindowY, this.previewWindowX + this.previewWindowWidth,
             this.previewWindowY + this.previewWindowHeight, scale, false, AnvilCraftClient.CONFIG.renderScanPreviewEffect,
             pose.last().copy(), graphics.pose().get(new Matrix3x2f()), graphics.peekScissorStack(),
             (collector, modelPose) -> SmartPlacerPreviewRenderer.captureRangeBox(
-                new Matrix4f(modelPose.last().pose()).translate(outlineOffset), outlineOriginX, outlineOriginY))));
+                new Matrix4f(modelPose.last().pose()), outlineOriginX, outlineOriginY, rangeShape))));
+    }
+
+    private AABB getPreviewBounds() {
+        int placerY = this.isUpsideDownPreview() ? PLACER_PREVIEW_Y_UPSIDE_DOWN : PLACER_PREVIEW_Y;
+        return this.createPlacementRangeShape().bounds()
+            .minmax(new AABB(new BlockPos(PLACER_PREVIEW_X, placerY, PLACER_PREVIEW_Z)));
+    }
+
+    private VoxelShape createPlacementRangeShape() {
+        SmartBlockPlacerBlockEntity blockEntity = this.menu.getBlockEntity();
+        if (!this.isBlueprintMode || blockEntity == null) {
+            return Shapes.create(0.0, 0.0, 0.0, 5.0, 5.0, 5.0);
+        }
+        boolean upsideDown = this.isUpsideDownPreview();
+        BlockPos placerPos = blockEntity.getBlockPos();
+        return Shapes.create(blockEntity.getPlacementRangeBounds(Direction.NORTH, upsideDown).move(
+            PLACER_PREVIEW_X - placerPos.getX(),
+            (upsideDown ? PLACER_PREVIEW_Y_UPSIDE_DOWN : PLACER_PREVIEW_Y) - placerPos.getY(),
+            PLACER_PREVIEW_Z - placerPos.getZ()
+        ));
+    }
+
+    private boolean isUpsideDownPreview() {
+        ClientLevel level = this.minecraft.level;
+        SmartBlockPlacerBlockEntity blockEntity = this.menu.getBlockEntity();
+        if (level == null || blockEntity == null) return false;
+        BlockState state = level.getBlockState(blockEntity.getBlockPos());
+        return state.getBlock() instanceof SmartBlockPlacerBlock && state.getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
     }
 
     /**
@@ -1202,6 +1235,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             && this.cachedPickupMode == this.isPickupMode
             && this.cachedBlueprintMode == this.isBlueprintMode
             && Arrays.equals(this.cachedBlueprintStates, currentBlueprintStates)
+            && blockEntity.getBlueprint().extent().equals(this.cachedBlueprintExtent)
             && this.cachedGameTimeBlockType == currentBlockTypeTime) {
             return cachedLevel;
         }
@@ -1214,6 +1248,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         this.cachedPickupMode = this.isPickupMode;
         this.cachedBlueprintMode = this.isBlueprintMode;
         this.cachedBlueprintStates = currentBlueprintStates.clone();
+        this.cachedBlueprintExtent = blockEntity.getBlueprint().extent();
         this.cachedGameTimeBlockType = currentBlockTypeTime;
         return rebuiltLevel;
     }
@@ -1226,10 +1261,6 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private LevelLike buildPreviewLevelLike(SmartBlockPlacerBlockEntity blockEntity, ClientLevel level) {
         LevelLike previewLevelLike = new LevelLike(level);
         previewLevelLike.setAllLayersVisible(this.showAllLayers);
-
-        if (!this.showAllLayers) {
-            previewLevelLike.setCurrentVisibleLayer(this.currentViewLayer);
-        }
 
         // 获取放置器的状态
         boolean upsideDown = false;
@@ -1244,9 +1275,16 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
         // 放置器位置：X居中，Z=6（放置区域后方）
         // 倒挂时Y=4（顶部），正常时Y=0（底部）
-        int placerX = 2;
-        int placerZ = 6;
-        int placerY = upsideDown ? 4 : 0;
+        int placerX = PLACER_PREVIEW_X;
+        int placerZ = PLACER_PREVIEW_Z;
+        int placerY = upsideDown ? PLACER_PREVIEW_Y_UPSIDE_DOWN : PLACER_PREVIEW_Y;
+        if (!this.showAllLayers) {
+            int visibleLayer = this.currentViewLayer;
+            if (this.isBlueprintMode && upsideDown) {
+                visibleLayer += placerY - blockEntity.getBlueprint().extent().maxLayer();
+            }
+            previewLevelLike.setCurrentVisibleLayer(visibleLayer);
+        }
 
         // 放置器始终渲染，不受分层限制，预览窗口中统一朝北
         // 应用实际的 POWERED 和 OVERLOAD 状态以显示正确的贴图
