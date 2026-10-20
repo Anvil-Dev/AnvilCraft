@@ -334,6 +334,8 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.structure_scanner.normalized", "Blueprint repaired: added %s parts, removed %s orphan parts or flows");
         provider.add("screen.anvilcraft.structure_scanner.imported", "Preview loaded; confirm to record the structure to a disk");
         provider.add("screen.anvilcraft.structure_scanner.exported", "Structure exported: %s");
+        provider.add("screen.anvilcraft.structure_scanner.upload", "Upload structure file");
+        provider.add("screen.anvilcraft.structure_scanner.uploaded", "Structure uploaded: %s");
         provider.add("screen.anvilcraft.structure_scanner.info_title", "Structure Info");
         provider.add("screen.anvilcraft.structure_scanner.ready", "Structure scan ready");
         provider.add("screen.anvilcraft.structure_scanner.tooltip.large_structure", "This structure is large and cannot be placed by the Smart Block Placer, but can still be saved");

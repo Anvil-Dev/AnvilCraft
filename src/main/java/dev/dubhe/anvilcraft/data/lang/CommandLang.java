@@ -4,6 +4,8 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class CommandLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("command.anvilcraft.blueprint.added", "Granted blueprint upload access to %s players");
+        provider.add("command.anvilcraft.blueprint.removed", "Removed blueprint upload access from %s players");
         provider.add("command.anvilcraft.powergrid.info.total_generate", "Total power generate: %s");
         provider.add("command.anvilcraft.powergrid.info.total_consume", "Total power consume: %s");
         provider.add("command.anvilcraft.powergrid.info.components", "Components of power grid:");

@@ -17,12 +17,20 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import javax.annotation.Nullable;
 
 public final class BlueprintClientFiles {
@@ -35,21 +43,102 @@ public final class BlueprintClientFiles {
     private static int pendingContainerId = -1;
     private static String fileName = "";
     private static boolean exporting;
+    private static boolean uploading;
+    private static boolean selecting;
+    private static int selectionContainerId = -1;
+    private static long selectionVersion;
+
+    private record UploadFile(String name, byte[] bytes) {
+    }
 
     private BlueprintClientFiles() {
     }
 
     public static boolean canOpenDirectory() {
-        return Minecraft.getInstance().hasSingleplayerServer();
+        var minecraft = Minecraft.getInstance();
+        return minecraft.hasSingleplayerServer()
+            || minecraft.screen instanceof StructureScannerScreen screen && screen.getMenu().canUpload();
     }
 
     public static void openDirectory() {
         var server = Minecraft.getInstance().getSingleplayerServer();
-        if (server == null) return;
         try {
-            Util.getPlatform().openFile(StructureBlueprintFiles.directory(server).toFile());
+            Path directory = server == null ? clientDirectory() : StructureBlueprintFiles.directory(server);
+            Util.getPlatform().openFile(directory.toFile());
         } catch (IOException exception) {
             message("file_failed", exception.getMessage());
+        }
+    }
+
+    private static Path clientDirectory() throws IOException {
+        Path directory = Minecraft.getInstance().gameDirectory.toPath().resolve("schematics");
+        Files.createDirectories(directory);
+        return directory;
+    }
+
+    public static void uploadOrOpenDirectory(int containerId) {
+        var minecraft = Minecraft.getInstance();
+        if (minecraft.hasSingleplayerServer()) {
+            openDirectory();
+            return;
+        }
+        if (isBusy() || !canOpenDirectory() || !(minecraft.screen instanceof StructureScannerScreen screen)
+            || screen.getMenu().containerId != containerId || minecraft.getConnection() == null) return;
+        var connection = minecraft.getConnection();
+        var menu = screen.getMenu();
+        String title = Component.translatable("screen.anvilcraft.structure_scanner.upload").getString();
+        Path directory = minecraft.gameDirectory.toPath().resolve("schematics");
+        long version = ++selectionVersion;
+        selectionContainerId = containerId;
+        selecting = true;
+        CompletableFuture.supplyAsync(() -> selectUpload(title, directory), Util.nonCriticalIoPool())
+            .whenComplete((selected, exception) -> minecraft.execute(() -> {
+                selecting = false;
+                if (version != selectionVersion) return;
+                selectionContainerId = -1;
+                if (minecraft.getConnection() != connection || !(minecraft.screen instanceof StructureScannerScreen current)
+                    || current.getMenu() != menu || !menu.canUpload()) return;
+                if (exception != null) {
+                    Throwable cause = exception.getCause() == null ? exception : exception.getCause();
+                    message(containerId, "file_failed", cause.getMessage());
+                    return;
+                }
+                selected.ifPresent(file -> sendUpload(containerId, file));
+            }));
+    }
+
+    private static Optional<UploadFile> selectUpload(String title, Path directory) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            Files.createDirectories(directory);
+            var filters = stack.mallocPointer(2);
+            filters.put(stack.UTF8("*.nbt")).put(stack.UTF8("*.litematic")).flip();
+            String selected = TinyFileDialogs.tinyfd_openFileDialog(title, directory.toString() + "/", filters, null, false);
+            if (selected == null) return Optional.empty();
+            Path file = Path.of(selected);
+            String name = file.getFileName().toString();
+            if (!StructureFileTransfer.isSafeName(name) || name.lastIndexOf('.') <= 0
+                || Files.size(file) > StructureFileTransfer.MAX_BYTES) {
+                throw new IOException("Invalid blueprint file");
+            }
+            byte[] bytes;
+            try (var input = Files.newInputStream(file)) {
+                bytes = input.readNBytes(StructureFileTransfer.MAX_BYTES + 1);
+            }
+            if (bytes.length == 0 || bytes.length > StructureFileTransfer.MAX_BYTES) throw new IOException("Invalid file size");
+            return Optional.of(new UploadFile(name, bytes));
+        } catch (IOException exception) {
+            throw new CompletionException(exception);
+        }
+    }
+
+    private static void sendUpload(int containerId, UploadFile file) {
+        UUID id = begin(containerId, file.name(), false);
+        uploading = true;
+        byte[] bytes = file.bytes();
+        for (int offset = 0; offset < bytes.length; offset += StructureFileTransfer.CHUNK_BYTES) {
+            byte[] chunk = Arrays.copyOfRange(bytes, offset, Math.min(offset + StructureFileTransfer.CHUNK_BYTES, bytes.length));
+            PacketDistributor.sendToServer(new StructureScannerFilePacket(containerId, id, Action.UPLOAD, file.name(),
+                bytes.length, offset, chunk));
         }
     }
 
@@ -81,7 +170,7 @@ public final class BlueprintClientFiles {
 
     public static boolean isValidExportName(String name) {
         String exported = name.toLowerCase(Locale.ROOT).endsWith(".nbt") ? name : name + ".nbt";
-        return !name.isBlank() && StructureFileTransfer.isSafeName(exported);
+        return !name.isBlank() && exported.lastIndexOf('.') > 0 && StructureFileTransfer.isSafeName(exported);
     }
 
     public static boolean isBusy() {
@@ -89,7 +178,7 @@ public final class BlueprintClientFiles {
             message("file_failed", "Transfer timed out");
             clearTransfer();
         }
-        return pending != null;
+        return pending != null || selecting;
     }
 
     public static void requestImport(int containerId, String name) {
@@ -128,15 +217,20 @@ public final class BlueprintClientFiles {
             return;
         }
         if (!isBusy() || !packet.id().equals(pending)) return;
+        if (!exporting && (!(Minecraft.getInstance().screen instanceof StructureScannerScreen activeScreen)
+            || activeScreen.getMenu().containerId != pendingContainerId)) {
+            clearTransfer();
+            return;
+        }
         try {
             if (!packet.error().isEmpty()) throw new IOException(packet.error());
-            if (exporting) {
+            if (uploading || (exporting && Minecraft.getInstance().hasSingleplayerServer())) {
                 String exported = new String(packet.bytes(), StandardCharsets.UTF_8);
                 if (packet.total() != packet.bytes().length || packet.offset() != 0
                     || !StructureFileTransfer.isSafeName(exported) || !exported.toLowerCase(Locale.ROOT).endsWith(".nbt")) {
                     throw new IOException("Invalid export result");
                 }
-                message("exported", exported);
+                message(uploading ? "uploaded" : "exported", exported);
                 if (Minecraft.getInstance().screen instanceof StructureScannerScreen screen
                     && screen.getMenu().containerId == pendingContainerId) requestFiles(pendingContainerId);
                 clearTransfer();
@@ -144,6 +238,12 @@ public final class BlueprintClientFiles {
             }
             if (packet.offset() == 0) download = new StructureFileTransfer(packet.id(), fileName, packet.total());
             if (download == null || !download.append(packet.id(), fileName, packet.total(), packet.offset(), packet.bytes())) return;
+            if (exporting) {
+                String exported = StructureBlueprintFiles.write(clientDirectory(), fileName, download.finish());
+                message("exported", exported);
+                clearTransfer();
+                return;
+            }
             var minecraft = Minecraft.getInstance();
             if (minecraft.level != null && minecraft.screen instanceof StructureScannerScreen screen
                 && screen.getMenu().containerId == pendingContainerId) {
@@ -166,6 +266,10 @@ public final class BlueprintClientFiles {
     }
 
     public static void cancelImport(int containerId) {
+        if (selectionContainerId == containerId) {
+            selectionVersion++;
+            selectionContainerId = -1;
+        }
         if (pendingContainerId == containerId && !exporting) clearTransfer();
         if (listContainerId == containerId) {
             pendingList = null;
@@ -175,6 +279,8 @@ public final class BlueprintClientFiles {
     }
 
     public static void clear() {
+        selectionVersion++;
+        selectionContainerId = -1;
         clearTransfer();
         pendingList = null;
         listDownload = null;
@@ -187,6 +293,7 @@ public final class BlueprintClientFiles {
         pendingContainerId = -1;
         download = null;
         exporting = false;
+        uploading = false;
     }
 
     private static void message(String key, @Nullable String detail) {
