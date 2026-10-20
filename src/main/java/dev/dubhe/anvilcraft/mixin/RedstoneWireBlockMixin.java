@@ -45,9 +45,9 @@ public abstract class RedstoneWireBlockMixin implements ITooltipProviderExtensio
     private void anvilcraft$refreshPlacedDustConnections(
         BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston, CallbackInfo callback
     ) {
-        if (level.isClientSide() || oldState.is(state.getBlock()) || isDot(state)) return;
+        if (level.isClientSide() || oldState.is(state.getBlock())) return;
         BlockState current = level.getBlockState(pos);
-        if (!current.is(state.getBlock())) return;
+        if (!current.is(state.getBlock()) || isDot(current)) return;
         for (Direction direction : Direction.Plane.HORIZONTAL) {
             BlockState wire = level.getBlockState(pos.relative(direction).below());
             if (!(wire.getBlock() instanceof RedstoneWireBlock)
