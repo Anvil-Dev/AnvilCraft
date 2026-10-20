@@ -52,7 +52,8 @@ public record HammerUsePacket(BlockPos pos, InteractionHand hand, BlockHitResult
             return;
         }
         BlockState state = serverside.level().getBlockState(this.pos);
-        if (!AnvilHammerItem.ableToUseAnvilHammer(serverside.level(), this.pos, serverside)
+        if (!AnvilHammerItem.canRocketJump(serverside)
+            && !AnvilHammerItem.ableToUseAnvilHammer(serverside.level(), this.pos, serverside)
             && (state.is(BlockTags.CAULDRONS) || state.is(ModBlockTags.ANVIL_HAMMER_DENYLIST))) return;
         AnvilHammerItem.useBlock(serverside, this.pos, serverside.level(), itemInHand, this.hand, this.result);
     }
