@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.StorageComparatorManager;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.TerminalSourceManager;
+import dev.dubhe.anvilcraft.api.fluid.FluidHandlerWrapper;
 import dev.dubhe.anvilcraft.api.item.ICannotFitInStationItem;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.SpaceSizeItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.TypeLimitItemStacksResourceHandler;
@@ -71,6 +72,7 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -4829,7 +4831,9 @@ public final class StorageServerStub {
         /** 缺少空容器。 */
         BUCKET_MISSING("screen.anvilcraft.storage.fluid.bucket_missing"),
         /** 储量不足一桶。 */
-        NOT_ENOUGH("screen.anvilcraft.storage.fluid.not_enough");
+        NOT_ENOUGH("screen.anvilcraft.storage.fluid.not_enough"),
+        BOTTLE_MISSING("screen.anvilcraft.storage.fluid.bottle_missing"),
+        BOTTLE_NOT_ENOUGH("screen.anvilcraft.storage.fluid.bottle_not_enough");
 
         public static final StreamCodec<ByteBuf, FluidNotice> STREAM_CODEC =
             StreamCodecUtil.enumStreamCodec(FluidNotice.class);
@@ -5138,7 +5142,8 @@ public final class StorageServerStub {
         FluidStack fluid
     ) {
         // 解析不出成品桶（流体不存在 / 不是可装桶的流体）时交给单桶路径给出准确提示
-        ItemStack filledBucket = StorageServerStub.filledBucketOf(view, fluid);
+        boolean bottle = player.containerMenu.getCarried().is(Items.GLASS_BOTTLE);
+        ItemStack filledBucket = StorageServerStub.filledBucketOf(view, fluid, bottle);
         if (filledBucket.isEmpty()) {
             return StorageServerStub.takeFluidBucketIntoInventory(player, view, fluid);
         }
@@ -5150,7 +5155,7 @@ public final class StorageServerStub {
         FluidStack taken = FluidStack.EMPTY;
         boolean changed = false;
         for (int bucket = 0; bucket < limit; bucket++) {
-            FilledBucket filled = StorageServerStub.fillBucketFromStorage(player, view, fluid, true);
+            FilledBucket filled = StorageServerStub.fillBucketFromStorage(player, view, fluid, true, bottle);
             if (filled.stack().isEmpty()) {
                 if (!changed) {
                     notice = filled.notice();
@@ -5171,12 +5176,14 @@ public final class StorageServerStub {
     /**
      * 解析某个流体格装桶后的成品桶。无法解析（流体不存在 / 不是可装桶的流体）时返回空。
      */
-    private static ItemStack filledBucketOf(StorageView view, FluidStack fluid) {
+    private static ItemStack filledBucketOf(StorageView view, FluidStack fluid, boolean bottle) {
         FluidEntry entry = StoragePortManager.find(view.primary().getId(), fluid);
         if (entry == null) {
             return ItemStack.EMPTY;
         }
-        return FluidUtil.getFilledBucket(entry.icon().copyWithAmount(FluidType.BUCKET_VOLUME));
+        ItemStack filled = FluidUtil.getFilledBucket(entry.icon().copyWithAmount(FluidType.BUCKET_VOLUME));
+        return bottle || filled.isEmpty()
+            ? FluidHandlerWrapper.determineFilledContainer(entry.icon(), Items.GLASS_BOTTLE.getDefaultInstance()) : filled;
     }
 
     /**
@@ -5249,19 +5256,27 @@ public final class StorageServerStub {
         FluidStack fluid,
         boolean intoInventory
     ) {
+        return StorageServerStub.fillBucketFromStorage(
+            player, view, fluid, intoInventory, player.containerMenu.getCarried().is(Items.GLASS_BOTTLE));
+    }
+
+    private static FilledBucket fillBucketFromStorage(
+        ServerPlayer player, StorageView view, FluidStack fluid, boolean intoInventory, boolean bottle
+    ) {
         FluidEntry entry = StoragePortManager.find(view.primary().getId(), fluid);
-        if (entry == null) {
-            return FilledBucket.failed(FluidNotice.NOT_ENOUGH);
-        }
-        FluidStack target = entry.icon().copyWithAmount(FluidType.BUCKET_VOLUME);
+        FluidStack target = (entry == null ? fluid : entry.icon()).copyWithAmount(FluidType.BUCKET_VOLUME);
         ItemStack filled = FluidUtil.getFilledBucket(target);
-        if (filled.isEmpty()) {
-            return FilledBucket.failed(FluidNotice.NONE);
+        ItemStack emptyContainer;
+        if (bottle || filled.isEmpty()) {
+            target = target.copyWithAmount(FluidType.BUCKET_VOLUME / 4);
+            emptyContainer = Items.GLASS_BOTTLE.getDefaultInstance();
+            filled = FluidHandlerWrapper.determineFilledContainer(target, emptyContainer);
+        } else {
+            emptyContainer = StorageServerStub.emptyContainerOf(filled);
         }
-        ItemStack emptyContainer = StorageServerStub.emptyContainerOf(filled);
-        if (emptyContainer.isEmpty()) {
-            return FilledBucket.failed(FluidNotice.NONE);
-        }
+        FluidNotice notEnough = emptyContainer.is(Items.GLASS_BOTTLE) ? FluidNotice.BOTTLE_NOT_ENOUGH : FluidNotice.NOT_ENOUGH;
+        if (entry == null) return FilledBucket.failed(filled.isEmpty() ? FluidNotice.NOT_ENOUGH : notEnough);
+        if (filled.isEmpty() || emptyContainer.isEmpty()) return FilledBucket.failed(FluidNotice.NONE);
         // 指针路径：产物要落在指针上，指针被别的物品占着（例如已拿着一桶水）就无处安置，
         // 此时不执行取水，避免无谓消耗背包/存储里的空桶。此判断先于下面的提示，
         // 否则指针被占用时还会给出与本意无关的「储量不足」提示
@@ -5274,22 +5289,23 @@ public final class StorageServerStub {
         // 提示优先级：先判「有没有空桶」，再判「储量够不够」。
         // 例如只剩 250 mB 且身上没桶时，玩家更该看到「需要空桶」而非「流体不足一桶」。
         // 这里用非破坏性判定，避免为了报错而先把容器消耗掉再回滚
+        FluidNotice missing = emptyContainer.is(Items.GLASS_BOTTLE) ? FluidNotice.BOTTLE_MISSING : FluidNotice.BUCKET_MISSING;
         if (!StorageServerStub.hasEmptyContainer(player, view, emptyContainer)) {
-            return FilledBucket.failed(FluidNotice.BUCKET_MISSING);
+            return FilledBucket.failed(missing);
         }
-        if (entry.amount() < FluidType.BUCKET_VOLUME) {
-            return FilledBucket.failed(FluidNotice.NOT_ENOUGH);
+        if (entry.amount() < target.getAmount()) {
+            return FilledBucket.failed(notEnough);
         }
         // 空容器可以来自鼠标指针、玩家背包或存储本体：仓储界面里三者都应可用
         if (!StorageServerStub.consumeEmptyContainer(player, view, emptyContainer)) {
             // 判定与实际取用之间容器被消耗（并发）：仍按缺桶提示
-            return FilledBucket.failed(FluidNotice.BUCKET_MISSING);
+            return FilledBucket.failed(missing);
         }
         // 确认能真正抽出，否则把空容器还回去，避免凭空吞桶
-        if (StoragePortManager.drain(view.primary().getId(), target, FluidType.BUCKET_VOLUME)
-            < FluidType.BUCKET_VOLUME) {
+        if (StoragePortManager.drain(view.primary().getId(), target, target.getAmount())
+            < target.getAmount()) {
             StorageServerStub.giveEmptiedContainer(player, emptyContainer);
-            return FilledBucket.failed(FluidNotice.NOT_ENOUGH);
+            return FilledBucket.failed(notEnough);
         }
         // 取水音效：倾倒由 FluidUtil 自行播放，取出的这条路径需自行补上。
         // 一次装多桶时由调用方按批播放，避免同一 tick 内叠加多次音效

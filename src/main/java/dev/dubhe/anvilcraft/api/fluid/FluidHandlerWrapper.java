@@ -303,7 +303,7 @@ public class FluidHandlerWrapper {
     /**
      * 根据抽取到的流体和空容器类型确定装满后的容器物品。
      */
-    private static ItemStack determineFilledContainer(FluidStack drained, ItemStack emptyContainer) {
+    public static ItemStack determineFilledContainer(FluidStack drained, ItemStack emptyContainer) {
         boolean isBottle = emptyContainer.is(Items.GLASS_BOTTLE);
 
         if (isBottle) {

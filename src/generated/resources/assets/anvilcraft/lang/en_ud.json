@@ -2191,6 +2191,8 @@
   "screen.anvilcraft.storage.crafting.to_storage.player": "ʎɹoʇuǝʌuI ɹǝʎɐꞁԀ",
   "screen.anvilcraft.storage.crafting.to_storage.storage": "ǝᵷɐɹoʇS",
   "screen.anvilcraft.storage.flip": "ʇnoʎɐꞀ dᴉꞁℲ",
+  "screen.anvilcraft.storage.fluid.bottle_missing": "ǝꞁʇʇoq ssɐꞁᵷ ʎʇdɯǝ uɐ pǝǝN",
+  "screen.anvilcraft.storage.fluid.bottle_not_enough": "ǝꞁʇʇoq ɐ ɹoɟ pᴉnꞁɟ ɥᵷnouǝ ʇoN",
   "screen.anvilcraft.storage.fluid.bucket_missing": "ʇǝʞɔnq ʎʇdɯǝ uɐ pǝǝN",
   "screen.anvilcraft.storage.fluid.not_enough": "ʇǝʞɔnq ɐ ɹoɟ pᴉnꞁɟ ɥᵷnouǝ ʇoN",
   "screen.anvilcraft.storage.fluid_amount": "%s :ǝᵷɐɹoʇS",
