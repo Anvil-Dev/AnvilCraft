@@ -4,7 +4,6 @@ import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.entity.InductionLightBlockEntity;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -18,7 +17,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -48,8 +46,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class SpawningManager {
     private static final Map<Level, SpawningManager> INSTANCES = new ConcurrentHashMap<>();
-    private final Set<BlockPos> nonAnimalLightBlockSet = Collections.synchronizedSet(new ObjectOpenHashSet<>());
-    private final Set<BlockPos> animalLightBlockSet = Collections.synchronizedSet(new ObjectOpenHashSet<>());
+    private final Set<BlockPos> nonAnimalLightBlockSet = ConcurrentHashMap.newKeySet();
+    private final Set<BlockPos> animalLightBlockSet = ConcurrentHashMap.newKeySet();
 
     @Getter
     private final Level level;
