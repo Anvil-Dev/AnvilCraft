@@ -191,6 +191,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         if (!oldState.is(this)) {
             // 外观状态的内部改写不改变网络成员，只有真正新增导线时才使拓扑缓存失效。
             RedstoneWireNetworkManager.topologyChanged(level, pos);
+            RedstoneWireBlock.notifyDustAboveSupport(level, pos, state);
         }
     }
 
@@ -205,6 +206,18 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         // 先完成方块替换再重建，连接搜索才能看到移除后的真实世界状态。
         RedstoneWireNetworkManager.wireRemoved(level, pos);
         RedstoneWireNetworkManager.topologyChanged(level, pos);
+        RedstoneWireBlock.notifyDustAboveSupport(level, pos, state);
+    }
+
+    private static void notifyDustAboveSupport(Level level, BlockPos pos, BlockState state) {
+        Direction attachment = state.getValue(RedstoneWireBlock.ATTACHMENT);
+        BlockPos dustPos = pos.relative(attachment).above();
+        if (!level.getBlockState(dustPos).is(Blocks.REDSTONE_WIRE)) return;
+        Direction direction = attachment.getOpposite();
+        BlockPos neighborPos = dustPos.relative(direction);
+        level.neighborShapeChanged(
+            direction, dustPos, neighborPos, level.getBlockState(neighborPos), Block.UPDATE_ALL, 0
+        );
     }
 
     @Override
