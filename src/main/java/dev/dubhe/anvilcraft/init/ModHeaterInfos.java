@@ -69,6 +69,25 @@ public class ModHeaterInfos {
         ));
     }
 
+    public static final HeaterInfo<BaseLaserBlockEntity> LASER_EMITTER = HeatRecorder.registerProducerInfo(
+        HeaterInfo.blockEntity(
+            (level, pos) -> {
+                if (!level.isLoaded(pos)) return Optional.empty();
+                return Util.castSafely(level.getBlockEntity(pos), BaseLaserBlockEntity.class);
+            },
+            laserEmitter -> Optional.ofNullable(laserEmitter.getIrradiateBlockPos())
+                .map(Set::of)
+                .orElse(Set.of()),
+            HeatTierLine.builder()
+                .addPoint(1, HeatTier.NORMAL)
+                .addPoint(4, HeatTier.HEATED, 2)
+                .addPoint(16, HeatTier.REDHOT, 2)
+                .addPoint(64, HeatTier.GLOWING, 2)
+                .addPoint(HeatTier.INCANDESCENT, 2)
+                .build(),
+            BaseLaserBlockEntity::getLaserLevel
+        )
+    );
     public static final HeaterInfo<PlasmaJetsBlockEntity> NO_MAGNET_PLASMA_JETS = HeatRecorder.registerProducerInfo(
         HeaterInfo.blockEntity(
             ModBlockEntities.PLASMA_JETS,
