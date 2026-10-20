@@ -28,7 +28,7 @@ public final class LargeFluidTankRenderUtil {
                 .thenComparing(fluid -> BuiltInRegistries.FLUID.getKey(fluid.getFluid()).toString()))
             .toList();
         long total = fluids.stream().mapToLong(FluidStack::getAmount).sum();
-        long capacity = enhanced ? Math.max(total, LargeFluidTankBlockEntity.INFINITY_THRESHOLD)
+        long capacity = enhanced ? Math.max(total, LargeFluidTankBlockEntity.infinityThreshold())
             : LargeFluidTankBlockEntity.BASE_CAPACITY;
         List<Layer> layers = new ArrayList<>();
         double bottom = 0;
@@ -44,7 +44,7 @@ public final class LargeFluidTankRenderUtil {
     public static List<FluidRenderLayers.Layer> worldLayers(List<FluidStack> contents, boolean enhanced) {
         List<FluidStack> fluids = FluidRenderLayers.sorted(contents);
         long total = fluids.stream().mapToLong(FluidStack::getAmount).sum();
-        long capacity = enhanced ? Math.max(total, LargeFluidTankBlockEntity.INFINITY_THRESHOLD)
+        long capacity = enhanced ? Math.max(total, LargeFluidTankBlockEntity.infinityThreshold())
             : LargeFluidTankBlockEntity.BASE_CAPACITY;
         return FluidRenderLayers.create(fluids, capacity);
     }

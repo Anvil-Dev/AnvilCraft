@@ -162,7 +162,7 @@ public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItem
             }
         }
         this.level.updateNeighbourForOutputSignal(this.getBlockPos(), this.getBlockState().getBlock());
-        if (resetCD) this.cooldown = AnvilCraft.CONFIG.chuteMaxCooldown;
+        if (resetCD) this.cooldown = AnvilCraft.CONFIG.machines.chuteMaxCooldown;
     }
 
     private boolean isTargetEmpty(BlockEntity blockEntity) {
@@ -178,17 +178,17 @@ public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItem
         if (targetBE instanceof BaseChuteBlockEntity chute) {
             int k = 0;
             if (chute.getTickedGameTime() >= this.tickedGameTime) k++;
-            chute.setCooldown(AnvilCraft.CONFIG.chuteMaxCooldown - k);
+            chute.setCooldown(AnvilCraft.CONFIG.machines.chuteMaxCooldown - k);
         }
         if (targetBE instanceof SimpleChuteBlockEntity chute) {
             int k = 0;
             if (chute.getTickedGameTime() >= this.tickedGameTime) k++;
-            chute.setCooldown(AnvilCraft.CONFIG.chuteMaxCooldown - k);
+            chute.setCooldown(AnvilCraft.CONFIG.machines.chuteMaxCooldown - k);
         }
         if (targetBE instanceof SimpleMagneticChuteBlockEntity chute) {
             int k = 0;
             if (chute.getTickedGameTime() >= this.tickedGameTime) k++;
-            chute.setCooldown(AnvilCraft.CONFIG.chuteMaxCooldown - k);
+            chute.setCooldown(AnvilCraft.CONFIG.machines.chuteMaxCooldown - k);
         }
     }
 

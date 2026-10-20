@@ -32,8 +32,7 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
 public class FeCollectorBlockEntity extends BlockEntity implements IPowerProducer, IHasAffectRange, IEnergyHandlerHolder {
-    public static final int MAX_ENERGY = 1_000_000;
-    static final int FE_PER_TICK = 10_000;
+
     public static final int PRODUCE_THRESHOLD = 400_000;
     public static final int STOP_THRESHOLD = 20_000;
     static final int TRANSFER_THRESHOLD = 500_000;
@@ -150,7 +149,7 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
         }
 
         if (this.producing) {
-            this.energy -= FeCollectorBlockEntity.FE_PER_TICK;
+            this.energy -= AnvilCraft.CONFIG.machines.feCollectorFePerTick;
             this.time++;
             this.setChanged();
             this.clientSyncDirty = true;
@@ -234,9 +233,9 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
 
         final int prev = this.outputPower;
         if (this.producing) {
-            this.outputPower = (int) (FeCollectorBlockEntity.FE_PER_TICK * 20
-                                      * (1 - AnvilCraft.CONFIG.powerConverter.powerConverterLoss)
-                                      / AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency);
+            this.outputPower = (int) (AnvilCraft.CONFIG.machines.feCollectorFePerTick * 20
+                                      * (1 - AnvilCraft.CONFIG.machines.powerConverter.loss)
+                                      / AnvilCraft.CONFIG.machines.powerConverter.efficiency);
             if (this.outputPower != prev && this.grid != null) this.grid.markChanged();
         } else if (this.outputPower > 0) {
             this.outputPower = 0;
@@ -268,14 +267,14 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
 
         @Override
         public long getCapacityAsLong() {
-            return FeCollectorBlockEntity.MAX_ENERGY;
+            return AnvilCraft.CONFIG.machines.feCollectorMaxEnergy;
         }
 
         @Override
         public int insert(int maxInsert, TransactionContext transaction) {
             if (!this.isInputSide()) return 0;
-            if (FeCollectorBlockEntity.this.energy >= FeCollectorBlockEntity.MAX_ENERGY) return 0;
-            int r = Math.min(FeCollectorBlockEntity.MAX_ENERGY - FeCollectorBlockEntity.this.energy, maxInsert);
+            if (FeCollectorBlockEntity.this.energy >= AnvilCraft.CONFIG.machines.feCollectorMaxEnergy) return 0;
+            int r = Math.min(AnvilCraft.CONFIG.machines.feCollectorMaxEnergy - FeCollectorBlockEntity.this.energy, maxInsert);
             if (r > 0) {
                 FeCollectorBlockEntity.this.energy += r;
                 if (this.side != null

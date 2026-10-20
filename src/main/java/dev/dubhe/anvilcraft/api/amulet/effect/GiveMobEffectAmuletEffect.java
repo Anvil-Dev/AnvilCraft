@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.api.amulet.effect;
 import dev.anvilcraft.lib.v2.math.expression.Arguments;
 import dev.anvilcraft.lib.v2.math.expression.IExpression;
 import dev.anvilcraft.lib.v2.math.init.LibBuiltInFunctions;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.ctx.AmuletEffectContext;
 import dev.dubhe.anvilcraft.init.item.ModAmuletEffectContextKeys;
 import dev.dubhe.anvilcraft.predicate.InWaterOrBreathingPredicate;
@@ -41,7 +42,6 @@ public record GiveMobEffectAmuletEffect(
     /// 条件刷新用的时长表达式：只取效果自身时长，把剩余时长重置回该值，即 {@code $(extra)}。
     public static final IExpression REFRESH_DURATION = IExpression.ref(VAR_EXTRA);
     /// 条件刷新给予的效果时长：每 tick 重置回该值，保证不再闪烁。
-    public static final int REFRESH_TICKS = 210;
 
     /// 佩戴者不在水里时给予，时长按上下界累加
     public static GiveMobEffectAmuletEffect notInWater(MobEffectInstance effect, MinMaxBounds.Ints bounds) {
@@ -121,7 +121,14 @@ public record GiveMobEffectAmuletEffect(
     }
 
     private static MobEffectInstance refreshInstance(Holder<MobEffect> effect, int amplifier) {
-        return new MobEffectInstance(effect, GiveMobEffectAmuletEffect.REFRESH_TICKS, amplifier, false, false, true);
+        return new MobEffectInstance(
+            effect,
+            AnvilCraft.CONFIG.equipment.amuletEffectRefreshTicks,
+            amplifier,
+            false,
+            false,
+            true
+        );
     }
 
     private static EntityPredicate flags(Consumer<EntityFlagsPredicate.Builder> consumer) {

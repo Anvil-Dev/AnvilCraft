@@ -1,19 +1,14 @@
 package dev.dubhe.anvilcraft.block.storage;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.InsideBlockEffectApplier;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -39,7 +34,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
-    public static final String TAG = AnvilCraft.MOD_ID + ":hollow_magnet_block";
     private static final VoxelShape REDUCE_AABB = Block.box(5.0, 0.0, 5.0, 11.0, 16.0, 11.0);
     private static final VoxelShape AABB = Shapes.join(Shapes.block(), HollowMagnetBlock.REDUCE_AABB, BooleanOp.ONLY_FIRST);
 
@@ -121,34 +115,6 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
             ticks.scheduleTick(blockPos, Fluids.WATER, Fluids.WATER.getTickDelay(levelReader));
         }
         return super.updateShape(blockState, levelReader, ticks, blockPos, direction, blockPos2, blockState2, random);
-    }
-
-    @Override
-    protected void entityInside(
-        BlockState state,
-        Level level,
-        BlockPos pos,
-        Entity entity,
-        InsideBlockEffectApplier effectApplier,
-        boolean isPrecise
-    ) {
-        if (level.isClientSide()) {
-            return;
-        }
-        if (state.getValue(MagnetBlock.LIT)) {
-            return;
-        }
-        if (entity instanceof ItemEntity itemEntity /*&& !itemEntity.getItem().tags().anyMatch(it -> it.equals(TAG))*/) {
-            ItemStack item = itemEntity.getItem();
-            if (item.is(Items.IRON_INGOT) && item.getCount() == 1) {
-                if (itemEntity.getOwner() instanceof ServerPlayer) {
-                    itemEntity.addTag(HollowMagnetBlock.TAG);
-                    if (level.getRandom().nextDouble() <= 0.005) {
-                        itemEntity.setItem(new ItemStack(ModItems.MAGNET_INGOT.get()));
-                    }
-                }
-            }
-        }
     }
 
     @Override

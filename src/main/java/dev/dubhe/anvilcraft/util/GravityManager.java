@@ -55,6 +55,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.DoubleSupplier;
+import java.util.function.IntSupplier;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public final class GravityManager {
@@ -72,8 +74,10 @@ public final class GravityManager {
     private static final Map<ResourceKey<Level>, Double> DIMENSION_GRAVITY_MAP = new HashMap<>();
 
     static {
-        GravitySourceManager.registerSourceType(BlackHoleBlock.class, 7, 10);
-        GravitySourceManager.registerSourceType(WhiteHoleBlock.class, 7, -10);
+        GravitySourceManager.registerSourceType(BlackHoleBlock.class, () -> AnvilCraft.CONFIG.world.blackHoleRadius,
+            () -> AnvilCraft.CONFIG.world.blackHoleStrength);
+        GravitySourceManager.registerSourceType(WhiteHoleBlock.class, () -> AnvilCraft.CONFIG.world.whiteHoleRadius,
+            () -> AnvilCraft.CONFIG.world.whiteHoleStrength);
         registerDimensionGravity(ModLevelKeys.VOID_PLANET, 0.0);
         registerDimensionGravity(ModLevelKeys.MUN, 1.0 / 6.0);
     }
@@ -285,11 +289,11 @@ public final class GravityManager {
                 && entity.getBoundingBox().getCenter().equals(orbit.origin)) {
                 double scalar = getGravityType(entity).getScalar();
                 double baseGravity = GravitySourceManager.getEntityG(entity);
-                double lightSpeed = Math.clamp(AnvilCraft.CONFIG.orbitalSpeedOfLight, 16, 4096);
-                double inverseLightSpeedSquared = AnvilCraft.CONFIG.relativisticPrecession
+                double lightSpeed = Math.clamp(AnvilCraft.CONFIG.world.orbitalSpeedOfLight, 16, 4096);
+                double inverseLightSpeedSquared = AnvilCraft.CONFIG.world.relativisticPrecession
                     ? 1.0 / (lightSpeed * lightSpeed) : 0;
                 OrbitalIntegrator.Step step = OrbitalIntegrator.integrate(
-                    orbit.origin, movement, Math.clamp(AnvilCraft.CONFIG.orbitIntegrationSubsteps, 2, 64),
+                    orbit.origin, movement, Math.clamp(AnvilCraft.CONFIG.world.orbitIntegrationSubsteps, 2, 64),
                     (position, velocity) -> GravitySourceManager.calculateOrbitalGravity(
                         entity.level(), position, velocity, baseGravity, scalar, inverseLightSpeedSquared
                     )
@@ -364,7 +368,7 @@ public final class GravityManager {
     private static boolean canIntegrateOrbit(Entity entity) {
         // These entities apply gravity before SELF movement. Living entities and projectiles use different tick orders.
         if (!(entity instanceof ItemEntity || entity instanceof FallingBlockEntity)
-            || AnvilCraft.CONFIG.orbitIntegrationSubsteps <= 1
+            || AnvilCraft.CONFIG.world.orbitIntegrationSubsteps <= 1
             || entity.isNoGravity() || entity.noPhysics || entity.isSpectator() || entity.isPassenger()
             || entity.onGround() || entity.horizontalCollision || entity.verticalCollision
             || entity.isInWater() || entity.isInLava() || AccelerateManager.isControlledByRing(entity)) {
@@ -501,17 +505,32 @@ public final class GravityManager {
     }
 
     public static final class GravitySourceManager {
-        private static final Map<Class<? extends Block>, GravitySourceType> REGISTRY = new HashMap<>();
+        private static final Map<Class<? extends Block>, SourceTypeFactory> REGISTRY = new HashMap<>();
 
         private GravitySourceManager() {
         }
 
-        public static void registerSourceType(Class<? extends Block> blockClass, int radius, double strength) {
-            REGISTRY.put(blockClass, new GravitySourceType(strength, radius));
+        /**
+         * 注册重力源类型；半径与强度在运行时读取，配置改动后立即生效。
+         *
+         * @param radius 重力场半径提供者
+         * @param strength 重力场强度提供者
+         */
+        public static void registerSourceType(
+            Class<? extends Block> blockClass, IntSupplier radius, DoubleSupplier strength
+        ) {
+            REGISTRY.put(blockClass, new SourceTypeFactory(radius, strength));
         }
 
         public static @Nullable GravitySourceType getType(Block block) {
-            return REGISTRY.get(block.getClass());
+            SourceTypeFactory factory = REGISTRY.get(block.getClass());
+            return factory == null ? null : factory.create();
+        }
+
+        private record SourceTypeFactory(IntSupplier radius, DoubleSupplier strength) {
+            GravitySourceType create() {
+                return new GravitySourceType(this.strength.getAsDouble(), this.radius.getAsInt());
+            }
         }
 
         public static void addSource(Level level, BlockPos pos, GravitySourceType type) {
@@ -606,7 +625,7 @@ public final class GravityManager {
             for (GravitySource source : index.sourcesAt(position)) {
                 Vec3 force = calculateGravityVector(source, position, baseGravity).scale(scalar);
                 Vec3 offset = source.center().subtract(position);
-                if (source.type().strength() >= 10 && scalar > 0
+                if (source.type().strength() >= AnvilCraft.CONFIG.world.relativisticPrecessionMinStrength && scalar > 0
                     && offset.lengthSqr() >= source.type().bodyRadius() * source.type().bodyRadius()) {
                     force = force.scale(OrbitalIntegrator.relativisticFactor(offset, velocity, inverseLightSpeedSquared));
                 }

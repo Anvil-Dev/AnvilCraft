@@ -53,6 +53,7 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
+import java.util.function.IntSupplier;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class ModCapabilities {
@@ -177,16 +178,16 @@ public class ModCapabilities {
             Items.GLASS_BOTTLE
         );
 
-        event.registerItem(Capabilities.Energy.ITEM, ModCapabilities.energy(AnvilRailgunItem.MAX_ENERGY),
+        event.registerItem(Capabilities.Energy.ITEM, ModCapabilities.energy(AnvilRailgunItem::maxEnergy),
             ModItems.LASER_GUN.get(), ModItems.TESLA_GUN.get(), ModItems.CORRUPTED_BEACON_ACTIVATOR.get());
         event.registerItem(
             Capabilities.Energy.ITEM,
-            ModCapabilities.energy(AnvilRailgunItem.MAX_ENERGY),
+            ModCapabilities.energy(AnvilRailgunItem::maxEnergy),
             ModItems.ANVIL_RAILGUN.get()
         );
         event.registerItem(
             Capabilities.Energy.ITEM,
-            ModCapabilities.energy(SpectralWeaponLauncherItem.MAX_ENERGY),
+            ModCapabilities.energy(SpectralWeaponLauncherItem::maxEnergy),
             ModItems.SPECTRAL_WEAPON_LAUNCHER.get()
         );
         event.registerItem(
@@ -196,11 +197,11 @@ public class ModCapabilities {
         );
         event.registerItem(
             Capabilities.Energy.ITEM,
-            ModCapabilities.energy(WeatherproofChestplateItem.MAX_ENERGY),
+            ModCapabilities.energy(WeatherproofChestplateItem::maxEnergy),
             ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE.get()
         );
 
-        event.registerItem(Capabilities.Energy.ITEM, ModCapabilities.energy(BuildingRodItem.MAX_ENERGY), ModItems.BUILDING_ROD.get());
+        event.registerItem(Capabilities.Energy.ITEM, ModCapabilities.energy(BuildingRodItem::maxEnergy), ModItems.BUILDING_ROD.get());
 
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.POWER_CONVERTER.get(), ModCapabilities::energy);
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.FE_COLLECTOR.get(), ModCapabilities::energy);
@@ -261,6 +262,10 @@ public class ModCapabilities {
     /// 能量物品
     private static ICapabilityProvider<ItemStack, ItemAccess, EnergyHandler> energy(int capacity) {
         return (stack, access) -> ItemFEStorage.create(stack, access, capacity);
+    }
+
+    private static ICapabilityProvider<ItemStack, ItemAccess, EnergyHandler> energy(IntSupplier capacity) {
+        return (stack, access) -> ItemFEStorage.create(stack, access, capacity.getAsInt());
     }
 
     /// 能量

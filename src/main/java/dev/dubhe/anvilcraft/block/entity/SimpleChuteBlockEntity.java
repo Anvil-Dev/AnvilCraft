@@ -85,7 +85,7 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemResource
         if (this.cooldown > 0) this.cooldown--;
         this.tickedGameTime = this.level.getGameTime();
         if (this.cooldown == 0 && !this.itemHandler.getResource(0).isEmpty()) {
-            this.cooldown = AnvilCraft.CONFIG.chuteMaxCooldown + 1;
+            this.cooldown = AnvilCraft.CONFIG.machines.chuteMaxCooldown + 1;
         }
         if (this.cooldown == 1) {
             BlockPos targetPos = this.getBlockPos().relative(this.getOutputDirection());
@@ -162,12 +162,12 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemResource
         if (targetBE instanceof BaseChuteBlockEntity chute) {
             int k = 0;
             if (chute.getTickedGameTime() >= this.tickedGameTime) k++;
-            chute.setCooldown(AnvilCraft.CONFIG.chuteMaxCooldown - k);
+            chute.setCooldown(AnvilCraft.CONFIG.machines.chuteMaxCooldown - k);
         }
         if (targetBE instanceof SimpleChuteBlockEntity chute) {
             int k = 0;
             if (chute.getTickedGameTime() >= this.tickedGameTime) k++;
-            chute.setCooldown(AnvilCraft.CONFIG.chuteMaxCooldown - k);
+            chute.setCooldown(AnvilCraft.CONFIG.machines.chuteMaxCooldown - k);
         }
     }
 

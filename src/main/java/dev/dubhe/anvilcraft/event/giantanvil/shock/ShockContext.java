@@ -47,7 +47,7 @@ public record ShockContext(
         BlockPos detectCenter = event.getPos().below(2);
         BlockPos ground = detectCenter.above();
         List<BlockPos> rangePosList = new ArrayList<>();
-        int radius = (int) Math.min(Math.ceil(event.getFallDistance()), AnvilCraft.CONFIG.giantAnvilMaxShockRadius);
+        int radius = (int) Math.min(Math.ceil(event.getFallDistance()), AnvilCraft.CONFIG.world.giantAnvilMaxShockRadius);
         for (int dx = -radius; dx <= radius; dx++) {
             for (int dz = -radius; dz <= radius; dz++) {
                 BlockPos pos = ground.offset(dx, 0, dz);

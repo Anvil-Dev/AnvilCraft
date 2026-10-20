@@ -47,7 +47,6 @@ public class DischargerBlockEntity extends BlockEntity
     implements IPowerProducer, IFilterBlockEntity, IStateListener<Boolean>, IItemResourceHandlerHolder, IHasDisplayItem {
 
     /** 放电器每tick从物品抽取的FE量 */
-    static final int FE_EXTRACT_PER_TICK = 10_000;
 
     @Getter
     @Setter
@@ -399,11 +398,11 @@ public class DischargerBlockEntity extends BlockEntity
                         } else {
                             try (var transaction = Transaction.openRoot()) {
                                 int extracted = storage.extract(
-                                    Math.min(DischargerBlockEntity.FE_EXTRACT_PER_TICK, currentEnergy), transaction);
+                                    Math.min(AnvilCraft.CONFIG.machines.dischargerFePerTick, currentEnergy), transaction);
                                 transaction.commit();
                                 this.powerValue = (int) (extracted
-                                    * (1 - AnvilCraft.CONFIG.powerConverter.powerConverterLoss)
-                                    / AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency);
+                                    * (1 - AnvilCraft.CONFIG.machines.powerConverter.loss)
+                                    / AnvilCraft.CONFIG.machines.powerConverter.efficiency);
                                 this.timeLeft = currentEnergy - extracted;
                                 this.timeTotalCache = storage.getCapacityAsInt();
                             }

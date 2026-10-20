@@ -29,7 +29,7 @@ abstract class ItemFrameRendererMixin {
         ItemFrameRenderState state, PoseStack poseStack, SubmitNodeCollector collector,
         CameraRenderState camera, CallbackInfo ci
     ) {
-        if (!AnvilCraftClient.CONFIG.verticalItemFrame) return;
+        if (!AnvilCraftClient.CONFIG.graphics.renderVerticalModelsInHorizontalItemFrame) return;
         if (state.direction == Direction.UP) {
             poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
         } else if (state.direction == Direction.DOWN) {

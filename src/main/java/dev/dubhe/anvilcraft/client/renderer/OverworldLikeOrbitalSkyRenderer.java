@@ -56,7 +56,7 @@ public final class OverworldLikeOrbitalSkyRenderer {
             state.skyRenderState.skyColor = ARGB.scaleRGB(state.skyRenderState.skyColor, multiplier);
             state.cloudColor = ARGB.scaleRGB(state.cloudColor, multiplier);
         }
-        if (!AnvilCraftClient.CONFIG.renderOverworldLikeSky) return;
+        if (!AnvilCraftClient.CONFIG.graphics.renderOverworldLikeSkyRings) return;
         if (!overworldLike && !CelestialTravelManager.VOID_PLANET_LEVEL.equals(level.dimension())) return;
         if (overworldLike && (!OverworldLikeClientState.isInitialized()
             || OverworldLikeClientState.phase() == OverworldLikeWorldState.Phase.RESET_PENDING)) {
@@ -106,7 +106,8 @@ public final class OverworldLikeOrbitalSkyRenderer {
         final BufferBuilder vertices = Tesselator.getInstance().begin(type.mode(), type.format());
         PoseStack pose = new PoseStack();
         // Native LevelRenderer already includes the camera rotation in its model-view uniform.
-        pose.scale(1200, 1200, 1200);
+        float skyScale = AnvilCraft.CLIENT_CONFIG.graphics.overworldLikeSkyRingScale;
+        pose.scale(skyScale, skyScale, skyScale);
         pose.mulPose(Axis.YP.rotationDegrees(-frame.outer));
         pose.mulPose(Axis.XP.rotationDegrees(14.5108F));
         pose.mulPose(Axis.YP.rotationDegrees(-3.8411F));

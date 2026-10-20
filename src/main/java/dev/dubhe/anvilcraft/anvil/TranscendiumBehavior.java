@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.anvil;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.anvil.IAnvilBehavior;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -49,7 +50,7 @@ public class TranscendiumBehavior implements IAnvilBehavior {
         if (enchantmentCount == 0) {
             this.spawnItemEntity(level, hitBlockPos, ModItems.TRANSCENDIUM_INGOT.asStack(4));
         } else if (enchantmentCount >= 1 && enchantmentCount <= 10) {
-            if (random.nextDouble() < 10 * enchantmentCount / 100F) {
+            if (random.nextDouble() < AnvilCraft.CONFIG.world.transcendiumBonusIngotChancePerEnchantment * enchantmentCount / 100F) {
                 this.spawnItemEntity(level, hitBlockPos, ModItems.NEUTRONIUM_INGOT.asStack());
             }
             this.spawnItemEntity(level, hitBlockPos, ModItems.TRANSCENDIUM_INGOT.asStack(4));

@@ -32,10 +32,10 @@ public class RenderState {
     }
 
     public static boolean isBloomEffectEnabled() {
-        return AnvilCraftClient.CONFIG.renderBloomEffect;
+        return AnvilCraftClient.CONFIG.effects.renderBloomEffect;
     }
 
     public static boolean isLensEffectEnabled() {
-        return RenderState.isEnhancedRenderingAvailable() && AnvilCraftClient.CONFIG.gravitationalLens.renderBlackHoleLensing;
+        return RenderState.isEnhancedRenderingAvailable() && AnvilCraftClient.CONFIG.graphics.gravitationalLens.enabled;
     }
 }

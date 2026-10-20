@@ -177,7 +177,7 @@ public class ModItemGroups {
     private static boolean isLegacyCreativeTabEnabled() {
         // Client configs are loaded only after registry events, so the config field is
         // not hydrated yet when creative tabs are registered; read the file directly.
-        return AnvilCraft.CLIENT_CONFIG.useLegacyCreativeTab || isLegacyCreativeTabInConfigFile();
+        return AnvilCraft.CLIENT_CONFIG.ui.useLegacyCreativeTab || isLegacyCreativeTabInConfigFile();
     }
 
     private static boolean isLegacyCreativeTabInConfigFile() {

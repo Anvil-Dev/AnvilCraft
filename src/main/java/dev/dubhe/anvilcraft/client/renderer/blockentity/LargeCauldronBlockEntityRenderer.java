@@ -80,7 +80,7 @@ public class LargeCauldronBlockEntityRenderer
         state.setAfterRender(LargeCauldronRenderHooks.extract(cauldron, partialTicks));
         LargeCauldronFluidHandler fluids = cauldron.getFluids();
         float fill = Mth.clamp(
-            (float) fluids.getTotalAmount() / LargeCauldronFluidHandler.TOTAL_CAPACITY,
+            (float) fluids.getTotalAmount() / LargeCauldronFluidHandler.totalCapacity(),
             0.0F,
             1.0F
         );
@@ -99,7 +99,7 @@ public class LargeCauldronBlockEntityRenderer
                 contents.add(resource.toStack(amount));
             }
         }
-        state.getFluids().addAll(FluidRenderLayers.create(contents, LargeCauldronFluidHandler.TOTAL_CAPACITY));
+        state.getFluids().addAll(FluidRenderLayers.create(contents, LargeCauldronFluidHandler.totalCapacity()));
         if (cauldron.isIgnited() && LargeCauldronRenderHooks.showVanillaFire(cauldron)) {
             state.setFire(FeatureRendererSupport.createTessellation(LargeCauldronBlockEntityRenderer.FIRE, false));
         }

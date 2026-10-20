@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.anvilcraft.lib.v2.piston.injection.IPistonMovingBlockEntityExtension;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.PropelPistonBlockEntity;
@@ -111,15 +112,15 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
         if (level.getBlockEntity(pos) instanceof PropelPistonBlockEntity propelPistonBlockEntity) {
             int storedEnergy = propelPistonBlockEntity.getStoredEnergy();
             if (stack.is(ModItems.CAPACITOR)) {
-                if (storedEnergy < 152000000) {
+                if (storedEnergy + 8000000 <= AnvilCraft.CONFIG.machines.propelPistonMaxEnergy) {
                     propelPistonBlockEntity.addEnergy(8000000);
                     stack.consume(1, player);
                     player.addItem(ModItems.CAPACITOR_EMPTY.asStack());
                     return InteractionResult.SUCCESS;
                 }
             } else if (stack.is(ModItems.SUPER_CAPACITOR)) {
-                if (storedEnergy < 40000000) {
-                    propelPistonBlockEntity.updateStoredEnergy(160000000);
+                if (storedEnergy + 120000000 <= AnvilCraft.CONFIG.machines.propelPistonMaxEnergy) {
+                    propelPistonBlockEntity.updateStoredEnergy(AnvilCraft.CONFIG.machines.propelPistonMaxEnergy);
                     stack.consume(1, player);
                     player.addItem(ModItems.SUPER_CAPACITOR_EMPTY.asStack());
                     return InteractionResult.SUCCESS;

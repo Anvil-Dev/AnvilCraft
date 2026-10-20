@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.client.renderer.mun;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.MunLightingQuality;
+import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.GraphicsSettings.MunLightingQuality;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.config.ModConfigs;
 import net.neoforged.neoforge.common.ModConfigSpec;
@@ -12,7 +12,7 @@ final class MunRenderPipeline {
     }
 
     static void fail(RuntimeException exception) {
-        AnvilCraft.CLIENT_CONFIG.munLightingQuality = MunLightingQuality.OFF;
+        AnvilCraft.CLIENT_CONFIG.graphics.munLightingQuality = MunLightingQuality.OFF;
         AnvilCraft.LOGGER.warn("Mun rendering unavailable; using native fallback", exception);
         try {
             for (var config : ModConfigs.getModConfigs(AnvilCraft.MOD_ID)) {

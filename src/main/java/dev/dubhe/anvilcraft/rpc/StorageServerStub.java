@@ -7,6 +7,7 @@ import dev.anvilcraft.lib.v2.rpc.CallableParam;
 import dev.anvilcraft.lib.v2.rpc.IRemoteCallableValidator;
 import dev.anvilcraft.lib.v2.rpc.RemoteCallable;
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.StorageComparatorManager;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.TerminalSessions;
@@ -128,7 +129,6 @@ public final class StorageServerStub {
     }
 
     private static final int MAX_PLAYER_STUBS = 5;
-    private static final int MAX_UNDO_RECORDS = 4;
     private static final int MAX_SYNC_SLOTS = 256;
     private static final ThreadLocal<HolderLookup.@Nullable Provider> REGISTRIES = new ThreadLocal<>();
     @SuppressWarnings("unused")
@@ -1416,7 +1416,7 @@ public final class StorageServerStub {
     private static void pushUndo(StorageServerStub stub, Map<ItemResource, Integer> moved) {
         if (moved.isEmpty()) return;
         stub.undoRecords.addFirst(new HashMap<>(moved));
-        while (stub.undoRecords.size() > StorageServerStub.MAX_UNDO_RECORDS) stub.undoRecords.removeLast();
+        while (stub.undoRecords.size() > AnvilCraft.CONFIG.machines.storageUndoDepth) stub.undoRecords.removeLast();
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)

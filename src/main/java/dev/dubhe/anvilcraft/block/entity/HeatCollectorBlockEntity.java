@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.heat.collector.HeatCollectorManager;
 import dev.dubhe.anvilcraft.api.heat.collector.IHeatCollector;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
@@ -22,6 +23,7 @@ import org.jspecify.annotations.Nullable;
 
 @Getter
 public class HeatCollectorBlockEntity extends BlockEntity implements IPowerProducer, IHasAffectRange, IHeatCollector {
+    /** 数据生成使用的默认输出上限；运行时上限由配置决定。 */
     public static final int MAX_OUTPUT_POWER = 4096;
     private int time = 0;
     @Setter
@@ -114,7 +116,7 @@ public class HeatCollectorBlockEntity extends BlockEntity implements IPowerProdu
     /// @return 溢出的热能(即未被添加至该收集器的热能)
     public int inputtingHeat(int num) {
         if (!this.isWorking()) return num;
-        int overflow = num - (HeatCollectorBlockEntity.MAX_OUTPUT_POWER - this.inputtingPower);
+        int overflow = num - (AnvilCraft.CONFIG.machines.heatCollectorMaxOutputPower - this.inputtingPower);
         if (overflow < 0) {
             overflow = 0;
         }

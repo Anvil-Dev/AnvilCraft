@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.support;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.event.SeismicBounceRenderEventListener;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
@@ -23,34 +24,18 @@ public class SeismicBounceManager {
 
     private static final SeismicBounceManager INSTANCE = new SeismicBounceManager();
 
-    private static final int BOUNCE_DURATION_TICKS = 16;
-    private static final float MAX_AMPLITUDE = 0.85f;
     private static final int CENTER_EXCLUSION_RADIUS = 1;
 
     /**
      * 黑名单方块
      */
     private static boolean isAttachmentBlock(BlockState state) {
-        return state.is(BlockTags.BUTTONS)
-            || state.is(BlockTags.PRESSURE_PLATES)
-            || state.is(BlockTags.ALL_SIGNS)
-            || state.is(BlockTags.BANNERS)
-            || state.is(BlockTags.FLOWERS)
-            || state.is(BlockTags.SAPLINGS)
-            || state.is(BlockTags.CROPS)
-            || state.is(BlockTags.RAILS)
-            || state.is(BlockTags.CLIMBABLE)
-            || state.is(BlockTags.CANDLES)
-            || state.is(BlockTags.WOOL_CARPETS)
-            || state.is(BlockTags.FIRE)
-            || state.is(BlockTags.WALL_POST_OVERRIDE)
-            || state.is(BlockTags.CAVE_VINES)
-            || state.is(BlockTags.FLOWER_POTS)
-            || state.is(BlockTags.CANDLE_CAKES)
-            || state.is(BlockTags.ANVIL)
-            || state.is(Blocks.BEDROCK)
-            || state.is(Blocks.REDSTONE_WIRE)
-            || state.is(Blocks.REPEATER);
+        return state.is(BlockTags.BUTTONS) || state.is(BlockTags.PRESSURE_PLATES) || state.is(BlockTags.ALL_SIGNS)
+               || state.is(BlockTags.BANNERS) || state.is(BlockTags.FLOWERS) || state.is(BlockTags.SAPLINGS) || state.is(BlockTags.CROPS)
+               || state.is(BlockTags.RAILS) || state.is(BlockTags.CLIMBABLE) || state.is(BlockTags.CANDLES)
+               || state.is(BlockTags.WOOL_CARPETS) || state.is(BlockTags.FIRE) || state.is(BlockTags.WALL_POST_OVERRIDE) || state.is(
+            BlockTags.CAVE_VINES) || state.is(BlockTags.FLOWER_POTS) || state.is(BlockTags.CANDLE_CAKES) || state.is(BlockTags.ANVIL)
+               || state.is(Blocks.BEDROCK) || state.is(Blocks.REDSTONE_WIRE) || state.is(Blocks.REPEATER);
     }
 
     @Getter
@@ -86,7 +71,7 @@ public class SeismicBounceManager {
                     && level.isEmptyBlock(pos.above())
                     && level.getBlockEntity(pos) == null
                     && !SeismicBounceManager.isAttachmentBlock(state)) {
-                    float amplitude = SeismicBounceManager.MAX_AMPLITUDE * (1.0f - (float) dist / radius)
+                    float amplitude = AnvilCraft.CLIENT_CONFIG.effects.giantAnvilShockBounceAmplitude * (1.0f - (float) dist / radius)
                                       * (0.8f + this.tesselateRandom.nextFloat() * 0.4f);
                     amplitude = Math.max(amplitude, 0.15f);
                     int delay = (dist - 2) + this.tesselateRandom.nextInt(3) - 1;
@@ -147,9 +132,9 @@ public class SeismicBounceManager {
         }
 
         void reset(float newAmplitude, int newStartDelay) {
-            this.totalTicks = SeismicBounceManager.BOUNCE_DURATION_TICKS;
+            this.totalTicks = AnvilCraft.CLIENT_CONFIG.effects.giantAnvilShockBounceDurationTicks;
             this.startDelay = newStartDelay;
-            this.remainingTicks = SeismicBounceManager.BOUNCE_DURATION_TICKS + newStartDelay;
+            this.remainingTicks = AnvilCraft.CLIENT_CONFIG.effects.giantAnvilShockBounceDurationTicks + newStartDelay;
             this.amplitude = newAmplitude;
         }
 

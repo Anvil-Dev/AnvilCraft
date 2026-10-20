@@ -49,7 +49,7 @@ public abstract class WheelScreenMixin implements IHasHammerEffect {
     )
     private void scaleHammerWheel(Args args) {
         if (!WheelLifecycleEventListener.isHammerWheelModel(this.model)) return;
-        float scale = AnvilCraft.CLIENT_CONFIG.anvilHammerRadialMenuScale;
+        float scale = AnvilCraft.CLIENT_CONFIG.ui.anvilHammerWheelScale;
         args.set(4, 55 * scale);
         args.set(5, 105 * scale);
         args.set(7, (int) (15 * scale));
@@ -59,7 +59,7 @@ public abstract class WheelScreenMixin implements IHasHammerEffect {
     private void scaleHammerWheelText(CallbackInfo ci) {
         if (this.wheelWidget == null || !WheelLifecycleEventListener.isHammerWheelModel(this.model)) return;
         ((IWheelWidgetExtension) this.wheelWidget)
-            .anvilcraft$setTextScale(AnvilCraft.CLIENT_CONFIG.anvilHammerRadialMenuScale);
+            .anvilcraft$setTextScale(AnvilCraft.CLIENT_CONFIG.ui.anvilHammerWheelScale);
     }
 
     @Inject(method = "mouseScrolled(DDDD)Z", at = @At("HEAD"), cancellable = true)

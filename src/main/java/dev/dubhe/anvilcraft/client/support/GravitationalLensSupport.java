@@ -21,7 +21,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GravitationalLensSupport {
-    private static final int MAX_SEARCH_DISTANCE_SQR = 256 * 256;
 
     public static final Set<BlockPos> CLIENT_BLACK_HOLE_POSITIONS = Collections.newSetFromMap(new ConcurrentHashMap<>());
     public static final Set<BlockPos> CLIENT_WHITE_HOLE_POSITIONS = Collections.newSetFromMap(new ConcurrentHashMap<>());
@@ -118,8 +117,8 @@ public class GravitationalLensSupport {
         CommandEncoder commandEncoder,
         LevelRenderState levelRenderState
     ) {
-        float dir = (float) AnvilCraftClient.CONFIG.gravitationalLens.lensDirection;
-        int maxCount = AnvilCraftClient.CONFIG.gravitationalLens.maxHoleCount;
+        float dir = (float) AnvilCraftClient.CONFIG.graphics.gravitationalLens.direction;
+        int maxCount = AnvilCraftClient.CONFIG.graphics.gravitationalLens.maxHoleCount;
         CameraRenderState cameraState = levelRenderState.cameraRenderState;
         List<HoleProjection> holes = GravitationalLensSupport.collectVisibleHoles(
             cameraState,
@@ -136,9 +135,9 @@ public class GravitationalLensSupport {
             commandEncoder,
             holes,
             count,
-            (float) AnvilCraftClient.CONFIG.gravitationalLens.lensStrength,
-            (float) AnvilCraftClient.CONFIG.gravitationalLens.eventHorizonRadius,
-            (float) AnvilCraftClient.CONFIG.gravitationalLens.lensPerspectiveScale
+            (float) AnvilCraftClient.CONFIG.graphics.gravitationalLens.strength,
+            (float) AnvilCraftClient.CONFIG.graphics.gravitationalLens.eventHorizonRadius,
+            (float) AnvilCraftClient.CONFIG.graphics.gravitationalLens.perspectiveScale
         );
         return true;
     }
@@ -155,7 +154,8 @@ public class GravitationalLensSupport {
             double dy = pos.getY() + 0.5 - cameraPos.y;
             double dz = pos.getZ() + 0.5 - cameraPos.z;
             double distanceSqr = dx * dx + dy * dy + dz * dz;
-            if (distanceSqr > GravitationalLensSupport.MAX_SEARCH_DISTANCE_SQR) continue;
+            double maxDistance = AnvilCraftClient.CONFIG.graphics.gravitationalLens.maxDistance;
+            if (distanceSqr > maxDistance * maxDistance) continue;
 
             Vector2f centerUV = GravitationalLensSupport.worldToScreenUV(
                 pos.getX() + 0.5f,

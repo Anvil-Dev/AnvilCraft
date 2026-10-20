@@ -70,7 +70,7 @@ public class PowerGridSupport {
         PoseStack poseStack, SubmitNodeCollector collector, Vec3 camera,
         RenderType renderType
     ) {
-        if (!AnvilCraftClient.CONFIG.renderPowerTransmitterLines || Minecraft.getInstance().level == null) return;
+        if (!AnvilCraftClient.CONFIG.graphics.renderPowerTransmitterLines || Minecraft.getInstance().level == null) return;
         String level = Minecraft.getInstance().level.dimension().identifier().toString();
         List<Line> lines = new ArrayList<>();
         synchronized (GRID_MAP) {

@@ -30,7 +30,7 @@ public final class MagnetAnvilAnimation {
     public static void start(Vec3 start, BlockPos end, BlockState state) {
         Minecraft client = Minecraft.getInstance();
         ClientLevel level = client.level;
-        if (level == null || !AnvilCraft.CLIENT_CONFIG.displayAnvilAnimation || start.y >= end.getY()
+        if (level == null || !AnvilCraft.CLIENT_CONFIG.effects.displayAnvilAnimation || start.y >= end.getY()
             || level.getBlockState(end) != state || !MagnetUtil.hasMagnetism(level, end)) return;
         double time = ticks + client.getDeltaTracker().getGameTimeDeltaPartialTick(false);
         Animation previous = ANIMATIONS.get(end);
@@ -43,7 +43,7 @@ public final class MagnetAnvilAnimation {
     public static void startUnchecked(Vec3 start, BlockPos end, BlockState state) {
         Minecraft client = Minecraft.getInstance();
         ClientLevel level = client.level;
-        if (level == null || !AnvilCraft.CLIENT_CONFIG.displayAnvilAnimation || start.y >= end.getY()
+        if (level == null || !AnvilCraft.CLIENT_CONFIG.effects.displayAnvilAnimation || start.y >= end.getY()
             || level.getBlockState(end) != state) return;
         double time = ticks + client.getDeltaTracker().getGameTimeDeltaPartialTick(false);
         Animation previous = ANIMATIONS.get(end);
@@ -73,7 +73,7 @@ public final class MagnetAnvilAnimation {
         ANIMATIONS.entrySet().removeIf(entry -> {
             BlockPos pos = entry.getKey();
             Animation animation = entry.getValue();
-            boolean invalid = !AnvilCraft.CLIENT_CONFIG.displayAnvilAnimation || !level.hasChunkAt(pos)
+            boolean invalid = !AnvilCraft.CLIENT_CONFIG.effects.displayAnvilAnimation || !level.hasChunkAt(pos)
                 || level.getBlockState(pos) != animation.state
                 || animation.requiresMagnet && !MagnetUtil.hasMagnetism(level, pos);
             double age = time - animation.startTime;

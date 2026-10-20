@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.gui.tooltip;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
 import dev.dubhe.anvilcraft.inventory.tooltip.FluidTankTooltip;
 import dev.dubhe.anvilcraft.util.UnitUtil;
@@ -19,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ClientFluidTankTooltip implements ClientTooltipComponent {
-    private static final int MAX_VISIBLE = 5;
     private final FluidTankTooltip tooltip;
     private final List<Line> lines = new ArrayList<>();
     private final int remaining;
@@ -34,7 +34,7 @@ public class ClientFluidTankTooltip implements ClientTooltipComponent {
                 var entry = entries.getCompoundOrEmpty(index);
                 FluidStack fluid = read(entry);
                 if (fluid.isEmpty()) continue;
-                if (this.lines.size() < MAX_VISIBLE) {
+                if (this.lines.size() < AnvilCraft.CLIENT_CONFIG.ui.fluidTankTooltipMaxVisibleFluids) {
                     this.lines.add(new Line(fluid, tank.getBooleanOr("Enhanced", false) && entry.getBooleanOr("Infinite", false)));
                 } else {
                     remaining++;

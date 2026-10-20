@@ -39,7 +39,7 @@ public class Storages extends SavedData {
     private final RecoverStation<BaseStorage<?>> recover;
 
     private Storages() {
-        this(new HashMap<>(), RecoverStation.create(AnvilCraft.CONFIG.storageRecoverMaxSize));
+        this(new HashMap<>(), RecoverStation.create(AnvilCraft.CONFIG.machines.storageRecoverMaxSize));
     }
 
     private Storages(Map<UUID, BaseStorage<?>> storages, RecoverStation<BaseStorage<?>> recover) {

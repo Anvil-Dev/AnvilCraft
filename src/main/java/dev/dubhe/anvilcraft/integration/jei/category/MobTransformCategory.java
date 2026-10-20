@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.integration.jei.category;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
@@ -56,7 +57,6 @@ public class MobTransformCategory implements IRecipeCategory<MobTransformJeiReci
     public static final int WIDTH = 162;
     public static final int HEIGHT = 82;
 
-    private static final long RESULT_CYCLE_MILLIS = 1500L;
     private static final String INPUT_ITEM_SLOT = "input_item";
     private static final int INPUT_ITEM_X = 53;
     private static final int OUTPUT_ITEM_X = 91;
@@ -266,7 +266,7 @@ public class MobTransformCategory implements IRecipeCategory<MobTransformJeiReci
 
     private static TransformResult getDisplayedResult(MobTransformJeiRecipe recipe) {
         List<TransformResult> results = recipe.results();
-        int index = (int) ((Util.getMillis() / RESULT_CYCLE_MILLIS) % results.size());
+        int index = (int) ((Util.getMillis() / AnvilCraft.CLIENT_CONFIG.ui.recipePreviewCycleMillis) % results.size());
         return results.get(index);
     }
 

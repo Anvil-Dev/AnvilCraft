@@ -174,9 +174,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private static final int MAX_PRESERVED_SYNC_ATTEMPTS = 3;
     private static final int FLUID_SLOT_BASE = StoragePortManager.FLUID_SLOT_BASE;
     private static final int FLYOUT_FADE_IN_TICKS = 5;
-    private static final int FLYOUT_HOLD_TICKS = 25;
     private static final int FLYOUT_FADE_OUT_TICKS = 5;
-    private static final int FLYOUT_TOTAL_TICKS = FLYOUT_FADE_IN_TICKS + FLYOUT_HOLD_TICKS + FLYOUT_FADE_OUT_TICKS;
+
+    private static int flyoutTotalTicks() {
+        return StorageScreen.FLYOUT_FADE_IN_TICKS + AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks
+            + StorageScreen.FLYOUT_FADE_OUT_TICKS;
+    }
     private static final Identifier FLYOUT_BACK = AnvilCraft.of("flex_button/shaded_1px");
     private final BlockPos sourcePos;
     private final Player player;
@@ -197,7 +200,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private List<IntList> foldedGroups = List.of();
     private List<StorageServerStub.FluidEntry> fluids = List.of();
     private Component flyoutMessage = Component.empty();
-    private int flyoutTimer = FLYOUT_TOTAL_TICKS;
+    private int flyoutTimer = StorageScreen.flyoutTotalTicks();
     private int flyoutClickX;
     private int flyoutClickY;
     private double fullness;
@@ -454,7 +457,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             this.onClose();
             return;
         }
-        if (this.flyoutTimer < StorageScreen.FLYOUT_TOTAL_TICKS) this.flyoutTimer++;
+        if (this.flyoutTimer < StorageScreen.flyoutTotalTicks()) this.flyoutTimer++;
         if (this.metadataCooldown > 0) {
             this.metadataCooldown--;
         } else {
@@ -690,7 +693,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 return;
             }
             this.craftingAvailable = true;
-            this.flyoutTimer = FLYOUT_TOTAL_TICKS;
+            this.flyoutTimer = StorageScreen.flyoutTotalTicks();
             this.setCraftingMode(true);
             StorageClientStub.craftingSetLastOpened(this.sourcePos, true);
             this.refreshCrafting();
@@ -2338,8 +2341,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         int elapsed = this.flyoutTimer - StorageScreen.FLYOUT_FADE_IN_TICKS;
         float alpha = this.flyoutTimer < StorageScreen.FLYOUT_FADE_IN_TICKS
             ? this.flyoutTimer / (float) StorageScreen.FLYOUT_FADE_IN_TICKS
-            : elapsed < StorageScreen.FLYOUT_HOLD_TICKS ? 1.0F
-            : 1.0F - (elapsed - StorageScreen.FLYOUT_HOLD_TICKS) / (float) StorageScreen.FLYOUT_FADE_OUT_TICKS;
+            : elapsed < AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks ? 1.0F
+            : 1.0F - (elapsed - AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks) / (float) StorageScreen.FLYOUT_FADE_OUT_TICKS;
         if (alpha <= 0) return;
         int width = this.font.width(this.flyoutMessage) + 5;
         int height = this.font.lineHeight + 6;
@@ -2352,7 +2355,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     private int fluidPourButton() {
-        return AnvilCraft.CLIENT_CONFIG.invertFluidPortBucketAction ? 1 : 0;
+        return AnvilCraft.CLIENT_CONFIG.controls.invertFluidPortBucketActions ? 1 : 0;
     }
 
     private void deposit(boolean pour, boolean all) {

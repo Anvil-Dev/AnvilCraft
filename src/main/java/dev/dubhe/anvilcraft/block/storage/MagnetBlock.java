@@ -92,7 +92,7 @@ public class MagnetBlock extends Block implements IHammerRemovable {
         if (level.isClientSide()) return;
         if (!(state.getBlock() instanceof MagnetBlock) || state.getValue(MagnetBlock.LIT)) return;
         if (level.getBlockState(magnetPos.below()).is(BlockTags.ANVIL)) return;
-        int distance = AnvilCraft.CONFIG.magnetAttractsDistance;
+        int distance = AnvilCraft.CONFIG.equipment.magnetAttractsDistance;
         BlockPos currentPos = magnetPos;
         checkAnvil:
         for (int i = 0; i < distance; i++) {
@@ -129,7 +129,7 @@ public class MagnetBlock extends Block implements IHammerRemovable {
             return;
         }
     }
-    
+
     @Override
     public void tick(
         BlockState state,

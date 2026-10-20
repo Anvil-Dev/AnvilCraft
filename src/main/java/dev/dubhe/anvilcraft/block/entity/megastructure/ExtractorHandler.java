@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.megastructure;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
@@ -11,7 +12,6 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import java.util.List;
 
 public class ExtractorHandler extends BaseMegastructureHandler {
-    private static final int FLUID_PER_TICK = 250;
     private int fluidRoundRobin = 0;
 
     @Override
@@ -52,7 +52,7 @@ public class ExtractorHandler extends BaseMegastructureHandler {
             if (fluidHolder.isEmpty()) continue;
             var fluid = fluidHolder.get().value();
             if (fluid == Fluids.EMPTY) continue;
-            FluidStack output = new FluidStack(fluid, FLUID_PER_TICK);
+            FluidStack output = new FluidStack(fluid, AnvilCraft.CONFIG.machines.megastructureFluidPerTick);
             if (output.isEmpty()) continue;
 
             FluidOutputResult result = fillOutputFluid(fluidInterfaces, output, this.fluidRoundRobin);

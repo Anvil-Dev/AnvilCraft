@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
@@ -25,9 +26,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerProducer, IHasAffectRange {
-    private static final double MAX_POWER_PER_INCOMING = 128;
-    public static final int INPUT_COOLDOWN = 2;
-    public static final int OUTPUT_COOLDOWN = 10;
 
     private int inputCooldownCount = 2;
     private final List<Integer> charges = new LinkedList<>() {
@@ -117,13 +115,13 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
     public void gridTick() {
         if (this.level == null || this.level.isClientSide()) return;
         if (this.inputCooldownCount-- <= 1) {
-            this.inputCooldownCount = ChargeCollectorBlockEntity.INPUT_COOLDOWN;
+            this.inputCooldownCount = AnvilCraft.CONFIG.machines.chargeCollectorInputCooldown;
             this.charges.add((int) Math.floor(this.chargeCount));
             this.chargeCount = 0;
             this.time++;
         }
         if (this.outputCooldownCount-- <= 1) {
-            this.outputCooldownCount = ChargeCollectorBlockEntity.OUTPUT_COOLDOWN;
+            this.outputCooldownCount = AnvilCraft.CONFIG.machines.chargeCollectorOutputCooldown;
             final int oldPower = this.power;
             this.power = 0;
             for (Integer charge : this.charges) {
@@ -142,7 +140,7 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
     /// @param num 添加至收集器的电荷数
     /// @return 溢出的电荷数(即未被添加至收集器的电荷数)
     public double incomingCharge(double num, BlockPos srcPos) {
-        double overflow = num - (ChargeCollectorBlockEntity.MAX_POWER_PER_INCOMING - this.chargeCount);
+        double overflow = num - (AnvilCraft.CONFIG.machines.chargeCollectorMaxPowerPerIncoming - this.chargeCount);
         if (overflow < 0) {
             overflow = 0;
         }

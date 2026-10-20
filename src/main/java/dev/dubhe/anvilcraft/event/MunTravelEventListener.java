@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
-import dev.dubhe.anvilcraft.config.AnvilCraftServerConfig.OverworldSkyMode;
+import dev.dubhe.anvilcraft.config.AnvilCraftServerConfig.WorldSettings.OverworldSkyMode;
 import dev.dubhe.anvilcraft.util.Util;
 import dev.dubhe.anvilcraft.worldgen.OverworldSkyState;
 import net.minecraft.core.BlockPos;
@@ -119,7 +119,7 @@ public class MunTravelEventListener {
 
     private static boolean canReachMun(ServerLevel level, ServerPlayer player) {
         long dayTime = level.getOverworldClockTime();
-        if (AnvilCraft.CONFIG.overworldSkyMode == OverworldSkyMode.SPECIAL) {
+        if (AnvilCraft.CONFIG.world.overworldSkyMode == OverworldSkyMode.SPECIAL) {
             return OverworldSkyState.at(dayTime, 0, Util.getSunAngle(level, player.getEyePosition()) / 360.0).isMoonOverhead();
         }
         return Math.abs(Math.floorMod(dayTime, 24000L) - MIDNIGHT) <= MIDNIGHT_WINDOW;

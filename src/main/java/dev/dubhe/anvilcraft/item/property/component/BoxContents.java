@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.item.property.component;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import lombok.Getter;
@@ -28,7 +29,6 @@ import java.util.function.ToIntFunction;
 @SuppressWarnings("unused")
 public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int selection, int usage)
     implements TooltipComponent, TooltipProvider {
-    public static final int CAPACITY = 16;
     public static final BoxContents EMPTY = new BoxContents(List.of(), List.of(), 0);
     public static final Codec<BoxContents> CODEC = RecordCodecBuilder.create(ins -> ins.group(
         ItemStack.OPTIONAL_CODEC.listOf().fieldOf("amulets").forGetter(BoxContents::amulets),
@@ -88,7 +88,7 @@ public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int s
         consumer.accept(Component.translatable(
             "tooltip.anvilcraft.property.box_contents",
             contents.usage(),
-            BoxContents.CAPACITY
+            AnvilCraft.CONFIG.equipment.amuletBoxCapacity
         ).withStyle(ChatFormatting.GRAY));
     }
 
@@ -117,7 +117,7 @@ public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int s
             if (stack.isEmpty()) return Optional.of(ItemStack.EMPTY);
             if (stack.has(ModComponents.AMULET)) {
                 int weight = stack.getOrDefault(ModComponents.AMULET_WEIGHT, 0);
-                if (this.usage + weight > BoxContents.CAPACITY) return Optional.empty();
+                if (this.usage + weight > AnvilCraft.CONFIG.equipment.amuletBoxCapacity) return Optional.empty();
                 for (ItemStack exist : this.amulets) {
                     if (weight > 6 || exist.getOrDefault(ModComponents.AMULET_WEIGHT, 0) > 6) return Optional.empty();
                 }
@@ -125,7 +125,7 @@ public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int s
                 this.amulets.add(stack.split(1));
                 return Optional.of(stack);
             } else if (stack.is(ModItemTags.TOTEM)) {
-                if (this.usage + 1 > BoxContents.CAPACITY) return Optional.empty();
+                if (this.usage + 1 > AnvilCraft.CONFIG.equipment.amuletBoxCapacity) return Optional.empty();
                 this.usage++;
                 this.totems.add(stack.split(1));
                 return Optional.of(stack);
@@ -148,7 +148,7 @@ public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int s
                 }
             }
 
-            this.usage = Math.clamp(this.usage, 0, BoxContents.CAPACITY);
+            this.usage = Math.clamp(this.usage, 0, AnvilCraft.CONFIG.equipment.amuletBoxCapacity);
             return stack.copy();
         }
 
@@ -166,7 +166,7 @@ public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int s
             if (first.is(ModItemTags.TOTEM)) {
                 this.usage--;
             }
-            this.usage = Math.clamp(this.usage, 0, BoxContents.CAPACITY);
+            this.usage = Math.clamp(this.usage, 0, AnvilCraft.CONFIG.equipment.amuletBoxCapacity);
             return first;
         }
     }

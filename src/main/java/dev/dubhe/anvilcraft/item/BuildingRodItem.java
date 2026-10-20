@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.api.item.IFullCapacitor;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.PocketInventory;
-import dev.dubhe.anvilcraft.item.ingredients.CapacitorItem;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
 import dev.dubhe.anvilcraft.item.utility.CrabClawItem;
 import net.minecraft.network.chat.Component;
@@ -30,7 +29,12 @@ import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import org.jspecify.annotations.Nullable;
 
 public class BuildingRodItem extends Item implements ICapacitorChargeable {
-    public static final int MAX_ENERGY = CapacitorItem.ENERGY;
+    /**
+     * 能量上限，运行时读取配置。
+     */
+    public static int maxEnergy() {
+        return AnvilCraft.CONFIG.equipment.buildingRodMaxEnergy;
+    }
 
     public BuildingRodItem(Properties properties) {
         super(properties.stacksTo(1).component(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY));
@@ -38,7 +42,7 @@ public class BuildingRodItem extends Item implements ICapacitorChargeable {
 
     public ItemStack creativeStack() {
         ItemStack stack = this.getDefaultInstance();
-        stack.set(ModComponents.STORED_ENERGY, new StoredEnergy(MAX_ENERGY));
+        stack.set(ModComponents.STORED_ENERGY, new StoredEnergy(maxEnergy()));
         return stack;
     }
 
@@ -153,7 +157,7 @@ public class BuildingRodItem extends Item implements ICapacitorChargeable {
 
     @Override
     public int getBarWidth(ItemStack stack) {
-        return Math.round(13f * stack.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).value() / MAX_ENERGY);
+        return Math.round(13f * stack.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).value() / maxEnergy());
     }
 
     @Override

@@ -121,7 +121,7 @@ public class StructureDiskPreviewSupport {
 
         RenderSupport.renderLevelLikeAt(cache.levelLike, graphics,
             previewX + PREVIEW_SIZE / 2, previewY + PREVIEW_SIZE / 2, 60,
-            2, PREVIEW_SIZE, AnvilCraftClient.CONFIG.renderScanPreviewEffect);
+            2, PREVIEW_SIZE, AnvilCraftClient.CONFIG.effects.renderScanPreviewExtraEffect);
     }
 
     /**

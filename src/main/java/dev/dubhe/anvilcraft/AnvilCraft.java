@@ -192,9 +192,9 @@ public class AnvilCraft {
                     "Apothic Enchanting found. Set royalAnvilBeyondMaxLevel, "
                     + "emberAnvilBeyondMaxLevel and transcendenceAnvilBeyondMaxLevel to true."
                 );
-                AnvilCraft.CONFIG.royalAnvilBeyondMaxLevel = true;
-                AnvilCraft.CONFIG.emberAnvilBeyondMaxLevel = true;
-                AnvilCraft.CONFIG.transcendenceAnvilBeyondMaxLevel = true;
+                AnvilCraft.CONFIG.equipment.royalAnvilBeyondMaxLevel = true;
+                AnvilCraft.CONFIG.equipment.emberAnvilBeyondMaxLevel = true;
+                AnvilCraft.CONFIG.equipment.transcendenceAnvilBeyondMaxLevel = true;
             }
             Util.<BaseMappedRegistryInvoker>cast(BuiltInRegistries.DATA_COMPONENT_PREDICATE_TYPE).invokeSetSync(true);
         });

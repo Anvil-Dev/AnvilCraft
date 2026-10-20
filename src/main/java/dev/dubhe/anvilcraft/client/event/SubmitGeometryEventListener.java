@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.event;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
@@ -35,9 +36,19 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
+import org.jspecify.annotations.Nullable;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @EventBusSubscriber(value = Dist.CLIENT)
 public class SubmitGeometryEventListener {
+    private static final Map<BlockPos, RangeOutline> RANGE_OUTLINES = new HashMap<>();
+    private static @Nullable Level renderedLevel;
+
+    private record RangeOutline(BlockState state, VoxelShape shape, long lastSeenTick) {
+    }
 
     @SubscribeEvent
     public static void on(SubmitCustomGeometryEvent event) {
@@ -78,19 +89,36 @@ public class SubmitGeometryEventListener {
             );
         }
 
+        Level level = player.level();
+        if (level != SubmitGeometryEventListener.renderedLevel) {
+            SubmitGeometryEventListener.renderedLevel = level;
+            SubmitGeometryEventListener.RANGE_OUTLINES.clear();
+        }
+        long gameTime = level.getGameTime();
         HitResult hitResult = Minecraft.getInstance().hitResult;
+        if (hitResult instanceof BlockHitResult hit && !hit.miss && AnvilHammerItem.shouldRenderEffect(player)) {
+            SubmitGeometryEventListener.registerAffectRange(hit, gameTime);
+        }
+        SubmitGeometryEventListener.RANGE_OUTLINES.entrySet().removeIf(entry ->
+            gameTime > entry.getValue().lastSeenTick() + AnvilCraft.CLIENT_CONFIG.graphics.affectRangeOutlinePersistTicks
+                || level.getBlockState(entry.getKey()) != entry.getValue().state());
+        List<RangeOutline> outlines = List.copyOf(SubmitGeometryEventListener.RANGE_OUTLINES.values());
+        if (!outlines.isEmpty()) {
+            nodeCollector.submitCustomGeometry(poseStack, RenderTypes.lines(), (pose, buffer) -> {
+                for (RangeOutline outline : outlines) {
+                    TooltipRenderHelper.renderOutline(pose, buffer, camX, camY, camZ,
+                        BlockPos.ZERO, outline.shape(), 0xFF00FFCC);
+                }
+            });
+        }
         if (hitResult instanceof BlockHitResult blockHitResult) {
             nodeCollector.submitCustomGeometry(
                 poseStack, RenderTypes.lines(), ((pose, buffer) -> {
-                    if (AnvilHammerItem.shouldRenderEffect(player)) {
-                        SubmitGeometryEventListener.renderAffectRange(poseStack, blockHitResult, buffer, camX, camY, camZ);
-                    }
                     SubmitGeometryEventListener.renderDragonRodOutline(pose, blockHitResult, buffer, camX, camY, camZ, handItem);
                 })
             );
 
         }
-
 
         SubmitGeometryEventListener.submitPowerGridLines(poseStack, nodeCollector, camera);
     }
@@ -101,10 +129,7 @@ public class SubmitGeometryEventListener {
         }
     }
 
-    private static void renderAffectRange(
-        PoseStack pose, BlockHitResult hit, VertexConsumer vertexConsumer3,
-        double camX, double camY, double camZ
-    ) {
+    private static void registerAffectRange(BlockHitResult hit, long gameTime) {
         BlockPos blockPos = hit.getBlockPos();
         Level level = Minecraft.getInstance().level;
         if (level == null) return;
@@ -115,12 +140,14 @@ public class SubmitGeometryEventListener {
                 ? placer.getPlacementRangeBounds()
                 : SmartBlockPlacerBlockEntity.positionModeRangeBounds(blockPos,
                     state.getValue(HorizontalDirectionalBlock.FACING), state.getValue(SmartBlockPlacerBlock.UPSIDE_DOWN));
-            TooltipRenderHelper.renderOutline(pose, vertexConsumer3, camX, camY, camZ,
-                BlockPos.ZERO, Shapes.create(bounds), 0xFF00FFCC);
+            SubmitGeometryEventListener.RANGE_OUTLINES.put(blockPos, new RangeOutline(state, Shapes.create(bounds), gameTime));
             return;
         }
         if (e == null) return;
-        HudTooltipManager.INSTANCE.renderAffectRange(e, pose, vertexConsumer3, camX, camY, camZ);
+        VoxelShape shape = HudTooltipManager.INSTANCE.resolveAffectRange(e);
+        if (shape != null) {
+            SubmitGeometryEventListener.RANGE_OUTLINES.put(blockPos, new RangeOutline(state, shape, gameTime));
+        }
     }
 
     private static void renderDragonRodOutline(

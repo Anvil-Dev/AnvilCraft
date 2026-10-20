@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.laser.PropelPistonBlock;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
@@ -52,7 +53,7 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
     }
 
     public void updateStoredEnergy(Integer energy) {
-        this.storedEnergy = Math.clamp(energy, 0, 160000000);
+        this.storedEnergy = Math.clamp(energy, 0, AnvilCraft.CONFIG.machines.propelPistonMaxEnergy);
         if (this.level == null || !(this.level instanceof ServerLevel serverLevel)) {
             return;
         }
@@ -79,7 +80,7 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
             this.power = this.laserLevel * 15;
         }
         if (!this.changed) {
-            if (this.storedEnergy < 160000000) {
+            if (this.storedEnergy < AnvilCraft.CONFIG.machines.propelPistonMaxEnergy) {
                 this.delay++;
                 if (this.delay >= 20) {
                     this.delay = 0;
@@ -126,7 +127,7 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        output.putInt("storedEnergy", Math.min(this.storedEnergy, 160000000));
+        output.putInt("storedEnergy", Math.min(this.storedEnergy, AnvilCraft.CONFIG.machines.propelPistonMaxEnergy));
     }
 
     @Override

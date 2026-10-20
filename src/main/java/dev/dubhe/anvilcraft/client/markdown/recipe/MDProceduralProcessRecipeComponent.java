@@ -32,7 +32,7 @@ public class MDProceduralProcessRecipeComponent extends MDRecipeComponent {
     public static final int FLOW_Y = 90;
     public static final int ITEM_Y_OFFSET = 8;
     public static final int ARROW_LONG_LENGTH = 64;
-    private static final long LOOP_CYCLE_MILLIS = 1500L;
+
     private final ProceduralProcessRecipe recipe;
     private final BlockStatePredicate initialBlock;
     private final int stepSize;
@@ -112,7 +112,7 @@ public class MDProceduralProcessRecipeComponent extends MDRecipeComponent {
     }
 
     private static int getDisplayedLoop(ProceduralProcessRecipe recipe) {
-        return recipe.loop() <= 1 ? 0 : (int) ((Util.getMillis() / LOOP_CYCLE_MILLIS) % recipe.loop());
+        return recipe.loop() <= 1 ? 0 : (int) ((Util.getMillis() / AnvilCraft.CLIENT_CONFIG.ui.recipePreviewCycleMillis) % recipe.loop());
     }
 
     private static ProceduralProcessStep getDisplayedStep(ProceduralProcessRecipe recipe, int stepIndex, int displayedLoop) {

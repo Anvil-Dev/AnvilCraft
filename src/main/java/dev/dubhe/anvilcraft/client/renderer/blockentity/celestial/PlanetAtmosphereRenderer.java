@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.init.ModRenderPipelines;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
-import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.CelestialRenderingMode;
+import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.GraphicsSettings.CelestialRenderMode;
 import dev.dubhe.anvilcraft.integration.iris.CelestialIrisRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
@@ -38,7 +38,7 @@ public final class PlanetAtmosphereRenderer {
     }
 
     public static void submit(PoseStack pose, SubmitNodeCollector collector, float[] color) {
-        if (AnvilCraft.CLIENT_CONFIG.planetAtmosphereRenderingMode == CelestialRenderingMode.VANILLA || !ready()) {
+        if (AnvilCraft.CLIENT_CONFIG.graphics.planetAtmosphereRenderMode == CelestialRenderMode.VANILLA || !ready()) {
             vanilla(pose, collector, color);
             return;
         }

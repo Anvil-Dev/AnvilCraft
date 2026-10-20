@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.integration.jei.category;
 
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.WipBlock;
 import dev.dubhe.anvilcraft.client.support.ProcessOverlayRenderer;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
@@ -70,7 +71,6 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
     /** 相邻输入方块之间的行距。 */
     public static final int BLOCK_ROW_DY = 10;
     public static final int FLOW_Y = 57;
-    private static final long LOOP_CYCLE_MILLIS = 1500L;
     private static final int CYCLE_SIZE = 16;
 
     private final IDrawable slotDefault;
@@ -203,7 +203,6 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
             RenderSupport.renderBlockAt(guiGraphics, blockState, STEP_X - 20, BLOCK_Y, BLOCK_SCALE)
         );
 
-
         // step
         int size = Math.min(recipe.steps().size(), 5);
         int gap = STEPS_LENGTH / Math.max(size, 1) - STEP_LENGTH;
@@ -312,7 +311,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
 
     private static int getDisplayedLoop(ProceduralProcessRecipe recipe) {
         if (recipe.loop() <= 1) return 0;
-        return (int) ((Util.getMillis() / LOOP_CYCLE_MILLIS) % recipe.loop());
+        return (int) ((Util.getMillis() / AnvilCraft.CLIENT_CONFIG.ui.recipePreviewCycleMillis) % recipe.loop());
     }
 
     private static ProceduralProcessStep getDisplayedStep(

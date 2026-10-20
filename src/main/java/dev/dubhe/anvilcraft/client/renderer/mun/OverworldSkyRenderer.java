@@ -14,7 +14,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.config.AnvilCraftServerConfig.OverworldSkyMode;
+import dev.dubhe.anvilcraft.config.AnvilCraftServerConfig.WorldSettings.OverworldSkyMode;
 import dev.dubhe.anvilcraft.worldgen.MunSkyMath.Vector;
 import dev.dubhe.anvilcraft.worldgen.OverworldSkyState;
 import net.minecraft.client.Minecraft;
@@ -70,7 +70,7 @@ public final class OverworldSkyRenderer {
     @SubscribeEvent
     public static void extract(ExtractLevelRenderStateEvent event) {
         frame = null;
-        if (AnvilCraft.CONFIG.overworldSkyMode != OverworldSkyMode.SPECIAL
+        if (AnvilCraft.CONFIG.world.overworldSkyMode != OverworldSkyMode.SPECIAL
             || !Level.OVERWORLD.equals(event.getLevel().dimension()) || event.getRenderState().customSkyboxRenderer != null) return;
         var client = Minecraft.getInstance();
         float partialTick = event.getDeltaTracker().getGameTimeDeltaPartialTick(client.isPaused());

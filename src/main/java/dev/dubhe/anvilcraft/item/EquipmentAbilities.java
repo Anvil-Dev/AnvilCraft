@@ -42,11 +42,6 @@ import java.util.WeakHashMap;
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public final class EquipmentAbilities {
     private static final Identifier FLIGHT_STABILITY = AnvilCraft.of("flight_stability");
-    public static final int CHARGE_TICKS = 10;
-    public static final int CHARGE_HOLD_TICKS = 10;
-    public static final int CHARGE_DECAY_TICKS = 10;
-    private static final double MAX_JUMP_HEIGHT_MULTIPLIER = 3.5;
-    private static final int NIGHT_VISION_REFRESH_TICKS = 210;
     private static final Map<Player, Integer> CHARGE = new WeakHashMap<>();
     private static final Map<Player, Integer> CHARGE_START = new WeakHashMap<>();
     private static final Map<Player, Integer> CHARGE_RELEASE_TICK = new WeakHashMap<>();
@@ -130,8 +125,9 @@ public final class EquipmentAbilities {
             HELMET_NIGHT_VISION.remove(player);
             return;
         }
-        if (current != null && !current.endsWithin(NIGHT_VISION_REFRESH_TICKS)) return;
-        MobEffectInstance refreshed = new MobEffectInstance(MobEffects.NIGHT_VISION, NIGHT_VISION_REFRESH_TICKS, 0, false, false, true);
+        int refreshTicks = AnvilCraft.CONFIG.equipment.nightVisionRefreshTicks;
+        if (current != null && !current.endsWithin(refreshTicks)) return;
+        MobEffectInstance refreshed = new MobEffectInstance(MobEffects.NIGHT_VISION, refreshTicks, 0, false, false, true);
         HELMET_NIGHT_VISION.put(player, refreshed);
         player.addEffect(refreshed);
         current = player.getEffect(MobEffects.NIGHT_VISION);
@@ -153,13 +149,13 @@ public final class EquipmentAbilities {
     }
 
     public static float chargeProgress(Player player) {
-        return Math.clamp(chargeTicks(player) / (float) CHARGE_TICKS, 0, 1);
+        return Math.clamp(chargeTicks(player) / (float) AnvilCraft.CONFIG.equipment.chargedJumpChargeTicks, 0, 1);
     }
 
     public static boolean isChargeHeld(Player player) {
         Integer releaseTick = CHARGE_RELEASE_TICK.get(player);
         return releaseTick != null
-               && player.tickCount - releaseTick <= CHARGE_HOLD_TICKS;
+               && player.tickCount - releaseTick <= AnvilCraft.CONFIG.equipment.chargedJumpChargeHoldTicks;
     }
 
     public static float consumeChargedJump(Player player, float normal) {
@@ -176,7 +172,7 @@ public final class EquipmentAbilities {
         if (age < 0 || age > PENDING_CHARGED_JUMP_TIMEOUT) return normal;
         float progress = pending.progress();
         if (pending.allowInputTick() && player.isShiftKeyDown() && !player.getAbilities().flying && hasChargeSupport(player)) {
-            progress = Math.min(1, progress + 1F / CHARGE_TICKS);
+            progress = Math.min(1, progress + 1F / AnvilCraft.CONFIG.equipment.chargedJumpChargeTicks);
         }
         if (progress <= 0) return normal;
         float max = jumpPowerForProgress(player, normal, progress);
@@ -194,7 +190,7 @@ public final class EquipmentAbilities {
         if (!(player instanceof ServerPlayer serverPlayer) || !canChargeJump(player)) return;
         if (!Float.isFinite(jumpPower) || jumpPower <= 0) return;
         ServerCharge charge = SERVER_CHARGE.remove(serverPlayer);
-        float progress = serverChargeTicks(player.tickCount, charge, true) / (float) CHARGE_TICKS;
+        float progress = serverChargeTicks(player.tickCount, charge, true) / (float) AnvilCraft.CONFIG.equipment.chargedJumpChargeTicks;
         PendingChargedJump previous = PENDING_CHARGED_JUMP.get(serverPlayer);
         int tick = player.tickCount;
         if (previous != null) {
@@ -207,10 +203,10 @@ public final class EquipmentAbilities {
     private static float jumpPowerForProgress(Player player, float normal, float progress) {
         double gravity = Math.max(0.001, player.getAttributeValue(Attributes.GRAVITY));
         double drag = AtmosphereManager.drag(player, 0.9800000190734863);
-        double multiplier = 1 + (MAX_JUMP_HEIGHT_MULTIPLIER - 1) * progress;
+        double multiplier = 1 + (AnvilCraft.CONFIG.equipment.chargedJumpMaxHeightMultiplier - 1) * progress;
         double target = jumpHeight(normal, gravity, drag) * multiplier;
         double low = normal;
-        double high = normal * MAX_JUMP_HEIGHT_MULTIPLIER + gravity;
+        double high = normal * AnvilCraft.CONFIG.equipment.chargedJumpMaxHeightMultiplier + gravity;
         for (int iteration = 0; iteration < 32; iteration++) {
             double middle = (low + high) / 2;
             if (jumpHeight(middle, gravity, drag) < target) low = middle;
@@ -223,12 +219,14 @@ public final class EquipmentAbilities {
         if (charge == null) return 0;
         int elapsed = now - charge.tick();
         if (elapsed < 0) return 0;
-        int ticks = Math.min(CHARGE_TICKS, charge.charge() + (tolerateInputDelay ? 1 : 0));
+        int ticks = Math.min(AnvilCraft.CONFIG.equipment.chargedJumpChargeTicks, charge.charge() + (tolerateInputDelay ? 1 : 0));
         if (charge.charging()) return ticks;
         if (tolerateInputDelay) elapsed = Math.max(0, elapsed - 1);
-        if (elapsed <= CHARGE_HOLD_TICKS) return ticks;
-        if (elapsed >= CHARGE_HOLD_TICKS + CHARGE_DECAY_TICKS) return 0;
-        return Math.round(ticks * (CHARGE_HOLD_TICKS + CHARGE_DECAY_TICKS - elapsed) / (float) CHARGE_DECAY_TICKS);
+        int holdTicks = AnvilCraft.CONFIG.equipment.chargedJumpChargeHoldTicks;
+        int decayTicks = AnvilCraft.CONFIG.equipment.chargedJumpChargeDecayTicks;
+        if (elapsed <= holdTicks) return ticks;
+        if (elapsed >= holdTicks + decayTicks) return 0;
+        return Math.round(ticks * (holdTicks + decayTicks - elapsed) / (float) decayTicks);
     }
 
     private static void tickServerCharge(ServerPlayer player) {
@@ -244,7 +242,7 @@ public final class EquipmentAbilities {
         if (charging) {
             int ticks = charge != null && charge.charging()
                 ? charge.charge() + now - charge.tick() : serverChargeTicks(now - 1, charge, false) + 1;
-            SERVER_CHARGE.put(player, new ServerCharge(now, Math.min(CHARGE_TICKS, ticks), true));
+            SERVER_CHARGE.put(player, new ServerCharge(now, Math.min(AnvilCraft.CONFIG.equipment.chargedJumpChargeTicks, ticks), true));
         } else if (charge != null) {
             if (charge.charging()) {
                 SERVER_CHARGE.put(player, new ServerCharge(now, charge.charge(), false));
@@ -272,10 +270,10 @@ public final class EquipmentAbilities {
             int start = CHARGE_START.computeIfAbsent(player, key -> now - CHARGE.getOrDefault(key, 0));
             CHARGE_RELEASE_TICK.remove(player);
             CHARGE_RELEASE_START.remove(player);
-            CHARGE.put(player, Math.min(CHARGE_TICKS, now - start + 1));
+            CHARGE.put(player, Math.min(AnvilCraft.CONFIG.equipment.chargedJumpChargeTicks, now - start + 1));
             return;
         }
-        if (!AnvilCraft.CLIENT_CONFIG.keepChargedJumpCharge) {
+        if (!AnvilCraft.CLIENT_CONFIG.controls.keepChargedJumpCharge) {
             clearCharge(player);
             return;
         }
@@ -290,11 +288,11 @@ public final class EquipmentAbilities {
             CHARGE_RELEASE_START.put(player, CHARGE.getOrDefault(player, 0));
             CHARGE_START.remove(player);
         }
-        int holdTicks = CHARGE_HOLD_TICKS;
+        int holdTicks = AnvilCraft.CONFIG.equipment.chargedJumpChargeHoldTicks;
         int elapsed = now - releaseTick;
         if (elapsed <= holdTicks) return;
-        int startValue = CHARGE_RELEASE_START.getOrDefault(player, CHARGE_TICKS);
-        int decayTicks = CHARGE_DECAY_TICKS;
+        int startValue = CHARGE_RELEASE_START.getOrDefault(player, AnvilCraft.CONFIG.equipment.chargedJumpChargeTicks);
+        int decayTicks = AnvilCraft.CONFIG.equipment.chargedJumpChargeDecayTicks;
         int decayed = Math.round(startValue * (decayTicks - (elapsed - holdTicks)) / (float) decayTicks);
         if (decayed <= 0) {
             clearCharge(player);

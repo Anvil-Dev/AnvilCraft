@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.logistics.sliding;
 
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.sliding.SlidingRailLoad;
 import dev.dubhe.anvilcraft.block.entity.DetectorSlidingRailBlockEntity;
@@ -143,14 +144,14 @@ public class DetectorSlidingRailBlock extends BaseSlidingRailBlock implements IH
         Optional<DetectorSlidingRailBlockEntity> blockEntity = level.getBlockEntity(pos, ModBlockEntities.DETECTOR_SLIDING_RAIL.get());
         blockEntity.ifPresent(detector -> detector.updatePower(entity.getBlockCount()));
         level.setBlock(pos, state.setValue(DetectorSlidingRailBlock.POWERED, true), Block.UPDATE_ALL);
-        level.scheduleTick(pos, this, 20);
+        level.scheduleTick(pos, this, AnvilCraft.CONFIG.world.detectorSlidingRailHoldTicks);
     }
 
     public void onItemEntitySlidingAbove(Level level, BlockPos pos, BlockState state) {
         Optional<DetectorSlidingRailBlockEntity> blockEntity = level.getBlockEntity(pos, ModBlockEntities.DETECTOR_SLIDING_RAIL.get());
         blockEntity.ifPresent(detector -> detector.updatePower(1));
         level.setBlock(pos, state.setValue(DetectorSlidingRailBlock.POWERED, true), Block.UPDATE_ALL);
-        level.scheduleTick(pos, this, 20);
+        level.scheduleTick(pos, this, AnvilCraft.CONFIG.world.detectorSlidingRailHoldTicks);
     }
 
     @Override

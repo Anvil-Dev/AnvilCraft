@@ -46,7 +46,7 @@ public class MessageLang {
         provider.add("message.anvilcraft.monolith.joke.chute_steal", "Chutes used to be able to steal items from players and villagers");
         provider.add(
             "message.anvilcraft.monolith.joke.reinforced_concrete",
-            "Reinforced concrete was initially not blast-resistant, and it dropped a cauldron when broken."
+            "Reinforced concrete was initially not blast-resistant, and it dropped a cauldron when broken"
         );
         provider.add(
             "message.anvilcraft.monolith.knowledge.celestial_forging_anvil_gravity",

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.workstation.ember;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.block.IEmberBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterAnvilBlock;
@@ -89,7 +90,11 @@ public class EmberAnvilBlock extends BetterAnvilBlock implements IHammerRemovabl
 
     @Override
     public void falling(FallingBlockEntity entity) {
-        entity.setHurtsEntities(2.0F, 120);
+        int max = AnvilCraft.CONFIG.world.emberAnvilMaxFallDamage;
+        if (max == -1) {
+            max = Integer.MAX_VALUE;
+        }
+        entity.setHurtsEntities(AnvilCraft.CONFIG.world.emberAnvilFallDamagePerBlock, max);
     }
 
     @Override
@@ -103,7 +108,7 @@ public class EmberAnvilBlock extends BetterAnvilBlock implements IHammerRemovabl
         ServerLevel level,
         BlockPos pos,
         RandomSource random) {
-        if (random.nextDouble() <= 0.5) {
+        if (random.nextDouble() <= AnvilCraft.CONFIG.world.emberBlockWaterAbsorptionChance) {
             this.tryAbsorbWater(level, pos);
         }
     }

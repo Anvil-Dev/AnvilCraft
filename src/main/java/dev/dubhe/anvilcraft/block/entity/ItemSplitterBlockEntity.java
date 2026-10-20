@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import com.mojang.serialization.MapCodec;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.block.logistics.ItemSplitterBlock;
 import lombok.Getter;
@@ -33,8 +34,6 @@ import java.util.List;
 /** 严格均分给连续容器，或按铁砧下落高度向空位分配；余数与未送出的份额留在内部。 */
 public class ItemSplitterBlockEntity extends BlockEntity implements IItemResourceHandlerHolder {
     public static final int SLOT_COUNT = 16;
-    public static final int SPLIT_INTERVAL = 8;
-    public static final int MAX_DISTANCE = 16;
 
     @Getter
     private final ItemStacksResourceHandler itemHandler = new ItemStacksResourceHandler(SLOT_COUNT) {
@@ -91,7 +90,7 @@ public class ItemSplitterBlockEntity extends BlockEntity implements IItemResourc
         if (this.level == null || this.level.isClientSide()) return;
         if (this.cooldown > 0) this.cooldown--;
         if (this.cooldown > 0) return;
-        this.cooldown = SPLIT_INTERVAL;
+        this.cooldown = AnvilCraft.CONFIG.machines.itemSplitterInterval;
         this.splitToContainers();
     }
 
@@ -138,7 +137,7 @@ public class ItemSplitterBlockEntity extends BlockEntity implements IItemResourc
 
     private List<BlockPos> collectContainerTargets() {
         List<BlockPos> targets = new ArrayList<>();
-        for (int distance = 1; distance <= MAX_DISTANCE; distance++) {
+        for (int distance = 1; distance <= AnvilCraft.CONFIG.machines.itemSplitterMaxDistance; distance++) {
             BlockPos target = this.worldPosition.relative(this.getFacing(), distance);
             if (this.getItemHandlerAt(target) == null) break;
             targets.add(target);
@@ -148,7 +147,7 @@ public class ItemSplitterBlockEntity extends BlockEntity implements IItemResourc
 
     private List<BlockPos> collectSpaceTargets(int shares) {
         List<BlockPos> targets = new ArrayList<>();
-        for (int distance = 1; distance <= MAX_DISTANCE && targets.size() < shares; distance++) {
+        for (int distance = 1; distance <= AnvilCraft.CONFIG.machines.itemSplitterMaxDistance && targets.size() < shares; distance++) {
             BlockPos target = this.worldPosition.relative(this.getFacing(), distance);
             Vec3 center = target.getCenter();
             if (this.level != null && this.level.noCollision(new AABB(center.add(-0.125, -0.125, -0.125),

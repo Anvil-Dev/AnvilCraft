@@ -8,7 +8,6 @@ import dev.dubhe.anvilcraft.api.giantanvil.IShockEntity;
 import dev.dubhe.anvilcraft.api.giantanvil.IShockFixedBlock;
 import dev.dubhe.anvilcraft.api.giantanvil.ShockAnvilBehavior;
 import dev.dubhe.anvilcraft.entity.FallingSpectralBlockEntity;
-import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
@@ -18,7 +17,6 @@ import dev.dubhe.anvilcraft.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -126,8 +124,8 @@ public class GiantAnvilShockEventListener {
                             pos.getY(),
                             pos.getZ() + 0.5,
                             state.hasProperty(BlockStateProperties.WATERLOGGED)
-                                ? state.setValue(BlockStateProperties.WATERLOGGED, false)
-                                : state
+                            ? state.setValue(BlockStateProperties.WATERLOGGED, false)
+                            : state
                         );
                         level.setBlock(pos, state.getFluidState().createLegacyBlock(), 3);
                         entity.setDeltaMovement(0, ShockContext.bounceVelocityForHeight(1.0D), 0);
@@ -146,7 +144,7 @@ public class GiantAnvilShockEventListener {
                     entity.hurtMarked = true;
                 }
                 // 让范围内的生物原地弹跳
-                int radius = (int) Math.min(Math.ceil(it.unwrap().fallDistance()), AnvilCraft.CONFIG.giantAnvilMaxShockRadius);
+                int radius = (int) Math.min(Math.ceil(it.unwrap().fallDistance()), AnvilCraft.CONFIG.world.giantAnvilMaxShockRadius);
                 AABB aabb = AABB.ofSize(
                     Vec3.atCenterOf(it.unwrap().centerPos().above()),
                     radius * 2 + 1,
@@ -192,7 +190,7 @@ public class GiantAnvilShockEventListener {
             })
         ).executes(it -> {
             if (it.has(GiantAnvilShockEventListener.NO_HURT)) return;
-            int radius = (int) Math.min(Math.ceil(it.unwrap().fallDistance()), AnvilCraft.CONFIG.giantAnvilMaxShockRadius);
+            int radius = (int) Math.min(Math.ceil(it.unwrap().fallDistance()), AnvilCraft.CONFIG.world.giantAnvilMaxShockRadius);
             AABB aabb = AABB.ofSize(
                 Vec3.atCenterOf(it.unwrap().centerPos().above()),
                 radius * 2 + 1,
@@ -224,42 +222,39 @@ public class GiantAnvilShockEventListener {
     public static void onLand(AnvilEvent.GiantOnLand event) {
         ShockContext context = ShockContext.inflate(event);
         GiantAnvilShockEventListener.behaviorTree.run(context);
+
+        Level level = event.getLevel();
         // 仅当冲击机制实际触发（中心为重型铁块）时才生成撼地效果
-        if (event.getLevel()
-                .getBlockState(event.getPos().below(2))
-                .is(ModBlocks.HEAVY_IRON_BLOCK)) {
-            float fallDistance = event.getFallDistance();
-            int radius = (int) Math.min(Math.ceil(fallDistance), AnvilCraft.CONFIG.giantAnvilMaxShockRadius);
-            BlockPos shockCenter = event.getPos().below(2);
+        BlockState center = level.getBlockState(event.getPos().below(2));
+        if (!center.is(ModBlocks.HEAVY_IRON_BLOCK)) {
+            return;
+        }
 
-            // 发送震波效果包到附近所有玩家
-            if (event.getLevel() instanceof ServerLevel serverLevel) {
-                PacketDistributor.sendToPlayersTrackingChunk(
-                    serverLevel,
-                    ChunkPos.containing(event.getPos()),
-                    new GiantAnvilShockEffectPacket(shockCenter, radius)
-                );
-                // 屏幕震动（幅度小、结束快，仅玩家站在地面上才震），范围与撼地一致
-                PacketDistributor.sendToPlayersTrackingChunk(
-                    serverLevel,
-                    ChunkPos.containing(event.getPos()),
-                    ScreenShakePacket.of(
-                        Vec3.atCenterOf(shockCenter),
-                        radius,
-                        ScreenShakePacket.ShakeType.GIANT_ANVIL_SHOCK
-                    )
-                );
-            }
+        float fallDistance = event.getFallDistance();
+        int radius = (int) Math.min(Math.ceil(fallDistance), AnvilCraft.CONFIG.world.giantAnvilMaxShockRadius);
+        BlockPos shockCenter = event.getPos().below(2);
 
+        // 发送震波效果包到附近所有玩家
+        if (level instanceof ServerLevel serverLevel) {
             boolean isResin = context.testCorner(ModBlockTags.RESIN_SHOCK_COMPATIBLE)
                 && context.testBorder(ModBlockTags.RESIN_SHOCK_COMPATIBLE);
-            if (isResin) {
-                event.getLevel().playSound(null, event.getPos(), ModSoundEvents.GIANT_ANVIL_RESIN_SHOCK.get(),
-                    SoundSource.BLOCKS, 2.0f, 0.8f + event.getLevel().getRandom().nextFloat() * 0.4f);
-            } else {
-                event.getLevel().playSound(null, event.getPos(), ModSoundEvents.GIANT_ANVIL_SHOCK.get(),
-                    SoundSource.BLOCKS, 1.8f, 1.2f + event.getLevel().getRandom().nextFloat() * 0.2f);
-            }
+            float pitch = isResin
+                ? 0.8F + level.getRandom().nextFloat() * 0.4F
+                : 1.2F + level.getRandom().nextFloat() * 0.2F;
+            PacketDistributor.sendToPlayersTrackingChunk(
+                serverLevel, ChunkPos.containing(event.getPos()),
+                new GiantAnvilShockEffectPacket(shockCenter, radius, isResin, pitch)
+            );
+            // 屏幕震动（幅度小、结束快，仅玩家站在地面上才震），范围与撼地一致
+            PacketDistributor.sendToPlayersTrackingChunk(
+                serverLevel,
+                ChunkPos.containing(event.getPos()),
+                ScreenShakePacket.of(
+                    Vec3.atCenterOf(shockCenter),
+                    radius,
+                    ScreenShakePacket.ShakeType.GIANT_ANVIL_SHOCK
+                )
+            );
         }
     }
 }

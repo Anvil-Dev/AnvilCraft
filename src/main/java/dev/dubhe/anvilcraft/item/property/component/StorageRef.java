@@ -64,7 +64,7 @@ public record StorageRef(StorageType type, Optional<UUID> id) implements Tooltip
 
     @Override
     public void addToTooltip(Item.TooltipContext context, Consumer<Component> builder, TooltipFlag flag, DataComponentGetter components) {
-        if (!AnvilCraft.CLIENT_CONFIG.showStorageStoredId) return;
+        if (!AnvilCraft.CLIENT_CONFIG.ui.showStorageStoredId) return;
         builder.accept(Component.translatable(
             "tooltip.anvilcraft.property.storage.id",
             this.id.map(id -> Component.literal(id.toString()))
