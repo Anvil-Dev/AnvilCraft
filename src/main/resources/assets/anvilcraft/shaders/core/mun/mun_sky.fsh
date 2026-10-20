@@ -93,5 +93,6 @@ void main() {
     }
     vec4 haze = atmosphere(origin, direction, surfaceDistance);
     color = mix(color, haze.rgb, haze.a);
-    fragColor = vec4(color, 0.0);
+    float horizonVisibility = smoothstep(0.0, 0.05, localDirection.y);
+    fragColor = vec4(color * horizonVisibility, 0.0);
 }

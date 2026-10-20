@@ -17,6 +17,10 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public final class StorageClientStub {
+    public static void returnCarriedToInventory(BlockPos sourcePos) {
+        RPC.call(RpcTarget.server(), StorageServerStub::returnCarriedToInventory, playerId(), sourcePos.asLong());
+    }
+
     public static void updateInvertedBucketAction(boolean inverted) {
         RPC.call(RpcTarget.server(), StorageServerStub::updateInvertedBucketAction, playerId(), inverted);
     }
@@ -205,6 +209,13 @@ public final class StorageClientStub {
             sourcePos.asLong(),
             slots
         );
+    }
+
+    public static CompletableFuture<StorageServerStub.InteractionResult> takeStorageItem(
+        BlockPos sourcePos, int slot, int button, boolean quickMove, ItemStack expected
+    ) {
+        return RPC.invoke(RpcTarget.server(), StorageServerStub::takeStorageItem,
+            StorageClientStub.playerId(), sourcePos.asLong(), slot, button, quickMove, expected);
     }
 
     public static CompletableFuture<StorageServerStub.InteractionResult> interact(
