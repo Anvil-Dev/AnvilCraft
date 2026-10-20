@@ -1759,6 +1759,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
 
         if (this.search != null && this.search.isFocused()) {
+            this.craftingSpace = false;
             this.search.keyPressed(event);
             return true;
         }
