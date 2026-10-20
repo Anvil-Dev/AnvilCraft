@@ -2,6 +2,8 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
+import dev.dubhe.anvilcraft.util.Util;
+import dev.dubhe.anvilcraft.worldgen.OverworldSkyState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
@@ -20,13 +22,18 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.WeakHashMap;
 
-/** Upward high-speed pearls reach Mun at midnight or return from its origin area. */
+/** Upward high-speed pearls reach Mun when the moon is overhead or return from its origin area. */
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class MunTravelEventListener {
     private static final double ESCAPE_HEIGHT = 512.0;
@@ -38,6 +45,24 @@ public class MunTravelEventListener {
     private static final int RETURN_RADIUS = 128;
     private static final String RETURN_LAUNCH_KEY = "anvilcraft:mun_return_launch";
     private static final Map<ServerPlayer, ArrivalDamage> ARRIVAL_DAMAGE = new WeakHashMap<>();
+    private static final Set<UUID> SPECIAL_SKY_PLAYERS = new HashSet<>();
+
+    public static void setSpecialSky(ServerPlayer player, boolean special) {
+        if (special) SPECIAL_SKY_PLAYERS.add(player.getUUID());
+        else SPECIAL_SKY_PLAYERS.remove(player.getUUID());
+    }
+
+    @SubscribeEvent
+    public static void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+        SPECIAL_SKY_PLAYERS.remove(event.getEntity().getUUID());
+        ARRIVAL_DAMAGE.remove(event.getEntity());
+    }
+
+    @SubscribeEvent
+    public static void onServerStopped(ServerStoppedEvent event) {
+        SPECIAL_SKY_PLAYERS.clear();
+        ARRIVAL_DAMAGE.clear();
+    }
 
     @SubscribeEvent
     public static void onEntityJoin(EntityJoinLevelEvent event) {
@@ -62,14 +87,14 @@ public class MunTravelEventListener {
         boolean returning = level.dimension().equals(CelestialTravelManager.MUN_LEVEL);
         if (returning) {
             if (!isReturnLaunch(pearl)) return;
-        } else if (!level.dimension().equals(Level.OVERWORLD)
-            || Math.abs(Math.floorMod(level.getOverworldClockTime(), 24000L) - MIDNIGHT) > MIDNIGHT_WINDOW) {
+        } else if (!level.dimension().equals(Level.OVERWORLD)) {
             return;
         }
         if (pearl.getY() <= ESCAPE_HEIGHT || pearl.getDeltaMovement().y <= 0) return;
         if (pearl.getDeltaMovement().lengthSqr() < ESCAPE_SPEED * ESCAPE_SPEED) return;
         if (!(pearl.getOwner() instanceof ServerPlayer player)) return;
         if (!player.isAlive() || player.isSleeping() || player.level() != level || !player.connection.isAcceptingMessages()) return;
+        if (!returning && !canReachMun(level, player)) return;
         ServerLevel destination = level.getServer().getLevel(returning ? Level.OVERWORLD : CelestialTravelManager.MUN_LEVEL);
         if (destination == null) return;
         RandomSource random = destination.getRandom();
@@ -100,6 +125,14 @@ public class MunTravelEventListener {
         player.setOnGround(true);
         ARRIVAL_DAMAGE.put(player, new ArrivalDamage(destination.dimension(), teleport.getAttackDamage()));
         destination.playSound(null, player.blockPosition(), SoundEvents.PLAYER_TELEPORT, SoundSource.PLAYERS, 1.0F, 1.0F);
+    }
+
+    private static boolean canReachMun(ServerLevel level, ServerPlayer player) {
+        long dayTime = level.getOverworldClockTime();
+        if (SPECIAL_SKY_PLAYERS.contains(player.getUUID())) {
+            return OverworldSkyState.at(dayTime, 0, Util.getSunAngle(level, player.getEyePosition()) / 360.0).isMoonOverhead();
+        }
+        return Math.abs(Math.floorMod(dayTime, 24000L) - MIDNIGHT) <= MIDNIGHT_WINDOW;
     }
 
     @SubscribeEvent
