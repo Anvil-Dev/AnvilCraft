@@ -127,6 +127,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     // LevelLike 缓存
     private @Nullable LevelLike cachedPreviewLevelLike;
     private BlockPlacementUtil.@Nullable BlueprintExtent cachedBlueprintExtent;
+    private BlockState cachedPlacerState = Blocks.AIR.defaultBlockState();
     private boolean[] cachedLayerPositions = new boolean[SmartBlockPlacerBlockEntity.POSITION_COUNT];
     private int cachedViewLayer = -1;
     private boolean cachedShowAllLayers = true;
@@ -1226,16 +1227,19 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         long currentGameTime = level.getGameTime();
         long currentBlockTypeTime = currentGameTime / (PREVIEW_BLOCK_SWITCH_INTERVAL * 2);
 
-        BlockState[] currentBlueprintStates = blockEntity.getBlueprint().states();
+        var blueprint = blockEntity.getBlueprint();
+        BlockState[] currentBlueprintStates = blueprint.states();
         LevelLike cachedLevel = this.cachedPreviewLevelLike;
+        BlockState placerState = level.getBlockState(blockEntity.getBlockPos());
         if (cachedLevel != null
+            && this.cachedPlacerState == placerState
             && Arrays.equals(this.cachedLayerPositions, this.layerPositions)
             && this.cachedViewLayer == this.currentViewLayer
             && this.cachedShowAllLayers == this.showAllLayers
             && this.cachedPickupMode == this.isPickupMode
             && this.cachedBlueprintMode == this.isBlueprintMode
             && Arrays.equals(this.cachedBlueprintStates, currentBlueprintStates)
-            && blockEntity.getBlueprint().extent().equals(this.cachedBlueprintExtent)
+            && blueprint.extent().equals(this.cachedBlueprintExtent)
             && this.cachedGameTimeBlockType == currentBlockTypeTime) {
             return cachedLevel;
         }
@@ -1248,7 +1252,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         this.cachedPickupMode = this.isPickupMode;
         this.cachedBlueprintMode = this.isBlueprintMode;
         this.cachedBlueprintStates = currentBlueprintStates.clone();
-        this.cachedBlueprintExtent = blockEntity.getBlueprint().extent();
+        this.cachedBlueprintExtent = blueprint.extent();
+        this.cachedPlacerState = placerState;
         this.cachedGameTimeBlockType = currentBlockTypeTime;
         return rebuiltLevel;
     }
@@ -1280,8 +1285,10 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         int placerY = upsideDown ? PLACER_PREVIEW_Y_UPSIDE_DOWN : PLACER_PREVIEW_Y;
         if (!this.showAllLayers) {
             int visibleLayer = this.currentViewLayer;
-            if (this.isBlueprintMode && upsideDown) {
-                visibleLayer += placerY - blockEntity.getBlueprint().extent().maxLayer();
+            if (this.isBlueprintMode) {
+                int index = SmartBlockPlacerBlockEntity.getPositionIndex(this.currentViewLayer, 0);
+                visibleLayer = blockEntity.getBlueprintPosition(index, Direction.NORTH, upsideDown).getY()
+                    - blockEntity.getBlockPos().getY() + placerY;
             }
             previewLevelLike.setCurrentVisibleLayer(visibleLayer);
         }
