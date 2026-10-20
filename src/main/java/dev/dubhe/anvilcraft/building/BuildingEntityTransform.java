@@ -68,14 +68,6 @@ public final class BuildingEntityTransform {
             var state = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), tag.getCompound("BlockState"));
             tag.put("BlockState", NbtUtils.writeBlockState(placement.stateOf(state)));
         }
-        if ("anvilcraft:animate_ascending_block".equals(tag.getString("id"))) {
-            for (String key : List.of("Start", "End")) {
-                var relative = NbtUtils.readBlockPos(tag, "Relative" + key);
-                if (relative.isPresent()) {
-                    tag.put(key + "Pos", NbtUtils.writeBlockPos(placement.worldOf(entry.blockPos().offset(relative.get()))));
-                }
-            }
-        }
         if (tag.contains("SlidingBlocks", Tag.TAG_COMPOUND)) {
             var start = NbtUtils.readBlockPos(entry.nbt(), "StartPos");
             ListTag oldPos = entry.nbt().getList("Pos", Tag.TAG_DOUBLE);
