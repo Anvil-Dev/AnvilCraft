@@ -29,6 +29,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
 import dev.dubhe.anvilcraft.network.SmartBlockPlacerActionPacket;
+import dev.dubhe.anvilcraft.util.BlockPlacementUtil;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import lombok.Getter;
 import lombok.Setter;
@@ -149,6 +150,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private boolean cachedPickupMode = true;
     private boolean cachedBlueprintMode = false;  // 缓存蓝图模式状态
     private BlockState[] cachedBlueprintStates = new BlockState[SmartBlockPlacerBlockEntity.POSITION_COUNT];
+    private BlockPlacementUtil.BlueprintExtent cachedBlueprintExtent;
     private long cachedGameTimeBlockType = -1;  // 用于追踪方块类型的游戏时间
 
     // 蓝图名字滚动相关
@@ -1432,6 +1434,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             && this.cachedShowAllLayers == this.showAllLayers
             && this.cachedPickupMode == this.isPickupMode
             && this.cachedBlueprintMode == this.isBlueprintMode
+            && blockEntity.getBlueprint().extent().equals(this.cachedBlueprintExtent)
             && Arrays.equals(this.cachedBlueprintStates, currentBlueprintStates)
             && this.cachedGameTimeBlockType == currentBlockTypeTime) {
             return cachedLevel;
@@ -1445,6 +1448,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         this.cachedPickupMode = this.isPickupMode;
         this.cachedBlueprintMode = this.isBlueprintMode;
         this.cachedBlueprintStates = currentBlueprintStates.clone();
+        this.cachedBlueprintExtent = blockEntity.getBlueprint().extent();
         this.cachedGameTimeBlockType = currentBlockTypeTime;
         return rebuiltLevel;
     }
@@ -1457,10 +1461,6 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private LevelLike buildPreviewLevelLike(SmartBlockPlacerBlockEntity blockEntity, ClientLevel level) {
         LevelLike previewLevelLike = new LevelLike(level);
         previewLevelLike.setAllLayersVisible(this.showAllLayers);
-
-        if (!this.showAllLayers) {
-            previewLevelLike.setCurrentVisibleLayer(this.currentViewLayer);
-        }
 
         // 获取放置器的状态
         boolean upsideDown = false;
@@ -1477,6 +1477,14 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         int placerX = PLACER_PREVIEW_X;
         int placerZ = PLACER_PREVIEW_Z;
         int placerY = upsideDown ? PLACER_PREVIEW_Y_UPSIDE_DOWN : PLACER_PREVIEW_Y;
+
+        if (!this.showAllLayers) {
+            int visibleLayer = this.currentViewLayer;
+            if (this.isBlueprintMode && upsideDown) {
+                visibleLayer += placerY - blockEntity.getBlueprint().extent().maxLayer();
+            }
+            previewLevelLike.setCurrentVisibleLayer(visibleLayer);
+        }
 
         // 放置器始终渲染，不受分层限制，预览窗口中统一朝北
         // 应用实际的 POWERED 和 OVERLOAD 状态以显示正确的贴图
