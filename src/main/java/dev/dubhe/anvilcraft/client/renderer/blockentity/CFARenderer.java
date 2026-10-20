@@ -633,7 +633,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         CelestialBodyData effectiveBodyData = be.getEffectiveBodyDataForRendering();
         state.setEffectiveBodyData(effectiveBodyData);
         boolean canRender = effectiveBodyData != null
-            && (itemDisplay || !(effectiveBodyData instanceof StarData) || be.isAmplifierPresent());
+            && (itemDisplay || !effectiveBodyData.requiresAmplifier() || be.isAmplifierPresent());
         state.setCanRenderBody(canRender);
         if (!canRender) return;
 
@@ -1881,7 +1881,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         double z = pos.getZ() + 0.5;
         double y = pos.getY() + be.getSmoothCenterY();
         float progress = be.getAnimationProgress(partialTicks);
-        boolean canRender = body != null && (!(body instanceof StarData) || be.isAmplifierPresent());
+        boolean canRender = body != null && (!body.requiresAmplifier() || be.isAmplifierPresent());
         float half = maxRingLayerRadius(be, partialTicks);
         if (canRender) {
             float scale = be.getSmoothBodyScale() * progress;
