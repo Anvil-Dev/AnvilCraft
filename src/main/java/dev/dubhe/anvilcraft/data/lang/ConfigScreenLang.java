@@ -51,8 +51,8 @@ public class ConfigScreenLang {
         addOverride(provider, "anvilcraft.configuration.overworld_sky_mode",
             "Overworld Celestial Bodies");
         addOverride(provider, "anvilcraft.configuration.overworld_sky_mode.tooltip",
-            "Vanilla keeps the original Overworld sky. Special replaces only the sun and moon with models, "
-                + "including libration and a continuous eight-day lunar phase cycle. World lighting is unchanged.");
+            "Server-wide Overworld sky and lunar travel mode. Vanilla keeps the original sky and midnight travel window. "
+                + "Special uses modeled celestial bodies and permits travel when the Moon is overhead. Applies to every player.");
         addOverride(provider, "anvilcraft.configuration.relativistic_precession",
             "Relativistic Precession");
         addOverride(provider, "anvilcraft.configuration.relativistic_precession.tooltip",
@@ -62,10 +62,10 @@ public class ConfigScreenLang {
         addOverride(provider, "anvilcraft.configuration.show_storage_stored_id.tooltip",
             "Add a tooltip line that shows storage stored ID");
         addOverride(provider,
-            "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.overworld_sky_mode.special",
+            "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_server_config.overworld_sky_mode.special",
             "Special");
         addOverride(provider,
-            "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.overworld_sky_mode.vanilla",
+            "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_server_config.overworld_sky_mode.vanilla",
             "Vanilla");
 
         ConfigScreenLang.addOverrides(provider);

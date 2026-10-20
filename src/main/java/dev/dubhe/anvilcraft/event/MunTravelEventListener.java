@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
+import dev.dubhe.anvilcraft.config.AnvilCraftServerConfig.OverworldSkyMode;
 import dev.dubhe.anvilcraft.util.Util;
 import dev.dubhe.anvilcraft.worldgen.OverworldSkyState;
 import net.minecraft.core.BlockPos;
@@ -27,10 +28,7 @@ import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 import java.util.WeakHashMap;
 
 /** Upward high-speed pearls reach Mun when the moon is overhead or return from its origin area. */
@@ -45,22 +43,14 @@ public class MunTravelEventListener {
     private static final int RETURN_RADIUS = 128;
     private static final String RETURN_LAUNCH_KEY = "anvilcraft:mun_return_launch";
     private static final Map<ServerPlayer, ArrivalDamage> ARRIVAL_DAMAGE = new WeakHashMap<>();
-    private static final Set<UUID> SPECIAL_SKY_PLAYERS = new HashSet<>();
-
-    public static void setSpecialSky(ServerPlayer player, boolean special) {
-        if (special) SPECIAL_SKY_PLAYERS.add(player.getUUID());
-        else SPECIAL_SKY_PLAYERS.remove(player.getUUID());
-    }
 
     @SubscribeEvent
     public static void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
-        SPECIAL_SKY_PLAYERS.remove(event.getEntity().getUUID());
         ARRIVAL_DAMAGE.remove(event.getEntity());
     }
 
     @SubscribeEvent
     public static void onServerStopped(ServerStoppedEvent event) {
-        SPECIAL_SKY_PLAYERS.clear();
         ARRIVAL_DAMAGE.clear();
     }
 
@@ -129,7 +119,7 @@ public class MunTravelEventListener {
 
     private static boolean canReachMun(ServerLevel level, ServerPlayer player) {
         long dayTime = level.getOverworldClockTime();
-        if (SPECIAL_SKY_PLAYERS.contains(player.getUUID())) {
+        if (AnvilCraft.CONFIG.overworldSkyMode == OverworldSkyMode.SPECIAL) {
             return OverworldSkyState.at(dayTime, 0, Util.getSunAngle(level, player.getEyePosition()) / 360.0).isMoonOverhead();
         }
         return Math.abs(Math.floorMod(dayTime, 24000L) - MIDNIGHT) <= MIDNIGHT_WINDOW;
