@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.util.AgeratumUtil;
 import dev.dubhe.anvilcraft.util.TooltipUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.state.BlockState;
@@ -114,6 +115,13 @@ public class MDMineralFountainRecipeComponent extends MDRecipeComponent {
     }
 
     private static Component dimensionName(Identifier dimension) {
-        return Component.translatable("dimension." + dimension.getNamespace() + "." + dimension.getPath());
+        String key = dimension.toLanguageKey("dimension");
+        if (!I18n.exists(key) && AnvilCraft.MOD_ID.equals(dimension.getNamespace())) {
+            String celestialKey = "screen.anvilcraft.cfa.class.special." + dimension.getPath();
+            if (I18n.exists(celestialKey)) {
+                key = celestialKey;
+            }
+        }
+        return Component.translatableWithFallback(key, dimension.toString());
     }
 }
