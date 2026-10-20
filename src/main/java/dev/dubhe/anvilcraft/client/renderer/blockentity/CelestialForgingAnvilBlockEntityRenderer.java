@@ -647,7 +647,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         /// 使用有效天体数据（考虑 celestialBodyData 已置为 null 的逆向动画情形）
         CelestialBodyData effectiveBodyData = blockEntity.getEffectiveBodyDataForRendering();
         boolean canRender = effectiveBodyData != null
-            && (itemDisplay || !(effectiveBodyData instanceof StarData) || blockEntity.isAmplifierPresent());
+            && (itemDisplay || !effectiveBodyData.requiresAmplifier() || blockEntity.isAmplifierPresent());
         if (canRender) {
             renderTractorBeam(beamHeight, animProgress, poseStack, multiBufferSource);
             float eventProgress = blockEntity.getStellarEventProgress(partialTick);

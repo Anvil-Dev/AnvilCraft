@@ -258,14 +258,14 @@ public class ItemsSections extends DisplayItemsGenerator {
                 content.accept(ModItems.RESONATOR_CORE);
                 content.accept(ModItems.WEATHERPROOF_CORE);
                 content.accept(ModItems.MULTIPHASE_TRANSCENDIUM);
+                content.accept(ModItems.CIVILIZATION_CATALYST);
                 content.accept(ModItems.DYSON_SPHERE_COMPONENT);
+                content.accept(ModItems.STELLAR_RING_COMPONENT);
+                content.accept(ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT);
+                content.accept(ModItems.MAGNETAR_COIL_COMPONENT);
                 content.accept(ModItems.PENROSE_SPHERE_COMPONENT);
                 content.accept(ModItems.MATTER_DECOMPRESSOR_COMPONENT);
                 content.accept(ModItems.WORMHOLE_STABILIZER_COMPONENT);
-                content.accept(ModItems.STELLAR_RING_COMPONENT);
-                content.accept(ModItems.MAGNETAR_COIL_COMPONENT);
-                content.accept(ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT);
-                content.accept(ModItems.CIVILIZATION_CATALYST);
             }
         );
         sections.section(

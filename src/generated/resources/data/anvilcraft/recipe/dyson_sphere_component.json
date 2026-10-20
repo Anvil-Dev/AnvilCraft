@@ -3,22 +3,22 @@
   "category": "misc",
   "key": {
     "A": {
-      "item": "anvilcraft:ember_metal_ingot"
-    },
-    "B": {
       "item": "anvilcraft:transcendium_ingot"
     },
+    "B": {
+      "item": "anvilcraft:ember_metal_ingot"
+    },
     "C": {
-      "item": "anvilcraft:heat_collector"
+      "item": "anvilcraft:infinite_collector"
     }
   },
   "pattern": [
     "ABA",
-    "CCC",
+    "BCB",
     "ABA"
   ],
   "result": {
-    "count": 4,
+    "count": 6,
     "id": "anvilcraft:dyson_sphere_component"
   }
 }

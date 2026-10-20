@@ -14,9 +14,11 @@ import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -67,6 +69,7 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
+        tag.putBoolean("Working", this.isWorking());
         tag.putInt("tickCache", this.time);
         tag.putInt("inputtingHeatPower", this.inputtingHeatPower);
         tag.putInt("InputCooldownCount", this.inputCooldownCount);
@@ -78,6 +81,7 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
+        this.result = !tag.contains("Working") || tag.getBoolean("Working") ? WorkResult.SUCCESS : WorkResult.TOO_CLOSE;
         this.time = tag.getInt("tickCache");
         this.inputtingHeatPower = tag.contains("inputtingHeatPower")
             ? tag.getInt("inputtingHeatPower")
@@ -102,6 +106,18 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
     }
 
     @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        CompoundTag tag = new CompoundTag();
+        this.saveAdditional(tag, registries);
+        return tag;
+    }
+
+    @Override
+    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
     public void gridTick() {
         if (level == null || level.isClientSide()) return;
         int oldPower = this.outputPower;
@@ -118,13 +134,22 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
             this.chargeCount = 0;
             this.refreshChargePower();
         }
-        this.outputPower = AnvilCraft.CONFIG.machines.infiniteCollectorBasePower + this.inputtingHeatPower + this.chargePower;
+        this.outputPower = this.getBasePower() + this.inputtingHeatPower + this.chargePower;
         if (this.outputPower > 0 && this.getBlockState().getBlock() instanceof InfiniteCollectorBlock collector) {
             collector.activate(this.level, this.getBlockPos(), this.getBlockState());
         }
         if (this.outputPower != oldPower && this.grid != null) this.grid.markChanged();
         this.inputtingHeatPower = 0;
         this.time++;
+    }
+
+    private int getBasePower() {
+        int mass = VoidEnergyCollectorBlockEntity.countMassInRange(this.level, this.getBlockPos(), this.getRange());
+        int basePower = AnvilCraft.CONFIG.machines.infiniteCollectorBasePower;
+        if (mass <= -41) return basePower * 20;
+        if (mass <= -21) return basePower * 8;
+        if (mass <= -11) return basePower * 3;
+        return basePower;
     }
 
     private void addCharge(int charge) {
@@ -242,7 +267,13 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
 
     @Override
     public void setCollectorWorking(boolean working) {
-        this.result = working ? WorkResult.SUCCESS : WorkResult.TOO_CLOSE;
+        WorkResult result = working ? WorkResult.SUCCESS : WorkResult.TOO_CLOSE;
+        if (this.result == result) return;
+        this.result = result;
+        this.setChanged();
+        if (this.level != null && !this.level.isClientSide()) {
+            this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), Block.UPDATE_CLIENTS);
+        }
     }
 
     @Override

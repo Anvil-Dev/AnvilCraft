@@ -145,33 +145,33 @@ public final class CelestialRefactorRegistry {
                 ringModel(2, "exctractor"), prefix + "giant_planet_exctractor", ModBlocks.PUMP.asItem(), 32));
             options.add(CelestialRefactorOption.withMaterial(2, "dyson_sphere_brown_dwarf",
                 ringModel(2, "dyson_sphere"), prefix + "dyson_sphere_brown_dwarf",
-                ModItems.DYSON_SPHERE_COMPONENT.get(), 8));
+                ModItems.DYSON_SPHERE_COMPONENT.get(), 1));
         }
         if (innermostRing <= 4 && 4 <= maxRing) {
             options.add(CelestialRefactorOption.withMaterial(4, "stellar_ring_collider", ringModel(4, "collider"),
-                prefix + "stellar_ring_collider", ModItems.STELLAR_RING_COMPONENT.get(), 8));
+                prefix + "stellar_ring_collider", ModItems.STELLAR_RING_COMPONENT.get(), 2));
             options.add(CelestialRefactorOption.withMaterial(4, "dyson_sphere_small", ringModel(4, "dyson_sphere"),
-                prefix + "dyson_sphere_small", ModItems.DYSON_SPHERE_COMPONENT.get(), 16));
+                prefix + "dyson_sphere_small", ModItems.DYSON_SPHERE_COMPONENT.get(), 2));
             options.add(CelestialRefactorOption.withMaterial(4, "magnetar_coil", ringModel(4, "coil"),
-                prefix + "magnetar_coil", ModItems.MAGNETAR_COIL_COMPONENT.get(), 4));
+                prefix + "magnetar_coil", ModItems.MAGNETAR_COIL_COMPONENT.get(), 32));
             options.add(CelestialRefactorOption.withMaterial(4, "penrose_sphere", ringModel(4, "penrose_sphere"),
-                prefix + "penrose_sphere", ModItems.PENROSE_SPHERE_COMPONENT.get(), 8));
+                prefix + "penrose_sphere", ModItems.PENROSE_SPHERE_COMPONENT.get(), 32));
             options.add(CelestialRefactorOption.withMaterial(4, "matter_decompressor",
                 ringModel(4, "matter_decompressor"), prefix + "matter_decompressor",
-                ModItems.MATTER_DECOMPRESSOR_COMPONENT.get(), 2));
+                ModItems.MATTER_DECOMPRESSOR_COMPONENT.get(), 32));
             options.add(CelestialRefactorOption.withMaterial(4, "wormhole_stabilizer",
                 ringModel(4, "wormhole_stabilizer"), prefix + "wormhole_stabilizer",
-                ModItems.WORMHOLE_STABILIZER_COMPONENT.get(), 4));
+                ModItems.WORMHOLE_STABILIZER_COMPONENT.get(), 1));
             options.add(CelestialRefactorOption.withMaterial(5, "stellar_evolution_accelerator",
                 ringModel(5, "stellar_evolution_accelerator"), prefix + "stellar_evolution_accelerator",
-                ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT.get(), 8));
+                ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT.get(), 4));
         }
         if (innermostRing <= 5 && 5 <= maxRing) {
             options.add(CelestialRefactorOption.withMaterial(5, "dyson_sphere_large", ringModel(5, "dyson_sphere"),
-                prefix + "dyson_sphere_large", ModItems.DYSON_SPHERE_COMPONENT.get(), 32));
+                prefix + "dyson_sphere_large", ModItems.DYSON_SPHERE_COMPONENT.get(), 4));
             options.add(CelestialRefactorOption.withMaterial(6, "stellar_evolution_accelerator",
                 ringModel(6, "stellar_evolution_accelerator"), prefix + "stellar_evolution_accelerator",
-                ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT.get(), 8));
+                ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT.get(), 4));
         }
         return options;
     }

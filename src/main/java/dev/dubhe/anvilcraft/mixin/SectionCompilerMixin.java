@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexSorting;
 import dev.dubhe.anvilcraft.api.hammer.IHasHammerEffect;
+import dev.dubhe.anvilcraft.client.support.MagnetAnvilAnimation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.SectionBufferBuilderPack;
@@ -76,6 +77,7 @@ public abstract class SectionCompilerMixin {
         RenderType renderType,
         Operation<Void> original
     ) {
+        if (MagnetAnvilAnimation.hidesBlock(pos, state)) return;
         if (Minecraft.getInstance().screen instanceof IHasHammerEffect hammerEffect && hammerEffect.shouldSkipRebuildBlock()) {
             BlockPos blockPos1 = hammerEffect.hiddenBlockPos();
             if (!blockPos1.equals(pos)) {

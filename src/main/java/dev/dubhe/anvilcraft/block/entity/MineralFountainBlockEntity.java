@@ -147,6 +147,7 @@ public class MineralFountainBlockEntity extends BlockEntity {
     /** 按配方的概率产出方块；上方是方块实体时跳过，避免覆盖排水口之类的机器。 */
     private void produce(AbstractMineralFountainRecipe recipe, ServerLevel serverLevel) {
         if (this.level == null) return;
+        this.resetTickCount();
         if (this.level.getBlockEntity(this.getBlockPos().above()) != null) return;
         ChanceBlockState result = recipe.getToBlock();
         if (this.level.getRandom().nextDouble() <= recipe.chance(serverLevel)) {

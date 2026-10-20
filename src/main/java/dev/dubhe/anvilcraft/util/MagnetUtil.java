@@ -7,9 +7,17 @@ import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.entity.MagnetizedNodeEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
+import dev.dubhe.anvilcraft.network.MagnetAnvilAnimationPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
+import net.minecraft.network.protocol.game.ClientboundBundlePacket;
+import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -22,6 +30,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
@@ -29,7 +38,34 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.ModLoader;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class MagnetUtil {
+    public static void animateAnvil(Level level, Vec3 start, BlockState state, BlockPos end, int... removedEntities) {
+        sendAnimation(level, start, state, end, removedEntities);
+    }
+
+    public static void animateAscendingBlock(Level level, Vec3 start, BlockState state, BlockPos end) {
+        sendAnimation(level, start, state, end, new int[0]);
+    }
+
+    private static void sendAnimation(Level level, Vec3 start, BlockState state, BlockPos end, int[] removedEntities) {
+        if (!(level instanceof ServerLevel serverLevel)) return;
+        // Deliver the real blocks and the visual offset together, before the normal end-of-tick chunk broadcast.
+        List<Packet<? super ClientGamePacketListener>> updates = new ArrayList<>(List.of(
+            new ClientboundBlockUpdatePacket(serverLevel, end.above()),
+            new ClientboundBlockUpdatePacket(serverLevel, BlockPos.containing(start)),
+            new ClientboundBlockUpdatePacket(serverLevel, end)
+        ));
+        if (removedEntities.length > 0) updates.add(new ClientboundRemoveEntitiesPacket(removedEntities));
+        updates.add(new ClientboundCustomPayloadPacket(new MagnetAnvilAnimationPacket(start, end, state)));
+        ClientboundBundlePacket packet = new ClientboundBundlePacket(updates);
+        for (ServerPlayer player : serverLevel.getChunkSource().chunkMap.getPlayers(new ChunkPos(end), false)) {
+            player.connection.send(packet);
+        }
+    }
+
     public static boolean hasMagnetism(Level level, BlockPos pos) {
         BlockState state = level.getBlockState(pos.above());
         return (state.is(ModBlockTags.MAGNET)

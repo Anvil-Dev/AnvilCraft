@@ -1075,7 +1075,8 @@ public class ModBlocks {
             .blockstate(DataGenUtil::noExtraModelOrState)
             .item(InfiniteCollectorBlockItem::new)
             .properties(properties -> properties.fireResistant().rarity(Rarity.EPIC)
-                .component(ModComponents.ETERNAL, Eternal.INSTANCE))
+                .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+                .component(DataComponents.UNBREAKABLE, new Unbreakable(true)))
             .tag(ModItemTags.EXPLOSION_PROOF)
             .build()
             .recipe(RegistrumBlockRecipeLoader::infiniteCollector)
@@ -2101,7 +2102,8 @@ public class ModBlocks {
             .emissiveRendering(ModBlocks::always))
         .item(CelestialForgingAnvilAmplifierBlockItem::new)
         .properties(properties -> properties.stacksTo(16).rarity(Rarity.EPIC)
-            .component(ModComponents.ETERNAL, Eternal.INSTANCE))
+            .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+            .component(DataComponents.UNBREAKABLE, new Unbreakable(true)))
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag((BlockTags.MINEABLE_WITH_PICKAXE), BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
@@ -2190,7 +2192,8 @@ public class ModBlocks {
         .item(CelestialForgingAnvilPortalBlockItem::new)
         .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/celestial_forging_anvil_gate")))
         .properties(properties -> properties.rarity(Rarity.EPIC)
-            .component(ModComponents.ETERNAL, Eternal.INSTANCE))
+            .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+            .component(DataComponents.UNBREAKABLE, new Unbreakable(true)))
         .build()
         .recipe(RegistrumBlockRecipeLoader::celestialForgingAnvilPortal)
         .register();
@@ -4857,7 +4860,7 @@ public class ModBlocks {
                         .add(LootItem.lootTableItem(Items.HEART_OF_THE_SEA)
                             .when(() -> new RandomChanceWithFortuneCondition(
                                 0.1f,
-                                LevelBasedValue.perLevel(0.1f, 0.1f),
+                                LevelBasedValue.perLevel(0.2f, 0.1f),
                                 tables.getRegistries()
                                     .lookupOrThrow(Registries.ENCHANTMENT)
                                     .getOrThrow(Enchantments.FORTUNE)

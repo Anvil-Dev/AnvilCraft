@@ -71,6 +71,7 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
 
     /** 客户端本地过滤器物品缓存（服务端回传更新） */
     private ItemStack filterItem = ItemStack.EMPTY;
+    private List<FluidStack> filterFluids = List.of();
 
     private FluidRateSlider slider;
     private EditBox valueBox;
@@ -138,7 +139,8 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
 
     /** 过滤器物品被服务端回传更新。 */
     public void setFilterItem(ItemStack filterItem) {
-        this.filterItem = filterItem;
+        this.filterItem = filterItem.copyWithCount(1);
+        this.filterFluids = List.copyOf(ControlValveBlockEntity.resolveFluids(this.filterItem));
     }
 
     /**
@@ -148,11 +150,10 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
      */
     private FluidStack displayedFilterFluid() {
         if (this.filterItem.isEmpty()) return this.filterFluid;
-        List<FluidStack> fluids = ControlValveBlockEntity.resolveFluids(this.filterItem);
-        if (fluids.isEmpty()) return FluidStack.EMPTY;
+        if (this.filterFluids.isEmpty()) return FluidStack.EMPTY;
         int interval = Math.max(1, AnvilCraft.CLIENT_CONFIG.ui.filterItemDisplayIntervalMillis);
-        int index = (int) Math.floorMod(Util.getMillis() / interval, fluids.size());
-        return fluids.get(index);
+        int index = (int) Math.floorMod(Util.getMillis() / interval, this.filterFluids.size());
+        return this.filterFluids.get(index);
     }
 
     private void onSliderChange(int value) {
@@ -202,8 +203,8 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
             return;
         }
         FluidStack fluid = ControlValveBlockEntity.fluidOf(ingredient);
-        this.setFilter(0, fluid);
-        PacketDistributor.sendToServer(new ControlValveFilterPacket(0, fluid));
+        if (fluid.isEmpty()) return;
+        this.acceptFluidGhost(0, fluid);
     }
 
     @Override
@@ -328,7 +329,7 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
         // 过滤器内可含多种流体，一次列出全部，而不是只显示轮播到的那一个
         List<FluidStack> fluids = this.filterItem.isEmpty()
             ? (this.filterFluid.isEmpty() ? List.of() : List.of(this.filterFluid))
-            : ControlValveBlockEntity.resolveFluids(this.filterItem);
+            : this.filterFluids;
         if (fluids.isEmpty()) {
             return;
         }

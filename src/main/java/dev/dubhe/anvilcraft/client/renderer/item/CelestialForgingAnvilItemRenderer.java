@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CelestialForgingAnvilBlockEntityRenderer;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.integration.iris.IrisState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
@@ -159,7 +160,7 @@ public class CelestialForgingAnvilItemRenderer extends BlockEntityWithoutLevelRe
                     // 即绕手臂自身长轴滚转，把掌心从朝右翻到朝左，不改变手臂指向。
                     poseStack.mulPose(Axis.YP.rotationDegrees(CRADLE_HAND_ROLL));
                     int light = LevelRenderer.getLightColor(player.level(), player.blockPosition());
-                    MultiBufferSource buffer = minecraft.renderBuffers().bufferSource();
+                    MultiBufferSource buffer = IrisState.getHandBufferSource(minecraft.renderBuffers().bufferSource());
                     if (arm == HumanoidArm.RIGHT) {
                         playerRenderer.renderRightHand(poseStack, buffer, light, player);
                     } else {

@@ -57,22 +57,29 @@ public final class StructureBlueprintFiles {
     }
 
     public static String write(MinecraftServer server, String name, byte[] bytes) throws IOException {
-        if (!name.toLowerCase(Locale.ROOT).endsWith(".nbt")) throw new IOException("Invalid export file name");
+        return write(directory(server), name, bytes);
+    }
+
+    public static String write(Path directory, String name, byte[] bytes) throws IOException {
+        if (name.lastIndexOf('.') <= 0 || !name.toLowerCase(Locale.ROOT).endsWith(".nbt")) {
+            throw new IOException("Invalid export file name");
+        }
         if (bytes.length == 0 || bytes.length > StructureFileTransfer.MAX_BYTES) throw new IOException("Invalid file size");
-        Path target = resolve(server, name);
+        Path target = resolve(directory, name);
+        Files.createDirectories(target.getParent());
         Path temporary = Files.createTempFile(target.getParent(), ".scanner-", ".tmp");
         try {
             Files.write(temporary, bytes);
             String candidate = name;
             for (int index = 1; ; index++) {
-                if (!resolve(server, candidate).equals(target)) throw new IOException("Export directory changed");
+                if (!resolve(directory, candidate).equals(target)) throw new IOException("Export directory changed");
                 try {
                     Files.move(temporary, target);
                     return candidate;
                 } catch (FileAlreadyExistsException exception) {
                     String suffix = "_" + index + name.substring(name.length() - 4);
                     candidate = name.substring(0, Math.min(name.length() - 4, 128 - suffix.length())) + suffix;
-                    target = resolve(server, candidate);
+                    target = resolve(directory, candidate);
                 }
             }
         } finally {
@@ -81,8 +88,12 @@ public final class StructureBlueprintFiles {
     }
 
     private static Path resolve(MinecraftServer server, String name) throws IOException {
+        return resolve(directory(server), name);
+    }
+
+    private static Path resolve(Path directory, String name) throws IOException {
         if (!StructureFileTransfer.isSafeName(name)) throw new IOException("Invalid file name");
-        Path root = directory(server);
+        Path root = directory.toAbsolutePath().normalize();
         Path file = root.resolve(name).normalize();
         if (!root.equals(file.getParent()) || Files.isSymbolicLink(file)) throw new IOException("Invalid file path");
         return file;

@@ -1,9 +1,11 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.block.IVoidEnergyAmplifier;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
+import dev.dubhe.anvilcraft.block.InfiniteCollectorBlock;
 import dev.dubhe.anvilcraft.block.VoidEnergyCollectorBlock;
 import dev.dubhe.anvilcraft.block.VoidMatterBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -24,6 +26,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 
 public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowerProducer, IHasAffectRange {
+    public static final int RANGE = 2;
     private static final int COOLDOWN = 2;
     // private static final int DECAY_COOLDOWN = 60;
 
@@ -137,15 +140,19 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
     }
 
     public static boolean isAnotherCollectorNearby(Level level, BlockPos pos) {
+        int infiniteOverlap = RANGE + AnvilCraft.CONFIG.machines.infiniteCollectorRange;
+        int range = Math.max(RANGE * 2, infiniteOverlap);
         BlockPos.MutableBlockPos mpos = new BlockPos.MutableBlockPos();
-        for (int i = -4; i <= 4; i++) {
-            for (int j = -4; j <= 4; j++) {
-                for (int k = -4; k <= 4; k++) {
+        for (int i = -range; i <= range; i++) {
+            for (int j = -range; j <= range; j++) {
+                for (int k = -range; k <= range; k++) {
+                    if (i == 0 && j == 0 && k == 0) continue;
                     mpos.set(pos).move(i, j, k);
-                    if (level.isOutsideBuildHeight(mpos)) continue;
+                    if (level.isOutsideBuildHeight(mpos) || !level.isLoaded(mpos)) continue;
                     BlockState blockState = level.getBlockState(mpos);
-                    // this disables the collector when there is another in 9x9x9
-                    if ((i != 0 || j != 0 || k != 0) && blockState.getBlock() instanceof VoidEnergyCollectorBlock) return true;
+                    int distance = Math.max(Math.max(Math.abs(i), Math.abs(j)), Math.abs(k));
+                    if ((distance <= RANGE * 2 && blockState.getBlock() instanceof VoidEnergyCollectorBlock)
+                        || (distance <= infiniteOverlap && blockState.getBlock() instanceof InfiniteCollectorBlock)) return true;
                 }
             }
         }
@@ -160,16 +167,19 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
      * @return count(normal) - count(negative) IF active ELSE 125
      */
     private int countBlocksInRange() {
-        if (level == null || level.isClientSide()) return 125;
+        if (this.level == null || this.level.isClientSide()) return 125;
+        if (VoidEnergyCollectorBlockEntity.isAnotherCollectorNearby(this.level, this.getBlockPos())) return 125;
+        return VoidEnergyCollectorBlockEntity.countMassInRange(this.level, this.getBlockPos(), RANGE);
+    }
+
+    public static int countMassInRange(Level level, BlockPos pos, int range) {
         int count = 0;
-        if (isAnotherCollectorNearby(this.level, this.getBlockPos())) return 125;
         BlockPos.MutableBlockPos mpos = new BlockPos.MutableBlockPos();
-        for (int i = -2; i <= 2; i++) {
-            for (int j = -2; j <= 2; j++) {
-                for (int k = -2; k <= 2; k++) {
-                    // the 5x5x5 detection that counts how many blocks are there
-                    mpos.set(this.getBlockPos()).move(i, j, k);
-                    if (level.isOutsideBuildHeight(mpos)) continue;
+        for (int i = -range; i <= range; i++) {
+            for (int j = -range; j <= range; j++) {
+                for (int k = -range; k <= range; k++) {
+                    mpos.set(pos).move(i, j, k);
+                    if (level.isOutsideBuildHeight(mpos) || !level.isLoaded(mpos)) continue;
                     BlockState blockState = level.getBlockState(mpos);
                     if (blockState.is(ModBlockTags.CONTAINS_VOID_ENERGY)) continue;
                     if (blockState.getBlock() instanceof IVoidEnergyAmplifier amplifier) {
@@ -187,9 +197,9 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
         if (level == null || level.isClientSide()) return;
         RandomSource random = level.getRandom();
         ArrayList<BlockPos> list = new ArrayList<>();
-        for (int i = -2; i <= 2; i++) {
-            for (int j = -2; j <= 2; j++) {
-                for (int k = -2; k <= 2; k++) {
+        for (int i = -RANGE; i <= RANGE; i++) {
+            for (int j = -RANGE; j <= RANGE; j++) {
+                for (int k = -RANGE; k <= RANGE; k++) {
                     BlockPos thisPos = this.getBlockPos();
                     BlockPos bp = new BlockPos(
                         thisPos.getX() + i,
@@ -212,12 +222,12 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
 
     @Override
     public int getRange() {
-        return 2;
+        return RANGE;
     }
 
     @Override
     public AABB shape() {
-        return AABB.ofSize(getBlockPos().getCenter(), 5, 5, 5);
+        return AABB.ofSize(getBlockPos().getCenter(), RANGE * 2 + 1, RANGE * 2 + 1, RANGE * 2 + 1);
     }
 
     public void clientTick() {

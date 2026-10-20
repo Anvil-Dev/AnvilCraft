@@ -172,7 +172,8 @@ public class BlockTagLoader {
 
         provider.addTag(ModBlockTags.CONTAINS_VOID_ENERGY)
             .add(ModBlocks.VOID_MATTER_BLOCK.getKey())
-            .add(ModBlocks.VOID_ENERGY_COLLECTOR.getKey());
+            .add(ModBlocks.VOID_ENERGY_COLLECTOR.getKey())
+            .add(ModBlocks.INFINITE_COLLECTOR.getKey());
 
         provider.addTag(ModBlockTags.VOID_DECAY_PRODUCTS)
             .add(ModBlocks.FLINT_BLOCK.getKey())

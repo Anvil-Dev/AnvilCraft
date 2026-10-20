@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.integration.jei.category;
 import dev.anvilcraft.lib.v2.util.NumberProviderUtil;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
+import dev.dubhe.anvilcraft.client.support.DimensionNameSupport;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -39,6 +40,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -254,7 +256,6 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         // 主动与被动执行阶段不同，各自分组；同组并列配方按权重瓜分产出。替换逐条改写主动结果，独立成项。
         Map<String, List<RecipeHolder<MineralFountainActiveRecipe>>> activeGroups = new LinkedHashMap<>();
         for (RecipeHolder<MineralFountainActiveRecipe> holder : activeRecipes) {
-            if (holder.value().getAround().isEmpty()) continue;
             activeGroups.computeIfAbsent(activeGroupKey(holder.value()), key -> new ArrayList<>()).add(holder);
         }
         for (List<RecipeHolder<MineralFountainActiveRecipe>> group : activeGroups.values()) {
@@ -428,12 +429,11 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
     private static List<Component> getChanceTooltips(MineralFountainJeiRecipe recipe, @Nullable BlockState displayed) {
         List<Component> tooltips = new ArrayList<>();
         double chance = displayed == null ? recipe.totalChance() : recipe.chanceOf(displayed);
-        // 按取整后判断，避免 99.96% 被格式化成 100% 却仍然显示
-        if (chance >= 0 && Math.round(chance * 100) < 100) {
+        if (chance >= 0 && chance < 1) {
             tooltips.add(
                 Component.translatable(
                     "gui.anvilcraft.category.chance",
-                    FORMATTER.format(chance * 100)
+                    formatPercentage(chance)
                 ).withStyle(ChatFormatting.GRAY)
             );
         }
@@ -441,7 +441,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             tooltips.add(
                 Component.translatable(
                     "gui.anvilcraft.category.mineral_fountain.replace_chance",
-                    FORMATTER.format(recipe.replacementChance() * 100)
+                    formatPercentage(recipe.replacementChance())
                 ).withStyle(ChatFormatting.GRAY)
             );
             if (recipe.replacementTarget() != null) {
@@ -454,6 +454,17 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             }
         }
         return tooltips;
+    }
+
+    private static String formatPercentage(double chance) {
+        String percentage = FORMATTER.format(chance * 100);
+        if (chance < 1 && percentage.equals(FORMATTER.format(100))) {
+            BigDecimal exact = BigDecimal.valueOf(chance).movePointRight(2);
+            DecimalFormat localized = (DecimalFormat) FORMATTER.clone();
+            localized.setMaximumFractionDigits(Math.max(0, exact.scale()));
+            return localized.format(exact);
+        }
+        return percentage;
     }
 
     /**
@@ -533,6 +544,6 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
     }
 
     private static Component getDimensionName(ResourceLocation dimension) {
-        return Component.translatable("dimension." + dimension.getNamespace() + "." + dimension.getPath());
+        return DimensionNameSupport.getName(dimension);
     }
 }

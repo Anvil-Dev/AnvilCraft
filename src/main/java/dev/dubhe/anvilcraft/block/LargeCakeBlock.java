@@ -3,6 +3,8 @@ package dev.dubhe.anvilcraft.block;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
@@ -240,6 +242,17 @@ public class LargeCakeBlock extends Block {
             return InteractionResult.PASS;
         } else {
             player.getFoodData().eat(15, 0.8f);
+            /// 与其它蛋糕一致，进食时播放原版进食音效；eat 两侧都会执行，仅在服务端播放
+            if (!level.isClientSide()) {
+                level.playSound(
+                    null,
+                    pos,
+                    SoundEvents.GENERIC_EAT,
+                    SoundSource.PLAYERS,
+                    1.0f,
+                    1.0f + (level.getRandom().nextFloat() - level.getRandom().nextFloat()) * 0.4f
+                );
+            }
             level.removeBlock(pos, false);
             level.gameEvent(player, GameEvent.BLOCK_DESTROY, pos);
             return InteractionResult.SUCCESS;
