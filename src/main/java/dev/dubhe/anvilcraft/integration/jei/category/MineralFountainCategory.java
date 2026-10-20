@@ -457,8 +457,13 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
 
     private static String formatPercentage(double chance) {
         String percentage = FORMATTER.format(chance * 100);
-        return chance < 1 && percentage.equals(FORMATTER.format(100))
-            ? BigDecimal.valueOf(chance).movePointRight(2).stripTrailingZeros().toPlainString() : percentage;
+        if (chance < 1 && percentage.equals(FORMATTER.format(100))) {
+            BigDecimal exact = BigDecimal.valueOf(chance).movePointRight(2);
+            DecimalFormat localized = (DecimalFormat) FORMATTER.clone();
+            localized.setMaximumFractionDigits(Math.max(0, exact.scale()));
+            return localized.format(exact);
+        }
+        return percentage;
     }
 
     /**
