@@ -39,6 +39,14 @@ import java.util.List;
 
 public abstract class MagnetUtil {
     public static void animateAnvil(Level level, Vec3 start, BlockState state, BlockPos end, int... removedEntities) {
+        sendAnimation(level, start, end, state, removedEntities);
+    }
+
+    public static void animateAscendingBlock(Level level, Vec3 start, BlockPos end, BlockState state) {
+        sendAnimation(level, start, end, state, new int[0]);
+    }
+
+    private static void sendAnimation(Level level, Vec3 start, BlockPos end, BlockState state, int[] removedEntities) {
         if (!(level instanceof ServerLevel serverLevel)) return;
         // Deliver the real blocks and the visual offset together, before the normal end-of-tick chunk broadcast.
         List<Packet<? super ClientGamePacketListener>> updates = new ArrayList<>(List.of(
