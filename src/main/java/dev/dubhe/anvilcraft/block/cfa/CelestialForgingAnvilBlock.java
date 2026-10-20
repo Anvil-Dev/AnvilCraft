@@ -333,10 +333,6 @@ public class CelestialForgingAnvilBlock
         blockEntityTag.remove("wormholeBodyUuid");
         blockEntityTag.remove("portals");
         blockEntityTag.remove("amplifierPresent");
-        blockEntityTag.remove("activeMegastructureId");
-        blockEntityTag.remove("activeMegastructure");
-        blockEntityTag.remove("activeMegastructureName");
-        blockEntityTag.remove("activeMegastructureRing");
         blockEntityTag.remove("colliderCooldown");
         blockEntityTag.remove("colliderCycleRemaining");
         blockEntityTag.remove("colliderActiveSpeed");
@@ -376,8 +372,8 @@ public class CelestialForgingAnvilBlock
         level.getBlockEntity(state.getControllerPos(), ModBlockEntities.CELESTIAL_FORGING_ANVIL.get())
             .ifPresent(be -> {
                 be.setAmplifierPresent(false);
-                if (be.getCelestialBodyData() instanceof StarData) {
-                    be.removeGravitySource(); // invisible stars must stop producing gravity immediately
+                if (be.getCelestialBodyData() instanceof StarData star) {
+                    if (star.requiresAmplifier()) be.removeGravitySource();
                     be.setLocked(true);
                     be.clearSearchHistory();
                     // 保留增幅标记和恒星数据；增幅器缺失时由渲染器隐藏天体。

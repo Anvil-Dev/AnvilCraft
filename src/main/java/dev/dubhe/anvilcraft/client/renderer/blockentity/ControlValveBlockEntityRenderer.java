@@ -28,6 +28,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.Util;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -82,7 +83,7 @@ public class ControlValveBlockEntityRenderer
         state.setMaxRate(be.getMaxRate());
         state.setHandwheel(FeatureRendererSupport.initialize(ControlValveBlockEntityRenderer.HANDWHEEL, be));
 
-        FluidStack filter = be.getFilter(0);
+        FluidStack filter = be.getDisplayedFilterFluid(Util.getMillis());
         state.setFilterResource(filter.isEmpty() ? null : FluidResource.of(filter));
 
         if (be.isLocked()) {

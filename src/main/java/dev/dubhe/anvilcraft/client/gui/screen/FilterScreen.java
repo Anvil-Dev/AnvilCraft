@@ -133,6 +133,8 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
     @Override
     public void acceptGhost(Slot slot, ItemStack filterStack) {
         if (!(slot instanceof FilterSlot filterSlot)) return;
+        FilterContent content = filterStack.get(ModComponents.FILTER_CONTENT);
+        if (content != null && content.getNestingLevel() >= 2) return;
         filterSlot.set(filterStack.copyWithCount(1));
         this.getMenu().sync();
     }

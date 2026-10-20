@@ -34,8 +34,11 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.phys.AABB;
+import org.joml.Matrix3f;
 import org.joml.Matrix3x2f;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.jspecify.annotations.Nullable;
 
 import java.util.LinkedHashMap;
@@ -97,6 +100,23 @@ public class RenderSupport {
 
     /** Draw a preview at an anchor with a fixed number of GUI pixels per block. */
     public static void renderBlockAt(GuiGraphicsExtractor graphics, BlockState block, float x, float y, float scale) {
+        if (!block.getFluidState().isEmpty()) {
+            ClientLevel clientLevel = Minecraft.getInstance().level;
+            if (clientLevel == null) return;
+            LevelLike preview = new LevelLike(clientLevel);
+            preview.setBlockState(BlockPos.ZERO, block);
+            float resolution = Math.max(1, Math.max(
+                (float) Math.hypot(graphics.pose().m00(), graphics.pose().m01()),
+                (float) Math.hypot(graphics.pose().m10(), graphics.pose().m11())));
+            float extent = scale * 4;
+            graphics.pose().pushMatrix();
+            graphics.pose().scale(1 / resolution, 1 / resolution);
+            GuiRenderExtras.submitStructure(graphics, preview, BlockPos.ZERO, BlockPos.ZERO,
+                (x - extent) * resolution, (y - extent) * resolution, (x + extent) * resolution, (y + extent) * resolution,
+                scale * resolution, false, false, RenderSupport.previewPose());
+            graphics.pose().popMatrix();
+            return;
+        }
         if (block.getBlock() instanceof DoorBlock) {
             BlockState closed = block.setValue(DoorBlock.OPEN, false);
             var models = Minecraft.getInstance().getModelManager().getBlockStateModelSet();
@@ -333,13 +353,17 @@ public class RenderSupport {
         float centerOffset = (sizeX + 1) % 2 != 0 ? -0.5F : 0;
         float offsetX = -sizeX / 2F + centerOffset;
         float offsetZ = -sizeX / 2F + 1 + centerOffset;
-        float rotation = (clientLevel.getGameTime() + minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(true)) * rotationSpeed;
+        double rotation = Mth.positiveModulo(
+            (double) clientLevel.getGameTime() * rotationSpeed
+                + (double) minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(true) * rotationSpeed,
+            360.0
+        );
         PoseStack pose = new PoseStack();
         pose.scale(-1, 1, -1);
         pose.translate(-sizeX / 2F + centerOffset, -sizeY / 2F, 0);
         pose.mulPose(Axis.XP.rotationDegrees(-30));
         pose.translate(-offsetX, 0, -offsetZ);
-        pose.mulPose(Axis.YP.rotationDegrees(rotation + 45));
+        pose.mulPose(Axis.YP.rotationDegrees((float) rotation + 45));
         pose.translate(offsetX, 0, offsetZ);
         // StructurePipRenderer subtracts half a block before tessellation.
         pose.translate(0.5F, 0.5F, -0.5F);
@@ -376,8 +400,12 @@ public class RenderSupport {
         Minecraft minecraft = Minecraft.getInstance();
         ClientLevel currentLevel = minecraft.level;
         if (currentLevel == null) return;
-        float gameTime = currentLevel.getGameTime() + minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(true);
-        poseStack.mulPose(Axis.YP.rotationDegrees(gameTime * rotationSpeed));
+        double rotation = Mth.positiveModulo(
+            (double) currentLevel.getGameTime() * rotationSpeed
+                + (double) minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(true) * rotationSpeed,
+            360.0
+        );
+        poseStack.mulPose(Axis.YP.rotationDegrees((float) rotation));
         poseStack.translate(-(minPos.get().getX() + maxPos.get().getX()) / 2F,
             -(minPos.get().getY() + maxPos.get().getY()) / 2F,
             -(minPos.get().getZ() + maxPos.get().getZ()) / 2F);
@@ -394,6 +422,27 @@ public class RenderSupport {
             true,
             glitched,
             poseStack
+        );
+    }
+
+    public static float autoScale(
+        Quaternionf rotation,
+        AABB bounds,
+        int windowWidth,
+        int windowHeight,
+        float padding
+    ) {
+        Matrix3f matrix = new Matrix3f().rotation(rotation);
+        float sizeX = (float) bounds.getXsize();
+        float sizeY = (float) bounds.getYsize();
+        float sizeZ = (float) bounds.getZsize();
+        float projectedWidth = Math.abs(matrix.m00()) * sizeX
+            + Math.abs(matrix.m10()) * sizeY + Math.abs(matrix.m20()) * sizeZ;
+        float projectedHeight = Math.abs(matrix.m01()) * sizeX
+            + Math.abs(matrix.m11()) * sizeY + Math.abs(matrix.m21()) * sizeZ;
+        return Math.min(
+            (windowWidth - padding * 2) / Math.max(projectedWidth, 1.0e-4f),
+            (windowHeight - padding * 2) / Math.max(projectedHeight, 1.0e-4f)
         );
     }
 

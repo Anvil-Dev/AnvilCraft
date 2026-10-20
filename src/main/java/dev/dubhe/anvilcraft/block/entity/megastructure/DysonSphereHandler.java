@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity.megastructure;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyMatcher;
 import dev.dubhe.anvilcraft.block.entity.celestial.GiantPlanetData;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
@@ -28,6 +29,7 @@ public class DysonSphereHandler extends BaseMegastructureHandler {
     private static final int BROWN_DWARF_TIER_3 = MATTER_PER_BUCKET;
     private static final int BROWN_DWARF_TIER_4 = 2 * MATTER_PER_BUCKET;
     private static final long RED_DWARF_MATTER = 12_800L * MATTER_PER_BUCKET;
+    private static final int RED_DWARF_ROTATION_SPEED = 2;
 
     private int cachedGridConsumption;
     private final String name;
@@ -93,7 +95,8 @@ public class DysonSphereHandler extends BaseMegastructureHandler {
         } else if (!(be.getCelestialBodyData() instanceof StarData)) {
             return 0;
         }
-        if (!brownDwarf && !be.isAmplifierPresent()) return 0;
+        CelestialBodyData body = be.getCelestialBodyData();
+        if (body != null && body.requiresAmplifier() && !be.isAmplifierPresent()) return 0;
 
         if (be.isAcceleratorActive() && be.getAcceleratorStage() == 1 && be.isAmplifierPresent()) {
             return Math.max(this.cachedGridConsumption * 2, this.cachedGridConsumption + 1);
@@ -262,8 +265,8 @@ public class DysonSphereHandler extends BaseMegastructureHandler {
             rgb[0],
             rgb[1],
             rgb[2],
-            brown.axialTilt(),
-            brown.rotationSpeed(),
+            0F,
+            RED_DWARF_ROTATION_SPEED,
             brown.magneticFieldStrength(),
             energy,
             StarData.uuidFromBodySeed(be.getBodySeed()),

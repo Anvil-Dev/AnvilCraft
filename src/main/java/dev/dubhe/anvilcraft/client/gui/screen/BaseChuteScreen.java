@@ -83,7 +83,15 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
     @Override
     protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         super.extractTooltip(graphics, mouseX, mouseY);
+        this.extractFilterItemTooltip(graphics, mouseX, mouseY);
         this.extractSlotTooltip(graphics, mouseX, mouseY);
+    }
+
+    private void extractFilterItemTooltip(GuiGraphicsExtractor graphics, int x, int y) {
+        if (!this.menu.getCarried().isEmpty()) return;
+        ItemStack filter = this.getHoveredFilterItem(this.hoveredSlot);
+        if (filter.isEmpty()) return;
+        graphics.setTooltipForNextFrame(this.font, this.getTooltipFromContainerItem(filter), filter.getTooltipImage(), filter, x, y);
     }
 
     @Override
@@ -91,7 +99,7 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
         List<Component> components = super.getTooltipFromContainerItem(stack);
         if (this.hoveredSlot instanceof SlotItemHandlerWithFilter filterSlot 
                 && filterSlot.isFilter() 
-                && !filterSlot.getItem().isEmpty()) {
+                && (!filterSlot.getItem().isEmpty() || !this.getFilter(filterSlot.getContainerSlot()).isEmpty())) {
             components.add(IFilterScreen.SCROLL_WHEEL_TO_CHANGE_STACK_LIMIT_TOOLTIP);
             components.add(IFilterScreen.SHIFT_TO_SCROLL_FASTER_TOOLTIP);
         }
@@ -119,19 +127,23 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
 
     @Override
     protected void slotClicked(Slot slot, int slotId, int buttonNum, ContainerInput containerInput) {
-        if (slot instanceof SlotItemHandlerWithFilter && slot.getItem().isEmpty()) {
-            ItemStack carriedItem = this.menu.getCarried().copy();
+        if (slot instanceof SlotItemHandlerWithFilter) {
             int realSlotId = slot.getContainerSlot();
-            if (!carriedItem.isEmpty() && this.menu.isFilterEnabled()) {
+            ItemStack carriedItem = this.menu.getCarried().copy();
+            boolean slotEmpty = slot.getItem().isEmpty();
+            ItemStack incoming = this.getIncomingStack(this.minecraft.player, containerInput, buttonNum, carriedItem);
+            boolean replacing = (containerInput == ContainerInput.PICKUP || containerInput == ContainerInput.SWAP) && !slotEmpty
+                && !incoming.isEmpty() && !ItemStack.isSameItemSameComponents(slot.getItem(), incoming);
+            if (!incoming.isEmpty() && this.menu.isFilterEnabled() && (slotEmpty || replacing)) {
                 final ItemStack filter = this.menu.getFilter(realSlotId);
                 if (this.menu.isSlotDisabled(realSlotId)) {
                     ClientPacketDistributor.sendToServer(new SlotDisableChangePacket(realSlotId, false));
                     this.menu.setSlotDisabled(realSlotId, false);
                 }
-                ClientPacketDistributor.sendToServer(new SlotFilterChangePacket(realSlotId, carriedItem));
-                this.menu.setFilter(realSlotId, carriedItem);
-                if (carriedItem.is(ModItems.FILTER) && (filter.isEmpty() || !FilterItem.filter(filter, carriedItem))) return;
-            } else if (this.minecraft.hasShiftDown()) {
+                ClientPacketDistributor.sendToServer(new SlotFilterChangePacket(realSlotId, incoming));
+                this.menu.setFilter(realSlotId, incoming);
+                if (incoming.is(ModItems.FILTER) && (filter.isEmpty() || !FilterItem.filter(filter, incoming))) return;
+            } else if (slotEmpty && this.minecraft.hasShiftDown()) {
                 ClientPacketDistributor.sendToServer(new SlotDisableChangePacket(
                     realSlotId,
                     carriedItem.isEmpty() && !this.menu.isSlotDisabled(realSlotId)
