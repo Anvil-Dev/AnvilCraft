@@ -333,7 +333,6 @@ public class CelestialForgingAnvilBlock
         blockEntityTag.remove("wormholeBodyUuid");
         blockEntityTag.remove("portals");
         blockEntityTag.remove("amplifierPresent");
-        blockEntityTag.remove("builtMegastructureMaterials");
         blockEntityTag.remove("activeMegastructureId");
         blockEntityTag.remove("activeMegastructure");
         blockEntityTag.remove("activeMegastructureName");
