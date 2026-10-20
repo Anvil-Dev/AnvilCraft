@@ -228,13 +228,13 @@ public final class TerminalRemoteOverlay {
         int width = 6;
         for (var line : lines) width = Math.max(width, font.width(line) + 6);
         int height = lines.size() * font.lineHeight + 6;
+        int y = TerminalRemoteOverlay.top - height - 2;
+        if (y < 4) y = TerminalRemoteOverlay.top + TerminalRemoteOverlay.panelH() + 2;
+        y = Mth.clamp(y, 4, Math.max(4, graphics.guiHeight() - height - 4));
         int x = Mth.clamp(
             TerminalRemoteOverlay.left + (TerminalRemoteOverlay.panelW() - width) / 2,
             4, Math.max(4, graphics.guiWidth() - width - 4)
         );
-        int y = TerminalRemoteOverlay.top - height - 2;
-        if (y < 4) y = TerminalRemoteOverlay.top + TerminalRemoteOverlay.panelH() + 2;
-        y = Mth.clamp(y, 4, Math.max(4, graphics.guiHeight() - height - 4));
         graphics.flush();
         GuiRenderSupport.blitSprite(graphics, NOTICE_BACKGROUND, x, y, 500, width, height, -1);
         graphics.pose().pushPose();
