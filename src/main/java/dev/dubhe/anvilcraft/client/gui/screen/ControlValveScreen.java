@@ -55,6 +55,7 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
     private int value = ControlValveBlockEntity.MAX_RATE;
     private FluidStack filter = FluidStack.EMPTY;
     private ItemStack filterItem = ItemStack.EMPTY;
+    private List<FluidStack> filterFluids = List.of();
     private @Nullable FluidRateSlider slider;
     private @Nullable EditBox valueBox;
     private boolean updatingValueBox;
@@ -145,11 +146,12 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
 
     public void setFilterItem(ItemStack item) {
         this.filterItem = item.isEmpty() ? ItemStack.EMPTY : item.copyWithCount(1);
+        this.filterFluids = List.copyOf(ControlValveBlockEntity.resolveFluids(this.filterItem));
     }
 
     private FluidStack displayedFilterFluid() {
         if (this.filterItem.isEmpty()) return this.filter;
-        List<FluidStack> fluids = ControlValveBlockEntity.resolveFluids(this.filterItem);
+        List<FluidStack> fluids = this.filterFluids;
         return fluids.isEmpty() ? FluidStack.EMPTY : fluids.get(Math.floorMod(Util.getMillis() / 1000, fluids.size()));
     }
 
@@ -340,7 +342,7 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
         if (!this.getMenu().getCarried().isEmpty()
             || !this.isHovering(ControlValveScreen.FILTER_X, ControlValveScreen.FILTER_Y, 16, 16, mouseX, mouseY)) return;
         List<FluidStack> fluids = this.filterItem.isEmpty()
-            ? (this.filter.isEmpty() ? List.of() : List.of(this.filter)) : ControlValveBlockEntity.resolveFluids(this.filterItem);
+            ? (this.filter.isEmpty() ? List.of() : List.of(this.filter)) : this.filterFluids;
         if (fluids.isEmpty()) return;
         TooltipFlag flag = Minecraft.getInstance().options.advancedItemTooltips ? TooltipFlag.ADVANCED : TooltipFlag.NORMAL;
         List<Component> lines = new ArrayList<>();
