@@ -25,6 +25,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -228,10 +229,9 @@ public class MDMineralFountainRecipeComponent extends MDRecipeComponent {
     private List<Component> getOutputTooltips() {
         List<Component> tooltips = new ArrayList<>();
         double chance = NumberProviderUtil.expected(this.toBlock.chance());
-        // 按显示时的取整判断，与 JEI 侧一致：避免 99.96% 被格式化成 100% 却仍然显示
-        if (chance >= 0.0 && Math.round(chance * 100) < 100) {
+        if (chance >= 0 && chance < 1) {
             tooltips.add(
-                Component.translatable("gui.anvilcraft.category.chance", FORMATTER.format(chance * 100))
+                Component.translatable("gui.anvilcraft.category.chance", formatPercentage(chance))
                     .withStyle(ChatFormatting.GRAY)
             );
         }
@@ -239,7 +239,7 @@ public class MDMineralFountainRecipeComponent extends MDRecipeComponent {
             tooltips.add(
                 Component.translatable(
                     "gui.anvilcraft.category.mineral_fountain.replace_chance",
-                    FORMATTER.format(this.replaceChance * 100)
+                    formatPercentage(this.replaceChance)
                 ).withStyle(ChatFormatting.GRAY)
             );
         }
@@ -247,6 +247,17 @@ public class MDMineralFountainRecipeComponent extends MDRecipeComponent {
             tooltips.add(getDimensionName(this.dimension).copy().withStyle(ChatFormatting.GRAY));
         }
         return tooltips;
+    }
+
+    private static String formatPercentage(double chance) {
+        String percentage = FORMATTER.format(chance * 100);
+        if (chance < 1 && percentage.equals(FORMATTER.format(100))) {
+            BigDecimal exact = BigDecimal.valueOf(chance).movePointRight(2);
+            DecimalFormat localized = (DecimalFormat) FORMATTER.clone();
+            localized.setMaximumFractionDigits(Math.max(0, exact.scale()));
+            return localized.format(exact);
+        }
+        return percentage;
     }
 
     private static Component getDimensionName(ResourceLocation dimension) {
