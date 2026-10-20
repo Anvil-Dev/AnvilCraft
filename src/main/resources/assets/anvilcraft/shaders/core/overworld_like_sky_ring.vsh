@@ -13,6 +13,7 @@ uniform sampler2D Sampler2;
 
 out vec4 vertexColor;
 out vec2 texCoord0;
+out vec3 skyPosition;
 
 void main() {
     vec3 pos = Position + ModelOffset;
@@ -21,4 +22,5 @@ void main() {
     gl_Position.z = gl_Position.w;
     vertexColor = Color * sample_lightmap(Sampler2, UV2);
     texCoord0 = UV0;
+    skyPosition = pos;
 }
