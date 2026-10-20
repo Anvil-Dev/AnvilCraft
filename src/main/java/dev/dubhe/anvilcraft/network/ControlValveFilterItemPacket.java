@@ -5,7 +5,10 @@ import dev.anvilcraft.lib.v2.network.packet.ISensitiveBiPacket;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.screen.ControlValveScreen;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.ControlValveMenu;
+import dev.dubhe.anvilcraft.item.property.component.FilterContent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -20,6 +23,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
  * 过滤器内容决定本阀门允许多种流体通过。
  */
 public record ControlValveFilterItemPacket(ItemStack filterItem) implements ISensitiveBiPacket {
+    private static final int MAX_FILTER_ITEMS = new FilterContent().list().size();
     public static final Type<ControlValveFilterItemPacket> TYPE =
         IPacket.type(AnvilCraft.of("control_valve_filter_item"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ControlValveFilterItemPacket> STREAM_CODEC =
@@ -46,6 +50,9 @@ public record ControlValveFilterItemPacket(ItemStack filterItem) implements ISen
         if (!(player.containerMenu instanceof ControlValveMenu menu) || menu.getBlockEntity() == null) {
             return;
         }
+        if (!this.filterItem.isEmpty() && !this.filterItem.is(ModItems.FILTER)) return;
+        FilterContent content = this.filterItem.get(ModComponents.FILTER_CONTENT);
+        if (content != null && content.list().size() > MAX_FILTER_ITEMS) return;
         menu.getBlockEntity().setFilterItem(this.filterItem);
         menu.getBlockEntity().sendUpdate();
         PacketDistributor.sendToPlayer(Util.cast(player), this);
