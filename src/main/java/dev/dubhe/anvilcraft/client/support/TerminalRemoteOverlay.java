@@ -34,12 +34,12 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidType;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
-import javax.annotation.Nullable;
 
 /**
  * 超维终端的远端浮窗：空手悬停在绑定的终端物品上时，在当前 GUI 内显示一个可交互面板，
@@ -826,7 +826,7 @@ public final class TerminalRemoteOverlay {
         }
     }
 
-    private static StorageServerStub.FluidEntry getFluidSlot(int slot) {
+    private static StorageServerStub.@Nullable FluidEntry getFluidSlot(int slot) {
         int index = slot - StoragePortManager.FLUID_SLOT_BASE;
         return index >= 0 && index < TerminalRemoteOverlay.fluids.size() ? TerminalRemoteOverlay.fluids.get(index) : null;
     }
