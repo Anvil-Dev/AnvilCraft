@@ -39,6 +39,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -428,12 +429,15 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
     private static List<Component> getChanceTooltips(MineralFountainJeiRecipe recipe, @Nullable BlockState displayed) {
         List<Component> tooltips = new ArrayList<>();
         double chance = displayed == null ? recipe.totalChance() : recipe.chanceOf(displayed);
-        // 按取整后判断，避免 99.96% 被格式化成 100% 却仍然显示
-        if (chance >= 0 && Math.round(chance * 100) < 100) {
+        if (chance >= 0 && chance < 1) {
+            String percentage = FORMATTER.format(chance * 100);
+            if (percentage.equals(FORMATTER.format(100))) {
+                percentage = BigDecimal.valueOf(chance).movePointRight(2).stripTrailingZeros().toPlainString();
+            }
             tooltips.add(
                 Component.translatable(
                     "gui.anvilcraft.category.chance",
-                    FORMATTER.format(chance * 100)
+                    percentage
                 ).withStyle(ChatFormatting.GRAY)
             );
         }
