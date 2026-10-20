@@ -210,7 +210,9 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
     }
 
     private static void notifyDustAboveSupport(Level level, BlockPos pos, BlockState state) {
+        if (level.isClientSide()) return;
         Direction attachment = state.getValue(RedstoneWireBlock.ATTACHMENT);
+        if (!attachment.getAxis().isHorizontal()) return;
         BlockPos dustPos = pos.relative(attachment).above();
         if (!level.getBlockState(dustPos).is(Blocks.REDSTONE_WIRE)) return;
         Direction direction = attachment.getOpposite();
@@ -838,12 +840,15 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
 
     /** 不消耗物品，将已有导线改挂到玩家新点击的支撑面。 */
     public boolean reattach(Level level, BlockPos pos, BlockState state) {
+        final BlockState previous = level.getBlockState(pos);
         if (!state.is(this) || !state.canSurvive(level, pos) || !level.setBlock(pos, state, Block.UPDATE_ALL)) {
             return false;
         }
         RedstoneWireNetworkManager.clearConnectionOverrides(level, pos);
         // 位置没有变化，但附着面会改变几何端点，所以必须按拓扑变化而不是普通状态变化处理。
         RedstoneWireNetworkManager.topologyChanged(level, pos);
+        if (previous.is(this)) RedstoneWireBlock.notifyDustAboveSupport(level, pos, previous);
+        RedstoneWireBlock.notifyDustAboveSupport(level, pos, state);
         return true;
     }
 
