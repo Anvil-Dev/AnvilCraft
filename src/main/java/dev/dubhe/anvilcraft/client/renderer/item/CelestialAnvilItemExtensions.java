@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.renderer.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import dev.dubhe.anvilcraft.integration.iris.IrisState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -21,7 +22,9 @@ public final class CelestialAnvilItemExtensions implements IClientItemExtensions
         if (!player.isInvisible()) {
             var client = Minecraft.getInstance();
             final var renderer = client.getEntityRenderDispatcher().getPlayerRenderer(player);
-            final var collector = client.gameRenderer.getFeatureRenderDispatcher().getSubmitNodeStorage();
+            final var collector = IrisState.getHandSubmitNodeStorage(
+                client.gameRenderer.getFeatureRenderDispatcher().getSubmitNodeStorage()
+            );
             final var skin = player.getSkin().body().texturePath();
             final int light = LevelRenderer.getLightCoords(LevelRenderer.BrightnessGetter.DEFAULT, player.level(),
                 player.level().getBlockState(player.blockPosition()), player.blockPosition());

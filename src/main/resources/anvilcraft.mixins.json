@@ -155,6 +155,7 @@
   ],
   "client": [
     "compat.IrisStellarMixin",
+    "compat.IrisHandRendererAccessor",
     "client.OverworldSkyMixin",
     "compat.JemiPluginMixin",
     "compat.JemiUtilMixin",

@@ -4,10 +4,13 @@ import dev.anvilcraft.lib.v2.integration.Integration;
 import dev.anvilcraft.lib.v2.integration.IntegrationType;
 import dev.dubhe.anvilcraft.client.init.ModRenderPipelines;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
+import dev.dubhe.anvilcraft.mixin.compat.IrisHandRendererAccessor;
 import lombok.extern.slf4j.Slf4j;
 import net.irisshaders.iris.api.v0.IrisApi;
+import net.irisshaders.iris.pathways.HandRenderer;
 import net.irisshaders.iris.pipeline.IrisPipelines;
 import net.irisshaders.iris.pipeline.programs.ShaderKey;
+import net.minecraft.client.renderer.SubmitNodeStorage;
 
 @Integration(value = "iris", type = IntegrationType.CLIENT)
 @Slf4j
@@ -34,5 +37,14 @@ public class IrisState {
 
     private static boolean isShaderEnabledInternal() {
         return IrisApi.getInstance().isShaderPackInUse();
+    }
+
+    public static SubmitNodeStorage getHandSubmitNodeStorage(SubmitNodeStorage fallback) {
+        return RenderState.isIrisPresent() ? getHandSubmitNodeStorageInternal(fallback) : fallback;
+    }
+
+    private static SubmitNodeStorage getHandSubmitNodeStorageInternal(SubmitNodeStorage fallback) {
+        HandRenderer renderer = HandRenderer.INSTANCE;
+        return renderer.isActive() ? ((IrisHandRendererAccessor) renderer).anvilcraft$getSubmitNodeCollector() : fallback;
     }
 }
