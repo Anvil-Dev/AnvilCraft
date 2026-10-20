@@ -1386,6 +1386,7 @@ public class ModBlocks {
         .properties(properties -> properties
             .rarity(Rarity.EPIC)
             .component(ModComponents.ETERNAL, Eternal.DEFAULT)
+            .component(DataComponents.UNBREAKABLE, Unit.INSTANCE)
             .fireResistant()
         )
         .build()
@@ -2345,6 +2346,7 @@ public class ModBlocks {
         .properties(properties -> properties
             .rarity(Rarity.EPIC)
             .component(ModComponents.ETERNAL, Eternal.DEFAULT)
+            .component(DataComponents.UNBREAKABLE, Unit.INSTANCE)
         )
         .build()
         .recipe(RegistrumBlockRecipeLoader::celestialForgingAnvilPortal)
