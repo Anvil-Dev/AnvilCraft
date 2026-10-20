@@ -255,7 +255,6 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         // 主动与被动执行阶段不同，各自分组；同组并列配方按权重瓜分产出。替换逐条改写主动结果，独立成项。
         Map<String, List<RecipeHolder<MineralFountainActiveRecipe>>> activeGroups = new LinkedHashMap<>();
         for (RecipeHolder<MineralFountainActiveRecipe> holder : activeRecipes) {
-            if (holder.value().getAround().isEmpty()) continue;
             activeGroups.computeIfAbsent(activeGroupKey(holder.value()), key -> new ArrayList<>()).add(holder);
         }
         for (List<RecipeHolder<MineralFountainActiveRecipe>> group : activeGroups.values()) {
