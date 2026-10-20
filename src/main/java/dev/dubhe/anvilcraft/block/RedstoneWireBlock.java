@@ -847,7 +847,10 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         RedstoneWireNetworkManager.clearConnectionOverrides(level, pos);
         // 位置没有变化，但附着面会改变几何端点，所以必须按拓扑变化而不是普通状态变化处理。
         RedstoneWireNetworkManager.topologyChanged(level, pos);
-        if (previous.is(this)) RedstoneWireBlock.notifyDustAboveSupport(level, pos, previous);
+        if (previous.is(this)
+            && previous.getValue(RedstoneWireBlock.ATTACHMENT) != state.getValue(RedstoneWireBlock.ATTACHMENT)) {
+            RedstoneWireBlock.notifyDustAboveSupport(level, pos, previous);
+        }
         RedstoneWireBlock.notifyDustAboveSupport(level, pos, state);
         return true;
     }
