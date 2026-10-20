@@ -129,9 +129,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         @Override
         protected void onContentsChanged(int slot, ItemStack previous) {
             super.onContentsChanged(slot, previous);
-            if (!SmartBlockPlacerBlockEntity.this.loadingBlueprintInventory) {
-                SmartBlockPlacerBlockEntity.this.onBlueprintItemChanged();
-            }
+            if (SmartBlockPlacerBlockEntity.this.loadingBlueprintInventory) return;
+            Level level = SmartBlockPlacerBlockEntity.this.level;
+            if (level != null && level.isClientSide()) return;
+            SmartBlockPlacerBlockEntity.this.onBlueprintItemChanged();
         }
     };
 
