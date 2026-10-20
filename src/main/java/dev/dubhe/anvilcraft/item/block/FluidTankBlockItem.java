@@ -32,7 +32,7 @@ public class FluidTankBlockItem extends BlockItem implements IItemTooltipProvide
             context,
             builder,
             FluidTankBlockEntity.BASE_CAPACITY,
-            FluidTankBlockEntity.INFINITY_THRESHOLD
+            FluidTankBlockEntity.infinityThreshold()
         );
     }
 }

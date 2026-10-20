@@ -11,7 +11,7 @@ import dev.dubhe.anvilcraft.client.gui.component.category.CategoryButton;
 import dev.dubhe.anvilcraft.client.gui.component.category.CategoryList;
 import dev.dubhe.anvilcraft.client.rpc.SettingClientStub;
 import dev.dubhe.anvilcraft.client.support.GuiRenderSupport;
-import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
+import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.UISettings.ExitBehaviourMode;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
@@ -712,7 +712,7 @@ public class CategorySettingsScreen extends Screen {
 
     @Override
     public void onClose() {
-        if (AnvilCraftClient.CONFIG.exitCategorySettingBehaviour == AnvilCraftClientConfig.ExitBehaviourMode.CONFIRM) {
+        if (AnvilCraftClient.CONFIG.ui.exitCategorySettingBehaviour == ExitBehaviourMode.CONFIRM) {
             this.whenConfirm();
         } else {
             this.whenCancel();

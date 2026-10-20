@@ -99,7 +99,8 @@ public class HeliostatsBlockEntity extends BlockEntity {
         if (this.level == null) return WorkResult.UNKNOWN;
         if (this.level.isClientSide() && Minecraft.getInstance().player == null) return WorkResult.UNKNOWN;
         if (irritatePos == null) return WorkResult.UNSPECIFIED_IRRADIATION_BLOCK;
-        if (this.getBlockPos().getCenter().distanceTo(irritatePos.getCenter()) > 64) {
+        int maxDistance = AnvilCraft.CONFIG.machines.heliostatsMaxIrradiationDistance;
+        if (this.getBlockPos().getCenter().distanceTo(irritatePos.getCenter()) > maxDistance) {
             return WorkResult.TOO_FAR;
         }
 
@@ -192,7 +193,7 @@ public class HeliostatsBlockEntity extends BlockEntity {
     /// tick
     public void tick() {
         if (this.level == null) return;
-        if (this.level.getGameTime() % (AnvilCraft.CONFIG.heliostatsDetectionInterval + 1) != 0) return;
+        if (this.level.getGameTime() % (AnvilCraft.CONFIG.machines.heliostatsDetectionInterval + 1) != 0) return;
         if (this.irritatePos == null && this.level.isClientSide()) {
             ClientPacketDistributor.sendToServer(new HeliostatsIrradiationPacket(this.getBlockPos(), this.irritatePos));
         }

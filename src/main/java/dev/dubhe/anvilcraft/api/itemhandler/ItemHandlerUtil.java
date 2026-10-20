@@ -259,7 +259,7 @@ public class ItemHandlerUtil {
             } else {
                 return ItemHandlerUtil.getSourceItemHandler(inputPos, context, level);
             }
-        } while (i < AnvilCraft.CONFIG.blockPlacerRecursiveRetrievalDistanceMax);
+        } while (i < AnvilCraft.CONFIG.world.blockPlacerMaxRecursiveRetrievalDistance);
         return null;
     }
 
@@ -272,7 +272,7 @@ public class ItemHandlerUtil {
         if (dest == null || stack.isEmpty()) return stack;
 
         ItemStack remainingStack = stack.copy();
-        
+
         if (dest instanceof PollableFilteredItemStackHandler pollable) {
             try (Transaction root = Transaction.openRoot()) {
                 for (int i = 0; i < dest.size(); i++) {

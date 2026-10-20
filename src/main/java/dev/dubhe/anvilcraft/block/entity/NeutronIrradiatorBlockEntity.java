@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import com.google.common.collect.ImmutableMap;
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.RadioactiveBlock;
 import dev.dubhe.anvilcraft.block.state.IrradiatorType;
 import dev.dubhe.anvilcraft.block.workstation.NeutronIrradiatorBlock;
 import dev.dubhe.anvilcraft.init.ModParticles;
@@ -8,11 +10,14 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.function.Supplier;
 
@@ -32,7 +37,7 @@ public class NeutronIrradiatorBlockEntity extends BlockEntity {
         ModBlocks.CONFINED_TIME_ANVILON.get(), ModParticles.ANVILON_TIME
     );
 
-    public static final int TYPE_CHECK_THRESHOLD = 6;
+    private int radiationTick;
 
     public NeutronIrradiatorBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.NEUTRON_IRRADIATOR.get(), pos, blockState);
@@ -56,7 +61,7 @@ public class NeutronIrradiatorBlockEntity extends BlockEntity {
                     }
                 }
             }
-            if (count >= NeutronIrradiatorBlockEntity.TYPE_CHECK_THRESHOLD) {
+            if (count >= AnvilCraft.CONFIG.machines.neutronIrradiatorTypeThreshold) {
                 baseType = false;
                 if (state.getValue(NeutronIrradiatorBlock.TYPE) != type) {
                     this.level.setBlockAndUpdate(pos, state.setValue(NeutronIrradiatorBlock.TYPE, type));
@@ -67,5 +72,29 @@ public class NeutronIrradiatorBlockEntity extends BlockEntity {
         if (baseType && state.getValue(NeutronIrradiatorBlock.TYPE) != IrradiatorType.NEUTRON) {
             this.level.setBlockAndUpdate(pos, state.setValue(NeutronIrradiatorBlock.TYPE, IrradiatorType.NEUTRON));
         }
+        if (!(level instanceof ServerLevel serverLevel)) return;
+        BlockPos above = pos.above();
+        if (level.getBlockState(above).getBlock() instanceof RadioactiveBlock) {
+            this.radiationTick++;
+            if (this.radiationTick >= AnvilCraft.CONFIG.machines.neutronIrradiatorRadiationInterval) {
+                this.radiationTick = 0;
+                serverLevel.explode(null, above.getX() + 0.5, above.getY() + 0.5, above.getZ() + 0.5,
+                    3.0F, false, Level.ExplosionInteraction.BLOCK);
+            }
+        } else {
+            this.radiationTick = 0;
+        }
+    }
+
+    @Override
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("RadiationTick", this.radiationTick);
+    }
+
+    @Override
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.radiationTick = input.getIntOr("RadiationTick", 0);
     }
 }

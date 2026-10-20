@@ -83,7 +83,7 @@ public class AmuletBoxItem extends BundleLikeItem {
                 }
                 BundleLikeItem.playSound(player, SoundEvents.BUNDLE_INSERT);
                 box.set(ModComponents.BOX_CONTENTS, mutable.immutable());
-            } else if (AnvilCraft.CONFIG.amuletBoxTakeOutAllTotem) {
+            } else if (AnvilCraft.CONFIG.equipment.amuletBoxTakeOutAllTotem) {
                 boolean dropped = false;
                 for (int i = 0; i < contents.totems().size(); i++) {
                     ItemStack stack = mutable.popTotem();
@@ -111,13 +111,14 @@ public class AmuletBoxItem extends BundleLikeItem {
     @Override
     public int getBarWidth(ItemStack itemStack) {
         BoxContents contents = itemStack.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY);
-        return (int) (Math.clamp(contents.usage() / (float) BoxContents.CAPACITY, 0F, 1F) * 13);
+        return (int) (Math.clamp(contents.usage() / (float) AnvilCraft.CONFIG.equipment.amuletBoxCapacity, 0F, 1F) * 13);
     }
 
     @Override
     public int getBarColor(ItemStack itemStack) {
         BoxContents contents = itemStack.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY);
-        return ColorUtil.lerpColor(contents.usage() / (float) BoxContents.CAPACITY, AmuletBoxItem.BAR_COLOR, AmuletBoxItem.FULL_BAR_COLOR);
+        return ColorUtil.lerpColor(contents.usage() / (float) AnvilCraft.CONFIG.equipment.amuletBoxCapacity,
+            AmuletBoxItem.BAR_COLOR, AmuletBoxItem.FULL_BAR_COLOR);
     }
 
     @Override

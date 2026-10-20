@@ -6,7 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-
 public class DetectorSlidingRailBlockEntity extends BlockEntity {
     @Getter
     private int power = 0;
@@ -23,11 +22,11 @@ public class DetectorSlidingRailBlockEntity extends BlockEntity {
     }
 
     public void updatePower(int blockCount) {
-        if (SlidingBlockStructureResolver.MAX_PUSH_DEPTH <= 15) {
+        if (SlidingBlockStructureResolver.maxPushDepth() <= 15) {
             this.power = blockCount;
             return;
         }
-        this.power = blockCount / SlidingBlockStructureResolver.MAX_PUSH_DEPTH;
+        this.power = blockCount / SlidingBlockStructureResolver.maxPushDepth();
         if (this.power < 1 && blockCount > 0) {
             this.power = 1;
         }

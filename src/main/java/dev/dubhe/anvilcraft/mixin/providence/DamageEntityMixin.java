@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.mixin.providence;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.util.mixin.ProvidenceRef;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.enchantment.LevelBasedValue;
@@ -36,9 +37,9 @@ public class DamageEntityMixin {
         float result = original.call(random, min, maxExclusive);
         if (!ProvidenceRef.shouldItTrigger()) return result;
         float randomValue = random.nextFloat();
-        if (randomValue >= 0.25F) return result;
+        if (randomValue >= AnvilCraft.CONFIG.equipment.providenceExtraRollChance) return result;
         result += original.call(random, this.minDamage.calculate(enchantmentLevel), this.maxDamage.calculate(enchantmentLevel));
-        if (randomValue >= 0.05F) return result;
+        if (randomValue >= AnvilCraft.CONFIG.equipment.providenceThirdRollChance) return result;
         result += original.call(random, this.minDamage.calculate(enchantmentLevel), this.maxDamage.calculate(enchantmentLevel));
         return result;
     }

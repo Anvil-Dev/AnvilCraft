@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.heat.collector;
 
 import dev.anvilcraft.lib.v2.util.Util;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.InfiniteCollectorBlockEntity;
@@ -189,7 +190,7 @@ public class HeatCollectorManager {
 
     private void tick() {
         if (this.level.isClientSide()) return;
-        if (this.level.getGameTime() % PowerGrid.GRID_TICK != 0) return;
+        if (this.level.getGameTime() % PowerGrid.gridInterval() != 0) return;
         List<IHeatCollector> collectors = this.getCollectorsFromNWToSE();
         Map<Entry, Double2ObjectMap<IHeatCollector>> heatSources = new HashMap<>();
         for (IHeatCollector collector : collectors) {
@@ -210,7 +211,7 @@ public class HeatCollectorManager {
     private void collectSources(IHeatCollector collector, Map<Entry, Double2ObjectMap<IHeatCollector>> heatSources) {
         BlockPos collectorPos = collector.getCollectorPos();
         int collectorRange = collector.getCollectorRange();
-        int overlapRange = collectorRange + InfiniteCollectorBlockEntity.RANGE;
+        int overlapRange = collectorRange + AnvilCraft.CONFIG.machines.infiniteCollectorRange;
         Map<Entry, Double2ObjectMap<IHeatCollector>> heatSourcesCache = new HashMap<>();
         for (BlockPos pos : BlockPos.betweenClosed(
             collectorPos.above(overlapRange).east(overlapRange).south(overlapRange),
@@ -269,7 +270,7 @@ public class HeatCollectorManager {
 
     private int getCollectorRange(BlockState state) {
         if (state.is(ModBlocks.HEAT_COLLECTOR)) return 2;
-        if (state.is(ModBlocks.INFINITE_COLLECTOR)) return InfiniteCollectorBlockEntity.RANGE;
+        if (state.is(ModBlocks.INFINITE_COLLECTOR)) return AnvilCraft.CONFIG.machines.infiniteCollectorRange;
         return 0;
     }
 

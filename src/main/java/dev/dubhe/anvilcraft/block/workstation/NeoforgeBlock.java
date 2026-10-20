@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.workstation;
 
 import com.mojang.serialization.MapCodec;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.better.BetterAnvilBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
@@ -91,7 +92,11 @@ public class NeoforgeBlock extends BetterAnvilBlock {
 
     @Override
     public void falling(FallingBlockEntity entity) {
-        entity.setHurtsEntities(2.0F, 20);
+        int max = AnvilCraft.CONFIG.world.neoforgeMaxFallDamage;
+        if (max == -1) {
+            max = Integer.MAX_VALUE;
+        }
+        entity.setHurtsEntities(AnvilCraft.CONFIG.world.neoforgeFallDamagePerBlock, max);
     }
 
     @Override

@@ -8,7 +8,7 @@ import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
-import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.MunLightingQuality;
+import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.GraphicsSettings.MunLightingQuality;
 import dev.dubhe.anvilcraft.integration.iris.IrisState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -69,7 +69,7 @@ public final class MunSurfaceRenderer {
     @SubscribeEvent
     public static void tick(ClientTickEvent.Post event) {
         var client = Minecraft.getInstance();
-        var nextQuality = AnvilCraft.CLIENT_CONFIG.munLightingQuality;
+        var nextQuality = AnvilCraft.CLIENT_CONFIG.graphics.munLightingQuality;
         if (quality != nextQuality) {
             SHADOWS.close();
             compiled = false;
@@ -124,7 +124,7 @@ public final class MunSurfaceRenderer {
 
     public static void beginWorld(LevelRenderState state) {
         Frame frame = state.getRenderData(FRAME);
-        worldPass = frame != null && AnvilCraft.CLIENT_CONFIG.munLightingQuality != MunLightingQuality.OFF;
+        worldPass = frame != null && AnvilCraft.CLIENT_CONFIG.graphics.munLightingQuality != MunLightingQuality.OFF;
         if (frame == null || !worldPass) return;
         if (uniforms == null) {
             uniforms = RenderSystem.getDevice().createBuffer(() -> "Mun surface uniforms",

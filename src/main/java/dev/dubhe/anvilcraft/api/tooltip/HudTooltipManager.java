@@ -120,7 +120,9 @@ public class HudTooltipManager {
         ITooltipProvider.BlockTooltipProvider currentProvider = this.determineBlockTooltipProvider(level, pos, state);
         if (currentProvider == null) return;
         List<Component> tooltip = currentProvider.tooltip(level, pos, state);
-        if (tooltip.isEmpty()) return;
+        if (
+            (CompatUtil.HAS_JADE.get() && !AnvilCraftClient.CONFIG.ui.showGoggleTooltipWhenJadePresent)
+            || tooltip.isEmpty()) return;
         TooltipRenderHelper.renderTooltipWithItemIcon(
             graphics,
             font,
@@ -148,7 +150,9 @@ public class HudTooltipManager {
         ITooltipProvider.BlockEntityTooltipProvider currentProvider = this.determineBlockEntityTooltipProvider(entity);
         if (currentProvider == null) return;
         List<Component> tooltip = currentProvider.tooltip(entity);
-        if (tooltip.isEmpty()) return;
+        if (
+            (CompatUtil.HAS_JADE.get() && !AnvilCraftClient.CONFIG.ui.showGoggleTooltipWhenJadePresent)
+            || tooltip.isEmpty()) return;
         TooltipRenderHelper.renderTooltipWithItemIcon(
             graphics,
             font,
@@ -198,10 +202,14 @@ public class HudTooltipManager {
         double camY,
         double camZ
     ) {
-        IAffectRangeProvider currentProvider = this.determineAffectRangeProvider(entity);
-        if (currentProvider == null) return;
-        VoxelShape shape = currentProvider.affectRange(entity);
+        VoxelShape shape = this.resolveAffectRange(entity);
+        if (shape == null) return;
         TooltipRenderHelper.renderOutline(poseStack, consumer, camX, camY, camZ, BlockPos.ZERO, shape, 0xff00Ffcc);
+    }
+
+    public @Nullable VoxelShape resolveAffectRange(BlockEntity entity) {
+        IAffectRangeProvider provider = this.determineAffectRangeProvider(entity);
+        return provider == null ? null : provider.affectRange(entity);
     }
 
     private @Nullable IHandHeldItemTooltipProvider determineHandHeldItemTooltipProvider(ItemStack itemStack) {
@@ -234,7 +242,7 @@ public class HudTooltipManager {
     private static boolean shouldSuppressForJade(ITooltipProvider.BlockEntityTooltipProvider provider) {
         return provider instanceof PowerComponentTooltipProvider
             && CompatUtil.HAS_JADE.get()
-            && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent;
+            && !AnvilCraftClient.CONFIG.ui.showGoggleTooltipWhenJadePresent;
     }
 
     private @Nullable IAffectRangeProvider determineAffectRangeProvider(BlockEntity entity) {

@@ -1,11 +1,11 @@
 package dev.dubhe.anvilcraft.item.tool;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IItemTooltipProvider;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentTags;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
-import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.network.ResonanceMiningEffectPacket;
 import dev.dubhe.anvilcraft.network.WeaponChargeProgressPacket;
 import lombok.Getter;
@@ -77,8 +77,7 @@ import java.util.function.Consumer;
 @Getter
 public abstract class ResonatorItem extends Item implements IItemTooltipProvider {
     private static final int USE_DURATION = 72000;
-    private static final int STANDARD_RESONANCE_MINING_TICKS = 20;
-    private static final int STANDARD_RESONANCE_MINING_DURABILITY_COST = 128;
+
     private final Map<LivingEntity, MiningTarget> clientMiningTargets = new WeakHashMap<>();
     private final Map<LivingEntity, MiningTarget> serverMiningTargets = new WeakHashMap<>();
     private final ToolMaterial material;
@@ -475,11 +474,11 @@ public abstract class ResonatorItem extends Item implements IItemTooltipProvider
     }
 
     public int resonanceMiningTicks() {
-        return STANDARD_RESONANCE_MINING_TICKS;
+        return AnvilCraft.CONFIG.equipment.resonatorMiningTicks;
     }
 
     protected int resonanceMiningDurabilityCost() {
-        return STANDARD_RESONANCE_MINING_DURABILITY_COST;
+        return AnvilCraft.CONFIG.equipment.resonatorDurabilityCost;
     }
 
     private boolean canStartResonanceMining(ItemStack stack) {

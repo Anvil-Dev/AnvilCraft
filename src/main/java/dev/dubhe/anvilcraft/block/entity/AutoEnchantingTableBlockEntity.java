@@ -91,8 +91,6 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
     public static final int LIQUID_POWER_CONSUMPTION = 64;
     /// 内部流体容量：32 桶
     public static final int FLUID_CAPACITY = 32 * FluidType.BUCKET_VOLUME;
-    /// 每个书架消耗的经验流体（mB）
-    public static final int EXP_COST_PER_SHELF = 400;
     /// 液态魔咒模式下物品每多一条已有附魔增加的功耗
     public static final int LIQUID_POWER_PER_ENCHANTMENT = 64;
 
@@ -135,7 +133,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
                         AutoEnchantingTableBlockEntity.this.passThroughPending = true;
                     } else {
                         // 重置4秒冷却
-                        AutoEnchantingTableBlockEntity.this.cooldownTicks = AnvilCraft.CONFIG.autoEnchantingTableInterval;
+                        AutoEnchantingTableBlockEntity.this.cooldownTicks = AnvilCraft.CONFIG.equipment.autoEnchantingTableInterval;
                     }
                 }
                 // 取出引物后记忆消失
@@ -300,15 +298,15 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         WorkMode newMode = be.refreshWorkMode();
         if (newMode != be.workMode) {
             be.workMode = newMode;
-            be.cooldownTicks = AnvilCraft.CONFIG.autoEnchantingTableInterval;
+            be.cooldownTicks = AnvilCraft.CONFIG.equipment.autoEnchantingTableInterval;
             be.setChanged();
         }
 
         be.refreshShelfLevel(level, pos);
 
         if (be.getItem(AutoEnchantingTableBlockEntity.SLOT_INPUT).isEmpty()) {
-            boolean isMax = be.cooldownTicks == AnvilCraft.CONFIG.autoEnchantingTableInterval;
-            be.cooldownTicks = AnvilCraft.CONFIG.autoEnchantingTableInterval;
+            boolean isMax = be.cooldownTicks == AnvilCraft.CONFIG.equipment.autoEnchantingTableInterval;
+            be.cooldownTicks = AnvilCraft.CONFIG.equipment.autoEnchantingTableInterval;
             if (!isMax) {
                 be.setChanged();
                 be.syncToClient();
@@ -341,7 +339,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         }
 
         // 3. 冷却完毕，按工作模式执行操作
-        be.cooldownTicks = AnvilCraft.CONFIG.autoEnchantingTableInterval;
+        be.cooldownTicks = AnvilCraft.CONFIG.equipment.autoEnchantingTableInterval;
         switch (be.workMode) {
             case ENCHANTING -> be.tryEnchantRandomly(level, pos);
             case PRIMER -> be.tryEnchantWithPrimer(level, pos);
@@ -354,8 +352,8 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
      * 设置不工作时将冷却处于满值，让客户端动画回到初始位置。
      */
     private void resetCooldownWhenIdle() {
-        if (this.cooldownTicks != AnvilCraft.CONFIG.autoEnchantingTableInterval) {
-            this.cooldownTicks = AnvilCraft.CONFIG.autoEnchantingTableInterval;
+        if (this.cooldownTicks != AnvilCraft.CONFIG.equipment.autoEnchantingTableInterval) {
+            this.cooldownTicks = AnvilCraft.CONFIG.equipment.autoEnchantingTableInterval;
             this.setChanged();
             this.syncToClient();
         }
@@ -371,8 +369,8 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         if (!this.getItem(SLOT_OUTPUT).isEmpty()) return false;
         return switch (this.workMode) {
             case ENCHANTING -> {
-                int shelfLevel = Math.min(this.shelfLevel, AnvilCraft.CONFIG.autoEnchantingTableMaxBookshelf);
-                int cost = Math.min(shelfLevel * EXP_COST_PER_SHELF, FLUID_CAPACITY);
+                int shelfLevel = Math.min(this.shelfLevel, AnvilCraft.CONFIG.equipment.autoEnchantingTableMaxBookshelf);
+                int cost = Math.min(shelfLevel * AnvilCraft.CONFIG.equipment.autoEnchantingTableExpCostPerShelf, FLUID_CAPACITY);
                 if (cost <= 0) yield false;
                 FluidStack fluid = this.getFluid();
                 yield fluid.is(ModFluids.EXP_FLUID) && fluid.getAmount() >= cost;
@@ -380,7 +378,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
             case PRIMER -> {
                 int totalLevel = this.getSelectedTotalLevel();
                 if (this.selectedEnchantments.isEmpty() || totalLevel > this.shelfLevel) yield false;
-                int cost = totalLevel * EXP_COST_PER_SHELF;
+                int cost = totalLevel * AnvilCraft.CONFIG.equipment.autoEnchantingTableExpCostPerShelf;
                 if (cost <= 0 || cost > FLUID_CAPACITY) yield false;
                 FluidStack fluid = this.getFluid();
                 yield fluid.is(ModFluids.EXP_FLUID) && fluid.getAmount() >= cost;
@@ -461,7 +459,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         }
         levelValue = Math.min(
             levelValue,
-            this.workMode == WorkMode.ENCHANTING ? AnvilCraft.CONFIG.autoEnchantingTableMaxBookshelf : Integer.MAX_VALUE
+            this.workMode == WorkMode.ENCHANTING ? AnvilCraft.CONFIG.equipment.autoEnchantingTableMaxBookshelf : Integer.MAX_VALUE
         );
         if (levelValue != this.shelfLevel) {
             this.shelfLevel = levelValue;
@@ -543,8 +541,8 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         }
         int vanillaMax = enchantment.value().getMaxLevel();
         return restriction == LiquidEnchantRestriction.OVERLIMIT
-            ? AnvilCraft.CONFIG.liquidEnchantmentMaxLevel
-            : Math.min(AnvilCraft.CONFIG.liquidEnchantmentMaxLevel, vanillaMax);
+            ? AnvilCraft.CONFIG.equipment.liquidEnchantmentMaxLevel
+            : Math.min(AnvilCraft.CONFIG.equipment.liquidEnchantmentMaxLevel, vanillaMax);
     }
 
     public static int computeLiquidMaxLevel(
@@ -607,8 +605,8 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         // 输出槽被占用时不做
         if (!this.getItem(SLOT_OUTPUT).isEmpty()) return;
 
-        int shelfLevel = Math.min(this.shelfLevel, AnvilCraft.CONFIG.autoEnchantingTableMaxBookshelf);
-        int cost = Math.min(shelfLevel * EXP_COST_PER_SHELF, FLUID_CAPACITY);
+        int shelfLevel = Math.min(this.shelfLevel, AnvilCraft.CONFIG.equipment.autoEnchantingTableMaxBookshelf);
+        int cost = Math.min(shelfLevel * AnvilCraft.CONFIG.equipment.autoEnchantingTableExpCostPerShelf, FLUID_CAPACITY);
         if (cost <= 0) return;
 
         // 经验流体不足则本次附魔取消，等待下一轮
@@ -651,7 +649,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         int totalLevel = this.getSelectedTotalLevel();
         if (totalLevel > this.shelfLevel) return;
 
-        int cost = totalLevel * EXP_COST_PER_SHELF;
+        int cost = totalLevel * AnvilCraft.CONFIG.equipment.autoEnchantingTableExpCostPerShelf;
         if (cost <= 0 || cost > FLUID_CAPACITY) return;
 
         FluidStack fluid = this.getFluid();

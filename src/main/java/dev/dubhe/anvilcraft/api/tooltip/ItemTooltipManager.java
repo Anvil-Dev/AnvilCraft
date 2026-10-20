@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.tooltip;
 
 import com.google.common.collect.Maps;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.power.converter.PowerConverterBigBlock;
 import dev.dubhe.anvilcraft.block.power.converter.PowerConverterExtremelyBigBlock;
 import dev.dubhe.anvilcraft.block.power.converter.PowerConverterMiddleBlock;
@@ -337,10 +338,10 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModItems.RECOVERY_PEARL.get(), "Right-click to teleport to last death point");
         ItemTooltipManager.NORMAL.put(ModBlocks.HEAT_COLLECTOR.asItem(), "Generates power from heat");
         ItemTooltipManager.NORMAL.put(ModBlocks.VOID_ENERGY_COLLECTOR.asItem(), "Generates power from Void energy");
-        ItemTooltipManager.NORMAL.put(ModBlocks.MASS_ENERGY_INVERTER.asItem(), "Doubles the mass growth of adjacent Space Overcompressors, consumes 1024 kW");
+        ItemTooltipManager.NORMAL.put(ModBlocks.MASS_ENERGY_INVERTER.asItem(), "Doubles the mass growth of adjacent Space Overcompressors, consumes %s kW");
         ItemTooltipManager.SHIFT.put(
             ModBlocks.MASS_ENERGY_INVERTER.asItem(), """
-                Injects 5 mass per tick into adjacent Space Overcompressors
+                Injects %s mass per tick into adjacent Space Overcompressors
                 Doubles the mass gained by adjacent Space Overcompressors from anvil mass injection"""
         );
 
@@ -968,7 +969,9 @@ public class ItemTooltipManager {
 
     private static void addNormalTooltip(Consumer<Component> builder, Item item) {
         ItemTooltipManager.addTranslatedTooltip(builder, ItemTooltipManager.getTranslationKey(item),
-            NORMAL_ARGUMENTS.getOrDefault(item, new Object[0]));
+            item == ModBlocks.MASS_ENERGY_INVERTER.asItem()
+                ? new Object[]{AnvilCraft.CONFIG.machines.massEnergyInverterPower}
+                : ItemTooltipManager.NORMAL_ARGUMENTS.getOrDefault(item, new Object[0]));
     }
 
     private static void addShiftTooltip(Consumer<Component> builder, Item item) {
@@ -979,7 +982,10 @@ public class ItemTooltipManager {
             ).withStyle(ChatFormatting.GRAY));
             return;
         }
-        ItemTooltipManager.addTranslatedTooltip(builder, ItemTooltipManager.getTranslationKeyShift(item));
+        ItemTooltipManager.addTranslatedTooltip(builder, ItemTooltipManager.getTranslationKeyShift(item),
+            item == ModBlocks.MASS_ENERGY_INVERTER.asItem()
+                ? new Object[]{AnvilCraft.CONFIG.machines.massEnergyInverterMassPerTick}
+                : new Object[0]);
     }
 
     public static String getTranslationKey(Item item) {

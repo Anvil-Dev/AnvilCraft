@@ -1,13 +1,10 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.anvilcraft.lib.v2.rendering.gui.state.StructurePipRenderingState;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
 import dev.dubhe.anvilcraft.block.workstation.StructureScannerBlock;
 import dev.dubhe.anvilcraft.building.BlueprintPlacement;
@@ -39,7 +36,6 @@ import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.sounds.SoundManager;
@@ -116,7 +112,6 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     private float previewRotationX = -30.0f;
     private static final float MIN_ROTATION_X = -60.0f;
     private static final float MAX_ROTATION_X = 0.0f;
-    private static final float ROTATION_SENSITIVITY = 0.5f;
 
     // 鼠标拖拽状态
     private boolean isPreviewDragging = false;
@@ -1019,7 +1014,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
                 preview, BlockPos.containing(bounds.minX, bounds.minY, bounds.minZ),
                 BlockPos.containing(bounds.maxX - 1, bounds.maxY - 1, bounds.maxZ - 1),
                 this.previewWindowX, this.previewWindowY, this.previewWindowX + this.previewWindowWidth,
-                this.previewWindowY + this.previewWindowHeight, scale, true, AnvilCraft.CLIENT_CONFIG.renderScanPreviewEffect,
+                this.previewWindowY + this.previewWindowHeight, scale, true, AnvilCraft.CLIENT_CONFIG.effects.renderScanPreviewExtraEffect,
                 pose.last().copy(), graphics.pose().get(new Matrix3x2f()), graphics.peekScissorStack(),
                 (collector, modelPose) -> {
                     var dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
@@ -1262,10 +1257,10 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             float deltaY = currentMouseY - this.lastMouseY;
 
             // 水平移动 -> Y轴旋转
-            this.previewRotationY += deltaX * ROTATION_SENSITIVITY;
+            this.previewRotationY += deltaX * AnvilCraft.CLIENT_CONFIG.controls.previewRotationSensitivity;
 
             // 垂直移动 -> X轴旋转（有限制，反转方向）
-            this.previewRotationX -= deltaY * ROTATION_SENSITIVITY;
+            this.previewRotationX -= deltaY * AnvilCraft.CLIENT_CONFIG.controls.previewRotationSensitivity;
             this.previewRotationX = Math.clamp(this.previewRotationX, MIN_ROTATION_X, MAX_ROTATION_X);
 
             this.lastMouseX = currentMouseX;

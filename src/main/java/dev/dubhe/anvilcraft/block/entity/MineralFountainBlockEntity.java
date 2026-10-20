@@ -237,6 +237,6 @@ public class MineralFountainBlockEntity extends BlockEntity {
     }
 
     public void resetTickCount() {
-        if (this.tickCount <= 0) this.tickCount = AnvilCraft.CONFIG.mineralFountainInterval;
+        if (this.tickCount <= 0) this.tickCount = AnvilCraft.CONFIG.machines.mineralFountainInterval;
     }
 }

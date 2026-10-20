@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.fluid.FluidBottleInteraction;
 import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
@@ -41,12 +42,19 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 public class FluidTankBlockEntity extends BlockEntity implements IFluidResourceHandlerHolder {
     public static final int BASE_CAPACITY = 16 * FluidType.BUCKET_VOLUME;
-    public static final int INFINITY_THRESHOLD = 12800 * FluidType.BUCKET_VOLUME;
+    /**
+     * 储罐被视为无限的容量阈值（mB），运行时读取配置。
+     */
+
+    public static int infinityThreshold() {
+        return AnvilCraft.CONFIG.machines.fluidTankInfinityThreshold;
+    }
+
     private static final int CHECK_INTERVAL = 100;
 
     private final SingleFluidTankHandler tank = new SingleFluidTankHandler(
         FluidTankBlockEntity.BASE_CAPACITY,
-        FluidTankBlockEntity.INFINITY_THRESHOLD,
+        FluidTankBlockEntity.infinityThreshold(),
         this::onTankChanged
     );
     private int tickCounter;
@@ -161,7 +169,7 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidResourceH
 
         SingleFluidTankHandler itemTank = new SingleFluidTankHandler(
             FluidTankBlockEntity.BASE_CAPACITY,
-            FluidTankBlockEntity.INFINITY_THRESHOLD,
+            FluidTankBlockEntity.infinityThreshold(),
             () -> {}
         );
         try (Transaction transaction = Transaction.openRoot()) {
@@ -180,7 +188,7 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidResourceH
     private static SingleFluidTankHandler readItemTank(ItemStack stack, HolderLookup.Provider registries) {
         SingleFluidTankHandler itemTank = new SingleFluidTankHandler(
             FluidTankBlockEntity.BASE_CAPACITY,
-            FluidTankBlockEntity.INFINITY_THRESHOLD,
+            FluidTankBlockEntity.infinityThreshold(),
             () -> {}
         );
         itemTank.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, registries, FluidTankBlockEntity.getTankData(stack)));
@@ -227,6 +235,6 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidResourceH
     }
 
     public boolean containsInfiniteFluid() {
-        return this.tank.getFluidAmount() >= FluidTankBlockEntity.INFINITY_THRESHOLD;
+        return this.tank.getFluidAmount() >= FluidTankBlockEntity.infinityThreshold();
     }
 }

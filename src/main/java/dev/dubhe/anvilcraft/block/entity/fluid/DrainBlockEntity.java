@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.fluid;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.fluid.FluidStackResourceHandler;
 import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
@@ -41,9 +42,7 @@ import org.jspecify.annotations.Nullable;
 
 @Getter
 public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandlerHolder {
-    public static final int CAPACITY = 4 * FluidType.BUCKET_VOLUME;
     private static final int UNIT = FluidType.BUCKET_VOLUME;
-    private static final int INTERVAL = 5;
     private static final int FILL_THRESHOLD = FluidType.BUCKET_VOLUME;
     private static final int DRAIN_THRESHOLD = 3 * FluidType.BUCKET_VOLUME;
     private static final int MAX_NODES = 2048;
@@ -52,7 +51,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
     private static final int FILL_SOURCE = 2;
     private static final int FILL_SEARCH_REBUILD_INTERVAL = 256;
     private static final long EXHAUSTED_SEARCH_TTL = 100;
-    private final FluidStackResourceHandler tank = new FluidStackResourceHandler(DrainBlockEntity.CAPACITY) {
+    private final FluidStackResourceHandler tank = new FluidStackResourceHandler(AnvilCraft.CONFIG.machines.drainCapacity) {
         @Override
         protected void onContentChanged(FluidStack original) {
             DrainBlockEntity.this.setChanged();
@@ -105,7 +104,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
 
     public static void tick(Level level, BlockPos pos, BlockState state, DrainBlockEntity be) {
         if (level.isClientSide()) return;
-        if (level.getGameTime() % DrainBlockEntity.INTERVAL != 0) return;
+        if (level.getGameTime() % AnvilCraft.CONFIG.machines.drainInterval != 0) return;
         FillResult fillResult = be.tryFillDown(level, pos);
         if (fillResult == FillResult.NONE) be.clearColumn();
         be.tryDrainUp(level, pos);
@@ -251,7 +250,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
     private void tryGenerateFromInfinite(Level level, BlockPos pos) {
         if (!(level instanceof ServerLevel serverLevel)) return;
         FluidStack stored = this.tank.getStack();
-        if (!stored.isEmpty() && stored.getAmount() >= DrainBlockEntity.CAPACITY) return;
+        if (!stored.isEmpty() && stored.getAmount() >= AnvilCraft.CONFIG.machines.drainCapacity) return;
         for (Direction d : Direction.Plane.HORIZONTAL) {
             BlockPos n = pos.relative(d);
             FluidState fs = level.getFluidState(n);
@@ -321,7 +320,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
                 fluid,
                 start.getY(),
                 topY,
-                level.getGameTime() / DrainBlockEntity.INTERVAL
+                level.getGameTime() / AnvilCraft.CONFIG.machines.drainInterval
             );
         }
         return this.drainSearch.advance(level);
@@ -488,7 +487,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
                     );
                     this.layerSearch = new FillLayerSearch(this.drainPos, entry, this.fluid);
                 }
-                SearchResult result = this.layerSearch.advance(level, level.getGameTime() / DrainBlockEntity.INTERVAL);
+                SearchResult result = this.layerSearch.advance(level, level.getGameTime() / AnvilCraft.CONFIG.machines.drainInterval);
                 if (result.pending() || result.target() != null) {
                     this.exhaustedAt = Long.MIN_VALUE;
                     return result;

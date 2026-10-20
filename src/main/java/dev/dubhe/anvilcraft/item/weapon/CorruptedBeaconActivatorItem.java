@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.item.weapon;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.entity.WeaponBeamEntity;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.util.WeaponRaycastUtil;
@@ -20,16 +21,20 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 public class CorruptedBeaconActivatorItem extends EnergyWeaponItem {
-    private static final int ENERGY_PER_PULSE = 200_000;
 
     public CorruptedBeaconActivatorItem(Properties properties) {
-        super(properties, ENERGY_PER_PULSE);
+        super(properties);
+    }
+
+    @Override
+    protected int minimumEnergy() {
+        return AnvilCraft.CONFIG.equipment.corruptedBeaconPulseEnergy;
     }
 
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (!this.canStartUsing(player, stack, CorruptedBeaconActivatorItem.ENERGY_PER_PULSE)) return InteractionResult.FAIL;
+        if (!this.canStartUsing(player, stack, this.minimumEnergy())) return InteractionResult.FAIL;
         player.startUsingItem(hand);
         return InteractionResult.CONSUME;
     }
@@ -43,7 +48,7 @@ public class CorruptedBeaconActivatorItem extends EnergyWeaponItem {
             level.holderLookup(Registries.ENCHANTMENT).getOrThrow(Enchantments.QUICK_CHARGE));
         int period = 20 - Math.min(quickCharge, 10);
         boolean pulse = elapsed > 0 && elapsed % period == 0;
-        if (pulse && !this.consumeEnergy(player, stack, CorruptedBeaconActivatorItem.ENERGY_PER_PULSE)) return;
+        if (pulse && !this.consumeEnergy(player, stack, AnvilCraft.CONFIG.equipment.corruptedBeaconPulseEnergy)) return;
 
         WeaponRaycastUtil.Ray fullRay = WeaponRaycastUtil.ray(player, 64.0);
         Vec3 end = WeaponRaycastUtil.laserBlockHit(level, player, fullRay).getLocation();

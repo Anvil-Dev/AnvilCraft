@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.workstation.royal;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterAnvilBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
@@ -79,6 +80,10 @@ public class RoyalAnvilBlock extends BetterAnvilBlock implements IHammerRemovabl
 
     @Override
     public void falling(FallingBlockEntity entity) {
-        entity.setHurtsEntities(2.0F, 80);
+        int max = AnvilCraft.CONFIG.world.royalAnvilMaxFallDamage;
+        if (max == -1) {
+            max = Integer.MAX_VALUE;
+        }
+        entity.setHurtsEntities(AnvilCraft.CONFIG.world.royalAnvilFallDamagePerBlock, max);
     }
 }

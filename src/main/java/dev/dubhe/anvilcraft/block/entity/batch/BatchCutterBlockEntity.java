@@ -63,7 +63,7 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
 
     @Override
     protected int getCooldownDuration() {
-        return AnvilCraft.CONFIG.batchCutterCooldown;
+        return AnvilCraft.CONFIG.machines.batchCutterCooldown;
     }
 
     private void onContentsChanged() {

@@ -70,7 +70,7 @@ public enum LargeFluidTankProvider implements IServerExtensionProvider<FluidView
             if (resource.isEmpty() && hasInfiniteFluid) continue;
             long amount = handler.getAmountAsLong(index);
             long capacity = hasInfiniteFluid
-                ? tank.isInfinite(resource.toStack((int) amount)) ? Integer.MAX_VALUE : LargeFluidTankBlockEntity.INFINITY_THRESHOLD
+                ? tank.isInfinite(resource.toStack((int) amount)) ? Integer.MAX_VALUE : LargeFluidTankBlockEntity.infinityThreshold()
                 : handler.getCapacityAsLong(index, resource);
             fluids.add(new FluidView.Data(
                 JadeFluidObject.of(resource.getFluid(), amount, resource.getComponentsPatch()), capacity));

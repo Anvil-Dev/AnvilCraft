@@ -93,7 +93,7 @@ public class IonoCraftBackpackClientHandler {
             return;
         }
         if (minecraft.isPaused()) return;
-        if (!AnvilCraftClient.CONFIG.ionoCraftBackpackExhaustParticlesEnabled) return;
+        if (!AnvilCraftClient.CONFIG.effects.displayIonocraftBackpackExhaustParticles) return;
 
         ClientLevel level = minecraft.level;
         // 世界切换或重连时清空旧的飞行状态集合，防止内存泄漏

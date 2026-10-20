@@ -276,7 +276,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
                     }
                     if (itemEntity == null) return;
                 }
-            } while (itemEntity == null && i < AnvilCraft.CONFIG.blockPlacerRecursiveRetrievalDistanceMax);
+            } while (itemEntity == null && i < AnvilCraft.CONFIG.world.blockPlacerMaxRecursiveRetrievalDistance);
         }
         if (placeItem == null) return;
         // 检查海龟蛋，海泡菜，蜡烛是否可以被放置

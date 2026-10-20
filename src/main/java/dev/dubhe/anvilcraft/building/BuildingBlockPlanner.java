@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.building;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.cake.LargeCakeBlock;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilAmplifierBlock;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
@@ -103,7 +104,7 @@ public final class BuildingBlockPlanner {
                 planned.put(cell.pos(), cell);
             }
             unique.add(group);
-            if (planned.size() > BlueprintPlacement.MAX_ENTRIES) {
+            if (planned.size() > AnvilCraft.CONFIG.equipment.buildingRodMaxBlocks) {
                 return null;
             }
         }
@@ -153,7 +154,7 @@ public final class BuildingBlockPlanner {
         int countX = Math.abs(last.getX() - first.getX()) / width + 1;
         int countY = Math.abs(last.getY() - first.getY()) / height + 1;
         int countZ = Math.abs(last.getZ() - first.getZ()) / depth + 1;
-        if ((long) countX * countY * countZ * template.cells.size() > BlueprintPlacement.MAX_ENTRIES) return null;
+        if ((long) countX * countY * countZ * template.cells.size() > AnvilCraft.CONFIG.equipment.buildingRodMaxBlocks) return null;
         int anchorX = face == Direction.EAST ? minX : face == Direction.WEST ? maxX : (minX + maxX) / 2;
         int anchorY = face == Direction.DOWN ? maxY : minY;
         int anchorZ = face == Direction.SOUTH ? minZ : face == Direction.NORTH ? maxZ : (minZ + maxZ) / 2;

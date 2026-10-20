@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.renderer.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.serialization.MapCodec;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.support.FittedItemRenderer;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.FilterContent;
@@ -24,7 +25,7 @@ public class FilterItemRenderer implements SpecialModelRenderer<FilterItemRender
             if (!item.isEmpty()) count++;
         }
         if (count == 0) return ItemStack.EMPTY;
-        int selected = Math.floorMod(timeMillis / 1000, count);
+        int selected = Math.floorMod(timeMillis / AnvilCraft.CLIENT_CONFIG.ui.filterItemDisplayIntervalMillis, count);
         for (ItemStack item : content.list()) {
             if (!item.isEmpty() && selected-- == 0) return item;
         }

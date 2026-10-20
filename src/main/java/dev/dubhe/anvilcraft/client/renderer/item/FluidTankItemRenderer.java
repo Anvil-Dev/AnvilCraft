@@ -30,7 +30,7 @@ public class FluidTankItemRenderer extends BaseBlockItemRenderer<FluidTankItemRe
         FluidTankItemTooltip.SingleTankData data = FluidTankItemTooltip.readSingleTank(stack, registries);
         if (data == null || data.fluid().isEmpty()) return null;
         int capacity = data.enhanced()
-            ? FluidTankBlockEntity.INFINITY_THRESHOLD
+            ? FluidTankBlockEntity.infinityThreshold()
             : FluidTankBlockEntity.BASE_CAPACITY;
         FluidTankItemRenderState state = new FluidTankItemRenderState();
         state.setResource(FluidResource.of(data.fluid()));

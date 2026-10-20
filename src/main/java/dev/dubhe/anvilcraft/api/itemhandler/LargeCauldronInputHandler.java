@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.api.itemhandler;
 
 import com.mojang.serialization.Codec;
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.ValueInput;
@@ -20,7 +21,7 @@ import java.util.function.Predicate;
 
 public class LargeCauldronInputHandler implements ResourceHandler<ItemResource>, ValueIOSerializable {
     public static final int SLOT_COUNT = 8;
-    public static final int STACK_MULTIPLIER = 9;
+
     private static final Codec<List<UnlimitedItemStack>> STACKS_CODEC = UnlimitedItemStack.OPTIONAL_CODEC.listOf();
 
     private final Runnable changeListener;
@@ -57,7 +58,7 @@ public class LargeCauldronInputHandler implements ResourceHandler<ItemResource>,
     @Override
     public long getCapacityAsLong(int index, ItemResource resource) {
         Objects.checkIndex(index, LargeCauldronInputHandler.SLOT_COUNT);
-        return resource.isEmpty() ? 0 : (long) resource.getMaxStackSize() * LargeCauldronInputHandler.STACK_MULTIPLIER;
+        return resource.isEmpty() ? 0 : (long) resource.getMaxStackSize() * AnvilCraft.CONFIG.machines.largeCauldronInputStackMultiplier;
     }
 
     @Override

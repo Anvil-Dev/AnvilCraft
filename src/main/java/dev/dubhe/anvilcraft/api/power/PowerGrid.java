@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.network.PowerGridRemovePacket;
 import dev.dubhe.anvilcraft.network.PowerGridSyncChunkPacket;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -33,7 +32,13 @@ import java.util.Set;
 public class PowerGrid {
     public static boolean isServerClosing = false;
     public static final PowerGridManager MANAGER = new PowerGridManager();
-    public static final int GRID_TICK = 20;
+    /**
+     * 电网逻辑的运行间隔（tick），同时是能量记账单位；运行时读取配置。
+     */
+
+    public static int gridInterval() {
+        return AnvilCraft.CONFIG.machines.powerGridTick;
+    }
 
     @Getter
     public boolean markedRemoval = false;
@@ -107,7 +112,7 @@ public class PowerGrid {
 
     /// 电力刻
     protected void tick() {
-        if (this.level.getGameTime() % PowerGrid.GRID_TICK != 0) return;
+        if (this.level.getGameTime() % PowerGrid.gridInterval() != 0) return;
         if (this.markedRemoval) return;
         if (this.flush()) return;
         if (this.isWorking()) {

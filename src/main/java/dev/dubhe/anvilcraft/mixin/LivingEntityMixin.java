@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import dev.anvilcraft.lib.v2.util.Util;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.injection.entity.ILivingEntityExtension;
 import dev.dubhe.anvilcraft.block.workstation.TranscendenceAnvilBlock;
@@ -183,7 +184,7 @@ public abstract class LivingEntityMixin extends Entity implements ILivingEntityE
     private void dieOfRage(CallbackInfo ci) {
         if (!(this.level() instanceof ServerLevel serverLevel)) return;
         if (this.anvilcraft$raged) {
-            if (this.anvilcraft$rageTick >= 1200) {
+            if (this.anvilcraft$rageTick >= AnvilCraft.CONFIG.equipment.totemOfRageDuration) {
                 if ((LivingEntity) (Object) this instanceof Player player) {
                     if (player instanceof ServerPlayer serverPlayer) {
                         if (serverPlayer.gameMode.getGameModeForPlayer() == GameType.SURVIVAL

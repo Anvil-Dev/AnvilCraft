@@ -25,8 +25,9 @@ public class WeatherproofChestplateHUD {
     private static final Identifier BATTERY_FULL = SharedTextures.textureGui("misc/battery_display/battery_full");
 
     public static void render(GuiGraphicsExtractor graphics, DeltaTracker partialTick) {
-        var config = AnvilCraftClient.CONFIG.weatherproofChestplateHud;
-        if (!config.enabled && !config.capacitorCountEnabled) return;
+        var config = AnvilCraftClient.CONFIG.ui.weatherproofChestplateHud;
+        boolean renderCapacitors = AnvilCraftClient.CONFIG.ui.displayCapacitorCountInHud;
+        if (!config.enabled && !renderCapacitors) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.options.hideGui) return;
         LocalPlayer player = mc.player;
@@ -37,13 +38,13 @@ public class WeatherproofChestplateHUD {
         List<ItemStack> inventory = PocketInventory.carriedItems(player);
         int capacitorCount = WeatherproofChestplateHUD.count(inventory, ModItems.CAPACITOR.asStack());
         int superCapacitorCount = WeatherproofChestplateHUD.count(inventory, ModItems.SUPER_CAPACITOR.asStack());
-        boolean renderCapacitors = config.capacitorCountEnabled && (capacitorCount > 0 || superCapacitorCount > 0);
+        renderCapacitors &= capacitorCount > 0 || superCapacitorCount > 0;
         if (!renderBackpack && !renderCapacitors) return;
 
         Matrix3x2fStack pose = graphics.pose();
         pose.pushMatrix();
 
-        pose.scale(config.hudScale, config.hudScale);
+        pose.scale(config.scale, config.scale);
         pose.translate(config.hudX, config.hudY);
         if (renderBackpack) {
             WeatherproofChestplateHUD.renderBackpack(graphics, mc.font, backpack);
@@ -60,7 +61,7 @@ public class WeatherproofChestplateHUD {
         Matrix3x2fStack pose = graphics.pose();
         pose.pushMatrix();
         int energy = WeatherproofChestplateItem.getEnergyStored(backpack);
-        int percent = Math.round((float) energy / WeatherproofChestplateItem.MAX_ENERGY * 100);
+        int percent = Math.round((float) energy / WeatherproofChestplateItem.maxEnergy() * 100);
         int color = 0xFFFFFFFF;
         graphics.item(backpack, 0, 0);
 

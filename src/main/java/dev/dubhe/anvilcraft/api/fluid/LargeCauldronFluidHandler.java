@@ -1,11 +1,11 @@
 package dev.dubhe.anvilcraft.api.fluid;
 
 import com.mojang.serialization.Codec;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.TransferPreconditions;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -18,9 +18,15 @@ import java.util.Objects;
 
 public class LargeCauldronFluidHandler implements ResourceHandler<FluidResource>, ValueIOSerializable {
     public static final int TANK_COUNT = 8;
-    public static final int TANK_CAPACITY = 64 * FluidType.BUCKET_VOLUME;
-    public static final int TOTAL_CAPACITY = LargeCauldronFluidHandler.TANK_COUNT * LargeCauldronFluidHandler.TANK_CAPACITY;
     private static final Codec<List<FluidStack>> FLUIDS_CODEC = FluidStack.OPTIONAL_CODEC.listOf();
+
+    public static int tankCapacity() {
+        return AnvilCraft.CONFIG.machines.largeCauldronTankCapacity;
+    }
+
+    public static int totalCapacity() {
+        return LargeCauldronFluidHandler.TANK_COUNT * LargeCauldronFluidHandler.tankCapacity();
+    }
 
     private final Runnable changeListener;
     private final List<FluidStack> fluids = new ArrayList<>(LargeCauldronFluidHandler.TANK_COUNT);
@@ -50,7 +56,7 @@ public class LargeCauldronFluidHandler implements ResourceHandler<FluidResource>
     @Override
     public long getCapacityAsLong(int index, FluidResource resource) {
         Objects.checkIndex(index, LargeCauldronFluidHandler.TANK_COUNT);
-        return LargeCauldronFluidHandler.TANK_CAPACITY;
+        return LargeCauldronFluidHandler.tankCapacity();
     }
 
     @Override
@@ -82,7 +88,7 @@ public class LargeCauldronFluidHandler implements ResourceHandler<FluidResource>
         if (matching < 0 && this.fluids.size() >= LargeCauldronFluidHandler.TANK_COUNT) return 0;
 
         int stored = matching < 0 ? 0 : this.fluids.get(matching).getAmount();
-        int inserted = Math.min(amount, LargeCauldronFluidHandler.TANK_CAPACITY - stored);
+        int inserted = Math.min(amount, LargeCauldronFluidHandler.tankCapacity() - stored);
         if (inserted <= 0) return 0;
         this.snapshotJournal.updateSnapshots(transaction);
 
@@ -137,11 +143,11 @@ public class LargeCauldronFluidHandler implements ResourceHandler<FluidResource>
     }
 
     public ResourceHandler<FluidResource> bottomAccess() {
-        return new LayeredView(DrainOrder.BOTTOM, LargeCauldronFluidHandler.TOTAL_CAPACITY, true);
+        return new LayeredView(DrainOrder.BOTTOM, LargeCauldronFluidHandler.totalCapacity(), true);
     }
 
     public ResourceHandler<FluidResource> topAccess() {
-        return new LayeredView(DrainOrder.TOP, LargeCauldronFluidHandler.TOTAL_CAPACITY, false);
+        return new LayeredView(DrainOrder.TOP, LargeCauldronFluidHandler.totalCapacity(), false);
     }
 
     public ResourceHandler<FluidResource> sideAccess(int accessibleAmount) {
@@ -164,7 +170,7 @@ public class LargeCauldronFluidHandler implements ResourceHandler<FluidResource>
         this.fluids.clear();
         for (FluidStack fluid : fluids) {
             if (fluid.isEmpty()) continue;
-            this.fluids.add(fluid.copyWithAmount(Math.min(fluid.getAmount(), LargeCauldronFluidHandler.TANK_CAPACITY)));
+            this.fluids.add(fluid.copyWithAmount(Math.min(fluid.getAmount(), LargeCauldronFluidHandler.tankCapacity())));
             if (this.fluids.size() == LargeCauldronFluidHandler.TANK_COUNT) break;
         }
         this.changeListener.run();
@@ -276,7 +282,7 @@ public class LargeCauldronFluidHandler implements ResourceHandler<FluidResource>
         @Override
         public long getCapacityAsLong(int index, FluidResource resource) {
             Objects.checkIndex(index, LargeCauldronFluidHandler.TANK_COUNT);
-            return LargeCauldronFluidHandler.TANK_CAPACITY;
+            return LargeCauldronFluidHandler.tankCapacity();
         }
 
         @Override

@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.OverworldSkyMode;
+import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.GraphicsSettings.OverworldSkyRenderMode;
 import dev.dubhe.anvilcraft.network.OverworldSkyModeSyncPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -28,7 +28,7 @@ public final class OverworldSkyModeEventListener {
             lastConnection = null;
             return;
         }
-        boolean special = AnvilCraft.CLIENT_CONFIG.overworldSkyMode == OverworldSkyMode.SPECIAL;
+        boolean special = AnvilCraft.CLIENT_CONFIG.graphics.overworldSkyRenderMode == OverworldSkyRenderMode.SPECIAL;
         if (lastConnection == connection && lastSpecial == special) return;
         ClientPacketDistributor.sendToServer(new OverworldSkyModeSyncPacket(special));
         lastConnection = connection;

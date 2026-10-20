@@ -37,6 +37,6 @@ public class RemoteTransmissionPoleBlockEntity extends AbstractTransmissionPoleB
 
     @Override
     public int getRange() {
-        return AnvilCraft.CONFIG.remotePowerTransmitterRange;
+        return AnvilCraft.CONFIG.machines.remotePowerTransmitterRange;
     }
 }

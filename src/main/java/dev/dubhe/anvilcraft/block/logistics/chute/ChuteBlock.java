@@ -172,7 +172,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         if (inserted <= 0) return;
         if (inserted == stack.getCount()) item.discard();
         else item.setItem(stack.copyWithCount(stack.getCount() - inserted));
-        int delay = AnvilCraft.CONFIG.chuteMaxCooldown;
+        int delay = AnvilCraft.CONFIG.machines.chuteMaxCooldown;
         switch (blockEntity) {
             case BaseChuteBlockEntity chute -> chute.setCooldown(delay);
             case SimpleChuteBlockEntity chute -> chute.setCooldown(delay + 1);

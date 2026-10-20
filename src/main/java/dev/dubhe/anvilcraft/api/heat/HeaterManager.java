@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
 public class HeaterManager {
     private static final Map<Level, HeaterManager> INSTANCES = new HashMap<>();
 
@@ -72,7 +71,7 @@ public class HeaterManager {
 
     public static void tickAll() {
         HeaterManager.INSTANCES.forEach((level, manager) -> {
-            if (level.getGameTime() % PowerGrid.GRID_TICK != 0) return;
+            if (level.getGameTime() % PowerGrid.gridInterval() != 0) return;
             if (level.tickRateManager().isFrozen() && !level.tickRateManager().isSteppingForward()) return;
             manager.tick();
         });

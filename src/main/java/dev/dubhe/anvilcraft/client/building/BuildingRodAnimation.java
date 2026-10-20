@@ -1,8 +1,9 @@
 package dev.dubhe.anvilcraft.client.building;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
+
 /** 只平滑显示姿态，目标坐标和方块状态始终保留精确值。 */
 final class BuildingRodAnimation {
-    private static final double FOLLOW_RATE = 18.0;
     private boolean initialized;
     private long lastFrame;
     private double displayedX;
@@ -38,7 +39,7 @@ final class BuildingRodAnimation {
             // 保留快速连续按旋转键的方向，避免累计超过半圈后反向追赶。
             this.targetYaw += this.queuedYaw + wrapDegrees(yaw - this.previousYaw - this.queuedYaw);
             double seconds = Math.clamp((now - this.lastFrame) / 1_000_000_000.0, 0.0, 0.1);
-            double follow = -Math.expm1(-FOLLOW_RATE * seconds);
+            double follow = -Math.expm1(-AnvilCraft.CLIENT_CONFIG.ui.buildingRodPreviewFollowRate * seconds);
             this.displayedX = approach(this.displayedX, x, follow);
             this.displayedY = approach(this.displayedY, y, follow);
             this.displayedZ = approach(this.displayedZ, z, follow);

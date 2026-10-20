@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.item.block;
 
-import dev.dubhe.anvilcraft.block.entity.InfiniteCollectorBlockEntity;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.VoidEnergyCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.world.level.block.Block;
@@ -26,7 +26,7 @@ public class InfiniteCollectorBlockItem extends PlacementIntervalsBlockItem {
     @Override
     protected int getIntervalsRadius(BlockState state) {
         if (state.is(ModBlocks.VOID_ENERGY_COLLECTOR)) {
-            return VoidEnergyCollectorBlockEntity.RANGE + InfiniteCollectorBlockEntity.RANGE;
+            return VoidEnergyCollectorBlockEntity.RANGE + AnvilCraft.CONFIG.machines.infiniteCollectorRange;
         }
         return state.is(ModBlocks.HEAT_COLLECTOR) ? 5 : super.getIntervalsRadius(state);
     }

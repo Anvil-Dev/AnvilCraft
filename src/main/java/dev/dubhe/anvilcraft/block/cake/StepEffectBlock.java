@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.cake;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -13,8 +14,6 @@ import java.util.function.Consumer;
 
 public class StepEffectBlock extends Block {
     private final Consumer<Entity> stepAction;
-    public static final int EFFECT_PERIOD = 80;
-    public static final int EFFECT_DURATION = 180;
 
     public StepEffectBlock(Properties properties, Consumer<Entity> stepAction) {
         super(properties);
@@ -29,32 +28,40 @@ public class StepEffectBlock extends Block {
     public static void stepOnChocolateBlock(Entity entity) {
         if (!(entity instanceof Player player)) return;
         if (entity.level().isClientSide()) return;
-        if (entity.level().getGameTime() % StepEffectBlock.EFFECT_PERIOD != 0) return;
-        player.addEffect(new MobEffectInstance(MobEffects.SPEED, StepEffectBlock.EFFECT_DURATION, 9, true, true));
+        int period = AnvilCraft.CONFIG.world.chocolateBlockEffectPeriod;
+        int duration = AnvilCraft.CONFIG.world.chocolateBlockEffectDuration;
+        if (entity.level().getGameTime() % period != 0) return;
+        player.addEffect(new MobEffectInstance(MobEffects.SPEED, duration, 9, true, true));
     }
 
     public static void stepOnBlackChocolateBlock(Entity entity) {
         if (!(entity instanceof Player player)) return;
         if (entity.level().isClientSide()) return;
-        if (entity.level().getGameTime() % StepEffectBlock.EFFECT_PERIOD != 0) return;
-        player.addEffect(new MobEffectInstance(MobEffects.SPEED, StepEffectBlock.EFFECT_DURATION, 4, true, true));
-        player.addEffect(new MobEffectInstance(MobEffects.HASTE, StepEffectBlock.EFFECT_DURATION, 3, true, true));
+        int period = AnvilCraft.CONFIG.world.chocolateBlockEffectPeriod;
+        int duration = AnvilCraft.CONFIG.world.chocolateBlockEffectDuration;
+        if (entity.level().getGameTime() % period != 0) return;
+        player.addEffect(new MobEffectInstance(MobEffects.SPEED, duration, 4, true, true));
+        player.addEffect(new MobEffectInstance(MobEffects.HASTE, duration, 3, true, true));
     }
 
     public static void stepOnWhiteChocolateBlock(Entity entity) {
         if (!(entity instanceof Player player)) return;
         if (entity.level().isClientSide()) return;
-        if (entity.level().getGameTime() % StepEffectBlock.EFFECT_PERIOD != 0) return;
-        player.addEffect(new MobEffectInstance(MobEffects.SPEED, StepEffectBlock.EFFECT_DURATION, 4, true, true));
-        player.addEffect(new MobEffectInstance(MobEffects.JUMP_BOOST, StepEffectBlock.EFFECT_DURATION, 5, true, true));
+        int period = AnvilCraft.CONFIG.world.chocolateBlockEffectPeriod;
+        int duration = AnvilCraft.CONFIG.world.chocolateBlockEffectDuration;
+        if (entity.level().getGameTime() % period != 0) return;
+        player.addEffect(new MobEffectInstance(MobEffects.SPEED, duration, 4, true, true));
+        player.addEffect(new MobEffectInstance(MobEffects.JUMP_BOOST, duration, 5, true, true));
     }
 
     public static void stepOnBlackWhiteChocolateBlock(Entity entity) {
         if (!(entity instanceof Player player)) return;
         if (entity.level().isClientSide()) return;
-        if (entity.level().getGameTime() % EFFECT_PERIOD != 0) return;
-        player.addEffect(new MobEffectInstance(MobEffects.SPEED, EFFECT_DURATION, 4, true, true));
-        player.addEffect(new MobEffectInstance(MobEffects.HASTE, EFFECT_DURATION, 3, true, true));
-        player.addEffect(new MobEffectInstance(MobEffects.JUMP_BOOST, EFFECT_DURATION, 5, true, true));
+        int period = AnvilCraft.CONFIG.world.chocolateBlockEffectPeriod;
+        int duration = AnvilCraft.CONFIG.world.chocolateBlockEffectDuration;
+        if (entity.level().getGameTime() % period != 0) return;
+        player.addEffect(new MobEffectInstance(MobEffects.SPEED, duration, 4, true, true));
+        player.addEffect(new MobEffectInstance(MobEffects.HASTE, duration, 3, true, true));
+        player.addEffect(new MobEffectInstance(MobEffects.JUMP_BOOST, duration, 5, true, true));
     }
 }

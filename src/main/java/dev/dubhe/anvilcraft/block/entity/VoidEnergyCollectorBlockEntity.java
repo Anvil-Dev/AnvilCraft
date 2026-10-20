@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.block.IVoidEnergyAmplifier;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
@@ -139,7 +140,7 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
     }
 
     public static boolean isAnotherCollectorNearby(Level level, BlockPos pos) {
-        int infiniteOverlap = RANGE + InfiniteCollectorBlockEntity.RANGE;
+        int infiniteOverlap = RANGE + AnvilCraft.CONFIG.machines.infiniteCollectorRange;
         int range = Math.max(RANGE * 2, infiniteOverlap);
         BlockPos.MutableBlockPos mpos = new BlockPos.MutableBlockPos();
         for (int i = -range; i <= range; i++) {

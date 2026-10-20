@@ -24,7 +24,7 @@ public final class InvertedActionEventListener {
     }
 
     public static boolean isInverted() {
-        return AnvilCraftClient.CONFIG.invertOverrideAction;
+        return AnvilCraftClient.CONFIG.controls.invertMouseOverrideActions;
     }
 
     @SubscribeEvent
@@ -34,7 +34,7 @@ public final class InvertedActionEventListener {
         if (client.player == null || connection == null) return;
         boolean inverted = isInverted();
         BundleLikeServerStub.setClientInverted(inverted);
-        boolean bucketInverted = AnvilCraftClient.CONFIG.invertFluidPortBucketAction;
+        boolean bucketInverted = AnvilCraftClient.CONFIG.controls.invertFluidPortBucketActions;
         if (lastConnection != connection || lastBucketInverted != bucketInverted) {
             StorageClientStub.updateInvertedBucketAction(bucketInverted);
             lastBucketInverted = bucketInverted;

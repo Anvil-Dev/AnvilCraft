@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.fluid;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.InsideBlockEffectApplier;
@@ -11,7 +12,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FlowingFluid;
 
 public class ExpFluidBlock extends LiquidBlock {
-    public static final int XP_POINTS = 50;
 
     public ExpFluidBlock(FlowingFluid fluid, Properties properties) {
         super(fluid, properties);
@@ -29,7 +29,7 @@ public class ExpFluidBlock extends LiquidBlock {
         if (level.isClientSide()) return;
         if (!level.getFluidState(pos).isSource()) return;
         if (entity instanceof Player player) {
-            player.giveExperiencePoints(ExpFluidBlock.XP_POINTS);
+            player.giveExperiencePoints(AnvilCraft.CONFIG.world.expFluidXpPerBlock);
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
         }
     }

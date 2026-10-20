@@ -39,7 +39,7 @@ public final class HammerWheelIconRenderer {
     public void render(GuiGraphicsExtractor graphics, Vec2 camera) {
         Minecraft client = Minecraft.getInstance();
         if (client.level == null) return;
-        float menuScale = AnvilCraft.CLIENT_CONFIG.anvilHammerRadialMenuScale;
+        float menuScale = AnvilCraft.CLIENT_CONFIG.ui.anvilHammerWheelScale;
         float scale = (this.multipart ? 5 : 13.5F) * menuScale;
         float x = -7 * menuScale + scale / 2;
         float y = 7 * menuScale - scale / 2;

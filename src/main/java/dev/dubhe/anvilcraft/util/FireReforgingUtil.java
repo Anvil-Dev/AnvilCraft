@@ -7,7 +7,6 @@ import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
 
 public final class FireReforgingUtil {
-    public static final int LAVA_REPAIR_PER_TICK = 10;
 
     private FireReforgingUtil() {
     }

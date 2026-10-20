@@ -226,7 +226,7 @@ public abstract class BaseChuteBlockEntity
         // 尝试从上方容器输入
         if (!this.isInputEnabled() || this.inventoryFull()) {
             this.level.updateNeighbourForOutputSignal(this.getBlockPos(), this.getBlockState().getBlock());
-            if (resetCD) this.cooldown = AnvilCraft.CONFIG.chuteMaxCooldown;
+            if (resetCD) this.cooldown = AnvilCraft.CONFIG.machines.chuteMaxCooldown;
             return;
         }
         BlockPos inputPos = this.getBlockPos().relative(this.getInputDirection());
@@ -264,7 +264,7 @@ public abstract class BaseChuteBlockEntity
             }
         }
         this.level.updateNeighbourForOutputSignal(this.getBlockPos(), this.getBlockState().getBlock());
-        if (resetCD) this.cooldown = AnvilCraft.CONFIG.chuteMaxCooldown;
+        if (resetCD) this.cooldown = AnvilCraft.CONFIG.machines.chuteMaxCooldown;
     }
 
     protected boolean isInputEnabled() {
@@ -293,12 +293,12 @@ public abstract class BaseChuteBlockEntity
         if (targetBE instanceof BaseChuteBlockEntity chute) {
             int k = 0;
             if (chute.getTickedGameTime() >= this.tickedGameTime) k++;
-            chute.setCooldown(AnvilCraft.CONFIG.chuteMaxCooldown - k);
+            chute.setCooldown(AnvilCraft.CONFIG.machines.chuteMaxCooldown - k);
         }
         if (targetBE instanceof SimpleChuteBlockEntity chute) {
             int k = 0;
             if (chute.getTickedGameTime() >= this.tickedGameTime) k++;
-            chute.setCooldown(AnvilCraft.CONFIG.chuteMaxCooldown - k);
+            chute.setCooldown(AnvilCraft.CONFIG.machines.chuteMaxCooldown - k);
         }
     }
 

@@ -10,7 +10,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState;
 import dev.dubhe.anvilcraft.client.init.ModRenderPipelines;
-import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.CelestialRenderingMode;
+import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.GraphicsSettings.CelestialRenderMode;
 import dev.dubhe.anvilcraft.integration.iris.CelestialIrisRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OrderedSubmitNodeCollector;
@@ -50,7 +50,7 @@ public final class StellarEmissionRenderer {
     }
 
     public static boolean standard() {
-        if (AnvilCraft.CLIENT_CONFIG.stellarRenderingMode != CelestialRenderingMode.STANDARD) return false;
+        if (AnvilCraft.CLIENT_CONFIG.graphics.stellarRenderMode != CelestialRenderMode.STANDARD) return false;
         if (!checked) {
             checked = true;
             try {

@@ -100,7 +100,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     @Inject(method = "tick", at = @At(value = "HEAD"))
     private void voidResistant(CallbackInfo ci) {
         if (!this.getItem().is(ModItemTags.VOID_RESISTANT)
-            && (!this.getItem().has(ModComponents.ETERNAL) || AnvilCraft.CONFIG.eternalItemsVoidKillable)) return;
+            && (!this.getItem().has(ModComponents.ETERNAL) || AnvilCraft.CONFIG.equipment.eternalItemsVoidKillable)) return;
         if (this.getY() < this.level().getMinY() + 5) {
             double dy = (this.level().getMinY() + 4 - this.getY()) * 0.01;
             dy += this.getDeltaMovement().y * -0.1;
@@ -190,7 +190,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
 
     @Override
     protected void onBelowWorld() {
-        if (this.getItem().has(ModComponents.ETERNAL) && !AnvilCraft.CONFIG.eternalItemsVoidKillable) return;
+        if (this.getItem().has(ModComponents.ETERNAL) && !AnvilCraft.CONFIG.equipment.eternalItemsVoidKillable) return;
         super.onBelowWorld();
     }
 

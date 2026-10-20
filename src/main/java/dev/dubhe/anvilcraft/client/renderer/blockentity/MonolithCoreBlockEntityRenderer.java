@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.QuadInstance;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.MonolithCoreBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -55,7 +56,7 @@ public class MonolithCoreBlockEntityRenderer
         state.lineHeight = core.getLineHeight();
         state.age = core.getAnimationAge(partialTick);
         state.quads = List.of();
-        if (state.age >= MonolithCoreBlockEntity.DISSOLVE_TICKS || core.getLevel() == null) return;
+        if (state.age >= AnvilCraft.CONFIG.world.monolithDissolveTicks || core.getLevel() == null) return;
         var level = Minecraft.getInstance().level;
         if (level == null) return;
         var model = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(state.offering);
@@ -101,13 +102,13 @@ public class MonolithCoreBlockEntityRenderer
         State offering, Direction.Axis axis, boolean giant, int lineHeight, float age,
         PoseStack pose, SubmitNodeCollector buffers, int light, int overlay
     ) {
-        if (age >= MonolithCoreBlockEntity.OFFERING_TICKS) return;
+        if (age >= AnvilCraft.CONFIG.world.monolithOfferingTicks) return;
         pose.pushPose();
         pose.translate(0.5, 0.5, 0.5);
         if (axis == Direction.Axis.X) pose.mulPose(Axis.YP.rotationDegrees(90));
         pose.translate(-0.5, -0.5, -0.5);
-        if (age < MonolithCoreBlockEntity.DISSOLVE_TICKS) {
-            float progress = Mth.clamp((age - 10) / (MonolithCoreBlockEntity.DISSOLVE_TICKS - 10), 0, 1);
+        if (age < AnvilCraft.CONFIG.world.monolithDissolveTicks) {
+            float progress = Mth.clamp((age - 10) / (AnvilCraft.CONFIG.world.monolithDissolveTicks - 10), 0, 1);
             final float alpha = 1 - progress * progress * (3 - 2 * progress);
             pose.pushPose();
             pose.translate(0.5, 0.5, 0.5);
@@ -117,7 +118,7 @@ public class MonolithCoreBlockEntityRenderer
             this.renderAnvil(offering, alpha, pose, buffers, light, overlay);
             pose.popPose();
         } else if (lineHeight > 0) {
-            this.renderMist(giant, lineHeight, age - MonolithCoreBlockEntity.DISSOLVE_TICKS, pose, buffers);
+            this.renderMist(giant, lineHeight, age - AnvilCraft.CONFIG.world.monolithDissolveTicks, pose, buffers);
         }
         pose.popPose();
     }
@@ -154,7 +155,7 @@ public class MonolithCoreBlockEntityRenderer
 
     private void mistGeometry(boolean giant, int lineHeight, float age, PoseStack pose, VertexConsumer consumer) {
         int count = giant ? 36 : 18;
-        float duration = MonolithCoreBlockEntity.OFFERING_TICKS - MonolithCoreBlockEntity.DISSOLVE_TICKS;
+        float duration = AnvilCraft.CONFIG.world.monolithOfferingTicks - AnvilCraft.CONFIG.world.monolithDissolveTicks;
         for (int i = 0; i < count; i++) {
             float delay = i % 9;
             float progress = (age - delay) / (duration - delay);

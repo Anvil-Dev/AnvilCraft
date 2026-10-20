@@ -210,8 +210,8 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
             level
         );
         Vec3 center = outputPos.getCenter();
-        int chainCount = AnvilCraft.CONFIG.blockDevourerUpwardChainDevouring
-            ? AnvilCraft.CONFIG.blockDevourerUpwardChainDevouringDistance : 0;
+        int chainCount = AnvilCraft.CONFIG.world.blockDevourerUpwardChainDevouring
+            ? AnvilCraft.CONFIG.world.blockDevourerUpwardChainDevouringDistance : 0;
         for (BlockPos pos : DevourUtil.getDevourPosList(level, devourCenterPos, devourerDirection, range, chainCount)) {
             BlockDevourerBlock.devourSingleBlockInternalLogic(level, anvil, pos, itemHandlerList, center);
         }
@@ -240,7 +240,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         BlockState devourBlockState = level.getBlockState(devourBlockPos);
         if (devourBlockState.isAir()) return;
         if (!BlockDevourerBlock.canDevour(devourBlockState)) return;
-        if (AnvilCraft.CONFIG.blockDevourerProtectContainers
+        if (AnvilCraft.CONFIG.world.blockDevourerProtectContainers
             && level.getCapability(Capabilities.Item.BLOCK, devourBlockPos, null) != null) {
             return;
         }
@@ -248,7 +248,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         if (
             !miningEffect.isDisintegration()
             && devourBlockState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
-            && level.getRandom().nextDouble() > 0.05
+            && level.getRandom().nextDouble() > AnvilCraft.CONFIG.world.blockDevourerDropSuppressionChance
         ) {
             level.destroyBlock(devourBlockPos, false);
             return;

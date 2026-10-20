@@ -37,7 +37,7 @@ public class CachedLaserBlockEntityRenderer<T extends BaseLaserBlockEntity> impl
             poseStack,
             state,
             submitNodeCollector,
-            AnvilCraftClient.CONFIG.renderBloomEffect
+            AnvilCraftClient.CONFIG.effects.renderBloomEffect
         );
         poseStack.popPose();
     }

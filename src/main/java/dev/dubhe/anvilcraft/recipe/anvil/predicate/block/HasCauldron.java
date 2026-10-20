@@ -192,9 +192,9 @@ public record HasCauldron(
 
         if (cache.getBlockEntity(pos) instanceof LargeCauldronBlockEntity cauldron) {
             if (
-                this.consume() > LargeCauldronFluidHandler.TANK_CAPACITY
+                this.consume() > LargeCauldronFluidHandler.tankCapacity()
                 || this.transforms().stream()
-                    .anyMatch(transform -> transform.amount() > LargeCauldronFluidHandler.TANK_CAPACITY)
+                    .anyMatch(transform -> transform.amount() > LargeCauldronFluidHandler.tankCapacity())
             ) {
                 return false;
             }

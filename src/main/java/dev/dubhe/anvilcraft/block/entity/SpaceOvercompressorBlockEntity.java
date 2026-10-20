@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.MassInjectRecipe;
@@ -27,9 +28,8 @@ public class SpaceOvercompressorBlockEntity extends BlockEntity {
 
     public static long NEUTRONIUM_INGOT_MASS = 10_000_000;
     public static long DISPLAYED_MASS = SpaceOvercompressorBlockEntity.NEUTRONIUM_INGOT_MASS / 100;
-    public static int MAX_OUTPUT_PER_TIME = 640;
-    private long storedMass = 0;
 
+    private long storedMass = 0;
     public SpaceOvercompressorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
@@ -89,7 +89,8 @@ public class SpaceOvercompressorBlockEntity extends BlockEntity {
         if (level == null) return;
         BlockPos pos = this.getBlockPos();
         int produceCount = (int) Math.min(
-            SpaceOvercompressorBlockEntity.MAX_OUTPUT_PER_TIME, this.storedMass / SpaceOvercompressorBlockEntity.NEUTRONIUM_INGOT_MASS);
+            AnvilCraft.CONFIG.machines.spaceOvercompressorMaxOutputPerTime,
+            this.storedMass / SpaceOvercompressorBlockEntity.NEUTRONIUM_INGOT_MASS);
         if (produceCount <= 0) return;
         this.storedMass -= produceCount * SpaceOvercompressorBlockEntity.NEUTRONIUM_INGOT_MASS;
         AnvilUtil.dropItems(

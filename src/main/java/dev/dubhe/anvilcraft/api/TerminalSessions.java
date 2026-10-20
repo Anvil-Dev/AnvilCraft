@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api;
 
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -119,8 +120,10 @@ public final class TerminalSessions {
         }
         var level = player.level();
         BlockPos pos = terminal.kind() == TerminalItem.Kind.LOCAL
-            ? TerminalSourceManager.nearestLargeCrate(level, player.getX(), player.getY(), player.getZ(), 32)
-            : TerminalSourceManager.nearestShulkerContainer(level, player.getX(), player.getY(), player.getZ(), 64);
+            ? TerminalSourceManager.nearestLargeCrate(level, player.getX(), player.getY(), player.getZ(),
+                AnvilCraft.CONFIG.machines.localTerminalRange)
+            : TerminalSourceManager.nearestShulkerContainer(level, player.getX(), player.getY(), player.getZ(),
+                AnvilCraft.CONFIG.machines.shulkerTerminalRange);
         if (pos == null || !(level.getBlockEntity(pos) instanceof StorageBlockEntity entity)) return null;
         UUID id = entity.getId();
         if (id == null) {

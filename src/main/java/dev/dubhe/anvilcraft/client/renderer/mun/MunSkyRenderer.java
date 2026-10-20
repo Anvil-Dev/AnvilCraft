@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.MunLightingQuality;
+import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.GraphicsSettings.MunLightingQuality;
 import dev.dubhe.anvilcraft.worldgen.MunSkyMath;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Sheets;
@@ -82,7 +82,7 @@ public final class MunSkyRenderer implements CustomSkyboxRenderer {
         if (camera.entity() instanceof LivingEntity living
             && (living.hasEffect(MobEffects.BLINDNESS) || living.hasEffect(MobEffects.DARKNESS))) return;
         var client = Minecraft.getInstance();
-        MunLightingQuality quality = AnvilCraft.CLIENT_CONFIG.munLightingQuality;
+        MunLightingQuality quality = AnvilCraft.CLIENT_CONFIG.graphics.munLightingQuality;
         if (quality != lastQuality) {
             lastQuality = quality;
             checked = false;
@@ -98,7 +98,7 @@ public final class MunSkyRenderer implements CustomSkyboxRenderer {
             MunClientSky.sunlight(event.getLevel(), position), rotationMatrix(rotation), earthMatrix(time, partialTime),
             MunSkyMath.earthCenter(time, partialTime), MunSkyMath.referenceSun(time, partialTime),
             new Vector4f(sunSprite.getU0(), sunSprite.getV0(), sunSprite.getU1(), sunSprite.getV1()),
-            AnvilCraft.CLIENT_CONFIG.munLightingQuality != MunLightingQuality.OFF));
+            AnvilCraft.CLIENT_CONFIG.graphics.munLightingQuality != MunLightingQuality.OFF));
     }
 
     @Override

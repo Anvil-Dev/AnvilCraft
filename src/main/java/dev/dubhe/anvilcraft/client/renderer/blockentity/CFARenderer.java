@@ -345,7 +345,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         if (!itemDisplay) {
             AABB renderBounds = this.getOcclusionBoundingBox(be, partialTicks);
             state.setRenderBounds(renderBounds);
-            if (AnvilCraftClient.CONFIG.cfaOcclusionCulling) {
+            if (AnvilCraftClient.CONFIG.graphics.cfaOcclusionCulling) {
                 OCCLUSION_KEYS.keySet().removeIf(CelestialForgingAnvilBlockEntity::isRemoved);
                 state.setOcclusionKey(getOrCreateKey(be, renderBounds));
             }
@@ -488,8 +488,8 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         float factor = cubeRadius;
         boolean atmosphere = body instanceof RockyPlanetData rocky && rocky.hasAtmosphere();
         if (atmosphere) {
-            boolean vanilla = AnvilCraft.CLIENT_CONFIG.planetAtmosphereRenderingMode
-                == AnvilCraftClientConfig.CelestialRenderingMode.VANILLA;
+            boolean vanilla = AnvilCraft.CLIENT_CONFIG.graphics.planetAtmosphereRenderMode
+                == AnvilCraftClientConfig.GraphicsSettings.CelestialRenderMode.VANILLA;
             factor = vanilla ? cubeRadius * 1.125f : (float) Math.sqrt(3) * 0.6875f;
         }
         if (body instanceof GiantPlanetData giant && giant.brownDwarf()) {
@@ -843,7 +843,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
     /// 开启遮挡剔除时为本次提交打开遮挡记录，未开启或缺少键时返回 `null`。
     @Nullable
     private OcclusionSubmitNodeStorage beginOcclusionRecord(CFARenderState state, SubmitNodeCollector collector) {
-        if (!AnvilCraftClient.CONFIG.cfaOcclusionCulling) return null;
+        if (!AnvilCraftClient.CONFIG.graphics.cfaOcclusionCulling) return null;
         OcclusionKey key = state.getOcclusionKey();
         AABB renderBounds = state.getRenderBounds();
         if (key == null || renderBounds == null) return null;

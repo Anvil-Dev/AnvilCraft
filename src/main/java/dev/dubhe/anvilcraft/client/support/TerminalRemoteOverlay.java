@@ -658,7 +658,7 @@ public final class TerminalRemoteOverlay {
         CompletableFuture<StorageServerStub.InteractionResult> request;
         if (slot >= StoragePortManager.FLUID_SLOT_BASE) {
             StorageServerStub.FluidEntry fluid = TerminalRemoteOverlay.getFluidSlot(slot);
-            int pourButton = AnvilCraft.CLIENT_CONFIG.invertFluidPortBucketAction ? 1 : 0;
+            int pourButton = AnvilCraft.CLIENT_CONFIG.controls.invertFluidPortBucketActions ? 1 : 0;
             if (fluid == null || button != pourButton) {
                 TerminalRemoteOverlay.taking = false;
                 return;

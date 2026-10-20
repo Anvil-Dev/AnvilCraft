@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.item.weapon;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IItemTooltipProvider;
 import dev.dubhe.anvilcraft.entity.RailgunAnvilEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -40,18 +41,22 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class AnvilRailgunItem extends EnergyWeaponItem implements IItemTooltipProvider {
-    private static final int MAX_AMMO = 16;
-    private static final int MIN_SHOT_ENERGY = 2_000_000;
+
     private static final float MIN_FIRE_CHARGE_PROGRESS = 0.2F;
 
     public AnvilRailgunItem(Properties properties) {
-        super(properties.component(ModComponents.RAILGUN_AMMO, ChargedProjectiles.EMPTY), MIN_SHOT_ENERGY);
+        super(properties.component(ModComponents.RAILGUN_AMMO, ChargedProjectiles.EMPTY));
+    }
+
+    @Override
+    protected int minimumEnergy() {
+        return AnvilCraft.CONFIG.equipment.anvilRailgunMinShotEnergy;
     }
 
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack weapon = player.getItemInHand(hand);
-        if (!this.canStartUsing(player, weapon, AnvilRailgunItem.MIN_SHOT_ENERGY)) return InteractionResult.FAIL;
+        if (!this.canStartUsing(player, weapon, this.minimumEnergy())) return InteractionResult.FAIL;
         if (AnvilRailgunItem.ammo(weapon).isEmpty()
             && !AnvilRailgunItem.isValidAnvil(AnvilRailgunItem.otherHand(player, hand))
             && AnvilRailgunItem.findNormalAnvil(player) < 0
@@ -95,7 +100,7 @@ public class AnvilRailgunItem extends EnergyWeaponItem implements IItemTooltipPr
 
     public static boolean isLoading(Player player, ItemStack weapon, InteractionHand hand) {
         List<ItemStack> ammo = AnvilRailgunItem.ammo(weapon);
-        if (ammo.size() >= AnvilRailgunItem.MAX_AMMO) return false;
+        if (ammo.size() >= AnvilCraft.CONFIG.equipment.anvilRailgunMaxAmmo) return false;
         ItemStack supplied = AnvilRailgunItem.otherHand(player, hand);
         if (ammo.isEmpty()) return AnvilRailgunItem.isValidAnvil(supplied) || AnvilRailgunItem.findNormalAnvil(player) >= 0;
         return AnvilRailgunItem.isValidAnvil(supplied) && ItemStack.isSameItemSameComponents(ammo.getFirst(), supplied);
@@ -112,9 +117,10 @@ public class AnvilRailgunItem extends EnergyWeaponItem implements IItemTooltipPr
         }
         boolean infinity = AnvilRailgunItem.enchantmentLevel(player.level(), weapon, Enchantments.INFINITY) > 0
                            && source.is(Items.ANVIL);
+        int  maxAmmo = AnvilCraft.CONFIG.equipment.anvilRailgunMaxAmmo;
         int amount = infinity
-            ? AnvilRailgunItem.MAX_AMMO - loaded.size()
-            : Math.min(source.getCount(), AnvilRailgunItem.MAX_AMMO - loaded.size());
+            ? maxAmmo - loaded.size()
+            : Math.min(source.getCount(), maxAmmo - loaded.size());
         int infiniteAmmoMask = AnvilRailgunItem.infiniteAmmoMask(weapon, loaded.size());
         for (int i = 0; i < amount; i++) loaded.add(source.copyWithCount(1));
         if (infinity) infiniteAmmoMask |= AnvilRailgunItem.ammoMask(amount) << (loaded.size() - amount);
@@ -252,7 +258,7 @@ public class AnvilRailgunItem extends EnergyWeaponItem implements IItemTooltipPr
     }
 
     private static int ammoMask(int ammoSize) {
-        return (1 << Math.min(ammoSize, AnvilRailgunItem.MAX_AMMO)) - 1;
+        return (1 << Math.min(ammoSize, AnvilCraft.CONFIG.equipment.anvilRailgunMaxAmmo)) - 1;
     }
 
     @Override

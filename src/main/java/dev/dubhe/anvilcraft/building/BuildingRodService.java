@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.building;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireNetworkManager;
 import dev.dubhe.anvilcraft.block.UseItemOnBlock;
@@ -76,7 +77,6 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 public final class BuildingRodService {
-    public static final int MAX_BLOCKS = BlueprintPlacement.MAX_ENTRIES;
     private static final Map<ServerPlayer, Selection> SELECTIONS = new WeakHashMap<>();
     private static final Map<ServerPlayer, Confirmation> CONFIRMATIONS = new WeakHashMap<>();
 
@@ -175,7 +175,7 @@ public final class BuildingRodService {
                 return;
             }
         }
-        if (volume(first, last) > MAX_BLOCKS) {
+        if (volume(first, last) > AnvilCraft.CONFIG.equipment.buildingRodMaxBlocks) {
             message(player, "too_many");
             return;
         }
@@ -204,7 +204,8 @@ public final class BuildingRodService {
     public static List<Cell> preview(Player player, BlockPos first, BlockPos last, Direction face,
                                      @Nullable BlockHitResult hit, @Nullable BlockHitResult endHit, long seed) {
         ItemStack held = BuildingRodItem.material(player);
-        if (!BuildingRodItem.isPlacementMaterial(held) || volume(first, last) > MAX_BLOCKS) return List.of();
+        if (!BuildingRodItem.isPlacementMaterial(held)
+            || volume(first, last) > AnvilCraft.CONFIG.equipment.buildingRodMaxBlocks) return List.of();
         if (!(held.getItem() instanceof BlockItem) && !held.is(ModItems.FILTER)) {
             return BuildingRodFluids.preview(player, first, last);
         }
@@ -486,7 +487,7 @@ public final class BuildingRodService {
             message(player, "undo_partial");
             return false;
         }
-        if (!quiet && groups.stream().mapToInt(group -> group.cells.size()).sum() > MAX_BLOCKS) {
+        if (!quiet && groups.stream().mapToInt(group -> group.cells.size()).sum() > AnvilCraft.CONFIG.equipment.buildingRodMaxBlocks) {
             message(player, "too_many");
             return false;
         }
