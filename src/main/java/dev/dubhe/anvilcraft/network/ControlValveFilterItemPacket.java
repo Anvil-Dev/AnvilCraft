@@ -50,11 +50,18 @@ public record ControlValveFilterItemPacket(ItemStack filterItem) implements ISen
         if (!(player.containerMenu instanceof ControlValveMenu menu) || menu.getBlockEntity() == null) {
             return;
         }
-        if (!this.filterItem.isEmpty() && !this.filterItem.is(ModItems.FILTER)) return;
         FilterContent content = this.filterItem.get(ModComponents.FILTER_CONTENT);
-        if (content != null && content.list().size() > MAX_FILTER_ITEMS) return;
+        if ((!this.filterItem.isEmpty() && !this.filterItem.is(ModItems.FILTER))
+            || (content != null && content.list().size() > MAX_FILTER_ITEMS)) {
+            PacketDistributor.sendToPlayer(
+                Util.cast(player), new ControlValveFilterItemPacket(menu.getBlockEntity().getFilterItem().copy())
+            );
+            return;
+        }
         menu.getBlockEntity().setFilterItem(this.filterItem);
         menu.getBlockEntity().sendUpdate();
-        PacketDistributor.sendToPlayer(Util.cast(player), this);
+        PacketDistributor.sendToPlayer(
+            Util.cast(player), new ControlValveFilterItemPacket(menu.getBlockEntity().getFilterItem().copy())
+        );
     }
 }

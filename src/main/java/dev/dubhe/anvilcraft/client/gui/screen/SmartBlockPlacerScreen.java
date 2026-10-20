@@ -150,8 +150,10 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private boolean cachedPickupMode = true;
     private boolean cachedBlueprintMode = false;  // 缓存蓝图模式状态
     private BlockState[] cachedBlueprintStates = new BlockState[SmartBlockPlacerBlockEntity.POSITION_COUNT];
-    private BlockPlacementUtil.BlueprintExtent cachedBlueprintExtent;
+    private BlockPlacementUtil.BlueprintExtent cachedBlueprintExtent =
+        BlockPlacementUtil.BlueprintExtent.of(new BlockState[0], SmartBlockPlacerBlockEntity.POSITION_GRID_SIZE);
     private BlockState cachedPlacerState = Blocks.AIR.defaultBlockState();
+    private ItemStack cachedBlueprintItem = ItemStack.EMPTY;
     private long cachedGameTimeBlockType = -1;  // 用于追踪方块类型的游戏时间
 
     // 蓝图名字滚动相关
@@ -1081,7 +1083,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             (int) (this.previewWindowHeight * guiScaleD)
         );
 
-        AABB previewBounds = this.getPreviewBounds();
+        VoxelShape rangeShape = this.createPlacementRangeShape();
+        AABB previewBounds = this.getPreviewBounds(rangeShape);
         float yaw = this.renderPreviewAutoScaled(
             previewLevelLike,
             guiGraphics,
@@ -1090,7 +1093,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             this.previewWindowY + this.previewWindowHeight / 2
         );
 
-        this.renderPlacementRangeBox(guiGraphics, minecraft, previewBounds, yaw);
+        this.renderPlacementRangeBox(guiGraphics, minecraft, previewBounds, rangeShape, yaw);
 
         RenderSystem.disableScissor();
 
@@ -1336,10 +1339,10 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     /**
      * 预览内容与放置范围框共同的包围盒：放置范围并入放置器所在格，使内容与范围框都完整可见。
      */
-    private AABB getPreviewBounds() {
+    private AABB getPreviewBounds(VoxelShape rangeShape) {
         boolean upsideDown = this.isUpsideDownPreview();
         int placerY = upsideDown ? PLACER_PREVIEW_Y_UPSIDE_DOWN : PLACER_PREVIEW_Y;
-        return this.createPlacementRangeShape().bounds()
+        return rangeShape.bounds()
             .minmax(new AABB(new BlockPos(PLACER_PREVIEW_X, placerY, PLACER_PREVIEW_Z)));
     }
 
@@ -1377,7 +1380,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     /**
      * 渲染3D放置范围框，变换与预览保持一致。
      */
-    private void renderPlacementRangeBox(GuiGraphics guiGraphics, Minecraft minecraft, AABB bounds, float yaw) {
+    private void renderPlacementRangeBox(GuiGraphics guiGraphics, Minecraft minecraft, AABB bounds, VoxelShape rangeShape, float yaw) {
         MultiBufferSource.BufferSource buffers = minecraft.renderBuffers().bufferSource();
         final VertexConsumer consumer = buffers.getBuffer(RenderType.lines());
 
@@ -1407,7 +1410,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         );
 
         TooltipRenderHelper.renderOutline(
-            poseStack, consumer, 0, 0, 0, BlockPos.ZERO, this.createPlacementRangeShape(), 0xFF00FFCC);
+            poseStack, consumer, 0, 0, 0, BlockPos.ZERO, rangeShape, 0xFF00FFCC);
 
         buffers.endBatch(RenderType.lines());
         poseStack.popPose();
@@ -1431,7 +1434,9 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         BlockState[] currentBlueprintStates = blueprint.states();
         LevelLike cachedLevel = this.cachedPreviewLevelLike;
         BlockState placerState = level.getBlockState(blockEntity.getBlockPos());
+        ItemStack blueprintItem = blockEntity.getBlueprintItemHandler().getStackInSlot(0);
         if (cachedLevel != null
+            && ItemStack.isSameItemSameComponents(this.cachedBlueprintItem, blueprintItem)
             && this.cachedPlacerState == placerState
             && Arrays.equals(this.cachedLayerPositions, this.layerPositions)
             && this.cachedViewLayer == this.currentViewLayer
@@ -1454,6 +1459,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         this.cachedBlueprintStates = currentBlueprintStates.clone();
         this.cachedBlueprintExtent = blueprint.extent();
         this.cachedPlacerState = placerState;
+        this.cachedBlueprintItem = blueprintItem.copy();
         this.cachedGameTimeBlockType = currentBlockTypeTime;
         return rebuiltLevel;
     }
