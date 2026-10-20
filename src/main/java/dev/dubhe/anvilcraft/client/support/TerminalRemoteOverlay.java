@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.support;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
@@ -20,6 +21,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -57,6 +59,7 @@ public final class TerminalRemoteOverlay {
     private static final int GRID_Y = 18;
     private static final int SEARCH_Y = 6;
     private static final int REFRESH_INTERVAL = 20;
+    private static final ResourceLocation NOTICE_BACKGROUND = AnvilCraft.of("flex_button/shaded_1px");
     /** 内容尚未加载完成时的快速重试间隔（tick）。 */
     private static final int FAST_RELOAD_INTERVAL = 5;
     /**
@@ -110,6 +113,8 @@ public final class TerminalRemoteOverlay {
     private static int frameCounter;
     private static int fastRetries;
     private static boolean taking;
+    private static Component notice = Component.empty();
+    private static long noticeUntil;
     /** 最近一次 tooltip 左上角位置，用于 Alt 切换尺寸时保持右下角原点不变。 */
     private static int lastTooltipX;
     private static int lastTooltipY;
@@ -214,6 +219,31 @@ public final class TerminalRemoteOverlay {
             }
         }
         graphics.pose().popPose();
+        TerminalRemoteOverlay.renderNotice(graphics, font);
+    }
+
+    private static void renderNotice(GuiGraphics graphics, Font font) {
+        if (Util.getMillis() >= TerminalRemoteOverlay.noticeUntil) return;
+        var lines = font.split(TerminalRemoteOverlay.notice, Math.max(1, graphics.guiWidth() - 14));
+        int width = 6;
+        for (var line : lines) width = Math.max(width, font.width(line) + 6);
+        int height = lines.size() * font.lineHeight + 6;
+        int x = Mth.clamp(
+            TerminalRemoteOverlay.left + (TerminalRemoteOverlay.panelW() - width) / 2,
+            4, Math.max(4, graphics.guiWidth() - width - 4)
+        );
+        int y = TerminalRemoteOverlay.top - height - 2;
+        if (y < 4) y = TerminalRemoteOverlay.top + TerminalRemoteOverlay.panelH() + 2;
+        y = Mth.clamp(y, 4, Math.max(4, graphics.guiHeight() - height - 4));
+        graphics.flush();
+        GuiRenderSupport.blitSprite(graphics, NOTICE_BACKGROUND, x, y, 500, width, height, -1);
+        graphics.pose().pushPose();
+        graphics.pose().translate(0, 0, 500);
+        for (int row = 0; row < lines.size(); row++) {
+            graphics.drawString(font, lines.get(row), x + 3, y + 3 + row * font.lineHeight, 0xFFEE0000, false);
+        }
+        graphics.pose().popPose();
+        graphics.flush();
     }
 
     private static void renderSearchBox(GuiGraphics graphics, Font font, float partialTick) {
@@ -773,8 +803,10 @@ public final class TerminalRemoteOverlay {
                 if (error != null) return;
                 if (minecraft.screen == origin && minecraft.player == actor) {
                     if (result.changed() && !intoInventory) TerminalRemoteOverlay.applyCarriedIfCreative(result.carried());
-                    if (actor != null && result.notice() != StorageServerStub.FluidNotice.NONE) {
-                        actor.displayClientMessage(result.notice().text(), true);
+                    if (actor != null && result.notice() != StorageServerStub.FluidNotice.NONE
+                        && TerminalRemoteOverlay.isHoveringSame(id)) {
+                        TerminalRemoteOverlay.notice = result.notice().text();
+                        TerminalRemoteOverlay.noticeUntil = Util.getMillis() + 2000;
                     }
                 }
                 if (result.changed() && TerminalRemoteOverlay.isHoveringSame(id)) TerminalRemoteOverlay.refresh();
@@ -966,6 +998,8 @@ public final class TerminalRemoteOverlay {
         TerminalRemoteOverlay.COUNTS.clear();
         TerminalRemoteOverlay.cursor = -1;
         TerminalRemoteOverlay.taking = false;
+        TerminalRemoteOverlay.notice = Component.empty();
+        TerminalRemoteOverlay.noticeUntil = 0;
         TerminalRemoteOverlay.fastRetries = 0;
         TerminalRemoteOverlay.frameCounter = 0;
     }
