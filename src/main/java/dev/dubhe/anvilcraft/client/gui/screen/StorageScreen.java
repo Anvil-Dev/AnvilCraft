@@ -4089,7 +4089,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
      * <p>数量按 {@link FluidAmountUtil} 规则显示：不足 1 B 用 mB，达到 1 B 用 B，
      * 有小数时保留三位有效数字。取空后条目仍以 0 保留，与物品一致。</p>
      */
-    private static void renderFluidIcon(
+    public static void renderFluidIcon(
         GuiGraphics graphics,
         Font font,
         StorageServerStub.FluidEntry entry,
