@@ -2038,6 +2038,12 @@ public final class StorageServerStub {
     }
 
     private static FilledBucket fillBucketFromStorage(ServerPlayer player, StorageView view, FluidStack fluid, boolean intoInventory) {
+        return fillBucketFromStorage(player, view, fluid, intoInventory, player.inventoryMenu);
+    }
+
+    private static FilledBucket fillBucketFromStorage(
+        ServerPlayer player, StorageView view, FluidStack fluid, boolean intoInventory, AbstractContainerMenu menu
+    ) {
         FluidEntry entry = StoragePortManager.find(view.primary().getId(), fluid);
         if (entry == null) return FilledBucket.failed(FluidNotice.NONE);
         FluidStack target = entry.icon().copyWithAmount(FluidType.BUCKET_VOLUME);
@@ -2045,14 +2051,14 @@ public final class StorageServerStub {
         if (filled.isEmpty()) return FilledBucket.failed(FluidNotice.NONE);
         ItemStack empty = StorageServerStub.emptyContainerOf(filled);
         if (empty.isEmpty()) return FilledBucket.failed(FluidNotice.NONE);
-        ItemStack cursor = player.inventoryMenu.getCarried();
+        ItemStack cursor = menu.getCarried();
         if (!intoInventory && !cursor.isEmpty() && !ItemStack.isSameItemSameComponents(cursor, empty)) {
             return FilledBucket.failed(FluidNotice.NONE);
         }
-        if (!StorageServerStub.hasEmptyContainer(player, view, empty)) return FilledBucket.failed(FluidNotice.BUCKET_MISSING);
+        if (!StorageServerStub.hasEmptyContainer(player, view, empty, menu)) return FilledBucket.failed(FluidNotice.BUCKET_MISSING);
         if (entry.amount() < FluidType.BUCKET_VOLUME) return FilledBucket.failed(FluidNotice.NOT_ENOUGH);
         try (Transaction transaction = Transaction.openRoot()) {
-            if (!StorageServerStub.consumeEmptyContainer(player, view, empty, transaction)) {
+            if (!StorageServerStub.consumeEmptyContainer(player, view, empty, menu, transaction)) {
                 return FilledBucket.failed(FluidNotice.BUCKET_MISSING);
             }
             if (StoragePortManager.drain(view.primary().getId(), target, FluidType.BUCKET_VOLUME, transaction) < FluidType.BUCKET_VOLUME) {
@@ -2085,8 +2091,8 @@ public final class StorageServerStub {
         return single.getResource(0).toStack(single.getAmountAsInt(0));
     }
 
-    private static boolean hasEmptyContainer(ServerPlayer player, StorageView view, ItemStack empty) {
-        ItemStack carried = player.inventoryMenu.getCarried();
+    private static boolean hasEmptyContainer(ServerPlayer player, StorageView view, ItemStack empty, AbstractContainerMenu menu) {
+        ItemStack carried = menu.getCarried();
         if (!carried.isEmpty() && ItemStack.isSameItemSameComponents(carried, empty)) return true;
         for (int index = 0; index < Inventory.INVENTORY_SIZE; index++) {
             ItemStack stack = player.getInventory().getItem(index);
@@ -2099,9 +2105,11 @@ public final class StorageServerStub {
         return false;
     }
 
-    private static boolean consumeEmptyContainer(ServerPlayer player, StorageView view, ItemStack empty, Transaction transaction) {
+    private static boolean consumeEmptyContainer(
+        ServerPlayer player, StorageView view, ItemStack empty, AbstractContainerMenu menu, Transaction transaction
+    ) {
         ItemResource resource = ItemResource.of(empty);
-        if (CarriedSlotWrapper.of(player.inventoryMenu).extract(resource, 1, transaction) > 0) return true;
+        if (CarriedSlotWrapper.of(menu).extract(resource, 1, transaction) > 0) return true;
         var inventory = PlayerInventoryWrapper.of(player);
         for (int index = 0; index < Inventory.INVENTORY_SIZE; index++) {
             if (inventory.extract(index, resource, 1, transaction) > 0) return true;
@@ -2290,6 +2298,33 @@ public final class StorageServerStub {
         player.getInventory().setChanged();
         player.containerMenu.broadcastChanges();
         return new InteractionResult(carried, true);
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult terminalTakeFluid(
+        UUID playerId, long sourcePos,
+        @CallableParam(clazz = FluidStack.class, field = "OPTIONAL_STREAM_CODEC") FluidStack fluid,
+        int button, boolean intoInventory,
+        @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack clientCarried
+    ) {
+        ServerPlayer player = getServerPlayer(playerId);
+        StorageView view = getView(getAndClear(), playerId, sourcePos);
+        AbstractContainerMenu menu = player.containerMenu;
+        boolean blocked = player.hasInfiniteMaterials() ? !clientCarried.isEmpty() : !menu.getCarried().isEmpty();
+        if (button < 0 || button > 1 || blocked) return new InteractionResult(menu.getCarried(), false);
+        if (player.hasInfiniteMaterials()) menu.setCarried(ItemStack.EMPTY);
+        FilledBucket filled = fillBucketFromStorage(player, view, fluid, intoInventory, menu);
+        if (filled.stack().isEmpty()) return new InteractionResult(menu.getCarried(), false, 0, filled.notice());
+        if (intoInventory) {
+            if (!player.addItem(filled.stack()) && view.insert(filled.stack().copyWithCount(1), 1) <= 0) {
+                Block.popResource(player.level(), player.blockPosition(), filled.stack());
+            }
+        } else {
+            menu.setCarried(filled.stack());
+        }
+        player.getInventory().setChanged();
+        menu.broadcastChanges();
+        return new InteractionResult(menu.getCarried(), true);
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
