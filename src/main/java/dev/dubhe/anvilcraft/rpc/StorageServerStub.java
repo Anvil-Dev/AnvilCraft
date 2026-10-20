@@ -10,6 +10,7 @@ import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.api.StorageComparatorManager;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.TerminalSessions;
+import dev.dubhe.anvilcraft.api.fluid.FluidHandlerWrapper;
 import dev.dubhe.anvilcraft.api.item.ICannotFitInStationItem;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.SpaceSizeItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.TypeLimitItemStacksResourceHandler;
@@ -64,6 +65,7 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -1760,7 +1762,9 @@ public final class StorageServerStub {
         /** 缺少空容器。 */
         BUCKET_MISSING("screen.anvilcraft.storage.fluid.bucket_missing"),
         /** 储量不足一桶。 */
-        NOT_ENOUGH("screen.anvilcraft.storage.fluid.not_enough");
+        NOT_ENOUGH("screen.anvilcraft.storage.fluid.not_enough"),
+        BOTTLE_MISSING("screen.anvilcraft.storage.fluid.bottle_missing"),
+        BOTTLE_NOT_ENOUGH("screen.anvilcraft.storage.fluid.bottle_not_enough");
 
         public static final StreamCodec<ByteBuf, FluidNotice> STREAM_CODEC =
             StreamCodecUtil.enumStreamCodec(FluidNotice.class);
@@ -1972,9 +1976,13 @@ public final class StorageServerStub {
     }
 
     private static FluidOutcome takeFluidBucketsIntoInventory(ServerPlayer player, StorageView view, FluidStack fluid) {
+        boolean bottle = player.inventoryMenu.getCarried().is(Items.GLASS_BOTTLE);
         FluidEntry entry = StoragePortManager.find(view.primary().getId(), fluid);
         ItemStack filledBucket = entry == null ? ItemStack.EMPTY
             : entry.icon().getFluidType().getBucket(entry.icon().copyWithAmount(FluidType.BUCKET_VOLUME));
+        if (entry != null && (bottle || filledBucket.isEmpty())) {
+            filledBucket = FluidHandlerWrapper.determineFilledContainer(entry.icon(), Items.GLASS_BOTTLE.getDefaultInstance());
+        }
         if (filledBucket.isEmpty()) return StorageServerStub.takeFluidBucketIntoInventory(player, view, fluid);
         int limit = Math.min(StorageServerStub.SPACE_TAKE_STACKS,
             StorageServerStub.getInventorySpace(player.getInventory(), filledBucket));
@@ -1982,7 +1990,7 @@ public final class StorageServerStub {
         FluidStack taken = FluidStack.EMPTY;
         boolean changed = false;
         for (int bucket = 0; bucket < limit; bucket++) {
-            FilledBucket filled = StorageServerStub.fillBucketFromStorage(player, view, fluid, true);
+            FilledBucket filled = StorageServerStub.fillBucketFromStorage(player, view, fluid, true, player.inventoryMenu, bottle);
             if (filled.stack().isEmpty()) {
                 if (!changed) notice = filled.notice();
                 break;
@@ -2092,25 +2100,39 @@ public final class StorageServerStub {
     private static FilledBucket fillBucketFromStorage(
         ServerPlayer player, StorageView view, FluidStack fluid, boolean intoInventory, AbstractContainerMenu menu
     ) {
+        return fillBucketFromStorage(player, view, fluid, intoInventory, menu, menu.getCarried().is(Items.GLASS_BOTTLE));
+    }
+
+    private static FilledBucket fillBucketFromStorage(
+        ServerPlayer player, StorageView view, FluidStack fluid, boolean intoInventory, AbstractContainerMenu menu, boolean bottle
+    ) {
         FluidEntry entry = StoragePortManager.find(view.primary().getId(), fluid);
-        if (entry == null) return FilledBucket.failed(FluidNotice.NOT_ENOUGH);
-        FluidStack target = entry.icon().copyWithAmount(FluidType.BUCKET_VOLUME);
+        FluidStack target = (entry == null ? fluid : entry.icon()).copyWithAmount(FluidType.BUCKET_VOLUME);
         ItemStack filled = target.getFluidType().getBucket(target);
-        if (filled.isEmpty()) return FilledBucket.failed(FluidNotice.NONE);
-        ItemStack empty = StorageServerStub.emptyContainerOf(filled);
-        if (empty.isEmpty()) return FilledBucket.failed(FluidNotice.NONE);
+        ItemStack empty;
+        if (bottle || filled.isEmpty()) {
+            target = target.copyWithAmount(FluidType.BUCKET_VOLUME / 4);
+            empty = Items.GLASS_BOTTLE.getDefaultInstance();
+            filled = FluidHandlerWrapper.determineFilledContainer(target, empty);
+        } else {
+            empty = StorageServerStub.emptyContainerOf(filled);
+        }
+        FluidNotice notEnough = empty.is(Items.GLASS_BOTTLE) ? FluidNotice.BOTTLE_NOT_ENOUGH : FluidNotice.NOT_ENOUGH;
+        if (entry == null) return FilledBucket.failed(filled.isEmpty() ? FluidNotice.NOT_ENOUGH : notEnough);
+        if (filled.isEmpty() || empty.isEmpty()) return FilledBucket.failed(FluidNotice.NONE);
         ItemStack cursor = menu.getCarried();
         if (!intoInventory && !cursor.isEmpty() && !ItemStack.isSameItemSameComponents(cursor, empty)) {
             return FilledBucket.failed(FluidNotice.NONE);
         }
-        if (!StorageServerStub.hasEmptyContainer(player, view, empty, menu)) return FilledBucket.failed(FluidNotice.BUCKET_MISSING);
-        if (entry.amount() < FluidType.BUCKET_VOLUME) return FilledBucket.failed(FluidNotice.NOT_ENOUGH);
+        FluidNotice missing = empty.is(Items.GLASS_BOTTLE) ? FluidNotice.BOTTLE_MISSING : FluidNotice.BUCKET_MISSING;
+        if (!StorageServerStub.hasEmptyContainer(player, view, empty, menu)) return FilledBucket.failed(missing);
+        if (entry.amount() < target.getAmount()) return FilledBucket.failed(notEnough);
         try (Transaction transaction = Transaction.openRoot()) {
             if (!StorageServerStub.consumeEmptyContainer(player, view, empty, menu, transaction)) {
-                return FilledBucket.failed(FluidNotice.BUCKET_MISSING);
+                return FilledBucket.failed(missing);
             }
-            if (StoragePortManager.drain(view.primary().getId(), target, FluidType.BUCKET_VOLUME, transaction) < FluidType.BUCKET_VOLUME) {
-                return FilledBucket.failed(FluidNotice.NOT_ENOUGH);
+            if (StoragePortManager.drain(view.primary().getId(), target, target.getAmount(), transaction) < target.getAmount()) {
+                return FilledBucket.failed(notEnough);
             }
             transaction.commit();
         }

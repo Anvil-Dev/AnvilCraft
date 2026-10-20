@@ -10,6 +10,7 @@ import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
@@ -65,18 +66,7 @@ public final class FluidHandlerWrapper {
         for (int slot = 0; slot < this.handler.size(); slot++) {
             FluidResource resource = this.handler.getResource(slot);
             if (resource.isEmpty() || this.handler.getAmountAsLong(slot) < amount) continue;
-            ItemStack result;
-            if (!bottle) {
-                result = resource.getFluid().getBucket().getDefaultInstance();
-            } else if (resource.getFluid() instanceof HoneyFluid) {
-                result = Items.HONEY_BOTTLE.getDefaultInstance();
-            } else if (resource.is(Fluids.WATER)) {
-                result = PotionContents.createItemStack(Items.POTION, Potions.WATER);
-            } else if (resource.is(ModFluids.EXP_FLUID.get())) {
-                result = Items.EXPERIENCE_BOTTLE.getDefaultInstance();
-            } else {
-                return null;
-            }
+            ItemStack result = determineFilledContainer(resource.toStack(amount), container);
             if (result.isEmpty()) return null;
             try (var transaction = Transaction.openRoot()) {
                 if (this.handler.extract(slot, resource, amount, transaction) != amount) return null;
@@ -85,5 +75,14 @@ public final class FluidHandlerWrapper {
             }
         }
         return null;
+    }
+
+    public static ItemStack determineFilledContainer(FluidStack fluid, ItemStack container) {
+        if (container.is(Items.BUCKET)) return fluid.getFluid().getBucket().getDefaultInstance();
+        if (!container.is(Items.GLASS_BOTTLE)) return ItemStack.EMPTY;
+        if (fluid.getFluid() instanceof HoneyFluid) return Items.HONEY_BOTTLE.getDefaultInstance();
+        if (fluid.getFluid() == Fluids.WATER) return PotionContents.createItemStack(Items.POTION, Potions.WATER);
+        if (fluid.getFluid() == ModFluids.EXP_FLUID.get()) return Items.EXPERIENCE_BOTTLE.getDefaultInstance();
+        return ItemStack.EMPTY;
     }
 }
