@@ -2129,7 +2129,7 @@ public final class StorageServerStub {
             return FilledBucket.failed(FluidNotice.NONE);
         }
         if (filled.isEmpty() || empty.isEmpty()) {
-            return FilledBucket.failed(empty.is(Items.GLASS_BOTTLE) ? FluidNotice.NOT_BOTTLEABLE : FluidNotice.NONE);
+            return FilledBucket.failed(bottle ? FluidNotice.NOT_BOTTLEABLE : FluidNotice.NONE);
         }
         FluidNotice missing = empty.is(Items.GLASS_BOTTLE) ? FluidNotice.BOTTLE_MISSING : FluidNotice.BUCKET_MISSING;
         if (!StorageServerStub.hasEmptyContainer(player, view, empty, menu)) return FilledBucket.failed(missing);
