@@ -273,27 +273,31 @@ public class StructureLoadUtil {
     /**
      * 获取客户端结构目录（通过 Dist-gate 隔离）
      */
+    @SuppressWarnings("Convert2Lambda")
     private static Path getClientStructureDirectory() {
         AtomicReference<@Nullable Path> result = new AtomicReference<>();
 
         DistExecutor.run(
-            Dist.CLIENT, () -> () -> {
-                try {
-                    var minecraft = Minecraft.getInstance();
-                    if (minecraft.level != null) {
-                        // 优先使用 integratedServer（单人游戏服务端）
-                        var integratedServer = minecraft.getSingleplayerServer();
-                        if (integratedServer != null) {
-                            result.set(StructureDataPaths.structures(integratedServer));
-                            return;
-                        }
+            Dist.CLIENT, () -> new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        var minecraft = Minecraft.getInstance();
+                        if (minecraft.level != null) {
+                            // 优先使用 integratedServer（单人游戏服务端）
+                            var integratedServer = minecraft.getSingleplayerServer();
+                            if (integratedServer != null) {
+                                result.set(StructureDataPaths.structures(integratedServer));
+                                return;
+                            }
 
-                        // 如果是纯客户端（多人游戏），结构文件应该不存在，返回一个安全的路径
-                        Path gameDir = minecraft.gameDirectory.toPath();
-                        result.set(StructureDataPaths.structures(gameDir));
+                            // 如果是纯客户端（多人游戏），结构文件应该不存在，返回一个安全的路径
+                            Path gameDir = minecraft.gameDirectory.toPath();
+                            result.set(StructureDataPaths.structures(gameDir));
+                        }
+                    } catch (Exception e) {
+                        StructureLoadUtil.LOGGER.debug("Client-side structure directory fallback failed: {}", e.getMessage());
                     }
-                } catch (Exception e) {
-                    StructureLoadUtil.LOGGER.debug("Client-side structure directory fallback failed: {}", e.getMessage());
                 }
             }
         );
