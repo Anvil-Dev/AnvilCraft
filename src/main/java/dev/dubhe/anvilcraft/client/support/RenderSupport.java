@@ -100,6 +100,23 @@ public class RenderSupport {
 
     /** Draw a preview at an anchor with a fixed number of GUI pixels per block. */
     public static void renderBlockAt(GuiGraphicsExtractor graphics, BlockState block, float x, float y, float scale) {
+        if (!block.getFluidState().isEmpty()) {
+            ClientLevel clientLevel = Minecraft.getInstance().level;
+            if (clientLevel == null) return;
+            LevelLike preview = new LevelLike(clientLevel);
+            preview.setBlockState(BlockPos.ZERO, block);
+            float resolution = Math.max(1, Math.max(
+                (float) Math.hypot(graphics.pose().m00(), graphics.pose().m01()),
+                (float) Math.hypot(graphics.pose().m10(), graphics.pose().m11())));
+            float extent = scale * 4;
+            graphics.pose().pushMatrix();
+            graphics.pose().scale(1 / resolution, 1 / resolution);
+            GuiRenderExtras.submitStructure(graphics, preview, BlockPos.ZERO, BlockPos.ZERO,
+                (x - extent) * resolution, (y - extent) * resolution, (x + extent) * resolution, (y + extent) * resolution,
+                scale * resolution, false, false, RenderSupport.previewPose());
+            graphics.pose().popMatrix();
+            return;
+        }
         if (block.getBlock() instanceof DoorBlock) {
             BlockState closed = block.setValue(DoorBlock.OPEN, false);
             var models = Minecraft.getInstance().getModelManager().getBlockStateModelSet();

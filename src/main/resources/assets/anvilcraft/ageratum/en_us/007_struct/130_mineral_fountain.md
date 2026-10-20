@@ -57,8 +57,8 @@ Very hard stone, not very useful
 
 <row halign="center">
 
-<recipe id="anvilcraft:mineral_fountain/deepslate_gold_ore"/>
-<recipe id="anvilcraft:mineral_fountain_chance/void_stone_from_overworld"/>
+<recipe id="anvilcraft:mineral_fountain_active/deepslate_gold_ore"/>
+<recipe id="anvilcraft:mineral_fountain_replacement/void_stone_from_overworld"/>
 
 </row>
 

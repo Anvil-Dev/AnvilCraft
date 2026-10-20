@@ -38,8 +38,9 @@ import dev.dubhe.anvilcraft.recipe.anvil.wrap.TimeWarpRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.UnpackRecipe;
 import dev.dubhe.anvilcraft.recipe.frost.DeformationRecipe;
 import dev.dubhe.anvilcraft.recipe.frost.PermutationRecipe;
-import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainChanceRecipe;
-import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainActiveRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainPassiveRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainReplacementRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.Multiblock4DRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
@@ -166,12 +167,18 @@ public class ModRecipeSerializers {
     );
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MultiblockConversionRecipe>> MULTIBLOCK_CONVERSION = DF
         .register("multiblock_conversion", () -> MultiblockConversionRecipe.SERIALIZER);
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MineralFountainRecipe>> MINERAL_FOUNTAIN = DF.register(
-        "mineral_fountain",
-        () -> MineralFountainRecipe.SERIALIZER
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MineralFountainPassiveRecipe>>
+        MINERAL_FOUNTAIN_PASSIVE = DF.register(
+        "mineral_fountain_passive", () -> MineralFountainPassiveRecipe.SERIALIZER
     );
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MineralFountainChanceRecipe>> MINERAL_FOUNTAIN_CHANCE = DF
-        .register("mineral_fountain_chance", () -> MineralFountainChanceRecipe.SERIALIZER);
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MineralFountainActiveRecipe>>
+        MINERAL_FOUNTAIN_ACTIVE = DF.register(
+        "mineral_fountain_active", () -> MineralFountainActiveRecipe.SERIALIZER
+    );
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MineralFountainReplacementRecipe>>
+        MINERAL_FOUNTAIN_REPLACEMENT = DF.register(
+        "mineral_fountain_replacement", () -> MineralFountainReplacementRecipe.SERIALIZER
+    );
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<JewelCraftingRecipe>> JEWEL_CRAFTING = DF.register(
         "jewel_crafting",
         () -> JewelCraftingRecipe.SERIALIZER

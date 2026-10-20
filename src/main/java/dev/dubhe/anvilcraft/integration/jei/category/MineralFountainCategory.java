@@ -1,7 +1,8 @@
 package dev.dubhe.anvilcraft.integration.jei.category;
 
+import dev.anvilcraft.lib.v2.util.NumberProviderUtil;
+import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.support.DimensionNameSupport;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -11,8 +12,12 @@ import dev.dubhe.anvilcraft.integration.jei.recipe.MineralFountainJeiRecipe;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiBlockIngredientUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
-import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainChanceRecipe;
-import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.AbstractMineralFountainRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.AroundRequirement;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainActiveRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainPassiveRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainReplacementRecipe;
+import mezz.jei.api.gui.builder.IIngredientAcceptor;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -30,31 +35,37 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Fluids;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import org.jspecify.annotations.Nullable;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class MineralFountainCategory implements IRecipeCategory<MineralFountainJeiRecipe> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 78;
 
+    private static final DecimalFormat FORMATTER = new DecimalFormat("0.#");
+
     private static final String SIDE_BLOCK_PREFIX = "side_block_";
     private static final String FROM_BLOCK = "from_block";
     private static final String OUTPUT_BLOCK = "output_block";
-    private static final int BLOCK_SCALE = 20;
+    private static final int BLOCK_SCALE = 12;
+
     private static final int[][] SIDE_POSITIONS = {
-        {30, 36},
-        {46, 36},
-        {30, 44},
-        {46, 44}
+        {40, 46, 3},
+        {56, 46, 3},
+        {40, 54, 17},
+        {56, 54, 17}
     };
     private static final int[][] SIDE_SLOT_AREAS = {
         {31, 38, 9, 14},
@@ -85,64 +96,79 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
 
     @Override
     public int getWidth() {
-        return MineralFountainCategory.WIDTH;
+        return WIDTH;
     }
 
     @Override
     public int getHeight() {
-        return MineralFountainCategory.HEIGHT;
+        return HEIGHT;
     }
 
     @Override
-    public IDrawable getIcon() {
+    public @Nullable IDrawable getIcon() {
         return this.icon;
     }
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, MineralFountainJeiRecipe recipe, IFocusGroup focuses) {
-        List<ItemStack> sideStacks = MineralFountainCategory.getIngredientStacks(recipe.sideBlocks());
-        for (int i = 0; i < MineralFountainCategory.SIDE_SLOT_AREAS.length && !sideStacks.isEmpty(); i++) {
-            int[] area = MineralFountainCategory.SIDE_SLOT_AREAS[i];
+        List<MineralFountainJeiRecipe.SideRequirement> sideSlots = recipe.sideSlots();
+        for (int i = 0; i < SIDE_SLOT_AREAS.length; i++) {
+            if (i >= sideSlots.size()) break;
+            MineralFountainJeiRecipe.SideRequirement side = sideSlots.get(i);
+            int[] area = SIDE_SLOT_AREAS[i];
             JeiBlockIngredientUtil.addSlot(
                 builder,
                 RecipeIngredientRole.INPUT,
-                MineralFountainCategory.SIDE_BLOCK_PREFIX + i,
+                SIDE_BLOCK_PREFIX + i,
                 area[0],
                 area[1],
                 area[2],
                 area[3],
-                sideStacks
-            );
+                JeiBlockIngredientUtil.toItemStacks(side.states()),
+                JeiBlockIngredientUtil.toFluidStacks(side.states())
+            ).addRichTooltipCallback((slot, tooltip) -> tooltip.add(
+                Component.translatable(
+                    "gui.anvilcraft.category.mineral_fountain.side_count",
+                    side.count()
+                ).withStyle(ChatFormatting.GRAY)
+            ));
         }
 
-        List<ItemStack> fromStacks = MineralFountainCategory.getIngredientStacks(recipe.fromBlocks());
+        List<ItemStack> fromStacks = JeiBlockIngredientUtil.toItemStacks(recipe.fromBlocks());
         if (!fromStacks.isEmpty()) {
             JeiBlockIngredientUtil.addSlot(
-                builder, RecipeIngredientRole.INPUT, MineralFountainCategory.FROM_BLOCK, 40, 28, 16, 13, fromStacks
+                builder, RecipeIngredientRole.INPUT, FROM_BLOCK, 40, 28, 16, 13, fromStacks
             );
         }
 
+        List<BlockState> outcomeStates = recipe.outcomeStates();
         JeiBlockIngredientUtil.addSlot(
             builder,
             RecipeIngredientRole.OUTPUT,
-            MineralFountainCategory.OUTPUT_BLOCK,
+            OUTPUT_BLOCK,
             118,
             28,
             16,
             16,
-            MineralFountainCategory.getIngredientStacks(List.of(recipe.result().state()))
+            JeiBlockIngredientUtil.toItemStacks(outcomeStates),
+            JeiBlockIngredientUtil.toFluidStacks(outcomeStates)
         ).addRichTooltipCallback((slot, tooltip) -> {
-            tooltip.addAll(JeiRecipeUtil.getTooltips(recipe.result().chance()));
+            BlockState displayed = JeiBlockIngredientUtil.toBlockState(
+                slot.getDisplayedIngredient().orElse(null), outcomeStates
+            );
+            tooltip.addAll(getChanceTooltips(
+                recipe, displayed == null ? outcomeStates.getFirst() : displayed
+            ));
             if (recipe.dimension() != null) {
-                tooltip.add(MineralFountainCategory.getDimensionName(recipe.dimension()).copy().withStyle(ChatFormatting.GRAY));
+                tooltip.add(getDimensionName(recipe.dimension()).copy().withStyle(ChatFormatting.GRAY));
             }
         });
 
-        if (recipe.sideBlocks().stream().anyMatch(state -> state.is(Blocks.LAVA))) {
-            builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).add(Fluids.LAVA, 1000);
-        }
-        if (recipe.result().state().is(Blocks.LAVA)) {
-            builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).add(Fluids.LAVA, 1000);
+        if (!recipe.fluids().isEmpty()) {
+            IIngredientAcceptor<?> invisible = builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT);
+            recipe.fluids().forEach(fluid -> invisible.addFluidStack(
+                fluid.getFluid(), fluid.getAmount(), fluid.getComponentsPatch()
+            ));
         }
     }
 
@@ -155,119 +181,325 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
     public void draw(
         MineralFountainJeiRecipe recipe,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphicsExtractor graphics,
+        GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY
     ) {
-        List<BlockState> sideBlocks = recipe.sideBlocks();
-        BlockState sideState = null;
-        if (!sideBlocks.isEmpty()) {
-            sideState = JeiBlockIngredientUtil
-                .getDisplayedState(recipeSlotsView, MineralFountainCategory.SIDE_BLOCK_PREFIX + 0, sideBlocks)
-                .orElse(sideBlocks.getFirst());
-            MineralFountainCategory.renderSideBlock(graphics, sideState, 0);
-            MineralFountainCategory.renderSideBlock(graphics, sideState, 1);
+
+        List<MineralFountainJeiRecipe.SideRequirement> sideSlots = recipe.sideSlots();
+        for (int i = 0; i < Math.min(2, sideSlots.size()); i++) {
+            renderSideSlot(guiGraphics, recipeSlotsView, sideSlots, i);
         }
 
-        RenderSupport.renderBlock(graphics, ModBlocks.MINERAL_FOUNTAIN.getDefaultState(), 38, 40, MineralFountainCategory.BLOCK_SCALE);
+        RenderSupport.renderBlockAt(
+            guiGraphics,
+            ModBlocks.MINERAL_FOUNTAIN.getDefaultState(),
+            48,
+            50,
+            BLOCK_SCALE
+        );
 
-        if (sideState != null) {
-            MineralFountainCategory.renderSideBlock(graphics, sideState, 2);
-            MineralFountainCategory.renderSideBlock(graphics, sideState, 3);
+        for (int i = 2; i < Math.min(4, sideSlots.size()); i++) {
+            renderSideSlot(guiGraphics, recipeSlotsView, sideSlots, i);
         }
 
         if (!recipe.fromBlocks().isEmpty()) {
-            JeiBlockIngredientUtil.getDisplayedState(recipeSlotsView, MineralFountainCategory.FROM_BLOCK, recipe.fromBlocks()).ifPresent(
-                state ->
-                    RenderSupport.renderBlock(graphics, state, 38, 30f, MineralFountainCategory.BLOCK_SCALE)
+            JeiBlockIngredientUtil.getDisplayedState(recipeSlotsView, FROM_BLOCK, recipe.fromBlocks()).ifPresent(state ->
+                RenderSupport.renderBlockAt(
+                    guiGraphics,
+                    state,
+                    48,
+                    39.5f,
+                    BLOCK_SCALE
+                )
             );
         }
 
-        RenderSupport.renderBlock(graphics, ModBlocks.MINERAL_FOUNTAIN.getDefaultState(), 116, 40, MineralFountainCategory.BLOCK_SCALE);
-        BlockState resultState = JeiBlockIngredientUtil.getRenderablePreviewState(recipe.result().state());
-        RenderSupport.renderBlock(graphics, resultState, 116, 30f, MineralFountainCategory.BLOCK_SCALE);
-        this.arrow.draw(graphics, 82, 37);
+        RenderSupport.renderBlockAt(
+            guiGraphics,
+            ModBlocks.MINERAL_FOUNTAIN.getDefaultState(),
+            126,
+            50,
+            BLOCK_SCALE
+        );
+
+        BlockState resultState = JeiBlockIngredientUtil.toBlockState(
+            JeiBlockIngredientUtil.getDisplayedIngredient(recipeSlotsView, OUTPUT_BLOCK).orElse(null),
+            recipe.outcomeStates()
+        );
+        if (resultState == null) resultState = recipe.outcomeStates().getFirst();
+        RenderSupport.renderBlockAt(
+            guiGraphics,
+            resultState,
+            126,
+            39.5f,
+            BLOCK_SCALE
+        );
+
+        this.arrow.draw(guiGraphics, 82, 37);
 
         if (recipe.dimension() != null) {
-            Component dimensionName = MineralFountainCategory.getDimensionName(recipe.dimension()).copy().withStyle(ChatFormatting.WHITE);
-            graphics.text(Minecraft.getInstance().font, dimensionName, 126, 65, 0xFFFFFFFF, true);
+            Component dimensionName = getDimensionName(recipe.dimension()).copy().withStyle(ChatFormatting.WHITE);
+            guiGraphics.centeredText(Minecraft.getInstance().font, dimensionName, 126, 65, 0xFFFFFFFF);
         }
     }
 
     @Override
-    public @Nullable Identifier getIdentifier(MineralFountainJeiRecipe recipe) {
+    public @Nullable Identifier getRegistryName(MineralFountainJeiRecipe recipe) {
         return recipe.id();
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
-        List<RecipeHolder<MineralFountainRecipe>> normalRecipes =
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MINERAL_FOUNTAIN.get());
+        List<RecipeHolder<MineralFountainActiveRecipe>> activeRecipes =
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MINERAL_FOUNTAIN_ACTIVE.get());
+        List<RecipeHolder<MineralFountainPassiveRecipe>> passiveRecipes =
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MINERAL_FOUNTAIN_PASSIVE.get());
+        final List<RecipeHolder<MineralFountainReplacementRecipe>> replacementRecipes =
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MINERAL_FOUNTAIN_REPLACEMENT.get());
         List<MineralFountainJeiRecipe> displays = new ArrayList<>();
 
-        displays.add(new MineralFountainJeiRecipe(
-            AnvilCraft.of("mineral_fountain/cinerite_from_air"),
-            List.of(),
-            List.of(),
-            new ChanceBlockState(ModBlocks.CINERITE.getDefaultState(), 1.0f),
-            null
-        ));
-        displays.add(new MineralFountainJeiRecipe(
-            AnvilCraft.of("mineral_fountain/lava_from_air"),
-            List.of(Blocks.LAVA.defaultBlockState()),
-            List.of(),
-            new ChanceBlockState(Blocks.LAVA.defaultBlockState(), 1.0f),
-            null
-        ));
-
-        for (RecipeHolder<MineralFountainRecipe> holder : normalRecipes) {
-            MineralFountainRecipe recipe = holder.value();
-            List<BlockState> sides = recipe.needBlock().constructStatesForRender();
-            List<BlockState> from = recipe.fromBlock().constructStatesForRender();
-            if (sides.isEmpty() || from.isEmpty()) continue;
-            displays.add(new MineralFountainJeiRecipe(
-                holder.id().identifier(), sides, from, recipe.toBlock(), null
-            ));
+        Map<String, List<RecipeHolder<MineralFountainActiveRecipe>>> activeGroups = new LinkedHashMap<>();
+        for (RecipeHolder<MineralFountainActiveRecipe> holder : activeRecipes) {
+            if (holder.value().getAround().isEmpty()) continue;
+            activeGroups.computeIfAbsent(activeGroupKey(holder.value()), key -> new ArrayList<>()).add(holder);
+        }
+        for (List<RecipeHolder<MineralFountainActiveRecipe>> group : activeGroups.values()) {
+            displays.add(mergeActive(group));
         }
 
-        for (RecipeHolder<MineralFountainChanceRecipe> holder :
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MINERAL_FOUNTAIN_CHANCE.get())) {
-            MineralFountainChanceRecipe recipe = holder.value();
-            List<BlockState> from = recipe.fromBlock().constructStatesForRender();
-            Set<BlockState> sides = new LinkedHashSet<>();
-            for (RecipeHolder<MineralFountainRecipe> normalHolder : normalRecipes) {
-                MineralFountainRecipe normalRecipe = normalHolder.value();
-                if (MineralFountainCategory.sharesBlock(from, normalRecipe.fromBlock().constructStatesForRender())) {
-                    sides.addAll(normalRecipe.needBlock().constructStatesForRender());
-                }
-            }
-            if (sides.isEmpty() || from.isEmpty()) continue;
+        Map<String, List<RecipeHolder<MineralFountainPassiveRecipe>>> passiveGroups = new LinkedHashMap<>();
+        for (RecipeHolder<MineralFountainPassiveRecipe> holder : passiveRecipes) {
+            passiveGroups.computeIfAbsent(passiveGroupKey(holder.value()), key -> new ArrayList<>()).add(holder);
+        }
+        for (List<RecipeHolder<MineralFountainPassiveRecipe>> group : passiveGroups.values()) {
+            displays.add(mergePassive(group));
+        }
+
+        Map<Identifier, MineralFountainActiveRecipe> activeById = new LinkedHashMap<>();
+        for (RecipeHolder<MineralFountainActiveRecipe> holder : activeRecipes) {
+            activeById.put(holder.id().identifier(), holder.value());
+        }
+
+        for (RecipeHolder<MineralFountainReplacementRecipe> holder : replacementRecipes) {
+            MineralFountainReplacementRecipe recipe = holder.value();
             displays.add(new MineralFountainJeiRecipe(
-                holder.id().identifier(), List.copyOf(sides), from, recipe.toBlock(), recipe.dimension()
+                holder.id().identifier(),
+                replacementAround(recipe, activeById),
+                recipe.getFromBlock().constructStatesForRender(),
+                List.of(new MineralFountainJeiRecipe.Outcome(
+                    recipe.getToBlock().state(), NumberProviderUtil.expected(recipe.getToBlock().chance())
+                )),
+                recipe.getToFluid().map(FluidStackTemplate::create).map(List::of).orElse(List.of()),
+                recipe.getDimension().orElse(null),
+                recipe.getReplaceChance(),
+                replacementTarget(recipe)
             ));
         }
 
         registration.addRecipes(AnvilCraftJeiPlugin.MINERAL_FOUNTAIN, displays);
     }
 
-    public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addCraftingStation(AnvilCraftJeiPlugin.MINERAL_FOUNTAIN, ModBlocks.MINERAL_FOUNTAIN);
+    private static MineralFountainJeiRecipe mergeActive(List<RecipeHolder<MineralFountainActiveRecipe>> group) {
+        MineralFountainActiveRecipe first = group.getFirst().value();
+        int weightTotal = group.stream().mapToInt(holder -> holder.value().getWeight()).sum();
+        List<MineralFountainJeiRecipe.Outcome> outcomes = new ArrayList<>();
+        List<FluidStack> fluids = new ArrayList<>();
+        for (RecipeHolder<MineralFountainActiveRecipe> holder : group) {
+            MineralFountainActiveRecipe recipe = holder.value();
+            outcomes.add(new MineralFountainJeiRecipe.Outcome(
+                recipe.getToBlock().state(),
+                shareOf(recipe, weightTotal, holder.value().getToBlock())
+            ));
+            recipe.getToFluid().map(FluidStackTemplate::create).ifPresent(fluids::add);
+        }
+        return new MineralFountainJeiRecipe(
+            group.getFirst().id().identifier(),
+            sideRequirements(first),
+            first.getFromBlock().constructStatesForRender(),
+            outcomes,
+            fluids,
+            first.getDimension().orElse(null),
+            null,
+            null
+        );
     }
 
-    private static void renderSideBlock(GuiGraphicsExtractor graphics, BlockState state, int index) {
-        int[] position = MineralFountainCategory.SIDE_POSITIONS[index];
-        RenderSupport.renderBlock(graphics, state, position[0], position[1], MineralFountainCategory.BLOCK_SCALE);
+    private static MineralFountainJeiRecipe mergePassive(List<RecipeHolder<MineralFountainPassiveRecipe>> group) {
+        MineralFountainPassiveRecipe first = group.getFirst().value();
+        int weightTotal = group.stream().mapToInt(holder -> holder.value().getWeight()).sum();
+        List<MineralFountainJeiRecipe.Outcome> outcomes = new ArrayList<>();
+        List<FluidStack> fluids = new ArrayList<>();
+        for (RecipeHolder<MineralFountainPassiveRecipe> holder : group) {
+            MineralFountainPassiveRecipe recipe = holder.value();
+            outcomes.add(new MineralFountainJeiRecipe.Outcome(
+                recipe.getToBlock().state(),
+                shareOf(recipe, weightTotal, recipe.getToBlock())
+            ));
+            recipe.getToFluid().map(FluidStackTemplate::create).ifPresent(fluids::add);
+        }
+        return new MineralFountainJeiRecipe(
+            group.getFirst().id().identifier(),
+            List.of(),
+            first.getFromBlock().constructStatesForRender(),
+            outcomes,
+            fluids,
+            first.getDimension().orElse(null),
+            null,
+            null
+        );
     }
 
-    private static List<ItemStack> getIngredientStacks(List<BlockState> states) {
-        return states.stream()
-            .map(state -> state.is(Blocks.LAVA) ? new ItemStack(Items.LAVA_BUCKET) : new ItemStack(state.getBlock()))
-            .filter(stack -> !stack.isEmpty())
+    private static double shareOf(
+        AbstractMineralFountainRecipe recipe,
+        int weightTotal,
+        ChanceBlockState toBlock
+    ) {
+        double own = NumberProviderUtil.expected(toBlock.chance());
+        if (own < 0) return own;
+        if (weightTotal <= 0) return own;
+        return own * recipe.getWeight() / (double) weightTotal;
+    }
+
+    private static String activeGroupKey(MineralFountainActiveRecipe recipe) {
+        return passiveGroupKey(recipe) + "#" + aroundKey(recipe.getAround());
+    }
+
+    private static String aroundKey(List<AroundRequirement> around) {
+        return around.stream()
+            .map(requirement -> requirement.count() + "x" + predicateKey(requirement.block()))
+            .collect(Collectors.joining(","));
+    }
+
+    private static String predicateKey(BlockStatePredicate predicate) {
+        String blocks = predicate.getBlocks().unwrap().map(
+            tag -> "#" + tag.location(),
+            holders -> holders.stream()
+                .map(holder -> holder.unwrapKey().map(key -> key.identifier().toString()).orElse("?"))
+                .sorted()
+                .collect(Collectors.joining("|"))
+        );
+        String properties = predicate.getProperties().stream()
+            .map(matchers -> matchers.stream()
+                .map(matcher -> matcher.name() + "=" + matcher.valueMatcher())
+                .sorted()
+                .collect(Collectors.joining("&")))
+            .sorted()
+            .collect(Collectors.joining(";"));
+        String nbts = predicate.getNbts().stream()
+            .map(nbt -> nbt.tag().toString())
+            .sorted()
+            .collect(Collectors.joining(";"));
+        return blocks + "[" + properties + "]" + "{" + nbts + "}";
+    }
+
+    private static String passiveGroupKey(AbstractMineralFountainRecipe recipe) {
+        return recipe.getDimension().map(Identifier::toString).orElse("*")
+               + "#" + recipe.getPriority()
+               + "#" + recipe.getFromBlock().getKey();
+    }
+
+    @Nullable
+    private static Component replacementTarget(MineralFountainReplacementRecipe recipe) {
+        List<Identifier> replace = recipe.getReplace();
+        if (replace.isEmpty()) return null;
+        return Component.literal(replace.stream()
+            .map(Identifier::toString)
+            .collect(Collectors.joining(", ")));
+    }
+
+    private static List<Component> getChanceTooltips(MineralFountainJeiRecipe recipe, @Nullable BlockState displayed) {
+        List<Component> tooltips = new ArrayList<>();
+        double chance = displayed == null ? recipe.totalChance() : recipe.chanceOf(displayed);
+
+        if (chance >= 0 && Math.round(chance * 100) < 100) {
+            tooltips.add(
+                Component.translatable(
+                    "gui.anvilcraft.category.chance",
+                    FORMATTER.format(chance * 100)
+                ).withStyle(ChatFormatting.GRAY)
+            );
+        }
+        if (recipe.replacementChance() != null) {
+            tooltips.add(
+                Component.translatable(
+                    "gui.anvilcraft.category.mineral_fountain.replace_chance",
+                    FORMATTER.format(recipe.replacementChance() * 100)
+                ).withStyle(ChatFormatting.GRAY)
+            );
+            if (recipe.replacementTarget() != null) {
+                tooltips.add(
+                    Component.translatable(
+                        "gui.anvilcraft.category.mineral_fountain.replace_target",
+                        recipe.replacementTarget()
+                    ).withStyle(ChatFormatting.DARK_GRAY)
+                );
+            }
+        }
+        return tooltips;
+    }
+
+    private static List<MineralFountainJeiRecipe.SideRequirement> replacementAround(
+        MineralFountainReplacementRecipe recipe,
+        Map<Identifier, MineralFountainActiveRecipe> activeById
+    ) {
+        Set<BlockState> states = new LinkedHashSet<>();
+        int count = 0;
+        for (Map.Entry<Identifier, MineralFountainActiveRecipe> entry : activeById.entrySet()) {
+            if (!recipe.appliesTo(entry.getKey())) continue;
+            if (!sharesFromBlock(recipe.getFromBlock(), entry.getValue().getFromBlock())) continue;
+            for (AroundRequirement requirement : entry.getValue().getAround()) {
+                states.addAll(requirement.block().constructStatesForRender());
+                count = Math.max(count, requirement.count());
+            }
+        }
+        if (states.isEmpty()) return List.of();
+        return List.of(new MineralFountainJeiRecipe.SideRequirement(List.copyOf(states), count));
+    }
+
+    private static boolean sharesFromBlock(BlockStatePredicate first, BlockStatePredicate second) {
+        List<BlockState> firstStates = first.constructStatesForRender();
+        List<BlockState> secondStates = second.constructStatesForRender();
+        if (firstStates.isEmpty() || secondStates.isEmpty()) return true;
+        return firstStates.stream().anyMatch(second::testWithoutEntity)
+               || secondStates.stream().anyMatch(first::testWithoutEntity);
+    }
+
+    private static List<MineralFountainJeiRecipe.SideRequirement> sideRequirements(MineralFountainActiveRecipe recipe) {
+        return recipe.getAround().stream()
+            .map(requirement -> new MineralFountainJeiRecipe.SideRequirement(
+                requirement.block().constructStatesForRender(),
+                requirement.count()
+            ))
             .toList();
     }
 
-    private static boolean sharesBlock(List<BlockState> first, List<BlockState> second) {
-        return first.stream().anyMatch(firstState ->
-            second.stream().anyMatch(secondState -> firstState.is(secondState.getBlock()))
+    public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
+        registration.addRecipeCatalyst(ModBlocks.MINERAL_FOUNTAIN.asStack(), AnvilCraftJeiPlugin.MINERAL_FOUNTAIN);
+    }
+
+    private static void renderSideSlot(
+        GuiGraphicsExtractor guiGraphics,
+        IRecipeSlotsView recipeSlotsView,
+        List<MineralFountainJeiRecipe.SideRequirement> sideSlots,
+        int index
+    ) {
+        MineralFountainJeiRecipe.SideRequirement side = sideSlots.get(index);
+        BlockState state = JeiBlockIngredientUtil.toBlockState(
+            JeiBlockIngredientUtil.getDisplayedIngredient(recipeSlotsView, SIDE_BLOCK_PREFIX + index).orElse(null),
+            side.states()
+        );
+        if (state == null) state = side.states().getFirst();
+        renderSideBlock(guiGraphics, state, index);
+    }
+
+    private static void renderSideBlock(GuiGraphicsExtractor guiGraphics, BlockState state, int index) {
+        int[] position = SIDE_POSITIONS[index];
+        RenderSupport.renderBlockAt(
+            guiGraphics,
+            state,
+            position[0],
+            position[1],
+            BLOCK_SCALE
         );
     }
 
