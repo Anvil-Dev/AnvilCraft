@@ -3,19 +3,22 @@
   "category": "misc",
   "key": {
     "A": {
-      "item": "anvilcraft:void_matter_block"
+      "item": "anvilcraft:void_matter"
     },
     "B": {
-      "item": "anvilcraft:charge_collector"
+      "item": "anvilcraft:void_matter_block"
     },
     "C": {
       "item": "anvilcraft:heavy_iron_block"
+    },
+    "D": {
+      "item": "anvilcraft:charge_collector"
     }
   },
   "pattern": [
     "AAA",
     "ABA",
-    "CCC"
+    "CDC"
   ],
   "result": {
     "count": 1,
