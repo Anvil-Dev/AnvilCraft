@@ -126,8 +126,10 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
     // LevelLike 缓存
     private @Nullable LevelLike cachedPreviewLevelLike;
-    private BlockPlacementUtil.@Nullable BlueprintExtent cachedBlueprintExtent;
+    private BlockPlacementUtil.BlueprintExtent cachedBlueprintExtent =
+        BlockPlacementUtil.BlueprintExtent.of(new BlockState[0], SmartBlockPlacerBlockEntity.POSITION_GRID_SIZE);
     private BlockState cachedPlacerState = Blocks.AIR.defaultBlockState();
+    private ItemStack cachedBlueprintItem = ItemStack.EMPTY;
     private boolean[] cachedLayerPositions = new boolean[SmartBlockPlacerBlockEntity.POSITION_COUNT];
     private int cachedViewLayer = -1;
     private boolean cachedShowAllLayers = true;
@@ -1161,8 +1163,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     }
 
     private void renderPreviewAutoScaled(LevelLike level, GuiGraphicsExtractor graphics) {
-        AABB bounds = this.getPreviewBounds();
         final VoxelShape rangeShape = this.createPlacementRangeShape();
+        AABB bounds = this.getPreviewBounds(rangeShape);
         Quaternionf rotation = Axis.XP.rotationDegrees(this.previewRotationX)
             .mul(Axis.YP.rotationDegrees(this.previewRotationY + PREVIEW_YAW_OFFSET));
         float scale = RenderSupport.autoScale(
@@ -1185,9 +1187,9 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                 new Matrix4f(modelPose.last().pose()), outlineOriginX, outlineOriginY, rangeShape))));
     }
 
-    private AABB getPreviewBounds() {
+    private AABB getPreviewBounds(VoxelShape rangeShape) {
         int placerY = this.isUpsideDownPreview() ? PLACER_PREVIEW_Y_UPSIDE_DOWN : PLACER_PREVIEW_Y;
-        return this.createPlacementRangeShape().bounds()
+        return rangeShape.bounds()
             .minmax(new AABB(new BlockPos(PLACER_PREVIEW_X, placerY, PLACER_PREVIEW_Z)));
     }
 
@@ -1231,7 +1233,9 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         BlockState[] currentBlueprintStates = blueprint.states();
         LevelLike cachedLevel = this.cachedPreviewLevelLike;
         BlockState placerState = level.getBlockState(blockEntity.getBlockPos());
+        ItemStack blueprintItem = blockEntity.getBlueprintItem();
         if (cachedLevel != null
+            && ItemStack.isSameItemSameComponents(this.cachedBlueprintItem, blueprintItem)
             && this.cachedPlacerState == placerState
             && Arrays.equals(this.cachedLayerPositions, this.layerPositions)
             && this.cachedViewLayer == this.currentViewLayer
@@ -1254,6 +1258,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         this.cachedBlueprintStates = currentBlueprintStates.clone();
         this.cachedBlueprintExtent = blueprint.extent();
         this.cachedPlacerState = placerState;
+        this.cachedBlueprintItem = blueprintItem.copy();
         this.cachedGameTimeBlockType = currentBlockTypeTime;
         return rebuiltLevel;
     }
