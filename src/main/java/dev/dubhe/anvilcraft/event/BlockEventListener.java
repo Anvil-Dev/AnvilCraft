@@ -137,10 +137,10 @@ public class BlockEventListener {
                 && !(targetState.getBlock() instanceof IHammerRemovable)) {
                 return;
             }
-            boolean canChange = AnvilHammerItem.ableToUseAnvilHammer(level, pos, player);
-            if (!player.getAbilities().mayBuild && !(canChange && targetState.getBlock() instanceof IHammerChangeable)) return;
-            if (!canChange && AnvilHammerItem.findModifyableProperty(targetState) != null) return;
-            if (canChange || (!targetState.is(BlockTags.CAULDRONS) && !targetState.is(ModBlockTags.ANVIL_HAMMER_DENYLIST)
+            boolean canHammerInteract = AnvilHammerItem.ableToUseAnvilHammer(level, pos, player);
+            if (!player.getAbilities().mayBuild && !(canHammerInteract && targetState.getBlock() instanceof IHammerChangeable)) return;
+            if (!canHammerInteract && AnvilHammerItem.findModifyableProperty(targetState) != null) return;
+            if (canHammerInteract || (!targetState.is(BlockTags.CAULDRONS) && !targetState.is(ModBlockTags.ANVIL_HAMMER_DENYLIST)
                 && !AnvilHammerItem.shouldPlaceOffhandBlock(player, level, event.getHitVec()))) {
                 event.setCancellationResult(InteractionResult.SUCCESS);
                 event.setCanceled(true);
