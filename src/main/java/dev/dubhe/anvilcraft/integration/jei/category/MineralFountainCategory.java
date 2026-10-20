@@ -456,18 +456,18 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         return tooltips;
     }
 
-    /**
-     * 替换配方应展示的周围需求，取自被它改写的主动配方。
-     *
-     * <p>要求两者能匹配同一个上方方块，否则永远不会共存（如熔岩配方的 {@code from_block} 是空气）；
-     * 多个主动配方的需求按方块合并成一项。</p>
-     */
     private static String formatPercentage(double chance) {
         String percentage = FORMATTER.format(chance * 100);
         return chance < 1 && percentage.equals(FORMATTER.format(100))
             ? BigDecimal.valueOf(chance).movePointRight(2).stripTrailingZeros().toPlainString() : percentage;
     }
 
+    /**
+     * 替换配方应展示的周围需求，取自被它改写的主动配方。
+     *
+     * <p>要求两者能匹配同一个上方方块，否则永远不会共存（如熔岩配方的 {@code from_block} 是空气）；
+     * 多个主动配方的需求按方块合并成一项。</p>
+     */
     private static List<MineralFountainJeiRecipe.SideRequirement> replacementAround(
         MineralFountainReplacementRecipe recipe,
         Map<ResourceLocation, MineralFountainActiveRecipe> activeById
