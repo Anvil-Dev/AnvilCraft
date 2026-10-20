@@ -1439,6 +1439,7 @@
   "pack.anvilcraft.builtin_pack": "AnvilCraft Builtin ResourcePack",
   "pack.anvilcraft.first_ancient_debris.description": "First Ancient Debris",
   "pack.anvilcraft.transparent_cauldron.description": "Transparent Cauldron",
+  "screen.anvilcraft.active_silencer.refresh": "Refresh Order",
   "screen.anvilcraft.active_silencer.search": "enter keyword to search",
   "screen.anvilcraft.active_silencer.title": "Active Silencer",
   "screen.anvilcraft.anvil_hammer.title": "Modifying Block",

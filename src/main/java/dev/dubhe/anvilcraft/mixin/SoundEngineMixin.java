@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.api.sound.SoundHelper;
+import dev.dubhe.anvilcraft.client.gui.screen.ActiveSilencerScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.SoundEngine;
@@ -14,10 +15,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 abstract class SoundEngineMixin {
     @Inject(method = "play", at = @At(value = "HEAD"), cancellable = true)
     private void onSoundPlay(SoundInstance instance, CallbackInfoReturnable<SoundEngine.PlayResult> cir) {
+        Minecraft minecraft = Minecraft.getInstance();
+        Vec3 pos = new Vec3(instance.getX(), instance.getY(), instance.getZ());
+        if (!instance.isRelative() && minecraft.screen instanceof ActiveSilencerScreen screen) {
+            screen.recordSound(instance.getIdentifier(), pos);
+        }
         if (SoundHelper.INSTANCE.shouldMute(
-            Minecraft.getInstance().level,
+            minecraft.level,
             instance.getIdentifier(),
-            new Vec3(instance.getX(), instance.getY(), instance.getZ())
+            pos
         )) {
             cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
         }
