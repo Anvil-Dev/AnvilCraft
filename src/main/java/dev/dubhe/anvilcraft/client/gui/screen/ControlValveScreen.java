@@ -203,8 +203,7 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
             return;
         }
         FluidStack fluid = ControlValveBlockEntity.fluidOf(ingredient);
-        this.setFilter(0, fluid);
-        PacketDistributor.sendToServer(new ControlValveFilterPacket(0, fluid));
+        this.acceptFluidGhost(0, fluid);
     }
 
     @Override
