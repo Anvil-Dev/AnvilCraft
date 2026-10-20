@@ -264,6 +264,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         if (item.isEmpty() && !this.isRemoved()) {
             this.discard();
         }
+        this.anvilcraft$collectInsideChute();
         ci.cancel();
     }
 
@@ -547,6 +548,11 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void anvilcraft$pickupInsideChute(CallbackInfo ci) {
+        this.anvilcraft$collectInsideChute();
+    }
+
+    @Unique
+    private void anvilcraft$collectInsideChute() {
         if (this.isRemoved() || this.level().isClientSide()) return;
         AABB bounds = this.getBoundingBox();
         for (BlockPos pos : BlockPos.betweenClosed(
