@@ -76,6 +76,7 @@ public class ClientBlockEventListener {
     /// @param event 右键方块事件
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void anvilHammerUse(PlayerInteractEvent.RightClickBlock event) {
+        if (!event.getLevel().isClientSide()) return;
         InteractionHand hand = event.getHand();
         BlockState state = event.getLevel().getBlockState(event.getPos());
         Player entity = event.getEntity();
@@ -85,7 +86,7 @@ public class ClientBlockEventListener {
         if (entity.isShiftKeyDown() && !state.is(ModBlockTags.HAMMER_REMOVABLE) && !(state.getBlock() instanceof IHammerRemovable)) {
             return;
         }
-        if (event.getLevel().isClientSide() && ClientBlockEventListener.clientHandle(event, state, hand, event.getHitVec())) {
+        if (ClientBlockEventListener.clientHandle(event, state, hand, event.getHitVec())) {
             event.setCancellationResult(InteractionResult.SUCCESS);
             event.setCanceled(true);
         } else if (!state.is(BlockTags.CAULDRONS) && !state.is(ModBlockTags.ANVIL_HAMMER_DENYLIST)

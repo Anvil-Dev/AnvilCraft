@@ -110,7 +110,7 @@ public final class ModMegastructures {
             .ring(2)
             .rotation(ModMegastructures::bodySynchronizedRotation)
             .model(2, ringModel(2, "dyson_sphere"))
-            .material(ModItems.DYSON_SPHERE_COMPONENT, 8)
+            .material(ModItems.DYSON_SPHERE_COMPONENT, 1)
             .handler(() -> new DysonSphereHandler("dyson_sphere_brown_dwarf"))
             .build()
     );
@@ -122,7 +122,7 @@ public final class ModMegastructures {
                 && star.bodyClass() != CelestialBodyClass.BLACK_HOLE)
             .ring(4)
             .model(4, ringModel(4, "collider"))
-            .material(ModItems.STELLAR_RING_COMPONENT, 8)
+            .material(ModItems.STELLAR_RING_COMPONENT, 2)
             .handler(ColliderHandler::new)
             .build()
     );
@@ -133,7 +133,7 @@ public final class ModMegastructures {
             .ring(4)
             .rotation(ModMegastructures::bodySynchronizedRotation)
             .model(4, ringModel(4, "dyson_sphere"))
-            .material(ModItems.DYSON_SPHERE_COMPONENT, 16)
+            .material(ModItems.DYSON_SPHERE_COMPONENT, 2)
             .handler(() -> new DysonSphereHandler("dyson_sphere_small"))
             .build()
     );
@@ -144,7 +144,7 @@ public final class ModMegastructures {
             .ring(5)
             .rotation(ModMegastructures::bodySynchronizedRotation)
             .model(5, ringModel(5, "dyson_sphere"))
-            .material(ModItems.DYSON_SPHERE_COMPONENT, 32)
+            .material(ModItems.DYSON_SPHERE_COMPONENT, 4)
             .handler(() -> new DysonSphereHandler("dyson_sphere_large"))
             .build()
     );
@@ -155,7 +155,7 @@ public final class ModMegastructures {
                 && star.bodyClass() == CelestialBodyClass.NEUTRON_STAR)
             .ring(4)
             .model(4, ringModel(4, "coil"))
-            .material(ModItems.MAGNETAR_COIL_COMPONENT, 4)
+            .material(ModItems.MAGNETAR_COIL_COMPONENT, 32)
             .handler(MagnetarCoilHandler::new)
             .build()
     );
@@ -166,7 +166,7 @@ public final class ModMegastructures {
             .ring(4)
             .rotation(context -> -bodySynchronizedRotation(context))
             .model(4, ringModel(4, "penrose_sphere"))
-            .material(ModItems.PENROSE_SPHERE_COMPONENT, 8)
+            .material(ModItems.PENROSE_SPHERE_COMPONENT, 32)
             .handler(PenroseSphereHandler::new)
             .build()
     );
@@ -178,7 +178,7 @@ public final class ModMegastructures {
                     || star.bodyClass() == CelestialBodyClass.BLACK_HOLE))
             .ring(4)
             .model(4, ringModel(4, "matter_decompressor"))
-            .material(ModItems.MATTER_DECOMPRESSOR_COMPONENT, 2)
+            .material(ModItems.MATTER_DECOMPRESSOR_COMPONENT, 32)
             .handler(MatterDecompressorHandler::new)
             .build()
     );
@@ -188,7 +188,7 @@ public final class ModMegastructures {
             .prerequisite(context -> context.amplified() && isBlackHole(context))
             .ring(4)
             .model(4, ringModel(4, "wormhole_stabilizer"))
-            .material(ModItems.WORMHOLE_STABILIZER_COMPONENT, 4)
+            .material(ModItems.WORMHOLE_STABILIZER_COMPONENT, 1)
             .handler(WormholeStabilizerHandler::new)
             .build()
     );
@@ -203,7 +203,7 @@ public final class ModMegastructures {
             .ring(context -> context.body().usesLargeStellarRings() ? 6 : 5)
             .model(5, ringModel(5, "stellar_evolution_accelerator"))
             .model(6, ringModel(6, "stellar_evolution_accelerator"))
-            .material(ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT, 8)
+            .material(ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT, 4)
             .handler(AcceleratorHandler::new)
             .auxiliary()
             .build()

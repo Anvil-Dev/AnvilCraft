@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.network.packet.IClientboundPacket;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.support.MagnetAnvilAnimation;
+import dev.dubhe.anvilcraft.util.MagnetUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -29,6 +30,10 @@ public record MagnetAnvilAnimationPacket(Vec3 start, BlockPos end, BlockState st
 
     @Override
     public void handleOnClient(Player player) {
-        MagnetAnvilAnimation.start(this.start, this.end, this.state);
+        if (MagnetUtil.hasMagnetism(player.level(), this.end)) {
+            MagnetAnvilAnimation.start(this.start, this.end, this.state);
+        } else {
+            MagnetAnvilAnimation.startUnchecked(this.start, this.end, this.state);
+        }
     }
 }

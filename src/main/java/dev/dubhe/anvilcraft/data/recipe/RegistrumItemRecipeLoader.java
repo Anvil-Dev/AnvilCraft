@@ -1398,7 +1398,7 @@ public class RegistrumItemRecipeLoader {
         DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider
     ) {
         HolderGetter<Item> lookup = provider.getItems();
-        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 8)
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 10)
             .pattern("ABA")
             .pattern("BCB")
             .pattern("ABA")
@@ -1416,7 +1416,7 @@ public class RegistrumItemRecipeLoader {
         DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider
     ) {
         HolderGetter<Item> lookup = provider.getItems();
-        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 16)
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 4)
             .pattern("ABA")
             .pattern("B B")
             .pattern("ABA")
@@ -1706,13 +1706,13 @@ public class RegistrumItemRecipeLoader {
 
     public static <T extends Item> void dysonSphereComponent(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 4)
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 6)
             .pattern("ABA")
-            .pattern("CCC")
+            .pattern("BCB")
             .pattern("ABA")
-            .define('A', ModItems.EMBER_METAL_INGOT)
-            .define('B', ModItems.TRANSCENDIUM_INGOT)
-            .define('C', ModBlocks.HEAT_COLLECTOR)
+            .define('A', ModItems.TRANSCENDIUM_INGOT)
+            .define('B', ModItems.EMBER_METAL_INGOT)
+            .define('C', ModBlocks.INFINITE_COLLECTOR)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModItems.EMBER_METAL_INGOT),
                 AnvilCraftDatagen.has(lookup, ModItems.EMBER_METAL_INGOT)
@@ -1722,8 +1722,8 @@ public class RegistrumItemRecipeLoader {
                 AnvilCraftDatagen.has(lookup, ModItems.TRANSCENDIUM_INGOT)
             )
             .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModBlocks.HEAT_COLLECTOR.asItem()),
-                AnvilCraftDatagen.has(lookup, ModBlocks.HEAT_COLLECTOR)
+                AnvilCraftDatagen.hasItem(ModBlocks.INFINITE_COLLECTOR.asItem()),
+                AnvilCraftDatagen.has(lookup, ModBlocks.INFINITE_COLLECTOR)
             )
             .save(provider);
     }
@@ -1785,13 +1785,12 @@ public class RegistrumItemRecipeLoader {
         DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider
     ) {
         HolderGetter<Item> lookup = provider.getItems();
-        // 铜块 超限合金锭 铜块 / 铜块 无限集能器 铜块 / 铜块 超限合金锭 铜块
-        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 6)
             .pattern("ABA")
-            .pattern("ACA")
+            .pattern("BCB")
             .pattern("ABA")
-            .define('A', Items.COPPER_BLOCK)
-            .define('B', ModItems.TRANSCENDIUM_INGOT)
+            .define('A', ModItems.TRANSCENDIUM_INGOT)
+            .define('B', Items.COPPER_BLOCK)
             .define('C', ModBlocks.INFINITE_COLLECTOR)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
@@ -1804,14 +1803,13 @@ public class RegistrumItemRecipeLoader {
         DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider
     ) {
         HolderGetter<Item> lookup = provider.getItems();
-        // 空 腐化信标 空 / 超限合金锭 诅咒之金块 超限合金锭 ×2 → 2个
-        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 2)
-            .pattern(" A ")
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 4)
+            .pattern("ABA")
             .pattern("BCB")
-            .pattern("BCB")
-            .define('A', ModBlocks.CORRUPTED_BEACON)
-            .define('B', ModItems.TRANSCENDIUM_INGOT)
-            .define('C', ModBlocks.CURSED_GOLD_BLOCK)
+            .pattern("ABA")
+            .define('A', ModItems.TRANSCENDIUM_INGOT)
+            .define('B', ModBlocks.CURSED_GOLD_BLOCK)
+            .define('C', ModBlocks.CORRUPTED_BEACON)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
                 AnvilCraftDatagen.has(lookup, ModItems.TRANSCENDIUM_INGOT)

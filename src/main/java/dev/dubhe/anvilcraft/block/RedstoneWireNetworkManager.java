@@ -25,6 +25,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ObserverBlock;
+import net.minecraft.world.level.block.RedStoneWireBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -1072,7 +1073,13 @@ public final class RedstoneWireNetworkManager {
                         ? RedstoneWireBlock.terminalTarget(this.level, wirePos, wireState, tangent)
                         : wirePos.relative(tangent);
                     BlockState inputState = this.level.getBlockState(inputPos);
-                    int inputPower = this.level.getSignal(inputPos, tangent);
+                    Direction inputDirection = inputState.is(Blocks.REDSTONE_WIRE) && !inputPos.equals(wirePos.relative(tangent))
+                        ? wireState.getValue(RedstoneWireBlock.ATTACHMENT) : tangent;
+                    if (inputState.is(Blocks.REDSTONE_WIRE) && inputDirection.getAxis().isHorizontal()
+                        && !inputState.getValue(RedStoneWireBlock.PROPERTY_BY_DIRECTION.get(inputDirection.getOpposite())).isConnected()) {
+                        continue;
+                    }
+                    int inputPower = this.level.getSignal(inputPos, inputDirection);
                     totalPower = Math.max(totalPower, inputPower);
                     if (!inputState.is(Blocks.REDSTONE_WIRE)) {
                         // 单独保留非粉线输入，向原版红石粉输出时用它切断粉线经无衰减网络反馈给自身的回路。

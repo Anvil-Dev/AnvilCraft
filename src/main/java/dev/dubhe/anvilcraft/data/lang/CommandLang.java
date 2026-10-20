@@ -4,6 +4,8 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class CommandLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("command.anvilcraft.blueprint.added", "Granted blueprint upload access to %s players");
+        provider.add("command.anvilcraft.blueprint.removed", "Removed blueprint upload access from %s players");
         provider.add("command.anvilcraft.storage.no_hand_item", "No item in main hand");
         provider.add("command.anvilcraft.storage.no_storage", "The held item does not reference a storage");
         provider.add("command.anvilcraft.storage.invalid_type", "Invalid storage type");

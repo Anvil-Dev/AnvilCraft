@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.init.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import dev.dubhe.anvilcraft.command.BlueprintCommand;
 import dev.dubhe.anvilcraft.command.MultiBlockCommand;
 import dev.dubhe.anvilcraft.command.MultiphaseCommand;
 import dev.dubhe.anvilcraft.command.OverseerCommand;
@@ -16,6 +17,7 @@ public class ModCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("anvilcraft");
         ModInspections.INSTANCE.registerCommand(root);
+        BlueprintCommand.registerCommand(root);
         PowerGridCommand.registerCommand(root);
         MultiphaseCommand.registerCommand(root);
         MultiBlockCommand.registerCommand(root);

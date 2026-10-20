@@ -11,6 +11,7 @@
     "ConsumableFoodEffectMixin",
     "ItemStackFoodEffectMixin",
     "EndermanMixin",
+    "accessor.LivingEntityAccessor",
     "accessor.AvoidEntityGoalAccessor",
     "MunFallDamageMixin",
     "MunLevelLightMixin",
@@ -154,6 +155,7 @@
   ],
   "client": [
     "compat.IrisStellarMixin",
+    "compat.IrisHandRendererAccessor",
     "client.OverworldSkyMixin",
     "compat.JemiPluginMixin",
     "compat.JemiUtilMixin",

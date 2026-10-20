@@ -63,7 +63,6 @@ public class OtherLang {
         provider.add("subtitles.anvilcraft.tesla_tower_strike", "Tesla Tower strikes");
         provider.add("subtitles.anvilcraft.smart_block_placer_extend", "Smart Block Placer extended");
         provider.add("subtitles.anvilcraft.smart_block_placer_retract", "Smart Block Placer retracted");
-        provider.add("subtitles.anvilcraft.smart_block_placer_shulker_open", "Smart Block Placer whirs");
         provider.add("subtitles.anvilcraft.anvil_hammer_rotate_block", "Anvil Hammer rotates block");
         provider.add("death.attack.anvilcraft.planetary_collapse", "%1$s was consumed by planetary collapse");
         provider.add("death.attack.anvilcraft.star_contact",
@@ -83,7 +82,7 @@ public class OtherLang {
         provider.add("item.anvilcraft.pill.tooltip",
             "Pills made together with potion to achieve corresponding effects, can be taken quickly");
 
-        provider.add("block.anvilcraft.infinite_collector.placement_too_close_to_another", "Too close to another Infinite Collector");
+        provider.add("block.anvilcraft.infinite_collector.placement_too_close_to_another", "Ranges overlap with another collector");
         provider.add("block.anvilcraft.celestial_forging_anvil_amplifier.need_anvil_corner",
             "Must be placed on the corner of a Celestial Forging Anvil");
         provider.add("message.anvilcraft.disk.extreme_body_requires_crystal",

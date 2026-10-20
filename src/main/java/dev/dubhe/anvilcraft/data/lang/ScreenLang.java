@@ -160,7 +160,7 @@ public class ScreenLang {
         provider.add("block.anvilcraft.heat_collector.placement_too_close_to_another", "Too close to another heat collector");
         provider.add("tooltip.anvilcraft.heat_collector.not_work", "Heat Collector is not working");
 
-        provider.add("block.anvilcraft.void_energy_collector.placement_too_close_to_another", "Too close to another void energy collector");
+        provider.add("block.anvilcraft.void_energy_collector.placement_too_close_to_another", "Ranges overlap with another collector");
 
         provider.add("screen.anvilcraft.active_silencer.title", "Active Silencer");
 
@@ -212,6 +212,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.anvil_hammer.title", "Modifying Block");
 
         provider.add("screen.anvilcraft.active_silencer.search", "enter keyword to search");
+        provider.add("screen.anvilcraft.active_silencer.refresh", "Refresh Order");
 
         provider.add("screen.anvilcraft.tesla_tower.filter.unknown", "Unknown");
         provider.add("screen.anvilcraft.tesla_tower.filter.is_player_id", "Player Id");
@@ -388,6 +389,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.class.brown_dwarf", "Brown Dwarf");
 
         provider.add("screen.anvilcraft.cfa.class.m_main", "M-Star"); // Red Dwarf 红矮星
+        provider.add("screen.anvilcraft.cfa.class.mutated_red_dwarf", "Mutated Red Dwarf");
         provider.add("screen.anvilcraft.cfa.class.k_main", "K-Star"); // Orange Dwarf 橙矮星
         provider.add("screen.anvilcraft.cfa.class.g_main", "G-Star"); // Yellow Dwarf 黄矮星
         provider.add("screen.anvilcraft.cfa.class.f_main", "F-Star"); // Yellow-White Main 黄白主序星
@@ -788,6 +790,8 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.structure_scanner.export", "Export structure");
         provider.add("screen.anvilcraft.structure_scanner.export_file", "Export file");
         provider.add("screen.anvilcraft.structure_scanner.exported", "Structure exported: %s");
+        provider.add("screen.anvilcraft.structure_scanner.upload", "Upload structure file");
+        provider.add("screen.anvilcraft.structure_scanner.uploaded", "Structure uploaded: %s");
         provider.add("screen.anvilcraft.structure_scanner.file_failed", "File operation failed: %s");
         provider.add("screen.anvilcraft.structure_scanner.import", "Import structure");
         provider.add("screen.anvilcraft.structure_scanner.import_file", "Import file");

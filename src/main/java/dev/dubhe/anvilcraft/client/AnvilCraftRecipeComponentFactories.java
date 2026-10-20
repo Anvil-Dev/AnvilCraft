@@ -213,17 +213,25 @@ public class AnvilCraftRecipeComponentFactories {
     );
 
     public static final DeferredHolder<MDRecipeComponent.RecipeComponentFactory<?>, MDRecipeComponent.RecipeComponentFactory<?>>
-        MINERAL_FOUNTAIN = RECIPE_COMPONENT_FACTORIES.register(
-        "mineral_fountain", () -> MDRecipeComponent.RecipeComponentFactory.create(
-            ModRecipeTypes.MINERAL_FOUNTAIN.get(),
+        MINERAL_FOUNTAIN_PASSIVE = RECIPE_COMPONENT_FACTORIES.register(
+        "mineral_fountain_passive", () -> MDRecipeComponent.RecipeComponentFactory.create(
+            ModRecipeTypes.MINERAL_FOUNTAIN_PASSIVE.get(),
             MDMineralFountainRecipeComponent::new
         )
     );
 
     public static final DeferredHolder<MDRecipeComponent.RecipeComponentFactory<?>, MDRecipeComponent.RecipeComponentFactory<?>>
-        MINERAL_FOUNTAIN_CHANCE = RECIPE_COMPONENT_FACTORIES.register(
-        "mineral_fountain_chance", () -> MDRecipeComponent.RecipeComponentFactory.create(
-            ModRecipeTypes.MINERAL_FOUNTAIN_CHANCE.get(),
+        MINERAL_FOUNTAIN_ACTIVE = RECIPE_COMPONENT_FACTORIES.register(
+        "mineral_fountain_active", () -> MDRecipeComponent.RecipeComponentFactory.create(
+            ModRecipeTypes.MINERAL_FOUNTAIN_ACTIVE.get(),
+            MDMineralFountainRecipeComponent::new
+        )
+    );
+
+    public static final DeferredHolder<MDRecipeComponent.RecipeComponentFactory<?>, MDRecipeComponent.RecipeComponentFactory<?>>
+        MINERAL_FOUNTAIN_REPLACEMENT = RECIPE_COMPONENT_FACTORIES.register(
+        "mineral_fountain_replacement", () -> MDRecipeComponent.RecipeComponentFactory.create(
+            ModRecipeTypes.MINERAL_FOUNTAIN_REPLACEMENT.get(),
             MDMineralFountainRecipeComponent::new
         )
     );

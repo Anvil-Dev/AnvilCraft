@@ -20,6 +20,7 @@ import dev.dubhe.anvilcraft.util.FireReforgingUtil;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
@@ -30,6 +31,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -57,6 +59,9 @@ import java.util.Map;
 
 @Mixin(ItemEntity.class)
 abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
+    @Unique
+    private static final String MAGNET_OUTPUT_ORIGIN = "anvilcraft_magnet_output_origin";
+
     public ItemEntityMixin(EntityType<?> type, Level level) {
         super(type, level);
     }
@@ -395,26 +400,14 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
 
         BlockPos pos = this.blockPosition();
         BlockState state = this.level().getBlockState(pos);
+        this.anvilcraft$updateMagnetOutputOrigin(pos, state);
         ItemStack stack = this.getItem();
         String matKey = this.anvilcraft$getMaterialKey(stack);
         // 不是金属直接跳过
         if (matKey == null) return;
-        // 1. 空芯磁铁块转化
         if ("iron".equals(matKey) || "magnet".equals(matKey)) {
-            if (!this.level().isClientSide() && state.is(ModBlocks.HOLLOW_MAGNET_BLOCK.get())
-                && stack.getItem().getDescriptionId().contains("ingot")
-                && !state.getValue(MagnetBlock.LIT)) {
-
-                Block targetBlock;
-                if ("iron".equals(matKey)) targetBlock = ModBlocks.FERRITE_CORE_MAGNET_BLOCK.get(); // 铁锭 -> 铁芯磁铁块
-                else targetBlock = ModBlocks.MAGNET_BLOCK.get(); // 磁铁锭 -> 磁铁块
-
-                this.level().setBlockAndUpdate(pos, targetBlock.defaultBlockState());
-                stack.shrink(1);
-                if (stack.isEmpty()) {
-                    this.discard();
-                    ci.cancel();
-                }
+            if (this.anvilcraft$fillHollowMagnet(pos)) {
+                if (this.isRemoved()) ci.cancel();
                 return;
             }
             // 2. 吸铁石就要吸铁
@@ -449,6 +442,61 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
             if (ChuteBlock.isChuteBlock(state)) ChuteBlock.pickupItem(state, this.level(), pos, this);
             if (this.isRemoved()) return;
         }
+    }
+
+    @WrapOperation(
+        method = "tick",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/ItemEntity;"
+            + "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V")
+    )
+    private void anvilcraft$fillMagnetAfterMovement(
+        ItemEntity item, MoverType moverType, Vec3 movement, Operation<Void> original
+    ) {
+        Vec3 start = item.position();
+        original.call(item, moverType, movement);
+        if (this.isRemoved() || this.level().isClientSide() || !this.getItem().getItem().getDescriptionId().contains("ingot")) return;
+        Vec3 end = item.position();
+        BlockGetter.traverseBlocks(start, end, this, (entity, pos) -> {
+            AABB bounds = new AABB(pos).deflate(1.0E-7);
+            if (!bounds.contains(start) && bounds.clip(start, end).isEmpty()) return null;
+            return entity.anvilcraft$fillHollowMagnet(pos) ? Boolean.TRUE : null;
+        }, entity -> false);
+    }
+
+    @Unique
+    private void anvilcraft$updateMagnetOutputOrigin(BlockPos pos, BlockState state) {
+        if (this.level().isClientSide()) return;
+        CompoundTag data = this.getPersistentData();
+        if (data.contains(ItemEntityMixin.MAGNET_OUTPUT_ORIGIN)) {
+            String location = this.level().dimension().identifier() + "/" + pos.asLong();
+            if (!location.equals(data.getStringOr(ItemEntityMixin.MAGNET_OUTPUT_ORIGIN, ""))) {
+                data.remove(ItemEntityMixin.MAGNET_OUTPUT_ORIGIN);
+            }
+        } else if (this.anvilcraft$blockPos == null && !this.anvilcraft$isAdsorbable()
+            && state.is(ModBlocks.HOLLOW_MAGNET_BLOCK.get())) {
+            data.putString(ItemEntityMixin.MAGNET_OUTPUT_ORIGIN, this.level().dimension().identifier() + "/" + pos.asLong());
+        }
+    }
+
+    @Unique
+    private boolean anvilcraft$fillHollowMagnet(BlockPos pos) {
+        if (this.isRemoved() || this.level().isClientSide()) return false;
+        BlockState state = this.level().getBlockState(pos);
+        if (!state.is(ModBlocks.HOLLOW_MAGNET_BLOCK.get())) return false;
+        String origin = this.getPersistentData().getStringOr(ItemEntityMixin.MAGNET_OUTPUT_ORIGIN, "");
+        if (origin.equals(this.level().dimension().identifier() + "/" + pos.asLong())) return false;
+        ItemStack stack = this.getItem();
+        String material = this.anvilcraft$getMaterialKey(stack);
+        if (!("iron".equals(material) || "magnet".equals(material))
+            || !stack.getItem().getDescriptionId().contains("ingot")) {
+            return false;
+        }
+        Block target = "iron".equals(material) ? ModBlocks.FERRITE_CORE_MAGNET_BLOCK.get() : ModBlocks.MAGNET_BLOCK.get();
+        BlockState filled = target.defaultBlockState().setValue(MagnetBlock.LIT, this.level().hasNeighborSignal(pos));
+        if (!this.level().setBlockAndUpdate(pos, filled)) return false;
+        this.setItem(stack.copyWithCount(stack.getCount() - 1));
+        if (this.getItem().isEmpty()) this.discard();
+        return true;
     }
 
     @Override

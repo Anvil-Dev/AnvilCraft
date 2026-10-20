@@ -531,7 +531,7 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModBlocks.MATCHA_CREAM_BLOCK.asItem(), "A block of matcha cream, use a shovel as a spoon to eat it");
         ItemTooltipManager.NORMAL.put(ModBlocks.MATCHA_CAKE_BLOCK.asItem(), "A block of matcha cake, use a shovel as a spoon to eat it");
         ItemTooltipManager.NORMAL.put(ModBlocks.COOKIE_BLOCK.asItem(), "A placeable giant cookie!");
-        ItemTooltipManager.NORMAL.put(ModBlocks.COOKIE_PILLAR.asItem(), " A hollow cookie block!");
+        ItemTooltipManager.NORMAL.put(ModBlocks.COOKIE_PILLAR.asItem(), "A hollow cookie block!");
         ItemTooltipManager.NORMAL.put(ModBlocks.BLACK_WHITE_CHOCOLATE_BLOCK.asItem(),
             "Made by mixing white and dark chocolate, step on it to gain Haste and Jump Boost");
         ItemTooltipManager.NORMAL.put(ModBlocks.CHOCOLATE_CREAM_BLOCK.asItem(), "A block of chocolate cream, use a shovel as a spoon to eat it");
@@ -610,7 +610,8 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(
             ModBlocks.INFINITE_COLLECTOR.asItem(), """
             Generates power by collecting both heat and charge, no upper power limit
-            Provides a baseline output of 256 kW"""
+            Provides 256 kW base power, boosted by negative void mass
+            Mass thresholds -11/-21/-41 in a 7x7x7 area yield 768/2048/5120 kW"""
         );
         ItemTooltipManager.NORMAL.put(ModBlocks.LOAD_MONITOR.asItem(), "Monitor the grid load condition, can output a signal by redstone comparator");
         ItemTooltipManager.NORMAL.put(ModBlocks.CHUTE.asItem(), "An advanced Hopper, can transfer a full stack of items at a time");

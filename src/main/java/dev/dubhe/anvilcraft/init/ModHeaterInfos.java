@@ -13,9 +13,11 @@ import dev.dubhe.anvilcraft.block.power.consumer.HeaterBlock;
 import dev.dubhe.anvilcraft.block.workstation.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainHeat;
 import dev.dubhe.anvilcraft.util.BlockInfo;
-import net.minecraft.world.level.block.Blocks;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -53,17 +55,20 @@ public class ModHeaterInfos {
             HeatTierLine.always(HeatTier.HEATED, 2)
         )
     );
-    public static final HeaterInfo<MineralFountainBlockEntity> LAVA_MINERAL_FOUNTAIN = HeatRecorder.registerProducerInfo(
-        HeaterInfo.blockEntity(
-            (level, pos) -> {
-                if (!level.isLoaded(pos)) return Optional.empty();
-                return level.getBlockEntity(pos, ModBlockEntities.MINERAL_FOUNTAIN.get())
-                    .filter(mineralFountain -> mineralFountain.getAroundBlock().is(Blocks.LAVA));
-            },
-            mineralFountain -> Set.of(mineralFountain.getBlockPos().above()),
-            HeatTierLine.always(HeatTier.REDHOT, 20)
-        )
-    );
+    private static final Map<MineralFountainHeat, HeaterInfo<MineralFountainBlockEntity>> MINERAL_FOUNTAIN_HEATS =
+        new HashMap<>();
+
+    public static HeaterInfo<MineralFountainBlockEntity> mineralFountain(MineralFountainHeat heat) {
+        return ModHeaterInfos.MINERAL_FOUNTAIN_HEATS.computeIfAbsent(heat, key -> HeatRecorder.registerProducerInfo(
+            HeaterInfo.blockEntity(
+                ModBlockEntities.MINERAL_FOUNTAIN,
+                fountain -> Set.of(fountain.getBlockPos().above()),
+                key.toLine(),
+                fountain -> key.count()
+            )
+        ));
+    }
+
     public static final HeaterInfo<BaseLaserBlockEntity> LASER_EMITTER = HeatRecorder.registerProducerInfo(
         HeaterInfo.blockEntity(
             (level, pos) -> {

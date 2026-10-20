@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.block.IItemSuctionContainer;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
@@ -228,8 +229,9 @@ public abstract class BaseChuteBlockEntity
             if (resetCD) this.cooldown = AnvilCraft.CONFIG.chuteMaxCooldown;
             return;
         }
+        BlockPos inputPos = this.getBlockPos().relative(this.getInputDirection());
         ResourceHandler<ItemResource> source = ItemHandlerUtil.getSourceItemHandler(
-            this.getBlockPos().relative(this.getInputDirection()),
+            inputPos,
             this.getInputDirection().getOpposite(),
             this.level
         );
@@ -237,10 +239,10 @@ public abstract class BaseChuteBlockEntity
             && ItemHandlerUtil.importFromTarget(this.getItemHandler(), 64, (_, _) -> true, source);
         if (imported) {
             resetCD = true;
-        } else {
+        } else if (this.canSuctionItemEntities(inputPos, source != null)) {
             List<ItemEntity> itemEntities = Objects.requireNonNull(this.getLevel()).getEntitiesOfClass(
                 ItemEntity.class,
-                new AABB(this.getBlockPos().relative(this.getInputDirection())),
+                new AABB(inputPos),
                 itemEntity -> !itemEntity.getItem().isEmpty()
             );
             for (ItemEntity item : itemEntities) {
@@ -267,6 +269,10 @@ public abstract class BaseChuteBlockEntity
 
     protected boolean isInputEnabled() {
         return this.isEnabled();
+    }
+
+    protected boolean canSuctionItemEntities(BlockPos inputPos, boolean hasHandler) {
+        return this.level != null && (!hasHandler || IItemSuctionContainer.allowsSuction(this.level, inputPos));
     }
 
     protected boolean tryOverflowOutput() {

@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.block.cake.LargeCakeBlock;
 import dev.dubhe.anvilcraft.block.laser.LensBlock;
 import dev.dubhe.anvilcraft.building.BuildingPlan.Cell;
 import dev.dubhe.anvilcraft.building.BuildingPlan.Group;
-import dev.dubhe.anvilcraft.entity.AnimateAscendingBlockEntity;
 import dev.dubhe.anvilcraft.entity.CauldronOutletEntity;
 import dev.dubhe.anvilcraft.entity.FallingSpectralBlockEntity;
 import dev.dubhe.anvilcraft.entity.MagnetizedNodeEntity;
@@ -391,7 +390,6 @@ public final class BuildingRodService {
                 return false;
             }
             if (EntityBuildAdapters.isTransient(probe)) continue;
-            if (probe instanceof AnimateAscendingBlockEntity && !entry.nbt().contains("BlockState")) continue;
             if ((type == EntityType.COMMAND_BLOCK_MINECART || probe.getType().onlyOpCanSetNbt()
                 && !(probe instanceof FallingBlockEntity) && !(probe instanceof SlidingBlockEntity))
                 && !player.canUseGameMasterBlocks()) {

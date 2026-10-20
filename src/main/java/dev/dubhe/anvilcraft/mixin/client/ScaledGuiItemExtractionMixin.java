@@ -33,7 +33,7 @@ abstract class ScaledGuiItemExtractionMixin {
         Operation<GuiItemRenderState> original, @Local(argsOnly = true) ItemStack stack
     ) {
         var screen = Minecraft.getInstance().screen;
-        if (screen instanceof CreativeModeInventoryScreen) {
+        if (screen instanceof CreativeModeInventoryScreen && !state.isOversizedInGui()) {
             var slot = new ScreenRectangle(x, y, 16, 16).transformMaxBounds(pose);
             scissor = scissor == null ? slot : Objects.requireNonNullElse(
                 scissor.intersection(slot), new ScreenRectangle(0, 0, 0, 0));

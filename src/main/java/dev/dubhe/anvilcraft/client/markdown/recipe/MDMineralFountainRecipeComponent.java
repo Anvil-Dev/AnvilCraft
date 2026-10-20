@@ -7,11 +7,14 @@ import dev.anvilcraft.resource.ageratum.client.feat.markdown.MDRenderContext;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.component.extend.MDRecipeComponent;
 import dev.anvilcraft.resource.ageratum.util.RecipeUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.support.DimensionNameSupport;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
-import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainChanceRecipe;
-import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.AroundRequirement;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainActiveRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainPassiveRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainReplacementRecipe;
 import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import dev.dubhe.anvilcraft.util.AgeratumUtil;
 import dev.dubhe.anvilcraft.util.TooltipUtil;
@@ -19,20 +22,23 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 public class MDMineralFountainRecipeComponent extends MDRecipeComponent {
     public static final Identifier TEXTURE = AnvilCraft.of("textures/gui/ageratum/128back.png");
     public static final int WIDTH = 128;
     public static final int HEIGHT = 64;
     private static final DecimalFormat FORMATTER = new DecimalFormat();
+
     private static final int INPUT_X = 38;
     private static final int[] SIDE_OFFSETS = {-14, 14};
     private static final int OUTPUT_X = INPUT_X + 60;
@@ -41,25 +47,96 @@ public class MDMineralFountainRecipeComponent extends MDRecipeComponent {
     private final BlockStatePredicate fromBlock;
     private final ChanceBlockState toBlock;
     private final List<BlockState> sideBlocks;
-    private final @Nullable Identifier dimension;
+    @Nullable
+    private final Identifier dimension;
 
-    public MDMineralFountainRecipeComponent(MineralFountainRecipe recipe, boolean enableAlignCenter) {
-        this(recipe.fromBlock(), recipe.toBlock(), recipe.needBlock().constructStatesForRender(), null, enableAlignCenter);
+    @Nullable
+    private final Double replaceChance;
+
+    public MDMineralFountainRecipeComponent(MineralFountainActiveRecipe recipe, boolean enableAlignCenter) {
+        this(
+            recipe.getFromBlock(),
+            recipe.getToBlock(),
+            aroundBlocks(recipe),
+            recipe.getDimension().orElse(null),
+            enableAlignCenter
+        );
     }
 
-    public MDMineralFountainRecipeComponent(MineralFountainChanceRecipe recipe, boolean enableAlignCenter) {
-        this(recipe.fromBlock(), recipe.toBlock(), findSideBlocks(recipe.fromBlock()), recipe.dimension(), enableAlignCenter);
+    public MDMineralFountainRecipeComponent(MineralFountainPassiveRecipe recipe, boolean enableAlignCenter) {
+        this(
+            recipe.getFromBlock(),
+            recipe.getToBlock(),
+            List.of(),
+            recipe.getDimension().orElse(null),
+            enableAlignCenter
+        );
+    }
+
+    public MDMineralFountainRecipeComponent(MineralFountainReplacementRecipe recipe, boolean enableAlignCenter) {
+        this(
+            recipe.getFromBlock(),
+            recipe.getToBlock(),
+            replacementAround(recipe),
+            recipe.getDimension().orElse(null),
+            recipe.getReplaceChance(),
+            enableAlignCenter
+        );
     }
 
     private MDMineralFountainRecipeComponent(
-        BlockStatePredicate fromBlock, ChanceBlockState toBlock, List<BlockState> sideBlocks,
-        @Nullable Identifier dimension, boolean enableAlignCenter
+        BlockStatePredicate fromBlock,
+        ChanceBlockState toBlock,
+        List<BlockState> sideBlocks,
+        @Nullable Identifier dimension,
+        boolean enableAlignCenter
+    ) {
+        this(fromBlock, toBlock, sideBlocks, dimension, null, enableAlignCenter);
+    }
+
+    private MDMineralFountainRecipeComponent(
+        BlockStatePredicate fromBlock,
+        ChanceBlockState toBlock,
+        List<BlockState> sideBlocks,
+        @Nullable Identifier dimension,
+        @Nullable Double replaceChance,
+        boolean enableAlignCenter
     ) {
         super(TEXTURE, WIDTH, HEIGHT, enableAlignCenter);
         this.fromBlock = fromBlock;
         this.toBlock = toBlock;
         this.sideBlocks = sideBlocks;
         this.dimension = dimension;
+        this.replaceChance = replaceChance;
+    }
+
+    private static List<BlockState> aroundBlocks(MineralFountainActiveRecipe recipe) {
+        Set<BlockState> states = new LinkedHashSet<>();
+        for (AroundRequirement requirement : recipe.getAround()) {
+            states.addAll(requirement.block().constructStatesForRender());
+        }
+        return List.copyOf(states);
+    }
+
+    private static List<BlockState> replacementAround(MineralFountainReplacementRecipe recipe) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.level == null || RecipesRecord.CLIENTSIDE == null) return List.of();
+        Set<BlockState> states = new LinkedHashSet<>();
+        for (RecipeHolder<MineralFountainActiveRecipe> holder :
+            RecipesRecord.CLIENTSIDE.byType(ModRecipeTypes.MINERAL_FOUNTAIN_ACTIVE.get())) {
+            if (!recipe.appliesTo(holder.id().identifier())) continue;
+            if (!sharesFromBlock(recipe.getFromBlock(), holder.value().getFromBlock())) continue;
+            states.addAll(aroundBlocks(holder.value()));
+        }
+        return List.copyOf(states);
+    }
+
+    private static boolean sharesFromBlock(BlockStatePredicate first, BlockStatePredicate second) {
+        List<BlockState> firstStates = first.constructStatesForRender();
+        List<BlockState> secondStates = second.constructStatesForRender();
+        if (firstStates.isEmpty() || secondStates.isEmpty()) return true;
+        return firstStates.stream().anyMatch(second::testWithoutEntity)
+               || secondStates.stream().anyMatch(first::testWithoutEntity);
     }
 
     @Override
@@ -87,33 +164,59 @@ public class MDMineralFountainRecipeComponent extends MDRecipeComponent {
 
     private void renderOutput(MDRenderContext context, float mouseX, float mouseY) {
         BlockState result = this.toBlock.state();
-        RenderSupport.renderBlockAt(context.graphics(), result, OUTPUT_X, BLOCK_Y, AgeratumUtil.BLOCK_SIZE);
-        if (!AgeratumUtil.isHoverBlock(OUTPUT_X, BLOCK_Y, mouseX, mouseY)) return;
-        List<Component> lines = new ArrayList<>(TooltipUtil.tooltip(result.getBlock()));
-        double chance = NumberProviderUtil.expected(this.toBlock.chance());
-        if (chance >= 0 && chance != 1) {
-            lines.add(Component.translatable("gui.anvilcraft.category.chance", FORMATTER.format(chance * 100))
-                .withStyle(ChatFormatting.GRAY));
+        RenderSupport.renderBlockAt(
+            context.graphics(),
+            result,
+            OUTPUT_X,
+            BLOCK_Y,
+            AgeratumUtil.BLOCK_SIZE
+        );
+
+        if (!AgeratumUtil.isHoverBlock(OUTPUT_X, BLOCK_Y, mouseX, mouseY)) {
+            return;
         }
-        if (this.dimension != null) lines.add(dimensionName(this.dimension).copy().withStyle(ChatFormatting.GRAY));
-        context.tooltips().add(new MDRenderContext.Tooltip(lines, Optional.empty()));
+
+        List<Component> tooltip = new ArrayList<>(TooltipUtil.tooltip(result.getBlock()));
+        tooltip.addAll(this.getOutputTooltips());
+        tooltip.forEach(context::addTooltip);
     }
 
-    private static List<BlockState> findSideBlocks(BlockStatePredicate fromBlock) {
-        if (Minecraft.getInstance().level == null || RecipesRecord.CLIENTSIDE == null) return List.of();
-        var fromStates = fromBlock.constructStatesForRender();
-        var result = new LinkedHashSet<BlockState>();
-        for (var holder : RecipesRecord.CLIENTSIDE.byType(ModRecipeTypes.MINERAL_FOUNTAIN.get())) {
-            var recipe = holder.value();
-            if (fromStates.stream().anyMatch(first -> recipe.fromBlock().constructStatesForRender().stream()
-                .anyMatch(second -> first.is(second.getBlock())))) {
-                result.addAll(recipe.needBlock().constructStatesForRender());
-            }
+    private List<Component> getOutputTooltips() {
+        List<Component> tooltips = new ArrayList<>();
+        double chance = NumberProviderUtil.expected(this.toBlock.chance());
+
+        if (chance >= 0.0 && chance < 1) {
+            tooltips.add(
+                Component.translatable("gui.anvilcraft.category.chance", formatPercentage(chance))
+                    .withStyle(ChatFormatting.GRAY)
+            );
         }
-        return List.copyOf(result);
+        if (this.replaceChance != null) {
+            tooltips.add(
+                Component.translatable(
+                    "gui.anvilcraft.category.mineral_fountain.replace_chance",
+                    formatPercentage(this.replaceChance)
+                ).withStyle(ChatFormatting.GRAY)
+            );
+        }
+        if (this.dimension != null) {
+            tooltips.add(dimensionName(this.dimension).copy().withStyle(ChatFormatting.GRAY));
+        }
+        return tooltips;
+    }
+
+    private static String formatPercentage(double chance) {
+        String percentage = FORMATTER.format(chance * 100);
+        if (chance < 1 && percentage.equals(FORMATTER.format(100))) {
+            BigDecimal exact = BigDecimal.valueOf(chance).movePointRight(2);
+            DecimalFormat localized = (DecimalFormat) FORMATTER.clone();
+            localized.setMaximumFractionDigits(Math.max(0, exact.scale()));
+            return localized.format(exact);
+        }
+        return percentage;
     }
 
     private static Component dimensionName(Identifier dimension) {
-        return Component.translatable("dimension." + dimension.getNamespace() + "." + dimension.getPath());
+        return DimensionNameSupport.getName(dimension);
     }
 }

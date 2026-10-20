@@ -252,6 +252,13 @@ public class TradingStationScreen extends AbstractContainerScreen<TradingStation
             );
         } else {
             super.extractTooltip(graphics, mouseX, mouseY);
+            if (this.menu.getCarried().isEmpty()) {
+                ItemStack filter = this.getHoveredFilterItem(this.hoveredSlot);
+                if (!filter.isEmpty()) {
+                    graphics.setTooltipForNextFrame(this.font, this.getTooltipFromContainerItem(filter),
+                        filter.getTooltipImage(), filter, mouseX, mouseY);
+                }
+            }
         }
     }
 

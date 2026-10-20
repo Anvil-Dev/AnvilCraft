@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.building;
 
 import dev.dubhe.anvilcraft.api.sliding.SlidingBlockSection;
 import dev.dubhe.anvilcraft.block.UseItemOnBlock;
-import dev.dubhe.anvilcraft.entity.AnimateAscendingBlockEntity;
 import dev.dubhe.anvilcraft.entity.FallingSpectralBlockEntity;
 import dev.dubhe.anvilcraft.entity.IonocraftEntity;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
@@ -75,9 +74,6 @@ final class DynamicBuildingEntities implements EntityBuildAdapter {
         }
         if (entity != null && (entity.getType() == EntityType.FIREBALL || entity.getType() == EntityType.SMALL_FIREBALL)) {
             return new Planned(new ItemStack(Items.FIRE_CHARGE), ItemStack.EMPTY, nbt.copy(), List.of(), List.of(), false);
-        }
-        if (entity instanceof AnimateAscendingBlockEntity) {
-            return new Planned(ItemStack.EMPTY, ItemStack.EMPTY, nbt.copy(), List.of(), List.of(), false);
         }
         if (entity instanceof ItemEntity item) {
             return new Planned(item.getItem().copy(), ItemStack.EMPTY, nbt.copy(), List.of(), List.of(), false);

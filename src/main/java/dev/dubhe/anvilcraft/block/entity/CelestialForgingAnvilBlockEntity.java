@@ -1285,6 +1285,10 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      * 切换天体锁定状态，由服务端处理玩家点击锁定按钮时调用。
      */
     public void toggleLocked() {
+        this.toggleLocked(null);
+    }
+
+    public void toggleLocked(@Nullable Player player) {
         if (this.level == null || this.level.isClientSide()) return;
         if (this.isAcceleratorActive()) {
             // 恒星演化期间禁止解锁。
@@ -1292,8 +1296,10 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         }
         this.locked = !this.locked;
         if (!this.locked) {
+            if (player != null) this.megastructureManager.refundBuiltMaterials(this, player);
             // 解锁时清除巨构和加速器，恢复为普通束星环。
             this.clearMegastructure();
+            this.megastructureManager.clearAuxiliaryMegastructures(this);
             this.clearAcceleratorState();
         }
         this.setChanged();

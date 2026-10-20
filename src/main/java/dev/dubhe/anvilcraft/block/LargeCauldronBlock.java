@@ -19,7 +19,6 @@ import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -360,20 +359,6 @@ public class LargeCauldronBlock
         if (cauldron != null) {
             cauldron.absorbItem(item, LargeCauldronBlockEntity.inputSlotForPart(state.getValue(LargeCauldronBlock.HALF)));
         }
-    }
-
-    @Override
-    protected void affectNeighborsAfterRemoval(
-        BlockState state,
-        ServerLevel level,
-        BlockPos pos,
-        boolean movedByPiston
-    ) {
-        if (this.isMainPart(state)) {
-            BlockEntity entity = level.getBlockEntity(pos);
-            if (entity instanceof LargeCauldronBlockEntity cauldron) cauldron.dropContents();
-        }
-        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
     }
 
     private static Map<Cube3x3PartHalf, VoxelShape> createShapes() {

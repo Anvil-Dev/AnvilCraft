@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.api.fluid.VoidFluidHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ReadOnlyItemResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.SolidCauldronExtractor;
+import dev.dubhe.anvilcraft.api.itemhandler.VoidItemHandler;
 import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.HoneyCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.ObsidianCauldronBlock;
@@ -101,10 +102,10 @@ public class ModCapabilities {
                 StorageBlockEntity.class, ModCapabilities::readOnlyStorageItem),
             ModBlocks.HYPERDIMENSION_STORAGE_STATION.get()
         );
-        event.registerBlock(
+        event.registerBlockEntity(
             Capabilities.Item.BLOCK,
-            ModCapabilities.multiblock(LargeCauldronBlock.class, LargeCauldronBlockEntity.class, ModCapabilities::item),
-            ModBlocks.LARGE_CAULDRON.get()
+            ModBlockEntities.LARGE_CAULDRON.get(),
+            LargeCauldronBlockEntity::getAutomationItemHandler
         );
 
         event.registerBlock(
@@ -153,6 +154,12 @@ public class ModCapabilities {
             Capabilities.Fluid.BLOCK,
             (level, pos, state, blockEntity, side) -> VoidFluidHandler.INSTANCE,
             ModBlocks.MENGER_SPONGE.get()
+        );
+
+        event.registerBlock(
+            Capabilities.Item.BLOCK,
+            (level, pos, state, blockEntity, side) -> VoidItemHandler.INSTANCE,
+            ModBlocks.VOID_MATTER_BLOCK.get()
         );
 
         event.registerEntity(
