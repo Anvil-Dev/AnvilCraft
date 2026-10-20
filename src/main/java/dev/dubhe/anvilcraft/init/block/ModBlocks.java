@@ -95,6 +95,7 @@ import dev.dubhe.anvilcraft.block.decoration.heavyiron.HeavyIronWallBlock;
 import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
 import dev.dubhe.anvilcraft.block.fluid.DrainBlock;
 import dev.dubhe.anvilcraft.block.fluid.ExpFluidBlock;
+import dev.dubhe.anvilcraft.block.fluid.MeltGemBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeCornerBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeStraightBlock;
@@ -4757,8 +4758,8 @@ public class ModBlocks {
             .register();
     }
 
-    public static BlockEntry<LiquidBlock> MELT_GEM = REGISTRUM
-        .block("melt_gem", p -> new LiquidBlock(ModFluids.MELT_GEM.get(), p))
+    public static BlockEntry<MeltGemBlock> MELT_GEM = REGISTRUM
+        .block("melt_gem", p -> new MeltGemBlock(ModFluids.MELT_GEM.get(), p))
         .properties(it -> it.mapColor(MapColor.EMERALD)
             .lightLevel(s -> 15)
             .replaceable()
