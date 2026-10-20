@@ -1,12 +1,17 @@
 package dev.dubhe.anvilcraft.block;
 
 import com.mojang.serialization.MapCodec;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
+import dev.dubhe.anvilcraft.block.entity.BaseChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.OverflowChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.SimpleMagneticChuteBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -25,6 +30,8 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -46,6 +53,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -156,6 +164,39 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
             return state.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
         }
         return null;
+    }
+
+    public static void pickupItem(BlockState state, Level level, BlockPos pos, Entity entity) {
+        if (level.isClientSide() || !(entity instanceof ItemEntity item) || !item.isAlive() || item.getItem().isEmpty()) return;
+        if (!item.getBoundingBox().intersects(new AABB(pos))) return;
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        int cooldown = switch (blockEntity) {
+            case BaseChuteBlockEntity chute -> chute.getCooldown();
+            case SimpleChuteBlockEntity chute -> chute.getCooldown();
+            case SimpleMagneticChuteBlockEntity chute -> chute.getCooldown();
+            case null, default -> Integer.MAX_VALUE;
+        };
+        if (cooldown > 0) return;
+        boolean inputEnabled = blockEntity instanceof OverflowChuteBlockEntity
+            || blockEntity instanceof SimpleChuteBlockEntity || blockEntity instanceof SimpleMagneticChuteBlockEntity
+            || state.getValue(BlockStateProperties.ENABLED);
+        if (!inputEnabled) return;
+        ItemStack stack = item.getItem();
+        int offered = Math.min(64, stack.getCount());
+        ItemStack remaining = ItemHandlerUtil.insertItem(
+            ((IItemHandlerHolder) blockEntity).getItemHandler(), stack.copyWithCount(offered), false);
+        int inserted = offered - remaining.getCount();
+        if (inserted <= 0) return;
+        if (inserted == stack.getCount()) item.discard();
+        else item.setItem(stack.copyWithCount(stack.getCount() - inserted));
+        int delay = AnvilCraft.CONFIG.machines.chuteMaxCooldown;
+        switch (blockEntity) {
+            case BaseChuteBlockEntity chute -> chute.setCooldown(delay);
+            case SimpleChuteBlockEntity chute -> chute.setCooldown(delay + 1);
+            case SimpleMagneticChuteBlockEntity chute -> chute.setCooldown(delay);
+            default -> throw new IllegalStateException("Unknown chute block entity");
+        }
+        level.updateNeighbourForOutputSignal(pos, state.getBlock());
     }
 
     @Override

@@ -10,6 +10,7 @@ import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.ItemEntityEvent;
 import dev.dubhe.anvilcraft.api.injection.entity.IItemEntityExtension;
+import dev.dubhe.anvilcraft.block.ChuteBlock;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
@@ -263,6 +264,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         if (item.isEmpty() && !this.isRemoved()) {
             this.discard();
         }
+        this.anvilcraft$collectInsideChute();
         ci.cancel();
     }
 
@@ -541,6 +543,25 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         if (state.is(ModBlocks.HOLLOW_MAGNET_BLOCK.get()) && !state.getValue(MagnetBlock.LIT)) {
             Double speedFactor = MATERIAL_MAP.get(matKey);
             if (speedFactor != null) this.setDeltaMovement(this.getDeltaMovement().scale(speedFactor));
+        }
+    }
+
+    @Inject(method = "tick", at = @At("TAIL"))
+    private void anvilcraft$pickupInsideChute(CallbackInfo ci) {
+        this.anvilcraft$collectInsideChute();
+    }
+
+    @Unique
+    private void anvilcraft$collectInsideChute() {
+        if (this.isRemoved() || this.level().isClientSide()) return;
+        AABB bounds = this.getBoundingBox();
+        for (BlockPos pos : BlockPos.betweenClosed(
+            Mth.floor(bounds.minX), Mth.floor(bounds.minY), Mth.floor(bounds.minZ),
+            Mth.floor(bounds.maxX), Mth.floor(bounds.maxY), Mth.floor(bounds.maxZ)
+        )) {
+            BlockState state = this.level().getBlockState(pos);
+            if (ChuteBlock.isChuteBlock(state)) ChuteBlock.pickupItem(state, this.level(), pos, this);
+            if (this.isRemoved()) return;
         }
     }
 
