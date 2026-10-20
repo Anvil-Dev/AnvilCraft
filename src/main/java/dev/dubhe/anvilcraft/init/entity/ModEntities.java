@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.init.entity;
 
 import dev.anvilcraft.lib.v2.registrum.util.entry.EntityEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.client.renderer.entity.AscendingBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.entity.CauldronOutletRenderer;
 import dev.dubhe.anvilcraft.client.renderer.entity.FluidTankMinecartRenderer;
 import dev.dubhe.anvilcraft.client.renderer.entity.IonocraftRenderer;
@@ -13,7 +12,6 @@ import dev.dubhe.anvilcraft.client.renderer.entity.SpectralBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.entity.SpectralProjectileRenderer;
 import dev.dubhe.anvilcraft.client.renderer.entity.ThrownHeavyHalberdRenderer;
 import dev.dubhe.anvilcraft.client.renderer.entity.WeaponBeamRenderer;
-import dev.dubhe.anvilcraft.entity.AnimateAscendingBlockEntity;
 import dev.dubhe.anvilcraft.entity.CauldronOutletEntity;
 import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
 import dev.dubhe.anvilcraft.entity.FallingSpectralBlockEntity;
@@ -47,11 +45,6 @@ public class ModEntities {
         .<WeaponBeamEntity>entity("weapon_beam", WeaponBeamEntity::new, MobCategory.MISC)
         .properties(it -> it.sized(0.01F, 0.01F).clientTrackingRange(80).updateInterval(1))
         .renderer(() -> WeaponBeamRenderer::new)
-        .register();
-
-    public static final EntityEntry<? extends AnimateAscendingBlockEntity> ASCENDING_BLOCK_ENTITY = AnvilCraft.REGISTRUM
-        .entity("animate_ascending_block", AnimateAscendingBlockEntity::new, MobCategory.MISC)
-        .renderer(() -> AscendingBlockRenderer::new)
         .register();
 
     public static final EntityEntry<? extends FallingGiantAnvilEntity> FALLING_GIANT_ANVIL = AnvilCraft.REGISTRUM
