@@ -28,6 +28,9 @@ public class InductionLightBlockEntity extends BlockEntity implements IPowerCons
     private AABB ripeningArea;
     private AABB blockingArea;
     private PowerGrid grid;
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    private boolean chunkLoaded;
 
     public InductionLightBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -43,13 +46,53 @@ public class InductionLightBlockEntity extends BlockEntity implements IPowerCons
 
     public void tick(Level level) {
         this.flushState(level, this.getBlockPos());
+        this.updateSpawningState();
         if (InductionLightBlock.canCropGrow(this.getBlockState()) && InductionLightBlock.isLit(this.getBlockState())) {
             RipeningManager.from(level).doRipen(this.getBlockPos());
-        } else if (InductionLightBlock.canBlockMobSummoning(this.getBlockState())) {
-            SpawningManager.addLightBlock(this.getBlockPos(), level, false);
-        } else if (InductionLightBlock.canBlockAnimalSummoning(this.getBlockState())) {
-            SpawningManager.addLightBlock(this.getBlockPos(), level, true);
         }
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        this.chunkLoaded = true;
+        this.updateSpawningState();
+    }
+
+    @Override
+    public void setBlockState(BlockState state) {
+        super.setBlockState(state);
+        this.updateSpawningState();
+    }
+
+    @Override
+    public void onChunkUnloaded() {
+        super.onChunkUnloaded();
+        this.chunkLoaded = false;
+        this.updateSpawningState();
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        this.chunkLoaded = false;
+        this.updateSpawningState();
+    }
+
+    private void updateSpawningState() {
+        if (this.level == null || this.level.isClientSide) return;
+        BlockState state = this.getBlockState();
+        if (this.chunkLoaded && !this.isRemoved() && InductionLightBlock.isLit(state)) {
+            if (InductionLightBlock.canBlockMobSummoning(state)) {
+                SpawningManager.addLightBlock(this.getBlockPos(), this.level, false);
+                return;
+            }
+            if (InductionLightBlock.canBlockAnimalSummoning(state)) {
+                SpawningManager.addLightBlock(this.getBlockPos(), this.level, true);
+                return;
+            }
+        }
+        SpawningManager.removeLightBlock(this.getBlockPos(), this.level);
     }
 
     @Override

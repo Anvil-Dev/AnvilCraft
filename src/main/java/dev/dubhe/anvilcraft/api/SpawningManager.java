@@ -1,25 +1,22 @@
 package dev.dubhe.anvilcraft.api;
 
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.entity.InductionLightBlockEntity;
+import dev.dubhe.anvilcraft.util.AabbUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
 
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -33,9 +30,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>
  * 主要功能包括：
  * <ul>
- *   <li>维护动物和非动物生物生成控制的电感灯方块集合</li>
+ *   <li>维护有效电感灯的不可变模式与范围快照</li>
  *   <li>处理生物生成事件，阻止在电感灯生效区域内的生物生成</li>
- *   <li>自动清理失效的电感灯方块引用</li>
+ *   <li>通过方块实体生命周期清理失效的电感灯快照</li>
  * </ul>
  * </p>
  *
@@ -46,8 +43,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class SpawningManager {
     private static final Map<Level, SpawningManager> INSTANCES = new ConcurrentHashMap<>();
-    private final Set<BlockPos> nonAnimalLightBlockSet = ConcurrentHashMap.newKeySet();
-    private final Set<BlockPos> animalLightBlockSet = ConcurrentHashMap.newKeySet();
+    private final Map<BlockPos, Light> lightBlocks = new ConcurrentHashMap<>();
 
     @Getter
     private final Level level;
@@ -73,82 +69,36 @@ public class SpawningManager {
     }
 
     /**
-     * 添加电感灯方块到对应的生物生成控制集合中
-     *
-     * <p>
-     * 根据 isAnimal 参数决定将指定位置的电感灯添加到动物生成控制集合或非动物生物生成控制集合。<br/>
-     * 该方法会获取对应世界的 SpawningManager 实例，并将方块位置添加到相应的集合中。
-     * </p>
-     *
-     * @param pos       电感灯方块的位置
-     * @param level     方块所在的世界
-     * @param isAnimal  true表示该电感灯用于控制动物生成，false表示用于控制非动物生物生成
-     * @see SpawningManager#getInstance(Level)
-     * @see #animalLightBlockSet
-     * @see #nonAnimalLightBlockSet
+     * 在服务端更新已点亮电感灯的模式与范围，供生成线程读取。
      */
     public static void addLightBlock(BlockPos pos, Level level, boolean isAnimal) {
-        SpawningManager spawningManager = SpawningManager.getInstance(level);
-        if (isAnimal) {
-            spawningManager.animalLightBlockSet.add(pos);
-        } else {
-            spawningManager.nonAnimalLightBlockSet.add(pos);
-        }
+        if (level.isClientSide) return;
+        SpawningManager spawningManager = getInstance(level);
+        spawningManager.lightBlocks.compute(pos.immutable(), (lightPos, light) ->
+            light != null && light.isAnimal() == isAnimal
+                ? light
+                : new Light(AabbUtil.centerSectionTo3x3x3(lightPos), isAnimal)
+        );
     }
 
-    /**
-     * 检查并阻止特定类型的生物在电感灯方块的生效区域内生成
-     *
-     * <p>
-     * 遍历指定的电感灯方块位置集合，检查每个方块是否仍有效并且处于点亮状态。<br/>
-     * 如果生物位于某个有效电感灯方块的阻挡区域内，则根据生物类型和电感灯设置阻止其生成。<br/>
-     * 同时清理已失效的电感灯方块位置。
-     * </p>
-     *
-     * @param level       生物生成所在的世界
-     * @param event       生物生成位置检查事件
-     * @param lightPosSet 电感灯方块位置集合
-     * @param isAnimal    true表示检查动物生成，false表示检查非动物生物生成
-     * @return 是否成功阻止生成实体
-     * @see InductionLightBlock#isLit(BlockState)
-     * @see InductionLightBlock#canBlockMobSummoning(BlockState)
-     * @see InductionLightBlock#canBlockAnimalSummoning(BlockState)
-     * @see InductionLightBlockEntity#isInRange(Vec3)
-     * @see MobSpawnEvent.PositionCheck#setResult(MobSpawnEvent.PositionCheck.Result)
-     */
-    private static boolean ignoreSummonMob(Level level, MobSpawnEvent.PositionCheck event, Set<BlockPos> lightPosSet, boolean isAnimal) {
-        Mob entity = event.getEntity();
-        Iterator<BlockPos> iterator = lightPosSet.iterator();
-        while (iterator.hasNext()) {
-            BlockPos lightPos = iterator.next();
-            if (!level.isLoaded(lightPos)) continue;
-            BlockState state = level.getBlockState(lightPos);
+    public static void removeLightBlock(BlockPos pos, Level level) {
+        SpawningManager spawningManager = INSTANCES.get(level);
+        if (spawningManager != null) spawningManager.lightBlocks.remove(pos);
+    }
 
-            // 电感灯是否开启
-            if (!(state.getBlock() instanceof InductionLightBlock && InductionLightBlock.isLit(state))) {
-                iterator.remove();
-                continue;
-            }
+    public static void clear(Level level) {
+        SpawningManager spawningManager = INSTANCES.remove(level);
+        if (spawningManager != null) spawningManager.lightBlocks.clear();
+    }
 
-            // 电感灯模式是否正确
-            if (isAnimal ? !InductionLightBlock.canBlockAnimalSummoning(state) : !InductionLightBlock.canBlockMobSummoning(state)) {
-                iterator.remove();
-                continue;
-            }
-
-            // 实体是否位于该电感灯影响范围内
-            boolean isInRange = Util.castSafely(level.getBlockEntity(lightPos), InductionLightBlockEntity.class)
-                .map(be -> be.isInRange(entity.position()))
-                .orElse(false);
-            if (!isInRange) continue;
-
-            // 电感灯模式与实体类型是否匹配
-            if (isAnimal != entity instanceof Animal) continue;
-
-            event.setResult(MobSpawnEvent.PositionCheck.Result.FAIL);
-            return true;
+    private boolean ignoreSummonMob(Vec3 pos, boolean isAnimal) {
+        for (Light light : this.lightBlocks.values()) {
+            if (light.isAnimal() == isAnimal && light.area().contains(pos)) return true;
         }
         return false;
+    }
+
+    private record Light(AABB area, boolean isAnimal) {
     }
 
     /**
@@ -163,7 +113,7 @@ public class SpawningManager {
      * @param event 生物生成位置检查事件
      * @see MobSpawnEvent.PositionCheck
      * @see MobSpawnType
-     * @see #ignoreSummonMob(Level, MobSpawnEvent.PositionCheck, Set, boolean)
+     * @see #ignoreSummonMob(Vec3, boolean)
      */
     @SubscribeEvent
     private static void blockEntitySummon(MobSpawnEvent.PositionCheck event) {
@@ -177,10 +127,11 @@ public class SpawningManager {
         }
         Entity entity = event.getEntity();
         Level level = entity.level();
-        SpawningManager spawningManager = getInstance(level);
+        SpawningManager spawningManager = INSTANCES.get(level);
+        if (spawningManager == null) return;
 
-        if (!ignoreSummonMob(level, event, spawningManager.animalLightBlockSet, true)) {
-            ignoreSummonMob(level, event, spawningManager.nonAnimalLightBlockSet, false);
+        if (spawningManager.ignoreSummonMob(entity.position(), entity instanceof Animal)) {
+            event.setResult(MobSpawnEvent.PositionCheck.Result.FAIL);
         }
     }
 }
