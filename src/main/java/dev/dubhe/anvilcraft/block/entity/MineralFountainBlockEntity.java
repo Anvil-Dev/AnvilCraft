@@ -146,6 +146,7 @@ public class MineralFountainBlockEntity extends BlockEntity {
 
     private void produce(AbstractMineralFountainRecipe recipe, ServerLevel serverLevel) {
         if (this.level == null) return;
+        this.resetTickCount();
         if (this.level.getBlockEntity(this.getBlockPos().above()) != null) return;
         ChanceBlockState result = recipe.getToBlock();
         if (this.level.getRandom().nextDouble() <= recipe.chance(serverLevel)) {
