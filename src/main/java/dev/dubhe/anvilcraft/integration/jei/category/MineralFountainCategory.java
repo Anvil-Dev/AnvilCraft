@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.integration.jei.category;
 
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.support.DimensionNameSupport;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -271,6 +272,6 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
     }
 
     private static Component getDimensionName(Identifier dimension) {
-        return Component.translatable("dimension." + dimension.getNamespace() + "." + dimension.getPath());
+        return DimensionNameSupport.getName(dimension);
     }
 }
