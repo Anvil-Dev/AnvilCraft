@@ -33,6 +33,7 @@ import net.neoforged.neoforge.event.entity.living.LivingBreatheEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.Map;
@@ -53,10 +54,14 @@ public final class EquipmentAbilities {
     private static final Map<Player, Boolean> SUBMERGING = Collections.synchronizedMap(new WeakHashMap<>());
     private static final Map<Player, MobEffectInstance> HELMET_NIGHT_VISION = new WeakHashMap<>();
 
-    private static final Map<Player, PendingChargedJump> PENDING_CHARGED_JUMP = new WeakHashMap<>();
+    private static final Map<ServerPlayer, PendingChargedJump> PENDING_CHARGED_JUMP = new WeakHashMap<>();
+    private static final Map<ServerPlayer, ServerCharge> SERVER_CHARGE = new WeakHashMap<>();
     private static final int PENDING_CHARGED_JUMP_TIMEOUT = 5;
 
-    private record PendingChargedJump(float power, int tick) {
+    private record PendingChargedJump(float power, float progress, int tick, boolean allowInputTick) {
+    }
+
+    private record ServerCharge(int tick, int charge, boolean charging) {
     }
 
     private EquipmentAbilities() {
@@ -163,9 +168,18 @@ public final class EquipmentAbilities {
             if (power > normal) ClientPacketDistributor.sendToServer(new ChargedJumpPacket(power));
             return power;
         }
-        PendingChargedJump pending = PENDING_CHARGED_JUMP.remove(player);
-        if (pending == null || player.tickCount - pending.tick() > PENDING_CHARGED_JUMP_TIMEOUT) return normal;
-        float max = maxChargedJumpPower(player, normal);
+        if (!(player instanceof ServerPlayer serverPlayer)) return normal;
+        SERVER_CHARGE.remove(serverPlayer);
+        PendingChargedJump pending = PENDING_CHARGED_JUMP.remove(serverPlayer);
+        if (!canChargeJump(player) || pending == null) return normal;
+        int age = player.tickCount - pending.tick();
+        if (age < 0 || age > PENDING_CHARGED_JUMP_TIMEOUT) return normal;
+        float progress = pending.progress();
+        if (pending.allowInputTick() && player.isShiftKeyDown() && !player.getAbilities().flying && hasChargeSupport(player)) {
+            progress = Math.min(1, progress + 1F / CHARGE_TICKS);
+        }
+        if (progress <= 0) return normal;
+        float max = jumpPowerForProgress(player, normal, progress);
         if (!Float.isFinite(max) || max <= 0) return normal;
         return Math.min(pending.power(), max);
     }
@@ -173,7 +187,24 @@ public final class EquipmentAbilities {
     private static float chargedJumpPower(Player player, float normal) {
         float progress = canChargeJump(player) ? chargeProgress(player) : 0;
         clearCharge(player);
-        if (progress <= 0) return normal;
+        return progress <= 0 ? normal : jumpPowerForProgress(player, normal, progress);
+    }
+
+    public static void applyChargedJump(Player player, float jumpPower) {
+        if (!(player instanceof ServerPlayer serverPlayer) || !canChargeJump(player)) return;
+        if (!Float.isFinite(jumpPower) || jumpPower <= 0) return;
+        ServerCharge charge = SERVER_CHARGE.remove(serverPlayer);
+        float progress = serverChargeTicks(player.tickCount, charge, true) / (float) CHARGE_TICKS;
+        PendingChargedJump previous = PENDING_CHARGED_JUMP.get(serverPlayer);
+        int tick = player.tickCount;
+        if (previous != null) {
+            int age = tick - previous.tick();
+            if (age >= 0 && age <= PENDING_CHARGED_JUMP_TIMEOUT) tick = previous.tick();
+        }
+        PENDING_CHARGED_JUMP.put(serverPlayer, new PendingChargedJump(jumpPower, progress, tick, charge == null || !charge.charging()));
+    }
+
+    private static float jumpPowerForProgress(Player player, float normal, float progress) {
         double gravity = Math.max(0.001, player.getAttributeValue(Attributes.GRAVITY));
         double drag = AtmosphereManager.drag(player, 0.9800000190734863);
         double multiplier = 1 + (MAX_JUMP_HEIGHT_MULTIPLIER - 1) * progress;
@@ -188,25 +219,39 @@ public final class EquipmentAbilities {
         return (float) high;
     }
 
-    public static void applyChargedJump(Player player, float jumpPower) {
-        if (!canChargeJump(player)) return;
-        if (!Float.isFinite(jumpPower) || jumpPower <= 0) return;
-        PENDING_CHARGED_JUMP.put(player, new PendingChargedJump(jumpPower, player.tickCount));
+    private static int serverChargeTicks(int now, @Nullable ServerCharge charge, boolean tolerateInputDelay) {
+        if (charge == null) return 0;
+        int elapsed = now - charge.tick();
+        if (elapsed < 0) return 0;
+        int ticks = Math.min(CHARGE_TICKS, charge.charge() + (tolerateInputDelay ? 1 : 0));
+        if (charge.charging()) return ticks;
+        if (tolerateInputDelay) elapsed = Math.max(0, elapsed - 1);
+        if (elapsed <= CHARGE_HOLD_TICKS) return ticks;
+        if (elapsed >= CHARGE_HOLD_TICKS + CHARGE_DECAY_TICKS) return 0;
+        return Math.round(ticks * (CHARGE_HOLD_TICKS + CHARGE_DECAY_TICKS - elapsed) / (float) CHARGE_DECAY_TICKS);
     }
 
-    private static float maxChargedJumpPower(Player player, float normal) {
-        double gravity = Math.max(0.001, player.getAttributeValue(Attributes.GRAVITY));
-        double drag = AtmosphereManager.drag(player, 0.9800000190734863);
-        double multiplier = MAX_JUMP_HEIGHT_MULTIPLIER;
-        double target = jumpHeight(normal, gravity, drag) * multiplier;
-        double low = normal;
-        double high = normal * multiplier + gravity;
-        for (int iteration = 0; iteration < 32; iteration++) {
-            double middle = (low + high) / 2;
-            if (jumpHeight(middle, gravity, drag) < target) low = middle;
-            else high = middle;
+    private static void tickServerCharge(ServerPlayer player) {
+        if (!canChargeJump(player)) {
+            SERVER_CHARGE.remove(player);
+            PENDING_CHARGED_JUMP.remove(player);
+            return;
         }
-        return (float) high;
+        int now = player.tickCount;
+        ServerCharge charge = SERVER_CHARGE.get(player);
+        if (charge != null && now - charge.tick() < 0) charge = null;
+        boolean charging = player.isShiftKeyDown() && !player.getAbilities().flying && hasChargeSupport(player);
+        if (charging) {
+            int ticks = charge != null && charge.charging()
+                ? charge.charge() + now - charge.tick() : serverChargeTicks(now - 1, charge, false) + 1;
+            SERVER_CHARGE.put(player, new ServerCharge(now, Math.min(CHARGE_TICKS, ticks), true));
+        } else if (charge != null) {
+            if (charge.charging()) {
+                SERVER_CHARGE.put(player, new ServerCharge(now, charge.charge(), false));
+            } else if (serverChargeTicks(now, charge, true) == 0) {
+                SERVER_CHARGE.remove(player);
+            }
+        }
     }
 
     private static void clearCharge(Player player) {
@@ -290,7 +335,11 @@ public final class EquipmentAbilities {
     @SubscribeEvent
     public static void beforeTick(PlayerTickEvent.Pre event) {
         Player player = event.getEntity();
-        if (player.isLocalPlayer()) tickCharge(player, canChargeJump(player));
+        if (player.isLocalPlayer()) {
+            tickCharge(player, canChargeJump(player));
+        } else if (player instanceof ServerPlayer serverPlayer) {
+            tickServerCharge(serverPlayer);
+        }
         if (player.getItemBySlot(EquipmentSlot.FEET).is(ModItems.WEATHERPROOF_SPACESUIT_BOOTS)) {
             if (player.isShiftKeyDown()) SUBMERGING.put(player, true);
             else if (!AtmosphereManager.isInFluid(player) && player.level().getFluidState(player.blockPosition().below()).isEmpty()) {
