@@ -191,6 +191,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         if (!oldState.is(this)) {
             // 外观状态的内部改写不改变网络成员，只有真正新增导线时才使拓扑缓存失效。
             RedstoneWireNetworkManager.topologyChanged(level, pos);
+            RedstoneWireBlock.notifyDustAboveSupport(level, pos, state);
         }
     }
 
@@ -205,6 +206,20 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         // 先完成方块替换再重建，连接搜索才能看到移除后的真实世界状态。
         RedstoneWireNetworkManager.wireRemoved(level, pos);
         RedstoneWireNetworkManager.topologyChanged(level, pos);
+        RedstoneWireBlock.notifyDustAboveSupport(level, pos, state);
+    }
+
+    private static void notifyDustAboveSupport(Level level, BlockPos pos, BlockState state) {
+        if (level.isClientSide()) return;
+        Direction attachment = state.getValue(RedstoneWireBlock.ATTACHMENT);
+        if (!attachment.getAxis().isHorizontal()) return;
+        BlockPos dustPos = pos.relative(attachment).above();
+        if (!level.getBlockState(dustPos).is(Blocks.REDSTONE_WIRE)) return;
+        Direction direction = attachment.getOpposite();
+        BlockPos neighborPos = dustPos.relative(direction);
+        level.neighborShapeChanged(
+            direction, dustPos, neighborPos, level.getBlockState(neighborPos), Block.UPDATE_ALL, 0
+        );
     }
 
     @Override
@@ -825,12 +840,18 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
 
     /** 不消耗物品，将已有导线改挂到玩家新点击的支撑面。 */
     public boolean reattach(Level level, BlockPos pos, BlockState state) {
+        final BlockState previous = level.getBlockState(pos);
         if (!state.is(this) || !state.canSurvive(level, pos) || !level.setBlock(pos, state, Block.UPDATE_ALL)) {
             return false;
         }
         RedstoneWireNetworkManager.clearConnectionOverrides(level, pos);
         // 位置没有变化，但附着面会改变几何端点，所以必须按拓扑变化而不是普通状态变化处理。
         RedstoneWireNetworkManager.topologyChanged(level, pos);
+        if (previous.is(this)
+            && previous.getValue(RedstoneWireBlock.ATTACHMENT) != state.getValue(RedstoneWireBlock.ATTACHMENT)) {
+            RedstoneWireBlock.notifyDustAboveSupport(level, pos, previous);
+        }
+        RedstoneWireBlock.notifyDustAboveSupport(level, pos, state);
         return true;
     }
 
