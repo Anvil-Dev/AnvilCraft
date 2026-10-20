@@ -261,7 +261,6 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
 
         Map<String, List<RecipeHolder<MineralFountainActiveRecipe>>> activeGroups = new LinkedHashMap<>();
         for (RecipeHolder<MineralFountainActiveRecipe> holder : activeRecipes) {
-            if (holder.value().getAround().isEmpty()) continue;
             activeGroups.computeIfAbsent(activeGroupKey(holder.value()), key -> new ArrayList<>()).add(holder);
         }
         for (List<RecipeHolder<MineralFountainActiveRecipe>> group : activeGroups.values()) {
