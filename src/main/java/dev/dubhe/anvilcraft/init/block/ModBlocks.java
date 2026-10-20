@@ -4857,7 +4857,7 @@ public class ModBlocks {
                         .add(LootItem.lootTableItem(Items.HEART_OF_THE_SEA)
                             .when(() -> new RandomChanceWithFortuneCondition(
                                 0.1f,
-                                LevelBasedValue.perLevel(0.1f, 0.1f),
+                                LevelBasedValue.perLevel(0.2f, 0.1f),
                                 tables.getRegistries()
                                     .lookupOrThrow(Registries.ENCHANTMENT)
                                     .getOrThrow(Enchantments.FORTUNE)
