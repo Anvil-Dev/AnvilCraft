@@ -5294,7 +5294,7 @@ public final class StorageServerStub {
         // 例如只剩 250 mB 且身上没桶时，玩家更该看到「需要空桶」而非「流体不足一桶」。
         // 这里用非破坏性判定，避免为了报错而先把容器消耗掉再回滚
         if (filled.isEmpty() || emptyContainer.isEmpty()) {
-            return FilledBucket.failed(emptyContainer.is(Items.GLASS_BOTTLE) ? FluidNotice.NOT_BOTTLEABLE : FluidNotice.NONE);
+            return FilledBucket.failed(bottle ? FluidNotice.NOT_BOTTLEABLE : FluidNotice.NONE);
         }
         FluidNotice missing = emptyContainer.is(Items.GLASS_BOTTLE) ? FluidNotice.BOTTLE_MISSING : FluidNotice.BUCKET_MISSING;
         if (!StorageServerStub.hasEmptyContainer(player, view, emptyContainer)) {
