@@ -430,14 +430,10 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         List<Component> tooltips = new ArrayList<>();
         double chance = displayed == null ? recipe.totalChance() : recipe.chanceOf(displayed);
         if (chance >= 0 && chance < 1) {
-            String percentage = FORMATTER.format(chance * 100);
-            if (percentage.equals(FORMATTER.format(100))) {
-                percentage = BigDecimal.valueOf(chance).movePointRight(2).stripTrailingZeros().toPlainString();
-            }
             tooltips.add(
                 Component.translatable(
                     "gui.anvilcraft.category.chance",
-                    percentage
+                    formatPercentage(chance)
                 ).withStyle(ChatFormatting.GRAY)
             );
         }
@@ -445,7 +441,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             tooltips.add(
                 Component.translatable(
                     "gui.anvilcraft.category.mineral_fountain.replace_chance",
-                    FORMATTER.format(recipe.replacementChance() * 100)
+                    formatPercentage(recipe.replacementChance())
                 ).withStyle(ChatFormatting.GRAY)
             );
             if (recipe.replacementTarget() != null) {
@@ -466,6 +462,12 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
      * <p>要求两者能匹配同一个上方方块，否则永远不会共存（如熔岩配方的 {@code from_block} 是空气）；
      * 多个主动配方的需求按方块合并成一项。</p>
      */
+    private static String formatPercentage(double chance) {
+        String percentage = FORMATTER.format(chance * 100);
+        return chance < 1 && percentage.equals(FORMATTER.format(100))
+            ? BigDecimal.valueOf(chance).movePointRight(2).stripTrailingZeros().toPlainString() : percentage;
+    }
+
     private static List<MineralFountainJeiRecipe.SideRequirement> replacementAround(
         MineralFountainReplacementRecipe recipe,
         Map<ResourceLocation, MineralFountainActiveRecipe> activeById
