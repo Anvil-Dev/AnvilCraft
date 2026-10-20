@@ -7,6 +7,7 @@ import dev.anvilcraft.resource.ageratum.client.feat.markdown.MDRenderContext;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.component.extend.MDRecipeComponent;
 import dev.anvilcraft.resource.ageratum.util.RecipeUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.support.DimensionNameSupport;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -17,7 +18,6 @@ import dev.dubhe.anvilcraft.util.AgeratumUtil;
 import dev.dubhe.anvilcraft.util.TooltipUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.state.BlockState;
@@ -115,13 +115,6 @@ public class MDMineralFountainRecipeComponent extends MDRecipeComponent {
     }
 
     private static Component dimensionName(Identifier dimension) {
-        String key = dimension.toLanguageKey("dimension");
-        if (!I18n.exists(key) && AnvilCraft.MOD_ID.equals(dimension.getNamespace())) {
-            String celestialKey = "screen.anvilcraft.cfa.class.special." + dimension.getPath();
-            if (I18n.exists(celestialKey)) {
-                key = celestialKey;
-            }
-        }
-        return Component.translatableWithFallback(key, dimension.toString());
+        return DimensionNameSupport.getName(dimension);
     }
 }
