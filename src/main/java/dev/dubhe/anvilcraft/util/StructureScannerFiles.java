@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.network.StructureScannerFilePacket;
 import dev.dubhe.anvilcraft.network.StructureScannerFileResultPacket;
+import dev.dubhe.anvilcraft.saved.BlueprintAdministrators;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -66,12 +67,29 @@ public final class StructureScannerFiles {
                     sendFile(player, packet.id(), preview);
                 }
                 case EXPORT -> {
-                    String exported = exportBlueprint(player, menu, packet.name());
-                    sendFile(player, packet.id(), exported.getBytes(StandardCharsets.UTF_8));
+                    byte[] bytes = compress(exportStructure(player, menu));
+                    String exported = StructureBlueprintFiles.write(player.level().getServer(), packet.name(), bytes);
+                    boolean localPlayer = player.level().getServer().isSingleplayer()
+                        && player.level().getServer().isSingleplayerOwner(player.nameAndId());
+                    sendFile(player, packet.id(), localPlayer ? exported.getBytes(StandardCharsets.UTF_8) : bytes);
+                }
+                case UPLOAD -> {
+                    if (!BlueprintAdministrators.canUpload(player)) throw new IOException("Blueprint upload is not permitted");
+                    if (!StructureFileTransfer.isSafeName(packet.name()) || packet.name().lastIndexOf('.') <= 0) {
+                        throw new IOException("Invalid file name");
+                    }
+                    byte[] bytes = menu.receiveUpload(packet);
+                    if (bytes.length == 0) return;
+                    CompoundTag tag = readTag(bytes);
+                    StructureSnapshot snapshot = parseImport(player, tag, packet.name());
+                    String name = packet.name().substring(0, packet.name().lastIndexOf('.')) + ".nbt";
+                    String uploaded = StructureBlueprintFiles.write(
+                        player.level().getServer(), name, compress(StructureSnapshotCodec.write(snapshot)));
+                    sendFile(player, packet.id(), uploaded.getBytes(StandardCharsets.UTF_8));
                 }
                 default -> throw new IOException("Unsupported blueprint action");
             }
-        } catch (IOException | ConstructionBlueprintException | IllegalArgumentException exception) {
+        } catch (IOException | ConstructionBlueprintException | RuntimeException exception) {
             AnvilCraft.LOGGER.warn("Structure scanner file operation failed: {}", packet.name(), exception);
             String message = exception.getMessage();
             if (message == null) message = "Invalid structure file";
@@ -93,11 +111,15 @@ public final class StructureScannerFiles {
     public static byte[] importBlueprint(ServerPlayer player, StructureScannerMenu menu, String name)
         throws IOException, ConstructionBlueprintException {
         byte[] bytes = StructureBlueprintFiles.read(player.level().getServer(), name);
+        return stageImport(player, menu, readTag(bytes), name);
+    }
+
+    private static CompoundTag readTag(byte[] bytes) throws IOException {
         CompoundTag tag = bytes.length >= 2 && (bytes[0] & 255) == 31 && (bytes[1] & 255) == 139
             ? NbtIo.readCompressed(new ByteArrayInputStream(bytes), NbtAccounter.create(16L * 1024 * 1024))
             : NbtIo.read(new DataInputStream(new ByteArrayInputStream(bytes)), NbtAccounter.create(16L * 1024 * 1024));
         if (tag == null) throw new IOException("Empty structure file");
-        return stageImport(player, menu, tag, name);
+        return tag;
     }
 
     public static StructureSnapshot parseImport(ServerPlayer player, CompoundTag tag, String fileName)
@@ -164,11 +186,6 @@ public final class StructureScannerFiles {
         byte[] bytes = stream.toByteArray();
         if (bytes.length > StructureFileTransfer.MAX_BYTES) throw new IOException("Structure file is too large");
         return bytes;
-    }
-
-    public static String exportBlueprint(ServerPlayer player, StructureScannerMenu menu, String name)
-        throws IOException, ConstructionBlueprintException {
-        return StructureBlueprintFiles.write(player.level().getServer(), name, compress(exportStructure(player, menu)));
     }
 
     public static CompoundTag exportStructure(ServerPlayer player, StructureScannerMenu menu)

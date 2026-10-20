@@ -5,8 +5,12 @@ import dev.dubhe.anvilcraft.building.StructureSnapshot;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.component.StructureDiskOnlySlot;
+import dev.dubhe.anvilcraft.network.StructureScannerFilePacket;
+import dev.dubhe.anvilcraft.saved.BlueprintAdministrators;
+import dev.dubhe.anvilcraft.util.StructureFileTransfer;
 import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -19,6 +23,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.Objects;
 
 public class StructureScannerMenu extends AbstractContainerMenu {
@@ -26,7 +31,27 @@ public class StructureScannerMenu extends AbstractContainerMenu {
     @Getter
     private final StructureScannerBlockEntity blockEntity;
     private final Level level;
-    private @Nullable ImportedStructure importedStructure;
+    @Nullable private ImportedStructure importedStructure;
+    private @Nullable StructureFileTransfer upload;
+    private boolean canUpload;
+
+    public boolean canUpload() {
+        return this.canUpload;
+    }
+
+    public byte[] receiveUpload(StructureScannerFilePacket packet) throws IOException {
+        if (packet.offset() == 0) this.upload = new StructureFileTransfer(packet.id(), packet.name(), packet.total());
+        if (this.upload == null) throw new IOException("No blueprint upload in progress");
+        try {
+            if (!this.upload.append(packet.id(), packet.name(), packet.total(), packet.offset(), packet.bytes())) return new byte[0];
+            byte[] bytes = this.upload.finish();
+            this.upload = null;
+            return bytes;
+        } catch (IOException exception) {
+            this.upload = null;
+            throw exception;
+        }
+    }
 
     public record ImportedStructure(String name, StructureSnapshot snapshot) {
     }
@@ -47,6 +72,7 @@ public class StructureScannerMenu extends AbstractContainerMenu {
     public void removed(Player player) {
         super.removed(player);
         this.clearImportedStructure();
+        this.upload = null;
     }
 
     public StructureScannerMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
@@ -58,6 +84,20 @@ public class StructureScannerMenu extends AbstractContainerMenu {
         super(menuType, containerId);
         this.blockEntity = (StructureScannerBlockEntity) blockEntity;
         this.level = inventory.player.level();
+        this.addDataSlot(new DataSlot() {
+            @Override
+            public int get() {
+                if (inventory.player instanceof ServerPlayer player) {
+                    StructureScannerMenu.this.canUpload = BlueprintAdministrators.canUpload(player);
+                }
+                return StructureScannerMenu.this.canUpload ? 1 : 0;
+            }
+
+            @Override
+            public void set(int value) {
+                StructureScannerMenu.this.canUpload = value != 0;
+            }
+        });
         this.addDataSlot(new DataSlot() {
             @Override
             public int get() {
