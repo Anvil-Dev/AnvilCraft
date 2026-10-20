@@ -80,7 +80,7 @@ items:
 </tip>
 
 <warning>
-如果<ref item="anvilcraft:celestial_forging_anvil"/>被拆除，虽然星球会被保留，但巨构会消失
+如果<ref item="anvilcraft:celestial_forging_anvil"/>被拆除，可以保留星球和巨构
 </warning>
 
 ## 物流交互

@@ -24,9 +24,10 @@ items:
 - 在<ref item="anvilcraft:celestial_forging_anvil"/>中锻造并绑定符合条件的天体，再在 GUI 右侧选择目标巨构并提交对应的**合成材料**，即可完成建造
 - 通常一颗天体只能建造一个巨构
 
-<tip>
-若要移除巨构，只需解绑再绑定星球
-</tip>
+# 拆除巨构
+
+- 解绑再绑定星球以拆除巨构
+- 主动拆除返还一半建造材料（向下取整）
 
 # 巨构分类
 
@@ -84,6 +85,10 @@ items:
   - 一次性建筑，十秒后销毁，并向星球投放石碑，加速文明演化
   - 使文明产生；若已有文明则其有概率消亡（变为废土星球）或飞向太空（直接消失）
 
+<info>
+类主世界这类*可登录星球*不可修建石碑投放器
+</info>
+
 ## 巨行星抽取器
 
 - **建造条件**：气巨星或冰巨星
@@ -100,14 +105,14 @@ items:
 <recipe id="anvilcraft:dyson_sphere_component"/>
 
 - **建造条件**：褐矮星或普通恒星
-- **合成材料**：褐矮星需要<ref item="anvilcraft:dyson_sphere_component"/> × 8；小型恒星需要<ref item="anvilcraft:dyson_sphere_component"/> × 16；大型恒星需要<ref item="anvilcraft:dyson_sphere_component"/> × 32
+- **合成材料**：褐矮星需要<ref item="anvilcraft:dyson_sphere_component"/> × 1；小型恒星需要<ref item="anvilcraft:dyson_sphere_component"/> × 2；大型恒星需要<ref item="anvilcraft:dyson_sphere_component"/> × 4
 - **输入**：无
 - **输出**：持续发电，发电量与天体的*温度*和*半径*正相关
 
 ### 原始物质增幅
 
 - 褐矮星戴森球可以消耗流体接口中的原始物质增强自身的发电能力，供给越多，发电越多——到2B/t时发电量增幅达到5倍（上限）
-- 褐矮星收到的供给超过 2B/t ，多余的部分将逐渐转为褐矮星的质量，累计 12800B 后褐矮星将变为红矮星
+- 褐矮星收到的供给超过 2B/t ，多余的部分将逐渐转为褐矮星的质量，累计 12800B 后褐矮星将变为红矮星（特殊恒星，无需*增幅*）
 - 部分小型恒星+戴森球也可以消耗原始物质增加发电量：
   - 红矮星固定每gt2B：发电量×2（包括由褐矮星变为的红矮星）
   - 橙矮星固定每gt2B：发电量×1.5
@@ -122,7 +127,7 @@ items:
 <recipe id="anvilcraft:stellar_ring_component"/>
 
 - **建造条件**：小型恒星
-- **合成材料**：<ref item="anvilcraft:stellar_ring_component"/> × 8
+- **合成材料**：<ref item="anvilcraft:stellar_ring_component"/> × 2
 - **输入**：持续耗电 4 MW，并通过物流接口输入对撞原料和铁砧
 - **输出**：执行[铁砧撞击合成](215_large_electromagnet.md#铁砧撞击合成)
 - **特性**：
@@ -134,7 +139,7 @@ items:
 <recipe id="anvilcraft:stellar_evolution_accelerator_component"/>
 
 - **建造条件**：除白矮星、中子星、黑洞和特殊红矮星外的恒星
-- **合成材料**：<ref item="anvilcraft:stellar_evolution_accelerator_component"/> × 8
+- **合成材料**：<ref item="anvilcraft:stellar_evolution_accelerator_component"/> × 4
 - **输入**：无
 - **作用**：加速恒星演化恒星结束生命后会成为白矮星，或引发超新星爆发并产生中子星或黑洞
 - **特性**：可以与其他恒星级巨构共存
@@ -152,7 +157,7 @@ items:
 <recipe id="anvilcraft:magnetar_coil_component"/>
 
 - **建造条件**：中子星
-- **合成材料**：<ref item="anvilcraft:magnetar_coil_component"/> × 4
+- **合成材料**：<ref item="anvilcraft:magnetar_coil_component"/> × 32
 - **输入**：无
 - **输出**：持续发电，发电量与天体的*磁场强度*和*转速*正相关
 
@@ -161,7 +166,7 @@ items:
 <recipe id="anvilcraft:wormhole_stabilizer_component"/>
 
 - **建造条件**：处于增幅状态的黑洞
-- **合成材料**：<ref item="anvilcraft:wormhole_stabilizer_component"/> × 4
+- **合成材料**：<ref item="anvilcraft:wormhole_stabilizer_component"/> × 1
 - **输入**：全同黑洞
 - **输出**：[虫洞](402_teleportation.md)
 
@@ -170,7 +175,7 @@ items:
 <recipe id="anvilcraft:penrose_sphere_component"/>
 
 - **建造条件**：黑洞
-- **合成材料**：<ref item="anvilcraft:penrose_sphere_component"/> × 8
+- **合成材料**：<ref item="anvilcraft:penrose_sphere_component"/> × 32
 - **输入**：激光
 - **输出**：同等级[伽马激光](../001_feature/402_gamma_laser.md)
 
@@ -185,7 +190,7 @@ items:
 <recipe id="anvilcraft:matter_decompressor_component"/>
 
 - **建造条件**：中子星或黑洞
-- **合成材料**：<ref item="anvilcraft:matter_decompressor_component"/> × 2
+- **合成材料**：<ref item="anvilcraft:matter_decompressor_component"/> × 32
 - **输入**：*伽马激光*；每级伽马激光提供 1 倍工作效率
 - **输出**：
   - 中子星每 10 秒开采一次，大概率产出 1 个<ref item="anvilcraft:neutronium_ingot"/>，磁场强度足够高时小概率产出<ref item="anvilcraft:charged_neutronium_ingot"/>——概率与磁场强度正相关

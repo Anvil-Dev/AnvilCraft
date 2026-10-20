@@ -102,3 +102,5 @@ You can place a <ref item="anvilcraft:drain"/> directly above the <ref item="anv
 <structure id="../../structures/mineral_fountain/cinerite.snbt"/>
 
 - When no other structure conditions are met, the <ref item="anvilcraft:mineral_fountain"/> generates <ref item="anvilcraft:cinerite"/> above it, which can be used for [ore meshing](../008_recipe/001_basic_minerals.md)
+- In the Nether, it has a 50% chance to generate <ref item="anvilcraft:nether_dust"/> instead
+- In the End, it has a 50% chance to generate <ref item="anvilcraft:end_dust"/> instead

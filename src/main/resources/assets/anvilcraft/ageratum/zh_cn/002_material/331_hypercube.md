@@ -8,6 +8,8 @@ items:
 
 # 超立方体
 
+<item id="anvilcraft:hypercube"/>
+
 ## 合成
 
 通过[四维多方块合成](../004_block/330_spacetime_supercomputer.md#四维多方块合成)制作：

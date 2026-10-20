@@ -66,6 +66,12 @@ items:
 具体操作涉及世界存储（可理解为云端）、<ref item="anvilcraft:structure_scanner"/>的存储（可理解为本地电脑）和<ref item="anvilcraft:structure_disk"/>的存储（可理解为 U 盘）。
 </info>
 
+<info>
+导出的结构文件保存于 `/saves/<存档名>/data/anvilcraft`
+</info>
+
+
+
 ### 导出（上传）结构
 
 #### 将<ref item="anvilcraft:structure_scanner"/>的内容上传到世界

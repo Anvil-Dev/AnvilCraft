@@ -24,9 +24,10 @@ Mega structures extract resources from forged celestial bodies, generate power, 
 - Forge and bind an eligible celestial body in the <ref item="anvilcraft:celestial_forging_anvil"/>, then select the target mega structure on the right side of the GUI and submit the corresponding **building materials** to complete construction.
 - Normally, only one mega structure can be built on a celestial body.
 
-<tip>
-To remove a mega structure, simply unbind and rebind the planet.
-</tip>
+# Removing Mega Structures
+
+- Unbind and rebind the planet to remove the mega structure.
+- Removing it manually returns half of the building materials (rounded down).
 
 # Mega Structure Categories
 
@@ -84,6 +85,10 @@ Providing an item at night is not recommended, as a blessing or punishment must 
   - One-time structure that is destroyed after ten seconds and deploys monoliths onto the planet, accelerating civilization evolution
   - Causes a civilization to arise; if one already exists, it may perish (turning the planet into a wasteland) or fly into space (disappearing outright)
 
+<info>
+A Monolith Deployer cannot be built on a landable planet such as an *Overworld Like* planet.
+</info>
+
 ## Gas Giant Extractor
 
 - **Construction requirement**: Gas giant or ice giant
@@ -100,7 +105,7 @@ Providing an item at night is not recommended, as a blessing or punishment must 
 <recipe id="anvilcraft:dyson_sphere_component"/>
 
 - **Construction requirement**: Brown dwarf or normal star
-- **Crafting materials**: <ref item="anvilcraft:dyson_sphere_component"/> × 8 for a brown dwarf, <ref item="anvilcraft:dyson_sphere_component"/> × 16 for a small star, or <ref item="anvilcraft:dyson_sphere_component"/> × 32 for a large star
+- **Crafting materials**: <ref item="anvilcraft:dyson_sphere_component"/> × 1 for a brown dwarf, <ref item="anvilcraft:dyson_sphere_component"/> × 2 for a small star, or <ref item="anvilcraft:dyson_sphere_component"/> × 4 for a large star
 - **Input**: None
 - **Output**: Continuously generates power. Power output is positively correlated with the celestial body's *temperature* and *radius*.
 
@@ -122,7 +127,7 @@ Celestial bodies consume all primordial matter in <ref item="anvilcraft:celestia
 <recipe id="anvilcraft:stellar_ring_component"/>
 
 - **Construction requirement**: Small star
-- **Crafting materials**: <ref item="anvilcraft:stellar_ring_component"/> × 8
+- **Crafting materials**: <ref item="anvilcraft:stellar_ring_component"/> × 2
 - **Input**: Continuous power consumption of 4 MW, plus collision materials and anvils through a logistics interface
 - **Output**: Performs [Anvil Collision Crafting](215_large_electromagnet.md#anvil-impact-crafting).
 - **Properties**:
@@ -134,7 +139,7 @@ Celestial bodies consume all primordial matter in <ref item="anvilcraft:celestia
 <recipe id="anvilcraft:stellar_evolution_accelerator_component"/>
 
 - **Construction requirement**: Star other than a white dwarf, neutron star, black hole, or special red dwarf
-- **Crafting materials**: <ref item="anvilcraft:stellar_evolution_accelerator_component"/> × 8
+- **Crafting materials**: <ref item="anvilcraft:stellar_evolution_accelerator_component"/> × 4
 - **Input**: None
 - **Effect**: Accelerates stellar evolution. When a star reaches the end of its life, it becomes a white dwarf or triggers a supernova explosion and becomes a neutron star or black hole.
 - **Properties**: Can coexist with other stellar mega structures.
@@ -152,7 +157,7 @@ During acceleration, if a Dyson Sphere exists, it collects **infinite electrical
 <recipe id="anvilcraft:magnetar_coil_component"/>
 
 - **Construction requirement**: Neutron star
-- **Crafting materials**: <ref item="anvilcraft:magnetar_coil_component"/> × 4
+- **Crafting materials**: <ref item="anvilcraft:magnetar_coil_component"/> × 32
 - **Input**: None
 - **Output**: Continuously generates power. Power output is positively correlated with the celestial body's *magnetic field strength* and *rotation speed*.
 
@@ -161,7 +166,7 @@ During acceleration, if a Dyson Sphere exists, it collects **infinite electrical
 <recipe id="anvilcraft:wormhole_stabilizer_component"/>
 
 - **Construction requirement**: Black hole in an amplified state
-- **Crafting materials**: <ref item="anvilcraft:wormhole_stabilizer_component"/> × 4
+- **Crafting materials**: <ref item="anvilcraft:wormhole_stabilizer_component"/> × 1
 - **Input**: Identical black hole
 - **Output**: [Wormhole](402_teleportation.md)
 
@@ -170,7 +175,7 @@ During acceleration, if a Dyson Sphere exists, it collects **infinite electrical
 <recipe id="anvilcraft:penrose_sphere_component"/>
 
 - **Construction requirement**: Black hole
-- **Crafting materials**: <ref item="anvilcraft:penrose_sphere_component"/> × 8
+- **Crafting materials**: <ref item="anvilcraft:penrose_sphere_component"/> × 32
 - **Input**: Laser
 - **Output**: Same-level [Gamma Laser](../001_feature/402_gamma_laser.md)
 
@@ -185,7 +190,7 @@ Penrose Sphere laser inputs and outputs must be grouped on the left and right si
 <recipe id="anvilcraft:matter_decompressor_component"/>
 
 - **Construction requirement**: Neutron star or black hole
-- **Crafting materials**: <ref item="anvilcraft:matter_decompressor_component"/> × 2
+- **Crafting materials**: <ref item="anvilcraft:matter_decompressor_component"/> × 32
 - **Input**: *Gamma Laser*; each Gamma Laser level provides 1× working efficiency
 - **Output**:
   - Neutron stars are extracted once every 10 seconds, most often producing 1 <ref item="anvilcraft:neutronium_ingot"/>. With sufficiently high magnetic field strength, there is a small chance to produce <ref item="anvilcraft:charged_neutronium_ingot"/>—the chance is positively correlated with magnetic field strength.

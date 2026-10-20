@@ -29,6 +29,10 @@ items:
 - 携带任意*附魔金*物品可以抵消*诅咒金*系列物品带来的全部负面效果。
 - 携带至少一组*附魔金*物品会获得幸运效果。
 
+# 附魔能力
+
+能为<ref item="minecraft:enchanting_table"/>提供相当于 3 个<ref item="minecraft:bookshelf"/>的效果
+
 # 猪灵挚爱
 
 - <ref item="anvilcraft:enchanted_gold_ingot"/>可以当作<ref item="minecraft:gold_ingot"/>与猪灵交易，每次交易可获得 4 组交易结果。
