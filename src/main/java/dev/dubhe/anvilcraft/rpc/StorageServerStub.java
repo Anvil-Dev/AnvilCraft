@@ -62,6 +62,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -4833,7 +4834,8 @@ public final class StorageServerStub {
         /** 储量不足一桶。 */
         NOT_ENOUGH("screen.anvilcraft.storage.fluid.not_enough"),
         BOTTLE_MISSING("screen.anvilcraft.storage.fluid.bottle_missing"),
-        BOTTLE_NOT_ENOUGH("screen.anvilcraft.storage.fluid.bottle_not_enough");
+        BOTTLE_NOT_ENOUGH("screen.anvilcraft.storage.fluid.bottle_not_enough"),
+        NOT_BOTTLEABLE("screen.anvilcraft.storage.fluid.not_bottleable");
 
         public static final StreamCodec<ByteBuf, FluidNotice> STREAM_CODEC =
             StreamCodecUtil.enumStreamCodec(FluidNotice.class);
@@ -5109,7 +5111,7 @@ public final class StorageServerStub {
         if (filled.stack().isEmpty()) {
             return FluidOutcome.failed(filled.notice());
         }
-        StorageServerStub.playBucketSound(player, filled.fluid(), SoundActions.BUCKET_FILL);
+        StorageServerStub.playBucketSound(player, filled.fluid(), SoundActions.BUCKET_FILL, filled.bottle());
         // 取出的一桶流体落在鼠标指针上，与点击物品格取物一致；
         // 指针被其它物品占用（例如还剩几个空桶）时才退回背包
         if (player.containerMenu.getCarried().isEmpty()) {
@@ -5153,6 +5155,7 @@ public final class StorageServerStub {
         );
         FluidNotice notice = FluidNotice.NONE;
         FluidStack taken = FluidStack.EMPTY;
+        boolean filledBottle = false;
         boolean changed = false;
         for (int bucket = 0; bucket < limit; bucket++) {
             FilledBucket filled = StorageServerStub.fillBucketFromStorage(player, view, fluid, true, bottle);
@@ -5164,11 +5167,12 @@ public final class StorageServerStub {
             }
             StorageServerStub.giveBucket(player, view, filled.stack());
             taken = filled.fluid();
+            filledBottle = filled.bottle();
             changed = true;
         }
         if (changed) {
             // 整批只播一次：同一 tick 内叠加 8 次会让音量明显失真
-            StorageServerStub.playBucketSound(player, taken, SoundActions.BUCKET_FILL);
+            StorageServerStub.playBucketSound(player, taken, SoundActions.BUCKET_FILL, filledBottle);
         }
         return changed ? FluidOutcome.CHANGED : FluidOutcome.failed(notice);
     }
@@ -5183,7 +5187,8 @@ public final class StorageServerStub {
         }
         ItemStack filled = FluidUtil.getFilledBucket(entry.icon().copyWithAmount(FluidType.BUCKET_VOLUME));
         return bottle || filled.isEmpty()
-            ? FluidHandlerWrapper.determineFilledContainer(entry.icon(), Items.GLASS_BOTTLE.getDefaultInstance()) : filled;
+            ? FluidHandlerWrapper.determineFilledContainer(
+                entry.icon().copyWithAmount(FluidType.BUCKET_VOLUME / 4), Items.GLASS_BOTTLE.getDefaultInstance()) : filled;
     }
 
     /**
@@ -5214,7 +5219,7 @@ public final class StorageServerStub {
         if (filled.stack().isEmpty()) {
             return FluidOutcome.failed(filled.notice());
         }
-        StorageServerStub.playBucketSound(player, filled.fluid(), SoundActions.BUCKET_FILL);
+        StorageServerStub.playBucketSound(player, filled.fluid(), SoundActions.BUCKET_FILL, filled.bottle());
         StorageServerStub.giveBucket(player, view, filled.stack());
         return FluidOutcome.CHANGED;
     }
@@ -5229,9 +5234,9 @@ public final class StorageServerStub {
     }
 
     /** 装桶结果：成功时给出成品桶与所含流体，失败时给出原因。 */
-    private record FilledBucket(ItemStack stack, FluidStack fluid, FluidNotice notice) {
+    private record FilledBucket(ItemStack stack, FluidStack fluid, boolean bottle, FluidNotice notice) {
         private static FilledBucket failed(FluidNotice notice) {
-            return new FilledBucket(ItemStack.EMPTY, FluidStack.EMPTY, notice);
+            return new FilledBucket(ItemStack.EMPTY, FluidStack.EMPTY, false, notice);
         }
     }
 
@@ -5276,7 +5281,6 @@ public final class StorageServerStub {
         }
         FluidNotice notEnough = emptyContainer.is(Items.GLASS_BOTTLE) ? FluidNotice.BOTTLE_NOT_ENOUGH : FluidNotice.NOT_ENOUGH;
         if (entry == null) return FilledBucket.failed(filled.isEmpty() ? FluidNotice.NOT_ENOUGH : notEnough);
-        if (filled.isEmpty() || emptyContainer.isEmpty()) return FilledBucket.failed(FluidNotice.NONE);
         // 指针路径：产物要落在指针上，指针被别的物品占着（例如已拿着一桶水）就无处安置，
         // 此时不执行取水，避免无谓消耗背包/存储里的空桶。此判断先于下面的提示，
         // 否则指针被占用时还会给出与本意无关的「储量不足」提示
@@ -5289,6 +5293,9 @@ public final class StorageServerStub {
         // 提示优先级：先判「有没有空桶」，再判「储量够不够」。
         // 例如只剩 250 mB 且身上没桶时，玩家更该看到「需要空桶」而非「流体不足一桶」。
         // 这里用非破坏性判定，避免为了报错而先把容器消耗掉再回滚
+        if (filled.isEmpty() || emptyContainer.isEmpty()) {
+            return FilledBucket.failed(emptyContainer.is(Items.GLASS_BOTTLE) ? FluidNotice.NOT_BOTTLEABLE : FluidNotice.NONE);
+        }
         FluidNotice missing = emptyContainer.is(Items.GLASS_BOTTLE) ? FluidNotice.BOTTLE_MISSING : FluidNotice.BUCKET_MISSING;
         if (!StorageServerStub.hasEmptyContainer(player, view, emptyContainer)) {
             return FilledBucket.failed(missing);
@@ -5309,7 +5316,7 @@ public final class StorageServerStub {
         }
         // 取水音效：倾倒由 FluidUtil 自行播放，取出的这条路径需自行补上。
         // 一次装多桶时由调用方按批播放，避免同一 tick 内叠加多次音效
-        return new FilledBucket(filled, target, FluidNotice.NONE);
+        return new FilledBucket(filled, target, emptyContainer.is(Items.GLASS_BOTTLE), FluidNotice.NONE);
     }
 
     /**
@@ -5414,7 +5421,7 @@ public final class StorageServerStub {
             poured++;
         }
         if (poured > 0) {
-            StorageServerStub.playBucketSound(player, content, SoundActions.BUCKET_EMPTY);
+            StorageServerStub.playBucketSound(player, content, SoundActions.BUCKET_EMPTY, false);
         }
         return poured;
     }
@@ -5428,8 +5435,8 @@ public final class StorageServerStub {
      * @param fluid  涉及的流体
      * @param action 音效动作（{@link SoundActions#BUCKET_FILL} 或 {@link SoundActions#BUCKET_EMPTY}）
      */
-    private static void playBucketSound(ServerPlayer player, FluidStack fluid, SoundAction action) {
-        SoundEvent sound = fluid.getFluidType().getSound(fluid, action);
+    private static void playBucketSound(ServerPlayer player, FluidStack fluid, SoundAction action, boolean bottle) {
+        SoundEvent sound = bottle ? SoundEvents.BOTTLE_FILL : fluid.getFluidType().getSound(fluid, action);
         if (sound == null) {
             return;
         }
