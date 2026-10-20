@@ -303,6 +303,7 @@ public class CfaMegastructureManager {
     private void refundMaterials(Identifier id, Player player) {
         ItemStack materials = this.builtMaterials.get(id);
         if (materials == null) materials = CfaMegastructureManager.legacyMaterials(id);
+        if (materials.isEmpty()) return;
         this.builtMaterials.put(id, ItemStack.EMPTY);
         ItemStack refund = materials.copyWithCount(materials.getCount() / 2);
         if (!refund.isEmpty() && !player.getInventory().add(refund)) player.drop(refund, false);
