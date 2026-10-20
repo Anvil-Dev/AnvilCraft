@@ -39,10 +39,19 @@ public record ControlValveFilterItemPacket(ItemStack filterItem) implements ISen
             || menu.getBlockEntity() == null || !menu.stillValid(player)) return;
         FilterContent content = this.filterItem.get(ModComponents.FILTER_CONTENT);
         if ((this.filterItem.isEmpty() || this.filterItem.is(ModItems.FILTER))
-            && (content == null || content.list().size() <= ControlValveFilterItemPacket.MAX_FILTER_ITEMS)) {
+            && (content == null || ControlValveFilterItemPacket.isValidContent(content, 1))) {
             menu.getBlockEntity().setFilterItem(this.filterItem);
             menu.getBlockEntity().sendUpdate();
         }
         PacketDistributor.sendToPlayer(serverPlayer, new ControlValveFilterItemPacket(menu.getBlockEntity().getFilterItem().copy()));
+    }
+
+    private static boolean isValidContent(FilterContent content, int depth) {
+        if (depth > 2 || content.list().size() > ControlValveFilterItemPacket.MAX_FILTER_ITEMS) return false;
+        for (ItemStack entry : content.list()) {
+            FilterContent nested = entry.get(ModComponents.FILTER_CONTENT);
+            if (nested != null && !ControlValveFilterItemPacket.isValidContent(nested, depth + 1)) return false;
+        }
+        return true;
     }
 }

@@ -229,8 +229,12 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
 
     @Override
     public void acceptGhost(Slot slot, ItemStack ingredient) {
-        if (ingredient.is(ModItems.FILTER)) this.sendFilterItem(ingredient);
-        else this.sendFilter(ControlValveBlockEntity.fluidOf(ingredient));
+        if (ingredient.is(ModItems.FILTER)) {
+            this.sendFilterItem(ingredient);
+            return;
+        }
+        FluidStack fluid = ControlValveBlockEntity.fluidOf(ingredient);
+        if (!fluid.isEmpty()) this.sendFilter(fluid);
     }
 
     @Override
