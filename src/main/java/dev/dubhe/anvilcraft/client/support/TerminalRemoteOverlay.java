@@ -2,6 +2,8 @@ package dev.dubhe.anvilcraft.client.support;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
 import dev.dubhe.anvilcraft.client.rpc.StorageTerminalClientStub;
@@ -19,6 +21,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -32,11 +35,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.fluids.FluidType;
+import org.jspecify.annotations.Nullable;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
-import javax.annotation.Nullable;
 
 /**
  * 超维终端的远端浮窗：空手悬停在绑定的终端物品上时，在当前 GUI 内显示一个可交互面板，
@@ -54,6 +59,7 @@ public final class TerminalRemoteOverlay {
     private static final int GRID_Y = 18;
     private static final int SEARCH_Y = 6;
     private static final int REFRESH_INTERVAL = 20;
+    private static final ResourceLocation NOTICE_BACKGROUND = AnvilCraft.of("flex_button/shaded_1px");
     /** 内容尚未加载完成时的快速重试间隔（tick）。 */
     private static final int FAST_RELOAD_INTERVAL = 5;
     /**
@@ -86,6 +92,7 @@ public final class TerminalRemoteOverlay {
     private static IntList order = new IntArrayList();
     /** 服务端返回的全量排序（服务端只按 @/# 前缀过滤）；普通文本搜索时作为客户端二次过滤的来源。 */
     private static IntList baseOrder = new IntArrayList();
+    private static List<StorageServerStub.FluidEntry> fluids = List.of();
     /** 普通文本搜索的全量内容同步是否进行中：避免多次 refresh 并发重复全量同步。 */
     private static boolean fullSyncing;
     /**
@@ -106,6 +113,8 @@ public final class TerminalRemoteOverlay {
     private static int frameCounter;
     private static int fastRetries;
     private static boolean taking;
+    private static Component notice = Component.empty();
+    private static long noticeUntil;
     /** 最近一次 tooltip 左上角位置，用于 Alt 切换尺寸时保持右下角原点不变。 */
     private static int lastTooltipX;
     private static int lastTooltipY;
@@ -190,7 +199,10 @@ public final class TerminalRemoteOverlay {
             UnlimitedItemStack stack = TerminalRemoteOverlay.CONTENTS.getOrDefault(slot, UnlimitedItemStack.EMPTY);
             int x = TerminalRemoteOverlay.left + TerminalRemoteOverlay.GRID_X + i % gridSize * TerminalRemoteOverlay.SLOT_SIZE;
             int y = TerminalRemoteOverlay.top + TerminalRemoteOverlay.GRID_Y + i / gridSize * TerminalRemoteOverlay.SLOT_SIZE;
-            if (!stack.isEmpty()) {
+            StorageServerStub.FluidEntry fluid = TerminalRemoteOverlay.getFluidSlot(slot);
+            if (fluid != null) {
+                StorageScreen.renderFluidIcon(graphics, font, fluid, x + 1, y + 1);
+            } else if (!stack.isEmpty()) {
                 ItemStack itemStack = stack.toStack();
                 graphics.renderFakeItem(itemStack, x + 1, y + 1);
                 StorageScreen.renderItemDecorations(
@@ -207,6 +219,31 @@ public final class TerminalRemoteOverlay {
             }
         }
         graphics.pose().popPose();
+        TerminalRemoteOverlay.renderNotice(graphics, font);
+    }
+
+    private static void renderNotice(GuiGraphics graphics, Font font) {
+        if (Util.getMillis() >= TerminalRemoteOverlay.noticeUntil) return;
+        var lines = font.split(TerminalRemoteOverlay.notice, Math.max(1, graphics.guiWidth() - 14));
+        int width = 6;
+        for (var line : lines) width = Math.max(width, font.width(line) + 6);
+        int height = lines.size() * font.lineHeight + 6;
+        int y = TerminalRemoteOverlay.top - height - 2;
+        if (y < 4) y = TerminalRemoteOverlay.top + TerminalRemoteOverlay.panelH() + 2;
+        y = Mth.clamp(y, 4, Math.max(4, graphics.guiHeight() - height - 4));
+        int x = Mth.clamp(
+            TerminalRemoteOverlay.left + (TerminalRemoteOverlay.panelW() - width) / 2,
+            4, Math.max(4, graphics.guiWidth() - width - 4)
+        );
+        graphics.flush();
+        GuiRenderSupport.blitSprite(graphics, NOTICE_BACKGROUND, x, y, 500, width, height, -1);
+        graphics.pose().pushPose();
+        graphics.pose().translate(0, 0, 500);
+        for (int row = 0; row < lines.size(); row++) {
+            graphics.drawString(font, lines.get(row), x + 3, y + 3 + row * font.lineHeight, 0xFFEE0000, false);
+        }
+        graphics.pose().popPose();
+        graphics.flush();
     }
 
     private static void renderSearchBox(GuiGraphics graphics, Font font, float partialTick) {
@@ -525,11 +562,12 @@ public final class TerminalRemoteOverlay {
         IntArrayList missing = new IntArrayList();
         for (int i = 0; i < TerminalRemoteOverlay.baseOrder.size(); i++) {
             int slot = TerminalRemoteOverlay.baseOrder.getInt(i);
-            if (!TerminalRemoteOverlay.CONTENTS.containsKey(slot)) {
+            if (slot < StoragePortManager.FLUID_SLOT_BASE && !TerminalRemoteOverlay.CONTENTS.containsKey(slot)) {
                 missing.add(slot);
             }
         }
-        if (missing.isEmpty()) {
+        if (missing.isEmpty() && TerminalRemoteOverlay.baseOrder.intStream()
+            .noneMatch(slot -> slot >= StoragePortManager.FLUID_SLOT_BASE)) {
             // 全量内容已齐：直接过滤并同步可见页
             TerminalRemoteOverlay.applyClientFilter();
             return;
@@ -622,6 +660,15 @@ public final class TerminalRemoteOverlay {
         IntArrayList filtered = new IntArrayList(TerminalRemoteOverlay.baseOrder.size());
         for (int i = 0; i < TerminalRemoteOverlay.baseOrder.size(); i++) {
             int slot = TerminalRemoteOverlay.baseOrder.getInt(i);
+            if (slot >= StoragePortManager.FLUID_SLOT_BASE) {
+                StorageServerStub.FluidEntry fluid = TerminalRemoteOverlay.getFluidSlot(slot);
+                if (fluid != null) {
+                    String name = fluid.icon().getHoverName().getString().toLowerCase(Locale.ROOT);
+                    String path = BuiltInRegistries.FLUID.getKey(fluid.icon().getFluid()).getPath().toLowerCase(Locale.ROOT);
+                    if (name.contains(plain) || path.contains(plain)) filtered.add(slot);
+                }
+                continue;
+            }
             UnlimitedItemStack stack = TerminalRemoteOverlay.CONTENTS.get(slot);
             if (stack == null || stack.isEmpty()) {
                 continue;
@@ -719,6 +766,7 @@ public final class TerminalRemoteOverlay {
     }
 
     private static void applySync(StorageServerStub.SyncResult result) {
+        TerminalRemoteOverlay.fluids = List.copyOf(result.fluids());
         for (StorageServerStub.StackUpdate update : result.updates()) {
             if (update.stack().isEmpty()) {
                 TerminalRemoteOverlay.CONTENTS.remove(update.index());
@@ -739,6 +787,32 @@ public final class TerminalRemoteOverlay {
         ItemStack carried = minecraft.player != null
                             ? minecraft.player.containerMenu.getCarried()
                             : ItemStack.EMPTY;
+        if (slot >= StoragePortManager.FLUID_SLOT_BASE) {
+            StorageServerStub.FluidEntry fluid = TerminalRemoteOverlay.getFluidSlot(slot);
+            if (fluid == null || button != 0) {
+                TerminalRemoteOverlay.taking = false;
+                return;
+            }
+            boolean intoInventory = Screen.hasShiftDown();
+            Screen origin = minecraft.screen;
+            Player actor = minecraft.player;
+            StorageTerminalClientStub.takeFluid(
+                id, fluid.icon().copyWithAmount(FluidType.BUCKET_VOLUME), intoInventory, carried
+            ).whenComplete((result, error) -> minecraft.execute(() -> {
+                TerminalRemoteOverlay.taking = false;
+                if (error != null) return;
+                if (minecraft.screen == origin && minecraft.player == actor) {
+                    if (result.changed() && !intoInventory) TerminalRemoteOverlay.applyCarriedIfCreative(result.carried());
+                    if (actor != null && result.notice() != StorageServerStub.FluidNotice.NONE
+                        && TerminalRemoteOverlay.isHoveringSame(id)) {
+                        TerminalRemoteOverlay.notice = result.notice().text();
+                        TerminalRemoteOverlay.noticeUntil = Util.getMillis() + 2000;
+                    }
+                }
+                if (result.changed() && TerminalRemoteOverlay.isHoveringSame(id)) TerminalRemoteOverlay.refresh();
+            }));
+            return;
+        }
         // 按住 Shift 时直接移入背包（放得下多少移多少，完全放不下不移动也不取到鼠标）；
         // 否则取到鼠标指针上。
         if (Screen.hasShiftDown()) {
@@ -782,6 +856,11 @@ public final class TerminalRemoteOverlay {
             && minecraft.player != null) {
             creativeScreen.getMenu().setCarried(carried);
         }
+    }
+
+    private static StorageServerStub.@Nullable FluidEntry getFluidSlot(int slot) {
+        int index = slot - StoragePortManager.FLUID_SLOT_BASE;
+        return index >= 0 && index < TerminalRemoteOverlay.fluids.size() ? TerminalRemoteOverlay.fluids.get(index) : null;
     }
 
     private static IntList getVisibleSlots() {
@@ -910,6 +989,7 @@ public final class TerminalRemoteOverlay {
         TerminalRemoteOverlay.searchBox = null;
         TerminalRemoteOverlay.order = new IntArrayList();
         TerminalRemoteOverlay.baseOrder = new IntArrayList();
+        TerminalRemoteOverlay.fluids = List.of();
         TerminalRemoteOverlay.fullSyncing = false;
         TerminalRemoteOverlay.fullSyncReplan = false;
         TerminalRemoteOverlay.fullSyncRetryRefresh = 0;
@@ -918,6 +998,8 @@ public final class TerminalRemoteOverlay {
         TerminalRemoteOverlay.COUNTS.clear();
         TerminalRemoteOverlay.cursor = -1;
         TerminalRemoteOverlay.taking = false;
+        TerminalRemoteOverlay.notice = Component.empty();
+        TerminalRemoteOverlay.noticeUntil = 0;
         TerminalRemoteOverlay.fastRetries = 0;
         TerminalRemoteOverlay.frameCounter = 0;
     }

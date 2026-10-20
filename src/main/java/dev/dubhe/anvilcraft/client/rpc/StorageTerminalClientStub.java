@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.HashMap;
 import java.util.List;
@@ -85,6 +86,15 @@ public final class StorageTerminalClientStub {
                 button,
                 carried
             )
+        );
+    }
+
+    public static CompletableFuture<StorageServerStub.InteractionResult> takeFluid(
+        UUID storageId, FluidStack fluid, boolean intoInventory, ItemStack carried
+    ) {
+        return StorageTerminalClientStub.ensureVirtualPos(storageId).thenCompose(virtualPos ->
+            RPC.invoke(RpcTarget.server(), StorageServerStub::terminalTakeFluid,
+                StorageTerminalClientStub.playerId(), virtualPos, fluid, intoInventory, carried)
         );
     }
 
