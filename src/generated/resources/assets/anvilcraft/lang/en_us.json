@@ -969,7 +969,6 @@
   "enchantment.anvilcraft.harvest.desc": "Harvest and replant mature crops, higher level increases range.",
   "enchantment.anvilcraft.smelting": "Smelting",
   "enchantment.anvilcraft.smelting.desc": "Smelts block drop (after Silk Touch and Fortune), higher levels provide chances of doubling ores outcome",
-  "entity.anvilcraft.animate_ascending_block": "Animate Ascending Block",
   "entity.anvilcraft.cauldron_outlet": "Cauldron Outlet",
   "entity.anvilcraft.falling_giant_anvil": "Falling Giant Anvil",
   "entity.anvilcraft.falling_spectral_block": "Falling Spectral Block",
