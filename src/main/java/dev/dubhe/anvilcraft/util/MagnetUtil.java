@@ -38,15 +38,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class MagnetUtil {
-    public static void animateAnvil(Level level, Vec3 start, BlockState state, BlockPos end, int... removedEntities) {
-        sendAnimation(level, start, end, state, removedEntities);
+    private static final int[] NO_ENTITIES = new int[0];
+
+    public static void animateAnvil(Level level, Vec3 start, BlockPos end, BlockState state, int... removedEntities) {
+        sendAnimation(level, start, end, state, true, removedEntities);
     }
 
     public static void animateAscendingBlock(Level level, Vec3 start, BlockPos end, BlockState state) {
-        sendAnimation(level, start, end, state, new int[0]);
+        sendAnimation(level, start, end, state, false, NO_ENTITIES);
     }
 
-    private static void sendAnimation(Level level, Vec3 start, BlockPos end, BlockState state, int[] removedEntities) {
+    private static void sendAnimation(
+        Level level,
+        Vec3 start,
+        BlockPos end,
+        BlockState state,
+        boolean requiresMagnet,
+        int[] removedEntities
+    ) {
         if (!(level instanceof ServerLevel serverLevel)) return;
         // Deliver the real blocks and the visual offset together, before the normal end-of-tick chunk broadcast.
         List<Packet<? super ClientGamePacketListener>> updates = new ArrayList<>(List.of(
@@ -55,7 +64,7 @@ public abstract class MagnetUtil {
             new ClientboundBlockUpdatePacket(serverLevel, end)
         ));
         if (removedEntities.length > 0) updates.add(new ClientboundRemoveEntitiesPacket(removedEntities));
-        updates.add(new ClientboundCustomPayloadPacket(new MagnetAnvilAnimationPacket(start, end, state)));
+        updates.add(new ClientboundCustomPayloadPacket(new MagnetAnvilAnimationPacket(start, end, state, requiresMagnet)));
         ClientboundBundlePacket packet = new ClientboundBundlePacket(updates);
         for (var player : serverLevel.getChunkSource().chunkMap.getPlayers(ChunkPos.containing(end), false)) {
             player.connection.send(packet);
