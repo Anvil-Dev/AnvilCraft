@@ -31,7 +31,7 @@ public final class MagnetAnvilAnimation {
         Minecraft client = Minecraft.getInstance();
         ClientLevel level = client.level;
         if (level == null || !AnvilCraft.CLIENT_CONFIG.effects.displayAnvilAnimation || start.y >= end.getY()
-            || level.getBlockState(end) != state) return;
+            || level.getBlockState(end) != state || requiresMagnet && !MagnetUtil.hasMagnetism(level, end)) return;
         double time = ticks + client.getDeltaTracker().getGameTimeDeltaPartialTick(false);
         Animation previous = ANIMATIONS.get(end);
         Vec3 origin = previous == null ? start : previous.position(time);

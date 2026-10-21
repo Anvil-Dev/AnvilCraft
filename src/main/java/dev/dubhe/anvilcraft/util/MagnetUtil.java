@@ -40,8 +40,8 @@ import java.util.List;
 public abstract class MagnetUtil {
     private static final int[] NO_ENTITIES = new int[0];
 
-    public static void animateAnvil(Level level, Vec3 start, BlockPos end, BlockState state, int... removedEntities) {
-        sendAnimation(level, start, end, state, true, removedEntities);
+    public static void animateAnvil(Level level, Vec3 start, BlockPos magnet, BlockState state, int... removedEntities) {
+        sendAnimation(level, start, magnet.below(), state, true, removedEntities);
     }
 
     public static void animateAscendingBlock(Level level, Vec3 start, BlockPos end, BlockState state) {
