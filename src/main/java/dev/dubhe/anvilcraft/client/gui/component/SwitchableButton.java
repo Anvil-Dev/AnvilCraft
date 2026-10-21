@@ -6,6 +6,7 @@ import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -77,7 +78,10 @@ public class SwitchableButton extends Button {
             && !this.message.isEmpty()
             && this.textures.size() == this.message.size()
         ) {
-            graphics.renderTooltip(Minecraft.getInstance().font, this.getMessage(), mouseX, mouseY);
+            Screen screen = Minecraft.getInstance().screen;
+            if (screen != null) {
+                screen.setTooltipForNextRenderPass(this.getMessage());
+            }
         }
     }
 

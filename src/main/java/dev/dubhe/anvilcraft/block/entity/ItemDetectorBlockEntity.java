@@ -51,7 +51,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
 
     public static final int DATASLOT_ID_RANGE = 0;
     public static final int DATASLOT_ID_FILTER_MODE = 1;
-    public static final int DATASLOT_ID_OUTPUT_INVERT = 2;
+    public static final int DATASLOT_ID_OUTPUT_MODE = 2;
     private static final FilteredItemStackHandler DUMMY_HANDLER = new FilteredItemStackHandler(0);
     private static final int MIN_RANGE = 1;
     private static final int MAX_RANGE = 8;
@@ -62,7 +62,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
     @Getter
     private int range = 0;
     @Getter
-    private boolean outputInvert = false;
+    private OutputMode outputMode = OutputMode.NORMAL;
     private boolean rangeChanged = true;
     private @Nullable AABB detectionRange;
     @Getter
@@ -72,7 +72,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
             return switch (index) {
                 case DATASLOT_ID_RANGE -> ItemDetectorBlockEntity.this.range;
                 case DATASLOT_ID_FILTER_MODE -> ItemDetectorBlockEntity.this.filterMode.ordinal();
-                case DATASLOT_ID_OUTPUT_INVERT -> ItemDetectorBlockEntity.this.outputInvert ? 1 : 0;
+                case DATASLOT_ID_OUTPUT_MODE -> ItemDetectorBlockEntity.this.outputMode.ordinal();
                 default -> 0;
             };
         }
@@ -87,8 +87,9 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
                     if (value < 0 || value >= Mode.values().length) return;
                     ItemDetectorBlockEntity.this.setFilterMode(Mode.values()[value]);
                     break;
-                case DATASLOT_ID_OUTPUT_INVERT:
-                    ItemDetectorBlockEntity.this.setOutputInvert(value != 0);
+                case DATASLOT_ID_OUTPUT_MODE:
+                    if (value < 0 || value >= OutputMode.values().length) return;
+                    ItemDetectorBlockEntity.this.setOutputMode(OutputMode.values()[value]);
                     break;
                 default:
             }
@@ -132,7 +133,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         if (tag.contains("FilterMode")) this.filterMode = Mode.valueOf(tag.getString("FilterMode"));
         if (tag.contains("Filter")) this.filter.deserializeNBT(registries, tag.getCompound("Filter"));
         if (tag.contains("OutputSignal")) this.outputSignal = tag.getInt("OutputSignal");
-        if (tag.contains("OutputInvert")) this.outputInvert = tag.getBoolean("OutputInvert");
+        this.loadOutputMode(tag);
         this.recalcDetectionRange();
     }
 
@@ -143,14 +144,14 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         tag.putString("FilterMode", this.filterMode.toString());
         tag.put("Filter", this.filter.serializeNBT(registries));
         tag.putInt("OutputSignal", this.outputSignal);
-        tag.putBoolean("OutputInvert", this.outputInvert);
+        tag.putInt("OutputMode", this.outputMode.ordinal());
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         if (!this.rangeChanged) return new CompoundTag();
         CompoundTag tag = super.getUpdateTag(registries);
-        tag.putBoolean("OutputInvert", this.outputInvert);
+        tag.putInt("OutputMode", this.outputMode.ordinal());
         tag.putInt("Range", this.range);
         this.rangeChanged = false;
         return tag;
@@ -172,7 +173,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
             entity -> !entity.getItem().isEmpty()
         );
         int output = this.getOutput(itemEntities, level, this.detectionRange);
-        if (this.outputInvert) output = 15 - output;
+        output = this.outputMode.apply(output);
         if (output == this.outputSignal) return;
         this.outputSignal = output;
         if (blockState.getValue(POWERED) != (this.outputSignal > 0)) {
@@ -238,10 +239,19 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         this.setChanged();
     }
 
-    public void setOutputInvert(boolean outputInvert) {
-        if (this.outputInvert == outputInvert) return;
-        this.outputInvert = outputInvert;
+    public void setOutputMode(OutputMode outputMode) {
+        if (this.outputMode == outputMode) return;
+        this.outputMode = outputMode;
         this.setChanged();
+    }
+
+    private void loadOutputMode(CompoundTag tag) {
+        if (tag.contains("OutputMode")) {
+            int mode = tag.getInt("OutputMode");
+            this.outputMode = mode >= 0 && mode < OutputMode.values().length ? OutputMode.values()[mode] : OutputMode.NORMAL;
+        } else if (tag.contains("OutputInvert")) {
+            this.outputMode = tag.getBoolean("OutputInvert") ? OutputMode.INVERSE : OutputMode.NORMAL;
+        }
     }
 
     public void increaseRange() {
@@ -361,7 +371,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         if (this.level == null) return;
         data.putInt("Range", this.range);
         data.putString("FilterMode", this.filterMode.toString());
-        data.putBoolean("OutputInvert", this.outputInvert);
+        data.putInt("OutputMode", this.outputMode.ordinal());
         data.put("Filter", this.filter.serializeNBT(this.level.registryAccess()));
     }
 
@@ -370,9 +380,23 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         if (this.level == null) return;
         this.setRange(data.getInt("Range"));
         this.filterMode = Mode.valueOf(data.getString("FilterMode"));
-        this.setOutputInvert(data.getBoolean("OutputInvert"));
+        this.loadOutputMode(data);
         this.filter.deserializeNBT(this.level.registryAccess(), data.getCompound("Filter"));
         this.recalcDetectionRange();
+    }
+
+    public enum OutputMode {
+        NORMAL,
+        REVERSE,
+        INVERSE;
+
+        public int apply(int signal) {
+            return switch (this) {
+                case NORMAL -> signal;
+                case REVERSE -> signal == 0 ? 15 : 0;
+                case INVERSE -> 15 - signal;
+            };
+        }
     }
 
     public enum Mode {

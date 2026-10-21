@@ -4,13 +4,12 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import static dev.dubhe.anvilcraft.block.entity.ItemDetectorBlockEntity.Mode;
@@ -31,8 +30,10 @@ public class CycleFilterModeButton extends Button {
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         if (this.isHovered()) {
-            guiGraphics.renderTooltip(
-                Minecraft.getInstance().font, List.of(this.getMessage()), Optional.empty(), mouseX, mouseY);
+            Screen screen = Minecraft.getInstance().screen;
+            if (screen != null) {
+                screen.setTooltipForNextRenderPass(this.getMessage());
+            }
         }
     }
 

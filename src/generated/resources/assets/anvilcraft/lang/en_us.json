@@ -1782,6 +1782,7 @@
   "screen.anvilcraft.button.filter_mode": "Filter Mode: %s",
   "screen.anvilcraft.button.filter_mode_all": "All",
   "screen.anvilcraft.button.filter_mode_any": "Any",
+  "screen.anvilcraft.button.inverse": "Inverse proportional output",
   "screen.anvilcraft.button.off": "off",
   "screen.anvilcraft.button.on": "on",
   "screen.anvilcraft.button.pulse_generator.reverse.off": "Reverse Mode: Off",
