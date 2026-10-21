@@ -28,6 +28,7 @@ import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.init.ModStats;
 import dev.dubhe.anvilcraft.init.ModTargetPointers;
+import dev.dubhe.anvilcraft.init.ModTicketTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
@@ -107,6 +108,7 @@ public class AnvilCraft {
         ModBiomeSources.register(modEventBus);
         ModDensityFunctionTypes.register(modEventBus);
         ModTargetPointers.register(modEventBus);
+        ModTicketTypes.register(modEventBus);
         ModComponents.register(modEventBus);
         ModVillagers.register(modEventBus);
         ModRecipeSerializers.register(modEventBus);
