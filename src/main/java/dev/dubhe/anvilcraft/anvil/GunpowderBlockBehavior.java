@@ -32,7 +32,7 @@ public class GunpowderBlockBehavior implements IAnvilBehavior {
             && !blockState.is(ModBlocks.SPECTRAL_ANVIL)) {
             level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
             level.setBlockAndUpdate(above, blockState);
-            MagnetUtil.animateAscendingBlock(level, pos.getBottomCenter(), blockState, above);
+            MagnetUtil.animateAscendingBlock(level, pos.getBottomCenter(), above, blockState);
         }
         return true;
     }
