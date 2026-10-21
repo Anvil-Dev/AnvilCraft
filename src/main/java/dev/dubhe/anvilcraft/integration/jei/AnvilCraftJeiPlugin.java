@@ -92,6 +92,7 @@ import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.gui.builder.IClickableIngredientFactory;
 import mezz.jei.api.gui.handlers.IGlobalGuiHandler;
+import mezz.jei.api.gui.handlers.IGuiProperties;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.helpers.IJeiHelpers;
 import mezz.jei.api.recipe.RecipeType;
@@ -103,8 +104,8 @@ import mezz.jei.api.registration.IRecipeTransferRegistration;
 import mezz.jei.api.registration.IVanillaCategoryExtensionRegistration;
 import mezz.jei.api.runtime.IClickableIngredient;
 import mezz.jei.api.runtime.IJeiRuntime;
-import mezz.jei.gui.GuiProperties;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.Rect2i;
@@ -369,7 +370,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addGuiContainerHandler(CreativeModeInventoryScreen.class, new PocketGuiHandler<>());
         registration.addGuiScreenHandler(
             StorageScreen.class,
-            screen -> screen.width > 0 && screen.height > 0 ? new GuiProperties(
+            screen -> screen.width > 0 && screen.height > 0 ? new StorageGuiProperties(
                 StorageScreen.class,
                 screen.getLeftPos(),
                 screen.getTopPos(),
@@ -457,5 +458,16 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
             registration.addRecipeCatalyst(new ItemStack(item), recipeType));
         CAULDRON_PROCESSING_CATALYSTS.forEach(item ->
             registration.addRecipeCatalyst(new ItemStack(item), recipeType));
+    }
+
+    private record StorageGuiProperties(
+        Class<? extends Screen> screenClass,
+        int guiLeft,
+        int guiTop,
+        int guiXSize,
+        int guiYSize,
+        int screenWidth,
+        int screenHeight
+    ) implements IGuiProperties {
     }
 }
