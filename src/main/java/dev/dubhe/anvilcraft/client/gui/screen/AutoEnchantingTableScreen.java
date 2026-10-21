@@ -514,6 +514,7 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
         if (button == 0) {
             if (this.searchBox != null && !this.insideSearchBox(mouseX, mouseY)) {
                 this.searchBox.setFocused(false);
+                this.setFocused(null);
             }
             if (this.insideScrollbar(mouseX, mouseY)) {
                 this.scrollable.scrolling();
