@@ -10,6 +10,7 @@ import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.block.entity.IConvertableBlockEntity;
 import dev.dubhe.anvilcraft.api.event.BlockEntityEvent;
+import dev.dubhe.anvilcraft.api.fluid.FluidChangeTracker;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
 import dev.dubhe.anvilcraft.util.EnchantedGoldBlockPositions;
 import dev.dubhe.anvilcraft.util.MonolithBlockPositions;
@@ -23,6 +24,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -31,7 +33,25 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.Map;
 
 @Mixin(LevelChunk.class)
-public abstract class LevelChunkMixin {
+public abstract class LevelChunkMixin implements FluidChangeTracker {
+    @Unique
+    private long anvilcraft$fluidRevision;
+
+    @Override
+    public long anvilcraft$getFluidRevision() {
+        return this.anvilcraft$fluidRevision;
+    }
+
+    @Inject(method = "setBlockState", at = @At("RETURN"))
+    private void anvilcraft$trackFluidChanges(
+        BlockPos pos, BlockState state, int flags, CallbackInfoReturnable<BlockState> cir
+    ) {
+        BlockState previous = cir.getReturnValue();
+        if (previous != null && previous.getFluidState() != state.getFluidState()) {
+            this.anvilcraft$fluidRevision++;
+        }
+    }
+
     @Shadow
     public abstract Level getLevel();
 

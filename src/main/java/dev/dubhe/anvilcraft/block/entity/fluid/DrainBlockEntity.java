@@ -1,9 +1,11 @@
 package dev.dubhe.anvilcraft.block.entity.fluid;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.fluid.DrainChunkAccess;
 import dev.dubhe.anvilcraft.api.fluid.FluidStackResourceHandler;
 import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
+import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue;
 import it.unimi.dsi.fastutil.longs.LongIterator;
@@ -43,6 +45,7 @@ import org.jspecify.annotations.Nullable;
 @Getter
 public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandlerHolder {
     private static final int UNIT = FluidType.BUCKET_VOLUME;
+    private static final Direction[] DIRECTIONS = Direction.values();
     private static final int FILL_THRESHOLD = FluidType.BUCKET_VOLUME;
     private static final int DRAIN_THRESHOLD = 3 * FluidType.BUCKET_VOLUME;
     private static final int MAX_NODES = 2048;
@@ -70,6 +73,10 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
     private final LongOpenHashSet flowCleanupVisited = new LongOpenHashSet();
     @Getter(AccessLevel.NONE)
     private @Nullable Fluid flowCleanupFluid;
+    @Getter(AccessLevel.NONE)
+    private boolean cleaningFlows;
+    @Getter(AccessLevel.NONE)
+    private DrainChunkAccess flowCleanupChunks = new DrainChunkAccess();
 
     public DrainBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -93,6 +100,8 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
         if (this.level != null && !this.level.isClientSide()) {
             FluidNetworkManager.INSTANCE.removeContainer(this.level, this.getBlockPos());
         }
+        this.drainSearch = null;
+        this.clearFlowCleanup();
         super.setRemoved();
     }
 
@@ -103,12 +112,14 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, DrainBlockEntity be) {
-        if (level.isClientSide()) return;
-        if (level.getGameTime() % AnvilCraft.CONFIG.machines.drainInterval != 0) return;
-        FillResult fillResult = be.tryFillDown(level, pos);
-        if (fillResult == FillResult.NONE) be.clearColumn();
-        be.tryDrainUp(level, pos);
-        be.tryGenerateFromInfinite(level, pos);
+        if (!(level instanceof ServerLevel serverLevel) || be.isRemoved()) return;
+        boolean extract = level.getGameTime() % AnvilCraft.CONFIG.machines.drainInterval == 0;
+        if (extract) {
+            FillResult fillResult = be.tryFillDown(level, pos);
+            if (fillResult == FillResult.NONE) be.clearColumn();
+        }
+        be.tryDrainUp(serverLevel, pos, extract);
+        if (extract) be.tryGenerateFromInfinite(level, pos);
     }
 
     private void clearColumn() {
@@ -201,50 +212,57 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
         return state.isAir() || state.canBeReplaced() ? DrainBlockEntity.FILL_TARGET : DrainBlockEntity.FILL_BLOCKED;
     }
 
-    private static boolean isSameFluidSource(Level level, BlockPos pos, Fluid fluid) {
-        FluidState fs = level.getFluidState(pos);
-        return !fs.isEmpty() && fs.getType().isSame(fluid) && fs.isSource();
-    }
-
-    private static int countSourceNeighbors(
-        Level level, BlockPos pos, Fluid fluid, BlockPos.MutableBlockPos neighborCursor
-    ) {
-        int count = 0;
-        for (Direction d : Direction.Plane.HORIZONTAL) {
-            neighborCursor.set(pos.getX() + d.getStepX(), pos.getY(), pos.getZ() + d.getStepZ());
-            if (DrainBlockEntity.isSameFluidSource(level, neighborCursor, fluid)) count++;
-        }
-        return count;
-    }
-
-    private void tryDrainUp(Level level, BlockPos pos) {
-        if (!this.processFlowCleanup(level)) return;
+    private void tryDrainUp(ServerLevel level, BlockPos pos, boolean extract) {
+        int interval = AnvilCraft.CONFIG.machines.drainInterval;
+        int budget = (DrainBlockEntity.MAX_NODES + interval - 1) / interval;
+        if (this.cleaningFlows) budget = this.processFlowCleanup(level, budget);
+        if (budget == 0 || this.cleaningFlows) return;
         FluidStack stored = this.tank.getStack();
         if (!stored.isEmpty() && stored.getAmount() >= DrainBlockEntity.DRAIN_THRESHOLD) {
             this.drainSearch = null;
             return;
         }
-        Fluid want = stored.isEmpty() ? null : stored.getFluid();
-        SearchResult searchResult = this.findHighestDrainTarget(level, pos, want);
-        BlockPos target = searchResult.target();
-        if (target == null) return;
-        FluidState fs = level.getFluidState(target);
-        if (fs.isEmpty() || (want != null && !fs.getType().isSame(want))) {
+        FluidState entry = level.getFluidState(pos.above());
+        if (entry.isEmpty() || !stored.isEmpty() && !entry.getType().isSame(stored.getFluid())) {
+            this.clearFlowCleanup();
             this.drainSearch = null;
             return;
         }
-        Fluid fluid = fs.getType();
-        if (!fs.isSource()) {
-            this.startFlowCleanup(level, target, fluid);
-            this.processFlowCleanup(level);
+        Fluid fluid = entry.getType();
+        if (this.drainSearch == null || !this.drainSearch.fluid.isSame(fluid) || !this.drainSearch.chunks.isValid(level)) {
+            this.drainSearch = new DrainSearch(pos, fluid, level.getGameTime() / AnvilCraft.CONFIG.machines.drainInterval);
+        }
+        this.drainSearch.chunks.tick(level);
+        SearchResult result = this.drainSearch.advance(level, budget);
+        BlockPos target = result.target();
+        if (!extract || target == null) return;
+        BlockState targetState = this.drainSearch.chunks.read(level, target);
+        if (targetState == null) return;
+        FluidState targetFluid = targetState.getFluidState();
+        if (targetFluid.isEmpty() || !targetFluid.getType().isSame(fluid)) {
             this.drainSearch = null;
             return;
         }
-        if (!this.canInsert(fluid, DrainBlockEntity.UNIT)) return;
-        this.removeSourceAndQueueFlowCleanup(level, target, fluid);
-        this.processFlowCleanup(level);
-        this.insert(fluid, DrainBlockEntity.UNIT);
-        this.drainSearch = null;
+        if (!targetFluid.isSource()) {
+            this.prepareFlowCleanup(fluid);
+            this.enqueueFlowing(target);
+            this.cleaningFlows = true;
+            this.drainSearch = null;
+        } else {
+            if (!this.canInsert(fluid, DrainBlockEntity.UNIT)) return;
+            if (!DrainBlockEntity.removeFluidSilently(level, target, targetState)) {
+                this.drainSearch = null;
+                return;
+            }
+            this.prepareFlowCleanup(fluid);
+            for (Direction direction : DrainBlockEntity.DIRECTIONS) this.enqueueFlowing(target.relative(direction));
+            this.insert(fluid, DrainBlockEntity.UNIT);
+            if (!this.drainSearch.acceptDrained(level, target)) this.drainSearch = null;
+            if (target.equals(pos.above())) {
+                this.cleaningFlows = true;
+                this.drainSearch = null;
+            }
+        }
     }
 
     private void tryGenerateFromInfinite(Level level, BlockPos pos) {
@@ -298,105 +316,57 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
         return below.isSolid() || (belowFs.isSource() && belowFs.getType().isSame(fluid));
     }
 
-    private SearchResult findHighestDrainTarget(Level level, BlockPos drainPos, @Nullable Fluid want) {
-        BlockPos start = drainPos.above();
-        FluidState startFs = level.getFluidState(start);
-        if (startFs.isEmpty() || (want != null && !startFs.getType().isSame(want))) {
-            this.drainSearch = null;
-            return SearchResult.EXHAUSTED;
-        }
-        Fluid fluid = want != null ? want : startFs.getType();
-        int maxY = level.getMaxY();
-        int topY = start.getY();
-        while (topY < maxY) {
-            FluidState fs = level.getFluidState(new BlockPos(drainPos.getX(), topY + 1, drainPos.getZ()));
-            if (fs.isEmpty() || !fs.getType().isSame(fluid)) break;
-            topY++;
-        }
-        if (this.drainSearch == null
-            || !this.drainSearch.matches(drainPos, fluid, start.getY(), topY, level.getGameTime())) {
-            this.drainSearch = new DrainSearch(
-                drainPos,
-                fluid,
-                start.getY(),
-                topY,
-                level.getGameTime() / AnvilCraft.CONFIG.machines.drainInterval
-            );
-        }
-        return this.drainSearch.advance(level);
-    }
-
-    private void removeSourceAndQueueFlowCleanup(Level level, BlockPos target, Fluid fluid) {
-        DrainBlockEntity.removeFluidSilently(level, target);
-        this.prepareFlowCleanup(fluid);
-        for (Direction direction : Direction.values()) {
-            this.enqueueFlowing(level, target.relative(direction), fluid);
-        }
-    }
-
-    private void startFlowCleanup(Level level, BlockPos target, Fluid fluid) {
-        this.prepareFlowCleanup(fluid);
-        this.enqueueFlowing(level, target, fluid);
-    }
-
-    private static void removeFluidSilently(Level level, BlockPos target) {
-        int flags = Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE;
-        BlockState state = level.getBlockState(target);
-        BlockState dryState = state.hasProperty(BlockStateProperties.WATERLOGGED)
+    private static boolean removeFluidSilently(ServerLevel level, BlockPos target, BlockState state) {
+        BlockState replacement = state.hasProperty(BlockStateProperties.WATERLOGGED)
             && state.getValue(BlockStateProperties.WATERLOGGED)
-            ? state.setValue(BlockStateProperties.WATERLOGGED, false)
-            : Blocks.AIR.defaultBlockState();
-        level.setBlock(target, dryState, flags);
+            ? state.setValue(BlockStateProperties.WATERLOGGED, false) : Blocks.AIR.defaultBlockState();
+        return level.setBlock(target, replacement, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
     }
 
     private void prepareFlowCleanup(Fluid fluid) {
-        if (this.flowCleanupFluid != null && !this.flowCleanupFluid.isSame(fluid)) {
-            this.clearFlowCleanup();
-        }
+        if (this.flowCleanupFluid != null && !this.flowCleanupFluid.isSame(fluid)) this.clearFlowCleanup();
         this.flowCleanupFluid = fluid;
     }
 
-    private void enqueueFlowing(Level level, BlockPos pos, Fluid fluid) {
+    private void enqueueFlowing(BlockPos pos) {
         long packedPos = pos.asLong();
-        if (!this.flowCleanupVisited.add(packedPos)) return;
-        FluidState fluidState = level.getFluidState(pos);
-        if (!fluidState.isEmpty() && !fluidState.isSource() && fluidState.getType().isSame(fluid)) {
-            this.flowCleanupQueue.enqueue(packedPos);
-        }
+        if (this.flowCleanupVisited.add(packedPos)) this.flowCleanupQueue.enqueue(packedPos);
     }
 
-    private boolean processFlowCleanup(Level level) {
+    private int processFlowCleanup(ServerLevel level, int budget) {
         if (this.flowCleanupQueue.isEmpty() || this.flowCleanupFluid == null) {
             this.clearFlowCleanup();
-            return true;
+            return budget;
         }
-        Fluid fluid = this.flowCleanupFluid;
+        if (!this.flowCleanupChunks.isValid(level)) this.flowCleanupChunks = new DrainChunkAccess();
+        this.flowCleanupChunks.tick(level);
         BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
-        int processed = 0;
-        while (!this.flowCleanupQueue.isEmpty() && processed < DrainBlockEntity.MAX_NODES) {
-            long current = this.flowCleanupQueue.dequeueLong();
-            processed++;
-            cursor.set(BlockPos.getX(current), BlockPos.getY(current), BlockPos.getZ(current));
-            FluidState fluidState = level.getFluidState(cursor);
-            if (fluidState.isEmpty() || fluidState.isSource() || !fluidState.getType().isSame(fluid)) continue;
-            DrainBlockEntity.removeFluidSilently(level, cursor);
-            for (Direction direction : Direction.values()) {
+        while (!this.flowCleanupQueue.isEmpty() && budget > 0) {
+            cursor.set(this.flowCleanupQueue.firstLong());
+            BlockState state = this.flowCleanupChunks.read(level, cursor);
+            if (state == null) return 0;
+            this.flowCleanupQueue.dequeueLong();
+            budget--;
+            FluidState fluidState = state.getFluidState();
+            if (fluidState.isEmpty() || fluidState.isSource() || !fluidState.getType().isSame(this.flowCleanupFluid)) continue;
+            DrainBlockEntity.removeFluidSilently(level, cursor, state);
+            for (Direction direction : DrainBlockEntity.DIRECTIONS) {
                 cursor.move(direction);
-                this.enqueueFlowing(level, cursor, fluid);
+                this.enqueueFlowing(cursor);
                 cursor.move(direction.getOpposite());
             }
         }
-        if (this.flowCleanupQueue.isEmpty()) {
-            this.clearFlowCleanup();
-            return true;
-        }
-        return false;
+        if (this.flowCleanupQueue.isEmpty()) this.clearFlowCleanup();
+        return budget;
     }
 
     private void clearFlowCleanup() {
+        if (this.flowCleanupFluid == null && this.flowCleanupQueue.isEmpty() && this.flowCleanupVisited.isEmpty()) return;
         this.flowCleanupQueue.clear();
         this.flowCleanupVisited.clear();
         this.flowCleanupFluid = null;
+        this.cleaningFlows = false;
+        this.flowCleanupChunks = new DrainChunkAccess();
     }
 
     private static boolean isPreferredHorizontalTie(
@@ -649,188 +619,151 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
     private static final class DrainSearch {
         private final long drainPos;
         private final Fluid fluid;
-        private final int bottomY;
-        private final int topY;
         private final long selectionPhase;
-        private int currentY;
-        private long exhaustedAt = Long.MIN_VALUE;
-        private @Nullable DrainLayerSearch layerSearch;
-
-        private DrainSearch(
-            BlockPos drainPos,
-            Fluid fluid,
-            int bottomY,
-            int topY,
-            long selectionPhase
-        ) {
-            this.drainPos = drainPos.asLong();
-            this.fluid = fluid;
-            this.bottomY = bottomY;
-            this.topY = topY;
-            this.currentY = topY;
-            this.selectionPhase = selectionPhase;
-        }
-
-        private boolean matches(BlockPos drainPos, Fluid fluid, int bottomY, int topY, long gameTime) {
-            return this.drainPos == drainPos.asLong()
-                && this.fluid.isSame(fluid)
-                && this.bottomY == bottomY
-                && this.topY == topY
-                && (this.exhaustedAt == Long.MIN_VALUE || gameTime - this.exhaustedAt < DrainBlockEntity.EXHAUSTED_SEARCH_TTL);
-        }
-
-        private SearchResult advance(Level level) {
-            while (this.currentY >= this.bottomY) {
-                if (this.layerSearch == null) {
-                    long entry = BlockPos.asLong(
-                        BlockPos.getX(this.drainPos),
-                        this.currentY,
-                        BlockPos.getZ(this.drainPos)
-                    );
-                    this.layerSearch = new DrainLayerSearch(
-                        this.drainPos,
-                        entry,
-                        this.fluid,
-                        this.selectionPhase
-                    );
-                }
-                SearchResult result = this.layerSearch.advance(level);
-                if (result.pending() || result.target() != null) {
-                    this.exhaustedAt = Long.MIN_VALUE;
-                    return result;
-                }
-                this.currentY--;
-                this.layerSearch = null;
-            }
-            if (this.exhaustedAt == Long.MIN_VALUE) {
-                this.exhaustedAt = level.getGameTime();
-            }
-            return SearchResult.EXHAUSTED;
-        }
-    }
-
-    private static final class DrainLayerSearch {
-        private final long drainPos;
-        private final Fluid fluid;
-        private final long selectionPhase;
+        private final DrainChunkAccess chunks = new DrainChunkAccess();
         private final LongOpenHashSet discovered = new LongOpenHashSet(DrainBlockEntity.MAX_NODES);
         private final LongArrayFIFOQueue queue = new LongArrayFIFOQueue(DrainBlockEntity.MAX_NODES);
+        private final Long2LongOpenHashMap sourceAncestors = new Long2LongOpenHashMap();
+        private final Long2IntOpenHashMap sourceCandidates = new Long2IntOpenHashMap();
+        private final Long2IntOpenHashMap sourceChildren = new Long2IntOpenHashMap();
+        private @Nullable LongIterator candidateIterator;
         private long best;
         private int bestY = Integer.MIN_VALUE;
+        private int bestNeighbors = Integer.MAX_VALUE;
         private long bestDist = Long.MIN_VALUE;
         private long bestDx;
         private long bestDz;
-        private int bestNeighbors = Integer.MAX_VALUE;
         private boolean found;
-        private long bestFlowing;
-        private int bestFlowingY = Integer.MIN_VALUE;
-        private long bestFlowingDist = Long.MIN_VALUE;
-        private long bestFlowingDx;
-        private long bestFlowingDz;
+        private long flowing;
         private boolean foundFlowing;
 
-        private DrainLayerSearch(long drainPos, long entry, Fluid fluid, long selectionPhase) {
-            this.drainPos = drainPos;
+        private DrainSearch(BlockPos drainPos, Fluid fluid, long selectionPhase) {
+            this.drainPos = drainPos.asLong();
             this.fluid = fluid;
             this.selectionPhase = selectionPhase;
+            this.sourceAncestors.defaultReturnValue(Long.MIN_VALUE);
+            long entry = drainPos.above().asLong();
             this.discovered.add(entry);
             this.queue.enqueue(entry);
         }
 
-        private SearchResult advance(Level level) {
+        private SearchResult advance(ServerLevel level, int budget) {
             BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
-            BlockPos.MutableBlockPos neighborCursor = new BlockPos.MutableBlockPos();
-            int processed = 0;
-            while (!this.queue.isEmpty() && processed < DrainBlockEntity.MAX_NODES) {
-                long current = this.queue.dequeueLong();
-                processed++;
-                cursor.set(BlockPos.getX(current), BlockPos.getY(current), BlockPos.getZ(current));
-                FluidState fluidState = level.getFluidState(cursor);
-                if (fluidState.isEmpty() || !fluidState.getType().isSame(this.fluid)) continue;
+            BlockPos.MutableBlockPos neighbor = new BlockPos.MutableBlockPos();
+            FluidState[] neighbors = new FluidState[DrainBlockEntity.DIRECTIONS.length];
+            while (!this.queue.isEmpty() && budget > 0) {
+                budget--;
+                long current = this.queue.firstLong();
+                cursor.set(current);
+                BlockState state = this.chunks.read(level, cursor);
+                if (state == null) return SearchResult.PENDING;
+                FluidState fluidState = state.getFluidState();
+                if (fluidState.isEmpty() || !fluidState.getType().isSame(this.fluid)) {
+                    this.queue.dequeueLong();
+                    continue;
+                }
+                boolean pending = false;
+                int sourceNeighbors = 0;
+                for (Direction direction : DrainBlockEntity.DIRECTIONS) {
+                    neighbor.setWithOffset(cursor, direction);
+                    BlockState next = neighbor.getY() <= BlockPos.getY(this.drainPos)
+                        ? Blocks.AIR.defaultBlockState() : this.chunks.read(level, neighbor);
+                    if (next == null) {
+                        pending = true;
+                        continue;
+                    }
+                    FluidState nextFluid = next.getFluidState();
+                    neighbors[direction.ordinal()] = nextFluid;
+                    if (direction.getAxis().isHorizontal() && nextFluid.isSource() && nextFluid.getType().isSame(this.fluid)) {
+                        sourceNeighbors++;
+                    }
+                }
+                if (pending) return SearchResult.PENDING;
+                this.queue.dequeueLong();
+                long ancestor = this.sourceAncestors.get(current);
                 if (fluidState.isSource()) {
-                    this.considerSource(level, current, cursor, neighborCursor);
+                    if (ancestor != Long.MIN_VALUE) {
+                        this.sourceCandidates.remove(ancestor);
+                        this.sourceChildren.addTo(ancestor, 1);
+                    }
+                    this.sourceCandidates.put(current, sourceNeighbors);
+                    ancestor = current;
                 } else {
-                    this.considerFlowing(current, cursor);
+                    this.flowing = current;
+                    this.foundFlowing = true;
                 }
-                for (Direction direction : Direction.Plane.HORIZONTAL) {
-                    this.discoverFluid(level, DrainBlockEntity.offset(cursor, direction), neighborCursor);
+                for (Direction direction : DrainBlockEntity.DIRECTIONS) {
+                    FluidState next = neighbors[direction.ordinal()];
+                    if (next.isEmpty() || !next.getType().isSame(this.fluid)) continue;
+                    long adjacent = DrainBlockEntity.offset(cursor, direction);
+                    if (this.discovered.add(adjacent)) {
+                        this.sourceAncestors.put(adjacent, ancestor);
+                        this.queue.enqueue(adjacent);
+                    }
                 }
-                this.discoverFluid(
-                    level,
-                    BlockPos.asLong(cursor.getX(), cursor.getY() + 1, cursor.getZ()),
-                    neighborCursor
-                );
             }
             if (!this.queue.isEmpty()) return SearchResult.PENDING;
-            if (this.found) return SearchResult.found(this.best);
-            return this.foundFlowing ? SearchResult.found(this.bestFlowing) : SearchResult.EXHAUSTED;
-        }
-
-        private void discoverFluid(Level level, long pos, BlockPos.MutableBlockPos cursor) {
-            if (!this.discovered.add(pos)) return;
-            cursor.set(BlockPos.getX(pos), BlockPos.getY(pos), BlockPos.getZ(pos));
-            FluidState fluidState = level.getFluidState(cursor);
-            if (!fluidState.isEmpty() && fluidState.getType().isSame(this.fluid)) {
-                this.queue.enqueue(pos);
+            // Keep source ancestors until their descendants are drained; flowing tails must not hide the last source.
+            if (this.candidateIterator == null) this.candidateIterator = this.sourceCandidates.keySet().iterator();
+            while (this.candidateIterator.hasNext() && budget-- > 0) {
+                long candidate = this.candidateIterator.nextLong();
+                cursor.set(candidate);
+                this.considerSource(candidate, cursor, this.sourceCandidates.get(candidate));
             }
+            if (this.candidateIterator.hasNext()) return SearchResult.PENDING;
+            if (this.found) return SearchResult.found(this.best);
+            return this.foundFlowing ? SearchResult.found(this.flowing) : SearchResult.EXHAUSTED;
         }
 
-        private void considerSource(
-            Level level,
-            long source,
-            BlockPos sourcePos,
-            BlockPos.MutableBlockPos neighborCursor
-        ) {
-            int neighbors = DrainBlockEntity.countSourceNeighbors(level, sourcePos, this.fluid, neighborCursor);
-            long dx = (long) sourcePos.getX() - BlockPos.getX(this.drainPos);
-            long dz = (long) sourcePos.getZ() - BlockPos.getZ(this.drainPos);
+        private boolean acceptDrained(ServerLevel level, BlockPos target) {
+            if (!this.chunks.acceptRemoval(target)) return false;
+            long removed = target.asLong();
+            this.sourceCandidates.remove(removed);
+            long ancestor = this.sourceAncestors.get(removed);
+            if (ancestor != Long.MIN_VALUE) {
+                int remaining = this.sourceChildren.addTo(ancestor, -1) - 1;
+                if (remaining == 0 && !this.refreshCandidate(level, BlockPos.of(ancestor))) return false;
+            }
+            for (Direction direction : Direction.Plane.HORIZONTAL) {
+                BlockPos neighbor = target.relative(direction);
+                if (this.sourceCandidates.containsKey(neighbor.asLong()) && !this.refreshCandidate(level, neighbor)) return false;
+            }
+            this.candidateIterator = null;
+            this.found = false;
+            return true;
+        }
+
+        private boolean refreshCandidate(ServerLevel level, BlockPos pos) {
+            BlockState state = this.chunks.read(level, pos);
+            if (state == null || !state.getFluidState().isSource() || !state.getFluidState().getType().isSame(this.fluid)) return false;
+            int neighbors = 0;
+            for (Direction direction : Direction.Plane.HORIZONTAL) {
+                BlockState neighbor = this.chunks.read(level, pos.relative(direction));
+                if (neighbor == null) return false;
+                FluidState fluidState = neighbor.getFluidState();
+                if (fluidState.isSource() && fluidState.getType().isSame(this.fluid)) neighbors++;
+            }
+            this.sourceCandidates.put(pos.asLong(), neighbors);
+            return true;
+        }
+
+        private void considerSource(long source, BlockPos pos, int neighbors) {
+            long dx = (long) pos.getX() - BlockPos.getX(this.drainPos);
+            long dz = (long) pos.getZ() - BlockPos.getZ(this.drainPos);
             long dist = dx * dx + dz * dz;
-            int y = sourcePos.getY();
-            if (!this.found
-                || neighbors < this.bestNeighbors
-                || neighbors == this.bestNeighbors
-                && (dist > this.bestDist
-                    || dist == this.bestDist
-                    && (DrainBlockEntity.isPreferredHorizontalTie(
-                            dx,
-                            dz,
-                            this.bestDx,
-                            this.bestDz,
-                            this.selectionPhase
-                        )
-                        || dx == this.bestDx && dz == this.bestDz && y > this.bestY))) {
+            int y = pos.getY();
+            if (!this.found || y > this.bestY
+                || y == this.bestY && (neighbors < this.bestNeighbors
+                    || neighbors == this.bestNeighbors && (dist > this.bestDist
+                        || dist == this.bestDist && DrainBlockEntity.isPreferredHorizontalTie(
+                            dx, dz, this.bestDx, this.bestDz, this.selectionPhase)))) {
                 this.best = source;
                 this.bestY = y;
+                this.bestNeighbors = neighbors;
                 this.bestDist = dist;
                 this.bestDx = dx;
                 this.bestDz = dz;
-                this.bestNeighbors = neighbors;
                 this.found = true;
-            }
-        }
-
-        private void considerFlowing(long flowing, BlockPos flowingPos) {
-            long dx = (long) flowingPos.getX() - BlockPos.getX(this.drainPos);
-            long dz = (long) flowingPos.getZ() - BlockPos.getZ(this.drainPos);
-            long dist = dx * dx + dz * dz;
-            int y = flowingPos.getY();
-            if (!this.foundFlowing
-                || dist > this.bestFlowingDist
-                || dist == this.bestFlowingDist
-                && (DrainBlockEntity.isPreferredHorizontalTie(
-                        dx,
-                        dz,
-                        this.bestFlowingDx,
-                        this.bestFlowingDz,
-                        this.selectionPhase
-                    )
-                    || dx == this.bestFlowingDx && dz == this.bestFlowingDz && y > this.bestFlowingY)) {
-                this.bestFlowing = flowing;
-                this.bestFlowingY = y;
-                this.bestFlowingDist = dist;
-                this.bestFlowingDx = dx;
-                this.bestFlowingDz = dz;
-                this.foundFlowing = true;
             }
         }
     }
