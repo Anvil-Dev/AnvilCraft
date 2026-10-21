@@ -31,7 +31,7 @@ public final class MagnetAnvilAnimation {
         Minecraft client = Minecraft.getInstance();
         ClientLevel level = client.level;
         if (level == null || !AnvilCraft.CLIENT_CONFIG.effects.displayAnvilAnimation || start.y >= end.getY()
-            || level.getBlockState(end) != state || requiresMagnet && !MagnetUtil.hasMagnetism(level, end)) return;
+            || level.getBlockState(end) != state || (requiresMagnet && !MagnetUtil.hasMagnetism(level, end))) return;
         double time = ticks + client.getDeltaTracker().getGameTimeDeltaPartialTick(false);
         Animation previous = ANIMATIONS.get(end);
         Vec3 origin = previous == null ? start : previous.position(time);
@@ -62,7 +62,7 @@ public final class MagnetAnvilAnimation {
             Animation animation = entry.getValue();
             boolean invalid = !AnvilCraft.CLIENT_CONFIG.effects.displayAnvilAnimation || !level.hasChunkAt(pos)
                 || level.getBlockState(pos) != animation.state
-                || animation.requiresMagnet && !MagnetUtil.hasMagnetism(level, pos);
+                || (animation.requiresMagnet && !MagnetUtil.hasMagnetism(level, pos));
             double age = time - animation.startTime;
             if (invalid || age >= animation.duration) {
                 if (animation.hidden) {
