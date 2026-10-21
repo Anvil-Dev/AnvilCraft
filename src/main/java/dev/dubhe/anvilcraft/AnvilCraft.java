@@ -77,6 +77,7 @@ import org.slf4j.LoggerFactory;
 
 @Mod(AnvilCraft.MOD_ID)
 public class AnvilCraft {
+    public static final String NETWORK_VERSION = "2";
     public static final String MOD_ID = "anvilcraft";
     public static final String MOD_NAME = "AnvilCraft";
     public static final Logger LOGGER = LoggerFactory.getLogger(AnvilCraft.MOD_NAME);
@@ -179,7 +180,7 @@ public class AnvilCraft {
     }
 
     public static void registerPayload(RegisterPayloadHandlersEvent event) {
-        PayloadRegistrar registrar = event.registrar("1");
+        PayloadRegistrar registrar = event.registrar(NETWORK_VERSION);
         NetworkRegistrar.register(registrar, AnvilCraft.MOD_ID);
     }
 
