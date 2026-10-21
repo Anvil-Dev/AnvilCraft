@@ -112,7 +112,12 @@ public final class BlueprintBlockConfiguration {
         if (entity instanceof ItemDetectorBlockEntity) {
             integer(source, result, "Range", 1, 8);
             choice(source, result, "FilterMode", "ANY", "ALL");
-            bool(source, result, "OutputInvert");
+            if (!source.contains("OutputMode") && source.get("OutputInvert") instanceof NumericTag) {
+                source.putInt("OutputMode", source.getBooleanOr("OutputInvert", false)
+                    ? ItemDetectorBlockEntity.OutputMode.INVERSE.ordinal() : ItemDetectorBlockEntity.OutputMode.NORMAL.ordinal());
+            }
+            integer(source, result, "OutputMode", 0, ItemDetectorBlockEntity.OutputMode.values().length - 1);
+            source.remove("OutputInvert");
             result.put("Filter", filterSamples(source.getCompoundOrEmpty("Filter"), 9, registries));
             remove(source, "Filter", "OutputSignal");
         }
