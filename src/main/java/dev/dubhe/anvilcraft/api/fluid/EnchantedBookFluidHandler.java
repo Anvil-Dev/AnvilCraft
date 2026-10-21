@@ -1,14 +1,7 @@
 package dev.dubhe.anvilcraft.api.fluid;
 
-import dev.dubhe.anvilcraft.init.block.ModFluids;
-import dev.dubhe.anvilcraft.init.item.ModComponents;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.resources.ResourceKey;
+import dev.dubhe.anvilcraft.util.LiquidEnchantmentUtil;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
@@ -33,19 +26,7 @@ public class EnchantedBookFluidHandler implements IFluidHandlerItem {
 
     @Override
     public FluidStack getFluidInTank(int tank) {
-        ItemEnchantments enchantments = this.container.getOrDefault(
-            DataComponents.STORED_ENCHANTMENTS,
-            ItemEnchantments.EMPTY
-        );
-        for (Object2IntMap.Entry<Holder<Enchantment>> entry : enchantments.entrySet()) {
-            ResourceKey<Enchantment> key = entry.getKey().getKey();
-            if (key != null) {
-                FluidStack fluid = new FluidStack(ModFluids.LIQUID_ENCHANTMENT.get(), FluidType.BUCKET_VOLUME);
-                fluid.set(ModComponents.LIQUID_ENCHANTMENT, key);
-                return fluid;
-            }
-        }
-        return new FluidStack(ModFluids.LIQUID_ENCHANTMENT.get(), FluidType.BUCKET_VOLUME);
+        return LiquidEnchantmentUtil.fromBook(this.container).copyWithAmount(FluidType.BUCKET_VOLUME);
     }
 
     @Override

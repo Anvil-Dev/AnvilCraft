@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.CreativeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.util.LiquidEnchantmentUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -48,6 +49,18 @@ public class CreativeFluidTankBlock extends BaseEntityBlock implements IHammerRe
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
+        FluidStack bookFluid = LiquidEnchantmentUtil.fromBook(stack);
+        if (!bookFluid.isEmpty() && level.getBlockEntity(pos) instanceof CreativeFluidTankBlockEntity tank
+            && tank.getFluidHandler() instanceof FluidTank fluidTank) {
+            if (!level.isClientSide()) {
+                fluidTank.setFluid(bookFluid.copyWithAmount(Integer.MAX_VALUE));
+                tank.setChanged();
+                level.sendBlockUpdated(pos, state, state, 3);
+                SoundEvent sound = bookFluid.getFluidType().getSound(SoundActions.BUCKET_EMPTY);
+                if (sound != null) level.playSound(null, pos.getX(), pos.getY(), pos.getZ(), sound, SoundSource.BLOCKS);
+            }
+            return ItemInteractionResult.sidedSuccess(level.isClientSide());
+        }
         IFluidHandlerItem bucket = stack.getCapability(Capabilities.FluidHandler.ITEM);
         if (bucket != null) {
             if (level.isClientSide()) {
