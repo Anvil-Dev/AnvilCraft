@@ -543,7 +543,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     public boolean canTransferRecipe() {
-        return this.orderLoaded && this.craftingLoaded && this.craftingAvailable && !this.interactionPending && !this.recipeTransferPending;
+        return this.isCraftingUnlocked() && this.orderLoaded && this.craftingLoaded
+            && !this.interactionPending && !this.recipeTransferPending;
     }
 
     public Map<ItemResource, Long> getTransferMaterials() {
