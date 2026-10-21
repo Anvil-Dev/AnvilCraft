@@ -42,7 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class MagnetUtil {
-    public static void animateAnvil(Level level, Vec3 start, BlockState state, BlockPos magnet, int... removedEntities) {
+    public static void animateAnvilFromMagnet(Level level, Vec3 start, BlockState state, BlockPos magnet, int... removedEntities) {
         sendAnimation(level, start, magnet.below(), state, true, removedEntities);
     }
 

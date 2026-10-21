@@ -124,7 +124,7 @@ public class MagnetBlock extends Block implements IHammerRemovable {
                 level.setBlockAndUpdate(magnetPos.below(), currentState);
                 level.setBlockAndUpdate(currentPos, Blocks.AIR.defaultBlockState());
 
-                MagnetUtil.animateAnvil(level, currentPos.getBottomCenter(), currentState, magnetPos);
+                MagnetUtil.animateAnvilFromMagnet(level, currentPos.getBottomCenter(), currentState, magnetPos);
                 TriggerUtil.liftingAnvil(level, currentPos);
                 break;
             }
@@ -139,7 +139,7 @@ public class MagnetBlock extends Block implements IHammerRemovable {
                     entity.discard();
                     level.destroyBlock(magnetPos.below(), true);
                     level.setBlockAndUpdate(magnetPos.below(), state2);
-                    MagnetUtil.animateAnvil(level, entity.position(), state2, magnetPos, entity.getId());
+                    MagnetUtil.animateAnvilFromMagnet(level, entity.position(), state2, magnetPos, entity.getId());
                     TriggerUtil.liftingAnvil(level, currentPos);
                     break checkAnvil;
                 }
