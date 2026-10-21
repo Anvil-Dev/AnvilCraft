@@ -538,6 +538,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         // Extensions must not send a second inventory click alongside this screen's own handling.
     }
 
+    public boolean isCraftingUnlocked() {
+        return this.craftingAvailable;
+    }
+
     public boolean canTransferRecipe() {
         return this.orderLoaded && this.craftingLoaded && this.craftingAvailable && !this.interactionPending && !this.recipeTransferPending;
     }
