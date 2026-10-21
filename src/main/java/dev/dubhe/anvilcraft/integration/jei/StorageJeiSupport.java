@@ -98,7 +98,8 @@ public final class StorageJeiSupport {
             StorageMenu menu, R recipe, IRecipeSlotsView recipeSlots, Player player, boolean maxTransfer, boolean doTransfer
         ) {
             StorageScreen screen = storageScreen(menu);
-            if (screen == null || !screen.canTransferRecipe()) return this.helper.createInternalError();
+            if (screen == null) return this.helper.createInternalError();
+            if (!screen.isCraftingUnlocked()) return this.helper.createInternalError();
             var slots = recipeSlots.getSlotViews(RecipeIngredientRole.INPUT);
             if (slots.isEmpty() || slots.size() > (this.stonecutter ? 1 : 9)) return this.helper.createInternalError();
             var variants = slots.stream().map(slot -> slot.getItemStacks().toList()).toList();
