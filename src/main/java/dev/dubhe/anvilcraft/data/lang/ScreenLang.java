@@ -34,6 +34,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.button.redstone_control_off", "Redstone control off");
         provider.add("screen.anvilcraft.button.reverse_off", "Output normal");
         provider.add("screen.anvilcraft.button.reverse", "Output reverse");
+        provider.add("screen.anvilcraft.button.inverse", "Inverse proportional output");
 
         provider.add("screen.anvilcraft.button.pulse_generator.start_mode.rising", "Mode: Rising Mode");
         provider.add("screen.anvilcraft.button.pulse_generator.start_mode.falling", "Mode: Falling Mode");
