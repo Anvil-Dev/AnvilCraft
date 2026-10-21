@@ -518,6 +518,7 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
         if (button == 0) {
             if (this.searchBox != null && !this.insideSearchBox(mouseX, mouseY)) {
                 this.searchBox.setFocused(false);
+                this.setFocused(null);
             }
             if (this.insideScrollbar(mouseX, mouseY)) {
                 this.scrollable.scrolling();
@@ -558,6 +559,7 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
             // 搜索框聚焦时按一次 Esc：取消聚焦；再按一次才退出
             if (keyCode == InputConstants.KEY_ESCAPE) {
                 this.searchBox.setFocused(false);
+                this.setFocused(null);
                 return true;
             }
             // 搜索框聚焦时完全接替键盘输入
