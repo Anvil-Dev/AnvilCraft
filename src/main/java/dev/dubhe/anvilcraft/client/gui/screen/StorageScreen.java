@@ -3283,6 +3283,11 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
         if (this.search != null && this.search.isFocused()) {
             this.spacePressed = false;
+            if (keyCode == InputConstants.KEY_ESCAPE) {
+                this.search.setFocused(false);
+                this.setFocused(null);
+                return true;
+            }
             this.search.keyPressed(keyCode, scanCode, modifiers);
             return true;
         }
