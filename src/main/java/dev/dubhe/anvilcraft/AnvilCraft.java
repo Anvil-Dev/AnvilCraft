@@ -179,7 +179,7 @@ public class AnvilCraft {
     }
 
     public static void registerPayload(RegisterPayloadHandlersEvent event) {
-        PayloadRegistrar registrar = event.registrar("1");
+        PayloadRegistrar registrar = event.registrar("2");
         NetworkRegistrar.register(registrar, AnvilCraft.MOD_ID);
     }
 
