@@ -543,7 +543,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     public boolean canTransferRecipe() {
-        return this.isCraftingUnlocked() && this.orderLoaded && this.craftingLoaded
+        // Opening JEI removes this screen and invalidates its UI loading state before recipe transfer.
+        return this.isCraftingUnlocked() && this.isTransferContextActive()
+            && (StorageJeiBridge.isRecipeParent(this) || this.orderLoaded && this.craftingLoaded)
             && !this.interactionPending && !this.recipeTransferPending;
     }
 
