@@ -35,20 +35,7 @@ public final class MagnetAnvilAnimation {
     private MagnetAnvilAnimation() {
     }
 
-    public static void start(Vec3 start, BlockPos end, BlockState state) {
-        Minecraft client = Minecraft.getInstance();
-        ClientLevel level = client.level;
-        if (level == null || !AnvilCraft.CLIENT_CONFIG.effects.displayAnvilAnimation || start.y >= end.getY()
-            || level.getBlockState(end) != state || !MagnetUtil.hasMagnetism(level, end)) return;
-        double time = ticks + client.getTimer().getGameTimeDeltaPartialTick(false);
-        Animation previous = ANIMATIONS.get(end);
-        Vec3 origin = previous == null ? start : previous.position(time);
-        ANIMATIONS.put(end.immutable(), new Animation(origin, end.getBottomCenter(), state, time, true));
-        client.levelRenderer.setBlockDirty(BlockPos.containing(start), true);
-        client.levelRenderer.setBlockDirty(end, true);
-    }
-
-    public static void startUnchecked(Vec3 start, BlockPos end, BlockState state) {
+    public static void start(Vec3 start, BlockPos end, BlockState state, boolean requiresMagnet) {
         Minecraft client = Minecraft.getInstance();
         ClientLevel level = client.level;
         if (level == null || !AnvilCraft.CLIENT_CONFIG.effects.displayAnvilAnimation || start.y >= end.getY()
@@ -56,7 +43,7 @@ public final class MagnetAnvilAnimation {
         double time = ticks + client.getTimer().getGameTimeDeltaPartialTick(false);
         Animation previous = ANIMATIONS.get(end);
         Vec3 origin = previous == null ? start : previous.position(time);
-        ANIMATIONS.put(end.immutable(), new Animation(origin, end.getBottomCenter(), state, time, false));
+        ANIMATIONS.put(end.immutable(), new Animation(origin, end.getBottomCenter(), state, time, requiresMagnet));
         client.levelRenderer.setBlockDirty(BlockPos.containing(start), true);
         client.levelRenderer.setBlockDirty(end, true);
     }
@@ -131,7 +118,7 @@ public final class MagnetAnvilAnimation {
             Animation animation = entry.getValue();
             boolean invalid = !AnvilCraft.CLIENT_CONFIG.effects.displayAnvilAnimation || !level.hasChunkAt(pos)
                 || level.getBlockState(pos) != animation.state
-                || animation.requiresMagnet && !MagnetUtil.hasMagnetism(level, pos);
+                || (animation.requiresMagnet && !MagnetUtil.hasMagnetism(level, pos));
             double age = time - animation.startTime;
             if (invalid || age >= animation.duration) {
                 if (animation.hidden) {

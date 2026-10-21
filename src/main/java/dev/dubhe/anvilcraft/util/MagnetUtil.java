@@ -42,15 +42,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class MagnetUtil {
-    public static void animateAnvil(Level level, Vec3 start, BlockState state, BlockPos end, int... removedEntities) {
-        sendAnimation(level, start, state, end, removedEntities);
+    public static void animateAnvilFromMagnet(Level level, Vec3 start, BlockState state, BlockPos magnet, int... removedEntities) {
+        sendAnimation(level, start, state, magnet.below(), true, removedEntities);
     }
 
     public static void animateAscendingBlock(Level level, Vec3 start, BlockState state, BlockPos end) {
-        sendAnimation(level, start, state, end, new int[0]);
+        sendAnimation(level, start, state, end, false, new int[0]);
     }
 
-    private static void sendAnimation(Level level, Vec3 start, BlockState state, BlockPos end, int[] removedEntities) {
+    private static void sendAnimation(
+        Level level,
+        Vec3 start,
+        BlockState state,
+        BlockPos end,
+        boolean requiresMagnet,
+        int[] removedEntities
+    ) {
         if (!(level instanceof ServerLevel serverLevel)) return;
         // Deliver the real blocks and the visual offset together, before the normal end-of-tick chunk broadcast.
         List<Packet<? super ClientGamePacketListener>> updates = new ArrayList<>(List.of(
@@ -59,7 +66,7 @@ public abstract class MagnetUtil {
             new ClientboundBlockUpdatePacket(serverLevel, end)
         ));
         if (removedEntities.length > 0) updates.add(new ClientboundRemoveEntitiesPacket(removedEntities));
-        updates.add(new ClientboundCustomPayloadPacket(new MagnetAnvilAnimationPacket(start, end, state)));
+        updates.add(new ClientboundCustomPayloadPacket(new MagnetAnvilAnimationPacket(start, end, state, requiresMagnet)));
         ClientboundBundlePacket packet = new ClientboundBundlePacket(updates);
         for (ServerPlayer player : serverLevel.getChunkSource().chunkMap.getPlayers(new ChunkPos(end), false)) {
             player.connection.send(packet);

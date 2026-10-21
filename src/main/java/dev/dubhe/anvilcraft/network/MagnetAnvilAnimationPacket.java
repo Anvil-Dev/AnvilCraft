@@ -4,7 +4,6 @@ import dev.anvilcraft.lib.v2.network.packet.IClientboundPacket;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.support.MagnetAnvilAnimation;
-import dev.dubhe.anvilcraft.util.MagnetUtil;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -15,7 +14,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-public record MagnetAnvilAnimationPacket(Vec3 start, BlockPos end, BlockState state) implements IClientboundPacket {
+public record MagnetAnvilAnimationPacket(Vec3 start, BlockPos end, BlockState state, boolean requiresMagnet)
+    implements IClientboundPacket {
     public static final Type<MagnetAnvilAnimationPacket> TYPE = IPacket.type(AnvilCraft.of("magnet_anvil_animation"));
     public static final StreamCodec<ByteBuf, MagnetAnvilAnimationPacket> STREAM_CODEC = StreamCodec.composite(
         ByteBufCodecs.DOUBLE,
@@ -28,7 +28,9 @@ public record MagnetAnvilAnimationPacket(Vec3 start, BlockPos end, BlockState st
         MagnetAnvilAnimationPacket::end,
         ByteBufCodecs.idMapper(Block.BLOCK_STATE_REGISTRY),
         MagnetAnvilAnimationPacket::state,
-        (x, y, z, end, state) -> new MagnetAnvilAnimationPacket(new Vec3(x, y, z), end, state)
+        ByteBufCodecs.BOOL,
+        MagnetAnvilAnimationPacket::requiresMagnet,
+        (x, y, z, end, state, requiresMagnet) -> new MagnetAnvilAnimationPacket(new Vec3(x, y, z), end, state, requiresMagnet)
     );
 
     @Override
@@ -38,10 +40,6 @@ public record MagnetAnvilAnimationPacket(Vec3 start, BlockPos end, BlockState st
 
     @Override
     public void handleOnClient(Player player) {
-        if (MagnetUtil.hasMagnetism(player.level(), this.end)) {
-            MagnetAnvilAnimation.start(this.start, this.end, this.state);
-        } else {
-            MagnetAnvilAnimation.startUnchecked(this.start, this.end, this.state);
-        }
+        MagnetAnvilAnimation.start(this.start, this.end, this.state, this.requiresMagnet);
     }
 }
