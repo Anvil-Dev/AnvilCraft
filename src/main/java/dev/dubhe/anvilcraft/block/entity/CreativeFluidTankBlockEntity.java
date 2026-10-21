@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.fluidtank.CreativeFluidHandler;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.StoredFluids;
+import dev.dubhe.anvilcraft.util.LiquidEnchantmentUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentGetter;
@@ -100,8 +101,19 @@ public class CreativeFluidTankBlockEntity extends BlockEntity implements IFluidR
     }
 
     public boolean onPlayerUse(Player player, InteractionHand hand) {
+        if (this.level == null) return false;
+        FluidStack bookFluid = LiquidEnchantmentUtil.fromBook(player.getItemInHand(hand));
+        if (!bookFluid.isEmpty()) {
+            if (this.level.isClientSide()) return true;
+            this.fluidHandler.replaceStacks(List.of(bookFluid.copyWithAmount(Integer.MAX_VALUE)));
+            this.setChanged();
+            this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), Block.UPDATE_CLIENTS);
+            var sound = bookFluid.getFluidType().getSound(SoundActions.BUCKET_EMPTY);
+            if (sound != null) this.level.playSound(null, this.getBlockPos(), sound, SoundSource.BLOCKS, 1.0F, 1.0F);
+            return true;
+        }
         var container = ItemAccess.forPlayerInteraction(player, hand).oneByOne().getCapability(Capabilities.Fluid.ITEM);
-        if (container == null || container.size() == 0 || this.level == null) return false;
+        if (container == null || container.size() == 0) return false;
         if (this.level.isClientSide()) return true;
         var incoming = container.getResource(0);
         var stored = this.fluidHandler.getResource(0);
