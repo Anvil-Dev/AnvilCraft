@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.inventory.ControlValveMenu;
 import dev.dubhe.anvilcraft.item.property.component.FilterContent;
+import dev.dubhe.anvilcraft.util.LiquidEnchantmentUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -105,6 +106,8 @@ public class ControlValveBlockEntity extends BlockEntity implements MenuProvider
 
     public static FluidStack fluidOf(ItemStack stack) {
         if (stack.isEmpty()) return FluidStack.EMPTY;
+        FluidStack bookFluid = LiquidEnchantmentUtil.fromBook(stack);
+        if (!bookFluid.isEmpty()) return bookFluid;
         ItemStack single = stack.copyWithCount(1);
         ResourceHandler<FluidResource> handler = single.getCapability(Capabilities.Fluid.ITEM, ItemAccess.forStack(single));
         if (handler == null) return FluidStack.EMPTY;

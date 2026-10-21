@@ -3,9 +3,13 @@ package dev.dubhe.anvilcraft.util;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.EnchantmentTags;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.nio.charset.StandardCharsets;
@@ -16,6 +20,17 @@ public final class LiquidEnchantmentUtil {
     private static final int FNV_PRIME = 0x01000193;
 
     private LiquidEnchantmentUtil() {
+    }
+
+    public static FluidStack fromBook(ItemStack stack) {
+        if (!stack.is(Items.BOOK) && !stack.is(Items.ENCHANTED_BOOK)) return FluidStack.EMPTY;
+        FluidStack fluid = new FluidStack(ModFluids.LIQUID_ENCHANTMENT.get(), 1);
+        ItemEnchantments enchantments = stack.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY);
+        for (Holder<Enchantment> enchantment : enchantments.keySet()) {
+            fluid.set(ModComponents.LIQUID_ENCHANTMENT, enchantment);
+            break;
+        }
+        return fluid;
     }
 
     public static Optional<Holder<Enchantment>> getEnchantment(FluidStack stack) {
