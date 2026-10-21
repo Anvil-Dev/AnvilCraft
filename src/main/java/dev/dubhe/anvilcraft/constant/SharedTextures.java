@@ -31,6 +31,7 @@ public class SharedTextures {
     public static final Identifier BUTTON_REDSTONE_CONTROL_OFF = SharedTextures.textureGui("machine/button_redstone_control_off");
     public static final Identifier BUTTON_REVERSE_ON = SharedTextures.textureGui("machine/button_reverse_on");
     public static final Identifier BUTTON_REVERSE_OFF = SharedTextures.textureGui("machine/button_reverse_off");
+    public static final Identifier BUTTON_INVERSE = SharedTextures.textureGui("machine/button_inverse");
     public static final Identifier CONFIRM = SharedTextures.textureGui("machine/confirm");
     public static final Identifier REDO = SharedTextures.textureGui("machine/redo");
     public static final Identifier STOP = SharedTextures.textureGui("machine/stop");

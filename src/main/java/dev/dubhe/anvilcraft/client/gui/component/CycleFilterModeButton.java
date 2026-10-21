@@ -4,14 +4,11 @@ import dev.dubhe.anvilcraft.block.entity.ItemDetectorBlockEntity.Mode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
-import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.function.Supplier;
 
@@ -30,13 +27,11 @@ public class CycleFilterModeButton extends Button {
     @Override
     protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         if (this.isHovered()) {
-            graphics.tooltip(
+            graphics.setTooltipForNextFrame(
                 Minecraft.getInstance().font,
-                List.of(ClientTooltipComponent.create(this.getMessage().getVisualOrderText())),
+                this.getMessage(),
                 mouseX,
-                mouseY,
-                DefaultTooltipPositioner.INSTANCE,
-                null
+                mouseY
             );
         }
         Identifier location = this.filterMode.get().buttonTexture;

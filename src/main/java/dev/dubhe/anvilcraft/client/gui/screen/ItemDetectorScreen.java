@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import dev.dubhe.anvilcraft.block.entity.ItemDetectorBlockEntity.OutputMode;
 import dev.dubhe.anvilcraft.client.gui.component.CycleFilterModeButton;
 import dev.dubhe.anvilcraft.client.gui.component.ItemCollectorButton;
 import dev.dubhe.anvilcraft.client.gui.component.SwitchableButton;
@@ -91,19 +92,20 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
             this.leftPos + 57,
             this.topPos + 54,
             16, 16,
-            List.of(SharedTextures.BUTTON_REVERSE_OFF, SharedTextures.BUTTON_REVERSE_ON),
+            List.of(SharedTextures.BUTTON_REVERSE_OFF, SharedTextures.BUTTON_REVERSE_ON, SharedTextures.BUTTON_INVERSE),
             16, 16, 32,
             (button, index) -> {
                 if (this.minecraft.gameMode == null) return;
-                this.menu.getBlockEntity().setOutputInvert(index == 1);
+                this.menu.getBlockEntity().setOutputMode(OutputMode.values()[index]);
                 this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId, index);
             },
             List.of(
                 Component.translatable("screen.anvilcraft.button.reverse_off"),
-                Component.translatable("screen.anvilcraft.button.reverse")
+                Component.translatable("screen.anvilcraft.button.reverse"),
+                Component.translatable("screen.anvilcraft.button.inverse")
             )
         );
-        this.outputModeButton.setCurrent(this.menu.getBlockEntity().isOutputInvert() ? 1 : 0);
+        this.outputModeButton.setCurrent(this.menu.getBlockEntity().getOutputMode().ordinal());
         this.addRenderableWidget(this.outputModeButton);
         // range
         this.addRenderableWidget(new TextWidget(
@@ -142,7 +144,7 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
     @Override
     public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         if (this.outputModeButton != null) {
-            this.outputModeButton.setCurrent(this.menu.getBlockEntity().isOutputInvert() ? 1 : 0);
+            this.outputModeButton.setCurrent(this.menu.getBlockEntity().getOutputMode().ordinal());
         }
         super.extractContents(graphics, mouseX, mouseY, partialTick);
     }
