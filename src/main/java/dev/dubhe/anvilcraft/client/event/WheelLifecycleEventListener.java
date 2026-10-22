@@ -293,7 +293,7 @@ public class WheelLifecycleEventListener {
                 ModelRenderTarget modelTarget = state.getBlock() instanceof IMultiPartBlockModelHolder holder
                                                 ? holder.getModelRenderTarget(level, targetPos, initialState, state)
                                                 : new ModelRenderTarget(targetPos, state);
-                HammerWheelIconRenderer icon = new HammerWheelIconRenderer(Minecraft.getInstance().level, modelTarget, state);
+                HammerWheelIconRenderer icon = new HammerWheelIconRenderer(Minecraft.getInstance().level, modelTarget);
                 String name = property.getName(Util.cast(state.getValue(property)));
                 builder.action(
                     name,
@@ -352,7 +352,7 @@ public class WheelLifecycleEventListener {
             (graphics, _, _, _) -> {
                 ItemStack copied = holding.copy();
                 multiphase.applySelectionPreview(copied, phaseIndex);
-                graphics.item(copied, 2, 2, 9910597);
+                graphics.item(copied, -8, -8, 9910597);
             },
             _ -> ClientPacketDistributor.sendToServer(
                 new MultiphasePackets.ChangePhase(hand, phaseIndex)
@@ -369,7 +369,7 @@ public class WheelLifecycleEventListener {
                 (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.RESONATE_MODE, ResonateMode.AUTO);
-                    graphics.item(copied, 2, 2, 9910597);
+                    graphics.item(copied, -8, -8, 9910597);
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchResonateModePacket(hand, ctx.slotIndex())
@@ -381,7 +381,7 @@ public class WheelLifecycleEventListener {
                 (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.RESONATE_MODE, ResonateMode.AXE);
-                    graphics.item(copied, 2, 2, 9910597);
+                    graphics.item(copied, -8, -8, 9910597);
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchResonateModePacket(hand, ctx.slotIndex())
@@ -393,7 +393,7 @@ public class WheelLifecycleEventListener {
                 (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.RESONATE_MODE, ResonateMode.SHOVEL);
-                    graphics.item(copied, 2, 2, 9910597);
+                    graphics.item(copied, -8, -8, 9910597);
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchResonateModePacket(hand, ctx.slotIndex())
@@ -405,7 +405,7 @@ public class WheelLifecycleEventListener {
                 (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.RESONATE_MODE, ResonateMode.HOE);
-                    graphics.item(copied, 2, 2, 9910597);
+                    graphics.item(copied, -8, -8, 9910597);
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchResonateModePacket(hand, ctx.slotIndex())
@@ -417,7 +417,7 @@ public class WheelLifecycleEventListener {
                 (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.RESONATE_MODE, ResonateMode.PICKAXE);
-                    graphics.item(copied, 2, 2, 9910597);
+                    graphics.item(copied, -8, -8, 9910597);
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchResonateModePacket(hand, ctx.slotIndex())
@@ -435,7 +435,7 @@ public class WheelLifecycleEventListener {
                 (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.HEAVY_HALBERD_MODE, HeavyHalberdMode.TRIDENT);
-                    graphics.item(copied, 2, 2, 9910597);
+                    graphics.item(copied, -8, -8, 9910597);
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchHeavyHalberdModePacket(hand, HeavyHalberdMode.values()[ctx.slotIndex()])
@@ -447,7 +447,7 @@ public class WheelLifecycleEventListener {
                 (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.HEAVY_HALBERD_MODE, HeavyHalberdMode.SPEAR);
-                    graphics.item(copied, 2, 2, 9910597);
+                    graphics.item(copied, -8, -8, 9910597);
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchHeavyHalberdModePacket(hand, HeavyHalberdMode.values()[ctx.slotIndex()])
@@ -459,7 +459,7 @@ public class WheelLifecycleEventListener {
                 (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.HEAVY_HALBERD_MODE, HeavyHalberdMode.SWORD);
-                    graphics.item(copied, 2, 2, 9910597);
+                    graphics.item(copied, -8, -8, 9910597);
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchHeavyHalberdModePacket(hand, HeavyHalberdMode.values()[ctx.slotIndex()])
@@ -471,7 +471,7 @@ public class WheelLifecycleEventListener {
                 (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.HEAVY_HALBERD_MODE, HeavyHalberdMode.MACE);
-                    graphics.item(copied, 2, 2, 9910597);
+                    graphics.item(copied, -8, -8, 9910597);
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchHeavyHalberdModePacket(hand, HeavyHalberdMode.values()[ctx.slotIndex()])
@@ -489,7 +489,7 @@ public class WheelLifecycleEventListener {
                 (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.MULTITOOL_MODE, MultitoolMode.ALL);
-                    graphics.item(copied, 2, 2, 9910597);
+                    graphics.item(copied, -8, -8, 9910597);
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchMultitoolModePacket(hand, MultitoolMode.values()[ctx.slotIndex()])
@@ -501,7 +501,7 @@ public class WheelLifecycleEventListener {
                 (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.MULTITOOL_MODE, MultitoolMode.SHEARS);
-                    graphics.item(copied, 2, 2, 9910597);
+                    graphics.item(copied, -8, -8, 9910597);
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchMultitoolModePacket(hand, MultitoolMode.values()[ctx.slotIndex()])
@@ -513,7 +513,7 @@ public class WheelLifecycleEventListener {
                 (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.MULTITOOL_MODE, MultitoolMode.FLINT_AND_STEEL);
-                    graphics.item(copied, 2, 2, 9910597);
+                    graphics.item(copied, -8, -8, 9910597);
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchMultitoolModePacket(hand, MultitoolMode.values()[ctx.slotIndex()])
@@ -525,7 +525,7 @@ public class WheelLifecycleEventListener {
                 (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.MULTITOOL_MODE, MultitoolMode.BRUSH);
-                    graphics.item(copied, 2, 2, 9910597);
+                    graphics.item(copied, -8, -8, 9910597);
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchMultitoolModePacket(hand, MultitoolMode.values()[ctx.slotIndex()])
@@ -537,7 +537,7 @@ public class WheelLifecycleEventListener {
                 (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.MULTITOOL_MODE, MultitoolMode.SPYGLASS);
-                    graphics.item(copied, 2, 2, 9910597);
+                    graphics.item(copied, -8, -8, 9910597);
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchMultitoolModePacket(hand, MultitoolMode.values()[ctx.slotIndex()])
@@ -549,7 +549,7 @@ public class WheelLifecycleEventListener {
                 (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.MULTITOOL_MODE, MultitoolMode.MAGNET);
-                    graphics.item(copied, 2, 2, 9910597);
+                    graphics.item(copied, -8, -8, 9910597);
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchMultitoolModePacket(hand, MultitoolMode.values()[ctx.slotIndex()])
@@ -561,7 +561,7 @@ public class WheelLifecycleEventListener {
                 (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.MULTITOOL_MODE, MultitoolMode.FISHING_ROD);
-                    graphics.item(copied, 2, 2, 9910597);
+                    graphics.item(copied, -8, -8, 9910597);
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchMultitoolModePacket(hand, MultitoolMode.values()[ctx.slotIndex()])
@@ -573,7 +573,7 @@ public class WheelLifecycleEventListener {
                 (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.MULTITOOL_MODE, MultitoolMode.CARROT_ON_A_STICK);
-                    graphics.item(copied, 2, 2, 9910597);
+                    graphics.item(copied, -8, -8, 9910597);
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchMultitoolModePacket(hand, MultitoolMode.values()[ctx.slotIndex()])
@@ -585,7 +585,7 @@ public class WheelLifecycleEventListener {
                 (graphics, _, _, _) -> {
                     ItemStack copied = holding.copy();
                     copied.set(ModComponents.MULTITOOL_MODE, MultitoolMode.WARPED_FUNGUS_ON_A_STICK);
-                    graphics.item(copied, 2, 2, 9910597);
+                    graphics.item(copied, -8, -8, 9910597);
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchMultitoolModePacket(hand, MultitoolMode.values()[ctx.slotIndex()])

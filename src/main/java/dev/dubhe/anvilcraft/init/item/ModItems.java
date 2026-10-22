@@ -1205,8 +1205,6 @@ public class ModItems {
         .register();
     public static final ItemEntry<Item> SEA_HEART_SHELL = REGISTRUM.item("sea_heart_shell", Item::new)
         .register();
-    public static final ItemEntry<Item> SEA_HEART_SHELL_SHARD = REGISTRUM.item("sea_heart_shell_shard", Item::new)
-        .register();
     public static final ItemEntry<Item> CREAM = REGISTRUM
         .item("cream", Item::new)
         .tag(ModItemTags.CREAM)
@@ -1315,11 +1313,6 @@ public class ModItems {
     public static final ItemEntry<Item> BRASS_NUGGET = REGISTRUM.item("brass_nugget", Item::new)
         .tag(ModItemTags.BRASS_NUGGETS, Tags.Items.NUGGETS)
         .recipe(RegistrumItemRecipeLoader::brassNugget)
-        .register();
-
-    public static final ItemEntry<Item> NETHERITE_CRYSTAL_NUCLEUS = REGISTRUM.item("netherite_crystal_nucleus", Item::new)
-        .initialProperties(() -> new Item.Properties().fireResistant())
-        .recipe(RegistrumItemRecipeLoader::netheriteCrystalNucleus)
         .register();
 
     public static final ItemEntry<Item> LIME_POWDER = REGISTRUM.item("lime_powder", Item::new)
