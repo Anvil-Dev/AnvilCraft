@@ -9,17 +9,15 @@ import dev.dubhe.anvilcraft.client.support.ScaledGuiItemAtlases;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
-import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.renderer.item.TrackingItemStackRenderState;
 import net.minecraft.client.renderer.state.gui.GuiItemRenderState;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix3x2f;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-
-import java.util.Objects;
 
 @Mixin(GuiGraphicsExtractor.class)
 abstract class ScaledGuiItemExtractionMixin {
@@ -33,13 +31,9 @@ abstract class ScaledGuiItemExtractionMixin {
         Operation<GuiItemRenderState> original, @Local(argsOnly = true) ItemStack stack
     ) {
         var screen = Minecraft.getInstance().screen;
-        if (screen instanceof CreativeModeInventoryScreen && !state.isOversizedInGui()) {
-            var slot = new ScreenRectangle(x, y, 16, 16).transformMaxBounds(pose);
-            scissor = scissor == null ? slot : Objects.requireNonNullElse(
-                scissor.intersection(slot), new ScreenRectangle(0, 0, 0, 0));
-        }
-        if (BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace().equals(AnvilCraft.MOD_ID)
-            || screen != null && screen.getClass().getName().startsWith("dev.dubhe.anvilcraft.")) {
+        boolean ownedItem = BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace().equals(AnvilCraft.MOD_ID);
+        if (ownedItem && stack.getItem() instanceof BlockItem) state.setOversizedInGui(true);
+        if (ownedItem || screen != null && screen.getClass().getName().startsWith("dev.dubhe.anvilcraft.")) {
             state.appendModelIdentityElement(ScaledGuiItemAtlases.OWNED_ITEM);
         }
         GatewayGuiProjection.mark(state, pose, x, y);

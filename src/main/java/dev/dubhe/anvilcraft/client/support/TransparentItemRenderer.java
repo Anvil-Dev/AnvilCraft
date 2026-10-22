@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.init.ModRenderPipelines;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -20,7 +21,9 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.gui.GuiItemRenderState;
 import net.minecraft.client.renderer.state.gui.pip.PictureInPictureRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.ARGB;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix3x2f;
@@ -52,6 +55,10 @@ public final class TransparentItemRenderer extends PictureInPictureRenderer<Tran
         var client = Minecraft.getInstance();
         var item = new TrackingItemStackRenderState();
         client.getItemModelResolver().updateForTopItem(item, stack, ItemDisplayContext.GUI, client.level, client.player, 0);
+        if (stack.getItem() instanceof BlockItem
+            && BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace().equals(AnvilCraft.MOD_ID)) {
+            item.setOversizedInGui(true);
+        }
         item.appendModelIdentityElement(ScaledGuiItemAtlases.OWNED_ITEM);
         GatewayGuiProjection.mark(item, new Matrix3x2f(graphics.pose()), x, y);
         var gui = new GuiItemRenderState(new Matrix3x2f(graphics.pose()), item, x, y, graphics.peekScissorStack());
