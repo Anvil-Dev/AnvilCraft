@@ -12,7 +12,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RedStoneWireBlock;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
@@ -30,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReferenceArray;
+import java.util.function.UnaryOperator;
 
 /**
  * 可附着在任意方块表面的无衰减红石导线。
@@ -302,6 +305,30 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
             return RedstoneWireNetworkManager.getNonDustPower(level, pos, power);
         }
         return power;
+    }
+
+    @Override
+    protected BlockState rotate(BlockState state, Rotation rotation) {
+        return RedstoneWireBlock.transformDirections(state, rotation::rotate);
+    }
+
+    @Override
+    protected BlockState mirror(BlockState state, Mirror mirror) {
+        return RedstoneWireBlock.transformDirections(state, mirror::mirror);
+    }
+
+    private static BlockState transformDirections(BlockState state, UnaryOperator<Direction> transform) {
+        Direction attachment = state.getValue(RedstoneWireBlock.ATTACHMENT);
+        Direction transformedAttachment = transform.apply(attachment);
+        BlockState result = state.setValue(RedstoneWireBlock.ATTACHMENT, transformedAttachment);
+        // 属性名对应附着面内的局部方向，先变换世界方向，再映射到新的附着面。
+        for (int index = 0; index < RedstoneWireBlock.CONNECTION_PROPERTIES.size(); index++) {
+            Direction tangent = transform.apply(RedstoneWireBlock.getLocalDirection(attachment, index));
+            int transformedIndex = RedstoneWireBlock.getLocalIndex(transformedAttachment, tangent);
+            result = result.setValue(RedstoneWireBlock.CONNECTION_PROPERTIES.get(transformedIndex),
+                state.getValue(RedstoneWireBlock.CONNECTION_PROPERTIES.get(index)));
+        }
+        return result;
     }
 
     @Override
