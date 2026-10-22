@@ -93,7 +93,7 @@ public class HasMobBlockItemRenderer extends AbstractItemInHandRenderer {
             0,
             0,
             poseStack,
-            Minecraft.getInstance().renderBuffers().bufferSource(),
+            buffer,
             LightTexture.FULL_BRIGHT
         );
         poseStack.popPose();
