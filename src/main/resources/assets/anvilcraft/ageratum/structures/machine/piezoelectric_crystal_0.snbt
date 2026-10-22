@@ -5,7 +5,7 @@
         {pos: [0, 0, 0], state: "anvilcraft:piezoelectric_crystal"},
         {pos: [0, 0, 2], state: "anvilcraft:piezoelectric_crystal"},
         {pos: [1, 0, 0], state: "anvilcraft:piezoelectric_crystal"},
-        {pos: [1, 0, 1], state: "anvilcraft:charge_collector{powered:false}", nbt: {ChargeCount: 0.0d, Charges: [I; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], InputCooldownCount: 1, OutputCooldownCount: 5, Power: 0, id: "anvilcraft:charge_collector"}},
+        {pos: [1, 0, 1], state: "anvilcraft:charge_collector", nbt: {ChargeCount: 0.0d, Charges: [I; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], InputCooldownCount: 1, OutputCooldownCount: 5, Power: 0, id: "anvilcraft:charge_collector"}},
         {pos: [1, 0, 2], state: "anvilcraft:piezoelectric_crystal"},
         {pos: [2, 0, 0], state: "anvilcraft:piezoelectric_crystal"},
         {pos: [2, 0, 2], state: "anvilcraft:piezoelectric_crystal"},
@@ -47,7 +47,7 @@
         "minecraft:lever{face:ceiling,facing:west,powered:true}",
         "anvilcraft:hollow_magnet_block{lit:false,waterlogged:false}",
         "minecraft:redstone_wire{east:side,north:none,power:0,south:none,west:side}",
-        "anvilcraft:charge_collector{powered:false}",
+        "anvilcraft:charge_collector",
         "anvilcraft:pulse_generator{facing:east,powered:false}"
     ]
 }

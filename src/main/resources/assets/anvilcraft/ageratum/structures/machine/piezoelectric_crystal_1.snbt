@@ -9,10 +9,10 @@
         {pos: [4, 0, 0], state: "anvilcraft:piezoelectric_crystal"},
         {pos: [0, 1, 0], state: "anvilcraft:piezoelectric_crystal"},
         {pos: [1, 1, 0], state: "anvilcraft:piezoelectric_crystal"},
-        {pos: [1, 1, 1], state: "anvilcraft:charge_collector{powered:false}", nbt: {ChargeCount: 0.0d, Charges: [I; 0, 0, 0, 60, 0, 0, 0, 0, 0, 0, 0], InputCooldownCount: 2, OutputCooldownCount: 10, Power: 5, id: "anvilcraft:charge_collector"}},
+        {pos: [1, 1, 1], state: "anvilcraft:charge_collector", nbt: {ChargeCount: 0.0d, Charges: [I; 0, 0, 0, 60, 0, 0, 0, 0, 0, 0, 0], InputCooldownCount: 2, OutputCooldownCount: 10, Power: 5, id: "anvilcraft:charge_collector"}},
         {pos: [2, 1, 0], state: "anvilcraft:piezoelectric_crystal"},
         {pos: [3, 1, 0], state: "anvilcraft:piezoelectric_crystal"},
-        {pos: [3, 1, 1], state: "anvilcraft:charge_collector{powered:false}", nbt: {ChargeCount: 0.0d, Charges: [I; 0, 0, 0, 45, 45, 0, 0, 0, 0, 0, 0], InputCooldownCount: 1, OutputCooldownCount: 1, Power: 8, id: "anvilcraft:charge_collector"}},
+        {pos: [3, 1, 1], state: "anvilcraft:charge_collector", nbt: {ChargeCount: 0.0d, Charges: [I; 0, 0, 0, 45, 45, 0, 0, 0, 0, 0, 0], InputCooldownCount: 1, OutputCooldownCount: 1, Power: 8, id: "anvilcraft:charge_collector"}},
         {pos: [4, 1, 0], state: "anvilcraft:piezoelectric_crystal"},
         {pos: [0, 2, 0], state: "anvilcraft:piezoelectric_crystal"},
         {pos: [1, 2, 0], state: "anvilcraft:piezoelectric_crystal"},
@@ -68,7 +68,7 @@
         "anvilcraft:royal_anvil{facing:west}",
         "anvilcraft:hollow_magnet_block{lit:false,waterlogged:false}",
         "minecraft:redstone_wire{east:none,north:side,power:0,south:side,west:none}",
-        "anvilcraft:charge_collector{powered:false}",
+        "anvilcraft:charge_collector",
         "anvilcraft:pulse_generator{facing:east,powered:false}",
         "anvilcraft:pulse_generator{facing:south,powered:false}"
     ]

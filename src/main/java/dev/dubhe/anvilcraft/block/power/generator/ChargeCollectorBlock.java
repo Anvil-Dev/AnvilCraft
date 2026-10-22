@@ -6,8 +6,6 @@ import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -18,9 +16,6 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -30,21 +25,13 @@ public class ChargeCollectorBlock extends BetterBaseEntityBlock implements IHamm
     public static VoxelShape SHAPE = Shapes.or(
         Block.box(0, 0, 0, 16, 4, 16)
     );
-    public static BooleanProperty POWERED = BlockStateProperties.POWERED;
-
     public ChargeCollectorBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.getStateDefinition().any().setValue(ChargeCollectorBlock.POWERED, false));
     }
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
         return BlockBehaviour.simpleCodec(ChargeCollectorBlock::new);
-    }
-
-    @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(ChargeCollectorBlock.POWERED);
     }
 
     @Override
@@ -65,40 +52,6 @@ public class ChargeCollectorBlock extends BetterBaseEntityBlock implements IHamm
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new ChargeCollectorBlockEntity(pos, state);
-    }
-
-    public void activate(Level level, BlockPos pos, BlockState state) {
-        level.setBlockAndUpdate(pos, state.setValue(ChargeCollectorBlock.POWERED, true));
-        this.updateNeighbours(level, pos);
-        level.scheduleTick(pos, this, 2);
-    }
-
-    @Override
-    protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        if (!state.getValue(ChargeCollectorBlock.POWERED)) return;
-        level.setBlockAndUpdate(pos, state.setValue(ChargeCollectorBlock.POWERED, false));
-        this.updateNeighbours(level, pos);
-    }
-
-    @Override
-    protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
-        if (level.isClientSide() || state.is(oldState.getBlock())) return;
-        if (state.getValue(ChargeCollectorBlock.POWERED) && !level.getBlockTicks().hasScheduledTick(pos, this)) {
-            level.setBlock(pos, state.setValue(ChargeCollectorBlock.POWERED, false), 18);
-        }
-    }
-
-    @Override
-    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
-        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
-        if (state.getValue(ChargeCollectorBlock.POWERED)) {
-            this.updateNeighbours(level, pos);
-        }
-    }
-
-    private void updateNeighbours(Level level, BlockPos pos) {
-        level.updateNeighborsAt(pos, this);
-        level.updateNeighborsAt(pos.below(), this);
     }
 
     @Nullable

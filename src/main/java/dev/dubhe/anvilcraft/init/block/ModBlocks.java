@@ -1370,19 +1370,15 @@ public class ModBlocks {
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never)
             .lightLevel(state -> 7).emissiveRendering(ModBlocks::always).strength(50.0F, 1200.0F))
         .blockstate(() -> (ctx, generator) -> generator.blockStateOutput.accept(
-            MultiVariantGenerator.dispatch(ctx.get())
-                .with(PropertyDispatchWrap.initial(InfiniteCollectorBlock.POWERED)
-                    .select(false, BlockModelGenerators.plainVariant(ctx.getId().withPrefix("block/")))
-                    .select(
-                        true, BlockModelGenerators.plainVariant(
-                            ctx.getId().withPrefix("block/").withSuffix("_base"))
-                    )
-                    .dispatch()
-                )))
+            MultiVariantGenerator.dispatch(
+                ctx.get(),
+                BlockModelGenerators.plainVariant(ctx.getId().withPrefix("block/").withSuffix("_base"))
+            )))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE,
             Tags.Blocks.NEEDS_NETHERITE_TOOL, ModBlockTags.COLLISION_IMMUNE)
         .item(InfiniteCollectorBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
+        .model(DataGenUtil::blockItem)
         .properties(properties -> properties
             .rarity(Rarity.EPIC)
             .component(ModComponents.ETERNAL, Eternal.DEFAULT)

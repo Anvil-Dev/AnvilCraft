@@ -4,7 +4,6 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
-import dev.dubhe.anvilcraft.block.power.generator.ChargeCollectorBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.network.ChargeCollectorIncomingChargePacket;
 import lombok.Getter;
@@ -128,9 +127,6 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
                 this.power += charge;
             }
             this.power = this.power / this.charges.size();
-            if (this.power > 0 && this.getBlockState().getBlock() instanceof ChargeCollectorBlock chargeCollector) {
-                chargeCollector.activate(this.level, this.getBlockPos(), this.getBlockState());
-            }
             if (this.power != oldPower && this.grid != null) this.grid.markChanged();
         }
     }
