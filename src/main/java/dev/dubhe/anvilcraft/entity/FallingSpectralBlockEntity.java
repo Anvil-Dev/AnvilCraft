@@ -12,8 +12,6 @@ import it.unimi.dsi.fastutil.floats.FloatSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
@@ -28,6 +26,7 @@ import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Fallable;
+import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.TransparentBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -106,7 +105,9 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
                             new AnvilEvent.OnLand(serverLevel, landingPos, this, this.anvilcraft$getFallDistance())
                         );
                     }
-                    this.level().playSound(null, blockPos, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1.0F, 1.0F);
+                    if (!this.isSilent()) {
+                        this.level().levelEvent(LevelEvent.SOUND_ANVIL_LAND, blockPos, 0);
+                    }
                     this.discard();
                     this.callOnBrokenAfterFall(block, blockPos);
                     if (
