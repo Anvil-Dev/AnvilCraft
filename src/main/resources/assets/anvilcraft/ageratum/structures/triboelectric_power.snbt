@@ -10,7 +10,7 @@
         {pos: [2, 0, 3], state: "minecraft:copper_block"},
         {pos: [3, 0, 2], state: "anvilcraft:hollow_magnet_block{lit:false,waterlogged:false}"},
         {pos: [3, 0, 3], state: "minecraft:copper_block"},
-        {pos: [4, 0, 1], state: "anvilcraft:charge_collector{powered:false}", nbt: {ChargeCount: 20.0d, Charges: [I; 15, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25], InputCooldownCount: 1, OutputCooldownCount: 7, Power: 21, id: "anvilcraft:charge_collector"}},
+        {pos: [4, 0, 1], state: "anvilcraft:charge_collector", nbt: {ChargeCount: 20.0d, Charges: [I; 15, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25], InputCooldownCount: 1, OutputCooldownCount: 7, Power: 21, id: "anvilcraft:charge_collector"}},
         {pos: [4, 0, 2], state: "anvilcraft:hollow_magnet_block{lit:false,waterlogged:false}"},
         {pos: [4, 0, 3], state: "minecraft:copper_block"},
         {pos: [5, 0, 2], state: "anvilcraft:hollow_magnet_block{lit:false,waterlogged:false}"},
@@ -33,6 +33,6 @@
         "anvilcraft:block_comparator{facing:east,powered:false,precise:false}",
         "anvilcraft:block_comparator{facing:west,powered:false,precise:false}",
         "minecraft:moving_piston{facing:east,type:normal}",
-        "anvilcraft:charge_collector{powered:false}"
+        "anvilcraft:charge_collector"
     ]
 }

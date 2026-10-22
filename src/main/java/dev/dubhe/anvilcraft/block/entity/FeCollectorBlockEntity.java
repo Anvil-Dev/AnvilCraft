@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.api.energy.IEnergyHandlerHolder;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
-import dev.dubhe.anvilcraft.block.power.generator.FeCollectorBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -141,11 +140,6 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
             this.producing = true;
         } else if (this.energy < FeCollectorBlockEntity.STOP_THRESHOLD) {
             this.producing = false;
-        }
-
-        BlockState state = this.getBlockState();
-        if (state.getValue(FeCollectorBlock.POWERED) != this.producing) {
-            this.level.setBlockAndUpdate(this.getBlockPos(), state.setValue(FeCollectorBlock.POWERED, this.producing));
         }
 
         if (this.producing) {

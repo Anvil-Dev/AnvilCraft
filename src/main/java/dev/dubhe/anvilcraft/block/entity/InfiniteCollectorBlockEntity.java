@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.api.heat.collector.IHeatCollector;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
-import dev.dubhe.anvilcraft.block.power.generator.InfiniteCollectorBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.network.ChargeCollectorIncomingChargePacket;
 import lombok.Getter;
@@ -136,9 +135,6 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
             this.refreshChargePower();
         }
         this.outputPower = this.getBasePower() + this.inputtingHeatPower + this.chargePower;
-        if (this.outputPower > 0 && this.getBlockState().getBlock() instanceof InfiniteCollectorBlock collector) {
-            collector.activate(this.level, this.getBlockPos(), this.getBlockState());
-        }
         if (this.outputPower != oldPower && this.grid != null) this.grid.markChanged();
         this.inputtingHeatPower = 0;
         this.time++;
