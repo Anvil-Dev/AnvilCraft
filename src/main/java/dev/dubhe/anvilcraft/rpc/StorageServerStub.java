@@ -146,10 +146,10 @@ public final class StorageServerStub {
      */
     private static final int CRAFTING_TAKE_ALL_CHUNK = 64;
     /**
-     * 按住空格左击仓储格时一次取出的数量：物品格为组数（按物品自身堆叠上限折算），
-     * 流体格为桶数。与空格连续合成同一倍率，实际取出量仍受仓储存量与背包空间限制。
+     * 按住批量操作键左击仓储格时一次取出的数量：物品格为组数（按物品自身堆叠上限折算），
+     * 流体格为桶数。与批量连续合成同一倍率，实际取出量仍受仓储存量与背包空间限制。
      */
-    private static final int SPACE_TAKE_STACKS = 8;
+    private static final int BULK_TAKE_STACKS = 8;
     /**
      * 合成宫格的边长。宫格为正方形，故宽高同为该值；步长必须用它，
      * 不能用 {@link CraftingStorage#CRAFTING_GRID_SIZE}（那是总槽位数 9）。
@@ -1548,7 +1548,7 @@ public final class StorageServerStub {
      * 按 16 折算。单次产物个数已达到或超过上限时至少合成一次。</p>
      *
      * @param result     单次合成的产物
-     * @param multiplier 倍数（空格键的放大倍率）
+     * @param multiplier 倍数（批量操作键的放大倍率）
      * @return 合成次数预算
      */
     private static int craftBudget(ItemStack result, int multiplier) {
@@ -3868,7 +3868,7 @@ public final class StorageServerStub {
     }
 
     /**
-     * 按住空格左击仓储格：一次取出 {@link #SPACE_TAKE_STACKS} 组到玩家背包。
+     * 按住批量操作键左击仓储格：一次取出 {@link #BULK_TAKE_STACKS} 组到玩家背包。
      *
      * <p>逐组调用 {@link #moveStorageStackToInventory}，每组都重新按背包实时空间计算，
      * 因此背包填满即自然停下，不会多抽物品丢弃；仓储存量不足时同样提前结束。</p>
@@ -3877,7 +3877,7 @@ public final class StorageServerStub {
      */
     private static boolean moveStorageStacksToInventory(ServerPlayer player, StorageView view, int slot) {
         boolean changed = false;
-        for (int stack = 0; stack < StorageServerStub.SPACE_TAKE_STACKS; stack++) {
+        for (int stack = 0; stack < StorageServerStub.BULK_TAKE_STACKS; stack++) {
             if (!StorageServerStub.moveStorageStackToInventory(player, view, slot)) {
                 break;
             }
@@ -5174,7 +5174,7 @@ public final class StorageServerStub {
     }
 
     /**
-     * 空格左击流体格：一次装出 {@link #SPACE_TAKE_STACKS} 桶流体直接放进玩家背包。
+     * 批量操作键左击流体格：一次装出 {@link #BULK_TAKE_STACKS} 桶流体直接放进玩家背包。
      *
      * <p>与物品路径同构：先按背包对成品桶的实际可容纳量定下本次上限，再逐桶调用
      * {@link #fillBucketFromStorage}。这样背包放不下时不会先把流体抽成桶再塞回仓储
@@ -5200,7 +5200,7 @@ public final class StorageServerStub {
             return StorageServerStub.takeFluidBucketIntoInventory(player, view, fluid);
         }
         int limit = Math.min(
-            StorageServerStub.SPACE_TAKE_STACKS,
+            StorageServerStub.BULK_TAKE_STACKS,
             StorageServerStub.getInventorySpace(player.getInventory(), filledBucket)
         );
         FluidNotice notice = FluidNotice.NONE;

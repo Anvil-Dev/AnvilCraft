@@ -410,6 +410,11 @@ public class AnvilCraftClientConfig {
         )
         public boolean invertFluidPortBucketActions = false;
 
+        @SerializedName("Storage Bulk Action Key")
+        @Comment("Controls the key for storing matching items, taking eight stacks or buckets, and crafting eight stacks. "
+            + "Defaults to Alt; Space or both keys can also be enabled")
+        public StorageBulkActionKey storageBulkActionKey = StorageBulkActionKey.ALT;
+
         @Comment("Controls the mouse sensitivity when rotating 3D structure previews")
         @BoundedDiscrete(min = 0.1, max = 2.0)
         public float previewRotationSensitivity = 0.5f;
@@ -417,6 +422,23 @@ public class AnvilCraftClientConfig {
         @SerializedName("Building Rod Blueprint Key Set Type")
         @Comment("Controls the key set type used by the Building Rod blueprint mode")
         public BuildingRodKeySetType buildingRodKeySet = BuildingRodKeySetType.OPTIMIZED;
+
+        public enum StorageBulkActionKey implements TranslatableEnum {
+            @SerializedName("Alt")
+            ALT,
+            @SerializedName("Space")
+            SPACE,
+            @SerializedName("Alt or Space")
+            ALT_OR_SPACE;
+
+            public boolean usesAlt() {
+                return this != StorageBulkActionKey.SPACE;
+            }
+
+            public boolean usesSpace() {
+                return this != StorageBulkActionKey.ALT;
+            }
+        }
 
         public enum BuildingRodKeySetType implements TranslatableEnum {
             @SerializedName("Traditional")
