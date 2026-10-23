@@ -72,7 +72,7 @@ public class OverseerBlockEntity extends BlockEntity {
                 LevelLoadManager.reload(
                     serverLevel,
                     pos,
-                    LoadChuckData.createLoadChuckData(newlevel, pos, newRandomTick, serverLevel)
+                    LoadChuckData.createOverseerLoadChuckData(newlevel, pos, newRandomTick, serverLevel)
                 );
             } else {
                 LevelLoadManager.unregister(pos, level);

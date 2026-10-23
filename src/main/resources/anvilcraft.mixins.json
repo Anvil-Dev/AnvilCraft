@@ -123,6 +123,8 @@
     "tsmm.SetBlockCommandMixin"
   ],
   "client": [
+    "compat.XaeroWorldMapHighlighterRegistryMixin",
+    "compat.XaeroMinimapHighlighterRegistryMixin",
     "AbstractContainerScreenMixin",
     "BlockStateBaseMixin",
     "BuildingRodKeyboardMixin",

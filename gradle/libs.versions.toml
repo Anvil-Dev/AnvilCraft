@@ -20,6 +20,8 @@ lombok = "8.7.1"
 machete = "1.+"
 
 [libraries]
+xaero-minimap = { group = "maven.modrinth", name = "xaeros-minimap", version = "neoforge-1.21.1-26.6.0" }
+xaero-worldmap = { group = "maven.modrinth", name = "xaeros-world-map", version = "neoforge-1.21.1-1.47.0" }
 anvillib-recipe = { group = "dev.anvilcraft.lib", name = "anvillib-recipe-neoforge-1.21.1", version.ref = "anvillib" }
 anvillib-moveableEntityBlock = { group = "dev.anvilcraft.lib", name = "anvillib-moveable-entity-block-neoforge-1.21.1", version.ref = "anvillib" }
 anvillib = { group = "dev.anvilcraft.lib", name = "anvillib-neoforge-1.21.1", version.ref = "anvillib" }

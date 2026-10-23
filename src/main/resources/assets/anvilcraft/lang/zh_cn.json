@@ -1,4 +1,8 @@
 {
+  "map.anvilcraft.overseer.loaded": "监督者：加载",
+  "map.anvilcraft.overseer.random_tick": "随机刻",
+  "map.anvilcraft.overseer.no_random_tick": "无随机刻",
+
   "gui.anvilcraft.category.catalyst": "催化剂（不消耗）",
   "advancements.anvilcraft.all_in_one.description": "合成一把铁砧锤并尝试各种功能",
   "advancements.anvilcraft.all_in_one.title": "All In One",

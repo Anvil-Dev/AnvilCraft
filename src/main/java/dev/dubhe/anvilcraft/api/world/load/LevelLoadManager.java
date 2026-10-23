@@ -1,10 +1,13 @@
 package dev.dubhe.anvilcraft.api.world.load;
 
+import dev.dubhe.anvilcraft.network.OverseerSyncPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -103,6 +106,13 @@ public class LevelLoadManager {
         if (old != null) old.discard(serverLevel);
         dimMap.put(centerPos, newData);
         newData.apply(serverLevel);
+    }
+
+    public static void syncOverseers(ServerPlayer player) {
+        LEVEL_LOAD_CHUCK_AREA_MAP.values().stream()
+            .flatMap(sources -> sources.values().stream())
+            .filter(LoadChuckData::isOverseer)
+            .forEach(data -> PacketDistributor.sendToPlayer(player, OverseerSyncPacket.of(data)));
     }
 
     public static void removeAll(ServerLevel level) {
