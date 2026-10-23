@@ -59,8 +59,15 @@ public final class RecipeOutputTracker {
         BlockPos cauldronPos = BlockPos.containing(context.getPos()).below();
         Level level = context.getLevel();
         BlockState below = level.getBlockState(cauldronPos.below());
-        if (!below.is(ModBlockTags.UNDER_CAULDRON) || !HeaterUtil.isActiveHeatSource(below)) return ALL_SOURCES;
+        if (!RecipeOutputTracker.requiresRecipeOutputForCompression(below)) return ALL_SOURCES;
         return element -> isRecipeOutput(element, level, cauldronPos);
+    }
+
+    /**
+     * 锅下工作方块生效时，压缩配方只接受尚未取出的加工产物。
+     */
+    public static boolean requiresRecipeOutputForCompression(BlockState below) {
+        return below.is(ModBlockTags.UNDER_CAULDRON) && HeaterUtil.isActiveHeatSource(below);
     }
 
     private static boolean isRecipeOutput(ICacheElement element, Level level, BlockPos cauldronPos) {
