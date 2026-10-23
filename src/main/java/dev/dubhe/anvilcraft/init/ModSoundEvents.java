@@ -75,6 +75,10 @@ public class ModSoundEvents {
         "music.mun.far_side_glow", () -> SoundEvent.createVariableRangeEvent(AnvilCraft.of("music.mun.far_side_glow"))
     );
 
+    public static final Supplier<SoundEvent> MUNLIGHT = REGISTER.register(
+        "music.mun.munlight", () -> SoundEvent.createVariableRangeEvent(AnvilCraft.of("music.mun.munlight"))
+    );
+
     public static void register(IEventBus modBus) {
         REGISTER.register(modBus);
     }
