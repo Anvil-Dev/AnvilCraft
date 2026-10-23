@@ -74,6 +74,9 @@ public class ModSoundDefinitionsProvider extends SoundDefinitionsProvider {
         add(ModSoundEvents.FAR_SIDE_GLOW, definition()
             .with(sound(AnvilCraft.of("music/mun/far_side_glow_loop")).stream()));
 
+        add(ModSoundEvents.MUNLIGHT, definition()
+            .with(sound(AnvilCraft.of("music/mun/munlight")).stream()));
+
         add(ModSoundEvents.QUENCHED_OUT, definition()
             .subtitle("subtitles.anvilcraft.quenched_out")
             .with(sound(AnvilCraft.of("quenched_out")).attenuationDistance(64)));
