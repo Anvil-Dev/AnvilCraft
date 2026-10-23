@@ -221,8 +221,6 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
     private final PollableItemHandler input = new PollableItemHandler(8) {
         @Override
         protected int getEmptyOrSmallerSlot(ItemResource resource) {
-            int mergeSlot = -1;
-            int mergeAmount = Integer.MAX_VALUE;
             int emptySlot = -1;
             for (int i = 7; i >= 0; i--) {
                 ItemResource resourceIn = this.getResource(i);
@@ -230,14 +228,12 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
                     if (emptySlot == -1) emptySlot = i;
                     continue;
                 }
-                if (!resourceIn.equals(resource)) continue;
-                int amountIn = this.getAmountAsInt(i);
-                if (amountIn < this.getCapacityAsIntDirect(i, resourceIn) && amountIn < mergeAmount) {
-                    mergeSlot = i;
-                    mergeAmount = amountIn;
+                if (resourceIn.equals(resource)) {
+                    // 同种原料只占一格，满组后也不能改用空格继续输入。
+                    return i;
                 }
             }
-            return mergeSlot != -1 ? mergeSlot : emptySlot;
+            return emptySlot;
         }
 
         @Override
