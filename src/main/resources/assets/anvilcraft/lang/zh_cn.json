@@ -1,4 +1,11 @@
 {
+  "map.anvilcraft.overseer.loaded": "监督者：加载",
+  "map.anvilcraft.overseer.random_tick": "随机刻",
+  "map.anvilcraft.overseer.no_random_tick": "无随机刻",
+  "map.anvilcraft.overseer.fire_spread": "火焰蔓延",
+  "map.anvilcraft.overseer.natural_spawn": "自然生成",
+  "map.anvilcraft.overseer.spawner_spawn": "刷怪笼生成",
+
   "gui.anvilcraft.category.catalyst": "催化剂（不消耗）",
   "advancements.anvilcraft.new_cycle.description": "见证一个文明从锻星砧中消失",
   "advancements.anvilcraft.new_cycle.title": "新轮回",

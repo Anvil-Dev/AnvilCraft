@@ -18,6 +18,8 @@ iris = "1.11.4+26.1-neoforge"
 curios = "15.0.0+26.1.2"
 
 [libraries]
+xaero-minimap = { group = "maven.modrinth", name = "xaeros-minimap", version = "neoforge-26.1.2-26.6.1" }
+xaero-worldmap = { group = "maven.modrinth", name = "xaeros-world-map", version = "neoforge-26.1.2-1.47.1" }
 emi = { group = "curse.maven", name = "emi-unofficial-port-unstable-1544558", version.ref = "emi" }
 anvillib-registrum = { group = "dev.anvilcraft.lib", name = "anvillib-registrum-neoforge-26.1", version.ref = "anvillib-registrum" }
 anvillib-math = { group = "dev.anvilcraft.lib", name = "anvillib-math-neoforge-26.1", version.ref = "anvillib-math" }

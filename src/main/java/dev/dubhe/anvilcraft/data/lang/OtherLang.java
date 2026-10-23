@@ -4,6 +4,13 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class OtherLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("map.anvilcraft.overseer.loaded", "Overseer: loaded");
+        provider.add("map.anvilcraft.overseer.random_tick", "Random ticks");
+        provider.add("map.anvilcraft.overseer.no_random_tick", "No random ticks");
+        provider.add("map.anvilcraft.overseer.fire_spread", "Fire spread");
+        provider.add("map.anvilcraft.overseer.natural_spawn", "Natural spawning");
+        provider.add("map.anvilcraft.overseer.spawner_spawn", "Spawner spawning");
+
         provider.add("anvilcraft.music.mun.above_the_moon_dust_loop", "Above the Moon Dust");
         provider.add("anvilcraft.music.mun.far_side_glow_loop", "Far Side Glow");
         provider.add("subtitles.anvilcraft.auto_enchanting_table.use", "Auto Enchanting Table used");
