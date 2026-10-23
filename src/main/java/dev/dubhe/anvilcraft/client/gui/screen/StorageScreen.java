@@ -126,7 +126,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private CompletableFuture<Void> craftingResponses = CompletableFuture.completedFuture(null);
     private int recipeHead;
     private boolean recipeDragging;
-    private boolean craftingSpace;
+    private boolean spacePressed;
     private long craftingSoundTick = Long.MIN_VALUE;
     private int batchRequest;
     private final long[] craftingPop = new long[10];
@@ -913,7 +913,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 if (slot >= 0) {
                     this.pendingCraftingPickup = slot;
                     this.pendingCraftingButton = event.button();
-                } else if (event.hasShiftDown() || this.craftingSpace) {
+                } else if (event.hasShiftDown() || this.isBulkActionDown()) {
                     this.interactionPending = true;
                     this.takeCraftingBatch(result == 0, ++this.batchRequest, 0, event.hasShiftDown() ? 1 : 8);
                 } else this.takeCraftingResult(result == 0);
@@ -1317,7 +1317,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
         if (this.craftingPrediction.isPending()) {
             int result = this.craftingResultAt(event.x(), event.y());
-            if (result >= 0 && (event.button() == 0 || event.button() == 1) && !event.hasShiftDown() && !this.craftingSpace
+            if (result >= 0 && (event.button() == 0 || event.button() == 1) && !event.hasShiftDown() && !this.isBulkActionDown()
                 && !this.craftingCloseRequested) {
                 this.takeCraftingResult(result == 0);
             }
@@ -1354,7 +1354,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 StorageInput action;
                 if (event.hasShiftDown()) {
                     action = StorageInput.QUICK_MOVE_FROM_STORAGE;
-                } else if (this.craftingSpace && event.button() == 0 && this.carried.isEmpty()) {
+                } else if (this.isBulkActionDown() && event.button() == 0 && this.carried.isEmpty()) {
                     action = StorageInput.QUICK_MOVE_STACKS_FROM_STORAGE;
                 } else {
                     action = StorageInput.FLUID_BUCKET;
@@ -1367,7 +1367,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 StorageInput action;
                 if (event.hasShiftDown()) {
                     action = StorageInput.QUICK_MOVE_FROM_STORAGE;
-                } else if (this.craftingSpace && event.button() == 0 && this.carried.isEmpty()) {
+                } else if (this.isBulkActionDown() && event.button() == 0 && this.carried.isEmpty()) {
                     action = StorageInput.QUICK_MOVE_STACKS_FROM_STORAGE;
                 } else {
                     action = StorageInput.PICKUP;
@@ -1400,7 +1400,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             this.lastClickedInventorySlot = slot;
             ItemStack clickedItem = this.player.getInventory().getItem(slot);
             if (!clickedItem.isEmpty()) this.lastQuickMoved = clickedItem.copy();
-            if (event.hasAltDown()) {
+            if (this.isBulkActionDown()) {
                 this.moveSameToStorage(slot, event.button() == this.fluidPourButton());
                 return true;
             }
@@ -1924,7 +1924,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             if (this.interactionSyncPending) this.syncPreservedOrder();
         }
         if (this.craftingPrediction.isPending() || this.takePrediction != null) {
-            if (event.key() == InputConstants.KEY_SPACE) this.craftingSpace = true;
+            if (event.key() == InputConstants.KEY_SPACE && AnvilCraft.CLIENT_CONFIG.controls.storageBulkActionKey.usesSpace()) {
+                this.spacePressed = true;
+            }
             if (event.key() == InputConstants.KEY_ESCAPE || this.minecraft.options.keyInventory.isActiveAndMatches(
                 InputConstants.getKey(event))) {
                 this.onClose();
@@ -1933,7 +1935,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
 
         if (this.search != null && this.search.isFocused()) {
-            this.craftingSpace = false;
+            this.spacePressed = false;
             if (event.key() == InputConstants.KEY_ESCAPE) {
                 this.search.setFocused(false);
                 this.setFocused(null);
@@ -1949,8 +1951,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             }, this.screenExecutor);
             return true;
         }
-        if (event.key() == InputConstants.KEY_SPACE) {
-            this.craftingSpace = true;
+        if (event.key() == InputConstants.KEY_SPACE && AnvilCraft.CLIENT_CONFIG.controls.storageBulkActionKey.usesSpace()) {
+            this.spacePressed = true;
             return true;
         }
         InputConstants.Key key = InputConstants.getKey(event);
@@ -2019,8 +2021,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     @Override
     public boolean keyReleased(KeyEvent event) {
         if (event.key() == InputConstants.KEY_SPACE) {
-            this.craftingSpace = false;
-            return true;
+            this.spacePressed = false;
+            if (AnvilCraft.CLIENT_CONFIG.controls.storageBulkActionKey.usesSpace()) return true;
         }
         if (
             (event.key() == InputConstants.KEY_LSHIFT || event.key() == InputConstants.KEY_RSHIFT)
@@ -2368,6 +2370,11 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     private int fluidPourButton() {
         return AnvilCraft.CLIENT_CONFIG.controls.invertFluidPortBucketActions ? 1 : 0;
+    }
+
+    private boolean isBulkActionDown() {
+        var key = AnvilCraft.CLIENT_CONFIG.controls.storageBulkActionKey;
+        return key.usesAlt() && this.minecraft.hasAltDown() || key.usesSpace() && this.spacePressed;
     }
 
     private void deposit(boolean pour, boolean all) {

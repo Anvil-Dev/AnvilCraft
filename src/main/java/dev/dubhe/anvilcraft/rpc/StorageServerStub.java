@@ -138,7 +138,7 @@ public final class StorageServerStub {
     @SuppressWarnings("NullableProblems") // IDEA issue, will be unnecessary in sometime
     private static final Multimap<UUID, StorageServerStub> STUBS = ArrayListMultimap.create();
     private static final int CRAFTING_TAKE_ALL_CHUNK = 64;
-    private static final int SPACE_TAKE_STACKS = 8;
+    private static final int BULK_TAKE_STACKS = 8;
     private static final Map<TakeAllKey, TakeAllSession> CRAFTING_BATCHES = new HashMap<>();
 
     private final Deque<Map<ItemResource, Integer>> undoRecords = new ArrayDeque<>();
@@ -1530,7 +1530,7 @@ public final class StorageServerStub {
 
     private static boolean moveStorageStacksToInventory(ServerPlayer player, StorageView view, int slot) {
         boolean changed = false;
-        for (int stack = 0; stack < StorageServerStub.SPACE_TAKE_STACKS; stack++) {
+        for (int stack = 0; stack < StorageServerStub.BULK_TAKE_STACKS; stack++) {
             if (!StorageServerStub.moveStorageStackToInventory(player, view, slot)) break;
             changed = true;
         }
@@ -2054,7 +2054,7 @@ public final class StorageServerStub {
                 entry.icon().copyWithAmount(FluidType.BUCKET_VOLUME / 4), Items.GLASS_BOTTLE.getDefaultInstance());
         }
         if (filledBucket.isEmpty()) return StorageServerStub.takeFluidBucketIntoInventory(player, view, fluid);
-        int limit = Math.min(StorageServerStub.SPACE_TAKE_STACKS,
+        int limit = Math.min(StorageServerStub.BULK_TAKE_STACKS,
             StorageServerStub.getInventorySpace(player.getInventory(), filledBucket));
         FluidNotice notice = FluidNotice.NONE;
         FluidStack taken = FluidStack.EMPTY;
