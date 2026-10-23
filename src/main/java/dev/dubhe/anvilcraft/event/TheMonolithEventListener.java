@@ -16,7 +16,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiRecord;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.portal.TeleportTransition;
@@ -25,7 +24,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.event.level.ChunkEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
@@ -69,12 +68,9 @@ public class TheMonolithEventListener {
     };
 
     @SubscribeEvent
-    public static void onChunkLoad(ChunkEvent.Load event) {
-        if (!event.isNewChunk()) return;
+    public static void onCreateSpawnPosition(LevelEvent.CreateSpawnPosition event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
         if (!Level.OVERWORLD.equals(level.dimension())) return;
-        ChunkPos spawnChunk = ChunkPos.containing(level.getWorldBorderAdjustedRespawnData(level.getRespawnData()).pos());
-        if (!spawnChunk.equals(event.getChunk().getPos())) return;
         NEW_WORLDS.add(level.getServer());
     }
 
