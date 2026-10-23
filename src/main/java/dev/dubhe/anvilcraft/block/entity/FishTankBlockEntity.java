@@ -243,8 +243,6 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     private final PollableItemHandler input = new PollableItemHandler(8) {
         @Override
         protected int getEmptyOrSmallerSlot(ItemStack stack) {
-            int mergeSlot = -1;
-            int mergeCount = Integer.MAX_VALUE;
             int emptySlot = -1;
             for (int i = 7; i >= 0; i--) {
                 ItemStack stackInSlot = this.getStackInSlot(i);
@@ -252,14 +250,12 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
                     if (emptySlot == -1) emptySlot = i;
                     continue;
                 }
-                if (!ItemStack.isSameItemSameComponents(stackInSlot, stack)) continue;
-                int stackInSlotCount = stackInSlot.getCount();
-                if (stackInSlotCount < this.getStackLimit(i, stackInSlot) && stackInSlotCount < mergeCount) {
-                    mergeSlot = i;
-                    mergeCount = stackInSlotCount;
+                if (ItemStack.isSameItemSameComponents(stackInSlot, stack)) {
+                    // 同种原料只占一格，满组后也不能改用空格继续输入。
+                    return i;
                 }
             }
-            return mergeSlot != -1 ? mergeSlot : emptySlot;
+            return emptySlot;
         }
 
         @Override
