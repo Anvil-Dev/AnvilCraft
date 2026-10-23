@@ -145,26 +145,32 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
 
     private static final int[] UPDATE_POS = new int[] {-1, 1};
 
-    protected void updatePower(Level level, BlockPos pos, BlockState state, BlockPos fromPos) {
+    protected void updatePower(Level level, BlockPos pos, BlockState state) {
         boolean powered = state.getValue(ActivatorSlidingRailBlock.POWERED);
         boolean shouldPower = this.isPowered(level, pos);
         if (powered != shouldPower) {
             level.setBlockAndUpdate(pos, state.setValue(ActivatorSlidingRailBlock.POWERED, shouldPower));
             this.updateAbove(level, pos);
         }
-        if (powered) {
-            Direction.Axis axis = state.getValue(ActivatorSlidingRailBlock.FACING).getAxis();
-            for (int updatePos : ActivatorSlidingRailBlock.UPDATE_POS) {
-                BlockPos pos1 = pos.relative(axis, updatePos);
-                if (pos1.equals(fromPos)) continue;
-                BlockState state1 = level.getBlockState(pos1);
-                if (!(state1.getBlock() instanceof ActivatorSlidingRailBlock other)) continue;
-                if (state1.getOptionalValue(ActivatorSlidingRailBlock.FACING).map(Direction::getAxis).filter(axis::equals).isEmpty()) {
-                    continue;
-                }
-                level.neighborChanged(pos1, other, Orientation.random(level.getRandom()));
+    }
+
+    @Override
+    protected void neighborChanged(
+        BlockState state, Level level, BlockPos pos, Block block, @Nullable Orientation orientation, boolean movedByPiston
+    ) {
+        this.updatePower(level, pos, state);
+        Direction.Axis axis = state.getValue(FACING).getAxis();
+        for (int step : UPDATE_POS) {
+            for (int distance = 1; distance <= 8; distance++) {
+                BlockPos neighbor = pos.relative(axis, step * distance);
+                if (!level.hasChunkAt(neighbor)) break;
+                BlockState neighborState = level.getBlockState(neighbor);
+                if (!(neighborState.getBlock() instanceof ActivatorSlidingRailBlock rail)
+                    || neighborState.getValue(FACING).getAxis() != axis) break;
+                rail.updatePower(level, neighbor, neighborState);
             }
         }
+        super.neighborChanged(state, level, pos, block, orientation, movedByPiston);
     }
 
     @Override
@@ -184,7 +190,7 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
         } else ISlidingRail.MOVING_PISTON_MAP.put(pos, ppi);
 
         if (level instanceof Level world) {
-            this.updatePower(world, pos, state, neighbor);
+            this.updatePower(world, pos, state);
             Optional<ActivatorSlidingRailBlockEntity> beOp = world.getBlockEntity(pos, ModBlockEntities.ACTIVATOR_SLIDING_RAIL.get());
             if (!neighbor.equals(pos.above())) return;
             if (
