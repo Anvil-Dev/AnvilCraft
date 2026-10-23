@@ -217,14 +217,17 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
         this.spaceUsed = null;
     }
 
+    /**
+     * 按已用物品种类计算饱满度，与界面显示的种类容量一致。
+     */
     @Override
     public double getFullness() {
-        if (this.typeLimit == 0 || this.spaceSize == 0) {
+        if (this.typeLimit == 0 || this.typeLimit == Integer.MAX_VALUE) {
             return 0;
         }
         // 升级自大型板条箱等来源时类型数可能暂时超过 typeLimit，
         // 钳制到 [0, 1] 防止标题栏容量条溢出
-        return Math.min(1.0, this.getSpace() / ((double) this.typeLimit * this.spaceSize));
+        return Math.min(1.0, (double) this.getTypeCount() / this.typeLimit);
     }
 
     @Override
