@@ -10,11 +10,11 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.client.renderer.blockentity.AbstractEndPortalRenderer;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.rendertype.TextureTransform;
-import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -45,9 +45,6 @@ public final class MonolithSurfaceRenderer {
     private static final ContextKey<List<Surface>> SURFACES = new ContextKey<>(AnvilCraft.of("monolith_surfaces"));
     private static final Map<BlockStateModel, List<Face>> FACES = new IdentityHashMap<>();
     private static final float SURFACE_OFFSET = 0.001F;
-    private static final RenderType SURFACE = RenderType.create("anvilcraft_monolith_surface",
-        RenderSetup.builder(ModRenderPipelines.MONOLITH_SURFACE)
-            .withTexture("Sampler0", TextureAtlas.LOCATION_BLOCKS).createRenderSetup());
 
     private MonolithSurfaceRenderer() {
     }
@@ -78,7 +75,7 @@ public final class MonolithSurfaceRenderer {
                 .cross(new Vector3f(quad.position2()).sub(quad.position0())).normalize().mul(SURFACE_OFFSET);
             List<Vector3fc> vertices = new ArrayList<>(4);
             for (int index = 0; index < 4; index++) vertices.add(new Vector3f(quad.position(index)).add(normal));
-            faces.add(new Face(cullFace, List.copyOf(vertices), quad.materialInfo().sprite()));
+            faces.add(new Face(cullFace, List.copyOf(vertices)));
         }
     }
 
@@ -126,10 +123,8 @@ public final class MonolithSurfaceRenderer {
         if (faces.isEmpty()) return;
         collector.submitCustomGeometry(pose, renderType(), (renderPose, consumer) -> {
             for (Face face : faces) {
-                var sprite = face.sprite();
                 for (Vector3fc vertex : face.vertices()) {
-                    consumer.addVertex(renderPose, vertex).setUv(sprite.getU0(), sprite.getV0())
-                        .setUv2(sprite.contents().width(), sprite.contents().height());
+                    consumer.addVertex(renderPose, vertex);
                 }
             }
         });
@@ -137,15 +132,16 @@ public final class MonolithSurfaceRenderer {
 
     private static RenderType renderType() {
         var projection = GatewayGuiProjection.current();
-        if (projection == null) return SURFACE;
+        if (projection == null) return RenderTypes.endPortal();
         return RenderType.create("anvilcraft_monolith_surface_gui",
             RenderSetup.builder(ModRenderPipelines.MONOLITH_SURFACE_GUI)
-                .withTexture("Sampler0", TextureAtlas.LOCATION_BLOCKS)
+                .withTexture("Sampler0", AbstractEndPortalRenderer.END_SKY_LOCATION)
+                .withTexture("Sampler1", AbstractEndPortalRenderer.END_PORTAL_LOCATION)
                 .setTextureTransform(new TextureTransform("anvilcraft_monolith_gui", () -> projection))
                 .createRenderSetup());
     }
 
-    public record Face(@Nullable Direction cullFace, List<Vector3fc> vertices, TextureAtlasSprite sprite) {
+    public record Face(@Nullable Direction cullFace, List<Vector3fc> vertices) {
     }
 
     private record Surface(BlockPos pos, List<Face> faces) {
