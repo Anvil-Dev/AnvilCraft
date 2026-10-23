@@ -33,6 +33,7 @@ import dev.dubhe.anvilcraft.recipe.LiquidEnchantmentCauldronRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.DamageAnvil;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasAnvil;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
+import dev.dubhe.anvilcraft.recipe.anvil.util.RecipeOutputTracker;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
@@ -1091,9 +1092,16 @@ public class LargeCauldronBlockEntity extends BlockEntity
         BlockPos helper,
         BlockPos base
     ) {
+        Level level = this.level;
+        if (level == null) return null;
+        RecipePass recipePass = !outputSource
+            && RecipeOutputTracker.requiresRecipeOutputForCompression(level.getBlockState(helper))
+            ? RecipePass.NON_COMPRESSION
+            : RecipePass.ALL;
         Vec3 contextPos = new Vec3(helper.getX() + 0.5, base.getY() + 1.0, helper.getZ() + 0.5);
         for (RecipeHolder<InWorldRecipe> holder : recipes) {
             InWorldRecipe recipe = holder.value();
+            if (!recipePass.accepts(recipe)) continue;
             if (!LargeCauldronBlockEntity.recipeUsesInput(recipe, LargeCauldronBlockEntity.getStack(source, slot))) continue;
             PreviewState state = new PreviewState(
                 LargeCauldronBlockEntity.copyItemStacks(source),
