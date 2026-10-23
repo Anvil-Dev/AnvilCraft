@@ -1937,8 +1937,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 StorageInput action;
                 if (Screen.hasShiftDown()) {
                     action = StorageInput.QUICK_MOVE_FROM_STORAGE;
-                } else if (this.spacePressed && button == 0 && this.carried.isEmpty()) {
-                    // 空格+左键：一次装出多桶到背包（与物品格取多组一致）。
+                } else if (this.isBulkActionDown() && button == 0 && this.carried.isEmpty()) {
+                    // 批量操作键+左键：一次装出多桶到背包（与物品格取多组一致）。
                     // 指针上有物时保持原有语义：这一键还要负责倒液，不能一并改成取多桶
                     action = StorageInput.QUICK_MOVE_STACKS_FROM_STORAGE;
                 } else {
@@ -1955,9 +1955,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 StorageInput action;
                 if (Screen.hasShiftDown()) {
                     action = StorageInput.QUICK_MOVE_FROM_STORAGE;
-                } else if (this.spacePressed && button == 0 && this.carried.isEmpty()) {
-                    // 空格+左键：一次取出多组到背包。指针有物时保持原有语义（存入仓储），
-                    // 与流体格一致：空格按下不应吞掉这一键原本的存入行为
+                } else if (this.isBulkActionDown() && button == 0 && this.carried.isEmpty()) {
+                    // 批量操作键+左键：一次取出多组到背包。指针有物时保持原有语义（存入仓储），
+                    // 与流体格一致：批量操作键按下不应吞掉这一键原本的存入行为
                     action = StorageInput.QUICK_MOVE_STACKS_FROM_STORAGE;
                 } else {
                     action = StorageInput.PICKUP;
@@ -1998,7 +1998,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 this.lastQuickMoved = clickedItem.copy();
             }
 
-            if (Screen.hasAltDown()) {
+            if (this.isBulkActionDown()) {
                 // 哪一键倾倒流体桶由服务端按客户端配置判定，这里只上报实际按键
                 this.moveSameToStorage(slot, button);
                 return true;
@@ -2491,6 +2491,11 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
      */
     private static int bucketActionButton() {
         return AnvilCraftClient.CONFIG.controls.invertFluidPortBucketActions ? 1 : 0;
+    }
+
+    private boolean isBulkActionDown() {
+        var key = AnvilCraftClient.CONFIG.controls.storageBulkActionKey;
+        return key.usesAlt() && Screen.hasAltDown() || key.usesSpace() && this.spacePressed;
     }
 
     private void moveSameToStorage(int slot, int button) {
@@ -3090,12 +3095,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             return true;
         }
         boolean shift = Screen.hasShiftDown();
-        boolean space = this.spacePressed && !shift;
-        if (shift || space) {
+        boolean bulk = this.isBulkActionDown() && !shift;
+        if (shift || bulk) {
             if (this.interactionPending) return true;
             this.interactionPending = true;
             this.player.inventoryMenu.setCarried(this.carried);
-            this.takeAllChunk(++this.interactionRequest, stonecutter, 0, space ? 8 : 1);
+            this.takeAllChunk(++this.interactionRequest, stonecutter, 0, bulk ? 8 : 1);
         } else {
             this.takeCraftingResult(stonecutter);
         }
@@ -3273,7 +3278,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             if (this.interactionSyncPending) this.syncPreservedOrder();
         }
         if (this.craftingPrediction.isPending() || this.takePrediction != null) {
-            if (keyCode == InputConstants.KEY_SPACE) this.spacePressed = true;
+            if (keyCode == InputConstants.KEY_SPACE && AnvilCraftClient.CONFIG.controls.storageBulkActionKey.usesSpace()) {
+                this.spacePressed = true;
+            }
             if (keyCode == InputConstants.KEY_ESCAPE || this.minecraft.options.keyInventory.isActiveAndMatches(
                 InputConstants.getKey(keyCode, scanCode))) {
                 this.onClose();
@@ -3291,7 +3298,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             this.search.keyPressed(keyCode, scanCode, modifiers);
             return true;
         }
-        if (keyCode == InputConstants.KEY_SPACE) {
+        if (keyCode == InputConstants.KEY_SPACE && AnvilCraftClient.CONFIG.controls.storageBulkActionKey.usesSpace()) {
             this.spacePressed = true;
             return true;
         }
@@ -3372,7 +3379,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
         if (keyCode == InputConstants.KEY_SPACE) {
             this.spacePressed = false;
-            return true;
+            if (AnvilCraftClient.CONFIG.controls.storageBulkActionKey.usesSpace()) return true;
         }
         if (
             (keyCode == InputConstants.KEY_LSHIFT || keyCode == InputConstants.KEY_RSHIFT)
