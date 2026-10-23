@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.client.gui.tooltip.FilterContentHoverWindow;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
+import dev.dubhe.anvilcraft.client.overseer.OverseerMapData;
 import dev.dubhe.anvilcraft.client.rpc.StorageTerminalClientStub;
 import dev.dubhe.anvilcraft.client.rpc.TerminalReachabilityCache;
 import dev.dubhe.anvilcraft.client.support.AmuletSelectorSupport;
@@ -97,6 +98,7 @@ public class ClientEventListener {
 
     @SubscribeEvent
     public static void onClientPlayerDisconnect(ClientPlayerNetworkEvent.LoggingOut event) {
+        OverseerMapData.clear();
         SoundHelper.INSTANCE.clear();
         StorageTerminalClientStub.clear();
         TerminalReachabilityCache.clear();

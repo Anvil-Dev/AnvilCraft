@@ -16,6 +16,10 @@ dependencies {
     compileClasspath(libs.jei.neoforge) { transitive = false }
     runtimeClasspath(libs.jei.neoforge) { transitive = false }
 
+    // Xaero optional map integrations
+    compileOnly(libs.xaero.minimap) { transitive = false }
+    compileOnly(libs.xaero.worldmap) { transitive = false }
+
     // Sodium, Iris, Embeddium
     compileClasspath(libs.sodium)
     compileClasspath(libs.embeddium)

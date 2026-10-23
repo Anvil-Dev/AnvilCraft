@@ -4,6 +4,10 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class OtherLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("map.anvilcraft.overseer.loaded", "Overseer: loaded");
+        provider.add("map.anvilcraft.overseer.random_tick", "Random ticks");
+        provider.add("map.anvilcraft.overseer.no_random_tick", "No random ticks");
+
         provider.add("component_content.anvilcraft.mod_name.unknown", "Unknown <%s>");
         provider.add("component_content.anvilcraft.mod_name.minecraft", "Minecraft");
         provider.add("component_content.anvilcraft.mod_name.ageratum", "Ageratum");

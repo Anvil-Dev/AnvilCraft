@@ -51,6 +51,7 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+        if (mixinClassName.contains("Xaero")) return this.isLoaded(targetClassName.replace('.', '/') + ".class");
         if (mixinClassName.endsWith("PistonStructureResolverMixin")) return !hasZetaPiston;
         if (mixinClassName.endsWith("DefaultDisplayViewingScreenMixin")) return hasReiScreen;
         if (mixinClassName.contains("Create")) return hasCreate;

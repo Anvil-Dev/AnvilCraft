@@ -1,12 +1,15 @@
 package dev.dubhe.anvilcraft.api.world.load;
 
+import dev.dubhe.anvilcraft.network.OverseerSyncPacket;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 public class LoadChuckData {
@@ -15,19 +18,22 @@ public class LoadChuckData {
     private final List<ChunkPos> chunkPosList;
     private final boolean isNeedRandomTick;
     private final ServerLevel serverLevel;
+    private final boolean overseer;
 
     private LoadChuckData(
         BlockPos centerPos,
         List<ChunkPos> chunkPosList,
         boolean isNeedRandomTick,
         int level,
-        ServerLevel serverLevel
+        ServerLevel serverLevel,
+        boolean overseer
     ) {
         this.centerPos = centerPos;
         this.chunkPosList = chunkPosList;
         this.isNeedRandomTick = isNeedRandomTick;
         this.level = level;
         this.serverLevel = serverLevel;
+        this.overseer = overseer;
     }
 
     /**
@@ -44,6 +50,12 @@ public class LoadChuckData {
         boolean isNeedRandomTick,
         ServerLevel serverLevel
     ) {
+        return createLoadChuckData(level, centerPos, isNeedRandomTick, serverLevel, false);
+    }
+
+    private static LoadChuckData createLoadChuckData(
+        int level, BlockPos centerPos, boolean isNeedRandomTick, ServerLevel serverLevel, boolean overseer
+    ) {
         List<ChunkPos> chunkPosList = new ArrayList<>();
         ChunkPos centerChunkPos = new ChunkPos(centerPos);
         for (int x = centerChunkPos.x - level; x <= centerChunkPos.x + level; x++) {
@@ -51,7 +63,13 @@ public class LoadChuckData {
                 chunkPosList.add(new ChunkPos(x, z));
             }
         }
-        return new LoadChuckData(centerPos, chunkPosList, isNeedRandomTick, level, serverLevel);
+        return new LoadChuckData(centerPos, chunkPosList, isNeedRandomTick, level, serverLevel, overseer);
+    }
+
+    public static LoadChuckData createOverseerLoadChuckData(
+        int level, BlockPos centerPos, boolean isNeedRandomTick, ServerLevel serverLevel
+    ) {
+        return createLoadChuckData(level, centerPos, isNeedRandomTick, serverLevel, true);
     }
 
     /**
@@ -65,6 +83,7 @@ public class LoadChuckData {
             for (ChunkPos chunkPos : this.chunkPosList) {
                 LevelLoadManager.addRef(level, chunkPos);
             }
+            if (this.overseer) PacketDistributor.sendToAllPlayers(OverseerSyncPacket.of(this));
         });
     }
 
@@ -78,6 +97,9 @@ public class LoadChuckData {
             }
             for (ChunkPos chunkPos : this.chunkPosList) {
                 LevelLoadManager.removeRef(level, chunkPos);
+            }
+            if (this.overseer) {
+                PacketDistributor.sendToAllPlayers(new OverseerSyncPacket(level.dimension(), this.centerPos, Map.of()));
             }
         });
     }
