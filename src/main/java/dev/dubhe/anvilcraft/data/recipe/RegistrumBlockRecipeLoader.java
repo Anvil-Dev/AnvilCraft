@@ -2166,6 +2166,7 @@ public class RegistrumBlockRecipeLoader {
         ItemCompressRecipe.builder()
             .requires(ModItems.WOOD_FIBER, 4)
             .requires(ModItems.RESIN)
+            .priority(12)
             .result(ctx.get(), 16)
             .save(provider);
     }
