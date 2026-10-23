@@ -70,6 +70,14 @@
       }
     ]
   },
+  "music.mun.munlight": {
+    "sounds": [
+      {
+        "name": "anvilcraft:music/mun/munlight",
+        "stream": true
+      }
+    ]
+  },
   "neoforge_land": {
     "sounds": [
       {
