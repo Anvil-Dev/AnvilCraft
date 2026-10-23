@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
 import dev.dubhe.anvilcraft.block.power.consumer.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
@@ -97,10 +98,12 @@ public class SubmitGeometryEventListener {
         long gameTime = level.getGameTime();
         HitResult hitResult = Minecraft.getInstance().hitResult;
         if (hitResult instanceof BlockHitResult hit && !hit.miss && AnvilHammerItem.shouldRenderEffect(player)) {
-            SubmitGeometryEventListener.registerAffectRange(hit, gameTime);
+            SubmitGeometryEventListener.registerAffectRange(hit, player, gameTime);
         }
         SubmitGeometryEventListener.RANGE_OUTLINES.entrySet().removeIf(entry ->
             gameTime > entry.getValue().lastSeenTick() + AnvilCraft.CLIENT_CONFIG.graphics.affectRangeOutlinePersistTicks
+                || entry.getValue().state().is(ModBlocks.STRUCTURE_SCANNER)
+                    && !SubmitGeometryEventListener.hasScannerHammer(player)
                 || level.getBlockState(entry.getKey()) != entry.getValue().state());
         List<RangeOutline> outlines = List.copyOf(SubmitGeometryEventListener.RANGE_OUTLINES.values());
         if (!outlines.isEmpty()) {
@@ -129,7 +132,13 @@ public class SubmitGeometryEventListener {
         }
     }
 
-    private static void registerAffectRange(BlockHitResult hit, long gameTime) {
+    private static boolean hasScannerHammer(Player player) {
+        return AnvilHammerItem.isWearing(player)
+            || player.getMainHandItem().getItem() instanceof AnvilHammerItem
+            || player.getOffhandItem().getItem() instanceof AnvilHammerItem;
+    }
+
+    private static void registerAffectRange(BlockHitResult hit, Player player, long gameTime) {
         BlockPos blockPos = hit.getBlockPos();
         Level level = Minecraft.getInstance().level;
         if (level == null) return;
@@ -144,6 +153,13 @@ public class SubmitGeometryEventListener {
             return;
         }
         if (e == null) return;
+        if (e instanceof StructureScannerBlockEntity scanner) {
+            if (SubmitGeometryEventListener.hasScannerHammer(player)) {
+                SubmitGeometryEventListener.RANGE_OUTLINES.put(blockPos,
+                    new RangeOutline(state, Shapes.create(scanner.getScanBounds()), gameTime));
+            }
+            return;
+        }
         VoxelShape shape = HudTooltipManager.INSTANCE.resolveAffectRange(e);
         if (shape != null) {
             SubmitGeometryEventListener.RANGE_OUTLINES.put(blockPos, new RangeOutline(state, shape, gameTime));
