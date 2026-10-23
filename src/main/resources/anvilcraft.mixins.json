@@ -91,6 +91,7 @@
     "InventoryMixin",
     "ItemEntityMixin",
     "ItemStackMixin",
+    "KineticWeaponMixin",
     "LevelChunkMixin",
     "LightningBoltMixin",
     "LivingEntityMixin",
