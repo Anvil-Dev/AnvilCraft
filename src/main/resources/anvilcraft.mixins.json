@@ -154,6 +154,8 @@
     "accessor.RedStoneWireBlockAccessor"
   ],
   "client": [
+    "compat.XaeroWorldMapHighlighterRegistryMixin",
+    "compat.XaeroMinimapHighlighterRegistryMixin",
     "compat.IrisStellarMixin",
     "compat.IrisHandRendererAccessor",
     "client.OverworldSkyMixin",

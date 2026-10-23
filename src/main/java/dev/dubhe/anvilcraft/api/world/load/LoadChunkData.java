@@ -1,10 +1,12 @@
 package dev.dubhe.anvilcraft.api.world.load;
 
+import dev.dubhe.anvilcraft.network.OverseerSyncPacket;
 import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -185,6 +187,7 @@ public class LoadChunkData {
                 LevelLoadManager.forceChunk(cp.x(), cp.z(), true, level);
                 ChunkFeatureManager.registerChunkFeatures(dimension, cp, this.centerPos, this);
             }
+            if (this.source == Source.OVERSEER) PacketDistributor.sendToAllPlayers(OverseerSyncPacket.of(this));
         });
     }
 
@@ -196,6 +199,9 @@ public class LoadChunkData {
             for (ChunkPos cp : this.chunkPosList) {
                 LevelLoadManager.forceChunk(cp.x(), cp.z(), false, level);
                 ChunkFeatureManager.unregisterChunkFeatures(dimension, cp, this.centerPos);
+            }
+            if (this.source == Source.OVERSEER) {
+                PacketDistributor.sendToAllPlayers(new OverseerSyncPacket(dimension, this.centerPos, Map.of()));
             }
         });
     }

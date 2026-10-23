@@ -1,10 +1,13 @@
 package dev.dubhe.anvilcraft.api.world.load;
 
+import dev.dubhe.anvilcraft.network.OverseerSyncPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -88,6 +91,12 @@ public class LevelLoadManager {
         });
         LevelLoadManager.LOAD_DATA_MAP.clear();
         LevelLoadManager.CHUNK_REF_COUNT.clear();
+    }
+
+    public static void syncOverseers(ServerPlayer player) {
+        LOAD_DATA_MAP.values().stream()
+            .filter(data -> !data.isRemoved() && data.isApplied() && data.getSource() == LoadChunkData.Source.OVERSEER)
+            .forEach(data -> PacketDistributor.sendToPlayer(player, OverseerSyncPacket.of(data)));
     }
 
     public static int getOverseerChunkCount(BlockPos centerPos) {
