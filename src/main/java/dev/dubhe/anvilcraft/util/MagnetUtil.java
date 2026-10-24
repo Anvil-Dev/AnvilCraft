@@ -32,6 +32,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.fml.ModLoader;
 
 import java.util.ArrayList;
@@ -100,8 +101,10 @@ public abstract class MagnetUtil {
         }
         BlockState blockState = level.getBlockState(pos);
         if (blockState.isAir()) return InteractionResult.PASS;
-        double maxY = blockState.getCollisionShape(level, pos).max(Direction.Axis.Y, 0.5, 0.5);
-        if (!blockState.getBlock().properties().hasCollision && maxY == 0) return InteractionResult.PASS;
+        VoxelShape shape = blockState.getCollisionShape(level, pos);
+        if (shape.isEmpty()) shape = blockState.getShape(level, pos);
+        double maxY = shape.max(Direction.Axis.Y, 0.5, 0.5);
+        if (!Double.isFinite(maxY)) return InteractionResult.PASS;
         for (MagnetizedNodeEntity entity : level.getEntities(
             ModEntities.MAGNETIZED_NODE.get(),
             new AABB(pos).setMaxY(pos.getY() + 1.1),
