@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.data.tags;
 
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumTagsProvider;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -341,10 +342,64 @@ public class ItemTagLoader {
             .add(findResourceKey(ModBlocks.BRASS_PRESSURE_PLATE.asItem()))
             .add(findResourceKey(ModBlocks.BRONZE_PRESSURE_PLATE.asItem()));
 
-        // 有多个合成途径的物品：不能被拆解
-        uncraftables.add(findResourceKey(ModBlocks.HELIOSTATS.asItem()))
-            .add(findResourceKey(ModBlocks.ACTIVE_SILENCER.asItem()))
-            .add(findResourceKey(ModBlocks.EXP_COLLECTOR.asItem()));
+        // 有多个工作台配方的物品，包括本模组为原版物品添加的配方：不能被拆解
+        List<ItemLike> multiRecipeItems = List.of(
+            ModBlocks.ACTIVE_SILENCER,
+            ModItems.BRASS_INGOT,
+            ModItems.BRONZE_INGOT,
+            ModItems.BUILDING_ROD,
+            ModBlocks.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE,
+            ModBlocks.CHARGER,
+            ModFoodItems.CHOCOLATE,
+            ModFoodItems.CHOCOLATE_BLACK,
+            ModFoodItems.CHOCOLATE_WHITE,
+            ModItems.CURSED_GOLD_INGOT,
+            ModItems.DEFORMATION_TEMPLATE_ITEM,
+            ModItems.DISK,
+            ModItems.EMBER_METAL_INGOT,
+            ModItems.ENCHANTED_GOLD_INGOT,
+            ModBlocks.EXP_COLLECTOR,
+            ModBlocks.FLUID_TANK,
+            ModItems.FROST_METAL_INGOT,
+            ModBlocks.HELIOSTATS,
+            ModBlocks.HOLLOW_MAGNET_BLOCK,
+            ModItems.HYPERDIMENSION_TERMINAL,
+            ModItems.LEAD_INGOT,
+            ModBlocks.MAGNET_BLOCK,
+            ModItems.MAGNET_INGOT,
+            ModItems.NEGATIVE_MATTER,
+            ModItems.PERMUTATION_TEMPLATE_ITEM,
+            ModBlocks.PIEZOELECTRIC_CRYSTAL,
+            ModItems.PLUTONIUM_INGOT,
+            ModBlocks.POWER_CONVERTER_BIG,
+            ModBlocks.POWER_CONVERTER_MIDDLE,
+            ModBlocks.POWER_CONVERTER_SMALL,
+            ModBlocks.POWER_CONVERTER_SUPER_BIG,
+            ModBlocks.PROPEL_PISTON,
+            ModItems.ROYAL_STEEL_INGOT,
+            ModItems.SILVER_INGOT,
+            ModBlocks.STRUCTURE_SCANNER,
+            ModItems.TIN_INGOT,
+            ModItems.TITANIUM_INGOT,
+            ModItems.TUNGSTEN_INGOT,
+            ModItems.URANIUM_INGOT,
+            ModItems.ZINC_INGOT,
+            Items.ANVIL,
+            Items.CHIPPED_ANVIL,
+            Items.COMPARATOR,
+            Items.COOKIE,
+            Items.COPPER_INGOT,
+            Items.DAMAGED_ANVIL,
+            Items.GOLD_BLOCK,
+            Items.GOLD_INGOT,
+            Items.GOLD_NUGGET,
+            Items.IRON_BLOCK,
+            Items.REPEATER,
+            Items.SUGAR
+        );
+        for (ItemLike item : multiRecipeItems) {
+            uncraftables.add(findResourceKey(item.asItem()));
+        }
 
         // 电容器类物品：不能通过拆解获得
         uncraftingIngredients.add(ModItems.CAPACITOR.getKey())
