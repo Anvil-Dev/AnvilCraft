@@ -38,6 +38,15 @@ public enum WipBlockClientProvider implements IBlockComponentProvider {
                 serverData.getIntOr("stepCount", 0)
             ));
         }
+        if (serverData.contains("nextStep")) {
+            Identifier typeId = Identifier.parse(serverData.getStringOr("nextStep", ""));
+            tooltip.add(Component.translatable(
+                "tooltip.anvilcraft.wip_block.jade.next_step",
+                Component.translatableWithFallback(
+                    "gui." + typeId.getNamespace() + ".category." + typeId.getPath(), typeId.toString()
+                )
+            ));
+        }
     }
 
     @Override

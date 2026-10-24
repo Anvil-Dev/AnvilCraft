@@ -39,6 +39,7 @@ public class JadeLang {
 
         provider.add("tooltip.anvilcraft.wip_block.jade.recipe", "Procedural Recipe: %s");
         provider.add("tooltip.anvilcraft.wip_block.jade.step_count", "Steps Executed: %d");
+        provider.add("tooltip.anvilcraft.wip_block.jade.next_step", "Next Step: %s");
 
         provider.add("tooltip.anvilcraft.burning_heater.jade.state", "State: %s");
         provider.add("tooltip.anvilcraft.burning_heater.jade.state.off", "Extinguished");
