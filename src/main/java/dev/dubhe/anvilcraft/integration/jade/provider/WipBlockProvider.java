@@ -3,13 +3,16 @@ package dev.dubhe.anvilcraft.integration.jade.provider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.WipBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.integration.jade.WipBlockRecipeInfo;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessStep;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockProcessingRecipe;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.crafting.Recipe;
@@ -27,21 +30,6 @@ public enum WipBlockProvider implements IBlockComponentProvider, IServerDataProv
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor blockAccessor, IPluginConfig pluginConfig) {
         CompoundTag serverData = blockAccessor.getServerData();
-        if (serverData.contains("recipe")) {
-            String s = serverData.getString("recipe");
-            ResourceLocation rl = ResourceLocation.parse(s);
-            if (!rl.getPath().isEmpty()) {
-                String s1 = rl.getPath();
-                String [] splits = s1.split("/");
-                String s2 = splits[splits.length - 1];
-                tooltip.add(
-                    Component.translatable(
-                        "tooltip.anvilcraft.wip_block.jade.recipe",
-                        s2
-                    )
-                );
-            }
-        }
         if (serverData.contains("stepCount")) {
             tooltip.add(Component.translatable(
                 "tooltip.anvilcraft.wip_block.jade.step_count",
@@ -57,6 +45,11 @@ public enum WipBlockProvider implements IBlockComponentProvider, IServerDataProv
                 )
             ));
         }
+        if (serverData.contains("nextStepDetails")) {
+            ComponentSerialization.CODEC.listOf().parse(
+                blockAccessor.getLevel().registryAccess().createSerializationContext(NbtOps.INSTANCE), serverData.get("nextStepDetails")
+            ).result().ifPresent(lines -> lines.forEach(tooltip::add));
+        }
     }
 
     @Override
@@ -64,11 +57,10 @@ public enum WipBlockProvider implements IBlockComponentProvider, IServerDataProv
         if (blockAccessor.getBlockEntity() instanceof WipBlockEntity blockEntity) {
             ResourceLocation recipeId = blockEntity.getRecipeId();
             if (recipeId != null) {
-                compoundTag.putString("recipe", recipeId.toString());
                 if (blockAccessor.getLevel() instanceof ServerLevel level) {
                     RecipeHolder<?> holder = level.getRecipeManager().byKey(recipeId).orElse(null);
                     if (holder != null && holder.value() instanceof ProceduralProcessRecipe recipe) {
-                        appendNextStep(compoundTag, recipe, blockEntity.getStepCount());
+                        appendNextStep(compoundTag, recipe, blockEntity.getStepCount(), level);
                     }
                 }
             }
@@ -76,7 +68,7 @@ public enum WipBlockProvider implements IBlockComponentProvider, IServerDataProv
         }
     }
 
-    private static void appendNextStep(CompoundTag tag, ProceduralProcessRecipe recipe, int stepCount) {
+    private static void appendNextStep(CompoundTag tag, ProceduralProcessRecipe recipe, int stepCount, ServerLevel level) {
         int stepSize = recipe.getSteps().size();
         if (stepCount < 0 || stepSize == 0 || stepCount / stepSize >= recipe.getLoop()) return;
         int stepIndex = stepCount % stepSize;
@@ -99,6 +91,9 @@ public enum WipBlockProvider implements IBlockComponentProvider, IServerDataProv
         if (typeId != null) {
             tag.putString("nextStep", typeId.toString());
         }
+        ComponentSerialization.CODEC.listOf().encodeStart(
+            level.registryAccess().createSerializationContext(NbtOps.INSTANCE), WipBlockRecipeInfo.getDetails(content)
+        ).result().ifPresent(details -> tag.put("nextStepDetails", details));
     }
 
     @Override

@@ -68,9 +68,22 @@ public class JadeLang {
         provider.add("tooltip.anvilcraft.pulse_generator.jade.mode.loop", "Loop");
         provider.add("tooltip.anvilcraft.pulse_generator.jade.reverse.on", "On");
         provider.add("tooltip.anvilcraft.pulse_generator.jade.reverse.off", "Off");
-        provider.add("tooltip.anvilcraft.wip_block.jade.recipe", "Procedural Recipe: %s");
         provider.add("tooltip.anvilcraft.wip_block.jade.step_count", "Steps Executed: %d");
         provider.add("tooltip.anvilcraft.wip_block.jade.next_step", "Next Step: %s");
+        provider.add("tooltip.anvilcraft.wip_block.jade.compress", "Compress into WIP: %s");
+        provider.add("tooltip.anvilcraft.wip_block.jade.inject", "Inject into WIP: %s");
+        provider.add("tooltip.anvilcraft.wip_block.jade.work_block", "Work block below: %s");
+        provider.add("tooltip.anvilcraft.wip_block.jade.amount", "%1$s × %2$s");
+        provider.add("tooltip.anvilcraft.wip_block.jade.alternative", "  or %s");
+        provider.add("tooltip.anvilcraft.wip_block.jade.more_options", "%s more options");
+        provider.add("tooltip.anvilcraft.wip_block.jade.block_state", "%1$s (%2$s)");
+        provider.add("tooltip.anvilcraft.wip_block.jade.activated", "activated");
+        provider.add("tooltip.anvilcraft.wip_block.jade.heater_ready", "no redstone signal, not overloaded");
+        provider.add("tooltip.anvilcraft.wip_block.jade.irradiation_type.neutron", "Neutron");
+        provider.add("tooltip.anvilcraft.wip_block.jade.irradiation_type.energy", "Energy");
+        provider.add("tooltip.anvilcraft.wip_block.jade.irradiation_type.mass", "Mass");
+        provider.add("tooltip.anvilcraft.wip_block.jade.irradiation_type.space", "Space");
+        provider.add("tooltip.anvilcraft.wip_block.jade.irradiation_type.time", "Time");
 
         provider.add("tooltip.anvilcraft.infinity", "Infinity");
 
