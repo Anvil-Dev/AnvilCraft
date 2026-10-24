@@ -100,38 +100,67 @@ public class ItemCrushRecipeLoader {
         ItemCrushRecipeLoader.armor(provider, Items.LEATHER_BOOTS, Items.LEATHER);
         ItemCrushRecipeLoader.armor(provider, Items.LEATHER_HORSE_ARMOR, Items.LEATHER);
 
+        ItemCrushRecipeLoader.tool(provider, Items.WOODEN_SPEAR, ModItems.WOOD_FIBER);
+        ItemCrushRecipeLoader.tool(provider, Items.STONE_SPEAR, Items.COBBLESTONE);
+
+        ItemCrushRecipeLoader.tool(provider, Items.COPPER_SWORD, Items.COPPER_INGOT);
+        ItemCrushRecipeLoader.tool(provider, Items.COPPER_PICKAXE, Items.COPPER_INGOT);
+        ItemCrushRecipeLoader.tool(provider, Items.COPPER_AXE, Items.COPPER_INGOT);
+        ItemCrushRecipeLoader.tool(provider, Items.COPPER_HOE, Items.COPPER_INGOT);
+        ItemCrushRecipeLoader.tool(provider, Items.COPPER_SHOVEL, Items.COPPER_INGOT);
+        ItemCrushRecipeLoader.tool(provider, Items.COPPER_SPEAR, Items.COPPER_INGOT);
+        ItemCrushRecipeLoader.armor(provider, Items.COPPER_HELMET, Items.COPPER_INGOT);
+        ItemCrushRecipeLoader.armor(provider, Items.COPPER_CHESTPLATE, Items.COPPER_INGOT);
+        ItemCrushRecipeLoader.armor(provider, Items.COPPER_LEGGINGS, Items.COPPER_INGOT);
+        ItemCrushRecipeLoader.armor(provider, Items.COPPER_BOOTS, Items.COPPER_INGOT);
+        ItemCrushRecipeLoader.armor(provider, Items.COPPER_HORSE_ARMOR, Items.COPPER_INGOT);
+        ItemCrushRecipeLoader.armor(provider, Items.COPPER_NAUTILUS_ARMOR, Items.COPPER_INGOT);
+
         ItemCrushRecipeLoader.tool(provider, Items.IRON_SWORD, Items.IRON_INGOT);
         ItemCrushRecipeLoader.tool(provider, Items.IRON_PICKAXE, Items.IRON_INGOT);
         ItemCrushRecipeLoader.tool(provider, Items.IRON_AXE, Items.IRON_INGOT);
         ItemCrushRecipeLoader.tool(provider, Items.IRON_HOE, Items.IRON_INGOT);
         ItemCrushRecipeLoader.tool(provider, Items.IRON_SHOVEL, Items.IRON_INGOT);
+        ItemCrushRecipeLoader.tool(provider, Items.IRON_SPEAR, Items.IRON_INGOT);
         ItemCrushRecipeLoader.armor(provider, Items.IRON_HELMET, Items.IRON_INGOT);
         ItemCrushRecipeLoader.armor(provider, Items.IRON_CHESTPLATE, Items.IRON_INGOT);
         ItemCrushRecipeLoader.armor(provider, Items.IRON_LEGGINGS, Items.IRON_INGOT);
         ItemCrushRecipeLoader.armor(provider, Items.IRON_BOOTS, Items.IRON_INGOT);
         ItemCrushRecipeLoader.armor(provider, Items.IRON_HORSE_ARMOR, Items.IRON_INGOT);
+        ItemCrushRecipeLoader.armor(provider, Items.IRON_NAUTILUS_ARMOR, Items.IRON_INGOT);
 
         ItemCrushRecipeLoader.tool(provider, Items.GOLDEN_SWORD, Items.GOLD_INGOT);
         ItemCrushRecipeLoader.tool(provider, Items.GOLDEN_PICKAXE, Items.GOLD_INGOT);
         ItemCrushRecipeLoader.tool(provider, Items.GOLDEN_AXE, Items.GOLD_INGOT);
         ItemCrushRecipeLoader.tool(provider, Items.GOLDEN_HOE, Items.GOLD_INGOT);
         ItemCrushRecipeLoader.tool(provider, Items.GOLDEN_SHOVEL, Items.GOLD_INGOT);
+        ItemCrushRecipeLoader.tool(provider, Items.GOLDEN_SPEAR, Items.GOLD_INGOT);
         ItemCrushRecipeLoader.armor(provider, Items.GOLDEN_HELMET, Items.GOLD_INGOT);
         ItemCrushRecipeLoader.armor(provider, Items.GOLDEN_CHESTPLATE, Items.GOLD_INGOT);
         ItemCrushRecipeLoader.armor(provider, Items.GOLDEN_LEGGINGS, Items.GOLD_INGOT);
         ItemCrushRecipeLoader.armor(provider, Items.GOLDEN_BOOTS, Items.GOLD_INGOT);
         ItemCrushRecipeLoader.armor(provider, Items.GOLDEN_HORSE_ARMOR, Items.GOLD_INGOT);
+        ItemCrushRecipeLoader.armor(provider, Items.GOLDEN_NAUTILUS_ARMOR, Items.GOLD_INGOT);
 
         ItemCrushRecipeLoader.tool(provider, Items.DIAMOND_SWORD, Items.DIAMOND);
         ItemCrushRecipeLoader.tool(provider, Items.DIAMOND_PICKAXE, Items.DIAMOND);
         ItemCrushRecipeLoader.tool(provider, Items.DIAMOND_AXE, Items.DIAMOND);
         ItemCrushRecipeLoader.tool(provider, Items.DIAMOND_HOE, Items.DIAMOND);
         ItemCrushRecipeLoader.tool(provider, Items.DIAMOND_SHOVEL, Items.DIAMOND);
+        ItemCrushRecipeLoader.tool(provider, Items.DIAMOND_SPEAR, Items.DIAMOND);
         ItemCrushRecipeLoader.armor(provider, Items.DIAMOND_HELMET, Items.DIAMOND);
         ItemCrushRecipeLoader.armor(provider, Items.DIAMOND_CHESTPLATE, Items.DIAMOND);
         ItemCrushRecipeLoader.armor(provider, Items.DIAMOND_LEGGINGS, Items.DIAMOND);
         ItemCrushRecipeLoader.armor(provider, Items.DIAMOND_BOOTS, Items.DIAMOND);
         ItemCrushRecipeLoader.armor(provider, Items.DIAMOND_HORSE_ARMOR, Items.DIAMOND);
+        ItemCrushRecipeLoader.armor(provider, Items.DIAMOND_NAUTILUS_ARMOR, Items.DIAMOND);
+
+        ItemCrushRecipeLoader.tool(provider, Items.NETHERITE_SPEAR, Items.NETHERITE_INGOT);
+        // Netherite armor uses only one ingot to upgrade, so it must not return the usual 0-2 ingots.
+        ItemCrushRecipe.builder()
+            .requires(Items.NETHERITE_NAUTILUS_ARMOR)
+            .result(Items.NETHERITE_INGOT, 0.5F)
+            .save(provider, AnvilCraft.of("item_crush/armor/netherite_nautilus_armor_2_netherite_ingot"));
 
         ItemCrushRecipeLoader.blockCrush(provider, Items.STONE, Items.COBBLESTONE);
         ItemCrushRecipeLoader.blockCrush(provider, Items.COBBLESTONE, Items.GRAVEL);

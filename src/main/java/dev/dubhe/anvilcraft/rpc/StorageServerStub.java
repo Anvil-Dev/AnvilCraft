@@ -45,6 +45,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -68,6 +69,8 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -75,6 +78,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.SoundAction;
@@ -2271,22 +2275,31 @@ public final class StorageServerStub {
 
     private static int pourIntoFluidPort(ServerPlayer player, StorageView view, ItemStack stack, int maxAmount) {
         if (stack.isEmpty() || maxAmount <= 0) return 0;
-        FluidStack content = FluidUtil.getFirstStackContained(stack);
+        PotionContents potion = stack.get(DataComponents.POTION_CONTENTS);
+        boolean waterBottle = stack.is(Items.POTION) && potion != null && potion.is(Potions.WATER);
+        FluidStack content = waterBottle ? new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME / 4)
+            : FluidUtil.getFirstStackContained(stack);
         if (content.isEmpty()) return 0;
         var acceptor = StoragePortManager.findAcceptor(view.primary().getId(), content);
         if (acceptor == null) return 0;
         int poured = 0;
         boolean bottle = false;
         while (poured < maxAmount && !stack.isEmpty()) {
-            ItemStacksResourceHandler single = new ItemStacksResourceHandler(1);
-            single.set(0, ItemResource.of(stack), 1);
-            var handler = ItemAccess.forHandlerIndexStrict(single, 0).getCapability(Capabilities.Fluid.ITEM);
-            if (handler == null) break;
+            ItemStack emptied;
             try (Transaction transaction = Transaction.openRoot()) {
-                if (ResourceHandlerUtil.moveFirst(handler, acceptor, fluid -> true, Integer.MAX_VALUE, transaction) == null) break;
+                if (waterBottle) {
+                    if (acceptor.insert(FluidResource.of(content), content.getAmount(), transaction) != content.getAmount()) break;
+                    emptied = Items.GLASS_BOTTLE.getDefaultInstance();
+                } else {
+                    ItemStacksResourceHandler single = new ItemStacksResourceHandler(1);
+                    single.set(0, ItemResource.of(stack), 1);
+                    var handler = ItemAccess.forHandlerIndexStrict(single, 0).getCapability(Capabilities.Fluid.ITEM);
+                    if (handler == null) break;
+                    if (ResourceHandlerUtil.moveFirst(handler, acceptor, fluid -> true, Integer.MAX_VALUE, transaction) == null) break;
+                    emptied = single.getResource(0).toStack(single.getAmountAsInt(0));
+                }
                 transaction.commit();
             }
-            ItemStack emptied = single.getResource(0).toStack(single.getAmountAsInt(0));
             bottle = emptied.is(Items.GLASS_BOTTLE);
             StorageServerStub.giveEmptiedContainerToStorage(view, player, emptied);
             stack.shrink(1);
