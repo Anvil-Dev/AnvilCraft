@@ -64,7 +64,7 @@ public class ItemInHandRendererManager extends AbstractItemInHandRenderer {
         if (this.offHandItem.is(ModItems.CRAB_CLAW.get())
                 && !this.mainHandItem.is(ModItems.CRAB_CLAW.get())
         ) {
-            return this.crabClawItemRenderer.render(
+            if (this.crabClawItemRenderer.render(
                 player,
                 partialTicks,
                 pitch,
@@ -75,7 +75,9 @@ public class ItemInHandRendererManager extends AbstractItemInHandRenderer {
                 poseStack,
                 collector,
                 lightCoords
-            );
+            )) {
+                return true;
+            }
         }
         if (stack.getItem() instanceof IExtraItemDisplay) {
             return this.extraItemRenderer.render(

@@ -74,12 +74,12 @@ public class ExtraItemDisplayRenderer extends AbstractItemInHandRenderer {
         this.renderItem(
             player,
             display.getDisplayedItem(stack),
-            ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
+            flag ? ItemDisplayContext.FIRST_PERSON_LEFT_HAND : ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
             poseStack,
             collector,
             lightCoords
         );
         poseStack.popPose();
-        return true;
+        return false;
     }
 }
