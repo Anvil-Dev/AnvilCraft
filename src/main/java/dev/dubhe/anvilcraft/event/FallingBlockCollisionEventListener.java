@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
+import dev.dubhe.anvilcraft.entity.RailgunAnvilEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
@@ -42,7 +43,11 @@ public class FallingBlockCollisionEventListener {
 
     @SubscribeEvent
     public static void anvilCollisionCraft(AnvilEvent.CollisionBlock event) {
-        if (event.isCanceled()) return;
+        if (event.isCanceled() || event.getLevel().isClientSide) return;
+        if (RailgunAnvilEntity.isGhost(event.getEntity())) {
+            event.getEntity().discard();
+            return;
+        }
         Vec3 entityPos = event.getEntity().position();
         Level level = event.getLevel();
         BlockPos pos = event.getPos();
