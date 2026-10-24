@@ -219,7 +219,6 @@ public class AnvilEventListener {
             case EmberAnvilBlock ignored -> AnvilEventListener.dropItems(
                 serverLevel,
                 entity,
-                pos,
                 rate,
                 builder,
                 true,
@@ -228,7 +227,6 @@ public class AnvilEventListener {
             case TranscendenceAnvilBlock ignored -> AnvilEventListener.dropItems(
                 serverLevel,
                 entity,
-                pos,
                 rate,
                 builder,
                 true,
@@ -237,7 +235,6 @@ public class AnvilEventListener {
             default -> AnvilEventListener.dropItems(
                 serverLevel,
                 entity,
-                pos,
                 rate,
                 builder,
                 false,
@@ -250,7 +247,6 @@ public class AnvilEventListener {
     private static void dropItems(
         ServerLevel level,
         LivingEntity entity,
-        Vec3 pos,
         double rate,
         LootParams.Builder builder,
         boolean enableKiller,
@@ -269,9 +265,9 @@ public class AnvilEventListener {
         LootTable lootTable = entity.getLootTable()
             .map(key -> level.getServer().reloadableRegistries().getLootTable(key))
             .orElse(LootTable.EMPTY);
-        AnvilUtil.dropItems(lootTable.getRandomItems(lootParams), level, pos);
-        if (rate >= 0.6) AnvilUtil.dropItems(lootTable.getRandomItems(lootParams), level, pos);
-        if (rate >= 0.8) AnvilUtil.dropItems(lootTable.getRandomItems(lootParams), level, pos);
+        lootTable.getRandomItems(lootParams, stack -> entity.spawnAtLocation(level, stack));
+        if (rate >= 0.6) lootTable.getRandomItems(lootParams, stack -> entity.spawnAtLocation(level, stack));
+        if (rate >= 0.8) lootTable.getRandomItems(lootParams, stack -> entity.spawnAtLocation(level, stack));
         killerOp.ifPresent(killer -> AnvilCraftFakePlayers.getKiller().disable(killer));
     }
 
