@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.integration.jade.provider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.WipBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.integration.jade.WipBlockRecipeInfo;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessStep;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockProcessingRecipe;
@@ -10,6 +11,8 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -27,12 +30,11 @@ public enum WipBlockProvider implements IServerDataProvider<BlockAccessor> {
         if (accessor.getBlockEntity() instanceof WipBlockEntity blockEntity) {
             Identifier recipeId = blockEntity.getRecipeId();
             if (recipeId != null) {
-                tag.putString("recipe", recipeId.toString());
                 if (accessor.getLevel() instanceof ServerLevel level) {
                     RecipeHolder<?> holder = level.getServer().getRecipeManager().recipeMap()
                         .byKey(ResourceKey.create(Registries.RECIPE, recipeId));
                     if (holder != null && holder.value() instanceof ProceduralProcessRecipe recipe) {
-                        appendNextStep(tag, recipe, blockEntity.getStepCount());
+                        appendNextStep(tag, recipe, blockEntity.getStepCount(), level);
                     }
                 }
             }
@@ -40,7 +42,7 @@ public enum WipBlockProvider implements IServerDataProvider<BlockAccessor> {
         }
     }
 
-    private static void appendNextStep(CompoundTag tag, ProceduralProcessRecipe recipe, int stepCount) {
+    private static void appendNextStep(CompoundTag tag, ProceduralProcessRecipe recipe, int stepCount, ServerLevel level) {
         int stepSize = recipe.steps().size();
         if (stepCount < 0 || stepSize == 0 || stepCount / stepSize >= recipe.loop()) return;
         int stepIndex = stepCount % stepSize;
@@ -63,6 +65,9 @@ public enum WipBlockProvider implements IServerDataProvider<BlockAccessor> {
         if (typeId != null) {
             tag.putString("nextStep", typeId.toString());
         }
+        ComponentSerialization.CODEC.listOf().encodeStart(
+            level.registryAccess().createSerializationContext(NbtOps.INSTANCE), WipBlockRecipeInfo.getDetails(content)
+        ).result().ifPresent(details -> tag.put("nextStepDetails", details));
     }
 
     @Override
