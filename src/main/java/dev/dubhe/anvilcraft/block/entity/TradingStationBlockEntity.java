@@ -26,6 +26,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.npc.Villager;
@@ -384,7 +385,7 @@ public class TradingStationBlockEntity extends BlockEntity
         Optional<MerchantOffer> op = this.findAcceptableOffer(villager);
         if (op.isEmpty()) return false;
         MerchantOffer offer = op.get();
-        if (!this.executeVillagerTrade(offer)) return false;
+        if (!this.executeVillagerTrade(this.getOfferForOwner(villager, offer))) return false;
         offer.increaseUses();
         villager.setVillagerXp(villager.getVillagerXp() + offer.getXp());
         VillagerAccessor accessor = (VillagerAccessor) villager;
@@ -416,11 +417,19 @@ public class TradingStationBlockEntity extends BlockEntity
     private Optional<MerchantOffer> findAcceptableOffer(Villager villager) {
         for (MerchantOffer offer : villager.getOffers()) {
             if (offer.isOutOfStock()) continue;
-            if (this.matchesFilters(offer) && this.canFulfillOffer(offer)) {
+            MerchantOffer ownerOffer = this.getOfferForOwner(villager, offer);
+            if (this.matchesFilters(ownerOffer) && this.canFulfillOffer(ownerOffer)) {
                 return Optional.of(offer);
             }
         }
         return Optional.empty();
+    }
+
+    private MerchantOffer getOfferForOwner(Villager villager, MerchantOffer offer) {
+        MerchantOffer ownerOffer = offer.copy();
+        int reputation = this.owner == null ? 0 : villager.getGossips().getReputation(this.owner, type -> true);
+        ownerOffer.setSpecialPriceDiff(-Mth.floor(reputation * offer.getPriceMultiplier()));
+        return ownerOffer;
     }
 
     private boolean matchesFilters(MerchantOffer offer) {
