@@ -52,6 +52,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -74,6 +75,8 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -84,6 +87,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.common.SoundAction;
 import net.neoforged.neoforge.common.SoundActions;
@@ -5446,7 +5450,10 @@ public final class StorageServerStub {
         if (stack.isEmpty() || maxAmount <= 0) {
             return 0;
         }
-        FluidStack content = FluidUtil.getFluidContained(stack).orElse(FluidStack.EMPTY);
+        PotionContents potion = stack.get(DataComponents.POTION_CONTENTS);
+        boolean waterBottle = stack.is(Items.POTION) && potion != null && potion.is(Potions.WATER);
+        FluidStack content = waterBottle ? new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME / 4)
+            : FluidUtil.getFluidContained(stack).orElse(FluidStack.EMPTY);
         if (content.isEmpty()) {
             return 0;
         }
@@ -5457,18 +5464,22 @@ public final class StorageServerStub {
         int poured = 0;
         boolean bottle = false;
         while (poured < maxAmount && !stack.isEmpty()) {
-            ItemStack single = stack.copyWithCount(1);
-            // 先模拟一次，确认端口确实装得下再真正倾倒。
-            // 传 null 抑制 FluidUtil 的逐桶音效，改为整批只播一次，避免批量操作时声音叠加
-            if (!FluidUtil.tryEmptyContainer(single, acceptor, Integer.MAX_VALUE, null, false).isSuccess()) {
-                break;
+            ItemStack emptied;
+            if (waterBottle) {
+                if (acceptor.fill(content, IFluidHandler.FluidAction.SIMULATE) < content.getAmount()) break;
+                acceptor.fill(content, IFluidHandler.FluidAction.EXECUTE);
+                emptied = Items.GLASS_BOTTLE.getDefaultInstance();
+            } else {
+                ItemStack single = stack.copyWithCount(1);
+                // 先模拟一次，确认端口确实装得下再真正倾倒。
+                // 传 null 抑制 FluidUtil 的逐桶音效，改为整批只播一次，避免批量操作时声音叠加
+                if (!FluidUtil.tryEmptyContainer(single, acceptor, Integer.MAX_VALUE, null, false).isSuccess()) break;
+                FluidActionResult result = FluidUtil.tryEmptyContainer(single, acceptor, Integer.MAX_VALUE, null, true);
+                if (!result.isSuccess()) break;
+                emptied = result.getResult();
             }
-            FluidActionResult result = FluidUtil.tryEmptyContainer(single, acceptor, Integer.MAX_VALUE, null, true);
-            if (!result.isSuccess()) {
-                break;
-            }
-            bottle = result.getResult().is(Items.GLASS_BOTTLE);
-            StorageServerStub.giveEmptiedContainerToStorage(view, player, result.getResult());
+            bottle = emptied.is(Items.GLASS_BOTTLE);
+            StorageServerStub.giveEmptiedContainerToStorage(view, player, emptied);
             stack.shrink(1);
             poured++;
         }
