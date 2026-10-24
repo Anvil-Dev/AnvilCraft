@@ -168,6 +168,14 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     // 以下是中子锭运动相关mixin
     @WrapOperation(
         method = "tick",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/ItemEntity;moveTowardsClosestSpace(DDD)V")
+    )
+    private void preventNeutroniumEscape(ItemEntity instance, double x, double y, double z, Operation<Void> original) {
+        if (!this.getItem().is(ModItems.NEUTRONIUM_INGOT)) original.call(instance, x, y, z);
+    }
+
+    @WrapOperation(
+        method = "tick",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/world/entity/item/ItemEntity;"
