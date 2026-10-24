@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.overseer;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.integration.xaero.OverseerMinimapHighlighter;
 import dev.dubhe.anvilcraft.integration.xaero.OverseerWorldMapHighlighter;
 import dev.dubhe.anvilcraft.network.OverseerSyncPacket;
@@ -8,6 +9,9 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.neoforged.fml.ModList;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.config.ModConfigs;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +20,32 @@ public class OverseerMapData {
     private static final Map<ResourceKey<Level>, Map<BlockPos, Map<Long, Integer>>> SOURCES = new HashMap<>();
     // Xaero reads highlights on its map worker as well as the client thread.
     private static volatile Map<ResourceKey<Level>, DimensionData> dimensions = Map.of();
+
+    private static boolean lastVisible = true;
+
+    public static boolean isVisible() {
+        return AnvilCraft.CLIENT_CONFIG.ui.showOverseerMapHighlights;
+    }
+
+    public static void setVisible(boolean visible) {
+        AnvilCraft.CLIENT_CONFIG.ui.showOverseerMapHighlights = visible;
+        refreshVisibility();
+        for (ModConfig config : ModConfigs.getModConfigs(AnvilCraft.MOD_ID)) {
+            if (config.getType() != ModConfig.Type.CLIENT || !(config.getSpec() instanceof ModConfigSpec spec)) continue;
+            ModConfigSpec.BooleanValue value = spec.getValues().get("ui.show_overseer_map_highlights");
+            if (value == null || config.getLoadedConfig() == null) continue;
+            value.set(visible);
+            spec.save();
+        }
+    }
+
+    public static void refreshVisibility() {
+        boolean visible = isVisible();
+        if (lastVisible == visible) return;
+        lastVisible = visible;
+        if (ModList.get().isLoaded("xaeroworldmap")) dimensions.keySet().forEach(OverseerWorldMapHighlighter::refresh);
+        if (ModList.get().isLoaded("xaerominimap")) OverseerMinimapHighlighter.refresh();
+    }
 
     public static void update(OverseerSyncPacket packet) {
         Map<BlockPos, Map<Long, Integer>> sources = SOURCES.computeIfAbsent(packet.dimension(), key -> new HashMap<>());
@@ -38,6 +68,7 @@ public class OverseerMapData {
     }
 
     public static Map<Long, Integer> region(ResourceKey<Level> dimension, int regionX, int regionZ) {
+        if (!isVisible()) return Map.of();
         return dimensions.getOrDefault(dimension, DimensionData.EMPTY).regions().getOrDefault(ChunkPos.asLong(regionX, regionZ), Map.of());
     }
 

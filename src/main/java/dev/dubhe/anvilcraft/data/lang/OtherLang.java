@@ -5,6 +5,8 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 public class OtherLang {
     public static void init(RegistrumLangProvider provider) {
         provider.add("map.anvilcraft.overseer.loaded", "Overseer: loaded");
+        provider.add("map.anvilcraft.overseer.show", "Show Overseer Chunks");
+        provider.add("map.anvilcraft.overseer.hide", "Hide Overseer Chunks");
         provider.add("map.anvilcraft.overseer.random_tick", "Random ticks");
         provider.add("map.anvilcraft.overseer.no_random_tick", "No random ticks");
 

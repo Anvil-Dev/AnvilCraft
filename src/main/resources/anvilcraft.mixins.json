@@ -124,6 +124,7 @@
   ],
   "client": [
     "compat.XaeroWorldMapHighlighterRegistryMixin",
+    "compat.XaeroWorldMapGuiMixin",
     "compat.XaeroMinimapHighlighterRegistryMixin",
     "AbstractContainerScreenMixin",
     "BlockStateBaseMixin",
