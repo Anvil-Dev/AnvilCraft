@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public class RailgunAnvilEntity extends FallingBlockEntity {
+    private static final String GHOST_TAG = "AnvilCraftRailgunGhost";
     private static final float BASE_DAMAGE_MULTIPLIER = 4.0F;
     private static final EntityDataAccessor<BlockState> DISPLAY_STATE = SynchedEntityData.defineId(
         RailgunAnvilEntity.class, EntityDataSerializers.BLOCK_STATE);
@@ -85,6 +86,11 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
     @Override
     public BlockState getBlockState() {
         return this.entityData.get(DISPLAY_STATE);
+    }
+
+    public static boolean isGhost(FallingBlockEntity entity) {
+        return entity instanceof RailgunAnvilEntity railgun && railgun.entityData.get(GHOST)
+            || entity.getPersistentData().getBoolean(GHOST_TAG);
     }
 
     @Override
@@ -199,6 +205,7 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
         if (this.entityData.get(GHOST)) {
             falling.dropItem = false;
             falling.disableDrop();
+            falling.getPersistentData().putBoolean(GHOST_TAG, true);
         }
         AccelerateManager.applyAcceleration(falling, accelerationEntry);
         if (!this.level().addFreshEntity(falling)) return false;
