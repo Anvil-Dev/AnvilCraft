@@ -272,6 +272,9 @@ public class AnvilCraftClientConfig {
     public UISettings ui = new UISettings();
 
     public static class UISettings {
+        @Comment("Controls whether to show Overseer loaded chunks on Xaero's World Map and Minimap")
+        public volatile boolean showOverseerMapHighlights = true;
+
         @Comment("Controls the Goggle info activation mode")
         public GoggleInfoActivationMode goggleInfoActivationMode = GoggleInfoActivationMode.WEARING_OR_HOLDING_HAMMER;
 

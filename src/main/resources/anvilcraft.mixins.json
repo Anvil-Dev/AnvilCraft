@@ -156,6 +156,7 @@
   ],
   "client": [
     "compat.XaeroWorldMapHighlighterRegistryMixin",
+    "compat.XaeroWorldMapGuiMixin",
     "compat.XaeroMinimapHighlighterRegistryMixin",
     "compat.IrisStellarMixin",
     "compat.IrisHandRendererAccessor",

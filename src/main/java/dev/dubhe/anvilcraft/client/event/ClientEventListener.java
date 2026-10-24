@@ -148,6 +148,7 @@ public class ClientEventListener {
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
+        OverseerMapData.refreshVisibility();
         ClientEventListener.handleAttackKeyRelease();
         long lastThoughtTime = ThoughtManager.getLastThoughtTime();
         if (lastThoughtTime < 0) {
