@@ -33,12 +33,21 @@ import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModLoader;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+@EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public abstract class MagnetUtil {
+    private static final Map<ServerLevel, List<PendingAnimation>> PENDING_ANIMATIONS = new HashMap<>();
+
     public static void animateAnvilFromMagnet(Level level, Vec3 start, BlockState state, BlockPos magnet, int... removedEntities) {
         sendAnimation(level, start, state, magnet.below(), true, removedEntities);
     }
@@ -56,17 +65,39 @@ public abstract class MagnetUtil {
         int[] removedEntities
     ) {
         if (!(level instanceof ServerLevel serverLevel)) return;
-        // Deliver the real blocks and the visual offset together, before the normal end-of-tick chunk broadcast.
-        List<Packet<? super ClientGamePacketListener>> updates = new ArrayList<>(List.of(
-            new ClientboundBlockUpdatePacket(serverLevel, end.above()),
-            new ClientboundBlockUpdatePacket(serverLevel, BlockPos.containing(start)),
-            new ClientboundBlockUpdatePacket(serverLevel, end)
-        ));
-        if (removedEntities.length > 0) updates.add(new ClientboundRemoveEntitiesPacket(removedEntities));
-        updates.add(new ClientboundCustomPayloadPacket(new MagnetAnvilAnimationPacket(start, end, state, requiresMagnet)));
-        ClientboundBundlePacket packet = new ClientboundBundlePacket(updates);
-        for (var player : serverLevel.getChunkSource().chunkMap.getPlayers(ChunkPos.containing(end), false)) {
-            player.connection.send(packet);
+        PENDING_ANIMATIONS.computeIfAbsent(serverLevel, ignored -> new ArrayList<>())
+            .add(new PendingAnimation(start, state, end.immutable(), requiresMagnet, removedEntities.clone()));
+    }
+
+    @SubscribeEvent
+    public static void onLevelTick(LevelTickEvent.Post event) {
+        if (!(event.getLevel() instanceof ServerLevel level)) return;
+        List<PendingAnimation> animations = PENDING_ANIMATIONS.remove(level);
+        if (animations == null) return;
+        // Piston block events must reach the client before these authoritative block updates.
+        for (PendingAnimation animation : animations) animation.send(level);
+    }
+
+    @SubscribeEvent
+    public static void onLevelUnload(LevelEvent.Unload event) {
+        if (event.getLevel() instanceof ServerLevel level) PENDING_ANIMATIONS.remove(level);
+    }
+
+    private record PendingAnimation(Vec3 start, BlockState state, BlockPos end, boolean requiresMagnet, int[] removedEntities) {
+        private void send(ServerLevel serverLevel) {
+            if (serverLevel.getBlockState(this.end) != this.state) return;
+            List<Packet<? super ClientGamePacketListener>> updates = new ArrayList<>(List.of(
+                new ClientboundBlockUpdatePacket(serverLevel, this.end.above()),
+                new ClientboundBlockUpdatePacket(serverLevel, BlockPos.containing(this.start)),
+                new ClientboundBlockUpdatePacket(serverLevel, this.end)
+            ));
+            if (this.removedEntities.length > 0) updates.add(new ClientboundRemoveEntitiesPacket(this.removedEntities));
+            updates.add(new ClientboundCustomPayloadPacket(
+                new MagnetAnvilAnimationPacket(this.start, this.end, this.state, this.requiresMagnet)));
+            ClientboundBundlePacket packet = new ClientboundBundlePacket(updates);
+            for (var player : serverLevel.getChunkSource().chunkMap.getPlayers(ChunkPos.containing(this.end), false)) {
+                player.connection.send(packet);
+            }
         }
     }
 
