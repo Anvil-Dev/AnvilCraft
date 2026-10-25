@@ -395,7 +395,8 @@ public class ItemTagLoader {
             Items.GOLD_NUGGET,
             Items.IRON_BLOCK,
             Items.REPEATER,
-            Items.SUGAR
+            Items.SUGAR,
+            ModBlocks.NEUTRON_IRRADIATOR
         );
         for (ItemLike item : multiRecipeItems) {
             uncraftables.add(findResourceKey(item.asItem()));
@@ -405,7 +406,11 @@ public class ItemTagLoader {
         uncraftingIngredients.add(ModItems.CAPACITOR.getKey())
             .add(ModItems.CAPACITOR_EMPTY.getKey())
             .add(ModItems.SUPER_CAPACITOR.getKey())
-            .add(ModItems.SUPER_CAPACITOR_EMPTY.getKey());
+            .add(ModItems.SUPER_CAPACITOR_EMPTY.getKey())
+            .add(ModItems.NEUTRONIUM_INGOT.getKey())
+            .add(ModItems.CHARGED_NEUTRONIUM_INGOT.getKey())
+            .add(ModItems.STABLE_NEUTRONIUM_INGOT.getKey())
+        ;
     }
 
     private static ResourceKey<Item> findResourceKey(Item item) {

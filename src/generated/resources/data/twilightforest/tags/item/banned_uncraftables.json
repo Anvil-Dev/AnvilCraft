@@ -78,6 +78,7 @@
     "minecraft:gold_nugget",
     "minecraft:iron_block",
     "minecraft:repeater",
-    "minecraft:sugar"
+    "minecraft:sugar",
+    "anvilcraft:neutron_irradiator"
   ]
 }
