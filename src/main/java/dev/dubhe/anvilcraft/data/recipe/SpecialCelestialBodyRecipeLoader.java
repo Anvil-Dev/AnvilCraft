@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelData;
 import dev.dubhe.anvilcraft.block.entity.celestial.LiquidCoverage;
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
-import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyRecipe;
+import dev.dubhe.anvilcraft.recipe.celestial.SpecialCelestialBodyRecipe;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;

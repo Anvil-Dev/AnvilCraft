@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.integration.jei.recipe;
+package dev.dubhe.anvilcraft.recipe.display;
 
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.integration.jei.recipe.LiquidEnchantmentJeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiFluidUtil;
 import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;

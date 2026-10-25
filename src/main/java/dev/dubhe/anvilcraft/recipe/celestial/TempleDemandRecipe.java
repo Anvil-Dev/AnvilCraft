@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.block.entity.celestial;
+package dev.dubhe.anvilcraft.recipe.celestial;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;

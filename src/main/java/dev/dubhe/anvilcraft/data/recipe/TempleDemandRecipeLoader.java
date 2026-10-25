@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.block.entity.celestial.TempleDemandRecipe;
+import dev.dubhe.anvilcraft.recipe.celestial.TempleDemandRecipe;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;

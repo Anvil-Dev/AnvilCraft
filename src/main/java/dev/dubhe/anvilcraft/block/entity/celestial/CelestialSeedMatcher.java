@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity.celestial;
 
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
+import dev.dubhe.anvilcraft.recipe.celestial.SpecialCelestialBodyRecipe;
 import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;

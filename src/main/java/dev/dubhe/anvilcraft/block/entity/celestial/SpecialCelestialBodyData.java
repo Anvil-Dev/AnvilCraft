@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity.celestial;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.recipe.celestial.SpecialCelestialBodyRecipe;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ColorRGBA;

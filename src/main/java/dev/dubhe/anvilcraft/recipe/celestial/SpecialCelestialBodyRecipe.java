@@ -1,10 +1,16 @@
-package dev.dubhe.anvilcraft.block.entity.celestial;
+package dev.dubhe.anvilcraft.recipe.celestial;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyMatcher;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelData;
+import dev.dubhe.anvilcraft.block.entity.celestial.LiquidCoverage;
+import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
+import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
+import dev.dubhe.anvilcraft.block.entity.celestial.Temperature;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Holder;

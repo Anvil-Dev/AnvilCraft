@@ -110,13 +110,13 @@ public class PlanetaryResourceSet {
             && this.wastelandItems.isEmpty();
     }
 
-    // === 包内写入方法，仅供资源生成器使用 ===
+    // === 资源生成器写入方法 ===
 
-    void addMineral(WeightedItemStack entry) {
+    public void addMineral(WeightedItemStack entry) {
         this.minerals.add(entry);
     }
 
-    void addFluid(WeightedFluidStack entry) {
+    public void addFluid(WeightedFluidStack entry) {
         this.fluids.add(entry);
     }
 
@@ -128,15 +128,15 @@ public class PlanetaryResourceSet {
         this.giantFluids.add(entry);
     }
 
-    void addBiologicalItem(WeightedItemStack entry) {
+    public void addBiologicalItem(WeightedItemStack entry) {
         this.biologicalItems.add(entry);
     }
 
-    void addBiologicalFluid(WeightedFluidStack entry) {
+    public void addBiologicalFluid(WeightedFluidStack entry) {
         this.biologicalFluids.add(entry);
     }
 
-    void addOffering(WeightedItemStack entry) {
+    public void addOffering(WeightedItemStack entry) {
         this.offerings.add(entry);
     }
 
@@ -144,7 +144,7 @@ public class PlanetaryResourceSet {
         this.wastelandItems.add(entry);
     }
 
-    void setHasCivilization() {
+    public void setHasCivilization() {
         this.hasCivilization = true;
     }
 

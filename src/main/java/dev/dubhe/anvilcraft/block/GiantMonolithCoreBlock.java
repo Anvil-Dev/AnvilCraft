@@ -1,12 +1,12 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.block.entity.MonolithCoreBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyRecipe;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
+import dev.dubhe.anvilcraft.recipe.celestial.SpecialCelestialBodyRecipe;
 import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
