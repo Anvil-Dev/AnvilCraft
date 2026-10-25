@@ -1237,6 +1237,7 @@
   "config.jade.plugin_anvilcraft.burning_heater_provider": "Burning Heater",
   "config.jade.plugin_anvilcraft.charger_client_provider": "Charger (Client)",
   "config.jade.plugin_anvilcraft.charger_provider": "Charging Progress",
+  "config.jade.plugin_anvilcraft.control_valve": "Control Valve",
   "config.jade.plugin_anvilcraft.crab_trap": "Crab Trap",
   "config.jade.plugin_anvilcraft.crate": "Crate",
   "config.jade.plugin_anvilcraft.cursed_gold_enchant_power": "Enchant Power",
