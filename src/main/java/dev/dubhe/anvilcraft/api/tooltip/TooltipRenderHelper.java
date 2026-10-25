@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.api.tooltip;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.dubhe.anvilcraft.api.injection.IGuiGraphicsExtractorExtension;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
@@ -96,6 +97,22 @@ public class TooltipRenderHelper {
     /// @param x         x坐标
     /// @param y         y坐标
     public static void renderTooltipWithItemIcon(
+        GuiGraphicsExtractor graphics,
+        Font font,
+        ItemStack itemStack,
+        List<Component> lines,
+        int x,
+        int y,
+        int backgroundColor,
+        int borderTopColor,
+        int borderBottomColor
+    ) {
+        ((IGuiGraphicsExtractorExtension) graphics).anvilcraft$deferTooltip(() -> TooltipRenderHelper.extractTooltipWithItemIcon(
+            graphics, font, itemStack, lines, x, y, backgroundColor, borderTopColor, borderBottomColor
+        ));
+    }
+
+    private static void extractTooltipWithItemIcon(
         GuiGraphicsExtractor graphics,
         Font font,
         ItemStack itemStack,
