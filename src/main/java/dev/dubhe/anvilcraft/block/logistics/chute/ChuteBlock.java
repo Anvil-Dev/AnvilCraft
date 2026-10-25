@@ -57,7 +57,6 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.redstone.Orientation;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -151,7 +150,9 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
 
     public static void pickupItem(BlockState state, Level level, BlockPos pos, Entity entity) {
         if (level.isClientSide() || !(entity instanceof ItemEntity item) || !item.isAlive() || item.getItem().isEmpty()) return;
-        if (!item.getBoundingBox().intersects(new AABB(pos))) return;
+        VoxelShape itemShape = Shapes.create(item.getBoundingBox().deflate(1.0E-7)
+            .move(-pos.getX(), -pos.getY(), -pos.getZ()));
+        if (!Shapes.joinIsNotEmpty(state.getCollisionShape(level, pos, CollisionContext.of(item)), itemShape, BooleanOp.AND)) return;
         BlockEntity blockEntity = level.getBlockEntity(pos);
         int cooldown = switch (blockEntity) {
             case BaseChuteBlockEntity chute -> chute.getCooldown();
