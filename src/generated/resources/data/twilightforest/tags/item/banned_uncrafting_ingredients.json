@@ -16,6 +16,9 @@
     "anvilcraft:capacitor",
     "anvilcraft:capacitor_empty",
     "anvilcraft:supercapacitor",
-    "anvilcraft:supercapacitor_empty"
+    "anvilcraft:supercapacitor_empty",
+    "anvilcraft:neutronium_ingot",
+    "anvilcraft:charged_neutronium_ingot",
+    "anvilcraft:stable_neutronium_ingot"
   ]
 }
