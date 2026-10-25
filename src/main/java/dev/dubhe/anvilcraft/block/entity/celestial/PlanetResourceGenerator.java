@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.block.entity.celestial;
 
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
+import dev.dubhe.anvilcraft.recipe.celestial.PlanetResourceInput;
+import dev.dubhe.anvilcraft.recipe.celestial.PlanetResourceRecipe;
 import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;

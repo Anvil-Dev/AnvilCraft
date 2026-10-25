@@ -1,9 +1,6 @@
 package dev.dubhe.anvilcraft.init.recipe;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.block.entity.celestial.PlanetResourceRecipe;
-import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyRecipe;
-import dev.dubhe.anvilcraft.block.entity.celestial.TempleDemandRecipe;
 import dev.dubhe.anvilcraft.recipe.CanningFoodRecipe;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.EnergyWeaponMakeRecipe;
@@ -36,6 +33,9 @@ import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SuperHeatingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.TimeWarpRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.UnpackRecipe;
+import dev.dubhe.anvilcraft.recipe.celestial.PlanetResourceRecipe;
+import dev.dubhe.anvilcraft.recipe.celestial.SpecialCelestialBodyRecipe;
+import dev.dubhe.anvilcraft.recipe.celestial.TempleDemandRecipe;
 import dev.dubhe.anvilcraft.recipe.frost.DeformationRecipe;
 import dev.dubhe.anvilcraft.recipe.frost.PermutationRecipe;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainActiveRecipe;

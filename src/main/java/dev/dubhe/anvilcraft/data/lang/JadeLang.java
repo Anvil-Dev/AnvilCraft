@@ -7,6 +7,7 @@ public class JadeLang {
         provider.add("tooltip.anvilcraft.infinity", "Infinity");
         provider.add("config.jade.plugin_anvilcraft.overflow_disposal_fluid_tank", "Overflow Disposal Fluid Tank");
         provider.add("config.jade.plugin_anvilcraft.crab_trap", "Crab Trap");
+        provider.add("config.jade.plugin_anvilcraft.control_valve", "Control Valve");
         provider.add("config.jade.plugin_anvilcraft.crate", "Crate");
         provider.add("config.jade.plugin_anvilcraft.power_provider", "Anvil Craft Power");
         provider.add("config.jade.plugin_anvilcraft.ruby_prism", "Ruby Prism");

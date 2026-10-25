@@ -1,5 +1,6 @@
-package dev.dubhe.anvilcraft.block.entity.celestial;
+package dev.dubhe.anvilcraft.recipe.celestial;
 
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeInput;
 

@@ -5,9 +5,9 @@ import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLogisticsInterface
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
-import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyRecipe;
-import dev.dubhe.anvilcraft.block.entity.celestial.TempleDemandRecipe;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
+import dev.dubhe.anvilcraft.recipe.celestial.SpecialCelestialBodyRecipe;
+import dev.dubhe.anvilcraft.recipe.celestial.TempleDemandRecipe;
 import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import lombok.Getter;
 import net.minecraft.core.HolderLookup;
