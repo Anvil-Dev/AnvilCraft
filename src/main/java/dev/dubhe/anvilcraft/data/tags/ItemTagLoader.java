@@ -460,7 +460,8 @@ public class ItemTagLoader {
             Items.GOLD_NUGGET,
             Items.IRON_BLOCK,
             Items.REPEATER,
-            Items.SUGAR
+            Items.SUGAR,
+            ModBlocks.NEUTRON_IRRADIATOR
         );
         for (ItemLike item : multiRecipeItems) {
             uncraftables.addElement(ItemTagLoader.findId(item.asItem()));
@@ -470,7 +471,10 @@ public class ItemTagLoader {
         uncraftingIngredients.addElement(ModItems.CAPACITOR.getId())
             .addElement(ModItems.CAPACITOR_EMPTY.getId())
             .addElement(ModItems.SUPER_CAPACITOR.getId())
-            .addElement(ModItems.SUPER_CAPACITOR_EMPTY.getId());
+            .addElement(ModItems.SUPER_CAPACITOR_EMPTY.getId())
+            .addElement(ModItems.NEUTRONIUM_INGOT.getId())
+            .addElement(ModItems.CHARGED_NEUTRONIUM_INGOT.getId())
+            .addElement(ModItems.STABLE_NEUTRONIUM_INGOT.getId());
     }
 
     private static Identifier findId(Item item) {
