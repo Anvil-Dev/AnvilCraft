@@ -26,7 +26,7 @@ public class OverseerWorldMapHighlighter extends ChunkHighlighter {
 
     @Override
     public int calculateRegionHash(ResourceKey<Level> dimension, int regionX, int regionZ) {
-        return OverseerMapData.revision(dimension);
+        return 31 * OverseerMapData.revision(dimension) + (OverseerMapData.isVisible() ? 1 : 0);
     }
 
     @Override
