@@ -64,7 +64,9 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag data = this.constructDataNbt();
         data.putInt("InputSignal", this.inputtingSignal);
-        return data;
+        CompoundTag tag = new CompoundTag();
+        tag.put("ExtraData", data);
+        return tag;
     }
 
     @Override
