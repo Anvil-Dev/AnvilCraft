@@ -143,15 +143,15 @@ public class AnvilCraft {
         IntegrationHook.setModContainer(modContainer);
         AnvilCraft.INTEGRATION_MANAGER.compileContent();
         AnvilCraft.INTEGRATION_MANAGER.loadAllIntegrations();
-        StartupNotificationManager.addModMessage("[AnvilCraft] Ciallo~");
         AnvilCraftDfu.constructAndOptimize();
-        AnvilCraft.LOGGER.info("Ciallo～(∠・ω< )⌒★");
-        AnvilCraft.LOGGER.info("let's 0721");
-
         ModRecipeInits.init(modEventBus);
 
         ModResultModifierTypes.register(modEventBus);
         ModCustomDataComponents.register(modEventBus);
+
+        StartupNotificationManager.addModMessage("[AnvilCraft] Ciallo~");
+        AnvilCraft.LOGGER.info("Ciallo～(∠・ω< )⌒★");
+        AnvilCraft.LOGGER.info("let's 0721");
     }
 
     private static void registerEvents(IEventBus eventBus) {

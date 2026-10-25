@@ -4461,6 +4461,7 @@ public class ModBlocks {
                 color + "_reinforced_concrete",
                 p -> new ReinforcedConcreteBlock(p, color)
             ).initialProperties(() -> Blocks.TERRACOTTA)
+            .aliasFrom(AnvilCraft.of("reinforced_concrete_" + color))
             .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
             .item()
             .transform(PropertiesProviderUtil::blockItem)
@@ -4518,6 +4519,7 @@ public class ModBlocks {
     private static BlockEntry<SlabBlock> registerReinforcedConcreteSlabBlock(Color color, BlockEntry<ReinforcedConcreteBlock> parent) {
         return REGISTRUM.block(color + "_reinforced_concrete_slab", SlabBlock::new)
             .initialProperties(() -> Blocks.TERRACOTTA)
+            .aliasFrom(AnvilCraft.of("reinforced_concrete_slab_" + color))
             .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
             .item()
             .transform(PropertiesProviderUtil::blockItem)
@@ -4545,6 +4547,7 @@ public class ModBlocks {
                 properties -> new StairBlock(parent.getDefaultState(), properties)
             )
             .initialProperties(() -> Blocks.TERRACOTTA)
+            .aliasFrom(AnvilCraft.of("reinforced_concrete_stair_" + color))
             .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
             .item()
             .transform(PropertiesProviderUtil::blockItem)
@@ -4568,6 +4571,7 @@ public class ModBlocks {
     private static BlockEntry<WallBlock> registerReinforcedConcreteWallBlock(Color color, BlockEntry<ReinforcedConcreteBlock> parent) {
         return REGISTRUM.block(color + "_reinforced_concrete_wall", WallBlock::new)
             .initialProperties(() -> Blocks.TERRACOTTA)
+            .aliasFrom(AnvilCraft.of("reinforced_concrete_wall_" + color))
             .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
             .blockstate(() -> DataGenUtil.wallBlock(AnvilCraft.of("block/%s_reinforced_concrete_wall".formatted(color))))
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WALLS, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
@@ -4592,6 +4596,7 @@ public class ModBlocks {
     private static BlockEntry<CementCauldronBlock> registerCementCauldron(Color color) {
         return REGISTRUM.block(color + "_cement_cauldron", p -> new CementCauldronBlock(p, color))
             .initialProperties(() -> Blocks.CAULDRON)
+            .aliasFrom(AnvilCraft.of("cement_cauldron_" + color))
             .blockstate(() -> new NonNullBiConsumer<>() {
                 @Override
                 public void accept(
