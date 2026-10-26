@@ -3652,7 +3652,7 @@
   "tooltip.anvilcraft.wip_block.jade.block_state": "%1$s (%2$s)",
   "tooltip.anvilcraft.wip_block.jade.compress": "压入进程方块：%s",
   "tooltip.anvilcraft.wip_block.jade.heater_ready": "无红石信号，未过载",
-  "tooltip.anvilcraft.wip_block.jade.inject": "物品压入进程方块",
+  "tooltip.anvilcraft.wip_block.jade.inject": "物品压入进程方块：%s",
   "tooltip.anvilcraft.wip_block.jade.irradiation_type.energy": "能量",
   "tooltip.anvilcraft.wip_block.jade.irradiation_type.mass": "质量",
   "tooltip.anvilcraft.wip_block.jade.irradiation_type.neutron": "中子",
