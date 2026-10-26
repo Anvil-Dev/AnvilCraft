@@ -97,6 +97,8 @@
 
 铁砧工艺遵循 [Contributor Covenant](https://www.contributor-covenant.org/zh-cn/version/2/1/code_of_conduct/) 行为规范。
 
+开发规范以 [AGENTS.md](./AGENTS.md) 为入口，根文件包含每次任务适用的强制约束与专题索引，具体规范按主题存放在 [docs/rules/](./docs/rules/) 中。
+
 ## [贡献者名单](https://www.anvilcraft.dev/posts/base-info/members.html#%E8%B4%A1%E7%8C%AE%E8%80%85)
 
 ## [特别鸣谢](https://www.anvilcraft.dev/posts/base-info/members.html#%E8%B5%9E%E5%8A%A9%E8%80%85)
