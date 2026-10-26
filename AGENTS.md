@@ -1,51 +1,43 @@
-# Repository Agent Instructions
+---
+trigger: always-on
+---
 
-## Source Lookup
+# 全局开发规范
 
-- Use the IntelliJ IDEA MCP tools together with the `workspace-agent-bridge` skill as the primary way to search,
-  inspect, and navigate project and library source code.
-- If IDEA source lookup fails for dependency code, search source JARs under `~/.gradle/caches/`.
-- Core Unix utilities are available when command-line inspection is useful.
+## 渐进式披露
 
-## Scope and Existing Work
+本文件是全局规范的唯一入口，保存每次任务都适用的强制约束与专题文档索引。任务开始时先读取本文件，再按触发领域读取对应专题文档；任务涉及多个领域时读取全部相关文档。禁止凭记忆引用未读取的专题条款。
 
-- Make the smallest change that fully satisfies the request.
-- Follow nearby project patterns and existing APIs before introducing new abstractions.
-- Preserve unrelated working-tree changes. Do not revert, clean up, or reformat files outside the requested scope.
-- Do not broaden a file-specific request into a repository-wide refactor unless explicitly asked.
-- Do not write manual
+专题文档细化本文件中的约束，与本文件具有同等效力。两者出现冲突时，以本文件中的强制约束为准，并同步修正专题文档。
 
-## Code Style
+## 适用范围与优先级
 
-- Treat the project-root `style.xml` as the source of truth for Java code style and Checkstyle requirements.
-- Do not add a Checkstyle suppression merely to bypass a violation. Fix the code or document a genuinely required
-  exception within the requested scope.
-- Prefer self-explanatory code and avoid comments that merely restate what the code already makes clear.
-- Keep text files UTF-8 encoded and preserve the existing line-ending style of files being edited.
-- FQCN is strictly prohibited, use import if possible.
+本规范适用于所有编程语言。编码时遵循目标语言的社区惯例（包括命名风格、对象构造、错误处理等）。文中“类型”统称类、结构体、枚举等；“接口”统称 interface、protocol、trait 等抽象定义；“模块”统称包、命名空间等；“函数”统称函数与方法。
 
-## Nullness Annotations
+优先级顺序：用户的明确指令 > 项目内部具体规范 > 本全局规范。若规范之间存在冲突或在当前场景下不合理，必须先向用户说明情况并请求确认，禁止私自绕过。任何破例处理都必须在代码注释或提交记录中写明原因、影响范围、期限和清理条件，禁止以历史原因或临时处理为理由长期保留。
 
-- Do not use nullness helper annotations from any framework other than JSpecify.
-- Use only annotations from `org.jspecify.annotations` when nullness annotations are needed.
-- Do not introduce legacy nullness annotations or defaults such as `javax.annotation.Nullable`,
-  `javax.annotation.ParametersAreNonnullByDefault`, `net.minecraft.MethodsReturnNonnullByDefault`, or JetBrains
-  nullness annotations.
-- Existing legacy annotations are not precedent for new code. Do not migrate unrelated existing code unless the task
-  explicitly requests it.
-- These rules supersede conflicting nullness guidance in the "The use of various annotations" section of
-  `CONTRIBUTING.md`.
+## 每次任务强制约束
 
-## Test Authoring
+- 始终使用简体中文回复消息与编写文档，代码标识符与第三方 API 名称除外。
+- 回复与文档首句直接说明结论，禁止寒暄、复述问题与结尾空泛总结；具体句式与禁用词按需查阅专题文档。
+- 严格对齐指令的字面边界；需求存在歧义时必须列出可选方案与权衡，请求用户确认后再执行。
+- 禁止交付最小实现或未完成的半成品，必须完整交付当前请求的全部功能点。
+- 除非用户明确要求，禁止编写占位代码；确需占位时必须留下 `TODO` 并写明原因、完成条件与跟踪方式。
+- 修改存量文件时只改动当前请求直接涉及的代码，保留工作区中无关的未提交改动。
+- 提交信息遵循 Conventional Commits 格式；用户未明确要求推送时禁止执行 `git push`。
 
-- Do not add or expand automated tests unless the user explicitly requests them or a regression cannot be verified otherwise.
-  Prefer compilation and focused manual validation.
+## 专题文档索引
 
-## Verification
+| 文档 | 读取时机 |
+| --- | --- |
+| [language-and-style.md](docs/rules/language-and-style.md) | 编写或修改文档、注释、审查意见，或需要核对句式、禁用词与正反例时 |
+| [workflow.md](docs/rules/workflow.md) | 执行编码、调试、重构、测试、错误处理或交付任务前 |
+| [coding-and-design.md](docs/rules/coding-and-design.md) | 新增或修改类型、接口、模块、公开 API、命名、注释或格式前 |
+| [exploration-and-review.md](docs/rules/exploration-and-review.md) | 执行命令行、检索代码、查阅依赖源码或分派审查子代理前 |
+| [frontend.md](docs/rules/frontend.md) | 修改 `web/` 下的前端代码、样式、依赖或交互组件前 |
+| [java-and-gradle.md](docs/rules/java-and-gradle.md) | 修改 Java 源码、空安全注解或 Gradle 生成资源前 |
+| [version-control.md](docs/rules/version-control.md) | 准备提交、修改提交信息、合并或推送前 |
 
-- Run focused tests or checks that cover the changed behavior before broader validation.
-- For Java source changes, run `./gradlew.bat compileJava --console=plain` on Windows.
-- When generated data or assets change, run `./gradlew.bat runData --console=plain` when applicable and inspect the
-  generated diff.
-- Run `git diff --check` for tracked changes and inspect `git status --short` so untracked artifacts are not missed.
-- Report which verification commands were run and identify any checks that could not be completed.
+## 维护要求
+
+修改规则时先定位对应专题文档，跨领域条款拆分到各自文档，根文件只保留每次任务强制执行的约束和索引。新增、删除或重命名专题文档时，必须同步更新本索引与 `README.md` 中的结构说明。
