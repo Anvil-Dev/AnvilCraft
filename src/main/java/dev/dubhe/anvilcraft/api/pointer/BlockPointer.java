@@ -27,12 +27,14 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.piston.PistonBaseBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.phys.AABB;
 import org.jspecify.annotations.Nullable;
 
@@ -84,6 +86,11 @@ public class BlockPointer implements ITargetPointer {
 
     @Override
     public boolean matches(Level level, BlockState requiredState) {
+        if (this.state.getBlock() instanceof SlabBlock && requiredState.getBlock() instanceof SlabBlock
+            && (this.state.getValue(SlabBlock.TYPE) == SlabType.DOUBLE)
+                != (requiredState.getValue(SlabBlock.TYPE) == SlabType.DOUBLE)) {
+            return false;
+        }
         return this.state.is(requiredState.getBlock());
     }
 
@@ -363,7 +370,8 @@ public class BlockPointer implements ITargetPointer {
                     return null;
                 }
             }
-            return new BlockPointer(this, pos, state, level.getBlockEntity(pos));
+            BlockPointer pointer = new BlockPointer(this, pos, state, level.getBlockEntity(pos));
+            return requiredState == null || pointer.matches(level, requiredState) ? pointer : null;
         }
     }
 }
