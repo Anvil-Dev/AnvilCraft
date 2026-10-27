@@ -21,9 +21,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 
 public final class SettingClientStub {
+    private static long sessionId;
     private static CompletableFuture<PlayerSetting> pendingLoad;
     private static UUID pendingPlayerId;
     private static PlayerSetting cachedSetting;
@@ -41,15 +43,21 @@ public final class SettingClientStub {
             if (SettingClientStub.pendingLoad != null && playerId.equals(SettingClientStub.pendingPlayerId)) {
                 return SettingClientStub.pendingLoad;
             }
+            long sessionId = SettingClientStub.sessionId;
             SettingClientStub.pendingPlayerId = playerId;
             SettingClientStub.pendingLoad = RPC.invoke(RpcTarget.server(), SettingServerStub::get, playerId)
                 .thenApply(loaded -> {
-                    PlayerSettings.get().getSettings().put(playerId, loaded);
-                    SettingClientStub.cache(playerId, loaded);
-                    SettingClientStub.clearFallback(playerId);
-                    return loaded;
+                    synchronized (SettingClientStub.class) {
+                        if (sessionId != SettingClientStub.sessionId) {
+                            throw new CancellationException("Player settings connection closed before response");
+                        }
+                        PlayerSettings.get().getSettings().put(playerId, loaded);
+                        SettingClientStub.cache(playerId, loaded);
+                        SettingClientStub.clearFallback(playerId);
+                        return loaded;
+                    }
                 })
-                .whenComplete((_, _) -> SettingClientStub.clearPendingLoad(playerId));
+                .whenComplete((_, _) -> SettingClientStub.clearPendingLoad(playerId, sessionId));
             return SettingClientStub.pendingLoad;
         }
     }
@@ -155,8 +163,8 @@ public final class SettingClientStub {
         return SettingClientStub.player().getGameProfile().id();
     }
 
-    private static synchronized void clearPendingLoad(UUID playerId) {
-        if (playerId.equals(SettingClientStub.pendingPlayerId)) {
+    private static synchronized void clearPendingLoad(UUID playerId, long sessionId) {
+        if (sessionId == SettingClientStub.sessionId && playerId.equals(SettingClientStub.pendingPlayerId)) {
             SettingClientStub.pendingLoad = null;
             SettingClientStub.pendingPlayerId = null;
         }
@@ -178,6 +186,21 @@ public final class SettingClientStub {
             SettingClientStub.cache(playerId, setting);
         }
         return setting;
+    }
+
+    public static synchronized void clearCache() {
+        SettingClientStub.sessionId++;
+        CompletableFuture<PlayerSetting> pendingLoad = SettingClientStub.pendingLoad;
+        SettingClientStub.pendingLoad = null;
+        SettingClientStub.pendingPlayerId = null;
+        SettingClientStub.cachedSetting = null;
+        SettingClientStub.cachedPlayerId = null;
+        SettingClientStub.fallbackSetting = null;
+        SettingClientStub.fallbackPlayerId = null;
+        PlayerSettings.clearClient();
+        if (pendingLoad != null) {
+            pendingLoad.cancel(false);
+        }
     }
 
     private static void cache(UUID playerId, PlayerSetting setting) {
