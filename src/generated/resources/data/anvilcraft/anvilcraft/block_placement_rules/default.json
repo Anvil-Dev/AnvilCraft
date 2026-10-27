@@ -1,5 +1,5 @@
 {
   "state": {
-    "": "!powered,!lit,!waterlogged"
+    "": "!powered,!lit,waterlogged=false"
   }
 }

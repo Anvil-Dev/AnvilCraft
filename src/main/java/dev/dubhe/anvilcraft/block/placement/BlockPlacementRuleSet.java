@@ -14,7 +14,10 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.ChiseledBookShelfBlock;
+import net.minecraft.world.level.block.ComposterBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Property;
 import org.jspecify.annotations.Nullable;
 
@@ -23,12 +26,24 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 /**
  * 单个方块的放置规则文件，描述状态与物品的映射。
  */
 public record BlockPlacementRuleSet(List<StateRule> rules, Map<String, String> state) implements IBlockPlacementRule {
+    private static final Set<Property<?>> RUNTIME_PROPERTIES = Set.of(
+        BlockStateProperties.LEVEL_HONEY,
+        BlockStateProperties.RESPAWN_ANCHOR_CHARGES,
+        BlockStateProperties.BITES,
+        BlockStateProperties.CAN_SUMMON,
+        BlockStateProperties.SHRIEKING,
+        BlockStateProperties.LOCKED,
+        BlockStateProperties.HAS_RECORD,
+        BlockStateProperties.SIGNAL_FIRE
+    );
+
     public static final Codec<BlockPlacementRuleSet> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         StateRule.CODEC.listOf().optionalFieldOf("rules", List.of()).forGetter(BlockPlacementRuleSet::rules),
         Codec.unboundedMap(Codec.STRING, Codec.STRING)
@@ -70,6 +85,12 @@ public record BlockPlacementRuleSet(List<StateRule> rules, Map<String, String> s
         }
         BlockState result = baseState;
         for (Property<?> property : baseState.getProperties()) {
+            // 内容和环境状态来自实际方块，蓝图不提供蜂蜜、充能或容器内物品。
+            if (RUNTIME_PROPERTIES.contains(property)
+                || baseState.getBlock() instanceof ComposterBlock && property == ComposterBlock.LEVEL
+                || ChiseledBookShelfBlock.SLOT_OCCUPIED_PROPERTIES.contains(property)) {
+                continue;
+            }
             result = inheritProperty(result, blueprintState, property);
         }
         return result;

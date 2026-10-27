@@ -99,7 +99,7 @@ public final class ModBlockPlacementRuleProvider implements DataProvider {
 
         List<CompletableFuture<?>> saves = new ArrayList<>(rulesByBlock.size() + stateRulesByBlock.size() + 1);
         Map<String, String> defaultStateRules = new LinkedHashMap<>();
-        defaultStateRules.put("", "!powered,!lit,!waterlogged");
+        defaultStateRules.put("", "!powered,!lit,waterlogged=false");
         this.saveRuleSet(
             output,
             saves,

@@ -8,7 +8,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.block.BlockPlacementRules;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
-import dev.dubhe.anvilcraft.block.placement.ProcessingTablePlacement;
+import dev.dubhe.anvilcraft.block.placement.CompositeBlockPlacement;
 import dev.dubhe.anvilcraft.init.registry.ModRegistries;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.util.BlockPlacementUtil;
@@ -82,10 +82,10 @@ public class BlockItemHandlerPointer implements ITargetPointer {
 
     @Override
     public boolean matches(Level level, BlockState requiredState) {
-        if (ProcessingTablePlacement.isConverted(requiredState)) {
+        if (CompositeBlockPlacement.isConverted(requiredState)) {
             ResourceHandler<ItemResource> handler = this.resolveHandler(level);
-            return ProcessingTablePlacement.matches(this.stack) && handler != null
-                && ProcessingTablePlacement.upgradeSlot(handler, requiredState) >= 0;
+            return CompositeBlockPlacement.matches(this.stack, requiredState) && handler != null
+                && CompositeBlockPlacement.upgradeSlot(handler, requiredState) >= 0;
         }
         return BlockPlacementRules.getPlacementItemCount(level.registryAccess(), requiredState, this.stack) > 0;
     }
@@ -114,8 +114,8 @@ public class BlockItemHandlerPointer implements ITargetPointer {
             return false;
         }
 
-        if (requiredState != null && ProcessingTablePlacement.isConverted(requiredState)) {
-            return ProcessingTablePlacement.placeFromHandler(level, pos, requiredState, handler, this.slot,
+        if (requiredState != null && CompositeBlockPlacement.isConverted(requiredState)) {
+            return CompositeBlockPlacement.placeFromHandler(level, pos, requiredState, handler, this.slot,
                 this.stack, this.pos, this.defaultFacing);
         }
         int requiredCount = requiredState == null
