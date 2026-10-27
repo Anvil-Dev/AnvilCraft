@@ -1,5 +1,6 @@
 {
   "parent": "neoforge:item/bucket_drip",
+  "apply_fluid_luminosity": false,
   "fluid": "anvilcraft:melt_gem",
   "loader": "neoforge:fluid_container"
 }
