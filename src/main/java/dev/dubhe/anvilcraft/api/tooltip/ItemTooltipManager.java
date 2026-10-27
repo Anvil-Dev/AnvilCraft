@@ -1062,8 +1062,8 @@ public class ItemTooltipManager {
         );
         ItemTooltipManager.SHIFT.put(
             ModItems.SHULKER_TERMINAL.asItem(), """
-                                                Automatically links to Shulker-like storage in priority:
-                                                Inventory Shulker Container or nearest Shulker Container within 64 blocks"""
+                                                Automatically links to the first Shulker Container in your inventory
+                                                Otherwise, links to the nearest Shulker Container within 64 blocks"""
         );
         ItemTooltipManager.SHIFT.put(
             ModBlocks.STORAGE_PORT.asItem(), """
