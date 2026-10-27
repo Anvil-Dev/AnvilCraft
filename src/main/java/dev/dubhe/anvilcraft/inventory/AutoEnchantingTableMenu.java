@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.inventory;
 import dev.dubhe.anvilcraft.api.event.PrimerEnchantmentsEvent;
 import dev.dubhe.anvilcraft.block.entity.AutoEnchantingTableBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.inventory.component.ReadOnlySlotItemHandler;
 import dev.dubhe.anvilcraft.util.EnchantmentData;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -60,7 +59,7 @@ public class AutoEnchantingTableMenu extends AbstractContainerMenu {
             this.blockEntity.onMenuOpen();
         }
 
-        // 输入/输出槽仅可查看，不允许修改；引物槽可由玩家操作
+        // 输出槽只出不进，产物由玩家或自动化取走；输入槽与引物槽正常交互
         this.addSlot(new SlotItemHandler(
             this.blockEntity.getItemHandler(),
             AutoEnchantingTableBlockEntity.SLOT_INPUT,
@@ -73,12 +72,17 @@ public class AutoEnchantingTableMenu extends AbstractContainerMenu {
                 AutoEnchantingTableMenu.this.refreshEnchantments();
             }
         });
-        this.addSlot(new ReadOnlySlotItemHandler(
+        this.addSlot(new SlotItemHandler(
             this.blockEntity.getItemHandler(),
             AutoEnchantingTableBlockEntity.SLOT_OUTPUT,
             7,
             52
-        ));
+        ) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return false;
+            }
+        });
         this.addSlot(new SlotItemHandler(
             this.blockEntity.getItemHandler(),
             AutoEnchantingTableBlockEntity.SLOT_PRIMER,
@@ -183,7 +187,7 @@ public class AutoEnchantingTableMenu extends AbstractContainerMenu {
         ItemStack slotItem = slot.getItem();
         itemStack = slotItem.copy();
         if (index < 3) {
-            // 输出槽只读不可取出；输入/引物槽可快速取回背包
+            // 三个槽位均可快速取回背包
             if (!slot.mayPickup(player)) return ItemStack.EMPTY;
             if (!this.moveItemStackTo(slotItem, 3, 39, true)) return ItemStack.EMPTY;
         } else {
