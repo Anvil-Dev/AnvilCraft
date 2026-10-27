@@ -78,7 +78,7 @@ public class JadeLang {
         provider.add("tooltip.anvilcraft.wip_block.jade.more_options", "%s more options");
         provider.add("tooltip.anvilcraft.wip_block.jade.block_state", "%1$s (%2$s)");
         provider.add("tooltip.anvilcraft.wip_block.jade.activated", "activated");
-        provider.add("tooltip.anvilcraft.wip_block.jade.heater_ready", "no redstone signal, not overloaded");
+        provider.add("tooltip.anvilcraft.wip_block.jade.heater_ready", "ready");
         provider.add("tooltip.anvilcraft.wip_block.jade.irradiation_type.neutron", "Neutron");
         provider.add("tooltip.anvilcraft.wip_block.jade.irradiation_type.energy", "Energy");
         provider.add("tooltip.anvilcraft.wip_block.jade.irradiation_type.mass", "Mass");
