@@ -26,7 +26,7 @@ public class MessageLang {
         provider.add("message.anvilcraft.hyperdimension_terminal.not_found", "Bound storage station not found");
         provider.add("message.anvilcraft.hyperdimension_uploader.bound", "Hyperdimension Uploader bound");
         provider.add("message.anvilcraft.local_terminal.not_found", "No large crate within 32 blocks");
-        provider.add("message.anvilcraft.shulker_terminal.not_found", "No shulker container or shulker box found");
+        provider.add("message.anvilcraft.shulker_terminal.not_found", "No shulker container found");
         provider.add("message.anvilcraft.monolith.joke.chute_steal", "Chutes used to be able to steal items from players and villagers");
         provider.add("message.anvilcraft.monolith.joke.reinforced_concrete", "Reinforced concrete was initially not blast-resistant, and it dropped a cauldron when broken");
         provider.add("message.anvilcraft.monolith.knowledge.celestial_forging_anvil_gravity", "You can press shift to escape when sucked by the Celestial Forging Anvil's gravity");
