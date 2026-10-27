@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.client.init.ModAtlasIds;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.init.ModTextureAtlases;
 import dev.dubhe.anvilcraft.client.overseer.OverseerMapData;
+import dev.dubhe.anvilcraft.client.rpc.SettingClientStub;
 import dev.dubhe.anvilcraft.client.rpc.StorageTerminalClientStub;
 import dev.dubhe.anvilcraft.client.rpc.TerminalJeiStorageCache;
 import dev.dubhe.anvilcraft.client.rpc.TerminalReachabilityCache;
@@ -91,6 +92,7 @@ public class ClientEventListener {
 
     @SubscribeEvent
     public static void onClientPlayerDisconnect(ClientPlayerNetworkEvent.LoggingOut event) {
+        SettingClientStub.clearCache();
         OverseerMapData.clear();
         SoundHelper.INSTANCE.clear();
         RecipesRecord.CLIENTSIDE = null;

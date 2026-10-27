@@ -57,6 +57,10 @@ public class PlayerSettings extends BetterSavedData {
         return PlayerSettings.get().settings.computeIfAbsent(id, _ -> new PlayerSetting(registries));
     }
 
+    public static void clearClient() {
+        PlayerSettings.CLIENT_COPY.settings.clear();
+    }
+
     @Override
     protected void registerDataFixers() {
     }
