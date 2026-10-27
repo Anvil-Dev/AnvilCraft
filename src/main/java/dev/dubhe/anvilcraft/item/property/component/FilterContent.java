@@ -29,6 +29,8 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 
 public record FilterContent(NonNullList<ItemStack> list, boolean includeComponents, boolean denyList) implements TooltipProvider {
+    private static final int SLOT_COUNT = 18;
+
     public static final MapCodec<FilterContent> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         ItemStack.OPTIONAL_CODEC
             .listOf()
@@ -51,12 +53,23 @@ public record FilterContent(NonNullList<ItemStack> list, boolean includeComponen
         FilterContent::new
     );
 
+    public FilterContent {
+        // 缺失物品会缩短解码后的列表，界面仍需访问全部过滤槽位。
+        if (list.size() < FilterContent.SLOT_COUNT) {
+            NonNullList<ItemStack> slots = NonNullList.withSize(FilterContent.SLOT_COUNT, ItemStack.EMPTY);
+            for (int slot = 0; slot < list.size(); slot++) {
+                slots.set(slot, list.get(slot));
+            }
+            list = slots;
+        }
+    }
+
     private FilterContent(List<ItemStack> list, boolean includeComponents, boolean denyList) {
         this(NonNullList.of(ItemStack.EMPTY, list.toArray(new ItemStack[0])), includeComponents, denyList);
     }
 
     public FilterContent() {
-        this(NonNullList.withSize(18, ItemStack.EMPTY), false, false);
+        this(NonNullList.withSize(FilterContent.SLOT_COUNT, ItemStack.EMPTY), false, false);
     }
 
     public FilterContent setList(NonNullList<ItemStack> list) {
