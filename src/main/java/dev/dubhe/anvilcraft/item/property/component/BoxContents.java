@@ -12,6 +12,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Unmodifiable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +61,21 @@ public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int s
         builder.addAll(this.amulets);
         builder.addAll(this.totems);
         return builder.build();
+    }
+
+    @Override
+    public boolean equals(@Nullable Object object) {
+        return object instanceof BoxContents contents
+            && this.selection == contents.selection
+            && this.usage == contents.usage
+            && ItemStack.listMatches(this.amulets, contents.amulets)
+            && ItemStack.listMatches(this.totems, contents.totems);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 31 * ItemStack.hashStackList(this.amulets) + ItemStack.hashStackList(this.totems);
+        return 31 * (31 * hash + this.selection) + this.usage;
     }
 
     public Mutable mutable() {

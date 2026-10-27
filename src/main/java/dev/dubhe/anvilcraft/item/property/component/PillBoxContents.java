@@ -12,6 +12,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.List;
@@ -31,6 +32,17 @@ public record PillBoxContents(int index, List<ItemStack> pills) {
 
     public PillBoxContents(List<ItemStack> pills) {
         this(-1, pills);
+    }
+
+    @Override
+    public boolean equals(@Nullable Object object) {
+        // 选择索引通过独立交互同步，不参与物品组件序列化。
+        return object instanceof PillBoxContents contents && ItemStack.listMatches(this.pills, contents.pills);
+    }
+
+    @Override
+    public int hashCode() {
+        return ItemStack.hashStackList(this.pills);
     }
 
     public Mutable mutable() {
