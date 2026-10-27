@@ -59,7 +59,7 @@ public class AutoEnchantingTableMenu extends AbstractContainerMenu {
             this.blockEntity.onMenuOpen();
         }
 
-        // 输入/输出槽仅可查看，不允许修改；引物槽可由玩家操作
+        // 输出槽只出不进，产物由玩家或自动化取走；输入槽与引物槽正常交互
         this.addSlot(new ResourceHandlerSlot(
             this.blockEntity.getItemHandler(), (slot, resource, count) -> {
                 this.blockEntity.getItemHandler().set(slot, resource, count);
@@ -80,11 +80,6 @@ public class AutoEnchantingTableMenu extends AbstractContainerMenu {
         ) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return false;
-            }
-
-            @Override
-            public boolean mayPickup(Player player) {
                 return false;
             }
         });
@@ -187,7 +182,7 @@ public class AutoEnchantingTableMenu extends AbstractContainerMenu {
         ItemStack slotItem = slot.getItem();
         itemStack = slotItem.copy();
         if (index < 3) {
-            // 输出槽只读不可取出；输入/引物槽可快速取回背包
+            // 三个槽位均可快速取回背包
             if (!slot.mayPickup(player)) return ItemStack.EMPTY;
             if (!this.moveItemStackTo(slotItem, 3, 39, true)) return ItemStack.EMPTY;
         } else {
