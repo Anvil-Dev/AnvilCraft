@@ -1,6 +1,7 @@
 {
   "model": {
     "type": "neoforge:fluid_container",
+    "apply_fluid_luminosity": false,
     "fluid": "anvilcraft:melt_gem",
     "force_opaque_fluid": false,
     "textures": {

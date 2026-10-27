@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumBlockModelG
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumItemModelGenerator;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.init.block.ModFluids;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
@@ -68,7 +69,7 @@ public class ModelProviderUtil {
                         ctx.get().content,
                         flipGas,
                         true,
-                        true,
+                        ctx.get().content != ModFluids.MELT_GEM.get(),
                         false
                     )
                 );
