@@ -2862,7 +2862,7 @@
   "tooltip.anvilcraft.wip_block.jade.amount": "%1$s × %2$s",
   "tooltip.anvilcraft.wip_block.jade.block_state": "%1$s (%2$s)",
   "tooltip.anvilcraft.wip_block.jade.compress": "Compress into WIP: %s",
-  "tooltip.anvilcraft.wip_block.jade.heater_ready": "no redstone signal, not overloaded",
+  "tooltip.anvilcraft.wip_block.jade.heater_ready": "ready",
   "tooltip.anvilcraft.wip_block.jade.inject": "Inject into WIP: %s",
   "tooltip.anvilcraft.wip_block.jade.irradiation_type.energy": "Energy",
   "tooltip.anvilcraft.wip_block.jade.irradiation_type.mass": "Mass",
