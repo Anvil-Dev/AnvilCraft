@@ -22,6 +22,11 @@ import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 @EventBusSubscriber(value = Dist.CLIENT, modid = AnvilCraft.MOD_ID)
 public class ModRenderPipelines {
 
+    public static final RenderPipeline GEODE_HIGHLIGHT = RenderPipeline.builder(RenderPipelines.LINES_SNIPPET)
+        .withLocation(AnvilCraft.of("pipeline/geode_highlight"))
+        .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
+        .build();
+
     public static final RenderPipeline HYPERCUBE = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
         .withLocation(AnvilCraft.of("pipeline/hypercube"))
         .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
@@ -331,6 +336,7 @@ public class ModRenderPipelines {
     @SubscribeEvent
     public static void on(RegisterRenderPipelinesEvent event) {
         event.registerPipeline(ModRenderPipelines.ENCHANTED_GOLD_GLINT);
+        event.registerPipeline(ModRenderPipelines.GEODE_HIGHLIGHT);
         event.registerPipeline(ModRenderPipelines.HYPERCUBE);
         event.registerPipeline(ModRenderPipelines.GLASS_PIPE_FLUID);
         event.registerPipeline(ModRenderPipelines.SMART_PLACER_RANGE);
