@@ -39,7 +39,7 @@ import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.ItemUtils;
-import net.minecraft.world.item.ShearsItem;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
@@ -139,6 +139,7 @@ public class MultitoolItem extends Item {
             case SHEARS -> ItemAbilities.DEFAULT_SHEARS_ACTIONS.contains(itemAbility);
             case FLINT_AND_STEEL -> ItemAbilities.DEFAULT_FLINT_ACTIONS.contains(itemAbility);
             case BRUSH -> ItemAbilities.DEFAULT_BRUSH_ACTIONS.contains(itemAbility);
+            case SPYGLASS -> ItemAbilities.DEFAULT_SPYGLASS_ACTIONS.contains(itemAbility);
             case FISHING_ROD -> ItemAbilities.DEFAULT_FISHING_ROD_ACTIONS.contains(itemAbility);
             default -> super.canPerformAction(stack, itemAbility);
         };
@@ -401,7 +402,6 @@ public class MultitoolItem extends Item {
         }
         int i = this.getUseDuration(stack, livingEntity) - remainingUseDuration + 1;
         if (i % 10 != 5) {
-            livingEntity.releaseUsingItem();
             return;
         }
         BlockPos pos = blockhitresult.getBlockPos();
@@ -479,7 +479,9 @@ public class MultitoolItem extends Item {
         }
         item.remove(DataComponents.TOOL);
         item.set(ModComponents.MULTITOOL_MODE, mode);
-        if (mode == MultitoolMode.SHEARS) item.set(DataComponents.TOOL, ShearsItem.createToolProperties());
+        if (mode == MultitoolMode.SHEARS) {
+            item.set(DataComponents.TOOL, Items.SHEARS.components().get(DataComponents.TOOL));
+        }
     }
 
     private void stopUsing(LivingEntity entity) {
