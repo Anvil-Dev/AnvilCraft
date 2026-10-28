@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.client.renderer.item.state.SpectralRenderState;
-import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -30,12 +29,7 @@ public class SpectralWeaponLauncherRenderer implements SpecialModelRenderer<Spec
         if (!stack.is(ModItems.SPECTRAL_WEAPON_LAUNCHER)) return null;
         ChargedProjectiles chargedProjectiles = stack.get(DataComponents.CHARGED_PROJECTILES);
         if (chargedProjectiles == null || chargedProjectiles.itemCopies().isEmpty()) return null;
-        SpectralRenderState state = new SpectralRenderState();
-        state.setAmmo(FeatureRendererSupport.initialize(
-            chargedProjectiles.itemCopies().getFirst(),
-            this.resolver
-        ));
-        return state;
+        return new SpectralRenderState(chargedProjectiles.itemCopies().getFirst(), this.resolver);
     }
 
     @Override
@@ -53,7 +47,9 @@ public class SpectralWeaponLauncherRenderer implements SpecialModelRenderer<Spec
         pose.translate(0F, 7F / 16F, 7F / 8F);
         pose.mulPose(Axis.YP.rotationDegrees(90));
         pose.mulPose(Axis.ZN.rotationDegrees(45));
-        argument.getAmmo().item.submit(
+        // 弹药沿用武器的模型变换，抵消嵌套物品模型自身的居中平移。
+        pose.translate(0.5F, 0.5F, 0.5F);
+        argument.getAmmo().submit(
             pose,
             collector,
             lightCoords,
