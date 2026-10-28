@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.client.renderer.entity.state.SpectralProjectileRenderState;
 import dev.dubhe.anvilcraft.entity.SpectralProjectileEntity;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -65,6 +66,9 @@ public class SpectralProjectileRenderer<T extends SpectralProjectileEntity> exte
         if (amount == 0) return;
         random.setSeed(cluster.seed);
 
+        pose.pushPose();
+        pose.mulPose(Axis.YP.rotationDegrees(state.yRot - 90));
+        pose.mulPose(Axis.ZP.rotationDegrees(state.xRot - 45));
         ItemStackRenderState item = cluster.item;
         item.submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, cluster.outlineColor);
         for (int i = 1; i < amount; i++) {
@@ -78,6 +82,7 @@ public class SpectralProjectileRenderer<T extends SpectralProjectileEntity> exte
             item.submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, cluster.outlineColor);
             pose.popPose();
         }
+        pose.popPose();
     }
 }
 
