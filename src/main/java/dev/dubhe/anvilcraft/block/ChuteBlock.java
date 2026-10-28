@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
+import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock;
 import dev.dubhe.anvilcraft.block.entity.BaseChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.OverflowChuteBlockEntity;
@@ -40,6 +41,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
@@ -122,8 +124,8 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
                 || state.is(ModBlocks.SIMPLE_MAGNETIC_CHUTE.get())
                 || state.is(ModBlocks.OVERFLOW_CHUTE.get())
                 || (state.is(ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE.get())
-                    && state.hasProperty(dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock.ACTIVE)
-                    && state.getValue(dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock.ACTIVE));
+                    && state.hasProperty(CelestialForgingAnvilInterfaceBlock.ACTIVE)
+                    && state.getValue(CelestialForgingAnvilInterfaceBlock.ACTIVE));
         }
         if (obj instanceof Block block) {
             return block == ModBlocks.CHUTE.get()
@@ -159,8 +161,8 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         if (state.hasProperty(MagneticChuteBlock.FACING)) {
             return state.getValue(MagneticChuteBlock.FACING);
         }
-        if (state.hasProperty(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING)) {
-            return state.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
+        if (state.hasProperty(HorizontalDirectionalBlock.FACING)) {
+            return state.getValue(HorizontalDirectionalBlock.FACING);
         }
         return null;
     }
