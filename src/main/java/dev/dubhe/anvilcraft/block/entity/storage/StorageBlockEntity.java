@@ -143,8 +143,11 @@ public class StorageBlockEntity extends BlockEntity {
     public int getComparatorSignal() {
         if (this.level == null || this.level.isClientSide() || this.id == null) return 0;
         var storage = Storages.get().get(this.id).orElse(null);
-        return storage != null && storage.getItems() instanceof SpaceSizeItemStacksResourceHandler items
-            ? (int) Math.ceil(items.getFullness() * 15.0) : 0;
+        if (storage == null || !(storage.getItems() instanceof SpaceSizeItemStacksResourceHandler items)) {
+            return 0;
+        }
+        double fullness = items.getFullness();
+        return (int) (fullness * 14) + (fullness > 0 ? 1 : 0);
     }
 
     public void refreshComparatorSignal() {
