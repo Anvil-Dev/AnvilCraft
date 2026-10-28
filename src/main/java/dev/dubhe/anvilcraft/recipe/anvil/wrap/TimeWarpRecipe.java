@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.api.heat.HeatTier;
+import dev.dubhe.anvilcraft.api.recipe.CauldronProcessing;
 import dev.dubhe.anvilcraft.block.workstation.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -103,6 +104,7 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
                 .setCauldronOffset(new Vec3i(0, -1, 0))
                 .setHasCauldron(hasCauldron)
                 .setBlockInputOffset(new Vec3i(0, -2, 0))
+                .setCauldronProcessor(CauldronProcessing.TIME_WARP)
                 .setInputBlocks(
                     BlockStatePredicate.builder()
                         .of(ModBlocks.CORRUPTED_BEACON.get())

@@ -18,6 +18,7 @@ import dev.dubhe.anvilcraft.api.fluid.LargeCauldronFluidHandler;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.LargeCauldronInputHandler;
+import dev.dubhe.anvilcraft.api.recipe.CauldronProcessing;
 import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.HeaterBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
@@ -33,13 +34,13 @@ import dev.dubhe.anvilcraft.recipe.LiquidEnchantmentCauldronRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.DamageAnvil;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasAnvil;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldronProcessor;
 import dev.dubhe.anvilcraft.recipe.anvil.util.RecipeOutputTracker;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
 import dev.dubhe.anvilcraft.util.EntityUtil;
 import dev.dubhe.anvilcraft.util.FireReforgingUtil;
-import dev.dubhe.anvilcraft.util.HeaterUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -694,8 +695,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
     }
 
     private static boolean isActiveHeatingHelper(BlockState state) {
-        if (state.is(ModBlocks.HEATER)) return ((HeaterBlock) state.getBlock()).isActive(state);
-        return state.is(ModBlocks.BURNING_HEATER) && state.getValue(BurningHeaterBlock.LEVEL) == 2;
+        return CauldronProcessing.matches(CauldronProcessing.SUPER_HEATING, state);
     }
 
     private static void consumeHeatingFuel(ServerLevel level, BlockPos helper) {
@@ -1236,6 +1236,10 @@ public class LargeCauldronBlockEntity extends BlockEntity
                 state.fluidPredicates.add(cauldron);
                 return true;
             }
+            case HasCauldronProcessor processor -> {
+                BlockPos pos = BlockPos.containing(contextPos.add(processor.offset()));
+                return CauldronProcessing.matches(processor.category(), level.getBlockState(pos));
+            }
             case HasBlockBase<?> block -> {
                 BlockPos pos = BlockPos.containing(contextPos.add(block.getOffset()));
                 return block.getPredicate().test(level, level.getBlockState(pos), level.getBlockEntity(pos));
@@ -1282,7 +1286,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
     }
 
     private static boolean isActiveRecipeHelper(BlockState state) {
-        return HeaterUtil.isActiveHeatSource(state);
+        return CauldronProcessing.isActive(state);
     }
 
     private static List<BlockPos> orderedHelpers(BlockPos slotPos, List<BlockPos> helpers, BlockPos base) {

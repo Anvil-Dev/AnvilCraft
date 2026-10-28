@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.api.recipe.CauldronProcessing;
 import dev.dubhe.anvilcraft.block.power.consumer.HeaterBlock;
 import dev.dubhe.anvilcraft.block.workstation.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -101,6 +102,7 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
             .setCauldronOffset(new Vec3i(0, -1, 0))
             .setHasCauldron(hasCauldron)
             .setBlockInputOffset(new Vec3i(0, -2, 0))
+            .setCauldronProcessor(CauldronProcessing.SUPER_HEATING)
             .setInputBlocks(
                 BlockStatePredicate.builder()
                     .of(ModBlocks.HEATER.get(), ModBlocks.BURNING_HEATER.get())
