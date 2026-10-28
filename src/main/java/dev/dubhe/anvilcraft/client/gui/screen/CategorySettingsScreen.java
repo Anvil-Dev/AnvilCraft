@@ -18,6 +18,7 @@ import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSetting;
 import dev.dubhe.anvilcraft.saved.storage.category.FilterCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.ICategory;
+import dev.dubhe.anvilcraft.saved.storage.category.NamespaceCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.store.CategoryEntry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -27,7 +28,9 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
@@ -36,8 +39,12 @@ import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix3x2fStack;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeSet;
 
 public class CategorySettingsScreen extends Screen {
@@ -187,7 +194,23 @@ public class CategorySettingsScreen extends Screen {
 
     public void rebuild() {
         this.alternates.clear();
-        for (ICategory next : this.registry) {
+        List<ICategory> categories = new ArrayList<>();
+        Set<String> namespaces = new HashSet<>();
+        for (ICategory category : this.registry) {
+            categories.add(category);
+            if (category instanceof NamespaceCategory namespaceCategory) {
+                namespaces.add(namespaceCategory.namespace());
+            }
+        }
+        this.player.registryAccess().lookupOrThrow(Registries.ITEM).listElements()
+            .sorted(Comparator.comparing(Holder.Reference::key))
+            .forEach(holder -> {
+                String namespace = holder.key().identifier().getNamespace();
+                if (namespaces.add(namespace)) {
+                    categories.add(new NamespaceCategory(holder.value(), namespace));
+                }
+            });
+        for (ICategory next : categories) {
             boolean contains = false;
             for (CategoryEntry entry : this.draftSetting.listed()) {
                 if (entry.getCategory().equals(next)) {
@@ -707,7 +730,7 @@ public class CategorySettingsScreen extends Screen {
     }
 
     protected boolean isCustom(ICategory category) {
-        return !this.registry.containsValue(category);
+        return this.draftSetting.custom().contains(category);
     }
 
     @Override
