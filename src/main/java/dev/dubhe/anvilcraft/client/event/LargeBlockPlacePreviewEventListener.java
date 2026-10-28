@@ -46,6 +46,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -124,7 +125,11 @@ public class LargeBlockPlacePreviewEventListener {
             this.origin = entries.getFirst().pos();
             ProjectionScene scene = new ProjectionScene(level, this.origin);
             for (RenderEntry entry : entries) {
-                scene.put(entry.pos().subtract(this.origin), entry.state(), null);
+                BlockState state = entry.state();
+                if (state.hasProperty(BlockStateProperties.WATERLOGGED)) {
+                    state = state.setValue(BlockStateProperties.WATERLOGGED, false);
+                }
+                scene.put(entry.pos().subtract(this.origin), state, null);
             }
             this.renderer.rebuild(scene, opacity);
             this.entries = List.copyOf(entries);
