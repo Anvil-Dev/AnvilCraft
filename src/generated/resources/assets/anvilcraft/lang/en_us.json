@@ -2674,7 +2674,7 @@
   "tooltip.anvilcraft.item.shulker_container": "A space-folding container upgraded from a Large Crate",
   "tooltip.anvilcraft.item.shulker_container.shift": "Can contain 1024 types of items by default, each type with 65536 unit of items by default\nBreaking it drops the container with its items stored inside\nDrop Space Overcompressors on top and strike with an anvil to expand capacity\nEach one doubles both the type limit and the space per type (up to 4 times)\nCan update to Hyperdimension Storage Station",
   "tooltip.anvilcraft.item.shulker_terminal": "Link to Shulker-like storages in world or inventory",
-  "tooltip.anvilcraft.item.shulker_terminal.shift": "Automatically links to the first Shulker Container in your inventory.\nOtherwise, links to the nearest Shulker Container within 64 blocks.",
+  "tooltip.anvilcraft.item.shulker_terminal.shift": "Automatically links to the first Shulker Container in your inventory\nOtherwise, links to the nearest Shulker Container within 64 blocks",
   "tooltip.anvilcraft.item.silence_amulet": "Silences the wearer and grants immunity to Darkness",
   "tooltip.anvilcraft.item.silver_block": "A large block of highly reflective metal",
   "tooltip.anvilcraft.item.silver_ingot": "A highly reflective metal",

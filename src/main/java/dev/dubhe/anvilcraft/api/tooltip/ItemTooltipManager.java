@@ -91,8 +91,8 @@ public class ItemTooltipManager {
             ModItems.HYPERDIMENSION_TERMINAL.asItem(), "A portable port of the binding Hyperdimension Storage Station"
         );
         ItemTooltipManager.SHIFT.put(ModItems.SHULKER_TERMINAL.asItem(), """
-            Automatically links to the first Shulker Container in your inventory.
-            Otherwise, links to the nearest Shulker Container within 64 blocks.""");
+            Automatically links to the first Shulker Container in your inventory
+            Otherwise, links to the nearest Shulker Container within 64 blocks""");
         ItemTooltipManager.NORMAL.put(ModItems.BUILDING_ROD.get(),
             "Place blocks in bulk and build blueprints quickly; increases reach while carried");
         ItemTooltipManager.NORMAL.put(ModItems.MAGNET.get(), "Attract surrounding items when use");
