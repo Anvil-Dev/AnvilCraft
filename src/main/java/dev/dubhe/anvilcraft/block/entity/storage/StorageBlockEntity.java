@@ -150,7 +150,8 @@ public class StorageBlockEntity extends BlockEntity {
             return 0;
         }
         if (storage.getItems() instanceof SpaceSizeItemStacksResourceHandler spaceHandler) {
-            return (int) Math.ceil(spaceHandler.getFullness() * 15.0);
+            double fullness = spaceHandler.getFullness();
+            return (int) (fullness * 14) + (fullness > 0 ? 1 : 0);
         }
         return 0;
     }
