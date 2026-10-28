@@ -20,6 +20,11 @@ import net.neoforged.neoforge.client.event.RegisterRenderBuffersEvent;
 import java.util.function.Function;
 
 public class ModRenderTypes {
+    public static final RenderType GEODE_HIGHLIGHT = RenderType.create(
+        "anvilcraft:geode_highlight",
+        RenderSetup.builder(ModRenderPipelines.GEODE_HIGHLIGHT).createRenderSetup()
+    );
+
     public static final RenderType FISH_TANK_FLUID = RenderType.create(
         "anvilcraft:fish_tank_fluid",
         RenderSetup.builder(RenderPipelines.TRANSLUCENT_BLOCK)

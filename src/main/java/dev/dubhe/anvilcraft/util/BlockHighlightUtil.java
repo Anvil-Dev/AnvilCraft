@@ -1,12 +1,12 @@
 package dev.dubhe.anvilcraft.util;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.ShapeRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -70,10 +70,10 @@ public class BlockHighlightUtil {
             Vector3fc pos2 = pos1.add(16, 16, 16, new Vector3f());
             submitNodeCollector.submitCustomGeometry(
                 poseStack,
-                RenderTypes.lines(),
+                ModRenderTypes.GEODE_HIGHLIGHT,
                 (pose, buffer) -> {
                     PoseStack poseStack1 = new PoseStack();
-                    poseStack.last().set(pose);
+                    poseStack1.last().set(pose);
                     AABB aabb = new AABB(new Vec3(pos1), new Vec3(pos2));
                     ShapeRenderer.renderShape(
                         poseStack1,
