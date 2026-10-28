@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.power;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
 import dev.dubhe.anvilcraft.item.armor.WeatherproofChestplateItem;
 import dev.dubhe.anvilcraft.network.PowerGridRemovePacket;
 import dev.dubhe.anvilcraft.network.PowerGridSyncChunkPacket;
@@ -10,6 +11,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -171,8 +173,16 @@ public class PowerGrid {
                 this.hasInfinitePower = true;
             }
         }
+        List<ChargerBlockEntity> chargers = new ArrayList<>();
         for (IPowerConsumer consumer : this.consumers) {
             if (this.checkRemove(consumer)) return true;
+            if (consumer instanceof ChargerBlockEntity charger && charger.isFeCharging()) {
+                charger.refreshGridDemand(0);
+                if (charger.getTimeLeft() > 0 && !charger.getBlockState().getValue(BlockStateProperties.POWERED)) {
+                    chargers.add(charger);
+                }
+                continue;
+            }
             this.consume += consumer.getInputPower();
         }
 
@@ -183,9 +193,11 @@ public class PowerGrid {
                 dynamicComponent.switchTo(null);
                 continue;
             }
-            if (owner instanceof ServerPlayer) {
+            if (owner instanceof ServerPlayer player) {
                 WeatherproofChestplateItem.clearGridDemand(dynamicComponent);
-                players++;
+                if (WeatherproofChestplateItem.canChargeFromGrid(player)) {
+                    players++;
+                }
             }
             int power = dynamicComponent.getPowerConsumption();
             if (power > 0) {
@@ -195,10 +207,13 @@ public class PowerGrid {
             }
         }
 
-        long chargingPowerPerPlayer = this.getRemaining() / Math.max(1, players);
+        long chargingPowerPerDevice = Math.max(0, this.getRemaining()) / Math.max(1, players + chargers.size());
+        for (ChargerBlockEntity charger : chargers) {
+            this.consume += charger.refreshGridDemand(chargingPowerPerDevice);
+        }
         for (DynamicPowerComponent dynamicComponent : this.dynamicComponents) {
             if (dynamicComponent.getOwner() instanceof ServerPlayer player) {
-                this.consume += WeatherproofChestplateItem.refreshGridDemand(player, chargingPowerPerPlayer);
+                this.consume += WeatherproofChestplateItem.refreshGridDemand(player, chargingPowerPerDevice);
             }
         }
 

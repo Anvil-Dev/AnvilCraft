@@ -179,7 +179,7 @@ public class ChargerBlockEntity extends BlockEntity
             int remainingFE = energyHandler.getCapacityAsInt() - energyHandler.getAmountAsInt();
             this.timeLeft = remainingFE;
             this.timeTotalCache = energyHandler.getCapacityAsInt();
-            this.powerValue = -64;
+            this.powerValue = 0;
             this.syncPacket();
         }
     }
@@ -281,14 +281,25 @@ public class ChargerBlockEntity extends BlockEntity
         return -this.powerValue;
     }
 
-    private int getFeChargingPowerLevel() {
-        if (this.grid == null) return 0;
-        int remaining = this.grid.getRemaining();
-        if (remaining >= 512) return 512;
-        if (remaining >= 256) return 256;
-        if (remaining >= 128) return 128;
-        if (remaining >= 64) return 64;
-        return 0;
+    /** 按电网统一分配的余量更新装备充电负载，避免重复占用其他设备的功率。 */
+    public int refreshGridDemand(long available) {
+        if (!this.isFeCharging) {
+            return this.getInputPower();
+        }
+        int power = 0;
+        if (this.timeLeft > 0 && !this.getBlockState().getValue(ChargerBlock.POWERED)) {
+            if (available >= 512) {
+                power = 512;
+            } else if (available >= 256) {
+                power = 256;
+            } else if (available >= 128) {
+                power = 128;
+            } else if (available >= 64) {
+                power = 64;
+            }
+        }
+        this.powerValue = -power;
+        return power;
     }
 
     @Nullable
@@ -395,9 +406,6 @@ public class ChargerBlockEntity extends BlockEntity
             this.moveItemToTransformingSlot();
         }
         if (this.timeLeft > 0) {
-            if (this.isFeCharging) {
-                this.powerValue = -(this.getFeChargingPowerLevel());
-            }
             if (this.isGridWorking()) {
                 if (this.isFeCharging) {
                     ItemStack processingStack = this.itemHandler.getStacks().get(1);
@@ -405,7 +413,7 @@ public class ChargerBlockEntity extends BlockEntity
                         EnergyHandler storage = Capabilities.Energy.ITEM.getCapability(
                             processingStack, ItemAccess.forStack(processingStack));
                         if (storage != null) {
-                            int powerLevel = this.getFeChargingPowerLevel();
+                            int powerLevel = this.getInputPower();
                             if (powerLevel > 0) {
                                 int countdown = AnvilCraft.CONFIG.machines.powerConverter.workInterval;
                                 int efficiency = AnvilCraft.CONFIG.machines.powerConverter.efficiency;
