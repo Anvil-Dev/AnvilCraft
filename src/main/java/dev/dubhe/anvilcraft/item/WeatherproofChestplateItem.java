@@ -66,12 +66,19 @@ public class WeatherproofChestplateItem extends IonocraftBackpackItem implements
         }
     }
 
-    public static int refreshGridDemand(ServerPlayer player, long available) {
-        DynamicPowerComponent component = IDynamicPowerComponentHolder.of(player).anvilcraft$getPowerComponent();
+    /** 仅将当前需要补充能量的胸甲计入电网充电功率分配。 */
+    public static boolean canChargeFromGrid(ServerPlayer player) {
         ItemStack stack = getByPlayer(player);
-        PowerGrid grid = component.getPowerGrid();
-        if (!(stack.getItem() instanceof WeatherproofChestplateItem) || grid == null || !player.isAlive()
-            || player.isCreative() || player.isSpectator() || getEnergyStored(stack) >= maxEnergy()) return 0;
+        PowerGrid grid = IDynamicPowerComponentHolder.of(player).anvilcraft$getPowerComponent().getPowerGrid();
+        return stack.getItem() instanceof WeatherproofChestplateItem && grid != null && player.isAlive()
+            && !player.isCreative() && !player.isSpectator() && getEnergyStored(stack) < maxEnergy();
+    }
+
+    public static int refreshGridDemand(ServerPlayer player, long available) {
+        if (!canChargeFromGrid(player)) {
+            return 0;
+        }
+        DynamicPowerComponent component = IDynamicPowerComponentHolder.of(player).anvilcraft$getPowerComponent();
         for (int index = CHARGING_POWER.length - 1; index >= 0; index--) {
             if (available < CHARGING_POWER[index].amount()) continue;
             component.getPowerConsumptions().add(CHARGING_POWER[index]);

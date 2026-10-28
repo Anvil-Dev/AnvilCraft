@@ -178,7 +178,8 @@ public class ChargerBlockEntity extends BlockEntity
                 this.itemHandler.setStackInSlot(1, stack);
                 this.timeLeft = remainingFE;
                 this.timeTotalCache = maxEnergy;
-                this.powerValue = -64;
+                this.powerValue = 0;
+                this.setStartupCoolDown(20);
                 this.syncPacket();
             }
         }
@@ -310,21 +311,25 @@ public class ChargerBlockEntity extends BlockEntity
         return -this.powerValue;
     }
 
-    private int getFeChargingPowerLevel() {
-        if (this.grid == null) return 0;
-        int generate = this.grid.getGenerate();
-        int count = 0;
-        for (IPowerComponent component : this.grid.getComponents()) {
-            if (component instanceof ChargerBlockEntity other && other.isFeCharging) {
-                count++;
+    /** 按电网统一分配的余量更新装备充电负载，避免重复占用其他设备的功率。 */
+    public int refreshGridDemand(long available) {
+        if (!this.isFeCharging) {
+            return this.getInputPower();
+        }
+        int power = 0;
+        if (this.timeLeft > 0 && !this.getBlockState().getValue(ChargerBlock.POWERED)) {
+            if (available >= 512) {
+                power = 512;
+            } else if (available >= 256) {
+                power = 256;
+            } else if (available >= 128) {
+                power = 128;
+            } else if (available >= 64) {
+                power = 64;
             }
         }
-        int perDevice = Math.max(1, generate / Math.max(1, count));
-        if (perDevice >= 512) return 512;
-        if (perDevice >= 256) return 256;
-        if (perDevice >= 128) return 128;
-        if (perDevice >= 64) return 64;
-        return 0;
+        this.powerValue = -power;
+        return power;
     }
 
     @Nullable
@@ -420,9 +425,6 @@ public class ChargerBlockEntity extends BlockEntity
         if (this.timeLeft == 0) {
             this.moveItemToTransformingSlot();
         }
-        if (this.isFeCharging) {
-            this.powerValue = -(this.getFeChargingPowerLevel());
-        }
         if (this.powerValue < powerValueCache) {
             this.setStartupCoolDown(20);
         }
@@ -436,7 +438,7 @@ public class ChargerBlockEntity extends BlockEntity
                 if (!processingStack.isEmpty()) {
                     IEnergyStorage storage = processingStack.getCapability(Capabilities.EnergyStorage.ITEM);
                     if (storage != null) {
-                        int powerLevel = this.getFeChargingPowerLevel();
+                        int powerLevel = this.getInputPower();
                         if (powerLevel > 0) {
                             int countdown = AnvilCraft.CONFIG.machines.powerConverter.workInterval;
                             int efficiency = AnvilCraft.CONFIG.machines.powerConverter.efficiency;
