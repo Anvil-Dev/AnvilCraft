@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.util.registrater;
 import dev.anvilcraft.lib.v2.registrum.providers.DataGenContext;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumBlockstateProvider;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumItemModelProvider;
+import dev.dubhe.anvilcraft.init.block.ModFluids;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.resources.ResourceLocation;
@@ -40,6 +41,12 @@ public class ModelProviderUtil {
         provider.withExistingParent(
             ctx.getName(),
             ResourceLocation.parse("neoforge:item/bucket_drip")
-        ).customLoader((builder, helper) -> DynamicFluidContainerModelBuilder.begin(builder, helper).fluid(ctx.get().content));
+        ).customLoader((builder, helper) -> {
+            var model = DynamicFluidContainerModelBuilder.begin(builder, helper).fluid(ctx.get().content);
+            if (ctx.get().content == ModFluids.MELT_GEM.get()) {
+                model.applyFluidLuminosity(false);
+            }
+            return model;
+        });
     }
 }
