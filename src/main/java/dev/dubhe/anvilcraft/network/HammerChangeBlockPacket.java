@@ -24,8 +24,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 
 public record HammerChangeBlockPacket(BlockPos pos, BlockState state) implements IServerboundPacket {
     public static final Type<HammerChangeBlockPacket> TYPE = IPacket.type(AnvilCraft.of("hammer_change_block"));
@@ -69,16 +67,12 @@ public record HammerChangeBlockPacket(BlockPos pos, BlockState state) implements
         )) {
             return;
         }
-        // 嘴对嘴检测：新状态前方有溜槽朝向自己则爆炸，不设状态
-        DirectionProperty facingProp = this.state.hasProperty(ChuteBlock.FACING)
-            ? ChuteBlock.FACING : null;
-        if (facingProp == null && this.state.hasProperty(BlockStateProperties.FACING)) {
-            facingProp = BlockStateProperties.FACING;
-        }
-        if (facingProp != null) {
-            Direction facing = this.state.getValue(facingProp);
+        // 嘴对嘴检测：仅溜槽之间存在该规则，新状态前方有溜槽朝向自己则爆炸，不设状态
+        Direction facing = ChuteBlock.getFacing(this.state);
+        if (ChuteBlock.isChuteBlock(this.state) && facing != null) {
             BlockState frontState = level.getBlockState(this.pos.relative(facing));
-            if (ChuteBlock.isChuteBlock(frontState) && ChuteBlock.outputsToward(frontState, facing.getOpposite())) {
+            if (ChuteBlock.isChuteBlock(frontState)
+                && ChuteBlock.outputsToward(frontState, facing.getOpposite())) {
                 BlockState oldState = level.getBlockState(this.pos);
                 level.levelEvent(2001, this.pos, Block.getId(oldState));
                 level.setBlock(this.pos, Blocks.AIR.defaultBlockState(), 3);
