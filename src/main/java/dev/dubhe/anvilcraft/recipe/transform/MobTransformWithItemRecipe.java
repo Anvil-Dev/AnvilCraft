@@ -232,6 +232,7 @@ public record MobTransformWithItemRecipe(
             );
             if (entity instanceof Mob mob) {
                 mob.setDropChance(EquipmentSlot.MAINHAND, 1.0F);
+                mob.setPersistenceRequired();
             }
         }
     }
