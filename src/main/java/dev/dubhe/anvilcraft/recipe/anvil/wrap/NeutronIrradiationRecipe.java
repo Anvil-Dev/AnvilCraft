@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.api.recipe.CauldronProcessing;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
@@ -44,6 +45,7 @@ public class NeutronIrradiationRecipe extends AbstractProcessRecipe<NeutronIrrad
                 .setCauldronOffset(new Vec3i(0, -1, 0))
                 .setHasCauldron(hasCauldron)
                 .setBlockInputOffset(new Vec3i(0, -2, 0))
+                .setCauldronProcessor(CauldronProcessing.NEUTRON_IRRADIATION)
                 .setInputBlocks(
                     BlockStatePredicate.builder()
                         .of(ModBlocks.NEUTRON_IRRADIATOR.get())

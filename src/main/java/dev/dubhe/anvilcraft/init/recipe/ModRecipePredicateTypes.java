@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.recipe.predicate.IRecipePredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasAnvil;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldronProcessor;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -16,6 +17,9 @@ public class ModRecipePredicateTypes {
         "has_cauldron",
         HasCauldron.Type::new
     );
+
+    public static final DeferredHolder<IRecipePredicate.Type<?>, HasCauldronProcessor.Type> HAS_CAULDRON_PROCESSOR =
+        PREDICATE_TYPE.register("has_cauldron_processor", HasCauldronProcessor.Type::new);
 
     public static final DeferredHolder<IRecipePredicate.Type<?>, HasAnvil.Type> HAS_ANVIL = PREDICATE_TYPE.register(
         "has_anvil",
