@@ -22,6 +22,7 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.ProduceHeat;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasAnvil;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldronProcessor;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import lombok.Getter;
 import net.minecraft.core.Vec3i;
@@ -511,6 +512,8 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
 
         private boolean consumeInputBlocks = false;
 
+        private @Nullable ResourceLocation cauldronProcessor;
+
         /**
          * 输入方块列表
          */
@@ -555,6 +558,12 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * 额外结果列表
          */
         private final List<IRecipeOutcome<?>> extraOutcomes = new ArrayList<>();
+
+        /** 设置可复用的加工类别；输入方块列表继续用于显示默认加工方块。 */
+        public Property setCauldronProcessor(ResourceLocation category) {
+            this.cauldronProcessor = category;
+            return this;
+        }
 
         /**
          * 添加额外结果
@@ -851,7 +860,9 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
             if (!Objects.equals(this.hasAnvil, HasAnvil.DEFAULT)) {
                 predicates.add(this.hasAnvil);
             }
-            if (this.inputBlocks != null && !this.consumeInputBlocks) {
+            if (this.cauldronProcessor != null) {
+                predicates.add(new HasCauldronProcessor(Vec3.atLowerCornerOf(this.blockInputOffset), this.cauldronProcessor));
+            } else if (this.inputBlocks != null && !this.consumeInputBlocks) {
                 for (int i = 0; i < this.inputBlocks.size(); i++) {
                     BlockStatePredicate block = this.inputBlocks.get(i);
                     predicates.add(new HasBlock(this.getBlockInputOffset().subtract(0, i, 0), block));
