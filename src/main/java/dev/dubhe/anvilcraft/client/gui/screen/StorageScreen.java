@@ -659,7 +659,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             12,
             12,
             24,
-            button -> StorageClientStub.craftingClearToStorage(StorageScreen.this.sourcePos).thenAcceptAsync(
+            button -> StorageClientStub.craftingClear(StorageScreen.this.sourcePos).thenAcceptAsync(
                 ignored -> StorageScreen.this.loadCrafting(true),
                 StorageScreen.this.screenExecutor
             )
@@ -1688,7 +1688,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         ) {
             graphics.renderTooltip(
                 this.font,
-                Component.translatable("screen.anvilcraft.storage.crafting.clear"),
+                Component.translatable(this.crafting.toStorage()
+                    ? "screen.anvilcraft.storage.crafting.clear"
+                    : "screen.anvilcraft.storage.crafting.clear_to_player"),
                 mouseX,
                 mouseY
             );

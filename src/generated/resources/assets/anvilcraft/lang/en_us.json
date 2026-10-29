@@ -2201,6 +2201,7 @@
   "screen.anvilcraft.storage.crafting.auto_fill.disabled": "Disabled",
   "screen.anvilcraft.storage.crafting.auto_fill.enabled": "Enabled",
   "screen.anvilcraft.storage.crafting.clear": "Clear crafting slots to storage",
+  "screen.anvilcraft.storage.crafting.clear_to_player": "Clear crafting slots to player inventory",
   "screen.anvilcraft.storage.crafting.to_storage": "Crafting Result Destination: %s",
   "screen.anvilcraft.storage.crafting.to_storage.player": "Player Inventory",
   "screen.anvilcraft.storage.crafting.to_storage.storage": "Storage",
