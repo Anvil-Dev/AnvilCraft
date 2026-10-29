@@ -3,10 +3,9 @@ package dev.dubhe.anvilcraft.recipe.anvil.util;
 import dev.anvilcraft.lib.v2.recipe.cache.ItemResourceHandlerCache;
 import dev.anvilcraft.lib.v2.recipe.cache.item.ICacheElement;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
+import dev.dubhe.anvilcraft.api.recipe.CauldronProcessing;
 import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
-import dev.dubhe.anvilcraft.init.block.ModBlockTags;
-import dev.dubhe.anvilcraft.util.HeaterUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.BlockTags;
@@ -67,7 +66,7 @@ public final class RecipeOutputTracker {
      * 锅下工作方块生效时，压缩配方只接受尚未取出的加工产物。
      */
     public static boolean requiresRecipeOutputForCompression(BlockState below) {
-        return below.is(ModBlockTags.UNDER_CAULDRON) && HeaterUtil.isActiveHeatSource(below);
+        return CauldronProcessing.isActive(below);
     }
 
     private static boolean isRecipeOutput(ICacheElement element, Level level, BlockPos cauldronPos) {
