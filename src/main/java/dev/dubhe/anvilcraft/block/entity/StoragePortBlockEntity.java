@@ -92,6 +92,9 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
                 StoragePortBlockEntity.this.level.sendBlockUpdated(
                     getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL
                 );
+                if (!StoragePortBlockEntity.this.level.isClientSide()) {
+                    StoragePortBlockEntity.this.level.updateNeighbourForOutputSignal(getBlockPos(), getBlockState().getBlock());
+                }
             }
         }
     };

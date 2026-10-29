@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.HitResult;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -35,6 +36,17 @@ import java.util.List;
 public class StoragePortBlock extends AbstractStoragePortBlock {
     /** 是否有标记的方块状态 */
     public static final BooleanProperty MARKED = BooleanProperty.create("marked");
+
+    @Override
+    public boolean hasAnalogOutputSignal(BlockState state) {
+        return true;
+    }
+
+    @Override
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+        return level.getBlockEntity(pos) instanceof StoragePortBlockEntity port
+            ? ItemHandlerHelper.calcRedstoneFromInventory(port.getBuffer()) : 0;
+    }
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {

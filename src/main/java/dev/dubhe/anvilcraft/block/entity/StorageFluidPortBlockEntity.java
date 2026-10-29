@@ -77,6 +77,9 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
                 StorageFluidPortBlockEntity.this.level.sendBlockUpdated(
                     getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL
                 );
+                if (!StorageFluidPortBlockEntity.this.level.isClientSide()) {
+                    StorageFluidPortBlockEntity.this.level.updateNeighbourForOutputSignal(getBlockPos(), getBlockState().getBlock());
+                }
                 // 流体变化同样要让仓储 UI 重同步，否则界面上的流体数量会停留在旧值
                 UUID storageId = StorageFluidPortBlockEntity.this.storageId;
                 if (!StorageFluidPortBlockEntity.this.level.isClientSide && storageId != null) {
@@ -348,7 +351,7 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
         if (this.tank.isEmpty()) {
             return false;
         }
-        this.tank.setFluid(FluidStack.EMPTY);
+        this.tank.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.EXECUTE);
         return true;
     }
 
