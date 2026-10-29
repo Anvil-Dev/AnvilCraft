@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -33,6 +34,27 @@ import java.util.List;
 public class StoragePortBlock extends AbstractStoragePortBlock {
     /** 是否有标记的方块状态 */
     public static final BooleanProperty MARKED = BooleanProperty.create("marked");
+
+    @Override
+    public boolean hasAnalogOutputSignal(BlockState state) {
+        return true;
+    }
+
+    @Override
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
+        if (!(level.getBlockEntity(pos) instanceof StoragePortBlockEntity port)) {
+            return 0;
+        }
+        var buffer = port.getBuffer();
+        double fullness = 0;
+        for (int slot = 0; slot < buffer.size(); slot++) {
+            var resource = buffer.getResource(slot);
+            if (!resource.isEmpty()) {
+                fullness += (double) buffer.getAmountAsLong(slot) / buffer.getCapacityAsLong(slot, resource);
+            }
+        }
+        return (int) (fullness / buffer.size() * 14) + (fullness > 0 ? 1 : 0);
+    }
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
