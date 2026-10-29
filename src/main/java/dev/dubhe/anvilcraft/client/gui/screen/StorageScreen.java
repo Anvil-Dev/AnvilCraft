@@ -512,7 +512,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             craftingTexture("crafting_clear"), 12, 12, 24, button -> {
                 if (this.interactionPending) return;
                 this.interactionPending = true;
-                StorageClientStub.craftingClearToStorage(this.sourcePos).whenCompleteAsync((changed, error) -> {
+                StorageClientStub.craftingClear(this.sourcePos).whenCompleteAsync((changed, error) -> {
                     this.refreshCrafting().whenCompleteAsync((ignored, failure) -> this.interactionPending = false, this.screenExecutor);
                     this.reorder(false);
                 }, this.screenExecutor);
@@ -964,7 +964,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             graphics.blit(RenderPipelines.GUI_TEXTURED, SharedTextures.SWITCH_TABLE_SLIDER, this.sx(95), y, 0, 0, 4, 12, 8, 12);
         }
         if (this.craftingClear.isHovered()) {
-            graphics.setTooltipForNextFrame(Component.translatable("screen.anvilcraft.storage.crafting.clear"), mouseX, mouseY);
+            graphics.setTooltipForNextFrame(Component.translatable(this.crafting.toStorage()
+                    ? "screen.anvilcraft.storage.crafting.clear"
+                    : "screen.anvilcraft.storage.crafting.clear_to_player"), mouseX, mouseY);
         }
         if (this.craftingAutoFill.isHovered()) {
             graphics.setTooltipForNextFrame(Component.translatable(

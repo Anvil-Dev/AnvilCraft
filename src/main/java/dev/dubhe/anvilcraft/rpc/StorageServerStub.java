@@ -1232,49 +1232,44 @@ public final class StorageServerStub {
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
-    public static boolean craftingClearToStorage(UUID playerId, long sourcePos) {
+    public static boolean craftingClear(UUID playerId, long sourcePos) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
-        cancelCraftingBatch(playerId, sourcePos);
+        StorageServerStub.cancelCraftingBatch(playerId, sourcePos);
         CraftingStorage crafting = target.read();
         StorageView view = target.view;
-        if (view == null) {
-            return false;
-        }
-        ItemStack stonecutterInput = crafting.stonecutterInput();
-        List<ItemStack> grid = crafting.craftingInput();
-        boolean hasAny = !stonecutterInput.isEmpty() || grid.stream().anyMatch(stack -> !stack.isEmpty());
-        if (!hasAny) {
-            return false;
-        }
-        if (!stonecutterInput.isEmpty()) {
-            int inserted = view.insert(stonecutterInput.copyWithCount(1), stonecutterInput.getCount());
-            if (inserted < stonecutterInput.getCount()) {
-                // 输入槽仅被部分放入仓储：剩余部分保留在槽内，避免丢物品。
-                int rest = stonecutterInput.getCount() - inserted;
-                target.write(crafting.withStonecutterInput(stonecutterInput.copyWithCount(rest)));
-                return true;
-            }
-        }
-        for (int i = 0; i < grid.size(); i++) {
-            ItemStack stack = grid.get(i);
+        List<ItemStack> remaining = new ArrayList<>(CraftingStorage.CRAFTING_GRID_SIZE + 1);
+        remaining.add(crafting.stonecutterInput());
+        remaining.addAll(crafting.craftingInput());
+        boolean changed = false;
+        for (int slot = 0; slot < remaining.size(); slot++) {
+            ItemStack stack = remaining.get(slot);
             if (stack.isEmpty()) {
                 continue;
             }
-            int inserted = view.insert(stack.copyWithCount(1), stack.getCount());
-            if (inserted < stack.getCount()) {
-                List<ItemStack> newGrid = new ArrayList<>(grid);
-                for (int j = 0; j < i; j++) {
-                    newGrid.set(j, ItemStack.EMPTY);
-                }
-                newGrid.set(i, stack.copyWithCount(stack.getCount() - inserted));
-                target.write(crafting.withStonecutterInput(ItemStack.EMPTY).withCraftingInput(newGrid));
-                return true;
+            int inserted = StorageServerStub.moveCraftingInput(player, view, crafting.toStorage(), stack);
+            if (inserted > 0) {
+                remaining.set(slot, stack.copyWithCount(stack.getCount() - inserted));
+                changed = true;
             }
         }
-        List<ItemStack> emptyGrid = Collections.nCopies(CraftingStorage.CRAFTING_GRID_SIZE, ItemStack.EMPTY);
-        target.write(crafting.withStonecutterInput(ItemStack.EMPTY).withCraftingInput(emptyGrid));
-        return true;
+        if (changed) {
+            player.getInventory().setChanged();
+            target.write(crafting.withStonecutterInput(remaining.removeFirst()).withCraftingInput(remaining));
+        }
+        return changed;
+    }
+
+    private static int moveCraftingInput(ServerPlayer player, StorageView view, boolean toStorage, ItemStack stack) {
+        if (toStorage) {
+            return view.insert(stack.copyWithCount(1), stack.getCount());
+        }
+        try (Transaction transaction = Transaction.openRoot()) {
+            int inserted = PlayerInventoryWrapper.of(player).getMainSlots()
+                .insert(ItemResource.of(stack), stack.getCount(), transaction);
+            transaction.commit();
+            return inserted;
+        }
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
