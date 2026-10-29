@@ -26,6 +26,7 @@ public class CategoryLang {
         provider.add("screen.anvilcraft.storage.capacity.types", "Types: %1$s/%2$s");
         provider.add("screen.anvilcraft.storage.capacity.infinity", "Infinity Storage");
         provider.add("screen.anvilcraft.storage.count", "Count: %s");
+        provider.add("screen.anvilcraft.storage.count_with_capacity", "Count: %1$s / %2$s");
         provider.add("screen.anvilcraft.storage.fluid_amount", "Storage: %s");
         provider.add("screen.anvilcraft.storage.fluid.bucket_missing", "Need an empty bucket");
         provider.add("screen.anvilcraft.storage.fluid.not_enough", "Not enough fluid for a bucket");

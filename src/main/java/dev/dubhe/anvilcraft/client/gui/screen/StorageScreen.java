@@ -9,6 +9,7 @@ import dev.anvilcraft.lib.v2.util.Scrollable;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
+import dev.dubhe.anvilcraft.api.itemhandler.unlimited.TypeLimitItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
 import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
@@ -1169,8 +1170,14 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                         : TooltipFlag.Default.NORMAL
                 ));
                 long displayedCount = this.getDisplayedCount(slot);
-                // 图标上的缩写仅在 >= 1000 时出现，此时 tooltip 才额外渲染精确数量
-                if (displayedCount >= 1000) {
+                long itemCapacity = this.getDisplayedCapacity(slot, stack);
+                if (itemCapacity >= 0) {
+                    tooltipLines.add(Component.translatable(
+                        "screen.anvilcraft.storage.count_with_capacity",
+                        String.format(Locale.ROOT, "%,d", displayedCount),
+                        String.format(Locale.ROOT, "%,d", itemCapacity)
+                    ));
+                } else if (displayedCount >= 1000) {
                     tooltipLines.add(Component.translatable("screen.anvilcraft.storage.count", displayedCount));
                 }
                 this.renderingTooltips = tooltipLines;
@@ -4269,6 +4276,23 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             .withStyle(style -> style.withFont(StorageScreen.SMALL_FONT));
         // 与物品一致：0 数量用橙色，便于与正常数量区分
         StorageScreen.renderSlotCount(graphics, font, text, entry.amount() == 0 ? 0xFFFFAA00 : -1, x, y);
+    }
+
+    private long getDisplayedCapacity(int slot, UnlimitedItemStack stack) {
+        StorageServerStub.Capacity capacity = this.capacity;
+        if (capacity == null || capacity.typeLimit() == Integer.MAX_VALUE) {
+            return -1;
+        }
+        if (this.nbtFolded) {
+            return this.foldedGroups.stream()
+                .filter(group -> group.contains(slot))
+                .flatMapToInt(IntList::intStream)
+                .mapToLong(index -> TypeLimitItemStacksResourceHandler.computeCount(
+                    Objects.requireNonNull(this.contents.get(index)), capacity.spaceSize()
+                ))
+                .sum();
+        }
+        return TypeLimitItemStacksResourceHandler.computeCount(stack, capacity.spaceSize());
     }
 
     private long getDisplayedCount(int slot) {
