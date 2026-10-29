@@ -28,7 +28,7 @@ public enum MultitoolMode implements StringRepresentable {
 
     public static final Codec<MultitoolMode> CODEC = StringRepresentable.fromEnum(MultitoolMode::values);
     public static final StreamCodec<ByteBuf, MultitoolMode> STREAM_CODEC = StreamCodecUtil.enumStreamCodec(MultitoolMode.class);
-    private final @Nullable Supplier<Item> acting;
+    private final Supplier<@Nullable Item> acting;
 
     MultitoolMode() {
         this((Item) null);
@@ -38,16 +38,16 @@ public enum MultitoolMode implements StringRepresentable {
         this.acting = () -> acting;
     }
 
-    MultitoolMode(@Nullable Supplier<Item> acting) {
+    MultitoolMode(Supplier<@Nullable Item> acting) {
         this.acting = acting;
     }
 
     public boolean isActing(Item item) {
-        return item == this.acting;
+        return item == this.acting.get();
     }
 
     public boolean isActing(ItemStack stack) {
-        return stack.is(this.acting.get());
+        return this.isActing(stack.getItem());
     }
 
     @Override
