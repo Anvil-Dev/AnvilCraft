@@ -1951,7 +1951,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     @Override
     public boolean keyPressed(KeyEvent event) {
         if (
-            (event.key() == InputConstants.KEY_LSHIFT || event.key() == InputConstants.KEY_RSHIFT)
+            (event.key() == InputConstants.KEY_LSHIFT || event.key() == InputConstants.KEY_RSHIFT
+                || event.key() == InputConstants.KEY_LALT || event.key() == InputConstants.KEY_RALT)
             && !this.preservingOrder
         ) {
             this.preservingOrder = true;
@@ -2061,8 +2062,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             if (AnvilCraft.CLIENT_CONFIG.controls.storageBulkActionKey.usesSpace()) return true;
         }
         if (
-            (event.key() == InputConstants.KEY_LSHIFT || event.key() == InputConstants.KEY_RSHIFT)
+            (event.key() == InputConstants.KEY_LSHIFT || event.key() == InputConstants.KEY_RSHIFT
+                || event.key() == InputConstants.KEY_LALT || event.key() == InputConstants.KEY_RALT)
             && !event.hasShiftDown()
+            && !event.hasAltDown()
             && this.preservingOrder
         ) {
             this.preservingOrder = false;
