@@ -344,13 +344,14 @@ public final class StorageClientStub {
         );
     }
 
-    /** 清空合成栏并放入仓储，返回是否发生变化。 */
-    public static CompletableFuture<Boolean> craftingClearToStorage(BlockPos sourcePos) {
+    /** 按指定目标清空合成栏，返回是否发生变化。 */
+    public static CompletableFuture<Boolean> craftingClear(BlockPos sourcePos, boolean toStorage) {
         return RPC.invoke(
             RpcTarget.server(),
-            StorageServerStub::craftingClearToStorage,
+            StorageServerStub::craftingClear,
             StorageClientStub.playerId(),
-            sourcePos.asLong()
+            sourcePos.asLong(),
+            toStorage
         );
     }
 

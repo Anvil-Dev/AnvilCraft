@@ -659,10 +659,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             12,
             12,
             24,
-            button -> StorageClientStub.craftingClearToStorage(StorageScreen.this.sourcePos).thenAcceptAsync(
-                ignored -> StorageScreen.this.loadCrafting(true),
-                StorageScreen.this.screenExecutor
-            )
+            button -> this.clearCraftingInputs(true),
+            button -> this.clearCraftingInputs(false)
         ));
         this.craftingToStorageButton = this.addRenderableWidget(new SwitchableButton(
             this.leftPos + 88,
@@ -1688,7 +1686,11 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         ) {
             graphics.renderTooltip(
                 this.font,
-                Component.translatable("screen.anvilcraft.storage.crafting.clear"),
+                List.of(
+                    Component.translatable("screen.anvilcraft.storage.crafting.clear.left"),
+                    Component.translatable("screen.anvilcraft.storage.crafting.clear.right")
+                ),
+                Optional.empty(),
                 mouseX,
                 mouseY
             );
@@ -1822,6 +1824,15 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             slots.add(this.player.inventoryMenu.getSlot(screenSlot));
         }
         return slots;
+    }
+
+    private void clearCraftingInputs(boolean toStorage) {
+        StorageClientStub.craftingClear(this.sourcePos, toStorage).whenCompleteAsync((changed, error) -> {
+            if (error != null) {
+                AnvilCraft.LOGGER.error("清空合成栏失败，访问位置：{}", this.sourcePos, error);
+            }
+            this.loadCrafting(true);
+        }, this.screenExecutor);
     }
 
     @Override
