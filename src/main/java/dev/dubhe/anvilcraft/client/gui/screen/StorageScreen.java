@@ -2511,6 +2511,13 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         return AnvilCraftClient.CONFIG.controls.invertFluidPortBucketActions ? 1 : 0;
     }
 
+    private boolean isOrderPreserveKey(int keyCode) {
+        var key = AnvilCraftClient.CONFIG.controls.storageBulkActionKey;
+        return keyCode == InputConstants.KEY_LSHIFT || keyCode == InputConstants.KEY_RSHIFT
+            || key.usesAlt() && (keyCode == InputConstants.KEY_LALT || keyCode == InputConstants.KEY_RALT)
+            || key.usesSpace() && keyCode == InputConstants.KEY_SPACE;
+    }
+
     private boolean isBulkActionDown() {
         var key = AnvilCraftClient.CONFIG.controls.storageBulkActionKey;
         return key.usesAlt() && Screen.hasAltDown() || key.usesSpace() && this.spacePressed;
@@ -3287,7 +3294,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (
-            (keyCode == InputConstants.KEY_LSHIFT || keyCode == InputConstants.KEY_RSHIFT)
+            this.isOrderPreserveKey(keyCode)
+            && (this.search == null || !this.search.isFocused())
             && !this.preservingOrder
         ) {
             this.preservingOrder = true;
@@ -3397,15 +3405,18 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
         if (keyCode == InputConstants.KEY_SPACE) {
             this.spacePressed = false;
-            if (AnvilCraftClient.CONFIG.controls.storageBulkActionKey.usesSpace()) return true;
         }
         if (
-            (keyCode == InputConstants.KEY_LSHIFT || keyCode == InputConstants.KEY_RSHIFT)
+            this.isOrderPreserveKey(keyCode)
             && !Screen.hasShiftDown()
+            && !this.isBulkActionDown()
             && this.preservingOrder
         ) {
             this.preservingOrder = false;
             this.reorder(false);
+            return true;
+        }
+        if (keyCode == InputConstants.KEY_SPACE && AnvilCraftClient.CONFIG.controls.storageBulkActionKey.usesSpace()) {
             return true;
         }
         return this.dispatchKeyReleased(keyCode, scanCode, modifiers);
