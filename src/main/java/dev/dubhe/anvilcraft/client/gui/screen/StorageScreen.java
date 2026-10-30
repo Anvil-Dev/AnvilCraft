@@ -1951,8 +1951,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     @Override
     public boolean keyPressed(KeyEvent event) {
         if (
-            (event.key() == InputConstants.KEY_LSHIFT || event.key() == InputConstants.KEY_RSHIFT
-                || event.key() == InputConstants.KEY_LALT || event.key() == InputConstants.KEY_RALT)
+            this.isOrderPreserveKey(event.key())
+            && (this.search == null || !this.search.isFocused())
             && !this.preservingOrder
         ) {
             this.preservingOrder = true;
@@ -2059,17 +2059,18 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     public boolean keyReleased(KeyEvent event) {
         if (event.key() == InputConstants.KEY_SPACE) {
             this.spacePressed = false;
-            if (AnvilCraft.CLIENT_CONFIG.controls.storageBulkActionKey.usesSpace()) return true;
         }
         if (
-            (event.key() == InputConstants.KEY_LSHIFT || event.key() == InputConstants.KEY_RSHIFT
-                || event.key() == InputConstants.KEY_LALT || event.key() == InputConstants.KEY_RALT)
+            this.isOrderPreserveKey(event.key())
             && !event.hasShiftDown()
-            && !event.hasAltDown()
+            && !this.isBulkActionDown()
             && this.preservingOrder
         ) {
             this.preservingOrder = false;
             this.reorder(false);
+            return true;
+        }
+        if (event.key() == InputConstants.KEY_SPACE && AnvilCraft.CLIENT_CONFIG.controls.storageBulkActionKey.usesSpace()) {
             return true;
         }
         return super.keyReleased(event);
@@ -2409,6 +2410,13 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     private int fluidPourButton() {
         return AnvilCraft.CLIENT_CONFIG.controls.invertFluidPortBucketActions ? 1 : 0;
+    }
+
+    private boolean isOrderPreserveKey(int keyCode) {
+        var key = AnvilCraft.CLIENT_CONFIG.controls.storageBulkActionKey;
+        return keyCode == InputConstants.KEY_LSHIFT || keyCode == InputConstants.KEY_RSHIFT
+            || key.usesAlt() && (keyCode == InputConstants.KEY_LALT || keyCode == InputConstants.KEY_RALT)
+            || key.usesSpace() && keyCode == InputConstants.KEY_SPACE;
     }
 
     private boolean isBulkActionDown() {
