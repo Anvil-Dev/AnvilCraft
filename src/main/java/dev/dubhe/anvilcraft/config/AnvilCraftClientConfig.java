@@ -32,11 +32,11 @@ public class AnvilCraftClientConfig {
 
         @Comment("Controls the sky darkening at the peak of a visual eclipse")
         @BoundedDiscrete(min = 0.0, max = 1.0)
-        public float overworldLikeEclipseDarken = 0.72f;
+        public double overworldLikeEclipseDarken = 0.72;
 
         @Comment("Controls the scale of the shared orbital rings in the Overworld-Like dimension")
         @BoundedDiscrete(min = 100.0, max = 10000.0)
-        public float overworldLikeSkyRingScale = 1200.0f;
+        public double overworldLikeSkyRingScale = 1200.0;
 
         @Comment(
             """
@@ -76,7 +76,7 @@ public class AnvilCraftClientConfig {
 
         @Comment("Controls the maximum brightness of stellar coronas")
         @BoundedDiscrete(min = 1.0, max = 64.0)
-        public float stellarMaxExposure = 24.0f;
+        public double stellarMaxExposure = 24.0;
 
         @SerializedName("Planet Atmosphere Rendering")
         @Comment(
@@ -193,7 +193,7 @@ public class AnvilCraftClientConfig {
 
         @Comment("Controls the maximum bounce height of blocks in the Giant Anvil's Shock (in blocks)")
         @BoundedDiscrete(min = 0.0, max = 2.0)
-        public float giantAnvilShockBounceAmplitude = 0.85f;
+        public double giantAnvilShockBounceAmplitude = 0.85;
 
         @Comment("Controls whether to play sounds when the Giant Anvil triggers its Shock")
         public boolean playGiantAnvilShockSound = true;
@@ -245,7 +245,7 @@ public class AnvilCraftClientConfig {
 
         @Comment("Controls the volume of Energy Weapons' firing sounds (multiplier)")
         @BoundedDiscrete(min = 0.0, max = 2.0)
-        public float energyWeaponSoundVolume = 1.0f;
+        public double energyWeaponSoundVolume = 1.0;
 
         @Comment("Controls the shortest silence before the first Mun music track (in seconds)")
         @BoundedDiscrete(min = 0, max = 3600)
@@ -294,7 +294,7 @@ public class AnvilCraftClientConfig {
 
         @Comment("Controls the scale of the Anvil Hammer wheel")
         @BoundedDiscrete(min = 0.5, max = 2.0)
-        public float anvilHammerWheelScale = 1.0f;
+        public double anvilHammerWheelScale = 1.0;
 
         @SerializedName("Show Storage Stored ID")
         @Comment("Controls whether to add a tooltip line that shows the stored Storage ID")
@@ -380,7 +380,7 @@ public class AnvilCraftClientConfig {
             @SerializedName("Scale")
             @Comment("Controls the HUD scale")
             @BoundedDiscrete(min = 0, max = 8)
-            public float scale = 0.75f;
+            public double scale = 0.75;
 
             @SerializedName("X Position")
             @Comment("Controls the HUD x position (in pixels)")
@@ -420,7 +420,7 @@ public class AnvilCraftClientConfig {
 
         @Comment("Controls the mouse sensitivity when rotating 3D structure previews")
         @BoundedDiscrete(min = 0.1, max = 2.0)
-        public float previewRotationSensitivity = 0.5f;
+        public double previewRotationSensitivity = 0.5;
 
         @SerializedName("Building Rod Blueprint Key Set Type")
         @Comment("Controls the key set type used by the Building Rod blueprint mode")

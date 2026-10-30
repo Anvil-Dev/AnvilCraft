@@ -48,7 +48,8 @@ public class WeatherproofChestplateHUD {
         PoseStack poseStack = guiGraphics.pose();
         poseStack.pushPose();
 
-        poseStack.scale(config.scale, config.scale, config.scale);
+        float scale = (float) config.scale;
+        poseStack.scale(scale, scale, scale);
         poseStack.translate(config.x, config.y, 0);
         if (renderBackpack) {
             renderBackpack(guiGraphics, mc.font, backpack);

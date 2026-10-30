@@ -31,7 +31,7 @@ public class HeaterUtil {
             || !(entity instanceof LivingEntity)) {
             return false;
         }
-        entity.hurt(ModDamageTypes.heaterBurn(level), AnvilCraft.CONFIG.world.heaterDamage);
+        entity.hurt(ModDamageTypes.heaterBurn(level), (float) AnvilCraft.CONFIG.world.heaterDamage);
         return true;
     }
 }

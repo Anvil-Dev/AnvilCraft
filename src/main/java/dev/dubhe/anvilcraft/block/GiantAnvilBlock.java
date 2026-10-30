@@ -384,7 +384,7 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
         if (max == -1) {
             max = Integer.MAX_VALUE;
         }
-        entity.setHurtsEntities(AnvilCraft.CONFIG.world.giantAnvilFallDamagePerBlock, max);
+        entity.setHurtsEntities((float) AnvilCraft.CONFIG.world.giantAnvilFallDamagePerBlock, max);
     }
 
     @Override

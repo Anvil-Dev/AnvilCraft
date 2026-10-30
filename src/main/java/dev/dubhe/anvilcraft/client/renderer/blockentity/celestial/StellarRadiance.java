@@ -11,7 +11,7 @@ public final class StellarRadiance {
     public static final float BROWN_DWARF_HALO_ALPHA = 0.12f;
 
     private static float maxExposure() {
-        return AnvilCraft.CLIENT_CONFIG.graphics.stellarMaxExposure;
+        return (float) AnvilCraft.CLIENT_CONFIG.graphics.stellarMaxExposure;
     }
 
     private StellarRadiance() {

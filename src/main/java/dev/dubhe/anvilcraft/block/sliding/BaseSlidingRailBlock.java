@@ -129,7 +129,7 @@ public abstract class BaseSlidingRailBlock extends Block implements ISlidingRail
                     Vec3 entityPos = entity.position();
                     Vector3f acceleration = blockPos.toVector3f()
                         .sub(entityPos.toVector3f())
-                        .mul(AnvilCraft.CONFIG.world.slidingRailPullStrength)
+                        .mul((float) AnvilCraft.CONFIG.world.slidingRailPullStrength)
                         .div(0.98f)
                         .mul(new Vector3f(1, 0, 1));
                     double damping = AnvilCraft.CONFIG.world.slidingRailDamping;

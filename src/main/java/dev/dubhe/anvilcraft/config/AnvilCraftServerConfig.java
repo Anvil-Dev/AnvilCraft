@@ -110,11 +110,11 @@ public class AnvilCraftServerConfig {
 
         @Comment("Controls the safe fall distance in the Mun dimension (in blocks)")
         @BoundedDiscrete(min = 0, max = 512)
-        public float munSafeFallDistance = 20.0f;
+        public double munSafeFallDistance = 20.0;
 
         @Comment("Controls the fall distance per damage in the Mun dimension (in blocks/damage)")
         @BoundedDiscrete(min = 0.5, max = 64)
-        public float munBlocksPerDamage = 6.0f;
+        public double munBlocksPerDamage = 6.0;
 
         @Comment("Controls the delay before an Overworld-Like dimension collapses (in ticks)")
         @BoundedDiscrete(min = 1, max = 1200)
@@ -156,7 +156,7 @@ public class AnvilCraftServerConfig {
         @SerializedName("NeoForge Fall Damage Per Block")
         @Comment("Controls the damage a falling NeoForge deals per block fallen")
         @BoundedDiscrete(min = 0.0, max = 1000.0)
-        public float neoforgeFallDamagePerBlock = 2.0f;
+        public double neoforgeFallDamagePerBlock = 2.0;
 
         @SerializedName("NeoForge Max Fall Damage")
         @Comment("Controls the maximum fall damage dealt by the NeoForge (-1 means infinity)")
@@ -170,7 +170,7 @@ public class AnvilCraftServerConfig {
 
         @Comment("Controls the damage a falling Royal Anvil deals per block fallen")
         @BoundedDiscrete(min = 0.0, max = 1000.0)
-        public float royalAnvilFallDamagePerBlock = 2.0f;
+        public double royalAnvilFallDamagePerBlock = 2.0;
 
         @Comment("Controls the maximum fall damage dealt by the Royal Anvil (-1 means infinity)")
         @BoundedDiscrete(min = -1, max = 1000)
@@ -178,7 +178,7 @@ public class AnvilCraftServerConfig {
 
         @Comment("Controls the damage a falling Frost Anvil deals per block fallen")
         @BoundedDiscrete(min = 0.0, max = 1000.0)
-        public float frostAnvilFallDamagePerBlock = 2.0f;
+        public double frostAnvilFallDamagePerBlock = 2.0;
 
         @Comment("Controls the maximum fall damage dealt by the Frost Anvil (-1 means infinity)")
         @BoundedDiscrete(min = -1, max = 1000)
@@ -186,7 +186,7 @@ public class AnvilCraftServerConfig {
 
         @Comment("Controls the damage a falling Ember Anvil deals per block fallen")
         @BoundedDiscrete(min = 0.0, max = 1000.0)
-        public float emberAnvilFallDamagePerBlock = 2.0f;
+        public double emberAnvilFallDamagePerBlock = 2.0;
 
         @Comment("Controls the maximum fall damage dealt by the Ember Anvil (-1 means infinity)")
         @BoundedDiscrete(min = -1, max = 1000)
@@ -194,7 +194,7 @@ public class AnvilCraftServerConfig {
 
         @Comment("Controls the damage a falling Transcendence Anvil deals per block fallen")
         @BoundedDiscrete(min = 0.0, max = 1000.0)
-        public float transcendenceAnvilFallDamagePerBlock = 2.0f;
+        public double transcendenceAnvilFallDamagePerBlock = 2.0;
 
         @Comment("Controls the maximum fall damage dealt by the Transcendence Anvil (-1 means infinity)")
         @BoundedDiscrete(min = -1, max = 1000)
@@ -202,7 +202,7 @@ public class AnvilCraftServerConfig {
 
         @Comment("Controls the damage a falling Giant Anvil deals per block fallen")
         @BoundedDiscrete(min = 0.0, max = 1000.0)
-        public float giantAnvilFallDamagePerBlock = 10.0f;
+        public double giantAnvilFallDamagePerBlock = 10.0;
 
         @Comment("Controls the maximum fall damage dealt by the Giant Anvil (-1 means infinity)")
         @BoundedDiscrete(min = -1, max = 1000)
@@ -210,15 +210,15 @@ public class AnvilCraftServerConfig {
 
         @Comment("Controls the speed a powered Sliding Rail launches entities with (in blocks/tick)")
         @BoundedDiscrete(min = 0.0, max = 10.0)
-        public float slidingRailLaunchSpeed = 0.35f;
+        public double slidingRailLaunchSpeed = 0.35;
 
         @Comment("Controls the strength an unpowered Sliding Rail pulls entities with")
         @BoundedDiscrete(min = 0.0, max = 10.0)
-        public float slidingRailPullStrength = 0.15f;
+        public double slidingRailPullStrength = 0.15;
 
         @Comment("Controls the fraction of an entity's motion a Sliding Rail preserves")
         @BoundedDiscrete(min = 0.0, max = 1.0)
-        public float slidingRailDamping = 0.8f;
+        public double slidingRailDamping = 0.8;
 
         @Comment(
             """
@@ -234,7 +234,7 @@ public class AnvilCraftServerConfig {
 
         @Comment("Controls the damage dealt by Heaters")
         @BoundedDiscrete(min = 0.0, max = 100.0)
-        public float heaterDamage = 4.0f;
+        public double heaterDamage = 4.0;
 
         @Comment(
             """
@@ -399,7 +399,7 @@ public class AnvilCraftServerConfig {
 
         @Comment("Controls the mass injected by the Mass Energy Inverter (in mass/tick)")
         @BoundedDiscrete(min = 1, max = 1000)
-        public float massEnergyInverterMassPerTick = 5F;
+        public double massEnergyInverterMassPerTick = 5.0;
 
         @Comment("Controls the maximum output of the Space Overcompressor per conversion")
         @BoundedDiscrete(min = 1, max = 6400)
@@ -710,11 +710,11 @@ public class AnvilCraftServerConfig {
 
         @Comment("Controls the chance that Providence grants an extra roll")
         @BoundedDiscrete(min = 0.0, max = 1.0)
-        public float providenceExtraRollChance = 0.25f;
+        public double providenceExtraRollChance = 0.25;
 
         @Comment("Controls the chance that Providence grants a third roll")
         @BoundedDiscrete(min = 0.0, max = 1.0)
-        public float providenceThirdRollChance = 0.05f;
+        public double providenceThirdRollChance = 0.05;
 
         @Comment("Controls the time the Resonator takes to mine a block by resonance (in ticks)")
         @BoundedDiscrete(min = 1, max = 200)

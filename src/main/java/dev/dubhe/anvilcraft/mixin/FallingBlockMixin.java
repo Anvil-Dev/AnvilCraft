@@ -140,7 +140,7 @@ public abstract class FallingBlockMixin extends Block {
                 if (max == -1) {
                     max = Integer.MAX_VALUE;
                 }
-                entity.setHurtsEntities(AnvilCraft.CONFIG.world.giantAnvilFallDamagePerBlock, max);
+                entity.setHurtsEntities((float) AnvilCraft.CONFIG.world.giantAnvilFallDamagePerBlock, max);
             } else {
                 FallingBlockEntity entity = FallingBlockEntity.fall(level, pos, state);
                 ((FallingBlock) (Object) this).falling(entity);
