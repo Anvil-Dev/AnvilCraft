@@ -31,6 +31,20 @@ import java.util.List;
  */
 public class StorageFluidPortBlock extends AbstractStoragePortBlock {
     @Override
+    public boolean hasAnalogOutputSignal(BlockState state) {
+        return true;
+    }
+
+    @Override
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+        if (!(level.getBlockEntity(pos) instanceof StorageFluidPortBlockEntity port)) {
+            return 0;
+        }
+        int amount = port.getFluid().getAmount();
+        return amount == 0 ? 0 : amount * 14 / StorageFluidPortBlockEntity.CAPACITY_MB + 1;
+    }
+
+    @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
         return simpleCodec(StorageFluidPortBlock::new);
     }
