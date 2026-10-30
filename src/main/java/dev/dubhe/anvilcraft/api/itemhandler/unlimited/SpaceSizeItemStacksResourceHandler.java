@@ -44,7 +44,17 @@ public class SpaceSizeItemStacksResourceHandler extends UnlimitedItemStacksResou
     @Override
     public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
         if (stack.isEmpty()) return ItemStack.EMPTY;
-        // 剩余空间只算一次：增长槽分支与常规分支都要用它，且两次计算之间不会改动内容
+        int matchingIndex = this.findSlot(stack);
+        if (matchingIndex < 0) {
+            matchingIndex = 0;
+            while (matchingIndex < this.stacks.size() && !this.stacks.get(matchingIndex).isEmpty()) {
+                matchingIndex++;
+            }
+        }
+        if (matchingIndex != slot) {
+            return stack;
+        }
+        // 每种物品仅对应一个插入槽，避免模拟遍历重复计算整箱剩余容量。
         int remainingSpace = this.spaceSize - this.getSpace();
         if (slot >= this.stacks.size()) {
             // 增长槽：仅在空间允许时扩展，否则原样返回，避免 ItemHandlerHelper 遍历循环无限增长
@@ -93,30 +103,16 @@ public class SpaceSizeItemStacksResourceHandler extends UnlimitedItemStacksResou
     @Override
     public ItemStack insertItem(ItemStack stack, boolean simulate) {
         if (stack.isEmpty()) return ItemStack.EMPTY;
+        int matchingIndex = this.findSlot(stack);
+        if (matchingIndex >= 0) {
+            return this.insertItem(matchingIndex, stack, simulate);
+        }
         for (int slot = 0; slot < this.size(); slot++) {
-            UnlimitedItemStack existing = this.stacks.get(slot);
-            if (existing.isEmpty() || existing.isSameItemSameComponents(stack)) {
-                stack = this.insertItem(slot, stack, simulate);
-                if (stack.isEmpty()) return ItemStack.EMPTY;
+            if (this.stacks.get(slot).isEmpty()) {
+                return this.insertItem(slot, stack, simulate);
             }
         }
-        if (stack.isEmpty()) {
-            return ItemStack.EMPTY;
-        }
-        int remainingSpace = this.spaceSize - this.getSpace();
-        long fit = SpaceSizeItemStacksResourceHandler.computeCount(stack, remainingSpace);
-        if (fit < 1) {
-            return stack;
-        }
-        if (simulate) {
-            // 追加新类型时也要正确计算能放多少，否则漏斗/管道会误判「放不下」
-            int amount = (int) Math.min(stack.getCount(), fit);
-            ItemStack leftover = stack.copy();
-            leftover.shrink(amount);
-            return leftover;
-        }
-        this.stacks.add(UnlimitedItemStack.EMPTY);
-        return this.insertItem(this.size() - 1, stack, false);
+        return this.insertItem(this.size(), stack, simulate);
     }
 
     @Override
