@@ -124,12 +124,13 @@ public final class StorageClientStub {
         );
     }
 
-    public static CompletableFuture<Boolean> craftingClearToStorage(BlockPos sourcePos) {
+    public static CompletableFuture<Boolean> craftingClear(BlockPos sourcePos, boolean toStorage) {
         return RPC.invoke(
             RpcTarget.server(),
-            StorageServerStub::craftingClearToStorage,
+            StorageServerStub::craftingClear,
             StorageClientStub.playerId(),
-            sourcePos.asLong()
+            sourcePos.asLong(),
+            toStorage
         );
     }
 

@@ -52,6 +52,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -509,14 +510,17 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 StorageClientStub.craftingSetOptions(this.sourcePos, this.crafting.autoFill(), this.crafting.toStorage());
             }));
         this.craftingClear = this.addRenderableWidget(new TexturedButton(this.sx(62), this.top + 182, 12, 12,
-            craftingTexture("crafting_clear"), 12, 12, 24, button -> {
-                if (this.interactionPending) return;
-                this.interactionPending = true;
-                StorageClientStub.craftingClearToStorage(this.sourcePos).whenCompleteAsync((changed, error) -> {
-                    this.refreshCrafting().whenCompleteAsync((ignored, failure) -> this.interactionPending = false, this.screenExecutor);
-                    this.reorder(false);
-                }, this.screenExecutor);
-            }));
+            craftingTexture("crafting_clear"), 12, 12, 24, button -> this.clearCraftingInputs(true)) {
+            @Override
+            protected boolean isValidClickButton(MouseButtonInfo info) {
+                return info.button() == 0 || info.button() == 1;
+            }
+
+            @Override
+            public void onClick(MouseButtonEvent event, boolean doubleClick) {
+                StorageScreen.this.clearCraftingInputs(event.button() == 0);
+            }
+        });
         this.setCraftingMode(this.craftingMode);
         final int request = ++this.craftingRequest;
         StorageClientStub.craftingAvailable(this.sourcePos).thenCombine(StorageClientStub.craftingGet(this.sourcePos),
@@ -964,7 +968,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             graphics.blit(RenderPipelines.GUI_TEXTURED, SharedTextures.SWITCH_TABLE_SLIDER, this.sx(95), y, 0, 0, 4, 12, 8, 12);
         }
         if (this.craftingClear.isHovered()) {
-            graphics.setTooltipForNextFrame(Component.translatable("screen.anvilcraft.storage.crafting.clear"), mouseX, mouseY);
+            graphics.setTooltipForNextFrame(List.of(
+                Component.translatable("screen.anvilcraft.storage.crafting.clear.left").getVisualOrderText(),
+                Component.translatable("screen.anvilcraft.storage.crafting.clear.right").getVisualOrderText()
+            ), mouseX, mouseY);
         }
         if (this.craftingAutoFill.isHovered()) {
             graphics.setTooltipForNextFrame(Component.translatable(
@@ -1305,6 +1312,25 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         return Math.max(0, remaining);
     }
     // endregion
+
+    private void clearCraftingInputs(boolean toStorage) {
+        if (this.interactionPending) {
+            return;
+        }
+        this.interactionPending = true;
+        StorageClientStub.craftingClear(this.sourcePos, toStorage).whenCompleteAsync((changed, error) -> {
+            if (error != null) {
+                AnvilCraft.LOGGER.error("清空合成栏失败，访问位置：{}", this.sourcePos, error);
+            }
+            this.refreshCrafting().whenCompleteAsync((ignored, failure) -> {
+                this.interactionPending = false;
+                if (failure != null) {
+                    AnvilCraft.LOGGER.error("刷新合成栏失败，访问位置：{}", this.sourcePos, failure);
+                }
+            }, this.screenExecutor);
+            this.reorder(false);
+        }, this.screenExecutor);
+    }
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
