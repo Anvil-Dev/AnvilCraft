@@ -31,7 +31,7 @@ abstract class AnvilBlockMixin extends FallingBlock {
 
     @Override
     public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        if (this.anvilcraft$isAttracts(level.getBlockState(pos.above()))) {
+        if (!state.is(ModBlockTags.NON_MAGNETIC) && this.anvilcraft$isAttracts(level.getBlockState(pos.above()))) {
             return;
         }
         super.tick(state, level, pos, random);
@@ -70,7 +70,7 @@ abstract class AnvilBlockMixin extends FallingBlock {
 
     @Unique
     private void anvilcraft$wasAttracted(BlockState state, Level level, BlockPos anvil) {
-        if (level.isClientSide()) return;
+        if (level.isClientSide() || state.is(ModBlockTags.NON_MAGNETIC)) return;
         BlockPos magnet = anvil;
         BlockState aboveState = level.getBlockState(anvil.above());
         if (aboveState.is(ModBlockTags.MAGNET) || aboveState.getBlock() instanceof MagnetBlock) return;
