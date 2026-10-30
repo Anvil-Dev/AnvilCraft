@@ -9,6 +9,7 @@ import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
+import dev.dubhe.anvilcraft.api.itemhandler.unlimited.TypeLimitItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
 import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.client.gui.component.SwitchableButton;
@@ -1111,11 +1112,20 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 );
                 if (hovered && this.carried.isEmpty()) {
                     long count = this.getDisplayedCount(slot, stack);
-                    if (count >= 1000) {
+                    long itemCapacity = this.getDisplayedCapacity(slot, stack);
+                    if (itemCapacity >= 0 || count >= 1000) {
                         List<Component> lines = new ArrayList<>(itemStack.getTooltipLines(Item.TooltipContext.of(this.minecraft.level),
                             this.player, this.minecraft.options.advancedItemTooltips
                                 ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL));
-                        lines.add(Component.translatable("screen.anvilcraft.storage.count", count));
+                        if (itemCapacity >= 0) {
+                            lines.add(Component.translatable(
+                                "screen.anvilcraft.storage.count_with_capacity",
+                                String.format(Locale.ROOT, "%,d", count),
+                                String.format(Locale.ROOT, "%,d", itemCapacity)
+                            ));
+                        } else {
+                            lines.add(Component.translatable("screen.anvilcraft.storage.count", count));
+                        }
                         graphics.setTooltipForNextFrame(this.font, lines, itemStack.getTooltipImage(), itemStack,
                             mouseX, mouseY, itemStack.get(DataComponents.TOOLTIP_STYLE));
                     } else {
@@ -2818,6 +2828,23 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private UnlimitedItemStack getDisplayedStack(int slot) {
         Int2ObjectMap<UnlimitedItemStack> displayedContents = this.nbtFolded ? this.foldedContents : this.contents;
         return displayedContents.getOrDefault(slot, UnlimitedItemStack.EMPTY);
+    }
+
+    private long getDisplayedCapacity(int slot, UnlimitedItemStack stack) {
+        StorageServerStub.Capacity capacity = this.capacity;
+        if (capacity == null || capacity.typeLimit() == Integer.MAX_VALUE) {
+            return -1;
+        }
+        if (this.nbtFolded) {
+            return this.foldedGroups.stream()
+                .filter(group -> group.contains(slot))
+                .flatMapToInt(IntList::intStream)
+                .mapToLong(index -> TypeLimitItemStacksResourceHandler.computeCount(
+                    Objects.requireNonNull(this.contents.get(index)), capacity.spaceSize()
+                ))
+                .sum();
+        }
+        return TypeLimitItemStacksResourceHandler.computeCount(stack, capacity.spaceSize());
     }
 
     private long getDisplayedCount(int slot, UnlimitedItemStack stack) {
