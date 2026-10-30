@@ -84,7 +84,7 @@ public final class OverworldLikeOrbitalSkyRenderer {
         );
 
         poseStack.pushPose();
-        float skyScale = AnvilCraft.CLIENT_CONFIG.graphics.overworldLikeSkyRingScale;
+        float skyScale = (float) AnvilCraft.CLIENT_CONFIG.graphics.overworldLikeSkyRingScale;
         poseStack.scale(skyScale, skyScale, skyScale);
         OverworldLikeOrbitMath.RingPose outer = OverworldLikeOrbitMath.ringPose(
             6,

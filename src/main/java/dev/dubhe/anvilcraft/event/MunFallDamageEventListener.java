@@ -16,8 +16,8 @@ public class MunFallDamageEventListener {
     public static void onLivingFall(LivingFallEvent event) {
         if (!event.getEntity().level().dimension().equals(CelestialTravelManager.MUN_LEVEL)) return;
         float fallDistance = event.getDistance();
-        float safeFallDistance = AnvilCraft.CONFIG.world.munSafeFallDistance;
-        float blocksPerDamage = AnvilCraft.CONFIG.world.munBlocksPerDamage;
+        double safeFallDistance = AnvilCraft.CONFIG.world.munSafeFallDistance;
+        double blocksPerDamage = AnvilCraft.CONFIG.world.munBlocksPerDamage;
         if (fallDistance <= safeFallDistance) {
             event.setCanceled(true);
             return;

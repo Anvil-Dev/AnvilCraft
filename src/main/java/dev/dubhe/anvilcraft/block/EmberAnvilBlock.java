@@ -93,7 +93,7 @@ public class EmberAnvilBlock extends BetterAnvilBlock implements IHammerRemovabl
         if (max == -1) {
             max = Integer.MAX_VALUE;
         }
-        entity.setHurtsEntities(AnvilCraft.CONFIG.world.emberAnvilFallDamagePerBlock, max);
+        entity.setHurtsEntities((float) AnvilCraft.CONFIG.world.emberAnvilFallDamagePerBlock, max);
     }
 
     @Override

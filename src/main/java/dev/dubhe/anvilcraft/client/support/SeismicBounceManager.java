@@ -68,7 +68,7 @@ public class SeismicBounceManager {
                 if (!state.isAir() && !SeismicBounceManager.isAttachmentBlock(state) && state.getRenderShape() == RenderShape.MODEL
                     && level.isEmptyBlock(pos.above()) && level.getBlockEntity(pos) == null) {
                     // 振幅随机扰动 0.8~1.2 倍，使弹跳高度有自然差异
-                    float amplitude = AnvilCraft.CLIENT_CONFIG.effects.giantAnvilShockBounceAmplitude
+                    float amplitude = (float) AnvilCraft.CLIENT_CONFIG.effects.giantAnvilShockBounceAmplitude
                                       * (1.0f - (float) dist / radius)
                                       * (0.8f + this.tesselateRandom.nextFloat() * 0.4f);
                     amplitude = Math.max(amplitude, 0.15f);

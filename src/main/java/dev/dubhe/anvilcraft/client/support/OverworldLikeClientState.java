@@ -71,7 +71,7 @@ public final class OverworldLikeClientState {
     }
 
     public static float environmentColorMultiplier(ClientLevel level) {
-        return 1.0F - eclipseFactor(level) * AnvilCraft.CLIENT_CONFIG.graphics.overworldLikeEclipseDarken;
+        return 1.0F - eclipseFactor(level) * (float) AnvilCraft.CLIENT_CONFIG.graphics.overworldLikeEclipseDarken;
     }
 
     public static void beginCollapse(int elapsedTicks) {

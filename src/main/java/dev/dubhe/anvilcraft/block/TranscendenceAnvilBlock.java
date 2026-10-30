@@ -78,6 +78,6 @@ public class TranscendenceAnvilBlock extends BetterAnvilBlock implements IHammer
         if (max == -1) {
             max = Integer.MAX_VALUE;
         }
-        entity.setHurtsEntities(AnvilCraft.CONFIG.world.transcendenceAnvilFallDamagePerBlock, max);
+        entity.setHurtsEntities((float) AnvilCraft.CONFIG.world.transcendenceAnvilFallDamagePerBlock, max);
     }
 }
