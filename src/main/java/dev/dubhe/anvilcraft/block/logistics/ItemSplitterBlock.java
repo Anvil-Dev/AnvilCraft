@@ -38,6 +38,27 @@ public class ItemSplitterBlock extends BetterBaseEntityBlock implements IHammerR
     }
 
     @Override
+    public boolean hasAnalogOutputSignal(BlockState state) {
+        return true;
+    }
+
+    @Override
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
+        if (!(level.getBlockEntity(pos) instanceof ItemSplitterBlockEntity splitter)) {
+            return 0;
+        }
+        var handler = splitter.getItemHandler();
+        double fullness = 0;
+        for (int slot = 0; slot < handler.size(); slot++) {
+            var resource = handler.getResource(slot);
+            if (!resource.isEmpty()) {
+                fullness += (double) handler.getAmountAsLong(slot) / handler.getCapacityAsLong(slot, resource);
+            }
+        }
+        return (int) (fullness / handler.size() * 14) + (fullness > 0 ? 1 : 0);
+    }
+
+    @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
         return simpleCodec(ItemSplitterBlock::new);
     }

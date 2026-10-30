@@ -49,6 +49,9 @@ public class ItemSplitterBlockEntity extends BlockEntity implements IItemResourc
         @Override
         protected void onContentsChanged(int index, ItemStack previousContents) {
             ItemSplitterBlockEntity.this.setChanged();
+            if (level != null && !level.isClientSide()) {
+                level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
+            }
         }
     };
 
