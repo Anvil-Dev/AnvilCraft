@@ -35,7 +35,8 @@ public class CategoryLang {
         provider.add("screen.anvilcraft.storage.crafting.auto_fill", "Auto Refill: %s");
         provider.add("screen.anvilcraft.storage.crafting.auto_fill.enabled", "Enabled");
         provider.add("screen.anvilcraft.storage.crafting.auto_fill.disabled", "Disabled");
-        provider.add("screen.anvilcraft.storage.crafting.clear", "Clear crafting slots to storage");
+        provider.add("screen.anvilcraft.storage.crafting.clear.left", "Left click: Move unused items to storage");
+        provider.add("screen.anvilcraft.storage.crafting.clear.right", "Right click: Move unused items to player inventory");
         provider.add("screen.anvilcraft.storage.crafting.to_storage", "Crafting Result Destination: %s");
         provider.add("screen.anvilcraft.storage.crafting.to_storage.player", "Player Inventory");
         provider.add("screen.anvilcraft.storage.crafting.to_storage.storage", "Storage");
