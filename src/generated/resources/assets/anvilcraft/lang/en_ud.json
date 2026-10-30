@@ -2197,6 +2197,7 @@
   "screen.anvilcraft.storage.category.setting.tooltip": "sɹǝʇꞁᴉɟ ʇǝsǝɹ oʇ ʞɔᴉꞁɔ ʇɥᵷᴉɹ 'ǝɹnᵷᴉɟuoɔ oʇ ʞɔᴉꞁɔ ʇɟǝꞀ",
   "screen.anvilcraft.storage.category.tooltip": "doʇ oʇ uᴉd oʇ ʞɔᴉꞁɔ ʇɥᵷᴉɹ 'sǝʇɐuɹǝʇꞁɐ oʇ ǝʌoɯ oʇ ʞɔᴉꞁɔ ʇɟǝꞀ",
   "screen.anvilcraft.storage.count": "%s :ʇunoƆ",
+  "screen.anvilcraft.storage.count_with_capacity": "%2$s / %1$s :ʇunoƆ",
   "screen.anvilcraft.storage.crafting.auto_fill": "%s :ꞁꞁᴉɟǝᴚ oʇnⱯ",
   "screen.anvilcraft.storage.crafting.auto_fill.disabled": "pǝꞁqɐsᴉᗡ",
   "screen.anvilcraft.storage.crafting.auto_fill.enabled": "pǝꞁqɐuƎ",
