@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.block.entity.StorageFluidPortBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -28,6 +29,20 @@ import java.util.List;
  * 左右键行为本身定义在 {@link StorageFluidPortBlockEntity}，本类只负责掉落物、克隆与同步。</p>
  */
 public class StorageFluidPortBlock extends AbstractStoragePortBlock {
+    @Override
+    public boolean hasAnalogOutputSignal(BlockState state) {
+        return true;
+    }
+
+    @Override
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
+        if (!(level.getBlockEntity(pos) instanceof StorageFluidPortBlockEntity port)) {
+            return 0;
+        }
+        int amount = port.getFluid().getAmount();
+        return amount == 0 ? 0 : amount * 14 / StorageFluidPortBlockEntity.CAPACITY_MB + 1;
+    }
+
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
         return simpleCodec(StorageFluidPortBlock::new);
