@@ -17,7 +17,7 @@
   "resources": {},
   "rotation_speed": 0,
   "seed_items": [
-    "minecraft:barrier"
+    "anvilcraft:void_matter_block"
   ],
   "space": 0,
   "time": 0
