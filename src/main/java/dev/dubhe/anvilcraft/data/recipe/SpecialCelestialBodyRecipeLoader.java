@@ -171,7 +171,7 @@ public class SpecialCelestialBodyRecipeLoader {
                 0,
                 0,
                 0f,
-                List.of(SpecialCelestialBodyRecipeLoader.mc("barrier")),
+                List.of(SpecialCelestialBodyRecipeLoader.anvil("void_matter_block")),
                 List.of(),
                 List.of(),
                 List.of(),
