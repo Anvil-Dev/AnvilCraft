@@ -1497,7 +1497,7 @@ public class ModBlocks {
 
     public static final BlockEntry<BlockComparatorBlock> BLOCK_COMPARATOR = REGISTRUM.block("block_comparator", BlockComparatorBlock::new)
         .initialProperties(() -> Blocks.OBSERVER)
-        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never).explosionResistance(6.0F))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::blockComparator)
         .blockstate(DataGenUtil::noExtraModelOrState)
