@@ -54,15 +54,6 @@ public interface IStoragePort {
     }
 
     /**
-     * 按住左键时客户端取出请求的节流：返回 true 表示本次不发包；仅在客户端调用。
-     *
-     * @param player 玩家
-     */
-    default boolean isLeftClickOnCooldown(Player player) {
-        return false;
-    }
-
-    /**
      * 点击分发：{@link ClickAction#PRIMARY} 为左键，{@link ClickAction#SECONDARY} 为右键。
      *
      * @param action 点击类型

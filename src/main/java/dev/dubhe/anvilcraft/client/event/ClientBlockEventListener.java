@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
-import dev.dubhe.anvilcraft.network.CreativeCrateAttackPacket;
 import dev.dubhe.anvilcraft.network.HammerUsePacket;
 import dev.dubhe.anvilcraft.network.InfiniteFluidTankBreakModifierPacket;
 import dev.dubhe.anvilcraft.util.InfiniteFluidTankBreakProtection;
@@ -26,37 +25,11 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class ClientBlockEventListener {
-    private static BlockPos creativeCrateAttackPos;
-    private static boolean attackWasDown;
-
-    @SubscribeEvent
-    public static void onCreativeCrateAttack(PlayerInteractEvent.LeftClickBlock event) {
-        if (event.getAction() != PlayerInteractEvent.LeftClickBlock.Action.START) return;
-        if (!event.getLevel().getBlockState(event.getPos()).is(ModBlocks.CREATIVE_CRATE.get())) return;
-        ClientBlockEventListener.creativeCrateAttackPos = event.getPos().immutable();
-        ClientBlockEventListener.attackWasDown = true;
-    }
-
-    @SubscribeEvent
-    public static void onClientTick(ClientTickEvent.Post event) {
-        Minecraft client = Minecraft.getInstance();
-        boolean attackDown = client.options.keyAttack.isDown();
-        if (ClientBlockEventListener.attackWasDown && !attackDown && ClientBlockEventListener.creativeCrateAttackPos != null) {
-            ClientPacketDistributor.sendToServer(new CreativeCrateAttackPacket(ClientBlockEventListener.creativeCrateAttackPos));
-            ClientBlockEventListener.creativeCrateAttackPos = null;
-        }
-        ClientBlockEventListener.attackWasDown = attackDown;
-        if (client.level == null) {
-            ClientBlockEventListener.creativeCrateAttackPos = null;
-        }
-    }
-
     @SubscribeEvent
     public static void syncInfiniteFluidTankBreakModifiers(PlayerInteractEvent.LeftClickBlock event) {
         if (!event.getLevel().isClientSide()) return;
