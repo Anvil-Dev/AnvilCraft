@@ -21,12 +21,15 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -35,7 +38,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-public class BlockComparatorBlock extends Block implements IHammerRemovable, IHammerChangeable {
+public class BlockComparatorBlock extends Block implements IHammerRemovable, IHammerChangeable, SimpleWaterloggedBlock {
 
     public static final MapCodec<BlockComparatorBlock> CODEC = simpleCodec(BlockComparatorBlock::new);
 
@@ -43,6 +46,7 @@ public class BlockComparatorBlock extends Block implements IHammerRemovable, IHa
         EnumProperty.create("facing_with_axis", FacingWithAxis.class);
     public static final BooleanProperty PRECISE = BooleanProperty.create("precise");
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     private static final VoxelShape BASE_SHAPE = makeShape();
 
@@ -80,12 +84,13 @@ public class BlockComparatorBlock extends Block implements IHammerRemovable, IHa
                 .setValue(FACING_WITH_AXIS, FacingWithAxis.NORTH_X)
                 .setValue(PRECISE, false)
                 .setValue(POWERED, false)
+                .setValue(WATERLOGGED, false)
         );
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING_WITH_AXIS).add(PRECISE).add(POWERED);
+        builder.add(FACING_WITH_AXIS).add(PRECISE).add(POWERED).add(WATERLOGGED);
     }
 
     @Override
@@ -132,7 +137,9 @@ public class BlockComparatorBlock extends Block implements IHammerRemovable, IHa
         } else {
             axis = facing.getClockWise().getAxis();
         }
-        return defaultBlockState().setValue(FACING_WITH_AXIS, FacingWithAxis.of(facing, axis));
+        return defaultBlockState()
+            .setValue(FACING_WITH_AXIS, FacingWithAxis.of(facing, axis))
+            .setValue(WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).is(Fluids.WATER));
     }
 
     @Override
@@ -207,6 +214,9 @@ public class BlockComparatorBlock extends Block implements IHammerRemovable, IHa
         BlockPos pos,
         BlockPos pos2
     ) {
+        if (blockState.getValue(WATERLOGGED)) {
+            level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        }
         FacingWithAxis fwa = blockState.getValue(FACING_WITH_AXIS);
         Direction facing = fwa.getFacing();
         Direction.Axis compareAxis = fwa.getAxis();
@@ -274,6 +284,11 @@ public class BlockComparatorBlock extends Block implements IHammerRemovable, IHa
     @Override
     protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
         return false;
+    }
+
+    @Override
+    public FluidState getFluidState(BlockState state) {
+        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
     @Override
