@@ -130,7 +130,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
             LargeCauldronBlockEntity.this.contentsChanged();
         }
     };
-    private final LargeCauldronFluidHandler fluids = new LargeCauldronFluidHandler(this::contentsChanged);
+    private final LargeCauldronFluidHandler fluids = new LargeCauldronFluidHandler(this::fluidsChanged);
     private final ResourceHandler<ItemResource> selectedInput = new SelectedInputHandler();
     private final Set<Integer> processingOutputInputs = new HashSet<>();
     private int processingSlot = -1;
@@ -487,6 +487,15 @@ public class LargeCauldronBlockEntity extends BlockEntity
         float fill = (float) handler.getTotalAmount()
                      / (LargeCauldronFluidHandler.TANK_COUNT * LargeCauldronFluidHandler.tankCapacity());
         return Math.round(maxLight * fill);
+    }
+
+    private void fluidsChanged() {
+        this.contentsChanged();
+        if (this.level == null || !this.isMainPart()) return;
+        for (Cube3x3PartHalf part : Cube3x3PartHalf.values()) {
+            BlockPos pos = this.worldPosition.offset(part.getOffsetX(), part.getOffsetY() - 1, part.getOffsetZ());
+            this.level.updateNeighbourForOutputSignal(pos, this.getBlockState().getBlock());
+        }
     }
 
     private void contentsChanged() {
