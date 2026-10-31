@@ -66,8 +66,6 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
     private static final int VALIDATE_INTERVAL = 20;
     /** 双击判定的最大间隔（tick） */
     private static final long DOUBLE_CLICK_INTERVAL = 5;
-    /** 长按左键时客户端取出请求的节流间隔（tick）：间隔大于该值时才会发包 */
-    private static final long TAKE_OUT_HOLD_INTERVAL = 1;
     /**
      * 左键拦截的续期窗口（tick）。
      *
@@ -111,7 +109,6 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
     @Getter
     private boolean working;
     private final Object2LongMap<UUID> lastRightClickTicks = new Object2LongOpenHashMap<>();
-    private final Object2LongMap<UUID> lastTakeOutTicks = new Object2LongOpenHashMap<>();
     /** 各玩家最近一次左键取出/拦截的 tick：按住期间持续续期，松手后窗口过期即恢复挖掘 */
     private final Object2LongMap<UUID> leftClickHoldTicks = new Object2LongOpenHashMap<>();
     private int validateCountdown = 0;
@@ -406,26 +403,6 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
             Block.popResource(level, pos, stack);
             this.buffer.setStackInSlot(slot, ItemStack.EMPTY);
         }
-    }
-
-    /**
-     * 长按左键取出的客户端发包节流：按住左键时客户端会持续重触发 {@code START} 事件
-     * （生存模式每 tick、创造模式约每 6 tick），节流保证不会每次都发包。
-     * 判定通过时记录时间；仅在客户端使用。
-     */
-    @Override
-    public boolean isLeftClickOnCooldown(Player player) {
-        if (this.level == null) {
-            return false;
-        }
-        long now = this.level.getGameTime();
-        UUID uuid = player.getUUID();
-        long last = this.lastTakeOutTicks.getLong(uuid);
-        if (last != 0 && now - last <= StoragePortBlockEntity.TAKE_OUT_HOLD_INTERVAL) {
-            return true;
-        }
-        this.lastTakeOutTicks.put(uuid, now);
-        return false;
     }
 
     /**

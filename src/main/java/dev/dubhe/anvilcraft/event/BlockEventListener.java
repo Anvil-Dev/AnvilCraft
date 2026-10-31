@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.IStoragePort;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.AbstractStoragePortBlock;
@@ -11,7 +10,6 @@ import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
-import dev.dubhe.anvilcraft.network.StoragePortTakeOutPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -39,7 +37,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
@@ -62,58 +59,13 @@ public class BlockEventListener {
     }
 
     @SubscribeEvent
-    public static void clickCreativeCrateEvent(PlayerInteractEvent.LeftClickBlock event) {
-        Level level = event.getLevel();
-        Player player = event.getEntity();
-        BlockPos pos = event.getPos();
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (!(blockEntity instanceof CreativeCrateBlockEntity creativeCrateBlockEntity)) {
-            return;
-        }
-        ItemStack stackInSlot = creativeCrateBlockEntity.getItemStackHandler().getStackInSlot(0);
-        if (player.isCreative()) {
-            if (!stackInSlot.isEmpty()) {
-                if (!player.addItem(stackInSlot.copyWithCount(1))) {
-                    Block.popResource(level, BlockPos.containing(player.position()), stackInSlot.copyWithCount(1));
-                }
-                creativeCrateBlockEntity.getItemStackHandler().setStackInSlot(0, ItemStack.EMPTY);
-                if (level.isClientSide()) {
-                    event.setCanceled(true);
-                }
-                event.setCanceled(true);
-            }
-        } else {
-            if (!stackInSlot.isEmpty()) {
-                if (player.isShiftKeyDown()) {
-                    if (!player.addItem(stackInSlot.copyWithCount(stackInSlot.getMaxStackSize()))) {
-                        Block.popResource(
-                            level,
-                            BlockPos.containing(player.position()),
-                            stackInSlot.copyWithCount(stackInSlot.getMaxStackSize())
-                        );
-                    }
-                } else {
-                    if (!player.addItem(stackInSlot.copyWithCount(1))) {
-                        Block.popResource(level, BlockPos.containing(player.position()), stackInSlot.copyWithCount(1));
-                    }
-                }
-                if (level.isClientSide()) {
-                    event.setCanceled(true);
-                }
-                event.setCanceled(true);
-            }
+    public static void onCreativeCrateAttack(PlayerInteractEvent.LeftClickBlock event) {
+        if (event.getLevel().getBlockEntity(event.getPos()) instanceof CreativeCrateBlockEntity crate
+            && !crate.getItemStackHandler().getStackInSlot(0).isEmpty()) {
+            event.setCanceled(true);
         }
     }
 
-    /**
-     * 左键端口的取出行为：左键取 1 个，shift 左键取一组；手持铁砧锤时不触发。
-     * 是否拦截由端口自身决定（{@link AbstractStoragePortBlock#interceptsLeftClick}）：
-     * 点击模型外边缘一像素（1/16）等非交互区域时不取消事件，让玩家可以挖掘方块。
-     *
-     * <p>取出全部在服务端执行：客户端只取消事件（阻止挖掘）并发送取出请求包，
-     * 不在本地改动任何物品，避免幻影物品与快速点击刷物品。按住左键时客户端会持续重触发
-     * {@code START} 事件（生存模式每 tick、创造模式约每 6 tick），用节流限制发包频率。</p>
-     */
     @SubscribeEvent
     public static void clickStoragePortEvent(PlayerInteractEvent.LeftClickBlock event) {
         Level level = event.getLevel();
@@ -128,21 +80,7 @@ public class BlockEventListener {
         }
         // 取消事件，阻止挖掘（客户端与服务端都会触发本事件）
         event.setCanceled(true);
-        if (!level.isClientSide() || player.getMainHandItem().getItem() instanceof AnvilHammerItem) {
-            return;
-        }
-        // 客户端只发送取出请求，实际取出由服务端在收到请求包后执行
-        PlayerInteractEvent.LeftClickBlock.Action action = event.getAction();
-        if (
-            action != PlayerInteractEvent.LeftClickBlock.Action.START
-            && action != PlayerInteractEvent.LeftClickBlock.Action.CLIENT_HOLD
-        ) {
-            return;
-        }
-        if (!(level.getBlockEntity(pos) instanceof IStoragePort port) || port.isLeftClickOnCooldown(player)) {
-            return;
-        }
-        PacketDistributor.sendToServer(new StoragePortTakeOutPacket(pos));
+
     }
 
     /**
