@@ -41,12 +41,14 @@ public class StoragePortBlockEntityRenderer implements BlockEntityRenderer<Stora
                 0.5 + direction.getStepZ() * 0.4
             );
             poseStack.scale(0.8f, 0.8f, 0.8f);
-            if (direction.getAxis() == Direction.Axis.X) {
-                poseStack.mulPose(Axis.YP.rotationDegrees(90));
-            } else if (direction.getAxis() == Direction.Axis.Y) {
-                poseStack.mulPose(Axis.XP.rotationDegrees(90));
-                if (direction == Direction.UP) {
-                    poseStack.mulPose(Axis.ZP.rotationDegrees(180));
+            // 固定展示姿态的物品正面朝向负 Z，需要将它转向各面的外侧。
+            switch (direction) {
+                case SOUTH -> poseStack.mulPose(Axis.YP.rotationDegrees(180));
+                case EAST -> poseStack.mulPose(Axis.YP.rotationDegrees(-90));
+                case WEST -> poseStack.mulPose(Axis.YP.rotationDegrees(90));
+                case UP -> poseStack.mulPose(Axis.XP.rotationDegrees(90));
+                case DOWN -> poseStack.mulPose(Axis.XP.rotationDegrees(-90));
+                default -> {
                 }
             }
             Minecraft.getInstance().getItemRenderer().renderStatic(
