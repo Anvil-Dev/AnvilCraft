@@ -111,7 +111,6 @@ public class SlidingRailBlock extends BaseSlidingRailBlock implements IHammerCha
         BlockState neighbourState,
         RandomSource random
     ) {
-        BlockState newState = state;
         if (this.isOtherRailInAxis(level, pos, Axis.X, -1) == TriState.TRUE
             || this.isOtherRailInAxis(level, pos, Axis.X, 1) == TriState.TRUE
         ) {
@@ -139,7 +138,7 @@ public class SlidingRailBlock extends BaseSlidingRailBlock implements IHammerCha
             }
         }
         super.onNeighborChange(state, level, pos, neighbourPos);
-        return newState;
+        return state;
     }
 
     private TriState isOtherRailInAxis(LevelReader level, BlockPos pos, Axis axis, int relative) {
