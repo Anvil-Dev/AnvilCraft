@@ -36,19 +36,10 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 import java.util.function.Supplier;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class BlockEventListener {
-    private static final Map<UUID, BlockPos> CREATIVE_CRATE_ATTACKS = new HashMap<>();
-
-    public static void clearCreativeCrateAttack(Player player, BlockPos pos) {
-        BlockEventListener.CREATIVE_CRATE_ATTACKS.remove(player.getUUID(), pos);
-    }
-
     @SubscribeEvent
     public static void useRuinsBlock(PlayerInteractEvent.RightClickBlock event) {
         if (event.getLevel().getBlockState(event.getPos()).is(ModBlocks.RUINS_BLOCK)) event.setUseBlock(TriState.TRUE);
@@ -69,39 +60,9 @@ public class BlockEventListener {
 
     @SubscribeEvent
     public static void onCreativeCrateAttack(PlayerInteractEvent.LeftClickBlock event) {
-        Player player = event.getEntity();
-        if (!(event.getLevel().getBlockEntity(event.getPos()) instanceof CreativeCrateBlockEntity crate)) return;
-        if (event.getAction() == PlayerInteractEvent.LeftClickBlock.Action.STOP
-            || event.getAction() == PlayerInteractEvent.LeftClickBlock.Action.ABORT) {
-            if (event.getLevel().isClientSide()) {
-                return;
-            }
-            BlockEventListener.clearCreativeCrateAttack(player, event.getPos());
-            return;
-        }
-        if (!player.isCreative() && !crate.getDisplayStack().isEmpty()) {
-            event.setUseBlock(TriState.FALSE);
-            event.setUseItem(TriState.FALSE);
-        }
-        if (event.getAction() != PlayerInteractEvent.LeftClickBlock.Action.START) return;
-        if (!player.isCreative()) {
-            BlockPos activePos = BlockEventListener.CREATIVE_CRATE_ATTACKS.get(player.getUUID());
-            if (event.getPos().equals(activePos)) {
-                event.setUseBlock(TriState.FALSE);
-                event.setUseItem(TriState.FALSE);
-                return;
-            }
-        }
-        if (crate.onPlayerAttack(player)) {
-            if (player.isCreative()) {
-                event.setCanceled(true);
-            } else {
-                if (!event.getLevel().isClientSide()) {
-                    BlockEventListener.CREATIVE_CRATE_ATTACKS.put(player.getUUID(), event.getPos().immutable());
-                }
-                event.setUseBlock(TriState.FALSE);
-                event.setUseItem(TriState.FALSE);
-            }
+        if (event.getLevel().getBlockEntity(event.getPos()) instanceof CreativeCrateBlockEntity crate
+            && !crate.getDisplayStack().isEmpty()) {
+            event.setCanceled(true);
         }
     }
 
