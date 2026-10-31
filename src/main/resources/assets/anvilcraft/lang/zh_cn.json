@@ -2656,7 +2656,7 @@
   "message.anvilcraft.shulker_terminal.not_found": "未找到潜影集装箱",
   "tooltip.anvilcraft.item.local_terminal": "连接 32 方块范围内最近的大型板条箱",
   "tooltip.anvilcraft.item.shulker_terminal": "连接世界上或物品栏内的潜影类存储方块",
-  "tooltip.anvilcraft.item.shulker_terminal.shift": "优先连接物品栏最靠前的潜影集装箱，否则连接 64 格内最近的世界潜影集装箱",
+  "tooltip.anvilcraft.item.shulker_terminal.shift": "自动与潜影类存储方块连接\n连接物品栏内的或 64 方块范围内的潜影集装箱",
   "key.anvilcraft.open_terminal": "打开终端",
   "screen.anvilcraft.frost_smithing.permutation.missing_tools": "放入武器、工具、护甲或重型物品",
   "item.anvilcraft.breathing_helmet": "呼吸头盔",
@@ -3651,8 +3651,8 @@
   "tooltip.anvilcraft.wip_block.jade.amount": "%1$s × %2$s",
   "tooltip.anvilcraft.wip_block.jade.block_state": "%1$s (%2$s)",
   "tooltip.anvilcraft.wip_block.jade.compress": "压入进程方块：%s",
-  "tooltip.anvilcraft.wip_block.jade.heater_ready": "无红石信号，未过载",
-  "tooltip.anvilcraft.wip_block.jade.inject": "物品压入进程方块",
+  "tooltip.anvilcraft.wip_block.jade.heater_ready": "就绪",
+  "tooltip.anvilcraft.wip_block.jade.inject": "物品压入进程方块： %s",
   "tooltip.anvilcraft.wip_block.jade.irradiation_type.energy": "能量",
   "tooltip.anvilcraft.wip_block.jade.irradiation_type.mass": "质量",
   "tooltip.anvilcraft.wip_block.jade.irradiation_type.neutron": "中子",
@@ -3664,5 +3664,9 @@
   "anvilcraft.configuration.ui.show_overseer_map_highlights": "显示监督者加载地图高亮",
   "map.anvilcraft.overseer.hide": "隐藏监督者加载的区块",
   "map.anvilcraft.overseer.show": "显示监督者加载的区块",
-  "anvilcraft.configuration.ui.show_overseer_map_highlights.tooltip": "控制是否在 Xaero 的世界地图和小地图上显示监督者加载的区块"
+  "anvilcraft.configuration.ui.show_overseer_map_highlights.tooltip": "控制是否在 Xaero 的世界地图和小地图上显示监督者加载的区块",
+  "config.jade.plugin_anvilcraft.control_valve": "控制阀",
+  "screen.anvilcraft.storage.count_with_capacity": "数量：%1$s / %2$s",
+  "screen.anvilcraft.storage.crafting.clear.left": "左键点击：将未使用的物品移入仓储",
+  "screen.anvilcraft.storage.crafting.clear.right": "右键点击：将未使用的物品移入玩家物品栏"
 }
