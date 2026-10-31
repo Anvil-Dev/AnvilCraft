@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.api.block.ICauldron;
 import dev.dubhe.anvilcraft.api.block.ICauldronGeometry;
 import dev.dubhe.anvilcraft.api.event.LargeCauldronEvent;
 import dev.dubhe.anvilcraft.api.fluid.FluidInteractionItems;
+import dev.dubhe.anvilcraft.api.fluid.LargeCauldronFluidHandler;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.laser.PropelPistonBlock;
@@ -247,6 +248,19 @@ public class LargeCauldronBlock
         return level.getBlockEntity(mainPos) instanceof LargeCauldronBlockEntity cauldron
             ? cauldron.getLightLevel()
             : 0;
+    }
+
+    @Override
+    public boolean hasAnalogOutputSignal(BlockState state) {
+        return true;
+    }
+
+    @Override
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
+        LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(level, pos, state);
+        if (cauldron == null) return 0;
+        long amount = cauldron.getFluids().getTotalAmount();
+        return amount == 0 ? 0 : (int) (14 * amount / LargeCauldronFluidHandler.totalCapacity()) + 1;
     }
 
     @Override
