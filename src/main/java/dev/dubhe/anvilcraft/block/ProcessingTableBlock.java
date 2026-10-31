@@ -21,6 +21,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -164,10 +165,17 @@ public abstract class ProcessingTableBlock extends Block implements
     }
 
     @Override
+    public void dropMovingContents(Level level, BlockPos pos, BlockState state, BlockEntity blockEntity) {
+        if (!level.isClientSide() && blockEntity instanceof ProcessingTableBlockEntity table) {
+            table.dropAllContent(level, pos);
+        }
+    }
+
+    @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!level.isClientSide() && !state.is(newState.getBlock()) && !movedByPiston
             && level.getBlockEntity(pos) instanceof ProcessingTableBlockEntity table) {
-            table.dropAllContent(level, pos);
+            this.dropMovingContents(level, pos, state, table);
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
     }

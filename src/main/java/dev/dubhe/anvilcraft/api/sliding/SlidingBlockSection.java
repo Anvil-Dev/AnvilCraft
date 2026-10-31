@@ -128,7 +128,7 @@ public final class SlidingBlockSection {
             BlockPos pos = info.getPos(center);
             BlockState state = info.state();
             if (level.isOutsideBuildHeight(pos)) {
-                Block.dropResources(state, level, pos);
+                this.dropBlock(level, pos, state, info);
                 continue;
             }
             if (
@@ -143,12 +143,15 @@ public final class SlidingBlockSection {
             );
             boolean canSurvive = state.canSurvive(level, pos);
             if (!canBeReplaced || !canSurvive) {
-                Block.dropResources(state, level, pos);
+                this.dropBlock(level, pos, state, info);
                 continue;
             }
 
             state = Block.updateFromNeighbourShapes(state, level, pos);
-            if (!level.setBlock(pos, state, Block.UPDATE_ALL)) continue;
+            if (!level.setBlock(pos, state, Block.UPDATE_ALL)) {
+                this.dropBlock(level, pos, state, info);
+                continue;
+            }
 
             BlockEntity be = info.blockEntity();
             if (be != null && state.getBlock() instanceof IMoveableEntityBlock moveableBlock) {
@@ -168,6 +171,18 @@ public final class SlidingBlockSection {
                 .broadcast(entity, new ClientboundBlockUpdatePacket(pos, level.getBlockState(pos)));
         }
         entity.discard();
+    }
+
+    private void dropBlock(Level level, BlockPos pos, BlockState state, SlidingBlockInfo info) {
+        BlockEntity blockEntity = info.blockEntity();
+        if (blockEntity != null) {
+            blockEntity.setLevel(level);
+            blockEntity.worldPosition = pos;
+        }
+        Block.dropResources(state, level, pos, blockEntity);
+        if (blockEntity != null && state.getBlock() instanceof IMoveableEntityBlock moveableBlock) {
+            moveableBlock.dropMovingContents(level, pos, state, blockEntity);
+        }
     }
 
     @Override

@@ -135,7 +135,7 @@ public abstract class ProcessingTableBlockEntity extends BlockEntity implements 
     }
 
     private void sendUpdate() {
-        if (this.level == null || this.level.isClientSide()) return;
+        if (this.level == null || this.level.isClientSide() || this.level.getBlockEntity(this.worldPosition) != this) return;
         this.level.sendBlockUpdated(
             this.getBlockPos(),
             this.getBlockState(),
