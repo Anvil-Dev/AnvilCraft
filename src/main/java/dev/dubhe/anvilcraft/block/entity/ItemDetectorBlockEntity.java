@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
 import dev.dubhe.anvilcraft.block.ItemDetectorBlock;
+import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -40,8 +41,10 @@ import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.Nullable;
 
 import static dev.dubhe.anvilcraft.block.ItemDetectorBlock.POWERED;
@@ -188,6 +191,16 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
             Mth.floor(aabb.minX), Mth.floor(aabb.minY), Mth.floor(aabb.minZ),
             Mth.floor(aabb.maxX) - 1, Mth.floor(aabb.maxY) - 1, Mth.floor(aabb.maxZ) - 1
         );
+        Set<BlockPos> containers = new HashSet<>();
+        for (BlockPos pos : blocksInRange) {
+            BlockState state = level.getBlockState(pos);
+            // 大锅的三层方块对应同一列物品，范围覆盖多层时只统计一次。
+            if (state.getBlock() instanceof LargeCauldronBlock block) {
+                containers.add(new BlockPos(pos.getX(), block.getMainPartPos(pos, state).getY(), pos.getZ()));
+            } else {
+                containers.add(pos.immutable());
+            }
+        }
         int minNonZeroOutput = 16;
         boolean canOutput = true;
         boolean hasFilter = false;
@@ -202,7 +215,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
                     matchCount += itemEntity.getItem().getCount();
                 }
             }
-            for (BlockPos p : blocksInRange) matchCount += this.scanContainer(level, p, filterItem);
+            for (BlockPos p : containers) matchCount += this.scanContainer(level, p, filterItem);
             int lerpedOutput = lerpOutput(matchCount, targetCount);
             if (lerpedOutput > 0) {
                 minNonZeroOutput = Math.min(minNonZeroOutput, lerpedOutput);
@@ -215,13 +228,30 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         if (!hasFilter) {
             int totalCount = 0;
             for (ItemEntity itemEntity : itemEntities) totalCount += itemEntity.getItem().getCount();
-            for (BlockPos p : blocksInRange) totalCount += this.scanContainer(level, p, null);
+            for (BlockPos p : containers) totalCount += this.scanContainer(level, p, null);
             output = lerpOutput(totalCount, 1);
         }
         return output;
     }
 
     private int scanContainer(Level level, BlockPos pos, @Nullable Item targetItem) {
+        BlockState state = level.getBlockState(pos);
+        if (state.getBlock() instanceof LargeCauldronBlock) {
+            LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(level, pos, state);
+            if (cauldron == null) return 0;
+            int slot = LargeCauldronBlockEntity.inputSlotForPart(state.getValue(LargeCauldronBlock.HALF));
+            if (slot >= 0) {
+                ItemStack stack = cauldron.getInputHandler().getStackInSlot(slot);
+                return targetItem == null || stack.is(targetItem) ? stack.getCount() : 0;
+            }
+            int count = 0;
+            var output = cauldron.getOutputHandler();
+            for (int index = 0; index < output.getSlots(); index++) {
+                ItemStack stack = output.getStackInSlot(index);
+                if (targetItem == null || stack.is(targetItem)) count += stack.getCount();
+            }
+            return count;
+        }
         IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
         if (handler == null) return 0;
         int count = 0;
