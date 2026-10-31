@@ -212,18 +212,25 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
     }
 
     @Override
+    public void dropMovingContents(Level level, BlockPos pos, BlockState state, BlockEntity blockEntity) {
+        if (!level.isClientSide() && blockEntity instanceof FishTankBlockEntity tank) {
+            IItemHandler handler = tank.getItemHandler();
+            for (int slot = 0; slot < handler.getSlots(); slot++) {
+                ItemStack stack;
+                while (!(stack = handler.extractItem(slot, Integer.MAX_VALUE, false)).isEmpty()) {
+                    Block.popResource(level, pos, stack);
+                }
+            }
+            tank.dropFish();
+        }
+    }
+
+    @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!level.isClientSide() && !state.is(newState.getBlock()) && !movedByPiston) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof FishTankBlockEntity tank) {
-                IItemHandler handler = tank.getItemHandler();
-                for (int slot = 0; slot < handler.getSlots(); slot++) {
-                    ItemStack stack;
-                    while (!(stack = handler.extractItem(slot, Integer.MAX_VALUE, false)).isEmpty()) {
-                        Block.popResource(level, pos, stack);
-                    }
-                }
-                tank.dropFish();
+                this.dropMovingContents(level, pos, state, tank);
             }
         }
         super.onRemove(state, level, pos, newState, movedByPiston);

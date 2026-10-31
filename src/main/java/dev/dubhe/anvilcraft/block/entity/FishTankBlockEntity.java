@@ -261,6 +261,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         @Override
         protected void onContentsChanged(int slot) {
             FishTankBlockEntity.this.setChanged();
+            if (level == null || level.getBlockEntity(worldPosition) != FishTankBlockEntity.this) return;
             FishTankBlockEntity.this.refreshIgnited();
             FishTankBlockEntity.this.sendUpdate();
         }
@@ -286,7 +287,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
 
         @Override
         protected void onContentsChanged(int slot) {
-            if (this.autoOutputting) return;
+            if (this.autoOutputting || level == null || level.getBlockEntity(worldPosition) != FishTankBlockEntity.this) return;
             this.checkAutoOutput(slot);
             FishTankBlockEntity.this.setChanged();
             FishTankBlockEntity.this.refreshIgnited();
@@ -399,7 +400,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     }
 
     private void sendUpdate() {
-        if (this.level == null) return;
+        if (this.level == null || this.level.getBlockEntity(this.worldPosition) != this) return;
         this.level.sendBlockUpdated(
             this.getBlockPos(),
             this.getBlockState(),
