@@ -56,6 +56,8 @@ public final class FittedItemRenderer {
     private static final int MAX_ICONS = 64;
     private static final Map<Key, Icon> ICONS = new LinkedHashMap<>(16, 0.75F, true);
     private static final Map<Key, Request> REQUESTS = new LinkedHashMap<>();
+    private static final Map<Identifier, Long> RETIRED_TEXTURES = new LinkedHashMap<>();
+    private static long frameNumber;
     private static final Set<Key> IN_FLIGHT = new HashSet<>();
     private static @Nullable Capture capture;
     private static int captureDepth;
@@ -126,6 +128,12 @@ public final class FittedItemRenderer {
 
     @SubscribeEvent
     public static void frame(RenderFrameEvent.Pre event) {
+        frameNumber++;
+        RETIRED_TEXTURES.entrySet().removeIf(entry -> {
+            if (entry.getValue() >= frameNumber) return false;
+            Minecraft.getInstance().getTextureManager().release(entry.getKey());
+            return true;
+        });
         if (REQUESTS.isEmpty() || Minecraft.getInstance().level == null) return;
         if (capture == null) capture = new Capture();
         int remaining = 4 - IN_FLIGHT.size();
@@ -155,6 +163,8 @@ public final class FittedItemRenderer {
         IN_FLIGHT.clear();
         ICONS.values().forEach(icon -> Minecraft.getInstance().getTextureManager().release(icon.texture));
         ICONS.clear();
+        RETIRED_TEXTURES.keySet().forEach(texture -> Minecraft.getInstance().getTextureManager().release(texture));
+        RETIRED_TEXTURES.clear();
         if (capture != null) capture.close();
         capture = null;
     }
@@ -224,12 +234,13 @@ public final class FittedItemRenderer {
             .useLightmap().useOverlay().withTexture("Sampler0", texture).setTextureTransform(SCAN_CLOCK).createRenderSetup());
         Icon old = ICONS.put(key, new Icon(texture, renderType, blueprint, width, height, request.state.getModelIdentity(),
             request.animated, request.createdAt));
-        if (old != null) Minecraft.getInstance().getTextureManager().release(old.texture);
+        // 已提取的渲染状态仍可能引用旧图标，等待提交它的帧完成后再释放纹理。
+        if (old != null) RETIRED_TEXTURES.put(old.texture, frameNumber + 2);
         while (ICONS.size() > MAX_ICONS) {
             var iterator = ICONS.values().iterator();
             var removed = iterator.next();
             iterator.remove();
-            Minecraft.getInstance().getTextureManager().release(removed.texture);
+            RETIRED_TEXTURES.put(removed.texture, frameNumber + 2);
         }
     }
 

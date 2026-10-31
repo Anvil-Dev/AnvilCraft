@@ -50,11 +50,15 @@ public class StoragePortBlockEntityRenderer implements BlockEntityRenderer<Stora
             pose.pushPose();
             pose.translate(0.5 + direction.getStepX() * 0.4, 0.5 + direction.getStepY() * 0.4, 0.5 + direction.getStepZ() * 0.4);
             pose.scale(0.8F, 0.8F, 0.8F);
-            if (direction.getAxis() == Direction.Axis.X) {
-                pose.mulPose(Axis.YP.rotationDegrees(90));
-            } else if (direction.getAxis() == Direction.Axis.Y) {
-                pose.mulPose(Axis.XP.rotationDegrees(90));
-                if (direction == Direction.UP) pose.mulPose(Axis.ZP.rotationDegrees(180));
+            // 固定展示姿态的物品正面朝向负 Z，需要将它转向各面的外侧。
+            switch (direction) {
+                case SOUTH -> pose.mulPose(Axis.YP.rotationDegrees(180));
+                case EAST -> pose.mulPose(Axis.YP.rotationDegrees(-90));
+                case WEST -> pose.mulPose(Axis.YP.rotationDegrees(90));
+                case UP -> pose.mulPose(Axis.XP.rotationDegrees(90));
+                case DOWN -> pose.mulPose(Axis.XP.rotationDegrees(-90));
+                default -> {
+                }
             }
             state.markedItem.submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
             pose.popPose();
