@@ -10,7 +10,9 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -28,9 +30,10 @@ import java.util.List;
 /**
  * 物品分配器的方块实体。
  *
- * <p>内部有 {@value #SLOT_COUNT} 格容量且只能容纳同一种物品。正前方有容器时每
+ * <p>内部有 {@value #SLOT_COUNT} 格容量且可以混装多种物品。正前方有容器时每
  * 8 gt 把内部物品按方块均分给前方连成一线的容器；
- * 正前方没有容器时被铁砧砸到，则按铁砧下落高度均分到前方没有遮挡的空间中。</p>
+ * 正前方没有容器时被铁砧砸到，则按铁砧下落高度均分到前方没有遮挡的空间中。
+ * 空手右键可以取出内部物品。</p>
  *
  * <p>两种均分都采用严格计算，除不尽的余数留在自身内部。</p>
  */
@@ -44,21 +47,6 @@ public class ItemSplitterBlockEntity extends BlockEntity implements IItemHandler
 
     @Getter
     private final ItemStackHandler itemHandler = new ItemStackHandler(SLOT_COUNT) {
-        /**
-         * 只能容纳同一种物品：内部已有其它物品时全部拒收。
-         */
-        @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            if (stack.isEmpty()) return ItemStack.EMPTY;
-            for (int i = 0; i < this.getSlots(); i++) {
-                ItemStack existing = this.getStackInSlot(i);
-                if (!existing.isEmpty() && !ItemStack.isSameItemSameComponents(existing, stack)) {
-                    return stack;
-                }
-            }
-            return super.insertItem(slot, stack, simulate);
-        }
-
         @Override
         public void onContentsChanged(int slot) {
             ItemSplitterBlockEntity.this.setChanged();
@@ -116,10 +104,31 @@ public class ItemSplitterBlockEntity extends BlockEntity implements IItemHandler
         for (BlockPos target : targets) {
             IItemHandler handler = this.getItemHandlerAt(target);
             if (handler == null) continue;
-            ItemStack portion = this.extractTotal(share);
-            if (portion.isEmpty()) break;
-            ItemStack leftover = ItemHandlerHelper.insertItem(handler, portion, false);
+            this.sendShare(handler, share);
+        }
+    }
+
+    /**
+     * 按槽位顺序向目标容器送入指定数量的物品。
+     *
+     * <p>可以混装多种物品；送不进去的部分留在内部。</p>
+     *
+     * @param handler 目标容器
+     * @param share   送入数量上限
+     */
+    private void sendShare(IItemHandler handler, int share) {
+        int remaining = share;
+        for (int slot = 0; slot < this.itemHandler.getSlots() && remaining > 0; slot++) {
+            ItemStack stack = this.itemHandler.getStackInSlot(slot);
+            if (stack.isEmpty()) continue;
+            int amount = Math.min(remaining, stack.getCount());
+            if (amount <= 0) continue;
+            ItemStack portion = stack.copyWithCount(amount);
+            int extracted = this.itemHandler.extractItem(slot, amount, false).getCount();
+            if (extracted <= 0) continue;
+            ItemStack leftover = ItemHandlerHelper.insertItem(handler, portion.copyWithCount(extracted), false);
             this.insertBack(leftover);
+            remaining -= extracted - leftover.getCount();
         }
     }
 
@@ -143,12 +152,36 @@ public class ItemSplitterBlockEntity extends BlockEntity implements IItemHandler
         if (share <= 0) return false;
         boolean moved = false;
         for (BlockPos target : targets) {
-            ItemStack portion = this.extractTotal(share);
-            if (portion.isEmpty()) break;
-            this.dropAt(target, portion);
+            List<ItemStack> portions = this.extractShare(share);
+            if (portions.isEmpty()) break;
+            for (ItemStack portion : portions) this.dropAt(target, portion);
             moved = true;
         }
         return moved;
+    }
+
+    /**
+     * 按槽位顺序取出指定数量的物品。
+     *
+     * <p>可以混装多种物品，每种物品按原样分开放入结果列表。</p>
+     *
+     * @param share 取出数量上限
+     * @return 取出的物品列表，可能为空
+     */
+    private List<ItemStack> extractShare(int share) {
+        List<ItemStack> portions = new ArrayList<>();
+        int remaining = share;
+        for (int slot = 0; slot < this.itemHandler.getSlots() && remaining > 0; slot++) {
+            ItemStack stack = this.itemHandler.getStackInSlot(slot);
+            if (stack.isEmpty()) continue;
+            int amount = Math.min(remaining, stack.getCount());
+            if (amount <= 0) continue;
+            ItemStack extracted = this.itemHandler.extractItem(slot, amount, false);
+            if (extracted.isEmpty()) continue;
+            portions.add(extracted);
+            remaining -= extracted.getCount();
+        }
+        return portions;
     }
 
     /**
@@ -234,25 +267,25 @@ public class ItemSplitterBlockEntity extends BlockEntity implements IItemHandler
     }
 
     /**
-     * 从内部取出指定数量的物品。
+     * 空手右键取出内部物品：潜行取出一组，否则只取一个。
      *
-     * @param amount 取出数量上限
-     * @return 取出的物品，可能为空
+     * @param player    取出的玩家
+     * @param fullStack true 取出一组，false 只取 1 个
+     * @return 是否有物品被取出
      */
-    private ItemStack extractTotal(int amount) {
-        ItemStack result = ItemStack.EMPTY;
-        int remaining = amount;
-        for (int i = 0; i < this.itemHandler.getSlots() && remaining > 0; i++) {
-            ItemStack extracted = this.itemHandler.extractItem(i, remaining, false);
+    public boolean giveToPlayer(Player player, boolean fullStack) {
+        for (int slot = 0; slot < this.itemHandler.getSlots(); slot++) {
+            ItemStack stack = this.itemHandler.getStackInSlot(slot);
+            if (stack.isEmpty()) continue;
+            int amount = fullStack ? stack.getMaxStackSize() : 1;
+            ItemStack extracted = this.itemHandler.extractItem(slot, amount, false);
             if (extracted.isEmpty()) continue;
-            if (result.isEmpty()) {
-                result = extracted.copy();
-            } else {
-                result.grow(extracted.getCount());
+            if (this.level != null && !player.addItem(extracted)) {
+                Block.popResource(this.level, BlockPos.containing(player.position()), extracted);
             }
-            remaining -= extracted.getCount();
+            return true;
         }
-        return result;
+        return false;
     }
 
     /**
