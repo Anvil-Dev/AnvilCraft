@@ -12,7 +12,9 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -25,7 +27,6 @@ import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
-import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -37,15 +38,6 @@ public class ItemSplitterBlockEntity extends BlockEntity implements IItemResourc
 
     @Getter
     private final ItemStacksResourceHandler itemHandler = new ItemStacksResourceHandler(SLOT_COUNT) {
-        @Override
-        public boolean isValid(int index, ItemResource resource) {
-            for (int slot = 0; slot < this.size(); slot++) {
-                ItemResource existing = this.getResource(slot);
-                if (!existing.isEmpty() && !existing.equals(resource)) return false;
-            }
-            return super.isValid(index, resource);
-        }
-
         @Override
         protected void onContentsChanged(int index, ItemStack previousContents) {
             ItemSplitterBlockEntity.this.setChanged();
@@ -106,11 +98,24 @@ public class ItemSplitterBlockEntity extends BlockEntity implements IItemResourc
         for (BlockPos target : targets) {
             ResourceHandler<ItemResource> handler = this.getItemHandlerAt(target);
             if (handler == null) continue;
-            ItemResource resource = this.firstResource();
-            if (resource.isEmpty()) break;
+            this.sendShare(handler, share);
+        }
+    }
+
+    /// 按槽位顺序向目标容器送入指定数量的物品，可以混装多种物品；送不进去的部分留在内部。
+    private void sendShare(ResourceHandler<ItemResource> handler, int share) {
+        int remaining = share;
+        for (int slot = 0; slot < this.itemHandler.size() && remaining > 0; slot++) {
+            ItemResource resource = this.itemHandler.getResource(slot);
+            if (resource.isEmpty()) continue;
+            int amount = Math.min(remaining, this.itemHandler.getAmountAsInt(slot));
+            if (amount <= 0) continue;
             try (Transaction transaction = Transaction.openRoot()) {
-                int inserted = handler.insert(resource, share, transaction);
-                if (inserted > 0 && this.extractTotal(resource, inserted, transaction) == inserted) transaction.commit();
+                int inserted = handler.insert(resource, amount, transaction);
+                if (inserted > 0 && this.itemHandler.extract(slot, resource, inserted, transaction) == inserted) {
+                    transaction.commit();
+                    remaining -= inserted;
+                }
             }
         }
     }
@@ -124,18 +129,33 @@ public class ItemSplitterBlockEntity extends BlockEntity implements IItemResourc
         if (share <= 0) return false;
         boolean moved = false;
         for (BlockPos target : targets) {
-            ItemResource resource = this.firstResource();
-            if (resource.isEmpty()) break;
-            int extracted;
-            try (Transaction transaction = Transaction.openRoot()) {
-                extracted = this.extractTotal(resource, share, transaction);
-                transaction.commit();
-            }
-            if (extracted <= 0) break;
-            this.dropAt(target, resource.toStack(extracted));
+            List<ItemStack> stacks = this.extractShare(share);
+            if (stacks.isEmpty()) break;
+            for (ItemStack stack : stacks) this.dropAt(target, stack);
             moved = true;
         }
         return moved;
+    }
+
+    /// 按槽位顺序取出指定数量的物品，可以混装多种物品。
+    private List<ItemStack> extractShare(int share) {
+        List<ItemStack> stacks = new ArrayList<>();
+        int remaining = share;
+        for (int slot = 0; slot < this.itemHandler.size() && remaining > 0; slot++) {
+            ItemResource resource = this.itemHandler.getResource(slot);
+            if (resource.isEmpty()) continue;
+            int amount = Math.min(remaining, this.itemHandler.getAmountAsInt(slot));
+            if (amount <= 0) continue;
+            int extracted;
+            try (Transaction transaction = Transaction.openRoot()) {
+                extracted = this.itemHandler.extract(slot, resource, amount, transaction);
+                transaction.commit();
+            }
+            if (extracted <= 0) continue;
+            stacks.add(resource.toStack(extracted));
+            remaining -= extracted;
+        }
+        return stacks;
     }
 
     private List<BlockPos> collectContainerTargets() {
@@ -171,20 +191,26 @@ public class ItemSplitterBlockEntity extends BlockEntity implements IItemResourc
         return total;
     }
 
-    private ItemResource firstResource() {
+    /// 空手右键取出内部物品：潜行取出一组，否则只取一个；返回是否有物品被取出。
+    public boolean giveToPlayer(Player player, boolean fullStack) {
         for (int slot = 0; slot < this.itemHandler.size(); slot++) {
             ItemResource resource = this.itemHandler.getResource(slot);
-            if (!resource.isEmpty()) return resource;
+            if (resource.isEmpty()) continue;
+            int amount = fullStack ? Math.min(this.itemHandler.getAmountAsInt(slot), resource.toStack(1).getMaxStackSize()) : 1;
+            if (amount <= 0) continue;
+            int extracted;
+            try (Transaction transaction = Transaction.openRoot()) {
+                extracted = this.itemHandler.extract(slot, resource, amount, transaction);
+                transaction.commit();
+            }
+            if (extracted <= 0) continue;
+            ItemStack stack = resource.toStack(extracted);
+            if (this.level != null && !player.addItem(stack)) {
+                Block.popResource(this.level, BlockPos.containing(player.position()), stack);
+            }
+            return true;
         }
-        return ItemResource.EMPTY;
-    }
-
-    private int extractTotal(ItemResource resource, int amount, TransactionContext transaction) {
-        int extracted = 0;
-        for (int slot = 0; slot < this.itemHandler.size() && extracted < amount; slot++) {
-            extracted += this.itemHandler.extract(slot, resource, amount - extracted, transaction);
-        }
-        return extracted;
+        return false;
     }
 
     private void dropAt(BlockPos target, ItemStack stack) {
