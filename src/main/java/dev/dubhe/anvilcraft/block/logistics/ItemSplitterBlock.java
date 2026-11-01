@@ -7,6 +7,9 @@ import dev.dubhe.anvilcraft.block.entity.ItemSplitterBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -21,13 +24,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 
 /**
  * 物品分配器。
  *
- * <p>完整方块，支持六个朝向。内部有 16 格容量且只能容纳同一种物品，
- * 可以用漏斗或溜槽输入输出。</p>
+ * <p>完整方块，支持六个朝向。内部有 16 格容量且可以混装多种物品，
+ * 可以用漏斗或溜槽输入输出；空手右键可以取出内部物品。</p>
  */
 public class ItemSplitterBlock extends BetterBaseEntityBlock implements IHammerRemovable {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
@@ -112,4 +116,18 @@ public class ItemSplitterBlock extends BetterBaseEntityBlock implements IHammerR
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
+    @Override
+    public InteractionResult use(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hit
+    ) {
+        if (!player.getMainHandItem().isEmpty()) return InteractionResult.PASS;
+        if (!(level.getBlockEntity(pos) instanceof ItemSplitterBlockEntity splitter)) return InteractionResult.PASS;
+        if (!level.isClientSide()) splitter.giveToPlayer(player, player.isShiftKeyDown());
+        return InteractionResult.SUCCESS;
+    }
 }
