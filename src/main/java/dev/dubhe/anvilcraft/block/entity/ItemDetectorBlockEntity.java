@@ -27,6 +27,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -46,6 +47,7 @@ import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -208,6 +210,16 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
                 containers.add(pos.immutable());
             }
         }
+        List<ResourceHandler<ItemResource>> entityContainers = new ArrayList<>();
+        for (Entity entity : level.getEntities((Entity) null, aabb, Entity::isAlive)) {
+            if (entity instanceof ItemEntity) {
+                continue;
+            }
+            ResourceHandler<ItemResource> handler = entity.getCapability(Capabilities.Item.ENTITY_AUTOMATION, null);
+            if (handler != null) {
+                entityContainers.add(handler);
+            }
+        }
         int minNonZeroOutput = 16;
         boolean canOutput = true;
         boolean hasFilter = false;
@@ -223,6 +235,9 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
                 }
             }
             for (BlockPos p : containers) matchCount += this.scanContainer(level, p, filterItem);
+            for (ResourceHandler<ItemResource> handler : entityContainers) {
+                matchCount += this.scanContainer(handler, filterItem);
+            }
             int lerpedOutput = ItemDetectorBlockEntity.lerpOutput(matchCount, targetCount);
             if (lerpedOutput > 0) {
                 minNonZeroOutput = Math.min(minNonZeroOutput, lerpedOutput);
@@ -236,6 +251,9 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
             int totalCount = 0;
             for (ItemEntity itemEntity : itemEntities) totalCount += itemEntity.getItem().getCount();
             for (BlockPos p : containers) totalCount += this.scanContainer(level, p, null);
+            for (ResourceHandler<ItemResource> handler : entityContainers) {
+                totalCount += this.scanContainer(handler, null);
+            }
             output = ItemDetectorBlockEntity.lerpOutput(totalCount, 1);
         }
         return output;
@@ -260,12 +278,22 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
             return count;
         }
         ResourceHandler<ItemResource> handler = level.getCapability(Capabilities.Item.BLOCK, pos, null);
-        if (handler == null) return 0;
+        if (handler == null) {
+            return 0;
+        }
+        return this.scanContainer(handler, targetItem);
+    }
+
+    private int scanContainer(ResourceHandler<ItemResource> handler, @Nullable Item targetItem) {
         int count = 0;
         for (int i = 0; i < handler.size(); i++) {
             ItemStack stack = ItemResourceHelper.getStackInSlot(handler, i);
-            if (stack.isEmpty()) continue;
-            if (targetItem == null || stack.is(targetItem)) count += stack.getCount();
+            if (stack.isEmpty()) {
+                continue;
+            }
+            if (targetItem == null || stack.is(targetItem)) {
+                count += stack.getCount();
+            }
         }
         return count;
     }

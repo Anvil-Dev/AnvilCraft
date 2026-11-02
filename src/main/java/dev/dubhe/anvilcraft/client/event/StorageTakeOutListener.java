@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.client.event;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
 import dev.dubhe.anvilcraft.block.logistics.storage.AbstractStoragePortBlock;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import dev.dubhe.anvilcraft.network.StoragePortTakeOutPacket;
@@ -102,7 +103,8 @@ public final class StorageTakeOutListener {
             return null;
         }
         BlockEntity entity = client.level.getBlockEntity(hit.getBlockPos());
-        if (entity instanceof CreativeCrateBlockEntity crate && !crate.getDisplayStack().isEmpty()) {
+        if (entity instanceof CreativeCrateBlockEntity crate && !crate.getDisplayStack().isEmpty()
+            && !StoragePortBlockEntity.isEdgeHit(hit)) {
             return entity;
         }
         if (client.level.getBlockState(hit.getBlockPos()).getBlock() instanceof AbstractStoragePortBlock port
