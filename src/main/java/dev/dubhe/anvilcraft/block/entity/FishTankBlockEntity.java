@@ -688,14 +688,19 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             // 开口被有碰撞的方块堵住时不输出，物品留在输出槽等待下次重试
             if (FishTankBlockEntity.isOutletBlocked(level, pos, outletDir)) return;
             for (int i = 0; i < 8; i++) {
+                ItemStack dropped;
                 try (Transaction transaction = Transaction.openRoot()) {
                     ItemResource resource = this.output.getResource(i);
-                    if (resource.isEmpty()) continue;
-                    int extracted = this.output.extract(i, resource, Integer.MAX_VALUE, transaction);
-                    if (extracted > 0) {
-                        FishTankBlockEntity.popResourceFromFace(level, pos, outletDir, resource.toStack(extracted));
+                    if (resource.isEmpty()) {
+                        continue;
                     }
+                    int extracted = this.output.extract(i, resource, Integer.MAX_VALUE, transaction);
+                    dropped = resource.toStack(extracted);
                     transaction.commit();
+                }
+                // 生成实体会触发收集器的独立事务，必须先完成输出槽的提取。
+                if (!dropped.isEmpty()) {
+                    FishTankBlockEntity.popResourceFromFace(level, pos, outletDir, dropped);
                 }
             }
             this.setChanged();
