@@ -61,8 +61,8 @@ public class PulseGeneratorBlockEntityRenderer
         poseStack.mulPose(Axis.YP.rotationDegrees(-blockEntity.getBlockState().getValue(PulseGeneratorBlock.FACING).toYRot()));
         poseStack.translate(-0.5f, 0.0f, -0.5f);
         PulseGeneratorBlockEntity.State state = blockEntity.getState();
-        boolean outputting = state == PulseGeneratorBlockEntity.State.OUTPUTTING ||
-                             state == PulseGeneratorBlockEntity.State.OUTPUTTING_RELAY;
+        boolean outputting = state == PulseGeneratorBlockEntity.State.OUTPUTTING
+                             || state == PulseGeneratorBlockEntity.State.OUTPUTTING_RELAY;
         boolean overspeed = blockEntity.isProcessing() && blockEntity.getWaitingTime() + blockEntity.getSignalDuration() <= 3;
         float phaseProgress = blockEntity.getPhaseProgress(partialTick);
         float phaseStartAngle = outputting ? END_ANGLE : START_ANGLE;
