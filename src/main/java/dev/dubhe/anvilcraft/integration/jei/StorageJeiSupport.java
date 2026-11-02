@@ -68,6 +68,8 @@ public final class StorageJeiSupport {
     /** JEI 运行时可用回调：保存运行时供打开配方界面使用。 */
     public static void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
         StorageJeiSupport.runtime = jeiRuntime;
+        StorageJeiBridge.setRecipeParent(screen -> Minecraft.getInstance().screen == jeiRuntime.getRecipesGui()
+            && jeiRuntime.getRecipesGui().getParentScreen().orElse(null) == screen);
     }
 
     /** JEI 是否可用（已安装且运行时已就绪）。 */

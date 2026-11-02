@@ -1,12 +1,15 @@
 package dev.dubhe.anvilcraft.integration.jei;
 
+import net.minecraft.client.gui.screens.Screen;
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 import java.util.Objects;
-import javax.annotation.Nullable;
+import java.util.function.Predicate;
 
 /**
- * 仓储界面与 JEI 的桥接入口：本类不依赖任何 mezz 类（纯反射调用
- * {@code StorageJeiSupport}），未安装 JEI 时各方法安全地不做任何事。
+ * 仓储界面与 JEI 的桥接入口：通过反射打开配方，通过 JEI 注册的回调识别父屏幕，
+ * 未安装 JEI 时各方法安全地不做任何事。
  * 反射查找（{@link Class#forName} / {@link Class#getMethod}）结果缓存，
  * 避免每次调用重复执行开销。
  */
@@ -17,8 +20,17 @@ public final class StorageJeiBridge {
     private static volatile @Nullable Method openStonecutterRecipesMethod;
     private static volatile @Nullable Method openCraftingRecipesMethod;
     private static volatile @Nullable Method isAvailableMethod;
+    private static Predicate<Screen> recipeParent = screen -> false;
 
     private StorageJeiBridge() {
+    }
+
+    public static void setRecipeParent(Predicate<Screen> parent) {
+        StorageJeiBridge.recipeParent = parent;
+    }
+
+    public static boolean isRecipeParent(Screen screen) {
+        return StorageJeiBridge.recipeParent.test(screen);
     }
 
     /** 打开切石机配方 JEI 界面（点击③ 结果槽区域时调用）。 */

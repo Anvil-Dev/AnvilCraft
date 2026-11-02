@@ -102,6 +102,7 @@ import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.wrapper.PlayerMainInvWrapper;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
@@ -121,7 +122,6 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import javax.annotation.Nullable;
 
 public final class StorageServerStub {
     private static final int MAX_PLAYER_STUBS = 5;
@@ -165,6 +165,7 @@ public final class StorageServerStub {
     private final UUID storageId;
     private long version;
     private long orderVersion;
+    private @Nullable List<ItemStack> craftingContents;
     private final Map<SortOptions, IntList> orders = new HashMap<>();
     private final Deque<UndoRecord> undoRecords = new ArrayDeque<>();
     private final Map<ItemStack, Integer> undoGroup = new HashMap<>();
@@ -293,20 +294,29 @@ public final class StorageServerStub {
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static List<ItemStack> craftingStorageContents(UUID playerId, long sourcePos, int offset) {
         StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
-        List<ItemStack> page = new ArrayList<>(StorageServerStub.CONTENTS_PAGE_SIZE);
-        int seen = 0;
-        for (int index = 0; index < view.size(); index++) {
-            long amount = view.amount(index);
-            if (amount <= 0) {
-                continue;
+        StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
+        if (offset < 0) {
+            throw new IllegalArgumentException("Invalid crafting contents offset: " + offset);
+        }
+        if (offset == 0) {
+            List<ItemStack> contents = new ArrayList<>(view.size());
+            for (int index = 0; index < view.size(); index++) {
+                long amount = view.amount(index);
+                if (amount > 0) {
+                    contents.add(view.resource(index).copyWithCount((int) Math.min(amount, Integer.MAX_VALUE)));
+                }
             }
-            if (seen++ < offset) {
-                continue;
-            }
-            if (page.size() >= StorageServerStub.CONTENTS_PAGE_SIZE) {
-                break;
-            }
-            page.add(view.resource(index).copyWithCount((int) Math.min(amount, Integer.MAX_VALUE)));
+            stub.craftingContents = List.copyOf(contents);
+        }
+        List<ItemStack> snapshot = stub.craftingContents;
+        if (snapshot == null) {
+            throw new IllegalStateException("No crafting contents snapshot for " + view.primary().getId());
+        }
+        int start = Math.min(offset, snapshot.size());
+        int end = (int) Math.min(snapshot.size(), (long) start + StorageServerStub.CONTENTS_PAGE_SIZE);
+        List<ItemStack> page = List.copyOf(snapshot.subList(start, end));
+        if (page.size() < StorageServerStub.CONTENTS_PAGE_SIZE) {
+            stub.craftingContents = null;
         }
         return page;
     }
