@@ -169,11 +169,11 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
     ) {
         this.cacheInput.computeIfAbsent(
             recipe,
-            it -> LevelLikeDisplaySupport.asLevelLike(it.value().getInputPattern())
+            it -> LevelLikeDisplaySupport.asLevelLike(MultiblockUtil.previewPattern(it.value().getInputPattern(), it.value().getSize()))
         );
         this.cacheOutput.computeIfAbsent(
             recipe,
-            it -> LevelLikeDisplaySupport.asLevelLike(it.value().getOutputPattern())
+            it -> LevelLikeDisplaySupport.asLevelLike(MultiblockUtil.previewPattern(it.value().getOutputPattern(), it.value().getSize()))
         );
 
         List<ItemStack> inputItems = MultiblockUtil.ingredientList(
@@ -229,11 +229,11 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
 
         LevelLike input = this.cacheInput.computeIfAbsent(
             recipe,
-            it -> LevelLikeDisplaySupport.asLevelLike(it.value().getInputPattern())
+            it -> LevelLikeDisplaySupport.asLevelLike(MultiblockUtil.previewPattern(it.value().getInputPattern(), it.value().getSize()))
         );
         LevelLike output = this.cacheOutput.computeIfAbsent(
             recipe,
-            it -> LevelLikeDisplaySupport.asLevelLike(it.value().getOutputPattern())
+            it -> LevelLikeDisplaySupport.asLevelLike(MultiblockUtil.previewPattern(it.value().getOutputPattern(), it.value().getSize()))
         );
         LevelLikeDisplaySupport.cycleTags(input);
         LevelLikeDisplaySupport.cycleTags(output);
@@ -253,9 +253,11 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                     }
                 }
                 LevelLike fullInput = this.overviewInput.computeIfAbsent(
-                    recipe, it -> LevelLikeDisplaySupport.asLevelLike(it.value().getInputPattern()));
+                    recipe, it -> LevelLikeDisplaySupport.asLevelLike(
+                        MultiblockUtil.previewPattern(it.value().getInputPattern(), it.value().getSize())));
                 LevelLike fullOutput = this.overviewOutput.computeIfAbsent(
-                    recipe, it -> LevelLikeDisplaySupport.asLevelLike(it.value().getOutputPattern()));
+                    recipe, it -> LevelLikeDisplaySupport.asLevelLike(
+                        MultiblockUtil.previewPattern(it.value().getOutputPattern(), it.value().getSize())));
                 LevelLikeDisplaySupport.cycleTags(fullInput);
                 LevelLikeDisplaySupport.cycleTags(fullOutput);
                 RenderSupport.renderLevelLikeAt(fullInput, graphics, 36, 44, MultiBlockConversionCategory.SCALE_FAC_OVERVIEW, 2.0F);
@@ -369,14 +371,16 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                     case INPUT:
                         LevelLike inputLevel = this.cacheInput.computeIfAbsent(
                             it,
-                            a -> LevelLikeDisplaySupport.asLevelLike(a.value().getInputPattern())
+                            a -> LevelLikeDisplaySupport.asLevelLike(
+                                MultiblockUtil.previewPattern(a.value().getInputPattern(), a.value().getSize()))
                         );
                         inputLevel.setAllLayersVisible(!inputLevel.isAllLayersVisible());
                         break;
                     case OUTPUT:
                         LevelLike outputLevel = this.cacheOutput.computeIfAbsent(
                             it,
-                            a -> LevelLikeDisplaySupport.asLevelLike(a.value().getOutputPattern())
+                            a -> LevelLikeDisplaySupport.asLevelLike(
+                                MultiblockUtil.previewPattern(a.value().getOutputPattern(), a.value().getSize()))
                         );
                         outputLevel.setAllLayersVisible(!outputLevel.isAllLayersVisible());
                         break;
@@ -395,14 +399,16 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                     case INPUT:
                         LevelLike inputLevel = this.cacheInput.computeIfAbsent(
                             it,
-                            a -> LevelLikeDisplaySupport.asLevelLike(a.value().getInputPattern())
+                            a -> LevelLikeDisplaySupport.asLevelLike(
+                                MultiblockUtil.previewPattern(a.value().getInputPattern(), a.value().getSize()))
                         );
                         if (!inputLevel.isAllLayersVisible()) inputLevel.nextLayer();
                         break;
                     case OUTPUT:
                         LevelLike outputLevel = this.cacheOutput.computeIfAbsent(
                             it,
-                            a -> LevelLikeDisplaySupport.asLevelLike(a.value().getOutputPattern())
+                            a -> LevelLikeDisplaySupport.asLevelLike(
+                                MultiblockUtil.previewPattern(a.value().getOutputPattern(), a.value().getSize()))
                         );
                         if (!outputLevel.isAllLayersVisible()) outputLevel.nextLayer();
                         break;
@@ -421,14 +427,16 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                     case INPUT:
                         LevelLike inputLevel = this.cacheInput.computeIfAbsent(
                             it,
-                            a -> LevelLikeDisplaySupport.asLevelLike(a.value().getInputPattern())
+                            a -> LevelLikeDisplaySupport.asLevelLike(
+                                MultiblockUtil.previewPattern(a.value().getInputPattern(), a.value().getSize()))
                         );
                         if (!inputLevel.isAllLayersVisible()) inputLevel.previousLayer();
                         break;
                     case OUTPUT:
                         LevelLike outputLevel = this.cacheOutput.computeIfAbsent(
                             it,
-                            a -> LevelLikeDisplaySupport.asLevelLike(a.value().getOutputPattern())
+                            a -> LevelLikeDisplaySupport.asLevelLike(
+                                MultiblockUtil.previewPattern(a.value().getOutputPattern(), a.value().getSize()))
                         );
                         if (!outputLevel.isAllLayersVisible()) outputLevel.previousLayer();
                         break;

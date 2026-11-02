@@ -32,6 +32,7 @@ import net.neoforged.neoforge.common.util.ItemStackMap;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -179,6 +180,30 @@ public final class MultiblockUtil {
             }
         }
         return drops;
+    }
+
+    /**
+     * 将配方定义放入与实际转化一致的预览立方体，保留空白区域与标签谓词。
+     */
+    public static MultiblockDefinition previewPattern(MultiblockDefinition pattern, int size) {
+        DefinitionSerialization data = DefinitionSerialization.fromDefinition(pattern);
+        String[][] grid = data.grid();
+        int[] offset = MultiblockUtil.offsets(size, grid);
+        Map<Vec3i, BlockStatePredicate> blocks = new HashMap<>();
+        BlockStatePredicate air = BlockStatePredicate.builder().of(Blocks.AIR).build();
+        blocks.put(BlockPos.ZERO, air);
+        blocks.put(new BlockPos(size - 1, size - 1, size - 1), air);
+        for (int y = 0; y < grid.length; y++) {
+            for (int z = 0; z < grid[y].length; z++) {
+                for (int x = 0; x < grid[y][z].length(); x++) {
+                    BlockStatePredicate predicate = data.mapping().get(grid[y][z].charAt(x));
+                    if (predicate != null) {
+                        blocks.put(new BlockPos(x + offset[0], y + offset[1], z + offset[2]), predicate);
+                    }
+                }
+            }
+        }
+        return new MultiblockDefinition(blocks);
     }
 
     /**
