@@ -218,7 +218,7 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
         return switch (state) {
             case WAITING -> this.waitingTime;
             case OUTPUTTING -> this.signalDuration;
-            case DEFAULT -> 0;
+            case DEFAULT, OUTPUTTING_RELAY -> 0;
         };
     }
 
@@ -239,7 +239,7 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
     }
 
     public void setStartMode(int mode) {
-        this.startMode = Mode.fromIndex(mode % 3);
+        this.startMode = Mode.fromIndex(mode % Mode.values().length);
         if (this.startMode != Mode.LOOP) {
             this.isDeadlock = false;
         }
@@ -279,12 +279,12 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
     }
 
     public boolean isProcessing() {
-        return this.state != State.DEFAULT;
+        return this.state != State.DEFAULT && this.state != State.OUTPUTTING_RELAY;
     }
 
     public boolean isOutputting() {
         if (this.isDeadlock) return this.outputInvert;
-        return (this.state == State.OUTPUTTING) != this.outputInvert;
+        return (this.state == State.OUTPUTTING || this.state == State.OUTPUTTING_RELAY) != this.outputInvert;
     }
 
     @Override
@@ -307,7 +307,7 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
     }
 
     public enum State {
-        DEFAULT, WAITING, OUTPUTTING;
+        DEFAULT, WAITING, OUTPUTTING, OUTPUTTING_RELAY;
 
         public byte index() {
             return (byte) this.ordinal();
@@ -319,7 +319,7 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
     }
 
     public enum Mode {
-        RISING_EDGE, FALLING_EDGE, LOOP;
+        RISING_EDGE, FALLING_EDGE, LOOP, RELAY;
 
         public byte index() {
             return (byte) this.ordinal();

@@ -94,12 +94,20 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             this.leftPos + 28,
             this.topPos + 25,
             16, 16,
-            List.of(SharedTextures.BUTTON_RISING_EDGE, SharedTextures.BUTTON_FALLING_EDGE, SharedTextures.BUTTON_LOOP),
+            List.of(
+                SharedTextures.BUTTON_RISING_EDGE,
+                SharedTextures.BUTTON_FALLING_EDGE,
+                SharedTextures.BUTTON_LOOP,
+                SharedTextures.BUTTON_RELAY
+            ),
             16, 16, 32,
             (button, index) -> this.pendingStartMode = (byte) index,
-            List.of(Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.rising"),
+            List.of(
+                Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.rising"),
                 Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.falling"),
-                Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.loop"))
+                Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.loop"),
+                Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.relay")
+            )
         );
         final SwitchableButton outputMode = new SwitchableButton(
             this.leftPos + 28,

@@ -66,6 +66,7 @@ public class JadeLang {
         provider.add("tooltip.anvilcraft.pulse_generator.jade.mode.rising", "Rising Edge");
         provider.add("tooltip.anvilcraft.pulse_generator.jade.mode.falling", "Falling Edge");
         provider.add("tooltip.anvilcraft.pulse_generator.jade.mode.loop", "Loop");
+        provider.add("tooltip.anvilcraft.pulse_generator.jade.mode.relay", "Relay");
         provider.add("tooltip.anvilcraft.pulse_generator.jade.reverse.on", "On");
         provider.add("tooltip.anvilcraft.pulse_generator.jade.reverse.off", "Off");
         provider.add("tooltip.anvilcraft.wip_block.jade.step_count", "Steps Executed: %d");

@@ -23,6 +23,7 @@ public class SharedTextures {
     public static final ResourceLocation BUTTON_RISING_EDGE = textureGui("machine/button_rising_edge");
     public static final ResourceLocation BUTTON_FALLING_EDGE = textureGui("machine/button_falling_edge");
     public static final ResourceLocation BUTTON_LOOP = textureGui("machine/button_loop");
+    public static final ResourceLocation BUTTON_RELAY = textureGui("machine/button_relay");
     public static final ResourceLocation BUTTON_HYSTERESIS = textureGui("machine/button_hysteresis");
     public static final ResourceLocation BUTTON_WINDOW = textureGui("machine/button_window");
     public static final ResourceLocation BUTTON_YES = textureGui("machine/button_yes");

@@ -31,6 +31,7 @@ public enum PulseGeneratorProvider implements IBlockComponentProvider, IServerDa
             case "rising" -> ChatFormatting.GREEN;
             case "falling" -> ChatFormatting.RED;
             case "loop" -> ChatFormatting.BLUE;
+            case "relay" -> ChatFormatting.YELLOW;
             default -> ChatFormatting.GRAY;
         };
         tooltip.add(Component.translatable(
@@ -46,7 +47,8 @@ public enum PulseGeneratorProvider implements IBlockComponentProvider, IServerDa
         if (total > 0) {
             // 工作中显示当前相位进度；空闲时按配置的延迟时长显示完整进度条，保证进度条始终可见
             boolean processing = data.getBoolean("pulse_generator_processing");
-            boolean outputting = "OUTPUTTING".equals(data.getString("pulse_generator_state"));
+            String state = data.getString("pulse_generator_state");
+            boolean outputting = "OUTPUTTING".equals(state) || "OUTPUTTING_RELAY".equals(state);
             double progress;
             if (processing) {
                 progress = outputting
@@ -81,6 +83,7 @@ public enum PulseGeneratorProvider implements IBlockComponentProvider, IServerDa
             case RISING_EDGE -> "rising";
             case FALLING_EDGE -> "falling";
             case LOOP -> "loop";
+            case RELAY -> "relay";
         };
         tag.putString("pulse_generator_mode", mode);
         tag.putBoolean("pulse_generator_reverse", pulseGenerator.isOutputInvert());

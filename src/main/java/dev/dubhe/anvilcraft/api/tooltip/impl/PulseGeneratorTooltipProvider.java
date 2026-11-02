@@ -23,6 +23,7 @@ public class PulseGeneratorTooltipProvider extends ITooltipProvider.BlockEntityT
             case RISING_EDGE -> "screen.anvilcraft.button.pulse_generator.start_mode.rising";
             case FALLING_EDGE -> "screen.anvilcraft.button.pulse_generator.start_mode.falling";
             case LOOP -> "screen.anvilcraft.button.pulse_generator.start_mode.loop";
+            case RELAY -> "screen.anvilcraft.button.pulse_generator.start_mode.relay";
         };
         String reverseKey = pulseGenerator.isOutputInvert()
             ? "screen.anvilcraft.button.pulse_generator.reverse.on"
