@@ -152,6 +152,7 @@ public final class StorageServerStub {
     private long version;
     private long orderVersion;
     private @Nullable TerminalContentsSnapshot terminalContents;
+    private @Nullable ContentsPage craftingContents;
     private final Map<SortOptions, IntList> orders = new HashMap<>();
 
     private static HolderLookup.Provider getAndClear() {
@@ -228,17 +229,32 @@ public final class StorageServerStub {
         StorageView view = getView(getAndClear(), playerId, sourcePos);
         UUID storageId = view.primary().getId();
         StorageServerStub stub = get(playerId, storageId);
-        if (offset < 0 || offset >= view.size()) {
-            return new ContentsPage(storageId, stub.version, List.of(),
-                offset == 0 ? StoragePortManager.collect(storageId) : List.of(), true);
+        if (offset < 0) {
+            throw new IllegalArgumentException("Invalid crafting contents offset: " + offset);
         }
-        int end = (int) Math.min(view.size(), (long) offset + CONTENTS_PAGE_SIZE);
-        List<StackUpdate> items = new ArrayList<>(end - offset);
-        for (int index = offset; index < end; index++) {
-            items.add(new StackUpdate(index, getStack(view, index), view.amount(index)));
+        if (offset == 0) {
+            List<StackUpdate> items = new ArrayList<>(view.size());
+            for (int index = 0; index < view.size(); index++) {
+                long amount = view.amount(index);
+                if (amount > 0) {
+                    items.add(new StackUpdate(index, getStack(view, index), amount));
+                }
+            }
+            stub.craftingContents = new ContentsPage(storageId, stub.version, List.copyOf(items),
+                List.copyOf(StoragePortManager.collect(storageId)), true);
         }
-        return new ContentsPage(storageId, stub.version, List.copyOf(items),
-            offset == 0 ? StoragePortManager.collect(storageId) : List.of(), end == view.size());
+        ContentsPage snapshot = stub.craftingContents;
+        if (snapshot == null) {
+            throw new IllegalStateException("No crafting contents snapshot for " + storageId);
+        }
+        int start = Math.min(offset, snapshot.items().size());
+        int end = (int) Math.min(snapshot.items().size(), (long) start + CONTENTS_PAGE_SIZE);
+        boolean last = end == snapshot.items().size();
+        if (last) {
+            stub.craftingContents = null;
+        }
+        return new ContentsPage(storageId, snapshot.version(), List.copyOf(snapshot.items().subList(start, end)),
+            offset == 0 ? snapshot.fluids() : List.of(), last);
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)

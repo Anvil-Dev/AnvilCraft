@@ -586,8 +586,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     public boolean hasUnfilteredContents() {
-        return this.unfilteredStorageId != null && this.unfilteredStorageId.equals(this.requestedStorageId)
-            && this.unfilteredVersion == this.requestedContentsVersion;
+        return this.unfilteredStorageId != null && this.unfilteredStorageId.equals(this.requestedStorageId);
     }
 
     private boolean isTransferContextActive() {
@@ -611,21 +610,22 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             || Objects.equals(this.requestedStorageId, metadata.storageId()) && metadata.version() < this.requestedContentsVersion) return;
         this.acceptedContentsMetadataRequest = request;
         this.nextContentsMetadata = System.currentTimeMillis() + 1000;
-        if (!Objects.equals(this.requestedStorageId, metadata.storageId()) || this.requestedContentsVersion != metadata.version()) {
+        if (!Objects.equals(this.requestedStorageId, metadata.storageId())) {
             this.contentsRequest++;
             this.contentsPending = false;
             this.requestedStorageId = metadata.storageId();
             this.requestedContentsVersion = metadata.version();
         }
-        if (this.contentsPending || this.hasUnfilteredContents()) return;
+        this.requestedContentsVersion = metadata.version();
+        if (this.contentsPending || this.hasUnfilteredContents() && this.unfilteredVersion >= this.requestedContentsVersion) {
+            return;
+        }
         this.contentsPending = true;
         this.fetchContentsPage(this.contentsRequest, metadata.storageId(), metadata.version(), 0, new HashMap<>(), List.of());
     }
 
     private void noticeContentsVersion() {
         if (Objects.equals(this.storageId, this.requestedStorageId) && this.version > this.requestedContentsVersion) {
-            this.contentsRequest++;
-            this.contentsPending = false;
             this.requestedContentsVersion = this.version;
             this.nextContentsMetadata = 0;
         }
@@ -635,7 +635,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                                    List<StorageServerStub.FluidEntry> collectedFluids) {
         StorageClientStub.craftingStorageContents(this.sourcePos, offset).whenCompleteAsync((page, error) -> {
             if (request != this.contentsRequest) return;
-            if (error != null || !this.isTransferContextActive() || !id.equals(page.storageId()) || version != page.version()) {
+            if (error != null || !this.isTransferContextActive() || !id.equals(page.storageId())
+                || offset > 0 && version != page.version()) {
                 this.contentsPending = false;
                 return;
             }
@@ -646,13 +647,13 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             }
             var fluids = offset == 0 ? page.fluids() : collectedFluids;
             if (!page.last()) {
-                this.fetchContentsPage(request, id, version, offset + page.items().size(), collected, fluids);
+                this.fetchContentsPage(request, id, page.version(), offset + page.items().size(), collected, fluids);
                 return;
             }
             this.unfilteredContents = Map.copyOf(collected);
             this.unfilteredFluids = List.copyOf(fluids);
             this.unfilteredStorageId = id;
-            this.unfilteredVersion = version;
+            this.unfilteredVersion = page.version();
             this.contentsPending = false;
         }, this.minecraft);
     }
