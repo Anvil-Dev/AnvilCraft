@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.building;
 
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.util.CauldronUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -12,6 +14,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.fluids.CauldronFluidContent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -45,6 +48,9 @@ public final class FluidBuildAdapter {
     }
 
     public static boolean isFilledCauldron(BlockState state) {
+        if (state.is(ModBlocks.MILK_CAULDRON)) {
+            return true;
+        }
         CauldronFluidContent content = CauldronFluidContent.getForBlock(state.getBlock());
         return content != null && currentAmount(content, state) > 0;
     }
@@ -61,6 +67,9 @@ public final class FluidBuildAdapter {
     }
 
     public static FluidStack cauldronFluidOf(BlockState state) {
+        if (state.is(ModBlocks.MILK_CAULDRON)) {
+            return new FluidStack(NeoForgeMod.MILK.get(), BUCKET_AMOUNT * CauldronUtil.currentLevel(state) / 4);
+        }
         CauldronFluidContent content = CauldronFluidContent.getForBlock(state.getBlock());
         if (content == null) {
             return FluidStack.EMPTY;
