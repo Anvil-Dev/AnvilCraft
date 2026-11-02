@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.energy.ItemFEStorage;
 import dev.dubhe.anvilcraft.api.fluid.BottleFluidHandler;
 import dev.dubhe.anvilcraft.api.fluid.EnchantedBookFluidHandler;
+import dev.dubhe.anvilcraft.api.fluid.MilkCauldronWrapper;
 import dev.dubhe.anvilcraft.api.fluid.PowderSnowWrapper;
 import dev.dubhe.anvilcraft.api.fluid.VoidFluidHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.HoneyCauldronWrapper;
@@ -29,6 +30,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
@@ -42,6 +44,11 @@ import javax.annotation.Nullable;
 public class CapabilitiesEventListener {
     @SubscribeEvent
     public static void registerCapabilities(final RegisterCapabilitiesEvent event) {
+        if (ModList.get().isLoaded("nomansland")) {
+            event.registerBlock(Capabilities.FluidHandler.BLOCK,
+                (level, pos, state, blockEntity, side) -> new MilkCauldronWrapper(level, pos),
+                ModBlocks.MILK_CAULDRON.get());
+        }
         List.of(
             ModBlockEntities.BATCH_CRAFTER.get(),
             ModBlockEntities.BATCH_CUTTER.get(),
