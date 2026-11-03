@@ -133,6 +133,12 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
         updateToolProperties(heavyHalberd);
     }
 
+    @Override
+    public void setDamage(ItemStack stack, int damage) {
+        super.setDamage(stack, Math.min(damage, stack.getMaxDamage() - 1));
+        checkTooDamaged(this.getTier(), stack);
+    }
+
     public static void checkTooDamaged(Tier tier, ItemStack stack) {
         Item item = stack.getItem();
         if (!(item instanceof HeavyHalberdItem heavyHalberd)) return;
@@ -397,7 +403,7 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
 
     @Override
     public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
-        if (!(attacker instanceof ServerPlayer player) || !MaceItem.canSmashAttack(player)) return true;
+        if (!(attacker instanceof ServerPlayer player) || !MaceItem.canSmashAttack(player) || isTooDamagedToUse(stack)) return true;
         final ServerLevel level = (ServerLevel) attacker.level();
         if (player.isIgnoringFallDamageFromCurrentImpulse() && player.currentImpulseImpactPos != null) {
             if (player.currentImpulseImpactPos.y > player.position().y) {
@@ -428,6 +434,7 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
 
     @Override
     public void postHurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+        if (isTooDamagedToUse(stack)) return;
         stack.hurtAndBreak(1, attacker, EquipmentSlot.MAINHAND);
         if (MaceItem.canSmashAttack(attacker)) {
             attacker.resetFallDistance();
@@ -437,7 +444,7 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
     @Override
     public float getAttackDamageBonus(Entity target, float damage, DamageSource source) {
         if (!(source.getDirectEntity() instanceof LivingEntity entity)) return 0.0F;
-        if (!MaceItem.canSmashAttack(entity)) return 0.0F;
+        if (!MaceItem.canSmashAttack(entity) || isTooDamagedToUse(entity.getMainHandItem())) return 0.0F;
 
         float firstMaxHeight = 3.0F;
         float secondMaxHeight = 8.0F;
@@ -472,6 +479,7 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
 
     @Override
     public boolean canPerformAction(ItemStack stack, ItemAbility itemAbility) {
+        if (isTooDamagedToUse(stack)) return false;
         return switch (getMode(stack)) {
             case TRIDENT_MODE -> ItemAbilities.DEFAULT_TRIDENT_ACTIONS.contains(itemAbility);
             case SWORD_MODE -> ItemAbilities.DEFAULT_SWORD_ACTIONS.contains(itemAbility)
