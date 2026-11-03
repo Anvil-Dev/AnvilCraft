@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -15,6 +16,7 @@ import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -76,10 +78,11 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
     @Getter(AccessLevel.NONE)
     private boolean cleaningFlows;
     @Getter(AccessLevel.NONE)
-    private DrainChunkAccess flowCleanupChunks = new DrainChunkAccess();
+    private final DrainChunkAccess drainChunks;
 
     public DrainBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
+        this.drainChunks = new DrainChunkAccess(pos);
     }
 
     @Override
@@ -102,7 +105,20 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
         }
         this.drainSearch = null;
         this.clearFlowCleanup();
+        if (this.level instanceof ServerLevel serverLevel) {
+            this.drainChunks.release(serverLevel);
+        }
         super.setRemoved();
+    }
+
+    @Override
+    public void onChunkUnloaded() {
+        this.drainSearch = null;
+        this.clearFlowCleanup();
+        if (this.level instanceof ServerLevel serverLevel) {
+            this.drainChunks.release(serverLevel);
+        }
+        super.onChunkUnloaded();
     }
 
     public void sendUpdate() {
@@ -203,6 +219,9 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
     }
 
     private static int classifyForFill(Level level, BlockPos pos, Fluid fluid) {
+        if (!level.hasChunkAt(pos)) {
+            return DrainBlockEntity.FILL_BLOCKED;
+        }
         BlockState state = level.getBlockState(pos);
         FluidState fs = state.getFluidState();
         if (!fs.isEmpty()) {
@@ -213,31 +232,53 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
     }
 
     private void tryDrainUp(ServerLevel level, BlockPos pos, boolean extract) {
+        this.drainChunks.tick(level);
         int interval = AnvilCraft.CONFIG.machines.drainInterval;
         int budget = (DrainBlockEntity.MAX_NODES + interval - 1) / interval;
-        if (this.cleaningFlows) budget = this.processFlowCleanup(level, budget);
-        if (budget == 0 || this.cleaningFlows) return;
+        if (this.cleaningFlows) {
+            budget = this.processFlowCleanup(level, budget);
+        }
+        if (budget == 0 || this.cleaningFlows) {
+            return;
+        }
         FluidStack stored = this.tank.getStack();
-        if (!stored.isEmpty() && stored.getAmount() >= DrainBlockEntity.DRAIN_THRESHOLD) {
+        if (stored.getAmount() >= DrainBlockEntity.DRAIN_THRESHOLD
+            || this.tank.getCapacityAsLong(0, FluidResource.of(stored)) - stored.getAmount() < DrainBlockEntity.UNIT) {
             this.drainSearch = null;
+            this.drainChunks.release(level);
             return;
         }
         FluidState entry = level.getFluidState(pos.above());
         if (entry.isEmpty() || !stored.isEmpty() && !entry.getType().isSame(stored.getFluid())) {
             this.clearFlowCleanup();
             this.drainSearch = null;
+            this.drainChunks.release(level);
             return;
         }
         Fluid fluid = entry.getType();
-        if (this.drainSearch == null || !this.drainSearch.fluid.isSame(fluid) || !this.drainSearch.chunks.isValid(level)) {
-            this.drainSearch = new DrainSearch(pos, fluid, level.getGameTime() / AnvilCraft.CONFIG.machines.drainInterval);
+        if (this.drainSearch == null || !this.drainSearch.fluid.isSame(fluid) || !this.drainChunks.isValid()) {
+            this.drainChunks.release(level);
+            this.drainSearch = new DrainSearch(
+                pos, fluid, level.getGameTime() / AnvilCraft.CONFIG.machines.drainInterval, this.drainChunks
+            );
         }
-        this.drainSearch.chunks.tick(level);
         SearchResult result = this.drainSearch.advance(level, budget);
+        if (this.drainSearch.invalid) {
+            this.drainSearch = null;
+            this.drainChunks.release(level);
+            return;
+        }
         BlockPos target = result.target();
-        if (!extract || target == null) return;
-        BlockState targetState = this.drainSearch.chunks.read(level, target);
-        if (targetState == null) return;
+        if (!result.pending() && target == null) {
+            this.drainChunks.release(level);
+        }
+        if (!extract || target == null) {
+            return;
+        }
+        BlockState targetState = this.drainChunks.read(level, target);
+        if (targetState == null) {
+            return;
+        }
         FluidState targetFluid = targetState.getFluidState();
         if (targetFluid.isEmpty() || !targetFluid.getType().isSame(fluid)) {
             this.drainSearch = null;
@@ -249,15 +290,24 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
             this.cleaningFlows = true;
             this.drainSearch = null;
         } else {
-            if (!this.canInsert(fluid, DrainBlockEntity.UNIT)) return;
+            Fluid source = targetFluid.getType() instanceof FlowingFluid flowing ? flowing.getSource() : targetFluid.getType();
+            if (!this.canInsert(source, DrainBlockEntity.UNIT)) {
+                this.drainSearch = null;
+                this.drainChunks.release(level);
+                return;
+            }
             if (!DrainBlockEntity.removeFluidSilently(level, target, targetState)) {
                 this.drainSearch = null;
                 return;
             }
             this.prepareFlowCleanup(fluid);
-            for (Direction direction : DrainBlockEntity.DIRECTIONS) this.enqueueFlowing(target.relative(direction));
-            this.insert(fluid, DrainBlockEntity.UNIT);
-            if (!this.drainSearch.acceptDrained(level, target)) this.drainSearch = null;
+            for (Direction direction : DrainBlockEntity.DIRECTIONS) {
+                this.enqueueFlowing(target.relative(direction));
+            }
+            this.insert(source, DrainBlockEntity.UNIT);
+            if (!this.drainSearch.acceptDrained(target)) {
+                this.drainSearch = null;
+            }
             if (target.equals(pos.above())) {
                 this.cleaningFlows = true;
                 this.drainSearch = null;
@@ -271,6 +321,9 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
         if (!stored.isEmpty() && stored.getAmount() >= AnvilCraft.CONFIG.machines.drainCapacity) return;
         for (Direction d : Direction.Plane.HORIZONTAL) {
             BlockPos n = pos.relative(d);
+            if (!level.hasChunkAt(n)) {
+                continue;
+            }
             FluidState fs = level.getFluidState(n);
             if (fs.isEmpty() || !fs.isSource() || !(fs.getType() instanceof FlowingFluid flowing)) continue;
             if (!DrainBlockEntity.canFormInfiniteSource(serverLevel, n, flowing)) continue;
@@ -303,6 +356,9 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
         int neighbourSources = 0;
         for (Direction d : Direction.Plane.HORIZONTAL) {
             BlockPos rel = pos.relative(d);
+            if (!level.hasChunkAt(rel)) {
+                return false;
+            }
             BlockState relState = level.getBlockState(rel);
             FluidState relFs = relState.getFluidState();
             if (relFs.isSource() && relFs.getType().isSame(fluid)
@@ -338,18 +394,23 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
             this.clearFlowCleanup();
             return budget;
         }
-        if (!this.flowCleanupChunks.isValid(level)) this.flowCleanupChunks = new DrainChunkAccess();
-        this.flowCleanupChunks.tick(level);
+        if (!this.drainChunks.isValid()) {
+            this.drainChunks.release(level);
+        }
         BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
         while (!this.flowCleanupQueue.isEmpty() && budget > 0) {
             cursor.set(this.flowCleanupQueue.firstLong());
-            BlockState state = this.flowCleanupChunks.read(level, cursor);
-            if (state == null) return 0;
+            BlockState state = this.drainChunks.read(level, cursor);
+            if (state == null) {
+                return 0;
+            }
             this.flowCleanupQueue.dequeueLong();
             budget--;
             FluidState fluidState = state.getFluidState();
             if (fluidState.isEmpty() || fluidState.isSource() || !fluidState.getType().isSame(this.flowCleanupFluid)) continue;
-            DrainBlockEntity.removeFluidSilently(level, cursor, state);
+            if (DrainBlockEntity.removeFluidSilently(level, cursor, state)) {
+                this.drainChunks.acceptRemoval(cursor);
+            }
             for (Direction direction : DrainBlockEntity.DIRECTIONS) {
                 cursor.move(direction);
                 this.enqueueFlowing(cursor);
@@ -366,7 +427,6 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
         this.flowCleanupVisited.clear();
         this.flowCleanupFluid = null;
         this.cleaningFlows = false;
-        this.flowCleanupChunks = new DrainChunkAccess();
     }
 
     private static boolean isPreferredHorizontalTie(
@@ -620,13 +680,13 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
         private final long drainPos;
         private final Fluid fluid;
         private final long selectionPhase;
-        private final DrainChunkAccess chunks = new DrainChunkAccess();
-        private final LongOpenHashSet discovered = new LongOpenHashSet(DrainBlockEntity.MAX_NODES);
+        private final DrainChunkAccess chunks;
+        private final DrainVisits visits = new DrainVisits();
         private final LongArrayFIFOQueue queue = new LongArrayFIFOQueue(DrainBlockEntity.MAX_NODES);
-        private final Long2LongOpenHashMap sourceAncestors = new Long2LongOpenHashMap();
         private final Long2IntOpenHashMap sourceCandidates = new Long2IntOpenHashMap();
-        private final Long2IntOpenHashMap sourceChildren = new Long2IntOpenHashMap();
+        private final LongArrayFIFOQueue refreshQueue = new LongArrayFIFOQueue();
         private @Nullable LongIterator candidateIterator;
+        private boolean invalid;
         private long best;
         private int bestY = Integer.MIN_VALUE;
         private int bestNeighbors = Integer.MAX_VALUE;
@@ -637,13 +697,13 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
         private long flowing;
         private boolean foundFlowing;
 
-        private DrainSearch(BlockPos drainPos, Fluid fluid, long selectionPhase) {
+        private DrainSearch(BlockPos drainPos, Fluid fluid, long selectionPhase, DrainChunkAccess chunks) {
             this.drainPos = drainPos.asLong();
             this.fluid = fluid;
             this.selectionPhase = selectionPhase;
-            this.sourceAncestors.defaultReturnValue(Long.MIN_VALUE);
+            this.chunks = chunks;
             long entry = drainPos.above().asLong();
-            this.discovered.add(entry);
+            this.visits.add(entry, 7);
             this.queue.enqueue(entry);
         }
 
@@ -651,12 +711,29 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
             BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
             BlockPos.MutableBlockPos neighbor = new BlockPos.MutableBlockPos();
             FluidState[] neighbors = new FluidState[DrainBlockEntity.DIRECTIONS.length];
+            while (!this.refreshQueue.isEmpty() && budget > 0) {
+                budget--;
+                int refreshed = this.refreshCandidate(level, BlockPos.of(this.refreshQueue.firstLong()));
+                if (refreshed < 0) {
+                    this.invalid = true;
+                    return SearchResult.EXHAUSTED;
+                }
+                if (refreshed == 0) {
+                    return SearchResult.PENDING;
+                }
+                this.refreshQueue.dequeueLong();
+            }
+            if (!this.refreshQueue.isEmpty()) {
+                return SearchResult.PENDING;
+            }
             while (!this.queue.isEmpty() && budget > 0) {
                 budget--;
                 long current = this.queue.firstLong();
                 cursor.set(current);
                 BlockState state = this.chunks.read(level, cursor);
-                if (state == null) return SearchResult.PENDING;
+                if (state == null) {
+                    return SearchResult.PENDING;
+                }
                 FluidState fluidState = state.getFluidState();
                 if (fluidState.isEmpty() || !fluidState.getType().isSame(this.fluid)) {
                     this.queue.dequeueLong();
@@ -678,73 +755,97 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
                         sourceNeighbors++;
                     }
                 }
-                if (pending) return SearchResult.PENDING;
+                if (pending) {
+                    return SearchResult.PENDING;
+                }
                 this.queue.dequeueLong();
-                long ancestor = this.sourceAncestors.get(current);
+                long ancestor = this.visits.sourceAncestor(current);
                 if (fluidState.isSource()) {
                     if (ancestor != Long.MIN_VALUE) {
                         this.sourceCandidates.remove(ancestor);
-                        this.sourceChildren.addTo(ancestor, 1);
+                        this.visits.addSourceChild(ancestor, 1);
                     }
                     this.sourceCandidates.put(current, sourceNeighbors);
-                    ancestor = current;
+                    this.visits.markSource(current);
                 } else {
+                    this.visits.markFlowing(current, ancestor);
                     this.flowing = current;
                     this.foundFlowing = true;
                 }
                 for (Direction direction : DrainBlockEntity.DIRECTIONS) {
                     FluidState next = neighbors[direction.ordinal()];
-                    if (next.isEmpty() || !next.getType().isSame(this.fluid)) continue;
+                    if (next.isEmpty() || !next.getType().isSame(this.fluid)) {
+                        continue;
+                    }
                     long adjacent = DrainBlockEntity.offset(cursor, direction);
-                    if (this.discovered.add(adjacent)) {
-                        this.sourceAncestors.put(adjacent, ancestor);
+                    if (this.visits.add(adjacent, direction.getOpposite().ordinal() + 1)) {
                         this.queue.enqueue(adjacent);
                     }
                 }
             }
-            if (!this.queue.isEmpty()) return SearchResult.PENDING;
-            // Keep source ancestors until their descendants are drained; flowing tails must not hide the last source.
-            if (this.candidateIterator == null) this.candidateIterator = this.sourceCandidates.keySet().iterator();
+            if (!this.queue.isEmpty()) {
+                return SearchResult.PENDING;
+            }
+            // 保留源祖先，只有全部后代源已抽空时才将其恢复为候选，避免流动态隐藏最后一格源。
+            if (this.candidateIterator == null) {
+                this.candidateIterator = this.sourceCandidates.keySet().iterator();
+            }
             while (this.candidateIterator.hasNext() && budget-- > 0) {
                 long candidate = this.candidateIterator.nextLong();
                 cursor.set(candidate);
                 this.considerSource(candidate, cursor, this.sourceCandidates.get(candidate));
             }
-            if (this.candidateIterator.hasNext()) return SearchResult.PENDING;
-            if (this.found) return SearchResult.found(this.best);
+            if (this.candidateIterator.hasNext()) {
+                return SearchResult.PENDING;
+            }
+            if (this.found) {
+                return SearchResult.found(this.best);
+            }
             return this.foundFlowing ? SearchResult.found(this.flowing) : SearchResult.EXHAUSTED;
         }
 
-        private boolean acceptDrained(ServerLevel level, BlockPos target) {
-            if (!this.chunks.acceptRemoval(target)) return false;
+        private boolean acceptDrained(BlockPos target) {
+            if (!this.chunks.acceptRemoval(target)) {
+                return false;
+            }
             long removed = target.asLong();
             this.sourceCandidates.remove(removed);
-            long ancestor = this.sourceAncestors.get(removed);
-            if (ancestor != Long.MIN_VALUE) {
-                int remaining = this.sourceChildren.addTo(ancestor, -1) - 1;
-                if (remaining == 0 && !this.refreshCandidate(level, BlockPos.of(ancestor))) return false;
+            long ancestor = this.visits.sourceAncestor(removed);
+            if (ancestor != Long.MIN_VALUE && this.visits.addSourceChild(ancestor, -1) == 0) {
+                this.refreshQueue.enqueue(ancestor);
             }
             for (Direction direction : Direction.Plane.HORIZONTAL) {
-                BlockPos neighbor = target.relative(direction);
-                if (this.sourceCandidates.containsKey(neighbor.asLong()) && !this.refreshCandidate(level, neighbor)) return false;
+                long neighbor = target.relative(direction).asLong();
+                if (this.sourceCandidates.containsKey(neighbor)) {
+                    this.refreshQueue.enqueue(neighbor);
+                }
             }
             this.candidateIterator = null;
             this.found = false;
             return true;
         }
 
-        private boolean refreshCandidate(ServerLevel level, BlockPos pos) {
+        private int refreshCandidate(ServerLevel level, BlockPos pos) {
             BlockState state = this.chunks.read(level, pos);
-            if (state == null || !state.getFluidState().isSource() || !state.getFluidState().getType().isSame(this.fluid)) return false;
+            if (state == null) {
+                return 0;
+            }
+            if (!state.getFluidState().isSource() || !state.getFluidState().getType().isSame(this.fluid)) {
+                return -1;
+            }
             int neighbors = 0;
             for (Direction direction : Direction.Plane.HORIZONTAL) {
                 BlockState neighbor = this.chunks.read(level, pos.relative(direction));
-                if (neighbor == null) return false;
+                if (neighbor == null) {
+                    return 0;
+                }
                 FluidState fluidState = neighbor.getFluidState();
-                if (fluidState.isSource() && fluidState.getType().isSame(this.fluid)) neighbors++;
+                if (fluidState.isSource() && fluidState.getType().isSame(this.fluid)) {
+                    neighbors++;
+                }
             }
             this.sourceCandidates.put(pos.asLong(), neighbors);
-            return true;
+            return 1;
         }
 
         private void considerSource(long source, BlockPos pos, int neighbors) {
@@ -766,6 +867,77 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
                 this.found = true;
             }
         }
+    }
+
+    /** 按区段压缩遍历树，避免大面积深层流体为每格分配多个散列表条目。 */
+    private static final class DrainVisits {
+        private static final int SOURCE = 8;
+        private final Long2ObjectOpenHashMap<DrainSection> sections = new Long2ObjectOpenHashMap<>();
+
+        private boolean add(long pos, int parent) {
+            DrainSection section = this.sections.computeIfAbsent(sectionKey(pos), ignored -> new DrainSection());
+            int index = sectionIndex(pos);
+            if (section.parents[index] != 0) {
+                return false;
+            }
+            section.parents[index] = (byte) parent;
+            return true;
+        }
+
+        private void markSource(long pos) {
+            this.sections.get(sectionKey(pos)).parents[sectionIndex(pos)] |= SOURCE;
+        }
+
+        private void markFlowing(long pos, long ancestor) {
+            DrainSection section = this.sections.get(sectionKey(pos));
+            if (section.ancestors == null) {
+                section.ancestors = new long[4096];
+            }
+            section.ancestors[sectionIndex(pos)] = ancestor;
+        }
+
+        private long sourceAncestor(long pos) {
+            int parent = this.sections.get(sectionKey(pos)).parents[sectionIndex(pos)] & 7;
+            if (parent == 7) {
+                return Long.MIN_VALUE;
+            }
+            Direction direction = DrainBlockEntity.DIRECTIONS[parent - 1];
+            long previous = BlockPos.asLong(
+                BlockPos.getX(pos) + direction.getStepX(),
+                BlockPos.getY(pos) + direction.getStepY(),
+                BlockPos.getZ(pos) + direction.getStepZ()
+            );
+            DrainSection section = this.sections.get(sectionKey(previous));
+            int index = sectionIndex(previous);
+            if ((section.parents[index] & SOURCE) != 0) {
+                return previous;
+            }
+            return section.ancestors == null ? Long.MIN_VALUE : section.ancestors[index];
+        }
+
+        private int addSourceChild(long pos, int amount) {
+            DrainSection section = this.sections.get(sectionKey(pos));
+            if (section.children == null) {
+                section.children = new int[4096];
+            }
+            return section.children[sectionIndex(pos)] += amount;
+        }
+
+        private static long sectionKey(long pos) {
+            return SectionPos.asLong(BlockPos.getX(pos) >> 4, BlockPos.getY(pos) >> 4, BlockPos.getZ(pos) >> 4);
+        }
+
+        private static int sectionIndex(long pos) {
+            return (BlockPos.getX(pos) & 15) | (BlockPos.getZ(pos) & 15) << 4 | (BlockPos.getY(pos) & 15) << 8;
+        }
+    }
+
+    private static final class DrainSection {
+        // 低三位编码父方向（1..6）和入口（7），0 表示尚未访问，第4位标记源节点。
+        private final byte[] parents = new byte[4096];
+        private int @Nullable [] children;
+        // 只为包含流动态的区段分配祖先缓存，确保长流动链的查询也只访问一次父节点。
+        private long @Nullable [] ancestors;
     }
 
     // ---- NBT ----
