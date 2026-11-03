@@ -15,10 +15,6 @@ items:
 - 能容纳16种物品，每种物品可以储存1组
 - 手持<ref item="anvilcraft:anvil_hammer"/>长按右键调整为主动输出模式，主动尝试向前输出物品
 
-<info>
-通常情况下，若存在多个<ref item="anvilcraft:celestial_forging_anvil_logistics_interface"/>
-</info>
-
 <warning>
 部分情况下，可能会输出大量同种物品，若<ref item="anvilcraft:celestial_forging_anvil_logistics_interface"/>数量不足，物品会损失
 </warning>

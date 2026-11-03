@@ -17,7 +17,7 @@ items:
 
 ## 搜索
 
-- 在搜索框搜索时，会检索<ref item="anvilcraft:crate"/>3x3x3以内的所有<ref item="anvilcraft:crate"/>
+- 在搜索框搜索时，会检索<ref item="anvilcraft:crate"/>3x3x3范围内的所有<ref item="anvilcraft:crate"/>
 
 # 存储站
 

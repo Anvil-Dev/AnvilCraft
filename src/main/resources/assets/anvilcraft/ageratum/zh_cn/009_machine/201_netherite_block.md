@@ -22,7 +22,7 @@ navigation:
 
 <structure id="../../structures/machine/netherite_block.nbt"/>
 
-- 两侧木桶填充足量的<ref item="minecraft:gold_block"/>和<ref item="minecraft:ancient_debris"/>
+- 两侧木桶填充足量的<ref item="minecraft:raw_gold_block"/>和<ref item="minecraft:ancient_debris"/>
 - <ref item="minecraft:lever"/>控制的主循环<ref item="anvilcraft:pulse_generator"/>设为(循环模式| 18gt | 2gt)
 - <ref item="minecraft:raw_gold_block"/>侧对应的<ref item="anvilcraft:pulse_generator"/>设为(上升沿模式| 2gt | 50gt)
 - <ref item="minecraft:ancient_debris"/>侧对应的<ref item="anvilcraft:pulse_generator"/>设为(上升沿模式| 22gt | 30gt)

@@ -20,7 +20,7 @@ items:
 # 获取
 
 - 获取第一个护符需要<ref item="anvilcraft:amulet_box"/>：
-  1. 副手内有<ref item="anvilcraft:amulet_box"/>，且盒内有不死图腾
+  1. 副手持有<ref item="anvilcraft:amulet_box"/>，且盒内有不死图腾
   2. 受到特定致命伤害并消耗不死图腾抵挡
   3. 20%的概率获得相应护符，若失败，每次额外叠加10%，直到成功
 - 之后可在<ref item="anvilcraft:jewelcrafting_table"/>中仿制，必须先得到第一个才可仿制
@@ -77,7 +77,7 @@ items:
 
 **获取方式**：受到其他玩家的致命伤害（需要无小队或同小队，不同队伍的玩家伤害不触发）
 
-**效果**：可以被多名玩家右键签名，其他玩家携带并生效时，免疫签名玩家的伤害
+**效果**：可以被多名玩家右键点击签名，其他玩家携带并生效时，免疫签名玩家的伤害
 
 <recipe id="anvilcraft:jewel_crafting/comrade_amulet"/>
 

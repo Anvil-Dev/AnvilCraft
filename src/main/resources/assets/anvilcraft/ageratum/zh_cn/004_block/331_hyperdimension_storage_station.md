@@ -25,10 +25,10 @@ items:
 <recipe id="anvilcraft:hyperdimension_terminal"/>
 
 1. 右击绑定<ref item="anvilcraft:hyperdimension_storage_station"/>（绑定后不可更改，不可解绑）
-2. 右击打开对应的<ref item="anvilcraft:hyperdimension_storage_station"/>的gui，即便该<ref item="anvilcraft:hyperdimension_storage_station"/>在三维世界被拆除
+2. 右击打开对应的<ref item="anvilcraft:hyperdimension_storage_station"/>的GUI，即便该<ref item="anvilcraft:hyperdimension_storage_station"/>在三维世界被拆除
 
 <tip>
-多个玩家可以绑定同一个，通过绑定后拆除可以防止别人绑定
+多个玩家可以绑定同一个，绑定后拆除可以防止别人绑定
 </tip>
 
 # 超距输入
@@ -37,7 +37,7 @@ items:
 
 ## 制作
 
-放置<ref item="anvilcraft:singularity_crystal"/>，手持一个绑定了<ref item="anvilcraft:hyperdimension_storage_station"/>的<ref item="anvilcraft:hyperdimension_terminal"/>右键<ref item="anvilcraft:singularity_crystal"/>，<ref item="anvilcraft:singularity_crystal"/>变为绑定对应<ref item="anvilcraft:hyperdimension_storage_station"/>的<ref item="anvilcraft:hyperdimension_uploader"/>
+放置<ref item="anvilcraft:singularity_crystal"/>，手持一个绑定了<ref item="anvilcraft:hyperdimension_storage_station"/>的<ref item="anvilcraft:hyperdimension_terminal"/>右击<ref item="anvilcraft:singularity_crystal"/>，<ref item="anvilcraft:singularity_crystal"/>变为绑定对应<ref item="anvilcraft:hyperdimension_storage_station"/>的<ref item="anvilcraft:hyperdimension_uploader"/>
 
 ## 功能
 

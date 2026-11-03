@@ -26,7 +26,7 @@ items:
 使用<ref item="anvilcraft:topaz"/>右键<ref item="minecraft:lightning_rod"/>，会消耗<ref item="anvilcraft:topaz"/>并立刻制造一道闪电
 </tip>
 
-默认的雷击转化<ref item="anvilcraft:hollow_magnet_block"/>范围为 3x3x3 :
+默认的雷击转化<ref item="anvilcraft:hollow_magnet_block"/>范围为 3x3x3:
 
 <structure id="../../structures/lightning_convert_magnets.nbt"/>
 

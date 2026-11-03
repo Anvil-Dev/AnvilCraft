@@ -6,7 +6,7 @@ items:
   - anvilcraft:celestial_forging_anvil_portal
 ---
 
-# 无限传输
+# 无线传输
 
 1. 首先，制造若干拥有*虫洞*的[全同黑洞](401_celestial_forging_anvil.md#全同天体)
 2. 为这些*黑洞*安装[虫洞稳定器](402_mega_structure.md#虫洞稳定器)，将这些黑洞所属的<ref item="anvilcraft:celestial_forging_anvil"/>连接起来

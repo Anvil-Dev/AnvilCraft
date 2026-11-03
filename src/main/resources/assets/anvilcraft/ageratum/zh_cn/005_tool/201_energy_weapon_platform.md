@@ -47,7 +47,7 @@ items:
 <recipe id="anvilcraft:energy_weapon_make/anvil_railgun"/>
 
 1. 攻击需要铁砧作为弹药，将除了<ref item="anvilcraft:spectral_anvil"/>外的*铁砧*放在副手，长按右键后松开，最多装填16个铁砧作为弹药
-2. 射击需要长按右键进行最多 5s 蓄力，蓄力期间可随时发射 （需要至少蓄力10%的时间）
+2. 射击需要长按右键进行最多 5s 蓄力，蓄力期间可随时发射（需要至少蓄力10%的时间）
 3. 蓄力越久，速度越快，伤害越高，耗电越多
 
 <info>

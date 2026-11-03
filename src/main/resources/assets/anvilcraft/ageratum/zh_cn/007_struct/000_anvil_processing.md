@@ -11,7 +11,7 @@ navigation:
 让<ref item="minecraft:anvil"/>落在特定方块上就可以加工该方块顶部或内部的物品，不同的特定方块有不同的处理，本条目的后续页面依次介绍
 
 <warning>
-注意：<ref item="minecraft:anvil"/>从高度不低于2格的砸落时，有概率损坏
+注意：<ref item="minecraft:anvil"/>从不低于2格的高度砸落时，有概率损坏
 </warning>
 
 <tip>
@@ -57,7 +57,7 @@ navigation:
 
 - 如果物品有2x2或3x3的合成配方则会被执行，例如9铁粒→铁锭；9铁锭→铁块；4线→羊毛
 - 如果一个物品既可以2x2合成又可以3x3合成，则执行3x3合成
-- 除了原版的配方外，增加了3骨头→1骨块的配方也可以在此合成
+- 除了原版的配方外，3骨头→1骨块的配方也可以在此合成
 
 ## 分解
 
@@ -113,7 +113,7 @@ navigation:
 让<ref item="minecraft:anvil"/>落在不同的方块上可以触发不同的效果，本条目的后续页面将会依次介绍：
 
 <warning>
-<ref item="minecraft:anvil"/>从高度不低于2格的砸落时，有概率损坏
+<ref item="minecraft:anvil"/>从不低于2格的高度砸落时，有概率损坏
 </warning>
 
 <tip>

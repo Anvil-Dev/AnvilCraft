@@ -62,7 +62,7 @@ items:
 
 - <color=#999922>未收到红石信号</color>时，与<ref item="anvilcraft:sliding_rail"/>表现一致
 - <color=#999922>收到红石信号</color>时：
-  - 使有滑行的*方块*经过，使其在上方停顿一下，并对其发出脉冲信号
+  - 有滑行的*方块*经过，使其在上方停顿一下，并对其发出脉冲信号
   - 如上方存在静止的*方块*，则持续对其发出信号
 
 # <ref item="anvilcraft:detector_sliding_rail"/>
@@ -71,4 +71,4 @@ items:
 
 - 上方有*物品*和*方块*滑过时，自身向周围除了上方外的五个方向发出红石信号
 - 可被<ref item="minecraft:comparator"/>检测，根据滑行的*方块*的所属结构的方块数量，输出红石信号
-> eg：四个方块粘在一起经过时，<ref item="minecraft:comparator"/>发出信号强度为4
+> 例如：四个方块粘在一起经过时，<ref item="minecraft:comparator"/>发出信号强度为4

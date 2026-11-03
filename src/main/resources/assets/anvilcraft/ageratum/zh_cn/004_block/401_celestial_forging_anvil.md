@@ -27,7 +27,7 @@ items:
 
 <tip>
 调试参数：
-  - 可以用对四个参数用**鼠标滚轮**便捷调整
+  - 可以对四个参数用**鼠标滚轮**便捷调整
   - 放入部分砧子后，将光标放在其他砧子物品上，可以显示匹配的砧子数量（如果前面先前放入砧子已无法满足条件则不显示）
 </tip>
 
@@ -37,7 +37,7 @@ items:
 
 ## 锻造行星
 
-1. 使用四个砧子控制四个参数，使<color=#bf6060>能量</color>与<color=#78bf78>时间</color>的**交点**和<color=#00bfbf>空间</color>与<color=#bfbf78>质量</color>的**交点**落于同一个颜色区域上
+1. 使用四种砧子控制四个参数，使<color=#bf6060>能量</color>与<color=#78bf78>时间</color>的**交点**和<color=#00bfbf>空间</color>与<color=#bfbf78>质量</color>的**交点**落于同一个颜色区域上
 2. 图片右下角的文本会显示当前参数所对应的星球类型，锻造行星要求第一行和第三行为同一星球类型
 3. 点击锻造按钮，消耗 1MW 电力并耗时 10s 锻造完成，之后不再消耗电力
 
@@ -46,8 +46,8 @@ items:
 <structure id="../../structures/forging_stars.nbt"/>
 
 1. 想要锻造一个恒星，首先需要准备四个<ref item="anvilcraft:celestial_forging_anvil_amplifier"/>，分别放置在<ref item="anvilcraft:celestial_forging_anvil"/>的四个角落
-2. 使用四个砧子控制四个参数，确保四条线的**三个焦点**落于同一个颜色区域上
-3. 图片右下角的文本会显示当前参数所对应的星球类型，锻造行星要求三行为同一星球类型
+2. 使用四种砧子控制四个参数，确保四条线的**三个交点**落于同一个颜色区域上
+3. 图片右下角的文本会显示当前参数所对应的星球类型，锻造恒星要求三行为同一星球类型
 4. 点击锻造按钮，消耗 32MW 电力并耗时 10s 锻造完成，之后不再消耗电力
 
 <info>
@@ -63,20 +63,20 @@ items:
 # 天体与世界的交互
 
 - 当锻造完毕后，*束星环*中会出现锻造出的星球
-- 周围会出现引力，任何进入引力的生物、物品、弹射物等都会被吸引至星球，并受到伤害（玩家潜行时不受影响）
+- 周围会出现引力，任何进入引力区域的生物、物品、弹射物等都会被吸引至星球，并受到伤害（玩家潜行时不受影响）
 - 对<ref item="anvilcraft:celestial_forging_anvil"/>通入**红石信号**可将天体放大，其引力场将同步放大
 
 # 提取天体资源
 
 ## 建造巨构
 
-1. 在<ref item="anvilcraft:celestial_forging_anvil"/>的GUI下方，点击绑定按钮
+1. 在<ref item="anvilcraft:celestial_forging_anvil"/>的GUI下方，点击锁定按钮
 2. 在<ref item="anvilcraft:celestial_forging_anvil"/>的GUI右侧，选择*巨构*并提交对应**建筑材料**
 
-巨构的建造条件、合成方式、合成材料和功能说明，请查看[巨构](402_mega_structure.md)。
+关于巨构的建造条件、合成方式、合成材料和功能说明，请查看[巨构](402_mega_structure.md)。
 
 <tip>
-若要移除巨构，只需解绑再绑定星球
+若要移除巨构，只需解锁再锁定星球
 </tip>
 
 <warning>
@@ -106,7 +106,7 @@ items:
 | [1,54]  | 白矮星  |
 | [55,58] | 中子星  |
 | [59,63] |  黑洞  |
-|  {64}   | 炸没了  |
+|  {64}   | 完全解体 |
 
 # 种子物品
 
@@ -131,8 +131,8 @@ GUI左下角可以塞入某些消耗物品，赋予锻星特殊效果
 
 # 全同天体
 
-- 使用<ref item="anvilcraft:disk"/>右键<ref item="anvilcraft:celestial_forging_anvil"/>复制天体信息
-- 将此<ref item="anvilcraft:disk"/>放入另一锻星砧的*种子物品*槽，消耗该<ref item="anvilcraft:disk"/>锻造另一个天体，和源天体拥有完全相同的构成，它们互相为*全同天体*
+- 使用<ref item="anvilcraft:disk"/>右击<ref item="anvilcraft:celestial_forging_anvil"/>复制天体信息
+- 将此<ref item="anvilcraft:disk"/>放入另一锻星砧的*种子物品*槽，消耗该<ref item="anvilcraft:disk"/>锻造另一个天体，该天体将和源天体拥有完全相同的构成，它们互相为*全同天体*
 - 对极端天体（中子星、黑洞），需改为使用<ref item="anvilcraft:singularity_crystal"/>作为承载天体信息的媒介来完成锻造
 
 # 放大天体

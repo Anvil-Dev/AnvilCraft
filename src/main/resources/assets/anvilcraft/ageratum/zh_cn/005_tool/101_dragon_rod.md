@@ -26,7 +26,7 @@ items:
 | 9x9  | 4     |
 
 <info>
-当<ref item="anvilcraft:dragon_rod"/>耐久消耗殆尽时不会完全损坏，而是失去所有功能，类似于<ref item="minecraft:elytra"/>
+<ref item="anvilcraft:dragon_rod"/>耐久消耗殆尽时不会完全损坏，而是失去所有功能，类似于<ref item="minecraft:elytra"/>
 </info>
 
 ### 破坏时

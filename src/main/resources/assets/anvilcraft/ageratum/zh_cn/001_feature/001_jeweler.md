@@ -24,7 +24,7 @@ navigation:
 - <ref item="anvilcraft:amulet_box"/> 
 
 <info>
-<ref item="anvilcraft:amulet_box"/> 仅能通过珠宝匠获得
+<ref item="anvilcraft:amulet_box"/>仅能通过珠宝匠获得
 </info>
 
 # 交易列表

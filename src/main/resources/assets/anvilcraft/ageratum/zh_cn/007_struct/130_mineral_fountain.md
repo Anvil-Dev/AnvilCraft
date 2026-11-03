@@ -22,7 +22,7 @@ items:
 
 1. 制作<ref item="anvilcraft:impact_pile"/>
 2. 将<ref item="anvilcraft:impact_pile"/>放置在<ref item="minecraft:bedrock"/>或<ref item="minecraft:deepslate"/>上，并确保其位置**不高于**世界底部 8 格
-3. 用至少 20 格的高度下落的任意*铁砧*砸击它
+3. 用从至少 20 格的高度下落的任意*铁砧*砸击它
 4. 最终<ref item="anvilcraft:impact_pile"/>和<ref item="minecraft:anvil"/>都会消失，并生成一个包含<ref item="anvilcraft:mineral_fountain"/>、<ref item="anvilcraft:sturdy_deepslate"/>和熔岩的结构
 
 <info>

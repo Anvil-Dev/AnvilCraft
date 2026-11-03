@@ -27,5 +27,5 @@ items:
 
 # 功能
 
-- 可用于制作 <ref item="anvilcraft:controllable_sand"/>
+- 可用于制作<ref item="anvilcraft:controllable_sand"/>
 

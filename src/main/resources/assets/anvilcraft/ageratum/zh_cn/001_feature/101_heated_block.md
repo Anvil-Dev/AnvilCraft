@@ -61,7 +61,7 @@ items:
 
 ## 特性
 
-- 可以为<ref item="anvilcraft:heat_collector"/>提供给热量以发电
+- 可以为<ref item="anvilcraft:heat_collector"/>提供热量以发电
 - 挖掘时，如果工具没有*精准采集/熔炼*附魔，则**温度等级**降低一级
 - 放置时，**温度等级**降低一级
 - <color=#aa2222>红热</color>及以上等级的方块，烫伤踩在上面的生物

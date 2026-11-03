@@ -19,7 +19,7 @@ items:
 # <ref item="anvilcraft:acceleration_ring"/>
 
 - 通过[多方块转换](210_giant_anvil.md#功能)获得
-- 启用耗电量256kW，受到红石信号停用
+- 启用耗电量256kW，收到红石信号停用
 - 朝上摆放时，启用时，可以吸引12格以内的<ref item="anvilcraft:giant_anvil"/>。中间不能有方块阻挡
 - 两个相同方向的启用的加速环之间会形成*加速区间*
 
@@ -34,7 +34,7 @@ items:
 # <ref item="anvilcraft:deflection_ring"/>
 
 - 通过[多方块转化](210_giant_anvil.md#功能)获得
-- 启用耗电量256kW，受到红石信号停用
+- 启用耗电量256kW，收到红石信号停用
 - 竖直摆放时，启用时，可以吸引12格以内的<ref item="anvilcraft:giant_anvil"/>。中间不能有方块阻挡
 - 启用时，扭曲前文中被加速的实体的运动，使其前进方向沿**环外箭头**所示方向旋转90°
 
