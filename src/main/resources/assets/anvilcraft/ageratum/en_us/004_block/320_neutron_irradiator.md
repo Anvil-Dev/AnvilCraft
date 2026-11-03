@@ -26,3 +26,7 @@ items:
 </row>
 
 > If you accidentally throw a <ref item="anvilcraft:uranium_block"/> in for processing, it will cause a massive explosion
+
+# Additional Functions
+
+- [Anvilon Irradiation](../002_material/321_anvilon.md#anvilon-irradiation)

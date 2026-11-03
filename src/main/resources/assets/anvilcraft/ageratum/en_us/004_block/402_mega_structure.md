@@ -141,7 +141,7 @@ Celestial bodies consume all primordial matter in <ref item="anvilcraft:celestia
 - **Construction requirement**: Star other than a white dwarf, neutron star, black hole, or special red dwarf
 - **Crafting materials**: <ref item="anvilcraft:stellar_evolution_accelerator_component"/> × 4
 - **Input**: None
-- **Effect**: Accelerates stellar evolution. When a star reaches the end of its life, it becomes a white dwarf or triggers a supernova explosion and becomes a neutron star or black hole.
+- **Effect**: Accelerates [Stellar Evolution](401_celestial_forging_anvil.md#stellar-evolution)
 - **Properties**: Can coexist with other stellar mega structures.
 
 ### Supernova Explosion

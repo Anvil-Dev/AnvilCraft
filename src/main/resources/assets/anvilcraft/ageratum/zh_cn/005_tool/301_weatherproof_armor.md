@@ -41,6 +41,10 @@ items:
 - 在熔岩下提供清晰视野
 - 提供夜视效果
 
+<tip>
+拿在手上时，可以通过长按 <key id="key.anvilcraft.switch_phase"/> 呼出轮盘关闭夜视效果
+</tip>
+
 ## <ref item="anvilcraft:weatherproof_spacesuit_chestplate"/>
 
 - 额外存储 160 MFE 电能，可在电网外飞行

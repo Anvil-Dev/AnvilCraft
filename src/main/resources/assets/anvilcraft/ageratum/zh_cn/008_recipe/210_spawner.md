@@ -3,6 +3,7 @@ navigation:
   title: "§6制造刷怪笼"
   icon: "minecraft:spawner"
 items:
+  - anvilcraft:mob_amber_block
   - anvilcraft:resentful_amber_block
 ---
 

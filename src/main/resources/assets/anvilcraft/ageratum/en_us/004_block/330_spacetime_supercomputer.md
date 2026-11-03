@@ -13,7 +13,7 @@ items:
 <recipe id="anvilcraft:procedural_process/spacetime_supercomputer_from_advanced_comparator"/>
 <recipe id="anvilcraft:procedural_process/spacetime_supercomputer_from_advanced_comparator_2"/>
 
-Crafting requires [Anvilon Irradiation](../002_material/321_anvilon.md#anvilon-irradiation)
+> Crafting requires <ref item="anvilcraft:confined_time_anvilon"/> and <ref item="anvilcraft:confined_space_anvilon"/> for [Anvilon Irradiation](../002_material/321_anvilon.md#anvilon-irradiation)
 
 1. Continuously consumes 512kW of power
 2. Requires charging before operation, charges 1% every 3 seconds, each operation consumes at least 20% charge

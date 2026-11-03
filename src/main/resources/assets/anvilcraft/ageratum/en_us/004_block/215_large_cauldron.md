@@ -25,6 +25,8 @@ items:
 
 ## Items
 
+<structure id="../../structures/large_cauldron_item.nbt"/>
+
 ### Input
 
 - Directly toss items into the cauldron from above
@@ -41,6 +43,8 @@ Place a chute underneath to output only products
 </tip>
 
 ## Fluids
+
+<structure id="../../structures/large_cauldron_fluid.nbt"/>
 
 ### Input
 
@@ -59,6 +63,8 @@ In other words, you **cannot** output only *produced fluids* by pumping fluid ou
 </info>
 
 # Processing
+
+<structure id="../../structures/large_cauldron_processing.nbt"/>
 
 - Recipes can only be executed by striking the <ref item="anvilcraft:large_cauldron"/> with a <ref item="anvilcraft:giant_anvil"/>
 - Processing efficiency is equivalent to 9 <ref item="minecraft:cauldron"/>s working on **processing items** or **block squeezing**

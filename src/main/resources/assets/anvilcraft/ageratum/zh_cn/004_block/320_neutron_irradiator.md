@@ -26,3 +26,7 @@ items:
 </row>
 
 > 如果不小心把<ref item="anvilcraft:uranium_block"/>丢进去加工会引发大爆炸
+
+# 更多功能
+
+- [砧子辐照](../002_material/321_anvilon.md#砧子辐照)

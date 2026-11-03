@@ -8,7 +8,7 @@ items:
 
 # 铁块自增殖
 
-合成需要[质量砧子辐照](../002_material/321_anvilon.md#砧子辐照)
+> 合成需要<ref item="anvilcraft:confined_mass_anvilon"/>进行[砧子辐照](../002_material/321_anvilon.md#砧子辐照)
 
 <recipe id="anvilcraft:procedural_process/heavy_iron_block"/>
 <recipe id="anvilcraft:iron_block_from_heavy_iron_block"/>

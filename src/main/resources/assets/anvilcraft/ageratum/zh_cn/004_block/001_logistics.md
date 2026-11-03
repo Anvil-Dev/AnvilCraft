@@ -60,7 +60,7 @@ items:
 <recipe id="anvilcraft:overflow_chute"/>
 
 - 无 GUI
-- 仅容纳1组物品
+- 仅容纳 1 组物品
 - 使用<ref item="anvilcraft:anvil_hammer"/>右击侧面可打开或关闭对应溢流口；主出口堵塞时，物品会尽量均分地从各溢流口输出
 
 # <ref item="anvilcraft:item_splitter"/>
@@ -68,7 +68,7 @@ items:
 <recipe id="anvilcraft:item_splitter"/>
 
 - 无 GUI
-- 可容纳 16 组物品，可以混装多种物品
+- 可容纳 16 组物品
 - 空手右键可以取出内部物品，潜行时取出一组
 - 正前方有容器时，会自动将内部物品平均分配给前方**相连的**容器，最多 16 格
 - 正前方没有容器时，被*铁砧*砸中会按下落高度均分物品，抛向前方没有遮挡的空间（无需相连），最远 16 格

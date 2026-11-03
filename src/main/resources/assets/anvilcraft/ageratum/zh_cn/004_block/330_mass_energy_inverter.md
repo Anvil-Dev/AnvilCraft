@@ -13,7 +13,7 @@ items:
 <recipe id="anvilcraft:procedural_process/mass_energy_inverter_energy_first"/>
 <recipe id="anvilcraft:procedural_process/mass_energy_inverter_mass_first"/>
 
-合成需要[砧子辐照](../002_material/321_anvilon.md#砧子辐照)
+> 合成需要<ref item="anvilcraft:confined_mass_anvilon"/>和<ref item="anvilcraft:confined_energy_anvilon"/>进行[砧子辐照](../002_material/321_anvilon.md#砧子辐照)
 
 1. 持续耗能 1024kW。
 2. 每 tick 为水平方向相邻的<ref item="anvilcraft:space_overcompressor"/>增加 5 点质量值（可叠加）。

@@ -8,7 +8,7 @@ items:
 
 # Iron Block Multiplication
 
-Crafting requires [Mass Anvilon Irradiation](../002_material/321_anvilon.md#anvilon-irradiation)
+> Crafting requires <ref item="anvilcraft:confined_mass_anvilon"/> for [Anvilon Irradiation](../002_material/321_anvilon.md#anvilon-irradiation)
 
 <recipe id="anvilcraft:procedural_process/heavy_iron_block"/>
 <recipe id="anvilcraft:iron_block_from_heavy_iron_block"/>
