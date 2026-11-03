@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.api.IStoragePort;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
+import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler.ResourceKey;
 import dev.dubhe.anvilcraft.block.AbstractStoragePortBlock;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
@@ -23,10 +24,12 @@ import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
-import net.neoforged.neoforge.items.ItemStackHandler;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Objects;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -34,11 +37,11 @@ import javax.annotation.Nullable;
 /**
  * 仓储端口整合器方块实体。
  *
- * <p>沿面相邻的仓储端口收集整个端口阵列，把各端口缓存的并集作为物品能力暴露给外部物流，
+ * <p>沿面相邻的仓储端口收集整个端口阵列，把各端口可取库存的并集作为物品能力暴露给外部物流，
  * 并把相连的流体端口按「一个端口一格」暴露为流体能力，读写都直通该端口的储罐；
  * 相连关系只穿过端口，不跨集装箱 / 存储站，因此集装箱两侧没有直接相连的端口阵列不会互通。
- * 整合器自身没有容积空间：输入物品直接进入相连端口，优先进入标记了对应物品的端口，
- * 其余情况只进入调用方指定槽位所属的端口，与仓储端口自身的缓存语义一致，
+ * 整合器自身没有容积空间：输入物品按照相连端口的标记规则存入对应仓库或内部容器，
+ * 其余情况只进入调用方指定槽位所属的端口，与仓储端口自身的存取规则一致，
  * 按槽位遍历（如 {@link ItemHandlerHelper#insertItem}）即可填满整个阵列。</p>
  *
  * <p>右键为「塞入」：单击把手持物品塞入，双击把身上对应端口标记的物品全部塞入；
@@ -123,7 +126,7 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
     }
 
     /**
-     * 把手中物品塞入相连端口，一次最多 {@code maxCount} 个；优先进入标记了该物品的端口。
+     * 把手中物品塞入相连端口，一次最多 {@code maxCount} 个。
      */
     public void stuffFromHand(ItemStack held, int maxCount) {
         if (held.isEmpty() || maxCount <= 0) {
@@ -293,25 +296,52 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
         return -1;
     }
 
-    private static ItemStack insertIntoPort(StoragePortBlockEntity port, ItemStack stack, boolean simulate) {
-        ItemStack remainder = stack;
-        ItemStackHandler buffer = port.getBuffer();
-        for (int slot = 0; slot < buffer.getSlots() && !remainder.isEmpty(); slot++) {
-            // 调用方可能把槽内物品的同一个实例再塞回来，此时并入该槽会把数量翻倍
-            if (buffer.getStackInSlot(slot) == remainder) {
+    private List<StoragePortBlockEntity> itemPorts() {
+        List<StoragePortBlockEntity> result = new ArrayList<>();
+        Set<ResourceKey> marks = new HashSet<>();
+        StoragePortBlockEntity unmarked = null;
+        for (int index = 0; index < this.ports.size(); index++) {
+            StoragePortBlockEntity port = this.portAt(index);
+            if (port == null) {
                 continue;
             }
-            remainder = buffer.insertItem(slot, remainder, simulate);
+            if (this.storageId == null || !port.isConnectedTo(this.storageId)) {
+                result.add(port);
+            } else if (port.getMarkedItem().isEmpty()) {
+                unmarked = port;
+            }
         }
-        return remainder;
+        if (unmarked != null) {
+            result.add(unmarked);
+            result.sort(Comparator.comparing(port -> port.getMarkedItem().isEmpty()));
+            return result;
+        }
+        for (int index = 0; index < this.ports.size(); index++) {
+            StoragePortBlockEntity port = this.portAt(index);
+            if (port != null && this.storageId != null && port.isConnectedTo(this.storageId)
+                && marks.add(ResourceKey.of(port.getMarkedItem()))) {
+                result.add(port);
+            }
+        }
+        result.sort(Comparator.comparing(port -> port.getMarkedItem().isEmpty()));
+        return result;
     }
 
-    private static int portIndex(int slot) {
-        return slot < 0 ? -1 : slot / StoragePortBlockEntity.BUFFER_SLOTS;
+    private @Nullable PortSlot itemSlot(int slot) {
+        if (slot < 0) {
+            return null;
+        }
+        for (StoragePortBlockEntity port : this.itemPorts()) {
+            IItemHandler handler = port.getItemHandler();
+            if (slot < handler.getSlots()) {
+                return new PortSlot(handler, slot);
+            }
+            slot -= handler.getSlots();
+        }
+        return null;
     }
 
-    private static int bufferSlot(int slot) {
-        return slot % StoragePortBlockEntity.BUFFER_SLOTS;
+    private record PortSlot(IItemHandler handler, int slot) {
     }
 
     @Override
@@ -339,83 +369,45 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
         this.storageId = null;
     }
 
-    /**
-     * 相连端口缓存拼成的物品能力：共 {@code 端口数 × 32} 格，
-     * 插入优先进入标记了对应物品的端口，其余情况只进入该槽位所属的端口。
-     */
+    /** 相连端口的物品能力，同一仓库的同种标记只暴露一次。 */
     private class ConsolidatedItemHandler implements IItemHandler {
         @Override
         public int getSlots() {
-            return StoragePortConsolidatorBlockEntity.this.ports.size() * StoragePortBlockEntity.BUFFER_SLOTS;
+            int slots = 0;
+            for (StoragePortBlockEntity port : StoragePortConsolidatorBlockEntity.this.itemPorts()) {
+                slots += port.getItemHandler().getSlots();
+            }
+            return slots;
         }
 
         @Override
         public ItemStack getStackInSlot(int slot) {
-            StoragePortBlockEntity port = StoragePortConsolidatorBlockEntity.this.portAt(
-                StoragePortConsolidatorBlockEntity.portIndex(slot)
-            );
-            if (port == null) {
-                return ItemStack.EMPTY;
-            }
-            return port.getBuffer().getStackInSlot(StoragePortConsolidatorBlockEntity.bufferSlot(slot));
+            PortSlot target = StoragePortConsolidatorBlockEntity.this.itemSlot(slot);
+            return target == null ? ItemStack.EMPTY : target.handler().getStackInSlot(target.slot());
         }
 
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            if (stack.isEmpty()) {
-                return ItemStack.EMPTY;
-            }
-            ItemStack remainder = stack;
-            // 标记了该物品的端口优先
-            int marked = StoragePortConsolidatorBlockEntity.this.findMarkedPort(stack);
-            if (marked >= 0) {
-                StoragePortBlockEntity markedPort = StoragePortConsolidatorBlockEntity.this.portAt(marked);
-                if (markedPort != null) {
-                    remainder = StoragePortConsolidatorBlockEntity.insertIntoPort(markedPort, remainder, simulate);
-                    if (remainder.isEmpty()) {
-                        return ItemStack.EMPTY;
-                    }
-                }
-            }
-            // 其余情况只进入该槽位所属的端口，调用方按槽位遍历即可填满其余端口
-            StoragePortBlockEntity port = StoragePortConsolidatorBlockEntity.this.portAt(
-                StoragePortConsolidatorBlockEntity.portIndex(slot)
-            );
-            if (port == null) {
-                return remainder;
-            }
-            return StoragePortConsolidatorBlockEntity.insertIntoPort(port, remainder, simulate);
+            PortSlot target = StoragePortConsolidatorBlockEntity.this.itemSlot(slot);
+            return target == null ? stack : target.handler().insertItem(target.slot(), stack, simulate);
         }
 
         @Override
         public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            StoragePortBlockEntity port = StoragePortConsolidatorBlockEntity.this.portAt(
-                StoragePortConsolidatorBlockEntity.portIndex(slot)
-            );
-            if (port == null) {
-                return ItemStack.EMPTY;
-            }
-            return port.getBuffer().extractItem(StoragePortConsolidatorBlockEntity.bufferSlot(slot), amount, simulate);
+            PortSlot target = StoragePortConsolidatorBlockEntity.this.itemSlot(slot);
+            return target == null ? ItemStack.EMPTY : target.handler().extractItem(target.slot(), amount, simulate);
         }
 
         @Override
         public int getSlotLimit(int slot) {
-            StoragePortBlockEntity port = StoragePortConsolidatorBlockEntity.this.portAt(
-                StoragePortConsolidatorBlockEntity.portIndex(slot)
-            );
-            if (port == null) {
-                return 0;
-            }
-            return port.getBuffer().getSlotLimit(StoragePortConsolidatorBlockEntity.bufferSlot(slot));
+            PortSlot target = StoragePortConsolidatorBlockEntity.this.itemSlot(slot);
+            return target == null ? 0 : target.handler().getSlotLimit(target.slot());
         }
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            StoragePortBlockEntity port = StoragePortConsolidatorBlockEntity.this.portAt(
-                StoragePortConsolidatorBlockEntity.portIndex(slot)
-            );
-            return port != null
-                && port.getBuffer().isItemValid(StoragePortConsolidatorBlockEntity.bufferSlot(slot), stack);
+            PortSlot target = StoragePortConsolidatorBlockEntity.this.itemSlot(slot);
+            return target != null && target.handler().isItemValid(target.slot(), stack);
         }
     }
 

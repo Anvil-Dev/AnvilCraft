@@ -5,6 +5,7 @@ import com.google.common.collect.Table;
 import dev.dubhe.anvilcraft.block.container.storage.HyperdimensionStorageStationBlock;
 import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.block.entity.StorageFluidPortBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import net.minecraft.core.BlockPos;
@@ -22,6 +23,7 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +56,8 @@ public final class StoragePortManager {
 
     /** （维度 × 存储 ID）→ 端口位置集合 */
     private static final Table<ResourceKey<Level>, UUID, Set<BlockPos>> PORTS = HashBasedTable.create();
+
+    private static final Map<UUID, Long> ITEM_PORT_VERSIONS = new HashMap<>();
 
     private StoragePortManager() {
     }
@@ -141,7 +145,9 @@ public final class StoragePortManager {
             positions = new HashSet<>();
             StoragePortManager.PORTS.put(level.dimension(), storageId, positions);
         }
-        positions.add(pos.immutable());
+        if (positions.add(pos.immutable())) {
+            StoragePortManager.itemPortsChanged(storageId);
+        }
     }
 
     /**
@@ -163,7 +169,9 @@ public final class StoragePortManager {
         if (positions == null) {
             return;
         }
-        positions.remove(pos);
+        if (positions.remove(pos)) {
+            StoragePortManager.itemPortsChanged(storageId);
+        }
         if (positions.isEmpty()) {
             StoragePortManager.PORTS.remove(dimension, storageId);
         }
@@ -172,6 +180,7 @@ public final class StoragePortManager {
     /** 服务端停止时清表，避免静态表在下次进入世界时残留上次的登记。 */
     public static void clear() {
         StoragePortManager.PORTS.clear();
+        StoragePortManager.ITEM_PORT_VERSIONS.clear();
     }
 
     /**
@@ -348,6 +357,39 @@ public final class StoragePortManager {
                     continue;
                 }
                 if (level.getBlockEntity(pos) instanceof StorageFluidPortBlockEntity port) {
+                    result.add(port);
+                }
+            }
+        }
+        return result;
+    }
+
+    /** 返回端口登记版本，供存储处理器刷新已加载的内部库存列表。 */
+    public static long itemPortVersion(UUID storageId) {
+        return StoragePortManager.ITEM_PORT_VERSIONS.getOrDefault(storageId, 0L);
+    }
+
+    private static void itemPortsChanged(UUID storageId) {
+        StoragePortManager.ITEM_PORT_VERSIONS.merge(storageId, 1L, Long::sum);
+        StorageServerStub.onContentsChanged(storageId);
+    }
+
+    /** 返回该存储已连接且已加载的物品端口，按维度与位置去重。 */
+    public static List<StoragePortBlockEntity> liveItemPorts(UUID storageId) {
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if (server == null) {
+            return List.of();
+        }
+        List<StoragePortBlockEntity> result = new ArrayList<>();
+        for (Map.Entry<ResourceKey<Level>, Set<BlockPos>> entry
+            : StoragePortManager.PORTS.column(storageId).entrySet()) {
+            ServerLevel level = server.getLevel(entry.getKey());
+            if (level == null) {
+                continue;
+            }
+            for (BlockPos pos : entry.getValue()) {
+                if (level.isLoaded(pos) && level.getBlockEntity(pos) instanceof StoragePortBlockEntity port
+                    && port.isConnectedTo(storageId)) {
                     result.add(port);
                 }
             }
