@@ -5,6 +5,7 @@ import com.google.common.collect.Table;
 import dev.dubhe.anvilcraft.block.container.storage.HyperdimensionStorageStationBlock;
 import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.block.entity.StorageFluidPortBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import net.minecraft.core.BlockPos;
@@ -57,6 +58,7 @@ public final class StoragePortManager {
 
     /** （维度 × 存储 ID）→ 端口位置集合 */
     private static final Table<ResourceKey<Level>, UUID, Set<BlockPos>> PORTS = HashBasedTable.create();
+    private static long itemPortVersion;
 
     private StoragePortManager() {
     }
@@ -144,7 +146,10 @@ public final class StoragePortManager {
             positions = new HashSet<>();
             StoragePortManager.PORTS.put(level.dimension(), storageId, positions);
         }
-        positions.add(pos.immutable());
+        if (positions.add(pos.immutable())) {
+            StoragePortManager.itemPortVersion++;
+            StorageServerStub.onContentsChanged(storageId);
+        }
     }
 
     /**
@@ -166,7 +171,10 @@ public final class StoragePortManager {
         if (positions == null) {
             return;
         }
-        positions.remove(pos);
+        if (positions.remove(pos)) {
+            StoragePortManager.itemPortVersion++;
+            StorageServerStub.onContentsChanged(storageId);
+        }
         if (positions.isEmpty()) {
             StoragePortManager.PORTS.remove(dimension, storageId);
         }
@@ -175,6 +183,35 @@ public final class StoragePortManager {
     /** 服务端停止时清表，避免静态表在下次进入世界时残留上次的登记。 */
     public static void clear() {
         StoragePortManager.PORTS.clear();
+        StoragePortManager.itemPortVersion++;
+    }
+
+    /** 已登记端口的版本，用于刷新大仓库物品接口中的端口列表。 */
+    public static long itemPortVersion() {
+        return StoragePortManager.itemPortVersion;
+    }
+
+    /** 返回该存储在所有维度中已加载且仍连接的物品端口。 */
+    public static List<StoragePortBlockEntity> liveItemPorts(UUID storageId) {
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if (server == null || StoragePortManager.PORTS.isEmpty()) {
+            return List.of();
+        }
+        List<StoragePortBlockEntity> result = new ArrayList<>();
+        for (Map.Entry<ResourceKey<Level>, Set<BlockPos>> entry
+            : StoragePortManager.PORTS.column(storageId).entrySet()) {
+            ServerLevel level = server.getLevel(entry.getKey());
+            if (level == null) {
+                continue;
+            }
+            for (BlockPos pos : Set.copyOf(entry.getValue())) {
+                if (level.isLoaded(pos) && level.getBlockEntity(pos) instanceof StoragePortBlockEntity port
+                    && port.isConnectedTo(storageId)) {
+                    result.add(port);
+                }
+            }
+        }
+        return result;
     }
 
     /**

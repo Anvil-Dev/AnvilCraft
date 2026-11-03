@@ -28,18 +28,20 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 /**
  * 仓储端口整合器方块实体。
  *
- * <p>沿面相邻的仓储端口收集整个端口阵列，把各端口缓存的并集作为物品能力暴露给外部物流，
+ * <p>沿面相邻的仓储端口收集整个端口阵列，把各端口的可用库存作为物品能力暴露给外部物流，
  * 并把相连的流体端口按「一个端口一格」暴露为流体能力，读写都直通该端口的储罐；
  * 相连关系只穿过端口，不跨集装箱 / 存储站，因此集装箱两侧没有直接相连的端口阵列不会互通。
  * 整合器自身没有容积空间：输入物品直接进入相连端口，优先进入标记了对应物品的端口，
- * 其余情况只进入调用方指定槽位所属的端口，与仓储端口自身的缓存语义一致，
+ * 其余情况只进入调用方指定槽位所属的端口，与仓储端口自身的存取规则一致，
  * 按槽位遍历（如 {@link ResourceHandler#insert}）即可填满整个阵列。</p>
  *
  * <p>右键为「塞入」：单击把手持物品塞入，双击把身上对应端口标记的物品全部塞入；
@@ -283,14 +285,6 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
         return -1;
     }
 
-    private static int portIndex(int slot) {
-        return slot < 0 ? -1 : slot / StoragePortBlockEntity.BUFFER_SLOTS;
-    }
-
-    private static int bufferSlot(int slot) {
-        return slot % StoragePortBlockEntity.BUFFER_SLOTS;
-    }
-
     @Override
     public ResourceHandler<ItemResource> getItemHandler() {
         return this.itemHandler;
@@ -316,44 +310,93 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
         this.storageId = null;
     }
 
-    /** 相连端口缓存按 32 格映射；插入沿用标记端口优先的规则。 */
+    private List<StoragePortBlockEntity> itemPorts() {
+        List<StoragePortBlockEntity> linked = new ArrayList<>();
+        StoragePortBlockEntity unmarked = null;
+        for (int index = 0; index < this.ports.size(); index++) {
+            StoragePortBlockEntity port = this.portAt(index);
+            if (port == null) {
+                continue;
+            }
+            linked.add(port);
+            if (this.storageId != null && port.isConnectedTo(this.storageId) && port.getMarkedItem().isEmpty()) {
+                unmarked = port;
+            }
+        }
+        List<StoragePortBlockEntity> result = new ArrayList<>();
+        Set<ItemResource> marks = new HashSet<>();
+        for (StoragePortBlockEntity port : linked) {
+            if (this.storageId == null || !port.isConnectedTo(this.storageId)) {
+                result.add(port);
+            } else if (unmarked != null) {
+                if (port == unmarked) {
+                    result.add(port);
+                }
+            } else if (marks.add(ItemResource.of(port.getMarkedItem()))) {
+                result.add(port);
+            }
+        }
+        return result;
+    }
+
+    /** 按端口当前暴露的槽位映射，插入优先使用同种标记端口。 */
     private class ConsolidatedItemHandler implements ResourceHandler<ItemResource> {
         @Override
         public int size() {
-            return StoragePortConsolidatorBlockEntity.this.ports.size() * StoragePortBlockEntity.BUFFER_SLOTS;
+            int size = 0;
+            for (StoragePortBlockEntity port : StoragePortConsolidatorBlockEntity.this.itemPorts()) {
+                size += port.getItemHandler().size();
+            }
+            return size;
+        }
+
+        private @Nullable ItemSlot slot(int index) {
+            if (index < 0) {
+                return null;
+            }
+            for (StoragePortBlockEntity port : StoragePortConsolidatorBlockEntity.this.itemPorts()) {
+                ResourceHandler<ItemResource> handler = port.getItemHandler();
+                if (index < handler.size()) {
+                    return new ItemSlot(handler, index);
+                }
+                index -= handler.size();
+            }
+            return null;
         }
 
         @Override
         public ItemResource getResource(int index) {
-            var port = StoragePortConsolidatorBlockEntity.this.portAt(portIndex(index));
-            return port == null ? ItemResource.EMPTY : port.getBuffer().getResource(bufferSlot(index));
+            ItemSlot slot = this.slot(index);
+            return slot == null ? ItemResource.EMPTY : slot.handler().getResource(slot.index());
         }
 
         @Override
         public long getAmountAsLong(int index) {
-            var port = StoragePortConsolidatorBlockEntity.this.portAt(portIndex(index));
-            return port == null ? 0 : port.getBuffer().getAmountAsLong(bufferSlot(index));
+            ItemSlot slot = this.slot(index);
+            return slot == null ? 0 : slot.handler().getAmountAsLong(slot.index());
         }
 
         @Override
         public long getCapacityAsLong(int index, ItemResource resource) {
-            var port = StoragePortConsolidatorBlockEntity.this.portAt(portIndex(index));
-            return port == null ? 0 : port.getBuffer().getCapacityAsLong(bufferSlot(index), resource);
+            ItemSlot slot = this.slot(index);
+            return slot == null ? 0 : slot.handler().getCapacityAsLong(slot.index(), resource);
         }
 
         @Override
         public boolean isValid(int index, ItemResource resource) {
-            var port = StoragePortConsolidatorBlockEntity.this.portAt(portIndex(index));
-            return port != null && port.getBuffer().isValid(bufferSlot(index), resource);
+            ItemSlot slot = this.slot(index);
+            return slot != null && slot.handler().isValid(slot.index(), resource);
         }
 
         @Override
         public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
             TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
             int inserted = this.insertMarked(resource, amount, transaction);
-            if (inserted == amount) return inserted;
-            var port = StoragePortConsolidatorBlockEntity.this.portAt(portIndex(index));
-            return inserted + (port == null ? 0 : port.getBuffer().insert(resource, amount - inserted, transaction));
+            if (inserted == amount) {
+                return inserted;
+            }
+            ItemSlot slot = this.slot(index);
+            return inserted + (slot == null ? 0 : slot.handler().insert(slot.index(), resource, amount - inserted, transaction));
         }
 
         @Override
@@ -362,7 +405,9 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
             int inserted = this.insertMarked(resource, amount, transaction);
             for (int index = 0; index < StoragePortConsolidatorBlockEntity.this.ports.size() && inserted < amount; index++) {
                 var port = StoragePortConsolidatorBlockEntity.this.portAt(index);
-                if (port != null) inserted += port.getBuffer().insert(resource, amount - inserted, transaction);
+                if (port != null) {
+                    inserted += port.getItemHandler().insert(resource, amount - inserted, transaction);
+                }
             }
             return inserted;
         }
@@ -370,15 +415,18 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
         private int insertMarked(ItemResource resource, int amount, TransactionContext transaction) {
             int marked = StoragePortConsolidatorBlockEntity.this.findMarkedPort(resource.toStack());
             var port = StoragePortConsolidatorBlockEntity.this.portAt(marked);
-            return port == null ? 0 : port.getBuffer().insert(resource, amount, transaction);
+            return port == null ? 0 : port.getItemHandler().insert(resource, amount, transaction);
         }
 
         @Override
         public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
             TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
-            var port = StoragePortConsolidatorBlockEntity.this.portAt(portIndex(index));
-            return port == null ? 0 : port.getBuffer().extract(bufferSlot(index), resource, amount, transaction);
+            ItemSlot slot = this.slot(index);
+            return slot == null ? 0 : slot.handler().extract(slot.index(), resource, amount, transaction);
         }
+    }
+
+    private record ItemSlot(ResourceHandler<ItemResource> handler, int index) {
     }
 
     /** 每个流体端口一格；整批操作仍按源版选中一个端口，不自动跨罐分摊。 */
