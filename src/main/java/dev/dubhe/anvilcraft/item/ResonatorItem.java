@@ -165,7 +165,7 @@ public abstract class ResonatorItem extends TieredItem {
 
     @Override
     public <T extends LivingEntity> int damageItem(ItemStack stack, int amount, @Nullable T entity, Consumer<Item> onBroken) {
-        if(isTooDamagedToUse(stack)){return 0;}
+        if (isTooDamagedToUse(stack)) return 0;
         return super.damageItem(stack, amount, entity, onBroken);
     }
 
@@ -622,7 +622,7 @@ public abstract class ResonatorItem extends TieredItem {
 
     @Override
     public boolean canPerformAction(ItemStack stack, ItemAbility itemAbility) {
-        if(isTooDamagedToUse(stack)) return false;
+        if (isTooDamagedToUse(stack)) return false;
         return switch (ResonatorItem.getMode(stack)) {
             case AXE_MODE -> ItemAbilities.DEFAULT_AXE_ACTIONS.contains(itemAbility);
             case SHOVEL_MODE -> ItemAbilities.DEFAULT_SHOVEL_ACTIONS.contains(itemAbility);

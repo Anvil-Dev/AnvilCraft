@@ -434,7 +434,7 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
 
     @Override
     public void postHurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
-        if(isTooDamagedToUse(stack)) return;
+        if (isTooDamagedToUse(stack)) return;
         stack.hurtAndBreak(1, attacker, EquipmentSlot.MAINHAND);
         if (MaceItem.canSmashAttack(attacker)) {
             attacker.resetFallDistance();
@@ -479,7 +479,7 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
 
     @Override
     public boolean canPerformAction(ItemStack stack, ItemAbility itemAbility) {
-        if(isTooDamagedToUse(stack)) return false;
+        if (isTooDamagedToUse(stack)) return false;
         return switch (getMode(stack)) {
             case TRIDENT_MODE -> ItemAbilities.DEFAULT_TRIDENT_ACTIONS.contains(itemAbility);
             case SWORD_MODE -> ItemAbilities.DEFAULT_SWORD_ACTIONS.contains(itemAbility)
