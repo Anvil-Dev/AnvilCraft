@@ -80,7 +80,7 @@ public interface IFrostSmithingRecipe extends Recipe<FrostSmithingRecipeInput> {
 
     default ItemStack assemble(int selected, FrostSmithingRecipeInput inputting, Level level) {
         RecipeResult input = this.options(inputting).get(selected).result();
-        ItemStack result = inputting.input().transmuteCopy(input.result());
+        ItemStack result = inputting.input().transmuteCopy(input.result(), 1);
         if (input.result().components().keySet().contains(DataComponents.TOOL)) {
             result.set(DataComponents.TOOL, input.result().components().get(DataComponents.TOOL));
         }
