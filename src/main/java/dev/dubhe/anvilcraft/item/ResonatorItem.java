@@ -62,6 +62,7 @@ import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Range;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -160,6 +161,18 @@ public abstract class ResonatorItem extends TieredItem {
 
     public static int getMode(ItemStack stack) {
         return Math.clamp(stack.getOrDefault(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT).value(), 0, 4);
+    }
+
+    @Override
+    public <T extends LivingEntity> int damageItem(ItemStack stack, int amount, @Nullable T entity, Consumer<Item> onBroken) {
+        if(isTooDamagedToUse(stack)){return 0;}
+        return super.damageItem(stack, amount, entity, onBroken);
+    }
+
+    @Override
+    public void setDamage(ItemStack stack, int damage) {
+        super.setDamage(stack, Math.min(damage,stack.getMaxDamage() - 1));
+        checkTooDamaged(this.getTier(), stack);
     }
 
     public static void checkTooDamaged(Tier tier, ItemStack stack) {
@@ -609,6 +622,7 @@ public abstract class ResonatorItem extends TieredItem {
 
     @Override
     public boolean canPerformAction(ItemStack stack, ItemAbility itemAbility) {
+        if(isTooDamagedToUse(stack)) return false;
         return switch (ResonatorItem.getMode(stack)) {
             case AXE_MODE -> ItemAbilities.DEFAULT_AXE_ACTIONS.contains(itemAbility);
             case SHOVEL_MODE -> ItemAbilities.DEFAULT_SHOVEL_ACTIONS.contains(itemAbility);
