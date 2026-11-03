@@ -39,7 +39,7 @@ The following two methods are practical in the early-to-mid game:
 
 ## Solar Power Generation
 
-- Use <ref item="anvilcraft:heliostats"/> to collect solar energy onto heatable blocks, then the heat collector absorbs the heat to generate power
+- Use <ref item="anvilcraft:heliostats"/> to collect solar energy onto heatable blocks, then use the heat collector to absorb the heat to generate power
 - Pros: Simple materials, no ongoing investment required
 - Cons: Large footprint, and the light path must not be blocked by any blocks
 

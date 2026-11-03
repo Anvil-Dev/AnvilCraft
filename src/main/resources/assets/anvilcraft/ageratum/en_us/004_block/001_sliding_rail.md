@@ -71,4 +71,4 @@ items:
 
 - When *items* and *blocks* slide over it, emits redstone signals in five directions around it (excluding above)
 - Can be detected by <ref item="minecraft:comparator"/>, outputting a redstone signal based on the number of blocks in the sliding *block's* structure
-> e.g.: When four blocks stuck together pass over, <ref item="minecraft:comparator"/> emits signal strength 4
+> e.g. When four blocks stuck together pass over, <ref item="minecraft:comparator"/> emits signal strength 4

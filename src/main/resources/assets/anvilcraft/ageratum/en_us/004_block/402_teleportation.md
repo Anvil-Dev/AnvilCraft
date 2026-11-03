@@ -6,7 +6,7 @@ items:
   - anvilcraft:celestial_forging_anvil_portal
 ---
 
-# Unlimited Transmission
+# Wireless Transmission
 
 1. First, forge several [Identical Celestial Bodies](401_celestial_forging_anvil.md#identical-celestial-bodies) with *Wormhole*
 2. Install [Wormhole Stabilizers](402_mega_structure.md#wormhole-stabilizer) on these *black holes* to connect the <ref item="anvilcraft:celestial_forging_anvil"/>s they belong to

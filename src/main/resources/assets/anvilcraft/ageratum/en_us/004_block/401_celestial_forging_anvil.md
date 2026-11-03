@@ -69,13 +69,13 @@ For more information, see [Celestial Types](../001_feature/401_celestial_type.md
 
 ## Building Mega Structures
 
-1. Click the bind button at the bottom of the <ref item="anvilcraft:celestial_forging_anvil"/> GUI
+1. Click the lock button at the bottom of the <ref item="anvilcraft:celestial_forging_anvil"/> GUI
 2. On the right side of the <ref item="anvilcraft:celestial_forging_anvil"/> GUI, select *Mega Structure* and submit the corresponding **building materials**
 
 For construction requirements, crafting methods, materials, and functional descriptions, see [Mega Structures](402_mega_structure.md).
 
 <tip>
-To remove a mega structure, simply unbind and rebind the planet
+To remove a mega structure, simply unlock and relock the planet
 </tip>
 
 <warning>
@@ -105,7 +105,7 @@ The original star's mass determines what type of stellar remnant it becomes
 |      [1,54]      |   White Dwarf   |
 |     [55,58]      |  Neutron Star   |
 |     [59,63]      |   Black Hole    |
-|       {64}       |    Blown Up     |
+|       {64}       | Complete Disruption |
 
 # Seed Items
 

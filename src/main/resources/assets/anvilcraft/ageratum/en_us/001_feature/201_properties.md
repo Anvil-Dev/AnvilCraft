@@ -38,7 +38,7 @@ This page showcases all currently available special tool properties and their ef
 
 - Comes from [Transcendium Tools](../002_material/312_transcendium.md)
 - Tools no longer consume durability, always remaining at full durability (also gains the vanilla Unbreakable tag as a safety measure)
-- Tools are immune to fire, explosions, and cactus damage; will not fall into the void; slowly float upward in areas where y < Ymin+5
+- Tools are immune to fire, explosions, and cactus damage; will not fall into the void; slowly float upward in areas at 5 blocks bottommost of the world
 - Tools dropped on the ground will never despawn over time
 
 # Providence

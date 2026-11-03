@@ -25,4 +25,4 @@ Zombies holding a <ref item="anvilcraft:monolith_line"/> or <ref item="anvilcraf
 
 # Mun Surface
 
-Biomes where the X and Y coordinates are both less than 1024 and greater than -1024 are on the near side of Mun; all other areas are on the far side
+Biomes where the X and Z coordinates are both less than 1024 and greater than -1024 are on the near side of Mun; all other areas are on the far side

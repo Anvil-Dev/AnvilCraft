@@ -15,10 +15,6 @@ items:
 - Can hold 16 types of items, each up to 1 stack
 - Hold <ref item="anvilcraft:anvil_hammer"/> and long right-click to switch to active output mode, actively trying to output items forward
 
-<info>
-Normally, if there are multiple <ref item="anvilcraft:celestial_forging_anvil_logistics_interface"/>
-</info>
-
 <warning>
 In some cases, a large number of the same item may be output. If there are not enough <ref item="anvilcraft:celestial_forging_anvil_logistics_interface"/>, items may be lost
 </warning>

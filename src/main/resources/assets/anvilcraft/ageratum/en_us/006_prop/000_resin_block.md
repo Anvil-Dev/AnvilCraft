@@ -16,7 +16,7 @@ items:
 - Right-click on the ground to release the creature
 
 <info>
-e.g., villagers can be captured; zombies need the Weakness effect applied to be captured; iron golems cannot be captured
+e.g. villagers can be captured; zombies need the Weakness effect applied to be captured; iron golems cannot be captured
 </info>
 
 <warning>

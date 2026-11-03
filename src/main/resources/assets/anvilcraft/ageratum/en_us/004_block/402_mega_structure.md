@@ -21,12 +21,12 @@ Mega structures extract resources from forged celestial bodies, generate power, 
 
 # Building Mega Structures
 
-- Forge and bind an eligible celestial body in the <ref item="anvilcraft:celestial_forging_anvil"/>, then select the target mega structure on the right side of the GUI and submit the corresponding **building materials** to complete construction.
+- Forge and lock an eligible celestial body in the <ref item="anvilcraft:celestial_forging_anvil"/>, then select the target mega structure on the right side of the GUI and submit the corresponding **building materials** to complete construction.
 - Normally, only one mega structure can be built on a celestial body.
 
 # Removing Mega Structures
 
-- Unbind and rebind the planet to remove the mega structure.
+- Unlock and relock the planet to remove the mega structure.
 - Removing it manually returns half of the building materials (rounded down).
 
 # Mega Structure Categories

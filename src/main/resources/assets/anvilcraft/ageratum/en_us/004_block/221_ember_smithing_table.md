@@ -35,9 +35,9 @@ Used at the [Ember Smithing Table](../004_block/221_ember_smithing_table.md) to 
 
 > Both upgrade smithing templates and armor trim smithing templates count; multi-to-one smithing templates also count as smithing templates
 
-> e.g.: Netherite Upgrade Smithing Template + Royal Steel Upgrade Smithing Template -> Two-to-One Smithing Template
+> e.g. Netherite Upgrade Smithing Template + Royal Steel Upgrade Smithing Template -> Two-to-One Smithing Template
 
-> e.g.: Snout Armor Trim + Rib Armor Trim + Ember Smithing Template + Coast Armor Trim -> Four-to-One Smithing Template
+> e.g. Snout Armor Trim + Rib Armor Trim + Ember Smithing Template + Coast Armor Trim -> Four-to-One Smithing Template
 
 # Template Dissociation
 
