@@ -25,6 +25,8 @@ items:
 
 ## 物品
 
+<structure id="../../structures/large_cauldron_item.nbt"/>
+
 - 直接将物品以掉落物形式从上方丢入锅内
 - 手持物品，右击**顶面**或**侧面最上面一层**的位置放入物品；空手右击锅口，可取出所指位置输入格的全部物品
 - 通过*物流方块*从**顶面**或**侧面最上面两层**的位置输入物品；从**底面**或**侧面最下面一层**的位置输出物品
@@ -35,6 +37,8 @@ items:
 
 ## 流体
 
+<structure id="../../structures/large_cauldron_fluid.nbt"/>
+
 - 手持流体桶从侧边倒入流体（在顶面右击会把桶塞进锅内）；手持空桶从侧边瞄准，可以取出所指的流体
 - 通过*流体管道*从**侧面**和**顶面**排放流体到最上层（如果锅中不存在该流体）或抽取最上层的流体
 - 通过*流体管道*从**底面**排放流体到最下层（如果锅中不存在该流体）或抽取最下层的流体
@@ -44,6 +48,8 @@ items:
 </info>
 
 # 兼容常规锅加工
+
+<structure id="../../structures/large_cauldron_processing.nbt"/>
 
 - 只有通过<ref item="anvilcraft:giant_anvil"/>砸击<ref item="anvilcraft:large_cauldron"/>才能执行各种配方
 - 加工效率相当于 9 个<ref item="minecraft:cauldron"/>在**加工物品**或**方块压榨**

@@ -3,6 +3,7 @@ navigation:
   title: "Crafting Spawners"
   icon: "minecraft:spawner"
 items:
+  - anvilcraft:mob_amber_block
   - anvilcraft:resentful_amber_block
 ---
 

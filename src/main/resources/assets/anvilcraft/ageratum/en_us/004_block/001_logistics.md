@@ -68,7 +68,7 @@ More filtering can be set via <ref item="anvilcraft:filter"/>
 <recipe id="anvilcraft:item_splitter"/>
 
 - No GUI
-- Holds up to 16 stacks of items and accepts any mix of items
+- Holds up to 16 stacks of items
 - Right-click with an empty hand to take items out; sneak to take a whole stack
 - When there is a container in front, it automatically distributes its contents evenly among the **connected** containers ahead, up to 16 blocks away
 - When there is no container in front, an *anvil* strike makes it divide the items according to the fall height and throw them into unobstructed spaces ahead (they do not need to be connected), up to 16 blocks away

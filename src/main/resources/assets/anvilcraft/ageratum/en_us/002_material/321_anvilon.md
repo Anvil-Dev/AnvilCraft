@@ -54,6 +54,8 @@ Colliding the <ref item="anvilcraft:giant_anvil"/> at different speeds with the 
 When there are 6 identical anvilons in the eight surrounding blocks of a 3x3 area on the same horizontal level as the <ref item="anvilcraft:neutron_irradiator"/>, it transforms into the corresponding "Anvilon Irradiator"
 
 - Unlocks [Iron Block Multiplication Recipe](../008_recipe/320_iron_block.md)
+- Craft <ref item="anvilcraft:mass_energy_inverter"/>
+- Craft <ref item="anvilcraft:spacetime_supercomputer"/>
 
 # <ref item="anvilcraft:confined_neutronium_ingot"/>
 

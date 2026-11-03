@@ -41,6 +41,10 @@ items:
 - Provides clear vision in lava
 - Provides Night Vision
 
+<tip>
+While held, hold <key id="key.anvilcraft.switch_phase"/> to open the radial menu and disable Night Vision
+</tip>
+
 ## <ref item="anvilcraft:weatherproof_spacesuit_chestplate"/>
 
 - Stores an additional 160 MFE of energy, allowing flight outside a power grid

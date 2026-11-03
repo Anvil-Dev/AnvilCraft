@@ -27,13 +27,13 @@ items:
 - **Cheap and effective tools**
 - Amethyst tools come with built-in enchantments
 
-| Tool    | Enchantment (Crafting Level / Max Level) | Enchantment Function                                                                                                         |
-|---------|------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
-| Pickaxe | Fortune III / III                        | Increases ore drops (helps obtain more iron ore)                                                                             |
-| Axe     | Timber I / III                           | When chopping, each level breaks 4 additional connected logs                                                                 |
-| Shovel  | Efficiency III / V                       | Increases breaking speed                                                                                                     |
-| Hoe     | Harvest I / III                          | Right-click mature crops to harvest and replant them, also breaks weeds within range; breaking leaves with left-click also breaks nearby leaves; each level harvests an additional ring |
-| Sword   | Beheading I / III                        | Each level increases the chance of certain mobs dropping heads; very high chance for players and the Ender Dragon            |
+| Tool    | Enchantment (Level granted on crafting) |
+|---------|-----------------------------------------|
+| Pickaxe | Fortune III                             |
+| Axe     | [Timber](../001_feature/100_enchantment.md#timber) I |
+| Shovel  | Efficiency III                          |
+| Hoe     | [Harvest](../001_feature/100_enchantment.md#harvest) I |
+| Sword   | [Beheading](../001_feature/100_enchantment.md#beheading) I |
 
 ### Crafting
 

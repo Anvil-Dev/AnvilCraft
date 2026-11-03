@@ -141,7 +141,7 @@ items:
 - **建造条件**：除白矮星、中子星、黑洞和特殊红矮星外的恒星
 - **合成材料**：<ref item="anvilcraft:stellar_evolution_accelerator_component"/> × 4
 - **输入**：无
-- **作用**：加速恒星演化恒星结束生命后会成为白矮星，或引发超新星爆发并产生中子星或黑洞
+- **作用**：加速[恒星演化](401_celestial_forging_anvil.md#恒星演化)
 - **特性**：可以与其他恒星级巨构共存
 
 ### 超新星爆发

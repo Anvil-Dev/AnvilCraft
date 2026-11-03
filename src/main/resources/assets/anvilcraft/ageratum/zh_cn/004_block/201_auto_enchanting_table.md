@@ -17,7 +17,7 @@ items:
 # 随机附魔
 
 - 持续耗电 16 kW，电力不足时无法工作
-- 统计<ref item="minecraft:enchanting_table"/>检测范围内的<ref item="minecraft:bookshelf"/>（或其他提供附魔能力的方块）提供的附魔能力，最高 15 级
+- 统计<ref item="minecraft:enchanting_table"/>检测范围内的[有效方块](../001_feature/100_enchantment_power_provider.md)提供的附魔能力，最高 15 级
 - 放入物品后，根据附魔能力 n，单次消耗 n * 400 mB [液态经验](../002_material/004_exp_gem.md#经验流体)，耗时 4 秒完成一次随机附魔
 
 # 定向附魔
@@ -27,9 +27,9 @@ items:
 放入<ref item="anvilcraft:emerald_amulet"/>
 
 - 持续耗电 64 kW，电力不足时无法工作
-- 统计<ref item="minecraft:enchanting_table"/>检测范围内的<ref item="minecraft:bookshelf"/>（或其他提供附魔能力的方块）提供的附魔能力，无上限
-- 可自选所有能通过与村民交易获得的附魔，支持多选，数量与等级受*附魔能力*限制
-- 放入物品并**关闭选择界面**后，根据附魔能力 n，单次消耗 n * 400 mB [液态经验](../002_material/004_exp_gem.md#经验流体)，耗时 4 秒完成一次定向附魔
+- 统计<ref item="minecraft:enchanting_table"/>检测范围内的[有效方块](../001_feature/100_enchantment_power_provider.md)提供的附魔能力，无上限
+- 可多选所有能通过与村民交易获得的附魔，数量与等级受*附魔能力*限制
+- 放入物品并**关闭选择界面**后，此时每点附魔能力使得机器消耗 400 mB [液态经验](../002_material/004_exp_gem.md#经验流体)，耗时 4 秒完成一次定向附魔
 
 <tip>
 只能附上物品兼容的附魔，例如不能给*剑*附上效率
@@ -47,4 +47,4 @@ items:
 - 放入<ref item="anvilcraft:ember_anvil"/>或<ref item="anvilcraft:transcendence_anvil"/>可解锁以下能力：
   - 强行给物品打上彼此不兼容的附魔
   - 附魔等级可以突破上限
-- 若物品已有附魔，根据已有附魔种类数 n，耗电增加 n * 64 kW
+- 若物品已有附魔，每条附魔使得机器额外耗电 64 kW

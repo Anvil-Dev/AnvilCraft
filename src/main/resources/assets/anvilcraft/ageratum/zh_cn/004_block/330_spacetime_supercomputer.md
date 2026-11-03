@@ -13,7 +13,7 @@ items:
 <recipe id="anvilcraft:procedural_process/spacetime_supercomputer_from_advanced_comparator"/>
 <recipe id="anvilcraft:procedural_process/spacetime_supercomputer_from_advanced_comparator_2"/>
 
-合成需要[砧子辐照](../002_material/321_anvilon.md#砧子辐照)
+> 合成需要<ref item="anvilcraft:confined_time_anvilon"/>和<ref item="anvilcraft:confined_space_anvilon"/>进行[砧子辐照](../002_material/321_anvilon.md#砧子辐照)
 
 1. 持续耗能512kW
 2. 工作前需要充能，每 3s 充能 1%，每次工作至少消耗 20% 充能
