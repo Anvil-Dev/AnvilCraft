@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.block.item.HasMobBlockItem;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -22,17 +23,19 @@ public class HasMobBlockItemRenderer extends AbstractItemInHandRenderer {
     }
 
     public static void renderGuiItem(
-        PoseStack pose,
+        GuiGraphics guiGraphics,
         ItemStack stack,
         int x,
-        int y
+        int y,
+        int guiOffset
     ) {
         Entity mobFromItem = HasMobBlockItemRenderer.getMobFromItem(stack);
         if (mobFromItem == null) {
             return;
         }
+        PoseStack pose = guiGraphics.pose();
         pose.pushPose();
-        pose.translate(x + 8, y + 8, 160.0f);
+        pose.translate(x + 8, y + 8, 160 + guiOffset);
         pose.scale(16.0f, -16.0f, 16.0f);
         pose.mulPose(Axis.XP.rotationDegrees(30));
         pose.mulPose(Axis.YP.rotationDegrees(-45));
@@ -49,9 +52,11 @@ public class HasMobBlockItemRenderer extends AbstractItemInHandRenderer {
             0,
             0,
             pose,
-            Minecraft.getInstance().renderBuffers().bufferSource(),
+            guiGraphics.bufferSource(),
             LightTexture.FULL_BRIGHT
         );
+        // 实体必须在当前物品绘制时提交，避免延迟到后续界面图层。
+        guiGraphics.flush();
         pose.popPose();
     }
 
