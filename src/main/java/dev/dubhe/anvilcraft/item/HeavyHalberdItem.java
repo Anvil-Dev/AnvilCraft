@@ -135,7 +135,7 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
 
     @Override
     public void setDamage(ItemStack stack, int damage) {
-        super.setDamage(stack, Math.min(damage,stack.getMaxDamage() - 1));
+        super.setDamage(stack, Math.min(damage, stack.getMaxDamage() - 1));
         checkTooDamaged(this.getTier(), stack);
     }
 
