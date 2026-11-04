@@ -23,7 +23,7 @@ navigation:
 - 炼药锅正上方 1x8x1 的空间没有方块
 - 管壁最高可为四格
 
-<warning> 
+<warning>
 底部不可以使用<ref item="anvilcraft:burning_heater"/>
 </warning>
 
@@ -37,7 +37,7 @@ navigation:
 # 特性
 
 - 喷流需要消耗锅中原油维持
-  - 每层(250mB)原油为维持时间 +5min
+  - 每层 (250mB) 原油为维持时间 +5min
   - 维持时间最多为 10min
 - 在喷流中的实体会受到等同于熔岩中 4 倍的火焰类型伤害
 

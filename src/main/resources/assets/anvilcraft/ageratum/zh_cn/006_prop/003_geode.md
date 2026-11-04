@@ -14,7 +14,7 @@ items:
 
 - 挖掘<ref item="minecraft:budding_amethyst"/>
 - 与[珠宝匠](../001_feature/001_jeweler.md)交易
-- 开局的奖励箱(需要在创建世界时开启奖励箱选项)
+- 开局的奖励箱 (需要在创建世界时开启奖励箱选项)
 
 # 功能
 

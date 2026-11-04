@@ -13,7 +13,7 @@ items:
 3. 然后，可以通过在<ref item="anvilcraft:celestial_forging_anvil"/>的同一位置摆上接口，接口之间共享存储，拥有无线传输的功能
 4. 还可以放置<ref item="anvilcraft:celestial_forging_anvil_portal"/>传送生物，但在同一组*全同黑洞*中，最多只能放置两个（但可以在四个方向各放一组，实现一一对应）
 
-<recipe id="anvilcraft:celestial_forging_anvil_portal"/>  
+<recipe id="anvilcraft:celestial_forging_anvil_portal"/>
 
 <structure id="../../structures/teleportation.nbt"/>
 

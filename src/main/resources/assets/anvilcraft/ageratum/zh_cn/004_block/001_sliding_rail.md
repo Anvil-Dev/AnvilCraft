@@ -26,7 +26,7 @@ items:
 
 - 类似于用于承载矿车的铁轨，滑轨用于运输*物品*和*方块*，并使得它们可以一直滑行下去
 - 当一个*方块*被活塞推到滑轨上时，其将在滑轨上持续滑行
-    - 若*方块*粘连别的*方块*一起移动(如<ref item="minecraft:slime_block"/>)，则作为一个整体一起滑动
+    - 若*方块*粘连别的*方块*一起移动 (如<ref item="minecraft:slime_block"/>)，则作为一个整体一起滑动
 - 可以用来划船
 
 > 本模组为各种冰提供了[量产方式](../008_recipe/110_ice.md)
@@ -35,7 +35,7 @@ items:
 
 <recipe id="anvilcraft:sliding_rail_stop"/>
 
-- 阻力极大 
+- 阻力极大
   - 滑入的*物品*会停止在其中心
   - 滑入的*方块*会停在上面
 - 可以吸住生物
@@ -51,9 +51,9 @@ items:
 ## 特性
 
 - 将物品转变为滑动状态的逻辑与<ref item="minecraft:piston"/>相同：
-  - 最多移动12个方块的结构 
-  - 部分方块不可动，(如 <ref item="minecraft:chest"/> )
-  - 破坏部分方块，(如 <ref item="minecraft:shulker_box"/> )
+  - 最多移动12个方块的结构
+  - 部分方块不可动 (如<ref item="minecraft:chest"/>)
+  - 破坏部分方块 (如<ref item="minecraft:shulker_box"/>)
 
 
 # <ref item="anvilcraft:activator_sliding_rail"/>

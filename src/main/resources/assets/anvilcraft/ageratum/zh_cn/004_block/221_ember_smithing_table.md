@@ -42,7 +42,7 @@ items:
 # 模板解离
 
 1. 将有附魔的<ref item="anvilcraft:eight_to_one_smithing_template"/>物品实体用任意方式摧毁
-2. 随机取一条<ref item="anvilcraft:eight_to_one_smithing_template"/>拥有的附魔(选择有可能重复)，按如下列表生成新物品
+2. 随机取一条<ref item="anvilcraft:eight_to_one_smithing_template"/>拥有的附魔 (选择有可能重复)，按如下列表生成新物品
 3. 最多选择4次，即最多通过这种方式产生4个新模板
 
 <row halign="center" valign="center">

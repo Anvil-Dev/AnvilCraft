@@ -24,7 +24,7 @@ items:
 
 <recipe id="anvilcraft:energy_weapon_platform"/>
 
-- 可以存储320MJ能量(=640MFE)
+- 可以存储320MJ能量 (=640MFE)
 - 打开后可以放入材料进行改造，变为各种强大的*能量武器*
 
 # 能量武器
@@ -40,7 +40,7 @@ items:
 
 <recipe id="anvilcraft:energy_weapon_make/spectral_weapon_launcher"/>
 
-- 功能和<ref item="anvilcraft:spectral_slingshot"/>一致，但造成100%伤害(<ref item="anvilcraft:spectral_slingshot"/>为50%)
+- 功能和<ref item="anvilcraft:spectral_slingshot"/>一致，但造成100%伤害 (<ref item="anvilcraft:spectral_slingshot"/>为50%)
 
 # <ref item="anvilcraft:anvil_railgun"/>
 

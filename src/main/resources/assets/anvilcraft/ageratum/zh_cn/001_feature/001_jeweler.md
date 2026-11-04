@@ -20,8 +20,8 @@ navigation:
 # 核心交易
 
 - <ref item="anvilcraft:royal_steel_upgrade_smithing_template"/>
-- <ref item="anvilcraft:geode"/>  
-- <ref item="anvilcraft:amulet_box"/> 
+- <ref item="anvilcraft:geode"/>
+- <ref item="anvilcraft:amulet_box"/>
 
 <info>
 <ref item="anvilcraft:amulet_box"/>仅能通过珠宝匠获得

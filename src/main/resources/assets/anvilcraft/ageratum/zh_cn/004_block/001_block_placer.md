@@ -16,7 +16,7 @@ items:
 - 从其背后的容器方块、实体库存、掉落物中取用物品
 
 <info>
-例如：<ref item="minecraft:chest"/> <ref item="anvilcraft:chute"/> <ref item="minecraft:oak_chest_boat"/>
+例如：<ref item="minecraft:chest"/>、<ref item="anvilcraft:chute"/>、<ref item="minecraft:oak_chest_boat"/>
 </info>
 - 收到红石信号时，于面前放置方块
 - 被铁砧砸时，根据铁砧下落高度 n，间隔 n 格放置方块

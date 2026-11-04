@@ -29,9 +29,9 @@ items:
 
 | 工具 | 附魔（合成赋予的等级）                                  |
 |----|----------------------------------------------|
-| 镐  | 时运 III                                       | 
-| 斧  | [伐木](../001_feature/100_enchantment.md#伐木) I | 
-| 锹  | 效率 III                                       | 
+| 镐  | 时运 III                                       |
+| 斧  | [伐木](../001_feature/100_enchantment.md#伐木) I |
+| 锹  | 效率 III                                       |
 | 锄  | [收割](../001_feature/100_enchantment.md#收割) I |
 | 剑  | [斩首](../001_feature/100_enchantment.md#斩首) I |
 

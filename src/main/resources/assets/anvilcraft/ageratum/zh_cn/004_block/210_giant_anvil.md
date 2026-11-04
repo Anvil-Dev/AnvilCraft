@@ -98,7 +98,7 @@ items:
 |  <ref item="anvilcraft:sapphire_block"/>   |     冰冻伤害      |
 |    <ref item="anvilcraft:topaz_block"/>    |     雷电伤害      |
 | <ref item="anvilcraft:void_matter_block"/> |     虚空伤害      |
-|                     其他                     | 摔落伤害(可以穿靴子避免) |
+|                     其他                     | 摔落伤害 (可以穿靴子避免) |
 
 ### 工作模式：破坏
 

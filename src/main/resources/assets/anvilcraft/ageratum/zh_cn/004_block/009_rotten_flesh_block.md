@@ -12,7 +12,7 @@ items:
 
 # 功能
 
-- 像干草捆一样，可以降低摔落伤害，但接触者获得30秒反胃buff 
+- 像干草捆一样，可以降低摔落伤害，但接触者获得30秒反胃buff
 - 可被冶炼
 
 <recipe id="minecraft:netherrack"/>

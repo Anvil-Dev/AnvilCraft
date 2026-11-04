@@ -31,7 +31,7 @@ items:
 
 ### 破坏时
 
-- <ref item="anvilcraft:dragon_rod"/>遵循<ref item="anvilcraft:block_devourer"/>的规则，当挖掘世界基底方块（**石头**、**下界岩**、**末地石**）时，只有5%的概率掉落。但是它无法连锁顶部的可下落方块   
+- <ref item="anvilcraft:dragon_rod"/>遵循<ref item="anvilcraft:block_devourer"/>的规则，当挖掘世界基底方块（**石头**、**下界岩**、**末地石**）时，只有5%的概率掉落。但是它无法连锁顶部的可下落方块
 - <ref item="anvilcraft:dragon_rod"/>在挖掘一次后会有一段冷却时间，默认为1秒。这段冷却时长只受*急迫*效果和*挖掘疲劳*效果影响，每级急迫会减少4tick，每级挖掘疲劳会增加1秒
 
 # 相关

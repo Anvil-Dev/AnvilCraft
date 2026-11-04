@@ -27,9 +27,9 @@ items:
 
 将以下方块或实体沿轨道加速:
 
-- 铁砧(不包括巨型铁砧、幻灵铁砧)
+- 铁砧 (不包括巨型铁砧、幻灵铁砧)
 - 弹射物
-- 玩家(装备至少两件装备且头戴铁砧锤)
+- 玩家 (装备至少两件装备且头戴铁砧锤)
 
 # <ref item="anvilcraft:deflection_ring"/>
 
@@ -56,8 +56,8 @@ items:
 
 ## 控制速度
 
-- <ref item="minecraft:comparator"/>可以从<ref item="anvilcraft:deflection_ring"/>读取经过的铁砧的速度(单位: m/tick)并输出红石信号
-- 输出公式： 红石信号 = 2*[(以2为底,速度的对数) - 1] 向上取整，最后取值约束在0-15之间
+- <ref item="minecraft:comparator"/>可以从<ref item="anvilcraft:deflection_ring"/>读取经过的铁砧的速度 (单位: m/tick) 并输出红石信号
+- 输出公式：红石信号 = 2*[(以2为底,速度的对数) - 1] 向上取整，最后取值约束在0-15之间
 
 > 32 < V ≤ 45.25 : 强度 9
 

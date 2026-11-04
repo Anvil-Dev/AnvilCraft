@@ -62,14 +62,14 @@ items:
 
 </row>
 
-- 如果<ref item="anvilcraft:mineral_fountain"/>的四面都是**同种粗矿块**，则将上方<ref item="minecraft:deepslate"/>转化为对应的**深层矿**(不消耗**粗矿块**)
+- 如果<ref item="anvilcraft:mineral_fountain"/>的四面都是**同种粗矿块**，则将上方<ref item="minecraft:deepslate"/>转化为对应的**深层矿** (不消耗**粗矿块**)
 - 有概率转而生成<ref item="anvilcraft:earth_core_shard_ore"/>或<ref item="anvilcraft:void_stone"/>
 
 <info>
 粗矿可通过<ref item="anvilcraft:corrupted_beacon"/>获得
 </info>
 
-| 世界  | 生成<ref item="anvilcraft:earth_core_shard_ore"/>概率 | 生成<ref item="anvilcraft:void_stone"/>概率 | 
+| 世界  | 生成<ref item="anvilcraft:earth_core_shard_ore"/>概率 | 生成<ref item="anvilcraft:void_stone"/>概率 |
 |:---:|:-------------------------------------------------:|:---------------------------------------:|
 | 主世界 |                        1%                         |                   1%                    |
 | 下界  |                        10%                        |                    0                    |

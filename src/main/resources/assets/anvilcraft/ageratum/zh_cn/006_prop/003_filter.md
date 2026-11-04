@@ -17,11 +17,11 @@ items:
 
 - 右边18格为放置物品的地方，放置物品不消耗物品，只留标记
 - 左边两个位置分别为:
-  - "切换是否匹配数据"的按钮
-  - "切换黑白名单"的按钮
+  - “切换是否匹配数据”的按钮
+  - “切换黑白名单”的按钮
 
 可以放入有过滤格的机器当中，放置后，该格可以存放所有符合该过滤器的物品
 
 <info>
-有过滤格的机器包括 <ref item="anvilcraft:chute"/>、<ref item="anvilcraft:magnetic_chute"/> 等
+有过滤格的机器包括<ref item="anvilcraft:chute"/>、<ref item="anvilcraft:magnetic_chute"/>等
 </info>

@@ -31,7 +31,7 @@ items:
 
 <row halign="center" valign="center">
 <entity id="minecraft:piglin" />
-+ 
++
 <item id="anvilcraft:cursed_gold_ingot"/>
 =
 <entity id="minecraft:zombified_piglin" />

@@ -21,7 +21,7 @@ items:
 
 1. 完全使用<ref item="anvilcraft:cursed_gold_block"/>作为*信标底座*
 2. 消耗<ref item="anvilcraft:cursed_gold_ingot"/>激活<ref item="minecraft:beacon"/>
-3. <ref item="minecraft:beacon"/>有概率转化为<ref item="anvilcraft:corrupted_beacon"/>(底座层数越多，转化概率越大)，此时天气被控制为雷雨天
+3. <ref item="minecraft:beacon"/>有概率转化为<ref item="anvilcraft:corrupted_beacon"/> (底座层数越多，转化概率越大)，此时天气被控制为雷雨天
 
 | 层数 |  概率  | 基座诅咒金块 |   等价诅咒金锭    | 期望成功转化所需次数 | 95%的把握成功转化所需次数 |
 |:--:|:----:|:------:|:-----------:|:----------:|:--------------:|

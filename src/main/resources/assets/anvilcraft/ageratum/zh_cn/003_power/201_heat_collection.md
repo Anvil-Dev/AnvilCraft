@@ -22,7 +22,7 @@ items:
 
 ## 可集热方块
 
-|                                  方块                                   |                转化结果                 | 提供能量(kW) |
+|                                  方块                                   |                转化结果                 | 提供能量 (kW) |
 |:---------------------------------------------------------------------:|:-----------------------------------:|:--------:|
 |                  <ref item="minecraft:magma_block"/>                  | <ref item="minecraft:netherrack"/>  |    2     |
 |                   <ref item="minecraft:campfire"/>                    | 熄灭的<ref item="minecraft:campfire"/> |    4     |
