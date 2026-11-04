@@ -26,6 +26,7 @@ import dev.dubhe.anvilcraft.block.workstation.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.block.workstation.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluidTags;
+import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -40,6 +41,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
 import dev.dubhe.anvilcraft.util.EntityUtil;
+import dev.dubhe.anvilcraft.util.ExperienceMending;
 import dev.dubhe.anvilcraft.util.FireReforgingUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -204,6 +206,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
         entity.applyFluidEffects((ServerLevel) level);
         entity.hurtEntitiesInsideFromCampfire((ServerLevel) level);
         entity.reforgeItemsInLava(level);
+        entity.mendItems((ServerLevel) level);
         NeoForge.EVENT_BUS.post(new LargeCauldronEvent.ServerTick((ServerLevel) level, entity));
     }
 
@@ -1333,7 +1336,6 @@ public class LargeCauldronBlockEntity extends BlockEntity
     }
 
     private void applyFluidEffects(ServerLevel level) {
-        List<FluidStack> layers = this.fluids.copyFluids();
         int totalAmount = this.fluids.getTotalAmount();
         if (totalAmount <= 0) return;
 
@@ -1360,8 +1362,9 @@ public class LargeCauldronBlockEntity extends BlockEntity
             }
             boolean touchesLava = false;
             FluidStack extinguishingFluid = FluidStack.EMPTY;
+            FluidStack experienceFluid = FluidStack.EMPTY;
             double layerMinY = contentArea.minY;
-            for (FluidStack fluid : layers) {
+            for (FluidStack fluid : this.fluids.copyFluids()) {
                 if (fluid.isEmpty()) continue;
                 double layerMaxY = layerMinY
                     + LargeCauldronBlockEntity.CONTENT_HEIGHT * fluid.getAmount() / LargeCauldronFluidHandler.totalCapacity();
@@ -1375,6 +1378,9 @@ public class LargeCauldronBlockEntity extends BlockEntity
                 );
                 if (layerArea.intersects(entity.getBoundingBox())) {
                     touchesLava |= fluid.is(Fluids.LAVA);
+                    if (fluid.is(ModFluids.EXP_FLUID)) {
+                        experienceFluid = fluid;
+                    }
                     if (extinguishingFluid.isEmpty() && entity.canFluidExtinguish(fluid.getFluidType())) {
                         extinguishingFluid = fluid;
                     }
@@ -1382,6 +1388,12 @@ public class LargeCauldronBlockEntity extends BlockEntity
                 layerMinY = layerMaxY;
             }
 
+            if (!experienceFluid.isEmpty() && entity instanceof ItemEntity item) {
+                ItemStack stack = item.getItem().copy();
+                if (this.mendItem(stack, level)) {
+                    item.setItem(stack);
+                }
+            }
             if (touchesLava) entity.lavaHurt();
             if (!extinguishingFluid.isEmpty() && entity.isOnFire()) {
                 entity.clearFire();
@@ -1391,6 +1403,49 @@ public class LargeCauldronBlockEntity extends BlockEntity
                 }
             }
         }
+    }
+
+    private void mendItems(ServerLevel level) {
+        for (int slot = 0; slot < this.input.size(); slot++) {
+            ItemStack stack = this.input.getStackInSlot(slot).copy();
+            FluidStack fluid = this.experienceFluid();
+            int[] requiredFluid = {0};
+            if (!ExperienceMending.repair(stack, level, fluid.getAmount(), amount -> {
+                requiredFluid[0] = amount;
+                return amount;
+            })) {
+                continue;
+            }
+            try (Transaction transaction = Transaction.openRoot()) {
+                ItemResource original = this.input.getResource(slot);
+                int count = stack.getCount();
+                if (this.input.extract(slot, original, count, transaction) != count
+                    || this.input.insert(ItemResource.of(stack), count, transaction) != count
+                    || this.fluids.extract(FluidResource.of(fluid), requiredFluid[0], transaction) != requiredFluid[0]) {
+                    continue;
+                }
+                transaction.commit();
+            }
+        }
+    }
+
+    private boolean mendItem(ItemStack stack, ServerLevel level) {
+        FluidStack fluid = this.experienceFluid();
+        if (fluid.isEmpty()) {
+            return false;
+        }
+        return ExperienceMending.repair(stack, level, fluid.getAmount(),
+            amount -> LargeCauldronBlockEntity.extractFluid(this.fluids, fluid, amount));
+    }
+
+    private FluidStack experienceFluid() {
+        for (int tank = 0; tank < this.fluids.size(); tank++) {
+            FluidStack fluid = this.fluids.getFluidInTank(tank);
+            if (fluid.is(ModFluids.EXP_FLUID)) {
+                return fluid;
+            }
+        }
+        return FluidStack.EMPTY;
     }
 
     private void reforgeItemsInLava(Level level) {

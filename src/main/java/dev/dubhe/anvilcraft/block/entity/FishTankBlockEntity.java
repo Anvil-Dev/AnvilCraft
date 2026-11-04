@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 import dev.dubhe.anvilcraft.util.EntityUtil;
+import dev.dubhe.anvilcraft.util.ExperienceMending;
 import dev.dubhe.anvilcraft.util.FireReforgingUtil;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
@@ -331,6 +332,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
     public static void serverTick(Level level, BlockPos pos, BlockState state, FishTankBlockEntity entity) {
         if (level instanceof ServerLevel serverLevel) {
             NeoForge.EVENT_BUS.post(new FishTankEvent.ServerTick(serverLevel, pos, entity));
+            entity.mendItems(serverLevel);
         }
         if (!entity.fluidHandler.getStack().is(Fluids.LAVA)) return;
         boolean changed = false;
@@ -346,6 +348,32 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         if (!changed) return;
         entity.setChanged();
         entity.sendUpdate();
+    }
+
+    private void mendItems(ServerLevel level) {
+        if (!this.fluidHandler.getStack().is(ModFluids.EXP_FLUID)) {
+            return;
+        }
+        for (int slot = 0; slot < this.input.size(); slot++) {
+            ItemStack stack = this.input.getResource(slot).toStack(this.input.getAmountAsInt(slot));
+            if (this.mendItem(stack, level)) {
+                this.input.set(slot, ItemResource.of(stack), stack.getCount());
+            }
+        }
+    }
+
+    private boolean mendItem(ItemStack stack, ServerLevel level) {
+        FluidStack fluid = this.fluidHandler.getStack();
+        if (!fluid.is(ModFluids.EXP_FLUID)) {
+            return false;
+        }
+        return ExperienceMending.repair(stack, level, fluid.getAmount(), amount -> {
+            try (Transaction transaction = Transaction.openRoot()) {
+                int extracted = this.fluidHandler.extract(0, FluidResource.of(fluid), amount, transaction);
+                transaction.commit();
+                return extracted;
+            }
+        });
     }
 
     @Override
@@ -972,6 +1000,13 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         if (level.isClientSide()) return;
         ServerLevel serverside = Util.cast(level);
         if (!this.fluidContentArea.intersects(entity.getBoundingBox())) return;
+        if (entity instanceof ItemEntity item) {
+            ItemStack itemStack = item.getItem().copy();
+            if (this.mendItem(itemStack, (ServerLevel) level)) {
+                item.setItem(itemStack);
+            }
+            return;
+        }
 
         FluidStack stack = this.fluidHandler.getStack();
         if (this.isIgnited()) {

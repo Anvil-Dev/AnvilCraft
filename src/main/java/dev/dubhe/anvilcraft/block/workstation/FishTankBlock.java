@@ -223,9 +223,9 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
         if (entity.isOnFire()) {
             this.tryIgnite(level, pos);
         }
+        level.getBlockEntity(pos, ModBlockEntities.FISH_TANK.get())
+            .ifPresent(be -> be.entityInsideFluidContent(level, pos, entity, effectApplier));
         if (!(entity instanceof ItemEntity itemEntity)) {
-            level.getBlockEntity(pos, ModBlockEntities.FISH_TANK.get())
-                .ifPresent(be -> be.entityInsideFluidContent(level, pos, entity, effectApplier));
             return;
         }
         if (itemEntity.getItem().is(ModItemTags.FIRE_STARTER)) {
