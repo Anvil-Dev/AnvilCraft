@@ -28,6 +28,7 @@ import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluidTags;
+import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -1297,7 +1298,6 @@ public class LargeCauldronBlockEntity extends BlockEntity
     }
 
     private void applyFluidEffects(ServerLevel level) {
-        List<FluidStack> layers = this.fluids.copyFluids();
         int totalAmount = this.fluids.getTotalAmount();
         if (totalAmount <= 0) return;
 
@@ -1330,8 +1330,9 @@ public class LargeCauldronBlockEntity extends BlockEntity
             }
             boolean touchesLava = false;
             FluidStack extinguishingFluid = FluidStack.EMPTY;
+            FluidStack experienceFluid = FluidStack.EMPTY;
             double layerMinY = contentArea.minY;
-            for (FluidStack fluid : layers) {
+            for (FluidStack fluid : this.fluids.copyFluids()) {
                 if (fluid.isEmpty()) continue;
                 double layerMaxY = layerMinY
                                    + CONTENT_HEIGHT * fluid.getAmount() / LargeCauldronFluidHandler.totalCapacity();
@@ -1345,6 +1346,9 @@ public class LargeCauldronBlockEntity extends BlockEntity
                 );
                 if (layerArea.intersects(entity.getBoundingBox())) {
                     touchesLava |= fluid.is(Fluids.LAVA);
+                    if (fluid.is(ModFluids.EXP_FLUID)) {
+                        experienceFluid = fluid;
+                    }
                     if (extinguishingFluid.isEmpty() && entity.canFluidExtinguish(fluid.getFluidType())) {
                         extinguishingFluid = fluid;
                     }
@@ -1361,6 +1365,15 @@ public class LargeCauldronBlockEntity extends BlockEntity
                         extinguishingFluid.copyWithAmount(250),
                         IFluidHandler.FluidAction.EXECUTE
                     );
+                }
+            } else if (entity instanceof Player player && !experienceFluid.isEmpty()) {
+                int buckets = Math.min(9, experienceFluid.getAmount() / FluidType.BUCKET_VOLUME);
+                if (buckets > 0) {
+                    int amount = buckets * FluidType.BUCKET_VOLUME;
+                    int extracted = this.fluids.drainStoredFluid(
+                        experienceFluid.copyWithAmount(amount), IFluidHandler.FluidAction.EXECUTE
+                    ).getAmount();
+                    player.giveExperiencePoints(extracted / FluidType.BUCKET_VOLUME * AnvilCraft.CONFIG.world.expFluidXpPerBlock);
                 }
             }
         }
