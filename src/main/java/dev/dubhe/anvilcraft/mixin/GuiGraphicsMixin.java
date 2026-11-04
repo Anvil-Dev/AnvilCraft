@@ -93,7 +93,7 @@ public abstract class GuiGraphicsMixin {
             ANVILCRAFT$MAX_RECURSION,
             i -> ANVILCRAFT$RECURSION = i
         );
-        HasMobBlockItemRenderer.renderGuiItem(this.pose, stack, x, y);
+        HasMobBlockItemRenderer.renderGuiItem((GuiGraphics) (Object) this, stack, x, y, guiOffset);
         // 与 clipItem 配对的结束裁剪：裁剪到物品格内的物品在此关闭 scissor。
         if (ItemSlotClipping.shouldClip(stack)) {
             ItemSlotClipping.disableClip((GuiGraphics) (Object) this);
