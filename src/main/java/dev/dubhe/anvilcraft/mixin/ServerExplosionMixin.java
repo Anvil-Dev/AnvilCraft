@@ -1,58 +1,38 @@
 package dev.dubhe.anvilcraft.mixin;
 
-import com.google.common.collect.Multimap;
-import com.google.common.collect.MultimapBuilder;
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.llamalad7.mixinextras.sugar.Share;
-import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import dev.dubhe.anvilcraft.api.IHasMultiBlock;
 import dev.dubhe.anvilcraft.api.injection.IExplosionExtension;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.BlockTransform;
+import dev.dubhe.anvilcraft.recipe.anvil.collision.BlockTransformDamageCalculator;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.ServerExplosion;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Mixin(ServerExplosion.class)
 abstract class ServerExplosionMixin implements IExplosionExtension {
 
-    @Unique
-    // public HashMap<Block, ArrayList<BlockTransform>> anvilcraft$blockTransformMap = new HashMap<>();
-    public Multimap<Block, BlockTransform> anvilcraft$blockTransformMap = MultimapBuilder.hashKeys().hashSetValues().build();
-
-    @Unique
-    @SuppressWarnings("FieldMayBeFinal")
-    private HashMap<BlockTransform, Integer> anvilcraft$counterMap = new HashMap<>();
-
-    @Unique
-    @SuppressWarnings("FieldMayBeFinal")
-    private HashSet<BlockPos> anvilcraft$processedPosSet = new HashSet<>();
-
     @Shadow
     @Final
     private ServerLevel level;
+
+    @Shadow
+    @Final
+    @Mutable
+    private ExplosionDamageCalculator damageCalculator;
 
     @Inject(
         method = "interactWithBlocks",
@@ -80,78 +60,12 @@ abstract class ServerExplosionMixin implements IExplosionExtension {
         }
     }
 
-    @Inject(
-        method = "calculateExplodedPositions",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/server/level/ServerLevel;"
-                     + "getBlockState(Lnet/minecraft/core/BlockPos;)"
-                     + "Lnet/minecraft/world/level/block/state/BlockState;"
-        )
-    )
-    private void anvilcraft$explosionBlockTransform0(
-        CallbackInfoReturnable<List<BlockPos>> cir,
-        @Share("isExplosionBlockTransformed") LocalBooleanRef isExplosionBlockTransformed,
-        @Local(name = "pos") BlockPos pos
-    ) {
-        // explode() 会为每条射线复用同一个共享局部变量，这里先重置
-        isExplosionBlockTransformed.set(false);
-        Block block = this.level.getBlockState(pos).getBlock();
-        ArrayList<BlockTransform> blockTransforms = new ArrayList<>(this.anvilcraft$blockTransformMap.get(block));
-        if (blockTransforms.isEmpty()) return;
-        BlockTransform blockTransform = blockTransforms.get(this.level.getRandom().nextInt(blockTransforms.size()));
-        if (this.anvilcraft$counterMap.getOrDefault(blockTransform, 0) >= blockTransform.maxCount()) return;
-        if (this.anvilcraft$processedPosSet.contains(pos)) return;
-        isExplosionBlockTransformed.set(blockTransform.progress(this.level, pos));
-        if (isExplosionBlockTransformed.get() && !this.anvilcraft$processedPosSet.contains(pos)) {
-            this.anvilcraft$processedPosSet.add(pos);
-            if (this.anvilcraft$counterMap.containsKey(blockTransform)) {
-                this.anvilcraft$counterMap.put(blockTransform, this.anvilcraft$counterMap.get(blockTransform) + 1);
-            } else {
-                this.anvilcraft$counterMap.put(blockTransform, 1);
-            }
-        }
-    }
-
-    @WrapOperation(
-        method = "calculateExplodedPositions",
-        at =
-        @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/level/ExplosionDamageCalculator;"
-                     + "shouldBlockExplode("
-                     + "Lnet/minecraft/world/level/Explosion;"
-                     + "Lnet/minecraft/world/level/BlockGetter;"
-                     + "Lnet/minecraft/core/BlockPos;"
-                     + "Lnet/minecraft/world/level/block/state/BlockState;F)Z"
-        )
-    )
-    private boolean anvilcraft$explosionBlockTransform(
-        ExplosionDamageCalculator instance,
-        Explosion explosion,
-        BlockGetter level,
-        BlockPos pos,
-        BlockState state,
-        float power,
-        Operation<Boolean> original,
-        @Share("isExplosionBlockTransformed") LocalBooleanRef isExplosionBlockTransformed
-    ) {
-        return !isExplosionBlockTransformed.get() && original.call(instance, explosion, level, pos, state, power);
-    }
-
     @Override
     public void anvilcraft$setBlockTransformExplosion(Collection<BlockTransform> blockTransformExplosions) {
-        for (BlockTransform blockTransform : blockTransformExplosions) {
-            Set<Block> inputBlocks = new HashSet<>();
-            blockTransform.inputBlock().getBlocks().unwrap().ifLeft(tag ->
-                BuiltInRegistries.BLOCK.getTagOrEmpty(tag).forEach(holder -> inputBlocks.add(holder.value()))
-            );
-            blockTransform.inputBlock().getBlocks().unwrap().ifRight(holders ->
-                holders.forEach(holder -> inputBlocks.add(holder.value()))
-            );
-            for (Block block : inputBlocks) {
-                this.anvilcraft$blockTransformMap.put(block, blockTransform);
-            }
+        if (this.damageCalculator instanceof BlockTransformDamageCalculator calculator) {
+            calculator.addTransforms(blockTransformExplosions);
+        } else {
+            this.damageCalculator = new BlockTransformDamageCalculator(this.damageCalculator, blockTransformExplosions);
         }
     }
 }
