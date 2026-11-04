@@ -128,6 +128,14 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
     }
 
     /**
+     * 是否为原版矛。<br>
+     * 重戟同样带 {@code minecraft:spears} 标签，必须排除重戟，才能只调整原版矛的握持位置。
+     */
+    private static boolean isVanillaSpear(ItemStack stack) {
+        return stack.is(ItemTags.SPEARS) && !(stack.getItem() instanceof HeavyHalberdItem);
+    }
+
+    /**
      * 是否为重戟的锤模式。<br>
      * 锤模式与长矛模式同属重戟，但两者的第一人称显示位置不同，需要各自的后移量。
      */
@@ -208,7 +216,7 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
             if (isMaceMode(stack)) pose.translate(MACE_HOLD_X * sign, MACE_HOLD_Y, MACE_HOLD_Z);
             if (isSwordMode(stack)) pose.translate(SWORD_HOLD_X * sign, SWORD_HOLD_Y, SWORD_HOLD_Z);
             if (isSpearLike(stack)) {
-                float spearX = stack.is(ItemTags.SPEARS) ? VANILLA_SPEAR_HOLD_X : -0.23F;
+                float spearX = isVanillaSpear(stack) ? VANILLA_SPEAR_HOLD_X : -0.23F;
                 pose.translate(spearX * sign, 0, 0.07F);
             }
         }
