@@ -24,7 +24,7 @@ items:
 - 耐久度耗尽后不会完全损坏，类似于<ref item="minecraft:elytra"/>
 - 长按 <key id="key.anvilcraft.switch_phase"/> 呼出轮盘，轮盘上有四个选项，不同选项下拥有不同右键能力
   - <ref item="minecraft:trident"/>模式：右键投掷
-  - 矛模式：右键戳刺(没有矛的MC低版本无功能)
+  - 矛模式：右键戳刺 (没有矛的MC低版本无功能)
   - 剑模式：右键格挡，减少受到的物理伤害
   - <ref item="minecraft:mace"/>模式：右键无功能，但攻速很快
 - 点按 <key id="key.anvilcraft.switch_phase"/> 可沿工具模式轮盘顺时针切换

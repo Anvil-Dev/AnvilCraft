@@ -55,10 +55,10 @@ items:
 # 混凝土工艺
 
 - 向水泥锅中，投入 4 * <ref item="minecraft:gravel"/> + 4 * <ref item="minecraft:sand"/>并砸击，可以获得 16 * 混凝土，颜色由水泥决定。
-- 向水泥锅中，投入 2 * <ref item="minecraft:gravel"/> + 2 * <ref item="minecraft:sand"/> + 8 * <ref item="minecraft:iron_bars"/>并砸击，可以获得 16 * 钢筋混凝土，颜色由水泥决定。 
+- 向水泥锅中，投入 2 * <ref item="minecraft:gravel"/> + 2 * <ref item="minecraft:sand"/> + 8 * <ref item="minecraft:iron_bars"/>并砸击，可以获得 16 * 钢筋混凝土，颜色由水泥决定。
 
 # 钢筋混凝土
 
 - 抗爆性较好
-- 可以抵御苦力怕(非高压形态)的爆炸
+- 可以抵御苦力怕 (非高压形态) 的爆炸
 - 不能完全抵御TNT的爆炸

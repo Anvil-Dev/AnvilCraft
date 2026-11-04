@@ -20,7 +20,7 @@ navigation:
 左键调整位置；右键调整角度；PgUP/PgDN调整显示高度
 </tip>
 
-1. 脉冲发生器设置为循环模式：每间隔 5gt 输出信号 5gt ，控制铁砧下落
+1. 脉冲发生器设置为循环模式：每间隔 5gt 输出信号 5gt，控制铁砧下落
 
 - 所有 <ref item="minecraft:smooth_stone"/> 可替换为 任意完整不透明方块
 - 所有 <ref item="minecraft:anvil"/> 可替换为 任意铁砧

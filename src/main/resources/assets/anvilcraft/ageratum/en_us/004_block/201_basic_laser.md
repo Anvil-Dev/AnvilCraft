@@ -29,7 +29,7 @@ To set up this mod's laser system, prepare a large amount of <ref item="anvilcra
 
 ## Function
 
-- Deals damage: Damage[max:16] = Laser Level - 4
+- Deals damage: Damage = Laser Level - 4, maximum damage 16
 - Heats [heatable blocks](../001_feature/101_heated_block.md)
 - Extracts ores, leaving stone behind; the minerals are ejected from the back of the <ref item="anvilcraft:ruby_prism"/> that emitted the laser, or deposited into a container
 

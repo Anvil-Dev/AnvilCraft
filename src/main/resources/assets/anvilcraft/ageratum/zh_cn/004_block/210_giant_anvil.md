@@ -41,7 +41,7 @@ items:
 
 # 功能
 
-## 1.多方块转换
+## 1. 多方块转换
 
 <ref item="anvilcraft:giant_anvil"/>砸中<ref item="minecraft:crafting_table"/>时，对下方多方块结构进行转化，生成新的方块
 
@@ -53,7 +53,7 @@ items:
 
 <recipe id="anvilcraft:transparent_crafting_table"/>
 
-## 2.多方块合成
+## 2. 多方块合成
 
 - 将正中间的<ref item="minecraft:crafting_table"/>替换为<ref item="anvilcraft:space_overcompressor"/>，就能执行**多方块合成**
 - 生产的结果为**掉落物**形式
@@ -62,7 +62,7 @@ items:
 
 > 比多方块转化方便得多
 
-## 3.撼地
+## 3. 撼地
 
 - <ref item="anvilcraft:giant_anvil"/>的正中心砸中<ref item="anvilcraft:heavy_iron_block"/>时，执行**撼地**操作
 - 此时，其可以影响同一水平面上的方块或实体。根据<ref item="anvilcraft:heavy_iron_block"/>周围方块的不同，撼地产生的效果也不尽相同
@@ -98,7 +98,7 @@ items:
 |  <ref item="anvilcraft:sapphire_block"/>   |     冰冻伤害      |
 |    <ref item="anvilcraft:topaz_block"/>    |     雷电伤害      |
 | <ref item="anvilcraft:void_matter_block"/> |     虚空伤害      |
-|                     其他                     | 摔落伤害(可以穿靴子避免) |
+|                     其他                     | 摔落伤害 (可以穿靴子避免) |
 
 ### 工作模式：破坏
 

@@ -25,11 +25,11 @@ items:
 </tip>
 
 - 激光是可被**不透明方块**阻挡的、笔直的光束
-- 激光拥有**等级**，决定了它的效果
+- 激光拥有**等级**，等级决定了激光的效果
 
 ## 功能
 
-- 造成伤害 伤害[max:16] = 激光等级 - 4
+- 造成伤害，伤害 = 激光等级 - 4，最高 16
 - 加热[可加热方块](../001_feature/101_heated_block.md)
 - 提取矿石，留下石头；矿产会从射出该激光的<ref item="anvilcraft:ruby_prism"/>的背部弹出或存入容器
 
@@ -37,26 +37,26 @@ items:
 如果<ref item="anvilcraft:ruby_prism"/>背部也是**同方向**的<ref item="anvilcraft:ruby_prism"/>，则从最后一个<ref item="anvilcraft:ruby_prism"/>的背部输出
 </info>
 
-|    等级    | 提取冷却(s) |
+|    等级    | 提取冷却 (s) |
 |:--------:|:-------:|
 |  [4, 7]  |   24    |
 | [8, 11]  |    6    |
 | [12, 15] |    3    |
 | [16, +∞) |    1    |
 
-|    等级    |           加热能力            | 
-|:--------:|:-------------------------:| 
-|  [1, 3]  | <color=#661111>高温</color> | 
-| [4, 15]  | <color=#aa2222>红热</color> | 
-| [16, 63] | <color=#cc5533>炽热</color> | 
-| [64,+∞)  | <color=#ee7744>白炽</color> | 
+|    等级    |           加热能力            |
+|:--------:|:-------------------------:|
+|  [1, 3]  | <color=#661111>高温</color> |
+| [4, 15]  | <color=#aa2222>红热</color> |
+| [16, 63] | <color=#cc5533>炽热</color> |
+| [64,+∞)  | <color=#ee7744>白炽</color> |
 
 # <ref item="anvilcraft:ruby_laser"/>
 
 <recipe id="anvilcraft:ruby_laser"/>
 
 - 耗电量16kW
-- 受到红石信号停用
+- 收到红石信号停用
 - 启用时发射激光[等级: 1, 射程: 128格]
 
 # <ref item="anvilcraft:ruby_prism"/>
@@ -81,7 +81,7 @@ items:
 
 <recipe id="anvilcraft:laser_receiver"/>
 
-- 除底面外，可以接受激光并发电，同时根据激光等级发出红石信号
+- 除底面外，可以接收激光并发电，同时根据激光等级发出红石信号
 - 发电上限 = 激光等级 * 15kW
 - 持续接收10s后，达到发电上限
 
@@ -90,5 +90,5 @@ items:
 <item id="anvilcraft:large_laser"/>
 
 - 耗电量256kW
-- 受到红石信号停用
+- 收到红石信号停用
 - 启用时发射激光[等级: 16, 射程: 128格]

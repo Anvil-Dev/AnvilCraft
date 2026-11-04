@@ -20,4 +20,4 @@ items:
 ## Processing Capabilities
 
 - When participating in [Anvil Mining](../001_feature/000_anvil_destroy.md), gains [Disintegration](../001_feature/100_enchantment.md#disintegration) effect
-- When a Sculk Block is crushed on a cauldron by a <ref item="anvilcraft:frost_anvil"/>, there is a 40% chance to add one layer of [Experience Fluid](../002_material/004_exp_gem.md), four times the chance of a normal anvil
+- There is a 40% chance to add one layer of [Experience Fluid](../002_material/004_exp_gem.md) to a cauldron when a Sculk Block is crushed on it by a <ref item="anvilcraft:frost_anvil"/>, four times the chance of a normal anvil

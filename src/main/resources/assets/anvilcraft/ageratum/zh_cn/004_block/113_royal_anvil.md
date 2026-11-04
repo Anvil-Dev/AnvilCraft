@@ -13,7 +13,7 @@ items:
 ## 锻造能力
 
 - <ref item="anvilcraft:royal_anvil"/>永远不会损坏
-- 锻造时不会触发”过于昂贵“
+- 锻造时不会触发“过于昂贵”
 - 使用带特殊字符的<ref item="minecraft:name_tag"/>，可以给物品名称修改样式
 
 ## 加工能力

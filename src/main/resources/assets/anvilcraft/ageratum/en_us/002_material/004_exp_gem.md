@@ -13,7 +13,7 @@ items:
 > Store experience in item or fluid form
 
 <info>
-1000mb Experience Fluid = 1 * <ref item="anvilcraft:exp_gem"/> = 50 player experience points
+1000mB Experience Fluid = 1 * <ref item="anvilcraft:exp_gem"/> = 50 player experience points
 </info>
 
 ## Cauldron Interaction
@@ -28,7 +28,7 @@ items:
 
 ## Sculk Extraction
 
-- When a Sculk Block is crushed on a cauldron, there is a 10% chance to add one layer of experience fluid
+- There is a 10% chance to add one layer of experience fluid to a cauldron when a Sculk Block is crushed on it
 
 # <ref item="anvilcraft:exp_gem"/>
 

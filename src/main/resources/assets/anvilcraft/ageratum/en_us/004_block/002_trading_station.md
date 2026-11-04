@@ -13,7 +13,7 @@ items:
 # Function
 
 1. In the **GUI left trading panel**, place the resources you wish to trade away in the left slot, and the resources you want to acquire in the right slot
-2. Use the **button below the trading panel** to set whether *other players* (completed) or *villagers* (incomplete) can use it
+2. Use the **button below the trading panel** to set whether *other players* or *villagers* can use it
 3. Use the **button to the right below the trading panel** to set whether auto input/output is allowed
 4. **Other players** holding a sufficient amount of the item the **owner** wants can right-click to trade once
 

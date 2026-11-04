@@ -13,7 +13,7 @@ items:
 > 将经验以物品或流体的形态存储
 
 <info>
-1000mb 经验流体 = 1 * <ref item="anvilcraft:exp_gem"/> = 50 玩家经验值
+1000mB 经验流体 = 1 * <ref item="anvilcraft:exp_gem"/> = 50 玩家经验值
 </info>
 
 ## 炼药锅交互
@@ -28,7 +28,7 @@ items:
 
 ## 榨取幽匿
 
-- 幽匿块在炼药锅上被砸，有10%概率增加一层经验流体
+- 炼药锅在其上方的幽匿块被砸时，有10%概率增加一层经验流体
 
 # <ref item="anvilcraft:exp_gem"/>
 

@@ -16,7 +16,7 @@ items:
 - 右键地面释放生物
 
 <info>
-eg:村民可以抓取;僵尸需要对其施加虚弱效果才能抓取;铁傀儡不能抓取
+例如：村民可以直接抓取；僵尸需要对其施加虚弱效果才能抓取；铁傀儡不能抓取
 </info>
 
 <warning>
@@ -24,11 +24,11 @@ eg:村民可以抓取;僵尸需要对其施加虚弱效果才能抓取;铁傀儡
 </warning>
 
 <info>
-如果抓捕失败，会小幅度的拉动目标生物
+如果抓捕失败，会小幅度地拉动目标生物
 </info>
 
 - 可以通过<ref item="minecraft:dispenser"/>自动化操作
 
 # 怨恨值
 
-<ref item="anvilcraft:resin_block"/>抓到生物时在tooltips中显示其怨恨值，具体机制详见[怨恨值](../008_recipe/210_spawner.md#怨恨值)
+<ref item="anvilcraft:resin_block"/>抓到生物时会在工具提示中显示其怨恨值，具体机制详见[怨恨值](../008_recipe/210_spawner.md#怨恨值)

@@ -1,6 +1,6 @@
 ---
 navigation:
-  title: "一般金属(粒)"
+  title: "一般金属 (粒)"
   icon: "anvilcraft:lead_ingot"
 items:
   - anvilcraft:tungsten_nugget
@@ -17,7 +17,7 @@ items:
   - anvilcraft:silver_ingot
 ---
 
-# 一般金属(粒)
+# 一般金属 (粒)
 
 <row halign="center">
 <item id="anvilcraft:tungsten_nugget"/>
@@ -45,7 +45,7 @@ items:
 <item id="minecraft:gold_ingot"/>
 </row>
 
-## 一般金属(粒)
+## 一般金属 (粒)
 
 过筛部分粉尘，得到一般金属粒
 

@@ -16,7 +16,7 @@ items:
 - Takes items from the container, entity inventory, or dropped items behind it
 
 <info>
-e.g.: <ref item="minecraft:chest"/> <ref item="anvilcraft:chute"/> <ref item="minecraft:oak_chest_boat"/>
+e.g. <ref item="minecraft:chest"/> <ref item="anvilcraft:chute"/> <ref item="minecraft:oak_chest_boat"/>
 </info>
 - When receiving a redstone signal, places a block in front
 - When struck by an anvil, places blocks at intervals of n blocks based on the anvil's fall height n

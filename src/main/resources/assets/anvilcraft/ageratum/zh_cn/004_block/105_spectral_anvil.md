@@ -43,5 +43,5 @@ items:
 - **虚影**无论从多高砸到一个物体，都相当于从 2 格高下落的铁砧
 
 # 与铁砧的不同之处
-- 无法进行[铁砧抢劫](../001_feature/000_anvil_loot.md)
+- 无法进行[铁砧抢夺](../001_feature/000_anvil_loot.md)
 - 砸击<ref item="anvilcraft:piezoelectric_crystal"/>产生的电荷也会偏少

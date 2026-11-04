@@ -6,11 +6,11 @@ navigation:
 
 # 资源：盾构机
 
-盾构机：可以破坏前方方块，同时自身不断前进，从而方便的制造一条隧道的机器
+盾构机：可以破坏前方方块，同时自身不断前进，从而方便地制造一条隧道的机器
 
-<ref item="anvilcraft:block_devourer"/>可以迅速精准的破坏前方一大片的方块，因此可以用来制作*盾构机*
+<ref item="anvilcraft:block_devourer"/>可以迅速精准地破坏前方一大片的方块，因此可以用来制作*盾构机*
 
-# 简易盾构机(3x3)
+# 简易盾构机 (3x3)
 
 在这里给出一种简单的*盾构机*的示例：
 
@@ -32,7 +32,7 @@ navigation:
 
 - 所有 <ref item="minecraft:smooth_stone"/> 可替换为 任意完整不透明方块
 
-# 大型盾构机(7x7)
+# 大型盾构机 (7x7)
 
 通过控制铁砧下落撞击<ref item="anvilcraft:block_devourer"/>，可以挖掘更大的隧道
 

@@ -33,16 +33,16 @@ items:
 
 - 使用对应数量的任意不同锻造模板，在<ref item="anvilcraft:stamping_platform"/>砸合而成
 
-> 包括升级装备用的锻造模板和盔甲纹饰的锻造模板皆可，多合一锻造模板也算一种锻造模板
+> 升级装备用的锻造模板和盔甲纹饰的锻造模板皆可，多合一锻造模板也算一种锻造模板
 
-> eg:下界合金锻造模板+皇家钢锻造模板→二合一锻造模板
+> 例如：下界合金锻造模板+皇家钢锻造模板→二合一锻造模板
 
-> eg:猪鼻锻造模板+肋骨锻造模板+余烬锻造模板+海岸锻造模板→四合一锻造模板
+> 例如：猪鼻锻造模板+肋骨锻造模板+余烬锻造模板+海岸锻造模板→四合一锻造模板
 
 # 模板解离
 
 1. 将有附魔的<ref item="anvilcraft:eight_to_one_smithing_template"/>物品实体用任意方式摧毁
-2. 随机取一条<ref item="anvilcraft:eight_to_one_smithing_template"/>拥有的附魔(选择有可能重复)，按如下列表生成新物品
+2. 随机取一条<ref item="anvilcraft:eight_to_one_smithing_template"/>拥有的附魔 (选择有可能重复)，按如下列表生成新物品
 3. 最多选择4次，即最多通过这种方式产生4个新模板
 
 <row halign="center" valign="center">
@@ -69,7 +69,7 @@ items:
 <item id="minecraft:bolt_armor_trim_smithing_template"/>
 ->  致密、破甲  ;
 <item id="minecraft:flow_armor_trim_smithing_template"/>
-->  风暴  ;
+->  风爆  ;
 <item id="minecraft:wild_armor_trim_smithing_template"/>
 ->  弹射物保护  ;
 </row>

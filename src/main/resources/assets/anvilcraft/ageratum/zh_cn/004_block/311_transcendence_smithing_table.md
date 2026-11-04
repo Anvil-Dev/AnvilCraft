@@ -7,7 +7,7 @@ items:
 ---
 
 # <ref item="anvilcraft:transcendence_smithing_table"/>
-  
+
 <recipe id="anvilcraft:two_to_one_smithing/transcendence_smithing_table"/>
 
 ## 功能

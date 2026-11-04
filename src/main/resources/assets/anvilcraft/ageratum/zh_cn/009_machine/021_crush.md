@@ -10,7 +10,7 @@ navigation:
 - <ref item="anvilcraft:block_placer"/>后面箱子中的方块会被放出
 - 方块立刻被<ref item="minecraft:anvil"/>砸个粉碎
 
-如果需要更高效率，可以简单的延长，也可以自行设计更高效的机器
+如果需要更高效率，可以简单地延长，也可以自行设计更高效的机器
 
 ## 图示
 

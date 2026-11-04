@@ -18,7 +18,7 @@ Collects void energy from *non-material blocks* to generate power
 
 |  Material Blocks  | Power Output (kW) |
 |:-----------------:|:-----------------:|
-| [20, +inf)        |         0         |
+| [21, +inf)        |         0         |
 | [11, 20]          |        128        |
 | [3, 10]           |        256        |
 |  [0, 2]           |        512        |

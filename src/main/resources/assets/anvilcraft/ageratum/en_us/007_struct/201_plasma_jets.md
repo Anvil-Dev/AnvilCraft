@@ -37,7 +37,7 @@ The bottom cannot use <ref item="anvilcraft:burning_heater"/>
 # Properties
 
 - The jet stream consumes crude oil from the cauldron to sustain itself
-  - Each layer (250mb) of crude oil adds +5min to sustain time
+  - Each layer (250mB) of crude oil adds +5min to sustain time
   - Maximum sustain time is 10min
 - Entities in the jet stream take 4 times the fire-type damage compared to lava
 

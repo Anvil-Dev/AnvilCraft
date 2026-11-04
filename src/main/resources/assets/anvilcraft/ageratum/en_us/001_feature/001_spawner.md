@@ -19,5 +19,5 @@ When an anvil hits a <ref item="minecraft:spawner"/>, it will immediately attemp
 - The anvil's drop height h determines the spawn probability p: **p = 1 - 1/h** (higher heights yield higher probability)
 - Does *not* require **players close by** to activate the spawner (make sure the chunk is loaded)
 - Requires **a player within 128 blocks**, so mobs are not immediately despawned 
-- Requires **meeting the spawner's extra conditions for spawning certain mobs** (e.g., light level)
+- Requires **meeting the spawner's extra conditions for spawning certain mobs** (e.g. light level)
 - Requires **the number of nearby monsters to be below the cap**, so quickly transporting or killing nearby mobs will greatly improve efficiency
