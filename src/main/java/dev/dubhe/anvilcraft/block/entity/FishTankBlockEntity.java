@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.init.block.ModFluidTags;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
+import dev.dubhe.anvilcraft.util.ExperienceMending;
 import dev.dubhe.anvilcraft.util.FireReforgingUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -366,6 +367,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     public static void serverTick(Level level, BlockPos pos, BlockState state, FishTankBlockEntity entity) {
         if (level instanceof ServerLevel serverLevel) {
             NeoForge.EVENT_BUS.post(new FishTankEvent.ServerTick(serverLevel, pos, entity));
+            entity.mendItems(serverLevel);
         }
         if (!entity.fluidHandler.getFluid().is(Fluids.LAVA)) return;
         boolean changed = false;
@@ -380,6 +382,26 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         if (!changed) return;
         entity.setChanged();
         entity.sendUpdate();
+    }
+
+    private void mendItems(ServerLevel level) {
+        if (!this.fluidHandler.getFluid().is(ModFluids.EXP_FLUID)) {
+            return;
+        }
+        for (int slot = 0; slot < this.input.getSlots(); slot++) {
+            ItemStack stack = this.input.getStackInSlot(slot).copy();
+            if (this.mendItem(stack, level)) {
+                this.input.setStackInSlot(slot, stack);
+            }
+        }
+    }
+
+    private boolean mendItem(ItemStack stack, ServerLevel level) {
+        if (!this.fluidHandler.getFluid().is(ModFluids.EXP_FLUID)) {
+            return false;
+        }
+        return ExperienceMending.repair(stack, level, this.fluidHandler.getFluidAmount(),
+            amount -> this.fluidHandler.drain(amount, IFluidHandler.FluidAction.EXECUTE).getAmount());
     }
 
     @Override
@@ -900,6 +922,13 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     public void entityInsideFluidContent(Level level, BlockPos pos, Entity entity) {
         if (level.isClientSide()) return;
         if (!this.fluidContentArea.intersects(entity.getBoundingBox())) return;
+        if (entity instanceof ItemEntity item) {
+            ItemStack itemStack = item.getItem().copy();
+            if (this.mendItem(itemStack, (ServerLevel) level)) {
+                item.setItem(itemStack);
+            }
+            return;
+        }
 
         FluidStack stack = this.fluidHandler.getFluid();
         if (this.isIgnited()) {
