@@ -76,6 +76,24 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
      * 手部变换位于 z = -0.72，即 -Z 指向屏幕内（远离玩家），故 +Z 为向后、靠近玩家。
      */
     private static final float SPEAR_HOLD_Z = 0.07f;
+    /** 重戟锤模式向右的偏移（缩放前） */
+    private static final float MACE_HOLD_X = 0.03f;
+    /** 重戟锤模式向上的偏移（缩放前） */
+    private static final float MACE_HOLD_Y = 0.08f;
+    /**
+     * 重戟锤模式向后的偏移（缩放前）。<br>
+     * +Z 指向玩家，故该值越大模型越靠后。
+     */
+    private static final float MACE_HOLD_Z = 0.14f;
+    /** 重戟剑模式向右的偏移（缩放前） */
+    private static final float SWORD_HOLD_X = 0.05f;
+    /** 重戟剑模式向上的偏移（缩放前） */
+    private static final float SWORD_HOLD_Y = 0.17f;
+    /**
+     * 重戟剑模式向后的偏移（缩放前）。<br>
+     * +Z 指向玩家，故该值越大模型越靠后。
+     */
+    private static final float SWORD_HOLD_Z = 0.1f;
     /**
      * 投掷蓄力时蟹钳绕 X 轴的偏转角，使钳口与戟柄成直角。<br>
      * 取反可翻转倾倒方向。
@@ -133,6 +151,24 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
         }
         return stack.getItem() instanceof HeavyHalberdItem
             && HeavyHalberdItem.getMode(stack) == HeavyHalberdItem.SPEAR_MODE;
+    }
+
+    /**
+     * 是否为重戟的锤模式。<br>
+     * 锤模式与长矛模式同属重戟，但两者的第一人称显示位置不同，需要各自的后移量。
+     */
+    private static boolean isMaceMode(ItemStack stack) {
+        return stack.getItem() instanceof HeavyHalberdItem
+            && HeavyHalberdItem.getMode(stack) == HeavyHalberdItem.MACE_MODE;
+    }
+
+    /**
+     * 是否为重戟的剑模式。<br>
+     * 剑模式使用格挡动画，第一人称显示位置与长矛、锤模式都不同，需要单独的偏移。
+     */
+    private static boolean isSwordMode(ItemStack stack) {
+        return stack.getItem() instanceof HeavyHalberdItem
+            && HeavyHalberdItem.getMode(stack) == HeavyHalberdItem.SWORD_MODE;
     }
 
     /**
@@ -222,6 +258,10 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
             case NONE:
             case SPEAR:
                 break;
+            case BLOCK:
+                // 重戟剑模式沿用蟹钳持握姿态；盾牌等其它格挡物品交还原版渲染，避免套用蟹钳模型
+                if (!(stack.getItem() instanceof HeavyHalberdItem)) return;
+                break;
             default:
                 return;
         }
@@ -261,6 +301,14 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
             if (stack.getItem() instanceof MaceItem) {
                 poseStack.mulPose(Axis.YP.rotationDegrees(-10f * i));
                 poseStack.translate(0.08f * i, -0.1f, 0);
+            }
+            // 重戟锤模式单独右移、上抬、后移，避免锤头压住蟹钳
+            if (CrabClawItemInHandRenderer.isMaceMode(stack)) {
+                poseStack.translate(MACE_HOLD_X * i, MACE_HOLD_Y, MACE_HOLD_Z);
+            }
+            // 重戟剑模式单独右移、上抬、后移，避免剑柄压住蟹钳
+            if (CrabClawItemInHandRenderer.isSwordMode(stack)) {
+                poseStack.translate(SWORD_HOLD_X * i, SWORD_HOLD_Y, SWORD_HOLD_Z);
             }
             // 长柄武器向左、向后偏移，避免与蟹钳持握姿态重叠
             if (CrabClawItemInHandRenderer.isSpearLike(stack)) {
