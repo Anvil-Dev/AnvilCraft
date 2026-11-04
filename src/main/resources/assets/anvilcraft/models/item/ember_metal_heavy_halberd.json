@@ -515,13 +515,13 @@
 			"scale": [0.667, 0.667, 0.667]
 		},
 		"firstperson_righthand": {
-			"rotation": [0, -89.75, 76.5],
-			"translation": [4.75, 0.5, 0.25],
+			"rotation": [15.75, -90, 77],
+			"translation": [4.75, 0.5, -1.75],
 			"scale": [0.5, 0.5, 0.5]
 		},
 		"firstperson_lefthand": {
-			"rotation": [25.5, -89.75, 13.5],
-			"translation": [4.75, 0.5, 0.25],
+			"rotation": [15.75, 90, -77],
+			"translation": [4.75, 0.5, -1.75],
 			"scale": [0.5, 0.5, 0.5]
 		},
 		"ground": {
