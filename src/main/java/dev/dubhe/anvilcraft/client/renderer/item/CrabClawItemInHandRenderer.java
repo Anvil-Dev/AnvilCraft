@@ -26,6 +26,7 @@ import net.minecraft.world.item.MaceItem;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import javax.annotation.Nullable;
@@ -69,10 +70,10 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
      * 手部变换位于 z = -0.72，即 -Z 指向屏幕内、远离玩家，故更小的值让薄片从钳口往外突出。
      */
     private static final float PANEL_HOLD_Z = -0.35f;
-    /** 长柄武器向左的偏移（缩放前） */
+    /** 原版三叉戟在蟹钳上的向左偏移（缩放前） */
     private static final float SPEAR_HOLD_X = -0.23f;
     /**
-     * 长柄武器向后的偏移（缩放前）。<br>
+     * 原版三叉戟在蟹钳上的向后偏移（缩放前）。<br>
      * 手部变换位于 z = -0.72，即 -Z 指向屏幕内（远离玩家），故 +Z 为向后、靠近玩家。
      */
     private static final float SPEAR_HOLD_Z = 0.07f;
@@ -94,6 +95,18 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
      * +Z 指向玩家，故该值越大模型越靠后。
      */
     private static final float SWORD_HOLD_Z = 0.1f;
+    /** 重戟三叉戟模式与长矛模式在蟹钳上的向左偏移（缩放前） */
+    private static final float HALBERD_THRUST_HOLD_X = -0.2f;
+    /**
+     * 重戟三叉戟模式与长矛模式在蟹钳上的向后偏移（缩放前）。<br>
+     * +Z 指向玩家，故该值越大模型越靠后。
+     */
+    private static final float HALBERD_THRUST_HOLD_Z = 0.15f;
+    /**
+     * 投掷蓄力时戟柄的竖直修正（缩放前）。<br>
+     * 蓄力动作会把戟柄抬高，向下压回钳口才能保持握持。
+     */
+    private static final float THROW_HALBERD_DROP = -0.08f;
     /**
      * 投掷蓄力时蟹钳绕 X 轴的偏转角，使钳口与戟柄成直角。<br>
      * 取反可翻转倾倒方向。
@@ -182,6 +195,16 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
             && player.getUsedItemHand() == hand;
     }
 
+    /**
+     * 是否为重戟的三叉戟或长矛模式。<br>
+     * 两种模式的第一人称模型位置已统一，蟹钳里共用同一组偏移。
+     */
+    private static boolean isHalberdThrustMode(ItemStack stack) {
+        if (!(stack.getItem() instanceof HeavyHalberdItem)) return false;
+        int mode = HeavyHalberdItem.getMode(stack);
+        return mode == HeavyHalberdItem.TRIDENT_MODE || mode == HeavyHalberdItem.SPEAR_MODE;
+    }
+
     @Override
     public void render(
         AbstractClientPlayer player,
@@ -266,10 +289,18 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
                 return;
         }
         if (stack.getItem() instanceof FishingRodItem) return;
+        BakedModel clawModel = this.itemRenderer.getItemModelShaper().getModelManager().getModel(holdingModel);
         // 投掷蓄力时蟹钳单独偏转，使钳口与戟柄成直角；只作用于蟹钳，主手物品不受影响
         poseStack.pushPose();
         if (CrabClawItemInHandRenderer.isThrowingSpear(player, stack, hand)) {
+            // 绕蟹钳自身位置翻转，避免绕手部原点旋转时钳口被甩低、脱离戟柄
+            Vector3f pivot = clawModel.getTransforms()
+                .getTransform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND)
+                .translation;
+            float pivotX = pivot.x * i;
+            poseStack.translate(pivotX, pivot.y, pivot.z);
             poseStack.mulPose(Axis.XP.rotationDegrees(TRIDENT_THROW_CLAW_PITCH * i));
+            poseStack.translate(-pivotX, -pivot.y, -pivot.z);
         }
         this.itemRenderer.render(
             this.offHandItem,
@@ -279,10 +310,7 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
             buffer,
             combinedLight,
             OverlayTexture.NO_OVERLAY,
-            this.itemRenderer
-                .getItemModelShaper()
-                .getModelManager()
-                .getModel(holdingModel)
+            clawModel
         );
         poseStack.popPose();
         if (isBlockItem) {
@@ -310,9 +338,14 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
             if (CrabClawItemInHandRenderer.isSwordMode(stack)) {
                 poseStack.translate(SWORD_HOLD_X * i, SWORD_HOLD_Y, SWORD_HOLD_Z);
             }
-            // 长柄武器向左、向后偏移，避免与蟹钳持握姿态重叠
-            if (CrabClawItemInHandRenderer.isSpearLike(stack)) {
+            // 重戟三叉戟与长矛模式共用统一偏移；原版三叉戟沿用原有偏移
+            if (CrabClawItemInHandRenderer.isHalberdThrustMode(stack)) {
+                poseStack.translate(HALBERD_THRUST_HOLD_X * i, 0, HALBERD_THRUST_HOLD_Z);
+            } else if (CrabClawItemInHandRenderer.isSpearLike(stack)) {
                 poseStack.translate(SPEAR_HOLD_X * i, 0, SPEAR_HOLD_Z);
+            }
+            if (CrabClawItemInHandRenderer.isThrowingSpear(player, stack, hand)) {
+                poseStack.translate(0, THROW_HALBERD_DROP, 0);
             }
         }
     }
