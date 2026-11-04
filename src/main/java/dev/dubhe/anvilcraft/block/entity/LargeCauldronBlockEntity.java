@@ -26,6 +26,7 @@ import dev.dubhe.anvilcraft.block.workstation.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.block.workstation.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluidTags;
+import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -1333,7 +1334,6 @@ public class LargeCauldronBlockEntity extends BlockEntity
     }
 
     private void applyFluidEffects(ServerLevel level) {
-        List<FluidStack> layers = this.fluids.copyFluids();
         int totalAmount = this.fluids.getTotalAmount();
         if (totalAmount <= 0) return;
 
@@ -1360,8 +1360,9 @@ public class LargeCauldronBlockEntity extends BlockEntity
             }
             boolean touchesLava = false;
             FluidStack extinguishingFluid = FluidStack.EMPTY;
+            FluidStack experienceFluid = FluidStack.EMPTY;
             double layerMinY = contentArea.minY;
-            for (FluidStack fluid : layers) {
+            for (FluidStack fluid : this.fluids.copyFluids()) {
                 if (fluid.isEmpty()) continue;
                 double layerMaxY = layerMinY
                     + LargeCauldronBlockEntity.CONTENT_HEIGHT * fluid.getAmount() / LargeCauldronFluidHandler.totalCapacity();
@@ -1375,6 +1376,9 @@ public class LargeCauldronBlockEntity extends BlockEntity
                 );
                 if (layerArea.intersects(entity.getBoundingBox())) {
                     touchesLava |= fluid.is(Fluids.LAVA);
+                    if (fluid.is(ModFluids.EXP_FLUID)) {
+                        experienceFluid = fluid;
+                    }
                     if (extinguishingFluid.isEmpty() && entity.canFluidExtinguish(fluid.getFluidType())) {
                         extinguishingFluid = fluid;
                     }
@@ -1388,6 +1392,13 @@ public class LargeCauldronBlockEntity extends BlockEntity
                 boolean creativePlayer = entity instanceof Player player && player.isCreative();
                 if (!creativePlayer && entity.mayInteract(level, this.worldPosition)) {
                     LargeCauldronBlockEntity.extractFluid(this.fluids, extinguishingFluid, 250);
+                }
+            } else if (entity instanceof Player player && !experienceFluid.isEmpty()) {
+                int buckets = Math.min(9, experienceFluid.getAmount() / FluidType.BUCKET_VOLUME);
+                if (buckets > 0) {
+                    int amount = buckets * FluidType.BUCKET_VOLUME;
+                    int extracted = LargeCauldronBlockEntity.extractFluid(this.fluids, experienceFluid, amount);
+                    player.giveExperiencePoints(extracted / FluidType.BUCKET_VOLUME * AnvilCraft.CONFIG.world.expFluidXpPerBlock);
                 }
             }
         }
