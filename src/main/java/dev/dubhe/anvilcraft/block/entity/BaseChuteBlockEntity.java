@@ -187,7 +187,7 @@ public abstract class BaseChuteBlockEntity
                         for (int i = 0; i < this.itemHandler.getSlots(); i++) {
                             ItemStack stack = this.itemHandler.getStackInSlot(i);
                             if (!stack.isEmpty()) {
-                                int slotLimit = this.itemHandler.getSlotLimit(i);
+                                int slotLimit = Math.min(this.itemHandler.getSlotLimit(i), stack.getMaxStackSize());
                                 int sameItemCount = 0;
                                 for (ItemEntity entity : itemEntities) {
                                     if (entity.getItem().getItem() == stack.getItem()) {

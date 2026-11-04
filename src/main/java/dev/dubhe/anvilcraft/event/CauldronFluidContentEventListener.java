@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.init.block.ModFluids;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.fluids.RegisterCauldronFluidContentEvent;
@@ -16,7 +17,10 @@ public class CauldronFluidContentEventListener {
     @SubscribeEvent
     public static void registerCauldronFluidContent(RegisterCauldronFluidContentEvent event) {
         event.register(ModBlocks.OIL_CAULDRON.get(), ModFluids.OIL.get(), 1000, Layered4LevelCauldronBlock.LEVEL);
-        event.register(ModBlocks.MILK_CAULDRON.get(), NeoForgeMod.MILK.get(), 1000, Layered4LevelCauldronBlock.LEVEL);
+        // NeoForge 的流体映射只允许一种锅，已有 No Man's Land 时由它注册牛奶映射。
+        if (!ModList.get().isLoaded("nomansland")) {
+            event.register(ModBlocks.MILK_CAULDRON.get(), NeoForgeMod.MILK.get(), 1000, Layered4LevelCauldronBlock.LEVEL);
+        }
         event.register(ModBlocks.HONEY_CAULDRON.get(), ModFluids.HONEY.get(), 1000, Layered4LevelCauldronBlock.LEVEL);
         event.register(Blocks.POWDER_SNOW_CAULDRON, ModFluids.POWDER_SNOW.get(), 1000, LayeredCauldronBlock.LEVEL);
         event.register(ModBlocks.EXP_FLUID_CAULDRON.get(), ModFluids.EXP_FLUID.get(), 1000, Layered4LevelCauldronBlock.LEVEL);

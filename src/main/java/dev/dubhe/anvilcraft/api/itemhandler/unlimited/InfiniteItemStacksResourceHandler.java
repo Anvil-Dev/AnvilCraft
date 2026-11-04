@@ -40,6 +40,9 @@ public class InfiniteItemStacksResourceHandler extends UnlimitedItemStacksResour
     @Override
     public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
         if (stack.isEmpty()) return ItemStack.EMPTY;
+        if (!this.isItemValid(slot, stack)) {
+            return stack;
+        }
         if (slot >= this.stacks.size()) {
             if (slot >= this.getSlots()) {
                 return stack;
@@ -84,11 +87,7 @@ public class InfiniteItemStacksResourceHandler extends UnlimitedItemStacksResour
             }
         }
         if (stack.isEmpty()) return ItemStack.EMPTY;
-        if (simulate) {
-            return ItemStack.EMPTY;
-        }
-        this.ensureSlot(this.size());
-        return this.insertItem(this.size() - 1, stack, false);
+        return this.insertItem(this.size(), stack, simulate);
     }
 
     /**

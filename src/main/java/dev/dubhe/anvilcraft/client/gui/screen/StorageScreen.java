@@ -4373,7 +4373,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
      * 一次性返回会超出网络包上限，故逐页请求直到某页不满为止。</p>
      */
     private void refreshUnfilteredContents() {
-        if (this.unfilteredPending || this.unfilteredVersion == this.version) {
+        if (!this.isTransferContextActive() || this.unfilteredPending || this.unfilteredVersion == this.version) {
             return;
         }
         this.unfilteredPending = true;
@@ -4390,6 +4390,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.refreshUnfilteredFluids();
     }
 
+    private boolean isTransferContextActive() {
+        return this.minecraft.player == this.player && (this.minecraft.screen == this || StorageJeiBridge.isRecipeParent(this));
+    }
+
     /**
      * 拉取未经过滤的流体快照，供 JEI 判定桶装流体能否现场盛装。
      *
@@ -4397,19 +4401,14 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
      * 客户端主线程执行：配方界面覆盖本界面时 {@link #screenExecutor} 会丢弃任务。</p>
      */
     private void refreshUnfilteredFluids() {
-        if (this.unfilteredFluidPending || this.unfilteredFluidVersion == this.version) {
+        if (!this.isTransferContextActive() || this.unfilteredFluidPending || this.unfilteredFluidVersion == this.version) {
             return;
         }
         this.unfilteredFluidPending = true;
         long requested = this.version;
         StorageClientStub.craftingStorageFluids(this.sourcePos).whenCompleteAsync(
             (fluids, error) -> {
-                if (error != null) {
-                    this.unfilteredFluidPending = false;
-                    return;
-                }
-                // 版本已前进：丢弃本批，下个刷新周期会针对新版本重新拉取
-                if (this.version != requested) {
+                if (error != null || !this.isTransferContextActive()) {
                     this.unfilteredFluidPending = false;
                     return;
                 }
@@ -4428,19 +4427,14 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
      * 覆盖时会丢弃任务，快照便卡在 {@link #unfilteredPending} 上再也拉不到；此场景下
      * {@code closed} 为真，但快照正是此时供 JEI 使用，故不因此丢弃整批。</p>
      *
-     * @param requested 发起时的存储版本，回调期间版本前进则整批作废
+     * @param requested 发起时的存储版本，完成后据此判断是否需要继续刷新
      * @param offset    下一页起始偏移（已收条目数）
      * @param collected 已收条目
      */
     private void fetchUnfilteredPage(long requested, int offset, List<ItemStack> collected) {
         StorageClientStub.craftingStorageContents(this.sourcePos, offset).whenCompleteAsync(
             (page, error) -> {
-                if (error != null) {
-                    this.unfilteredPending = false;
-                    return;
-                }
-                // 版本已前进：丢弃整批，下个刷新周期会针对新版本重新拉取
-                if (this.version != requested) {
+                if (error != null || !this.isTransferContextActive()) {
                     this.unfilteredPending = false;
                     return;
                 }
@@ -4458,34 +4452,35 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     /**
-     * 未经过滤的存储内容快照；存储内容与当前版本不一致时返回空列表，
-     * 使 JEI 退回“以界面缓存为准”的保守判定，而不是用过期数据放行转移。
+     * 最近一次完整的存储内容快照，刷新期间仍供 JEI 预览使用。
+     * 服务端转移时重新检查实际库存，持续输入不会使客户端材料池反复清空。
      */
     public List<ItemStack> getUnfilteredContents() {
+        this.refreshUnfilteredContents();
         return this.hasUnfilteredContents() ? this.unfilteredContents : List.of();
     }
 
     /**
-     * 未过滤快照是否为当前版本。
+     * 是否已经收到完整的未过滤快照。
      *
      * <p>与 {@link #getUnfilteredContents()} 的返回值为空区分开：存储确实为空时快照也是
      * 空列表，此时不应被当成「快照不可用」而回退。</p>
      */
     public boolean hasUnfilteredContents() {
-        return this.unfilteredVersion == this.version;
+        return this.unfilteredVersion != Long.MIN_VALUE;
     }
 
     /**
-     * 未经过滤的流体快照；存储内容与当前版本不一致时返回空列表，
-     * 与 {@link #getUnfilteredContents()} 同样退回保守判定。
+     * 最近一次完整的流体快照，刷新期间继续供 JEI 预览使用。
      */
     public List<StorageServerStub.FluidEntry> getUnfilteredFluids() {
+        this.refreshUnfilteredFluids();
         return this.hasUnfilteredFluids() ? this.unfilteredFluids : List.of();
     }
 
-    /** 未过滤流体快照是否为当前版本。 */
+    /** 是否已经收到完整的未过滤流体快照。 */
     public boolean hasUnfilteredFluids() {
-        return this.unfilteredFluidVersion == this.version;
+        return this.unfilteredFluidVersion != Long.MIN_VALUE;
     }
 
     private int getMaxScrollRow() {

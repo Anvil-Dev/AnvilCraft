@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.AbstractStoragePortBlock;
 import dev.dubhe.anvilcraft.block.batch.BaseBatchCraftingBlock;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
@@ -61,7 +62,8 @@ public class BlockEventListener {
     @SubscribeEvent
     public static void onCreativeCrateAttack(PlayerInteractEvent.LeftClickBlock event) {
         if (event.getLevel().getBlockEntity(event.getPos()) instanceof CreativeCrateBlockEntity crate
-            && !crate.getItemStackHandler().getStackInSlot(0).isEmpty()) {
+            && !crate.getItemStackHandler().getStackInSlot(0).isEmpty()
+            && !StoragePortBlockEntity.isEdgeHit(BlockEventListener.aimHit(event.getEntity()))) {
             event.setCanceled(true);
         }
     }
