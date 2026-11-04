@@ -176,13 +176,12 @@ public record MobTransformRecipe(
         ProblemReporter.Collector reporter = new ProblemReporter.Collector(newEntity.problemPath());
         TagValueOutput output = TagValueOutput.createWithContext(reporter, registries);
         newEntity.saveWithoutId(output);
-        tag = new CompoundTag();
+        tag = output.buildResult();
         for (TagModification tagModification : this.tagModifications()) {
             tagModification.accept(tag);
         }
-        output.store(tag);
         UUID uuid = newEntity.getUUID();
-        newEntity.load(TagValueInput.create(reporter, registries, output.buildResult()));
+        newEntity.load(TagValueInput.create(reporter, registries, tag));
         newEntity.setUUID(uuid);
         return newEntity;
     }
