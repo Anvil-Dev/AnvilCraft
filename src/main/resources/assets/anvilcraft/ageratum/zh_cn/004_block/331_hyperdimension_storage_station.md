@@ -37,7 +37,7 @@ items:
 
 ## 制作
 
-放置<ref item="anvilcraft:singularity_crystal"/>，手持一个绑定了<ref item="anvilcraft:hyperdimension_storage_station"/>的<ref item="anvilcraft:hyperdimension_terminal"/>右击<ref item="anvilcraft:singularity_crystal"/>，<ref item="anvilcraft:singularity_crystal"/>变为绑定对应<ref item="anvilcraft:hyperdimension_storage_station"/>的<ref item="anvilcraft:hyperdimension_uploader"/>
+放置<ref item="anvilcraft:singularity_crystal"/>，手持一个绑定了<ref item="anvilcraft:hyperdimension_storage_station"/>的<ref item="anvilcraft:hyperdimension_terminal"/>右键<ref item="anvilcraft:singularity_crystal"/>，<ref item="anvilcraft:singularity_crystal"/>变为绑定对应<ref item="anvilcraft:hyperdimension_storage_station"/>的<ref item="anvilcraft:hyperdimension_uploader"/>
 
 ## 功能
 

@@ -131,7 +131,7 @@ GUI左下角可以塞入某些消耗物品，赋予锻星特殊效果
 
 # 全同天体
 
-- 使用<ref item="anvilcraft:disk"/>右击<ref item="anvilcraft:celestial_forging_anvil"/>复制天体信息
+- 使用<ref item="anvilcraft:disk"/>右键<ref item="anvilcraft:celestial_forging_anvil"/>复制天体信息
 - 将此<ref item="anvilcraft:disk"/>放入另一锻星砧的*种子物品*槽，消耗该<ref item="anvilcraft:disk"/>锻造另一个天体，该天体将和源天体拥有完全相同的构成，它们互相为*全同天体*
 - 对极端天体（中子星、黑洞），需改为使用<ref item="anvilcraft:singularity_crystal"/>作为承载天体信息的媒介来完成锻造
 

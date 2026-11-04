@@ -23,7 +23,7 @@ items:
 
 
 <tip>
-使用<ref item="anvilcraft:topaz"/>右键点击<ref item="minecraft:lightning_rod"/>，会消耗<ref item="anvilcraft:topaz"/>并立刻制造一道闪电
+使用<ref item="anvilcraft:topaz"/>右键<ref item="minecraft:lightning_rod"/>，会消耗<ref item="anvilcraft:topaz"/>并立刻制造一道闪电
 </tip>
 
 默认的雷击转化<ref item="anvilcraft:hollow_magnet_block"/>范围为 3x3x3:
@@ -36,9 +36,9 @@ items:
 </row>
 
 # 磁化
-- 使用<ref item="minecraft:iron_ingot"/>右键点击<ref item="anvilcraft:hollow_magnet_block"/>，或者合成，获得<ref item="anvilcraft:ferrite_core_magnet_block"/>
+- 使用<ref item="minecraft:iron_ingot"/>右键<ref item="anvilcraft:hollow_magnet_block"/>，或者合成，获得<ref item="anvilcraft:ferrite_core_magnet_block"/>
 - 将<ref item="anvilcraft:ferrite_core_magnet_block"/>放置在世界中，其会慢慢转变为<ref item="anvilcraft:magnet_block"/>，将<ref item="minecraft:iron_ingot"/>转化为<ref item="anvilcraft:magnet_ingot"/>
-- 可以合成，或是空手右键点击取出<ref item="anvilcraft:magnet_ingot"/>
+- 可以合成，或是空手右键取出<ref item="anvilcraft:magnet_ingot"/>
 
 <row halign="center">
 <recipe id="anvilcraft:ferrite_core_magnet_block"/>
