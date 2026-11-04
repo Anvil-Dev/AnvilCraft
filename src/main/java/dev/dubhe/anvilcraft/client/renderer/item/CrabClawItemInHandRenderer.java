@@ -45,6 +45,24 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
         new StandaloneModelKey<>(() -> "AnvilCraft: Crab Claw Panel");
     private static final float PANEL_MAX_HEIGHT = 0.4F;
     private static final float SLAB_MAX_HEIGHT = 0.625F;
+    /** 重戟锤模式向右的偏移（缩放前） */
+    private static final float MACE_HOLD_X = 0.03F;
+    /** 重戟锤模式向上的偏移（缩放前） */
+    private static final float MACE_HOLD_Y = 0.08F;
+    /**
+     * 重戟锤模式向后的偏移（缩放前）。<br>
+     * +Z 指向玩家，故该值越大模型越靠后。
+     */
+    private static final float MACE_HOLD_Z = 0.14F;
+    /** 重戟剑模式向右的偏移（缩放前） */
+    private static final float SWORD_HOLD_X = 0.05F;
+    /** 重戟剑模式向上的偏移（缩放前） */
+    private static final float SWORD_HOLD_Y = 0.17F;
+    /**
+     * 重戟剑模式向后的偏移（缩放前）。<br>
+     * +Z 指向玩家，故该值越大模型越靠后。
+     */
+    private static final float SWORD_HOLD_Z = 0.1F;
     private final ModelState modelState = new ModelState();
     private List<Object> cachedModels = List.of();
     private float cachedHeight;
@@ -103,6 +121,22 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
             && player.getUseItemRemainingTicks() > 0 && player.getUsedItemHand() == hand;
     }
 
+    /**
+     * 是否为重戟的锤模式。<br>
+     * 锤模式与长矛模式同属重戟，但两者的第一人称显示位置不同，需要各自的后移量。
+     */
+    private static boolean isMaceMode(ItemStack stack) {
+        return stack.getItem() instanceof HeavyHalberdItem && HeavyHalberdItem.getMode(stack) == HeavyHalberdMode.MACE;
+    }
+
+    /**
+     * 是否为重戟的剑模式。<br>
+     * 剑模式使用格挡动画，第一人称显示位置与长矛、锤模式都不同，需要单独的偏移。
+     */
+    private static boolean isSwordMode(ItemStack stack) {
+        return stack.getItem() instanceof HeavyHalberdItem && HeavyHalberdItem.getMode(stack) == HeavyHalberdMode.SWORD;
+    }
+
     @Override
     public boolean render(
         AbstractClientPlayer player, float partialTicks, float pitch, InteractionHand hand, float swingProgress,
@@ -135,6 +169,10 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
             }
             case NONE, SPEAR, TRIDENT -> {
             }
+            case BLOCK -> {
+                // 重戟剑模式沿用蟹钳持握姿态；盾牌等其它格挡物品交还原版渲染，避免套用蟹钳模型
+                if (!(stack.getItem() instanceof HeavyHalberdItem)) return false;
+            }
             default -> {
                 return false;
             }
@@ -161,6 +199,8 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
                 pose.mulPose(Axis.YP.rotationDegrees(-10 * sign));
                 pose.translate(0.08F * sign, -0.1F, 0);
             }
+            if (isMaceMode(stack)) pose.translate(MACE_HOLD_X * sign, MACE_HOLD_Y, MACE_HOLD_Z);
+            if (isSwordMode(stack)) pose.translate(SWORD_HOLD_X * sign, SWORD_HOLD_Y, SWORD_HOLD_Z);
             if (isSpearLike(stack)) pose.translate(-0.23F * sign, 0, 0.07F);
         }
         return false;
