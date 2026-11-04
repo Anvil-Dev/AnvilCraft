@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.commands.arguments.NbtPathArgument;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.SnbtPrinterTagVisitor;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.TagParser;
@@ -55,7 +56,7 @@ public record TagModification(String path, ModifyOperation op, int index, Tag ta
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private static TagModification create(String path, ModifyOperation op, Optional<Integer> index, String tag) {
         try {
-            Tag parseTag = TagParser.parseCompoundFully(tag);
+            Tag parseTag = TagParser.create(NbtOps.INSTANCE).parseFully(tag);
             return new TagModification(path, op, index.orElse(0), parseTag);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -72,30 +73,26 @@ public record TagModification(String path, ModifyOperation op, int index, Tag ta
 
     @Override
     public void accept(Tag input) {
-        if (this.op == ModifyOperation.SET || this.op == ModifyOperation.ROOT_SET) {
-            int index = this.path.lastIndexOf('.');
-            String path = this.path.substring(0, index == -1 ? this.path.length() : index);
-            String key = this.path.substring(index + 1);
-            this.readAndAcceptTag(path, 0, key);
+        if (this.op == ModifyOperation.ROOT_SET && this.path.isEmpty()) {
+            this.op.accept(input, this.tag.copy(), this.index, this.path);
             return;
         }
-        this.readAndAcceptTag(this.path, this.index, this.path);
-    }
-
-    public void readAndAcceptTag(String path, int index, String key) {
         try {
-            StringReader reader = new StringReader(path);
-            NbtPathArgument argument = new NbtPathArgument();
-            NbtPathArgument.NbtPath nbtPath = argument.parse(reader);
-            List<Tag> contract = nbtPath.get(this.tag);
-            if (contract.size() >= 2) {
-                throw new IllegalArgumentException("TagModification does not allow multiple tag at path: " + path);
+            NbtPathArgument.NbtPath nbtPath = new NbtPathArgument().parse(new StringReader(this.path));
+            if (this.op == ModifyOperation.SET) {
+                nbtPath.set(input, this.tag);
+                return;
             }
-            if (contract.isEmpty()) return;
-            Tag value = contract.getFirst();
-            this.op.accept(value, this.tag, index, key);
+            List<Tag> values = nbtPath.get(input);
+            if (values.size() >= 2) {
+                throw new IllegalArgumentException("TagModification does not allow multiple tags at path: " + this.path);
+            }
+            if (values.isEmpty()) {
+                return;
+            }
+            this.op.accept(values.getFirst(), this.tag.copy(), this.index, this.path);
         } catch (CommandSyntaxException e) {
-            AnvilCraft.LOGGER.error(e.getMessage(), e);
+            AnvilCraft.LOGGER.error("生物转化 NBT 修改失败，操作={}，路径={}", this.op, this.path, e);
         }
     }
 
