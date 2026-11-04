@@ -69,6 +69,18 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
      * 原版矛使用扁平的 in-hand 模型，与三叉戟模型差异大，沿用三叉戟的左移量会偏到钳口外，故单独取更小的值。
      */
     private static final float VANILLA_SPEAR_HOLD_X = -0.1F;
+    /**
+     * 投掷蓄力时戟柄的竖直修正（缩放前）。<br>
+     * 蓄力动作会把戟柄抬高，向下压回钳口才能保持握持。
+     */
+    private static final float THROW_HALBERD_DROP = -0.08F;
+    /** 重戟三叉戟模式与长矛模式在蟹钳上的向左偏移（缩放前） */
+    private static final float HALBERD_THRUST_HOLD_X = -0.2F;
+    /**
+     * 重戟三叉戟模式与长矛模式在蟹钳上的向后偏移（缩放前）。<br>
+     * +Z 指向玩家，故该值越大模型越靠后。
+     */
+    private static final float HALBERD_THRUST_HOLD_Z = 0.15F;
     private final ModelState modelState = new ModelState();
     private List<Object> cachedModels = List.of();
     private float cachedHeight;
@@ -119,7 +131,17 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
 
     private static boolean isSpearLike(ItemStack stack) {
         return stack.getUseAnimation() == ItemUseAnimation.TRIDENT || stack.getUseAnimation() == ItemUseAnimation.SPEAR
-            || stack.getItem() instanceof HeavyHalberdItem && HeavyHalberdItem.getMode(stack) == HeavyHalberdMode.SPEAR;
+            || isHalberdThrustMode(stack);
+    }
+
+    /**
+     * 是否为重戟的三叉戟或长矛模式。<br>
+     * 两种模式的第一人称模型位置已统一，蟹钳里共用同一组偏移。
+     */
+    private static boolean isHalberdThrustMode(ItemStack stack) {
+        if (!(stack.getItem() instanceof HeavyHalberdItem)) return false;
+        HeavyHalberdMode mode = HeavyHalberdItem.getMode(stack);
+        return mode == HeavyHalberdMode.TRIDENT || mode == HeavyHalberdMode.SPEAR;
     }
 
     private static boolean isThrowingSpear(AbstractClientPlayer player, ItemStack stack, InteractionHand hand) {
@@ -193,9 +215,18 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
         }
         if (stack.getItem() instanceof FishingRodItem) return false;
         var holding = Minecraft.getInstance().getModelManager().getStandaloneModel(key);
+        var holdingTransform = holding.transforms().getTransform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND);
         pose.pushPose();
-        if (isThrowingSpear(player, stack, hand)) pose.mulPose(Axis.XP.rotationDegrees(90 * sign));
-        holding.transforms().getTransform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).apply(left, pose.last());
+        if (isThrowingSpear(player, stack, hand)) {
+            // 绕蟹钳自身位置翻转，避免绕手部原点旋转时钳口被甩低、脱离戟柄
+            float pivotX = holdingTransform.translation().x() * sign;
+            float pivotY = holdingTransform.translation().y();
+            float pivotZ = holdingTransform.translation().z();
+            pose.translate(pivotX, pivotY, pivotZ);
+            pose.mulPose(Axis.XP.rotationDegrees(90 * sign));
+            pose.translate(-pivotX, -pivotY, -pivotZ);
+        }
+        holdingTransform.apply(left, pose.last());
         collector.submitItem(pose, ItemDisplayContext.FIRST_PERSON_RIGHT_HAND, light, OverlayTexture.NO_OVERLAY, 0,
             new int[0], holding.quads(),
             this.offHandItem.hasFoil() ? ItemStackRenderState.FoilType.STANDARD : ItemStackRenderState.FoilType.NONE);
@@ -216,9 +247,15 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
             if (isMaceMode(stack)) pose.translate(MACE_HOLD_X * sign, MACE_HOLD_Y, MACE_HOLD_Z);
             if (isSwordMode(stack)) pose.translate(SWORD_HOLD_X * sign, SWORD_HOLD_Y, SWORD_HOLD_Z);
             if (isSpearLike(stack)) {
-                float spearX = isVanillaSpear(stack) ? VANILLA_SPEAR_HOLD_X : -0.23F;
-                pose.translate(spearX * sign, 0, 0.07F);
+                if (isVanillaSpear(stack)) {
+                    pose.translate(VANILLA_SPEAR_HOLD_X * sign, 0, 0.07F);
+                } else if (isHalberdThrustMode(stack)) {
+                    pose.translate(HALBERD_THRUST_HOLD_X * sign, 0, HALBERD_THRUST_HOLD_Z);
+                } else {
+                    pose.translate(-0.23F * sign, 0, 0.07F);
+                }
             }
+            if (isThrowingSpear(player, stack, hand)) pose.translate(0, THROW_HALBERD_DROP, 0);
         }
         return false;
     }
