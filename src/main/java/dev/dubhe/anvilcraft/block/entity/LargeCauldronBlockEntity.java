@@ -1401,6 +1401,13 @@ public class LargeCauldronBlockEntity extends BlockEntity
                 if (!creativePlayer && entity.mayInteract(level, this.worldPosition)) {
                     LargeCauldronBlockEntity.extractFluid(this.fluids, extinguishingFluid, 250);
                 }
+            } else if (entity instanceof Player player && !experienceFluid.isEmpty()) {
+                int buckets = Math.min(9, experienceFluid.getAmount() / FluidType.BUCKET_VOLUME);
+                if (buckets > 0) {
+                    int amount = buckets * FluidType.BUCKET_VOLUME;
+                    int extracted = LargeCauldronBlockEntity.extractFluid(this.fluids, experienceFluid, amount);
+                    player.giveExperiencePoints(extracted / FluidType.BUCKET_VOLUME * AnvilCraft.CONFIG.world.expFluidXpPerBlock);
+                }
             }
         }
     }
