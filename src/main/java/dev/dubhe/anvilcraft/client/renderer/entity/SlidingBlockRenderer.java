@@ -52,15 +52,16 @@ public class SlidingBlockRenderer extends EntityRenderer<SlidingBlockEntity, Sli
                 BlockEntityRenderer<BlockEntity, BlockEntityRenderState> renderer = minecraft
                     .getBlockEntityRenderDispatcher()
                     .getRenderer(be);
-                if (renderer == null) return;
-                beState = renderer.createRenderState();
-                renderer.extractRenderState(
-                    be,
-                    beState,
-                    partialTicks,
-                    minecraft.gameRenderer.getMainCamera().position(),
-                    null
-                );
+                if (renderer != null) {
+                    beState = renderer.createRenderState();
+                    renderer.extractRenderState(
+                        be,
+                        beState,
+                        partialTicks,
+                        minecraft.gameRenderer.getMainCamera().position(),
+                        null
+                    );
+                }
             }
 
             state.getPairs().put(info.offset(), new SlidingBlockRenderState.RenderPair(moving, beState));
@@ -76,12 +77,13 @@ public class SlidingBlockRenderer extends EntityRenderer<SlidingBlockEntity, Sli
             SlidingBlockRenderState.RenderPair pair = entry.getValue();
             MovingBlockRenderState moving = pair.block();
             BlockState blockState = moving.blockState;
-            if (blockState.getRenderShape() == RenderShape.INVISIBLE) return;
             pose.pushPose();
             pose.translate(-0.5, 0.0, -0.5);
             Vec3i offset = entry.getKey();
             pose.translate(offset.getX(), offset.getY(), offset.getZ());
-            collector.submitMovingBlock(pose, moving);
+            if (blockState.getRenderShape() == RenderShape.MODEL) {
+                collector.submitMovingBlock(pose, moving);
+            }
             if (pair.entity() != null) {
                 BlockEntityRenderer<BlockEntity, BlockEntityRenderState> renderer = Minecraft.getInstance()
                     .getBlockEntityRenderDispatcher()
