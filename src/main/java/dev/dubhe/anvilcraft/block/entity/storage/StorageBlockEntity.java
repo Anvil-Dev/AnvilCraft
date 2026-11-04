@@ -180,7 +180,7 @@ public class StorageBlockEntity extends BlockEntity {
         }
         return Storages.get().get(this.id)
             .map(storage -> {
-                UnlimitedItemStacksResourceHandler items = storage.getItems();
+                UnlimitedItemStacksResourceHandler items = storage.getAvailableItems();
                 long total = 0;
                 for (int i = 0; i < items.size(); i++) {
                     total += items.getAmountAsLong(i);

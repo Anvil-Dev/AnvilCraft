@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.api.event.StorageUnlockCraftingEvent;
+import dev.dubhe.anvilcraft.api.itemhandler.unlimited.LinkedStorageItems;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
@@ -37,6 +38,7 @@ public abstract class BaseStorage<T extends UnlimitedItemStacksResourceHandler> 
     public static final String CRAFTING_KEY = "crafting";
     private final UUID id;
     private final T items = this.constructItemHandler(this::onContentsChanged);
+    private @Nullable LinkedStorageItems availableItems;
     private CraftingStorage crafting = CraftingStorage.EMPTY;
     /**
      * 解锁合成功能时消耗的物品，按消耗顺序排列。
@@ -48,6 +50,17 @@ public abstract class BaseStorage<T extends UnlimitedItemStacksResourceHandler> 
 
     protected BaseStorage(UUID id) {
         this.id = id;
+    }
+
+    /** 返回包含已连接端口内部库存的存取视图，持久化仍使用原始物品处理器。 */
+    public UnlimitedItemStacksResourceHandler getAvailableItems() {
+        if (!(this instanceof ShulkerContainerStorage) && !(this instanceof HyperdimensionStorage)) {
+            return this.items;
+        }
+        if (this.availableItems == null) {
+            this.availableItems = new LinkedStorageItems(this.id, this.items);
+        }
+        return this.availableItems;
     }
 
     /**
@@ -62,10 +75,11 @@ public abstract class BaseStorage<T extends UnlimitedItemStacksResourceHandler> 
         if (this.recipeBases != null) {
             return true;
         }
+        UnlimitedItemStacksResourceHandler available = this.getAvailableItems();
         int workbench = -1;
         int stonecutter = -1;
-        for (int i = 0; i < this.items.size(); i++) {
-            ItemStack stack = this.items.getStackInSlot(i);
+        for (int i = 0; i < available.size(); i++) {
+            ItemStack stack = available.getStackInSlot(i);
             if (stack.isEmpty()) continue;
             if (stack.is(Tags.Items.PLAYER_WORKSTATIONS_CRAFTING_TABLES)) {
                 workbench = i;
@@ -86,17 +100,17 @@ public abstract class BaseStorage<T extends UnlimitedItemStacksResourceHandler> 
         List<Integer> slots = event.getRecipeBaseSlots();
         List<ItemStack> bases = new ArrayList<>(slots.size());
         for (int slot : slots) {
-            if (slot < 0 || slot >= this.items.size()) {
+            if (slot < 0 || slot >= available.size()) {
                 return false;
             }
-            ItemStack stack = this.items.getStackInSlot(slot);
+            ItemStack stack = available.getStackInSlot(slot);
             if (stack.isEmpty()) {
                 return false;
             }
             bases.add(stack.copyWithCount(1));
         }
         for (int slot : slots) {
-            this.items.extractItem(slot, 1, false);
+            available.extractItem(slot, 1, false);
         }
         this.recipeBases = List.copyOf(bases);
         Storages.get().setDirty();

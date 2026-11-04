@@ -799,7 +799,7 @@ public final class StorageServerStub {
     public static StorageUsage getStorageUsage(UUID ignoredPlayerId, UUID storageId) {
         return Storages.get().get(storageId)
             .map(storage -> {
-                UnlimitedItemStacksResourceHandler items = storage.getItems();
+                UnlimitedItemStacksResourceHandler items = storage.getAvailableItems();
                 List<ItemStack> representatives = new ArrayList<>();
                 for (int index = 0; index < items.size() && representatives.size() < 9; index++) {
                     if (items.getAmountAsLong(index) <= 0) continue;
@@ -3474,33 +3474,13 @@ public final class StorageServerStub {
                     continue;
                 }
             }
-            // 每格最多取到物品上限（同种物品在背包中的总数量不超过 maxStackSize 是 JEI 的需求前提，
-            // 但为防背包放不下导致 add 丢弃，按背包空间限制每次提取量）
-            for (BaseStorage<?> storage : storages) {
-                UnlimitedItemStacksResourceHandler items = storage.getItems();
-                for (int slot = 0; slot < items.size() && required > 0; slot++) {
-                    if (items.getAmountAsLong(slot) <= 0) {
-                        continue;
-                    }
-                    UnlimitedItemStack stored = items.getUnlimitedStackInSlot(slot);
-                    if (!stored.isSameItemSameComponents(resource)) {
-                        continue;
-                    }
-                    int space = StorageServerStub.getInventorySpace(player.getInventory(), resource);
-                    int take = (int) Math.min(Math.min(required, items.getAmountAsLong(slot)), space);
-                    if (take <= 0) {
-                        break;
-                    }
-                    int got = items.extractUnlimited(slot, take, false).getCount();
-                    if (got > 0) {
-                        player.getInventory().add(resource.copyWithCount(got));
-                        required -= got;
-                        StorageServerStub.addWithdrawn(withdrawn, resource, got);
-                    }
-                }
-                if (required <= 0) {
-                    break;
-                }
+            int space = StorageServerStub.getInventorySpace(player.getInventory(), resource);
+            int got = StorageServerStub.extractByResource(
+                new StorageView(storages, List.of()), resource, Math.min(required, space)
+            );
+            if (got > 0) {
+                player.getInventory().add(resource.copyWithCount(got));
+                StorageServerStub.addWithdrawn(withdrawn, resource, got);
             }
         }
     }
@@ -3617,7 +3597,7 @@ public final class StorageServerStub {
         List<BaseStorage<?>> storages = StorageServerStub.terminalStorages(player, targetId);
         List<ItemStack> result = new ArrayList<>();
         for (BaseStorage<?> storage : storages) {
-            UnlimitedItemStacksResourceHandler items = storage.getItems();
+            UnlimitedItemStacksResourceHandler items = storage.getAvailableItems();
             for (int slot = 0;
                  slot < items.size()
                  && slot < StorageServerStub.MAX_STORAGE_SCAN_SLOTS
@@ -4131,31 +4111,10 @@ public final class StorageServerStub {
         }
         ItemStack resource = usedUpItem.copyWithCount(1);
         int need = resource.getMaxStackSize();
-        int taken = 0;
-        for (BaseStorage<?> storage : storages) {
-            if (!StorageServerStub.canStore(storage, resource)) {
-                continue;
-            }
-            UnlimitedItemStacksResourceHandler items = storage.getItems();
-            for (int slot = 0; slot < items.size(); slot++) {
-                if (items.getAmountAsLong(slot) <= 0) {
-                    continue;
-                }
-                UnlimitedItemStack stored = items.getUnlimitedStackInSlot(slot);
-                if (!stored.isSameItemSameComponents(resource)) {
-                    continue;
-                }
-                int take = (int) Math.min(need - taken, items.getAmountAsLong(slot));
-                int got = items.extractUnlimited(slot, take, false).getCount();
-                taken += got;
-                if (taken == need) {
-                    break;
-                }
-            }
-            if (taken == need) {
-                break;
-            }
-        }
+        List<BaseStorage<?>> sources = storages.stream()
+            .filter(storage -> StorageServerStub.canStore(storage, resource))
+            .toList();
+        int taken = StorageServerStub.extractByResource(new StorageView(sources, List.of()), resource, need);
         if (taken <= 0) {
             return;
         }
@@ -4175,7 +4134,7 @@ public final class StorageServerStub {
             if (!StorageServerStub.canStore(storage, resource)) {
                 continue;
             }
-            UnlimitedItemStacksResourceHandler items = storage.getItems();
+            UnlimitedItemStacksResourceHandler items = storage.getAvailableItems();
             for (int slot = 0; slot < items.size(); slot++) {
                 if (items.getAmountAsLong(slot) > 0
                     && items.getUnlimitedStackInSlot(slot).isSameItemSameComponents(resource)) {
@@ -4194,7 +4153,7 @@ public final class StorageServerStub {
             // 稀疏存储（SpaceSize / TypeLimit）的空槽在 size() 之外（增长槽），
             // 新类型必须走无槽版本 insertItem(stack)，由 handler 内部追加增长槽；
             // 按 size() 遍历找空槽会永远找不到，导致未进过存储的新物品无法放入。
-            UnlimitedItemStacksResourceHandler items = storage.getItems();
+            UnlimitedItemStacksResourceHandler items = storage.getAvailableItems();
             ItemStack leftover = items.insertItem(resource.copyWithCount(amount - inserted), false);
             inserted += (amount - inserted) - leftover.getCount();
             if (inserted == amount) {
@@ -4294,7 +4253,7 @@ public final class StorageServerStub {
             UUID target = terminalTargetId(player, terminal);
             if (target == null || !ownsBoundTerminal(player, target) || !terminalTargetReachable(player, target)) continue;
             for (BaseStorage<?> storage : terminalStorages(player, target)) {
-                if (!result.contains(storage.getItems())) result.add(storage.getItems());
+                if (!result.contains(storage.getAvailableItems())) result.add(storage.getAvailableItems());
             }
         }
         return result;
@@ -5732,7 +5691,7 @@ public final class StorageServerStub {
             this.storages = storages;
             Map<UnlimitedItemStacksResourceHandler.ResourceKey, Entry> merged = new HashMap<>();
             for (int storageIndex = 0; storageIndex < storages.size(); storageIndex++) {
-                UnlimitedItemStacksResourceHandler items = storages.get(storageIndex).getItems();
+                UnlimitedItemStacksResourceHandler items = storages.get(storageIndex).getAvailableItems();
                 for (int slot = 0; slot < items.size(); slot++) {
                     if (items.getAmountAsLong(slot) <= 0) continue;
                     ItemStack resource = items.getUnlimitedStackInSlot(slot).toStack().copyWithCount(1);
@@ -5766,7 +5725,7 @@ public final class StorageServerStub {
         }
 
         double fullness() {
-            return this.primary().getItems().getFullness();
+            return this.primary().getAvailableItems().getFullness();
         }
 
         Capacity capacity() {
@@ -5788,16 +5747,16 @@ public final class StorageServerStub {
             }
             int inserted = 0;
             for (int i = 0; i < this.storages.size() - 1; i++) {
-                UnlimitedItemStacksResourceHandler items = this.storages.get(i).getItems();
+                UnlimitedItemStacksResourceHandler items = this.storages.get(i).getAvailableItems();
                 if (!contains(items, resource)) continue;
                 inserted += insertInto(items, resource.copyWithCount(amount - inserted));
                 if (inserted == amount) return inserted;
             }
-            UnlimitedItemStacksResourceHandler primaryItems = this.primary().getItems();
+            UnlimitedItemStacksResourceHandler primaryItems = this.primary().getAvailableItems();
             inserted += insertInto(primaryItems, resource.copyWithCount(amount - inserted));
             if (inserted == amount) return inserted;
             for (int i = 0; i < this.storages.size() - 1; i++) {
-                inserted += insertInto(this.storages.get(i).getItems(), resource.copyWithCount(amount - inserted));
+                inserted += insertInto(this.storages.get(i).getAvailableItems(), resource.copyWithCount(amount - inserted));
                 if (inserted == amount) return inserted;
             }
             return inserted;
@@ -5824,6 +5783,20 @@ public final class StorageServerStub {
                     extracted += taken;
                 }
                 if (extracted == amount) break;
+            }
+            for (BaseStorage<?> storage : this.storages) {
+                UnlimitedItemStacksResourceHandler items = storage.getAvailableItems();
+                while (extracted < amount) {
+                    int slot = items.findSlot(entry.resource);
+                    if (slot < 0) {
+                        break;
+                    }
+                    int taken = items.extractUnlimited(slot, amount - extracted, false).getCount();
+                    if (taken == 0) {
+                        break;
+                    }
+                    extracted += taken;
+                }
             }
             entry.amount = Math.max(0, entry.amount - extracted);
             return extracted;
