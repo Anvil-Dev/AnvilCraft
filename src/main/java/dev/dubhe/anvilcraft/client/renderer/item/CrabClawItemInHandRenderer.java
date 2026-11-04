@@ -20,6 +20,7 @@ import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.cuboid.ItemTransforms;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.BlockItem;
@@ -63,6 +64,11 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
      * +Z 指向玩家，故该值越大模型越靠后。
      */
     private static final float SWORD_HOLD_Z = 0.1F;
+    /**
+     * 原版矛在蟹钳上的向左偏移（缩放前）。<br>
+     * 原版矛使用扁平的 in-hand 模型，与三叉戟模型差异大，沿用三叉戟的左移量会偏到钳口外，故单独取更小的值。
+     */
+    private static final float VANILLA_SPEAR_HOLD_X = -0.1F;
     private final ModelState modelState = new ModelState();
     private List<Object> cachedModels = List.of();
     private float cachedHeight;
@@ -201,7 +207,10 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
             }
             if (isMaceMode(stack)) pose.translate(MACE_HOLD_X * sign, MACE_HOLD_Y, MACE_HOLD_Z);
             if (isSwordMode(stack)) pose.translate(SWORD_HOLD_X * sign, SWORD_HOLD_Y, SWORD_HOLD_Z);
-            if (isSpearLike(stack)) pose.translate(-0.23F * sign, 0, 0.07F);
+            if (isSpearLike(stack)) {
+                float spearX = stack.is(ItemTags.SPEARS) ? VANILLA_SPEAR_HOLD_X : -0.23F;
+                pose.translate(spearX * sign, 0, 0.07F);
+            }
         }
         return false;
     }
