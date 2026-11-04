@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.anvilcraft.lib.v2.ui.flexible.FlyoutRenderer;
+import dev.anvilcraft.lib.v2.ui.flexible.PointerDirection;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.Scrollable;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
@@ -19,7 +21,6 @@ import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.client.gui.component.category.CategoryList;
 import dev.dubhe.anvilcraft.client.rpc.SettingClientStub;
 import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
-import dev.dubhe.anvilcraft.client.support.GuiRenderSupport;
 import dev.dubhe.anvilcraft.client.support.StorageCraftingPrediction;
 import dev.dubhe.anvilcraft.client.support.StorageTakePrediction;
 import dev.dubhe.anvilcraft.constant.Constant;
@@ -86,6 +87,7 @@ import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtension
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
+import org.joml.Vector2i;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -122,8 +124,6 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private static final ResourceLocation NBT_FOLD = StorageScreen.texture("nbt_fold");
     private static final ResourceLocation SLIDER = StorageScreen.texture("slider_big");
     private static final ResourceLocation FLIP = StorageScreen.texture("flip");
-    private static final ResourceLocation FLYOUT_BACK = AnvilCraft.of("flex_button/shaded_1px");
-    private static final ResourceLocation FLYOUT_POINTER = AnvilCraft.of("flex_button/pointer");
     private static final ResourceLocation SMALL_FONT = ResourceLocation.fromNamespaceAndPath("anvilcraft", "small");
     private static final int BG_WIDTH = 300;
     private static final int BG_HEIGHT = 222;
@@ -197,9 +197,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private static final int MAX_TAKE_ALL_CHUNKS = 64;
     /** 合成格补货弹跳动画时长（游戏 tick）。 */
     private static final int CRAFTING_POP_TICKS = 5;
-    /** 缺失工作台/切石机提示浮窗：0.25s 淡入 + 1.25s 停留 + 0.25s 淡出。 */
-    private static final int FLYOUT_FADE_IN_TICKS = 5;
-    private static final int FLYOUT_FADE_OUT_TICKS = 5;
+    /** 浮窗文字四周的留白（像素）。 */
+    private static final int FLYOUT_PADDING = 2;
     /**
      * 浮层的 z。界面内各层的 z：物品图标 150、耐久条与数量数字 200、本浮层 300、
      * 原版工具提示 400（{@code GuiGraphics#renderTooltipInternal}）。取 300 才不会
@@ -215,6 +214,15 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private static final int TOOLTIP_TOP_OFFSET = 12;
     /** 浮层与工具提示顶边之间额外留出的间距（像素）。 */
     private static final int FLYOUT_GAP = 6;
+
+    private static FlyoutRenderer createFlyoutRenderer() {
+        FlyoutRenderer renderer = new FlyoutRenderer();
+        renderer.shaded1px();
+        return renderer;
+    }
+
+    /** 浮窗外框渲染器，浅色主题 + 1px 阴影，指针跟随本体外观。 */
+    private static final FlyoutRenderer FLYOUT_RENDERER = StorageScreen.createFlyoutRenderer();
     private final Minecraft minecraft;
     @Getter
     private final BlockPos sourcePos;
@@ -398,7 +406,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     };
     private int flyoutTimer;
     private boolean flyoutVisible;
-    /** 浮窗文本；由「缺失工作台」提示与流体交互失败提示共用同一套淡入淡出。 */
+    /** 浮窗文本；由「缺失工作台」提示与流体交互失败提示共用同一套计时与定位分支。 */
     private Component flyoutMessage = Component.empty();
     /** 浮窗是否锚定在点击处（流体提示）而非指向合成区（缺失工作台提示）。 */
     private boolean flyoutAtClick;
@@ -952,7 +960,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
     }
 
-    /** 显示「仓储内缺失工作台或切石机」浮窗（淡入 + 停留 + 淡出）。 */
+    /** 显示「仓储内缺失工作台或切石机」浮窗（保持 storageFlyoutHoldTicks 刻后消失）。 */
     private void showFlyout() {
         this.flyoutMessage = Component.translatable("tooltip.anvilcraft.storage.missing_workbench");
         this.flyoutAtClick = false;
@@ -975,25 +983,6 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.flyoutVisible = true;
     }
 
-    /** 浮窗当前透明度（0~1）。 */
-    private float getFlyoutAlpha() {
-        if (!this.flyoutVisible) {
-            return 0.0F;
-        }
-        if (this.flyoutTimer < StorageScreen.FLYOUT_FADE_IN_TICKS) {
-            return this.flyoutTimer / (float) StorageScreen.FLYOUT_FADE_IN_TICKS;
-        }
-        int elapsed = this.flyoutTimer - StorageScreen.FLYOUT_FADE_IN_TICKS;
-        if (elapsed < AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks) {
-            return 1.0F;
-        }
-        elapsed -= AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks;
-        if (elapsed < StorageScreen.FLYOUT_FADE_OUT_TICKS) {
-            return 1.0F - elapsed / (float) StorageScreen.FLYOUT_FADE_OUT_TICKS;
-        }
-        return 0.0F;
-    }
-
     @Override
     protected void containerTick() {
         if (!this.craftingPrediction.isPending() && this.takePrediction == null) this.carried = this.player.inventoryMenu.getCarried();
@@ -1001,9 +990,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.refreshTitle();
         if (
             this.flyoutVisible
-            && this.flyoutTimer < StorageScreen.FLYOUT_FADE_IN_TICKS
-            + AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks
-            + StorageScreen.FLYOUT_FADE_OUT_TICKS
+            && this.flyoutTimer < AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks
         ) {
             this.flyoutTimer++;
         } else if (this.flyoutVisible) {
@@ -1530,56 +1517,52 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         return recipes.getFirst().value().assemble(input, this.minecraft.level.registryAccess());
     }
 
-    /** 渲染浮窗（flat 九宫格底，缺失工作台提示另带指向合成区的 pointer 箭头）。 */
+    /** 渲染浮窗（柔性浮窗外框，缺失工作台提示另带指向合成区的 pointer 箭头）。 */
     private void renderFlyout(GuiGraphics graphics) {
-        float alpha = this.getFlyoutAlpha();
-        if (alpha <= 0.0F) {
+        if (!this.flyoutVisible) {
             return;
         }
         // 先落地滞留的批量文本：数量数字经 drawString 进入共享缓冲，而 GuiGraphics#flush 是
         // 「关闭深度测试 + endBatch」——等它自己被刷新时会无视 z 直接画到浮层之上，
         // 因此必须先把它们刷出来，浮层才能真正盖在最上层。
         graphics.flush();
-        int textWidth = this.font.width(this.flyoutMessage);
-        int textHeight = this.font.lineHeight;
-        int flyoutWidth = textWidth + 5;
-        int flyoutHeight = textHeight + 6;
-        int flyoutX;
-        int flyoutY;
-        if (this.flyoutAtClick) {
-            // 点击处提示：贴近点击位置上方居中，并夹在窗口内
-            flyoutX = Mth.clamp(
-                this.flyoutClickX - flyoutWidth / 2,
-                4,
-                Math.max(4, this.width - flyoutWidth - 4)
-            );
-            // 整体让开工具提示的顶边（鼠标上方 TOOLTIP_TOP_OFFSET），否则底边会落进提示矩形内被盖住
-            flyoutY = Math.max(
-                4,
-                this.flyoutClickY - StorageScreen.TOOLTIP_TOP_OFFSET - StorageScreen.FLYOUT_GAP - flyoutHeight
-            );
-        } else {
-            flyoutX = this.sx(296) - flyoutWidth;
-            flyoutY = this.topPos + 219;
+        try (FlyoutRenderer.Scope scope = StorageScreen.FLYOUT_RENDERER.open()) {
+            scope.graphics(graphics)
+                .font(this.font)
+                .text(this.flyoutMessage.copy().withColor(0xEE0000))
+                .flexSize(StorageScreen.FLYOUT_PADDING);
+            Vector2i size = Objects.requireNonNull(scope.resolveSize());
+            int flyoutX;
+            int flyoutY;
+            if (this.flyoutAtClick) {
+                // 点击处提示：贴近点击位置上方居中，并夹在窗口内
+                flyoutX = Mth.clamp(
+                    this.flyoutClickX - size.x / 2,
+                    4,
+                    Math.max(4, this.width - size.x - 4)
+                );
+                // 整体让开工具提示的顶边（鼠标上方 TOOLTIP_TOP_OFFSET），否则底边会落进提示矩形内被盖住
+                flyoutY = Math.max(
+                    4,
+                    this.flyoutClickY - StorageScreen.TOOLTIP_TOP_OFFSET - StorageScreen.FLYOUT_GAP - size.y
+                );
+            } else {
+                flyoutX = this.sx(296) - size.x;
+                flyoutY = this.topPos + 219;
+                // 砧库自本体上边内缩 2px 起、按指针左边缘在剩余长度上的位置摆放，指针宽 6px；
+                // 由此反算百分比，使指针中心落在合成区图标中心 sx(287) 上
+                scope.pointer(
+                    PointerDirection.UP,
+                    (this.sx(287) - flyoutX - 5) / (float) Math.max(size.x - 10, 1)
+                );
+            }
+            // 抬到 FLYOUT_Z 才不会被物品图标（z=150）与数量数字（z=200）压住
+            PoseStack pose = graphics.pose();
+            pose.pushPose();
+            pose.translate(0.0F, 0.0F, StorageScreen.FLYOUT_Z);
+            scope.pos(flyoutX, flyoutY).render();
+            pose.popPose();
         }
-        int color = (int) (alpha * 255.0F) << 24 | 0xFFFFFF;
-        // 底图走 blitOffset 参数（绝对顶点 z，不受 pose 影响），文字走 pose 平移，两者要分别设置。
-        // 若不抬 z，浮层会与物品图标（z=150）、数量数字（z=200）同层而被打平压住。
-        GuiRenderSupport.blitSprite(
-            graphics, StorageScreen.FLYOUT_BACK, flyoutX, flyoutY,
-            StorageScreen.FLYOUT_Z, flyoutWidth, flyoutHeight, color
-        );
-        if (!this.flyoutAtClick) {
-            GuiRenderSupport.blitSprite(
-                graphics, StorageScreen.FLYOUT_POINTER, this.sx(284), this.topPos + 216,
-                StorageScreen.FLYOUT_Z, 6, 5, color
-            );
-        }
-        PoseStack pose = graphics.pose();
-        pose.pushPose();
-        pose.translate(0.0F, 0.0F, StorageScreen.FLYOUT_Z);
-        graphics.drawString(this.font, this.flyoutMessage.copy().withColor(0xEE0000), flyoutX + 3, flyoutY + 3, color, false);
-        pose.popPose();
         // 立即定型本次浮层，使其先于工具提示（z=400）绘制，避免浮层文字盖住工具提示底框
         graphics.flush();
     }
