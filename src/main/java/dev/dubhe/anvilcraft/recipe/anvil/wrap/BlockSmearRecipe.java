@@ -24,7 +24,8 @@ import java.util.List;
 /**
  * 方块涂抹配方类
  *
- * <p>该配方用于在铁砧下落时将多个方块涂抹成一个方块</p>
+ * <p>该配方用于在铁砧下落时将多个方块涂抹成一个方块，结果方块会继承被涂抹方块的同名属性
+ * （如楼梯的朝向、台阶的类型、原木的轴向）。</p>
  */
 public class BlockSmearRecipe extends AbstractProcessRecipe<BlockSmearRecipe> {
     /**
@@ -43,6 +44,8 @@ public class BlockSmearRecipe extends AbstractProcessRecipe<BlockSmearRecipe> {
                 .setInputBlocks(inputs)
                 .setBlockOutputOffset(new Vec3i(0, -2, 0))
                 .setResultBlocks(result)
+                // 保留被涂抹方块的朝向、台阶类型、原木轴向等状态，由砧库统一复制同名属性。
+                .setCopyBlockProperties(true)
         );
     }
 

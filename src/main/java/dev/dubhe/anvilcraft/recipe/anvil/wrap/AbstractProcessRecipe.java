@@ -530,6 +530,11 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         private @Nullable List<ChanceBlockState> resultBlocks = null;
 
         /**
+         * 方块结果是否继承被替换方块的同名属性
+         */
+        private boolean copyBlockProperties = false;
+
+        /**
          * 炼药锅偏移量
          */
         private Vec3i cauldronOffset = Vec3i.ZERO;
@@ -753,6 +758,20 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         }
 
         /**
+         * 设置方块结果是否继承被替换方块的同名属性
+         *
+         * <p>默认关闭，避免压合、粉碎等整块替换配方意外继承旧状态；方块涂抹等需要保留
+         * 输入方块朝向的配方应显式开启。</p>
+         *
+         * @param copyBlockProperties 是否继承被替换方块的同名属性
+         * @return 属性实例
+         */
+        public Property setCopyBlockProperties(boolean copyBlockProperties) {
+            this.copyBlockProperties = copyBlockProperties;
+            return this;
+        }
+
+        /**
          * 设置炼药锅偏移量
          *
          * @param cauldronOffset 炼药锅偏移量
@@ -934,7 +953,13 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
             if (this.resultBlocks != null) {
                 for (int i = 0; i < this.resultBlocks.size(); i++) {
                     ChanceBlockState chanceBlockState = this.resultBlocks.get(i);
-                    outcomes.add(SetBlock.fromState(chanceBlockState, this.getBlockOutputOffset().subtract(0, i, 0)));
+                    outcomes.add(SetBlock.builder()
+                        .block(chanceBlockState.state())
+                        .nbt(chanceBlockState.nbt())
+                        .chance(chanceBlockState.chance())
+                        .offset(this.getBlockOutputOffset().subtract(0, i, 0))
+                        .copyProperties(this.copyBlockProperties)
+                        .build());
                 }
             }
             if (this.produceHeat != null) {
