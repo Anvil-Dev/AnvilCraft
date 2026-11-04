@@ -230,7 +230,7 @@ public class ModCapabilities {
     /// 存储容器的物品
     private static <T extends StorageBlockEntity, S> ResourceHandler<ItemResource> item(T be, @Nullable S ignored) {
         if (be.getId() == null) be.setId(UUID.randomUUID());
-        var handler = Storages.get().getOrCreate(be.getId(), be.getStorageType().clazz()).getItems();
+        var handler = Storages.get().getOrCreate(be.getId(), be.getStorageType().clazz()).getAvailableItems();
         if (be instanceof CrateBlockEntity crate) crate.refreshDispose();
         return handler;
     }

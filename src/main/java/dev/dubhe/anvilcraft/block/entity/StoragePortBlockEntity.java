@@ -5,12 +5,13 @@ import dev.dubhe.anvilcraft.api.IStoragePort;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
-import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.block.logistics.storage.AbstractStoragePortBlock;
 import dev.dubhe.anvilcraft.block.logistics.storage.StoragePortBlock;
 import dev.dubhe.anvilcraft.item.block.StoragePortBlockItem;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
+import dev.dubhe.anvilcraft.rpc.StorageServerStub;
+import dev.dubhe.anvilcraft.saved.storage.BaseStorage;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
@@ -39,26 +40,20 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.TransferPreconditions;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
- * 仓储端口方块实体。
- *
- * <p>潜影集装箱 / 超维存储站作为核心，面相邻的仓储端口可沿端口链延伸连接；
- * 整个连通组件必须恰好接触一个核心才工作（紧贴两个核心的组件不工作）。
- * 内部有 32 格缓存，可通过溜槽 / 漏斗等输入输出。</p>
- *
- * <ul>
- *   <li>未标记：缓存无类型限制，内部物品按「性能墙」限速尝试存入核心；</li>
- *   <li>已标记：只接受标记物品，并尽量在缓存中维持 1 组；不足时从核心取 1 组，
- *       超出时把多余部分存入核心，同样受性能墙限速。</li>
- * </ul>
+ * 仓储端口保留独立的标记物品库存，连接大仓库后直接访问大仓库及其端口库存。
+ * 连通组件必须恰好接触一个核心，内部库存仅在核心同种物品耗尽后被取用。
  */
 public class StoragePortBlockEntity extends BlockEntity implements IItemResourceHandlerHolder, IStoragePort {
     /** 缓存格数 */
@@ -82,12 +77,31 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
         @Override
         public boolean isValid(int slot, ItemResource resource) {
             ItemStack marked = StoragePortBlockEntity.this.markedItem;
-            return marked.isEmpty() || ItemResource.of(marked).equals(resource);
+            return marked.isEmpty() || slot == 0 && ItemResource.of(marked).equals(resource);
+        }
+
+        @Override
+        public int insert(int slot, ItemResource resource, int amount, TransactionContext transaction) {
+            TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
+            ItemStack marked = StoragePortBlockEntity.this.markedItem;
+            if (!marked.isEmpty()) {
+                int stored = 0;
+                for (int index = 0; index < this.size(); index++) {
+                    if (this.getResource(index).equals(resource)) {
+                        stored += this.getAmountAsInt(index);
+                    }
+                }
+                amount = Math.min(amount, Math.max(0, marked.getMaxStackSize() - stored));
+            }
+            return super.insert(slot, resource, amount, transaction);
         }
 
         @Override
         protected void onContentsChanged(int slot, ItemStack previousContents) {
             StoragePortBlockEntity.this.setChanged();
+            if (StoragePortBlockEntity.this.storageId != null) {
+                StorageServerStub.onContentsChanged(StoragePortBlockEntity.this.storageId);
+            }
             if (StoragePortBlockEntity.this.level != null) {
                 StoragePortBlockEntity.this.level.sendBlockUpdated(
                     getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL
@@ -115,6 +129,8 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
     private final Object2LongMap<UUID> leftClickHoldTicks = new Object2LongOpenHashMap<>();
     private int validateCountdown = 0;
     private int workCountdown = 0;
+    private final ResourceHandler<ItemResource> inventory = new PortInventory();
+    private boolean availableItems;
 
     public StoragePortBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -131,15 +147,15 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
             this.validateCountdown = StoragePortBlockEntity.VALIDATE_INTERVAL;
             this.validateLink();
         }
-        if (!this.working) {
-            return;
-        }
         if (this.workCountdown-- > 0) {
             return;
         }
         var config = AnvilCraft.CONFIG.machines.storagePort;
         this.workCountdown = config.workInterval;
-        this.performTransfer(config.maxItemsPerScan);
+        this.refreshAvailableItems();
+        if (this.working) {
+            this.performTransfer(config.maxItemsPerScan);
+        }
     }
 
     /**
@@ -171,16 +187,18 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
     }
 
     /**
-     * 设置标记物品；标记变化时把缓存中旧内容尽力存入核心，并同步方块状态的 MARKED 属性。
+     * 设置标记物品；已连接时先把内部库存完整存入核心，容量不足则保留原标记。
      */
     public void setMarkedItem(ItemStack stack) {
         ItemStack mark = StoragePortBlockEntity.createMarker(stack);
         if (ItemStack.isSameItemSameComponents(this.markedItem, mark)) {
             return;
         }
+        if (this.level != null && !this.level.isClientSide() && !this.pushAllToCore()) {
+            return;
+        }
         this.markedItem = mark;
         if (this.level != null && !this.level.isClientSide()) {
-            this.pushAllToCore();
             BlockState state = this.level.getBlockState(this.worldPosition);
             boolean shouldMark = !mark.isEmpty();
             if (state.hasProperty(StoragePortBlock.MARKED)
@@ -189,13 +207,14 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
             }
         }
         this.setChanged();
+        this.refreshAvailableItems();
         if (this.level != null) {
             this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), Block.UPDATE_ALL);
         }
     }
 
     /**
-     * 把手中物品塞入缓存，一次最多 {@code maxCount} 个；扣减手中堆叠。
+     * 把手中物品存入端口，一次最多 {@code maxCount} 个；扣减手中堆叠。
      */
     public void stuffFromHand(ItemStack held, int maxCount) {
         if (held.isEmpty() || maxCount <= 0) {
@@ -203,17 +222,16 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
         }
         int before = held.getCount();
         ItemStack toInsert = held.copyWithCount(Math.min(before, maxCount));
-        for (int slot = 0; slot < this.buffer.size() && !toInsert.isEmpty(); slot++) {
-            toInsert = insertAt(this.buffer, slot, toInsert);
-        }
+        toInsert = ItemHandlerUtil.insertItem(this.inventory, toInsert, false);
         int inserted = Math.min(before, maxCount) - toInsert.getCount();
         if (inserted > 0) {
             held.shrink(inserted);
+            this.refreshAvailableItems();
         }
     }
 
     /**
-     * 把玩家身上所有与标记相同种类的物品塞入缓存（缓存放不下时停止）。
+     * 把玩家身上所有与标记相同种类的物品存入端口。
      */
     public void stuffAllFromPlayer(Player player) {
         ItemStack mark = this.markedItem;
@@ -228,9 +246,7 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
             }
             int before = stack.getCount();
             ItemStack toInsert = stack.copy();
-            for (int slot = 0; slot < this.buffer.size() && !toInsert.isEmpty(); slot++) {
-                toInsert = insertAt(this.buffer, slot, toInsert);
-            }
+            toInsert = ItemHandlerUtil.insertItem(this.inventory, toInsert, false);
             int inserted = before - toInsert.getCount();
             if (inserted > 0) {
                 stack.shrink(inserted);
@@ -238,25 +254,26 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
                     inventory.setItem(i, ItemStack.EMPTY);
                 }
             } else if (toInsert.getCount() == before) {
-                // 一格都塞不进说明缓存已满
                 break;
             }
         }
+        this.refreshAvailableItems();
     }
 
     /**
-     * 从缓存取出一部分物品交给玩家；
+     * 按大仓库优先顺序取出物品交给玩家；
      *
      * @param fullStack true 取出一组，false 只取 1 个
      */
     public void giveToPlayer(Player player, boolean fullStack) {
-        for (int slot = 0; slot < this.buffer.size(); slot++) {
-            ItemStack stack = stackAt(this.buffer, slot);
+        for (int slot = 0; slot < this.inventory.size(); slot++) {
+            ItemStack stack = stackAt(this.inventory, slot);
             if (stack.isEmpty()) {
                 continue;
             }
             int amount = fullStack ? stack.getMaxStackSize() : 1;
-            ItemStack extracted = extractAt(this.buffer, slot, amount);
+            ItemStack extracted = extractAt(this.inventory, slot, amount);
+            this.refreshAvailableItems();
             if (extracted.isEmpty()) {
                 return;
             }
@@ -328,7 +345,7 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
      */
     @Override
     public boolean interceptsLeftClick(Player player, @Nullable BlockHitResult hit) {
-        if (!this.isLeftClickHeld(player) && this.isBufferEmpty()) {
+        if (!this.isLeftClickHeld(player) && !this.hasAvailableItems()) {
             // 空端口且该玩家没有正在进行的取出：不拦截，允许正常挖掘
             return false;
         }
@@ -440,151 +457,203 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
      * 收集组件接触到的核心，恰好一个核心时端口工作。
      */
     private void validateLink() {
-        this.working = false;
-        this.coreMainPos = null;
         if (this.level == null) {
             return;
         }
-        // 先清掉旧存储名下的登记再重新登记：端口可能从 A 存储改挂到 B 存储
-        StoragePortManager.unregister(this.storageId, this.level.dimension(), this.worldPosition);
-        this.storageId = null;
         BlockPos core = StoragePortManager.findSoleCore(this.level, this.worldPosition);
-        AbstractStoragePortBlock.refreshType(this.level, this.worldPosition, core);
-        if (core == null) {
-            return;
+        UUID nextId = core != null && this.level.getBlockEntity(core) instanceof StorageBlockEntity storage
+            ? storage.getId() : null;
+        if (!Objects.equals(this.storageId, nextId)) {
+            StoragePortManager.unregister(this.storageId, this.level.dimension(), this.worldPosition);
         }
         this.coreMainPos = core;
-        this.working = true;
-        if (this.level.getBlockEntity(core) instanceof StorageBlockEntity storage) {
-            UUID id = storage.getId();
-            if (id != null) {
-                this.storageId = id;
-                StoragePortManager.register(id, this.level, this.worldPosition);
-            }
+        this.storageId = nextId;
+        this.working = nextId != null;
+        AbstractStoragePortBlock.refreshType(this.level, this.worldPosition, core);
+        if (nextId != null) {
+            StoragePortManager.register(nextId, this.level, this.worldPosition);
         }
     }
 
-    /**
-     * 按性能墙限速执行一次物品转移。
-     */
+    /** 未标记时将已有内部库存限速存入核心。 */
     private void performTransfer(int maxItemsPerScan) {
-        ResourceHandler<ItemResource> core = this.getCoreHandler();
+        BaseStorage<?> core = this.getCoreStorage();
+        if (core != null && this.markedItem.isEmpty()) {
+            ItemHandlerUtil.exportToTarget(this.buffer, maxItemsPerScan, (resource, amount) -> true, core.getItems());
+        }
+    }
+
+    private boolean pushAllToCore() {
+        BaseStorage<?> core = this.getCoreStorage();
         if (core == null) {
-            return;
+            return true;
         }
-        if (this.markedItem.isEmpty()) {
-            // 未标记：缓存内所有物品都尝试存入核心
-            ItemHandlerUtil.exportToTarget(this.buffer, maxItemsPerScan, (resource, amount) -> true, core);
-        } else {
-            this.balanceMarkedItem(maxItemsPerScan, core);
+        try (Transaction transaction = Transaction.openRoot()) {
+            for (int slot = 0; slot < this.buffer.size(); slot++) {
+                ItemResource resource = this.buffer.getResource(slot);
+                int amount = this.buffer.getAmountAsInt(slot);
+                if (resource.isEmpty() || amount == 0) {
+                    continue;
+                }
+                if (core.getItems().insert(resource, amount, transaction) != amount) {
+                    return false;
+                }
+                this.buffer.extract(slot, resource, amount, transaction);
+            }
+            transaction.commit();
         }
+        return true;
     }
 
-    /**
-     * 已标记模式下维持缓存中标记物品的数量为 1 组。
-     */
-    private void balanceMarkedItem(int maxItemsPerScan, ResourceHandler<ItemResource> core) {
-        ItemStack mark = this.markedItem;
-        int total = this.countMarkedItem(mark);
-        int target = mark.getMaxStackSize();
-        if (total < target) {
-            int need = Math.min(target - total, maxItemsPerScan);
-            ItemStack pulled = this.extractMarkedFromCore(mark, need);
-            if (pulled.isEmpty()) {
-                return;
-            }
-            ItemStack leftover = this.insertIntoBuffer(pulled);
-            if (!leftover.isEmpty()) {
-                ItemHandlerUtil.insertItem(core, leftover, false);
-            }
-        } else if (total > target) {
-            int excess = Math.min(total - target, maxItemsPerScan);
-            ItemStack toPush = this.extractMarkedFromBuffer(mark, excess);
-            if (toPush.isEmpty()) {
-                return;
-            }
-            ItemStack remainder = ItemHandlerUtil.insertItem(core, toPush, false);
-            if (!remainder.isEmpty()) {
-                this.insertIntoBuffer(remainder);
-            }
-        }
-    }
-
-    private int countMarkedItem(ItemStack mark) {
-        int total = 0;
-        for (int slot = 0; slot < this.buffer.size(); slot++) {
-            ItemStack stack = stackAt(this.buffer, slot);
-            if (ItemStack.isSameItemSameComponents(mark, stack)) {
-                total += stack.getCount();
-            }
-        }
-        return total;
-    }
-
-    private ItemStack extractMarkedFromCore(ItemStack mark, int amount) {
-        ResourceHandler<ItemResource> core = this.getCoreHandler();
-        if (core == null) {
-            return ItemStack.EMPTY;
-        }
-        for (int slot = 0; slot < core.size(); slot++) {
-            ItemStack stack = stackAt(core, slot);
-            if (stack.isEmpty() || !ItemStack.isSameItemSameComponents(mark, stack)) {
-                continue;
-            }
-            return extractAt(core, slot, amount);
-        }
-        return ItemStack.EMPTY;
-    }
-
-    private ItemStack extractMarkedFromBuffer(ItemStack mark, int amount) {
-        for (int slot = 0; slot < this.buffer.size(); slot++) {
-            ItemStack stack = stackAt(this.buffer, slot);
-            if (stack.isEmpty() || !ItemStack.isSameItemSameComponents(mark, stack)) {
-                continue;
-            }
-            return extractAt(this.buffer, slot, amount);
-        }
-        return ItemStack.EMPTY;
-    }
-
-    private ItemStack insertIntoBuffer(ItemStack stack) {
-        for (int slot = 0; slot < this.buffer.size() && !stack.isEmpty(); slot++) {
-            stack = insertAt(this.buffer, slot, stack);
-        }
-        return stack;
-    }
-
-    /**
-     * 把缓存内全部物品尽力存入核心（标记切换时的一次性清理）。
-     */
-    private void pushAllToCore() {
-        ResourceHandler<ItemResource> core = this.getCoreHandler();
-        if (core == null) {
-            return;
-        }
-        ItemHandlerUtil.exportAllToTarget(this.buffer, (resource, amount) -> true, core);
-    }
-
-    @Nullable
-    private ResourceHandler<ItemResource> getCoreHandler() {
-        if (this.level == null || this.coreMainPos == null) {
+    private @Nullable BaseStorage<?> getCoreStorage() {
+        if (this.level == null || this.level.isClientSide() || this.isRemoved() || this.coreMainPos == null
+            || !this.level.isLoaded(this.worldPosition) || !this.level.isLoaded(this.coreMainPos)) {
             return null;
         }
-        if (this.level.getBlockEntity(this.coreMainPos) instanceof StorageBlockEntity storage) {
-            UUID id = storage.getId();
-            if (id == null) {
-                return null;
-            }
-            var handler = Storages.get().getOrCreate(id, storage.getStorageType().clazz()).getItems();
-            if (storage instanceof CrateBlockEntity crate) crate.refreshDispose();
-            return handler;
+        if (this.level.getBlockEntity(this.coreMainPos) instanceof StorageBlockEntity storage
+            && storage.getId() != null && storage.getId().equals(this.storageId)) {
+            return Storages.get().getOrCreate(storage.getId(), storage.getStorageType().clazz());
         }
         return null;
     }
 
+    /** 判断端口仍属于指定大仓库，避免旧能力句柄访问已经断开的内部库存。 */
+    public boolean isConnectedTo(UUID id) {
+        return !this.isRemoved() && this.working && id.equals(this.storageId) && this.level != null
+            && this.level.isLoaded(this.worldPosition) && this.getCoreStorage() != null;
+    }
+
+    private void refreshAvailableItems() {
+        if (this.level == null || this.level.isClientSide()) {
+            return;
+        }
+        boolean available = this.hasAvailableItems();
+        if (available != this.availableItems) {
+            this.availableItems = available;
+            this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), Block.UPDATE_CLIENTS);
+        }
+    }
+
+    private boolean hasAvailableItems() {
+        if (this.level != null && this.level.isClientSide()) {
+            return this.availableItems || !this.isBufferEmpty();
+        }
+        BaseStorage<?> core = this.getCoreStorage();
+        ResourceHandler<ItemResource> target = core == null ? this.buffer : core.getAvailableItems();
+        ItemResource mark = ItemResource.of(this.markedItem);
+        for (int slot = 0; slot < target.size(); slot++) {
+            if (target.getAmountAsLong(slot) > 0
+                && (core == null || mark.isEmpty() || target.getResource(slot).equals(mark))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public ResourceHandler<ItemResource> getItemHandler() {
-        return this.buffer;
+        return this.inventory;
+    }
+
+    private final class PortInventory implements ResourceHandler<ItemResource> {
+        private ResourceHandler<ItemResource> target() {
+            BaseStorage<?> storage = StoragePortBlockEntity.this.getCoreStorage();
+            return storage == null ? StoragePortBlockEntity.this.buffer : storage.getAvailableItems();
+        }
+
+        private boolean linkedMarked() {
+            return !StoragePortBlockEntity.this.markedItem.isEmpty()
+                && StoragePortBlockEntity.this.getCoreStorage() != null;
+        }
+
+        @Override
+        public int size() {
+            return this.linkedMarked() ? 1 : this.target().size();
+        }
+
+        @Override
+        public ItemResource getResource(int index) {
+            if (this.linkedMarked()) {
+                return index == 0 ? ItemResource.of(StoragePortBlockEntity.this.markedItem) : ItemResource.EMPTY;
+            }
+            ResourceHandler<ItemResource> target = this.target();
+            return index >= 0 && index < target.size() ? target.getResource(index) : ItemResource.EMPTY;
+        }
+
+        @Override
+        public long getAmountAsLong(int index) {
+            ResourceHandler<ItemResource> target = this.target();
+            if (!this.linkedMarked()) {
+                return index >= 0 && index < target.size() ? target.getAmountAsLong(index) : 0;
+            }
+            if (index != 0) {
+                return 0;
+            }
+            ItemResource marked = ItemResource.of(StoragePortBlockEntity.this.markedItem);
+            long amount = 0;
+            for (int slot = 0; slot < target.size(); slot++) {
+                if (target.getResource(slot).equals(marked)) {
+                    amount += target.getAmountAsLong(slot);
+                }
+            }
+            return amount;
+        }
+
+        @Override
+        public long getCapacityAsLong(int index, ItemResource resource) {
+            if (!resource.isEmpty() && !this.isValid(index, resource)) {
+                return 0;
+            }
+            if (this.linkedMarked()) {
+                return index == 0 ? Integer.MAX_VALUE : 0;
+            }
+            ResourceHandler<ItemResource> target = this.target();
+            return index >= 0 && index < target.size() ? target.getCapacityAsLong(index, resource) : 0;
+        }
+
+        @Override
+        public boolean isValid(int index, ItemResource resource) {
+            ItemStack marked = StoragePortBlockEntity.this.markedItem;
+            if (!marked.isEmpty() && !ItemResource.of(marked).equals(resource)) {
+                return false;
+            }
+            if (this.linkedMarked()) {
+                BaseStorage<?> storage = StoragePortBlockEntity.this.getCoreStorage();
+                return index == 0 && storage != null && storage.getItems().isValid(0, resource);
+            }
+            ResourceHandler<ItemResource> target = this.target();
+            return index >= 0 && index < target.size() && target.isValid(index, resource);
+        }
+
+        @Override
+        public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
+            TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
+            if (!this.isValid(index, resource)) {
+                return 0;
+            }
+            return this.linkedMarked() ? this.target().insert(resource, amount, transaction)
+                : this.target().insert(index, resource, amount, transaction);
+        }
+
+        @Override
+        public int insert(ItemResource resource, int amount, TransactionContext transaction) {
+            TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
+            ItemStack marked = StoragePortBlockEntity.this.markedItem;
+            if (!marked.isEmpty() && !ItemResource.of(marked).equals(resource)) {
+                return 0;
+            }
+            return this.target().insert(resource, amount, transaction);
+        }
+
+        @Override
+        public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
+            TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
+            if (!this.getResource(index).equals(resource)) {
+                return 0;
+            }
+            return this.linkedMarked() ? this.target().extract(resource, amount, transaction)
+                : this.target().extract(index, resource, amount, transaction);
+        }
     }
 
     @Override
@@ -592,6 +661,7 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
         TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
         this.saveAdditional(output);
         this.buffer.serialize(output.child("buffer"));
+        output.putBoolean("available_items", this.hasAvailableItems());
         return output.buildResult();
     }
 
@@ -607,19 +677,11 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
         super.loadAdditional(input);
         this.markedItem = createMarker(input.read("marked_item", ItemStack.CODEC).orElse(ItemStack.EMPTY));
         ItemHandlerUtil.deserializeCompatibleStacks(this.buffer, input.childOrEmpty("buffer"));
+        this.availableItems = input.getBooleanOr("available_items", false);
     }
 
     private static ItemStack stackAt(ResourceHandler<ItemResource> handler, int slot) {
         return handler.getResource(slot).toStack(handler.getAmountAsInt(slot));
-    }
-
-    private static ItemStack insertAt(ResourceHandler<ItemResource> handler, int slot, ItemStack stack) {
-        if (stack.isEmpty()) return ItemStack.EMPTY;
-        try (Transaction transaction = Transaction.openRoot()) {
-            int inserted = handler.insert(slot, ItemResource.of(stack), stack.getCount(), transaction);
-            transaction.commit();
-            return stack.copyWithCount(stack.getCount() - inserted);
-        }
     }
 
     private static ItemStack extractAt(ResourceHandler<ItemResource> handler, int slot, int amount) {
@@ -629,6 +691,14 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
             int extracted = handler.extract(slot, resource, amount, transaction);
             transaction.commit();
             return resource.toStack(extracted);
+        }
+    }
+
+    @Override
+    public void onChunkUnloaded() {
+        super.onChunkUnloaded();
+        if (this.level != null) {
+            StoragePortManager.unregister(this.storageId, this.level.dimension(), this.worldPosition);
         }
     }
 

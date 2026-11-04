@@ -176,7 +176,7 @@ public class StorageBlockEntity extends BlockEntity {
         if (this.id == null) return 0;
         return Storages.get().get(this.id).map(storage -> {
             long total = 0;
-            var items = storage.getItems();
+            var items = storage.getAvailableItems();
             for (int index = 0; index < items.size(); index++) total += items.getAmountAsLong(index);
             return total;
         }).orElse(0L);

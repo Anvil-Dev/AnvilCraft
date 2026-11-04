@@ -1626,7 +1626,7 @@ public final class StorageServerStub {
     @RemoteCallable(validator = StorageUsageValidator.class)
     public static StorageUsage getStorageUsage(UUID ignoredPlayerId, UUID storageId) {
         return Storages.get().get(storageId).map(storage -> {
-            UnlimitedItemStacksResourceHandler items = storage.getItems();
+            UnlimitedItemStacksResourceHandler items = storage.getAvailableItems();
             List<ItemStack> representatives = new ArrayList<>();
             for (int index = 0; index < items.size() && representatives.size() < 9; index++) {
                 if (items.getAmountAsLong(index) <= 0) continue;
@@ -2570,13 +2570,13 @@ public final class StorageServerStub {
     private static int insertBalanceResource(List<BaseStorage<?>> storages, ItemResource resource, int amount, Transaction transaction) {
         int inserted = 0;
         for (BaseStorage<?> storage : storages) {
-            if (!StorageView.canStore(storage, resource) || !StorageView.contains(storage.getItems(), resource)) continue;
-            inserted += storage.getItems().insert(resource, amount - inserted, transaction);
+            if (!StorageView.canStore(storage, resource) || !StorageView.contains(storage.getAvailableItems(), resource)) continue;
+            inserted += storage.getAvailableItems().insert(resource, amount - inserted, transaction);
             if (inserted == amount) return inserted;
         }
         for (BaseStorage<?> storage : storages) {
             if (!StorageView.canStore(storage, resource)) continue;
-            inserted += storage.getItems().insert(resource, amount - inserted, transaction);
+            inserted += storage.getAvailableItems().insert(resource, amount - inserted, transaction);
             if (inserted == amount) return inserted;
         }
         return inserted;
@@ -2589,12 +2589,9 @@ public final class StorageServerStub {
         ItemResource resource = ItemResource.of(usedUpItem);
         int needed = usedUpItem.getMaxStackSize();
         try (Transaction transaction = Transaction.openRoot()) {
-            int taken = 0;
-            for (BaseStorage<?> storage : boundStorages(player)) {
-                if (!StorageView.canStore(storage, resource)) continue;
-                taken += storage.getItems().extract(resource, needed - taken, transaction);
-                if (taken == needed) break;
-            }
+            List<BaseStorage<?>> storages = boundStorages(player).stream()
+                .filter(storage -> StorageView.canStore(storage, resource)).toList();
+            int taken = new StorageView(storages, List.of()).extractByResource(resource, needed, transaction);
             if (taken == 0 || PlayerInventoryWrapper.of(player).insert(inventorySlot, resource, taken, transaction) != taken) return;
             transaction.commit();
         }
@@ -2612,11 +2609,7 @@ public final class StorageServerStub {
                 fit = inventory.insert(resource, wanted.getMaxStackSize(), simulation);
             }
             if (fit <= 0) return false;
-            int taken = 0;
-            for (BaseStorage<?> storage : boundStorages(player)) {
-                taken += storage.getItems().extract(resource, fit - taken, transaction);
-                if (taken == fit) break;
-            }
+            int taken = new StorageView(boundStorages(player), List.of()).extractByResource(resource, fit, transaction);
             if (taken == 0 || inventory.insert(resource, taken, transaction) != taken) return false;
             transaction.commit();
         }
@@ -2628,7 +2621,7 @@ public final class StorageServerStub {
     /** 按随身终端顺序提供当前可达的建筑物品源，同一仓储只分配一次。 */
     public static List<UnlimitedItemStacksResourceHandler> buildingMaterialSources(ServerPlayer player) {
         List<UnlimitedItemStacksResourceHandler> result = new ArrayList<>();
-        for (BaseStorage<?> storage : buildingStorages(player)) result.add(storage.getItems());
+        for (BaseStorage<?> storage : buildingStorages(player)) result.add(storage.getAvailableItems());
         return result;
     }
 
@@ -2719,7 +2712,7 @@ public final class StorageServerStub {
         Map<FluidResource, FluidEntry> fluids = new LinkedHashMap<>();
         boolean complete = true;
         for (BaseStorage<?> storage : terminalRecipeStorages(player, targets)) {
-            var items = storage.getItems();
+            var items = storage.getAvailableItems();
             if (items.size() > MAX_TERMINAL_SCAN) complete = false;
             for (int slot = 0; slot < Math.min(items.size(), MAX_TERMINAL_SCAN); slot++) {
                 ItemResource resource = items.getResource(slot);
@@ -2770,7 +2763,7 @@ public final class StorageServerStub {
         if (offset < 0) return new TerminalContentsPage(storage.getId(), stub.version, 0, List.of(), List.of(), true);
         if (offset == 0) {
             List<ItemStack> items = new ArrayList<>();
-            var handler = storage.getItems();
+            var handler = storage.getAvailableItems();
             for (int slot = 0; slot < handler.size(); slot++) {
                 long count = handler.getAmountAsLong(slot);
                 if (count <= 0) continue;
@@ -2825,26 +2818,23 @@ public final class StorageServerStub {
             int filled = fillTerminalContainers(player, storages, need.copyWithCount(1), required);
             if (filled > 0) withdrawn.add(need.copyWithCount(filled));
             required -= filled;
-            for (BaseStorage<?> storage : storages) {
-                var items = storage.getItems();
-                for (int slot = 0; slot < items.size() && required > 0; slot++) {
-                    ItemResource resource = items.getResource(slot);
-                    if (resource.isEmpty() || items.getAmountAsLong(slot) <= 0
-                        || !sameTerminalItem(player, need, resource.toStack())) continue;
-                    try (Transaction transaction = Transaction.openRoot()) {
-                        var inventory = PlayerInventoryWrapper.of(player).getMainSlots();
-                        int fit;
-                        try (Transaction simulation = Transaction.open(transaction)) {
-                            fit = inventory.insert(resource, required, simulation);
-                        }
-                        int taken = items.extract(slot, resource, fit, transaction);
-                        if (taken == 0 || inventory.insert(resource, taken, transaction) != taken) continue;
-                        transaction.commit();
-                        withdrawn.add(resource.toStack(taken));
-                        required -= taken;
+            StorageView view = new StorageView(storages, List.of());
+            for (int slot = 0; slot < view.size() && required > 0; slot++) {
+                ItemResource resource = view.resource(slot);
+                if (resource.isEmpty() || view.amount(slot) <= 0
+                    || !sameTerminalItem(player, need, resource.toStack())) continue;
+                try (Transaction transaction = Transaction.openRoot()) {
+                    var inventory = PlayerInventoryWrapper.of(player).getMainSlots();
+                    int fit;
+                    try (Transaction simulation = Transaction.open(transaction)) {
+                        fit = inventory.insert(resource, required, simulation);
                     }
+                    int taken = view.extractByResource(resource, fit, transaction);
+                    if (taken == 0 || inventory.insert(resource, taken, transaction) != taken) continue;
+                    transaction.commit();
+                    withdrawn.add(resource.toStack(taken));
+                    required -= taken;
                 }
-                if (required == 0) break;
             }
         }
         if (!withdrawn.isEmpty()) {
@@ -3054,7 +3044,7 @@ public final class StorageServerStub {
             this.storages = storages;
             Map<ItemResource, Entry> merged = new HashMap<>();
             for (int storageIndex = 0; storageIndex < storages.size(); storageIndex++) {
-                UnlimitedItemStacksResourceHandler items = storages.get(storageIndex).getItems();
+                UnlimitedItemStacksResourceHandler items = storages.get(storageIndex).getAvailableItems();
                 for (int slot = 0; slot < items.size(); slot++) {
                     if (items.getAmountAsLong(slot) <= 0) continue;
                     ItemResource resource = items.getResource(slot);
@@ -3114,17 +3104,17 @@ public final class StorageServerStub {
         int insert(ItemResource resource, int amount, Transaction tx) {
             int inserted = 0;
             for (int i = 0; i < this.storages.size() - 1; i++) {
-                UnlimitedItemStacksResourceHandler items = this.storages.get(i).getItems();
+                UnlimitedItemStacksResourceHandler items = this.storages.get(i).getAvailableItems();
                 if (!canStore(this.storages.get(i), resource) || !StorageView.contains(items, resource)) continue;
                 inserted += items.insert(resource, amount - inserted, tx);
                 if (inserted == amount) return inserted;
             }
-            UnlimitedItemStacksResourceHandler primaryItems = this.primary().getItems();
+            UnlimitedItemStacksResourceHandler primaryItems = this.primary().getAvailableItems();
             if (canStore(this.primary(), resource)) inserted += primaryItems.insert(resource, amount - inserted, tx);
             if (inserted == amount) return inserted;
             for (int i = 0; i < this.storages.size() - 1; i++) {
                 if (canStore(this.storages.get(i), resource)) {
-                    inserted += this.storages.get(i).getItems().insert(resource, amount - inserted, tx);
+                    inserted += this.storages.get(i).getAvailableItems().insert(resource, amount - inserted, tx);
                 }
                 if (inserted == amount) return inserted;
             }
@@ -3147,7 +3137,15 @@ public final class StorageServerStub {
             int extracted = 0;
             for (BaseStorage<?> storage : this.storages) {
                 extracted += storage.getItems().extract(resource, amount - extracted, transaction);
-                if (extracted == amount) break;
+                if (extracted == amount) {
+                    return extracted;
+                }
+            }
+            for (BaseStorage<?> storage : this.storages) {
+                extracted += storage.getAvailableItems().extract(resource, amount - extracted, transaction);
+                if (extracted == amount) {
+                    break;
+                }
             }
             return extracted;
         }

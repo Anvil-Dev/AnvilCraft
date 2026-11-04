@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.event.StorageUnlockCraftingEvent;
+import dev.dubhe.anvilcraft.api.itemhandler.unlimited.LinkedStorageItemHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
@@ -37,11 +38,23 @@ public abstract class BaseStorage<T extends UnlimitedItemStacksResourceHandler> 
         .dispatch(StorageType::find, StorageType::streamCodec);
     private final UUID id;
     private final T items = this.constructItemHandler(this::onContentsChanged);
+    private @Nullable UnlimitedItemStacksResourceHandler availableItems;
     private CraftingStorage crafting = CraftingStorage.EMPTY;
     private @Nullable List<ItemStack> recipeBases;
 
     protected BaseStorage(UUID id) {
         this.id = id;
+    }
+
+    /** 提供包含已连接端口库存的访问接口，原始物品仍由各自容器保存。 */
+    public UnlimitedItemStacksResourceHandler getAvailableItems() {
+        if (!(this instanceof ShulkerContainerStorage || this instanceof HyperdimensionStorage)) {
+            return this.items;
+        }
+        if (this.availableItems == null) {
+            this.availableItems = new LinkedStorageItemHandler(this.id, this.items);
+        }
+        return this.availableItems;
     }
 
     public void setCrafting(CraftingStorage crafting) {
@@ -81,11 +94,12 @@ public abstract class BaseStorage<T extends UnlimitedItemStacksResourceHandler> 
 
     public boolean unlockCrafting() {
         if (this.isCraftingUnlocked()) return true;
+        UnlimitedItemStacksResourceHandler available = this.getAvailableItems();
         int workbench = -1;
         int stonecutter = -1;
-        for (int slot = 0; slot < this.items.size(); slot++) {
-            ItemResource resource = this.items.getResource(slot);
-            if (resource.isEmpty() || this.items.getAmountAsLong(slot) <= 0) continue;
+        for (int slot = 0; slot < available.size(); slot++) {
+            ItemResource resource = available.getResource(slot);
+            if (resource.isEmpty() || available.getAmountAsLong(slot) <= 0) continue;
             if (resource.is(Tags.Items.PLAYER_WORKSTATIONS_CRAFTING_TABLES)) {
                 workbench = slot;
             } else if (resource.is(ModItemTags.PLAYER_WORKSTATIONS_STONECUTTERS)) {
@@ -101,9 +115,9 @@ public abstract class BaseStorage<T extends UnlimitedItemStacksResourceHandler> 
         List<ItemStack> bases = new ArrayList<>();
         try (Transaction transaction = Transaction.openRoot()) {
             for (int slot : event.getRecipeBaseSlots()) {
-                if (slot < 0 || slot >= this.items.size()) return false;
-                ItemResource resource = this.items.getResource(slot);
-                if (resource.isEmpty() || this.items.extract(slot, resource, 1, transaction) != 1) return false;
+                if (slot < 0 || slot >= available.size()) return false;
+                ItemResource resource = available.getResource(slot);
+                if (resource.isEmpty() || available.extract(slot, resource, 1, transaction) != 1) return false;
                 bases.add(resource.toStack());
             }
             transaction.commit();
