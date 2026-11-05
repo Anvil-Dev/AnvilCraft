@@ -1587,10 +1587,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 flyoutX = this.sx(296) - size.x;
                 flyoutY = this.topPos + 219;
                 // 砧库自本体上边内缩 2px 起、按指针左边缘在剩余长度上的位置摆放，指针宽 6px；
-                // 由此反算百分比，使指针中心落在合成区图标中心 sx(287) 上
+                // 由此反算百分比，使指针中心落在合成区图标中心 sx(286) 上
                 scope.pointer(
                     PointerDirection.UP,
-                    (this.sx(287) - flyoutX - 6) / (float) Math.max(size.x - 10, 1)
+                    (this.sx(286) - flyoutX - 5) / (float) Math.max(size.x - 10, 1)
                 );
             }
             // 抬到 FLYOUT_Z 才不会被物品图标（z=150）与数量数字（z=200）压住
