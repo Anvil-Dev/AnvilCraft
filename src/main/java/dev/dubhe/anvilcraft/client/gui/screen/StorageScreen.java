@@ -1566,6 +1566,11 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     4,
                     this.flyoutClickY - StorageScreen.TOOLTIP_TOP_OFFSET - StorageScreen.FLYOUT_GAP - size.y
                 );
+                // 浮窗整体落在点击位置上方，指针贴下边指向点击点
+                scope.pointer(
+                    PointerDirection.DOWN,
+                    Mth.clamp((this.flyoutClickX - flyoutX - 5) / (float) Math.max(size.x - 10, 1), 0.0F, 1.0F)
+                );
             } else {
                 flyoutX = this.sx(296) - size.x;
                 flyoutY = this.topPos + 219;
