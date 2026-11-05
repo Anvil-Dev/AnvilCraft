@@ -179,6 +179,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private static final int MAX_PRESERVED_SYNC_ATTEMPTS = 3;
     private static final int FLUID_SLOT_BASE = StoragePortManager.FLUID_SLOT_BASE;
     private static final int FLYOUT_PADDING = 2;
+    /** 工具提示顶边相对鼠标的偏移与浮层之间的额外间距（像素）。 */
+    private static final int TOOLTIP_TOP_OFFSET = 12;
+    private static final int FLYOUT_GAP = 6;
 
     private static int flyoutTotalTicks() {
         return AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutFadeInTicks
@@ -215,6 +218,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private int flyoutTimer = StorageScreen.flyoutTotalTicks();
     private int flyoutClickX;
     private int flyoutClickY;
+    /** 浮窗是否锚定在点击处（失败提示）而非指向合成区（缺失工作台提示）。 */
+    private boolean flyoutAtClick;
     /** 待显示提示的锚点，与文本一起提交到 flyoutClickX/Y。 */
     private int noticeAnchorX;
     private int noticeAnchorY;
@@ -713,11 +718,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         StorageClientStub.craftingUnlock(this.sourcePos).whenCompleteAsync((available, error) -> {
             this.interactionPending = false;
             if (error != null || !available) {
-                this.showNotice(
-                    Component.translatable("tooltip.anvilcraft.storage.missing_workbench"),
-                    this.sx(287),
-                    this.top + 208
-                );
+                this.showFlyout();
                 return;
             }
             this.craftingAvailable = true;
@@ -2400,6 +2401,16 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.flyoutMessage = message;
         this.flyoutClickX = x;
         this.flyoutClickY = y;
+        this.flyoutAtClick = true;
+        this.flyoutTimer = 0;
+    }
+
+    /**
+     * 显示「仓储内缺失工作台或切石机」浮窗，右对齐到合成区并落在合成按钮下方。
+     */
+    private void showFlyout() {
+        this.flyoutMessage = Component.translatable("tooltip.anvilcraft.storage.missing_workbench");
+        this.flyoutAtClick = false;
         this.flyoutTimer = 0;
     }
 
@@ -2440,15 +2451,34 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 .text(this.flyoutMessage.copy().withColor(0xEE0000))
                 .flexSize(StorageScreen.FLYOUT_PADDING);
             Vector2i size = Objects.requireNonNull(scope.resolveSize());
-            int x = Mth.clamp(this.flyoutClickX - size.x / 2, 4, Math.max(4, this.width - size.x - 4));
-            int y = Math.max(4, this.flyoutClickY - 18 - size.y);
-            // 浮窗整体落在点击位置上方，指针贴下边指向点击点
-            scope.pointer(
-                PointerDirection.DOWN,
-                Mth.clamp((this.flyoutClickX - x - 5) / (float) Math.max(size.x - 10, 1), 0.0F, 1.0F)
-            );
+            int flyoutX;
+            int flyoutY;
+            if (this.flyoutAtClick) {
+                // 点击处提示：贴近点击位置上方居中，并夹在窗口内
+                flyoutX = Mth.clamp(this.flyoutClickX - size.x / 2, 4, Math.max(4, this.width - size.x - 4));
+                // 整体让开工具提示的顶边，否则底边会落进提示矩形内被盖住
+                flyoutY = Math.max(
+                    4,
+                    this.flyoutClickY - StorageScreen.TOOLTIP_TOP_OFFSET - StorageScreen.FLYOUT_GAP - size.y
+                );
+                // 浮窗整体落在点击位置上方，指针贴下边指向点击点
+                scope.pointer(
+                    PointerDirection.DOWN,
+                    Mth.clamp((this.flyoutClickX - flyoutX - 5) / (float) Math.max(size.x - 10, 1), 0.0F, 1.0F)
+                );
+            } else {
+                // 缺失工作台提示：右对齐到合成区，落在合成按钮下方，指针贴这个上边指向图标
+                flyoutX = this.sx(296) - size.x;
+                flyoutY = this.top + 219;
+                // 砧库自本体上边内缩 2px 起、按指针左边缘在剩余长度上的位置摆放，指针宽 6px；
+                // 由此反算百分比，使指针中心落在合成区图标中心 sx(287) 上
+                scope.pointer(
+                    PointerDirection.UP,
+                    (this.sx(287) - flyoutX - 6) / (float) Math.max(size.x - 10, 1)
+                );
+            }
             graphics.nextStratum();
-            scope.pos(x, y).render();
+            scope.pos(flyoutX, flyoutY).render();
         }
     }
 
