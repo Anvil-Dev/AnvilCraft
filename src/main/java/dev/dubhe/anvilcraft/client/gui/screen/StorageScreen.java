@@ -6,6 +6,7 @@ import com.google.common.math.LongMath;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import dev.anvilcraft.lib.v2.ui.flexible.FlyoutRenderer;
+import dev.anvilcraft.lib.v2.ui.flexible.PointerDirection;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
@@ -2411,6 +2412,11 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             Vector2i size = Objects.requireNonNull(scope.resolveSize());
             int x = Mth.clamp(this.flyoutClickX - size.x / 2, 4, Math.max(4, this.width - size.x - 4));
             int y = Math.max(4, this.flyoutClickY - 18 - size.y);
+            // 浮窗整体落在点击位置上方，指针贴下边指向点击点
+            scope.pointer(
+                PointerDirection.DOWN,
+                Mth.clamp((this.flyoutClickX - x - 5) / (float) Math.max(size.x - 10, 1), 0.0F, 1.0F)
+            );
             graphics.nextStratum();
             scope.pos(x, y).render();
         }
