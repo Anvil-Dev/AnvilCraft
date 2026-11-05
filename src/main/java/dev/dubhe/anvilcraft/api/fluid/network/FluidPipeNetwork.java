@@ -13,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -114,6 +115,8 @@ public class FluidPipeNetwork {
     @Getter
     private final List<FluidEndpoint> endpoints;
     private final List<FluidEndpoint> cauldronEndpoints;
+    /** 炼药锅换种类后能力实现可能改变；液位变化仍复用原处理器。 */
+    private final Map<BlockPos, Block> cauldronBlocks = new HashMap<>();
     private final List<FluidEndpoint> entityEndpoints;
     private final Set<FluidEndpoint> disconnectedEntityEndpoints = new HashSet<>();
     private final boolean directionalConstraints;
@@ -161,6 +164,9 @@ public class FluidPipeNetwork {
         for (FluidEndpoint endpoint : endpoints) {
             if (endpoint.cauldron()) {
                 this.cauldronEndpoints.add(endpoint);
+                if (endpoint.entity() == null) {
+                    this.cauldronBlocks.put(endpoint.containerPos(), level.getBlockState(endpoint.containerPos()).getBlock());
+                }
             }
             if (endpoint.entity() != null) {
                 this.entityEndpoints.add(endpoint);
@@ -185,11 +191,11 @@ public class FluidPipeNetwork {
         // 可达缓存在气体扩散显示之前重建：显示与随后的分配共用同一套本 tick 方向约束（止逆阀/泵/控制阀）。
         this.reachabilityCache.clear();
         // 气体扩散显示：仅当存在气体扩散体系时，连接参与扩散端点的玻璃管道才持续充满
-        this.updateGasDisplay();
-        if (this.endpoints.size() < 2) {
+        if (this.canTickEndpoints()) {
             return;
         }
-        if (this.canTickEndpoints()) {
+        this.updateGasDisplay();
+        if (this.endpoints.size() < 2) {
             return;
         }
         // 每 tick 分配前重置各阀门预算（实时读取阀门当前流速设置）
@@ -223,7 +229,7 @@ public class FluidPipeNetwork {
         int sourceEffectiveHeight,
         FluidStack fluid
     ) {
-        if (fluid.isEmpty() || !this.parts.contains(entryPipePos)) {
+        if (fluid.isEmpty() || !this.parts.contains(entryPipePos) || this.canTickEndpoints()) {
             return null;
         }
         FluidStack simulated = source.drain(fluid, IFluidHandler.FluidAction.SIMULATE);
@@ -1087,6 +1093,10 @@ public class FluidPipeNetwork {
                 continue;
             }
             if (!this.level.isLoaded(endpoint.containerPos())) {
+                return true;
+            }
+            if (!this.level.getBlockState(endpoint.containerPos()).is(this.cauldronBlocks.get(endpoint.containerPos()))) {
+                FluidNetworkManager.INSTANCE.markDirty(this.level);
                 return true;
             }
             FluidContainerLookup.Result container = endpoint.entries().stream()

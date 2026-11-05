@@ -48,7 +48,7 @@ public final class FluidContainerLookup {
             side
         );
         if (blockHandler != null) {
-            boolean cauldron = state.is(ModBlocks.MILK_CAULDRON)
+            boolean cauldron = state.is(ModBlocks.FIRE_CAULDRON) || state.is(ModBlocks.MILK_CAULDRON)
                 || CauldronFluidContent.getForBlock(state.getBlock()) != null;
             return new Result(blockHandler, cauldron, null);
         }
