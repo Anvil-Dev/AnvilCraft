@@ -2686,7 +2686,7 @@
   "tooltip.anvilcraft.item.sliding_rail": "Frictionless surface for sliding entities and even blocks",
   "tooltip.anvilcraft.item.sliding_rail_stop": "Stops sliding items, entities, or blocks",
   "tooltip.anvilcraft.item.smart_block_placer": "Advanced block placer with 5x5x5 configurable placement area",
-  "tooltip.anvilcraft.item.smart_block_placer.shift": "Advanced block placer with 5x5x5 placement area, configurable via GUI\nSupports pickup mode (from containers or drops) and move mode (direct block movement)\nRequires power supply, consumes 8 kW\nPut Structure Disk to enable Blue Print Mode, consumes 64 kW",
+  "tooltip.anvilcraft.item.smart_block_placer.shift": "Advanced block placer with 5x5x5 placement area, configurable via GUI\nSupports pickup mode (from containers or drops) and move mode (direct block movement)\nRequires power supply, consumes %s\nPut Structure Disk to enable Blue Print Mode, consumes %s",
   "tooltip.anvilcraft.item.smooth_royal_steel_block": "Royal Steel decorative block, Explosion proof",
   "tooltip.anvilcraft.item.space_overcompressor": "Compresses items into Neutronium Ingots, compresses multiblock outputs into drops",
   "tooltip.anvilcraft.item.spacetime_supercomputer": "Consumes power to run certain time commands",

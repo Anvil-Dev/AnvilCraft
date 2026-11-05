@@ -2,6 +2,8 @@ package dev.dubhe.anvilcraft.api.tooltip;
 
 import com.google.common.collect.Maps;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity.TargetMode;
 import dev.dubhe.anvilcraft.block.power.converter.PowerConverterBigBlock;
 import dev.dubhe.anvilcraft.block.power.converter.PowerConverterExtremelyBigBlock;
 import dev.dubhe.anvilcraft.block.power.converter.PowerConverterMiddleBlock;
@@ -16,6 +18,7 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.tooltip.StorageTooltip;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
+import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -741,8 +744,8 @@ public class ItemTooltipManager {
             ModBlocks.SMART_BLOCK_PLACER.asItem(), """
                 Advanced block placer with 5x5x5 placement area, configurable via GUI
                 Supports pickup mode (from containers or drops) and move mode (direct block movement)
-                Requires power supply, consumes 8 kW
-                Put Structure Disk to enable Blue Print Mode, consumes 64 kW"""
+                Requires power supply, consumes %s
+                Put Structure Disk to enable Blue Print Mode, consumes %s"""
         );
         ItemTooltipManager.SHIFT.put(
             ModBlocks.STRUCTURE_SCANNER.asItem(), """
@@ -981,6 +984,19 @@ public class ItemTooltipManager {
                 ItemTooltipManager.getTranslationKeyShift(item),
                 Component.keybind("key.anvilcraft.use_pill_box")
             ).withStyle(ChatFormatting.GRAY));
+            return;
+        }
+        if (item == ModBlocks.SMART_BLOCK_PLACER.asItem()) {
+            // 耗电随配置的放置间隔变化，这里按当前配置动态取值
+            ItemTooltipManager.addTranslatedTooltip(builder, ItemTooltipManager.getTranslationKeyShift(item),
+                UnitUtil.electricityUnit(
+                    SmartBlockPlacerBlockEntity.getInputPowerFor(TargetMode.POSITION.getPower()),
+                    false
+                ),
+                UnitUtil.electricityUnit(
+                    SmartBlockPlacerBlockEntity.getInputPowerFor(TargetMode.BLUEPRINT.getPower()),
+                    false
+                ));
             return;
         }
         ItemTooltipManager.addTranslatedTooltip(builder, ItemTooltipManager.getTranslationKeyShift(item),
