@@ -307,6 +307,10 @@ public class AnvilCraftServerConfig {
     public MachinesSettings machines = new MachinesSettings();
 
     public static class MachinesSettings {
+        @Comment("Placement interval of smart block placer (in ticks)")
+        @BoundedDiscrete(max = 200, min = 2)
+        public int smartBlockPlacerInterval = 20;
+
         @Comment("Controls the maximum cooldown time of the Chute (in ticks)")
         @BoundedDiscrete(min = 1, max = 80)
         public int chuteMaxCooldown = 8;

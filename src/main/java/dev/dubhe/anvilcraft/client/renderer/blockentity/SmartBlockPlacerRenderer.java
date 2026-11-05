@@ -46,6 +46,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.RenderTypeHelper;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.model.data.ModelData;
@@ -90,153 +91,149 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         this.blockColors = Minecraft.getInstance().getBlockColors();
     }
 
+    private record ArmAngles(float baseSwing, float upperArm, float forearm, float claw) {
+    }
+
     /**
-     * 工作动画方案（放置方块时）
+     * 放置动画：底座转向目标，机械臂按模型实际臂长做二连杆逆解；目标超出臂展时完全伸展指向目标，爪部始终对准目标方块。
      */
     private static class PlacementAnimation {
-        // 机械臂参数（单位：Minecraft方块）
-        private static final float UPPER_ARM_LENGTH = 2.5f;  // 大臂长度
-        private static final float FOREARM_LENGTH = 2.5f;    // 小臂长度
-        private static final float BASE_HEIGHT = 0.0f;       // 底座关节高度（相对于底座模型）
-        
+        // 关节偏移（单位：方块），与 visitArmModels 中的平移一致，z 增大表示向后
+        private static final float ELBOW_HEIGHT = 0.625f;
+        private static final float FOREARM_JOINT_Y = 1.0625f;
+        private static final float FOREARM_JOINT_Z = 0.4375f;
+        private static final float CLAW_JOINT_Y = 0.25f;
+        private static final float CLAW_JOINT_Z = -0.5625f;
+        private static final float GRIP_Y = -0.25f;
+        private static final float GRIP_Z = -0.2625f;
+
+        // 各段在动画角为 0 时的仰角（水平朝前为 0，抬头为正），由关节偏移换算
+        private static final float UPPER_ARM_REST_ELEVATION = elevationOf(FOREARM_JOINT_Y, FOREARM_JOINT_Z);
+        private static final float FOREARM_REST_ELEVATION = elevationOf(CLAW_JOINT_Y, CLAW_JOINT_Z);
+        private static final float CLAW_REST_ELEVATION = elevationOf(GRIP_Y, GRIP_Z);
+        private static final float FOREARM_JOINT_LENGTH = (float) Math.hypot(FOREARM_JOINT_Y, FOREARM_JOINT_Z);
+        private static final float CLAW_JOINT_LENGTH = (float) Math.hypot(CLAW_JOINT_Y, CLAW_JOINT_Z);
+
+        // 实际臂长（单位：方块）：肘 → 前臂关节、前臂关节 → 抓取点
+        private static final float UPPER_ARM_LENGTH = FOREARM_JOINT_LENGTH;
+        private static final float FOREARM_LENGTH = CLAW_JOINT_LENGTH + (float) Math.hypot(GRIP_Y, GRIP_Z);
+
+        // 动画时间轴，与 ExecutionPhase 的 PREPARE / EXTEND / RESET 对齐
+        private static final float SWING_END = 0.2f;
+        private static final float HOLD_END = 0.3f;
+        static final float EXTEND_END = 0.7f;
+
         /**
-         * 计算机械臂角度
-         *
-         * @return float[]{baseSwingAngle, upperArmAngle, forearmAngle, clawAngle}
+         * 计算动画进度对应的机械臂角度
          */
-        public float[] calculateArmAngles(
+        ArmAngles calculateArmAngles(
             BlockPos targetPos,
             BlockPos placerPos,
             Direction facing,
             boolean upsideDown,
             float animationProgress
         ) {
-            float[] targetAngles = this.calculateTargetAngles(targetPos, placerPos, facing, upsideDown);
-        
-            float baseAngle;
-            float upperArmAngle;
-            float forearmAngle;
-            float clawAngle;
-        
-            if (animationProgress <= 0.2f) {
-                // 阶段1：底盘旋转 + 小臂补偿
-                float phase1Progress = animationProgress / 0.2f;
-        
-                baseAngle = targetAngles[0] * phase1Progress;
-                upperArmAngle = 0f;
-        
-                float compensationAngle = targetAngles[1] + targetAngles[2];
-                forearmAngle = compensationAngle * phase1Progress;
-                clawAngle = targetAngles[3] * phase1Progress;
-        
-            } else if (animationProgress <= 0.3f) {
-                // 阶段2：停顿
-                baseAngle = targetAngles[0];
-                upperArmAngle = 0f;
-                forearmAngle = targetAngles[1] + targetAngles[2];
-                clawAngle = targetAngles[3];
-        
-            } else if (animationProgress <= 0.7f) {
-                // 阶段3：大臂推出
-                float phase3Progress = (animationProgress - 0.3f) / 0.4f;
-        
-                baseAngle = targetAngles[0];
-                upperArmAngle = targetAngles[1] * phase3Progress;
-        
-                float startForearmAngle = targetAngles[1] + targetAngles[2];
-                float endForearmAngle = targetAngles[2];
-                forearmAngle = startForearmAngle + (endForearmAngle - startForearmAngle) * phase3Progress;
-        
-                clawAngle = targetAngles[3];
-        
-            } else {
-                // 阶段4：收回
-                float phase4Progress = (animationProgress - 0.7f) / 0.3f;
-                        
-                baseAngle = targetAngles[0] * (1f - phase4Progress);
-                upperArmAngle = targetAngles[1] * (1f - phase4Progress);
-                forearmAngle = targetAngles[2] * (1f - phase4Progress);
-                clawAngle = targetAngles[3] * (1f - phase4Progress);
+            ArmAngles target = this.calculateTargetAngles(targetPos, placerPos, facing, upsideDown);
+
+            if (animationProgress <= SWING_END) {
+                // 阶段1：底座转向，同时把肘部预摆到目标仰角
+                float progress = animationProgress / SWING_END;
+                return new ArmAngles(
+                    target.baseSwing() * progress,
+                    0f,
+                    (target.upperArm() + target.forearm()) * progress,
+                    target.claw() * progress
+                );
             }
-        
-            return new float[]{baseAngle, upperArmAngle, forearmAngle, clawAngle};
+            if (animationProgress <= HOLD_END) {
+                // 阶段2：停顿
+                return new ArmAngles(target.baseSwing(), 0f, target.upperArm() + target.forearm(), target.claw());
+            }
+            if (animationProgress <= EXTEND_END) {
+                // 阶段3：大臂推出，小臂保持目标仰角
+                float progress = (animationProgress - HOLD_END) / (EXTEND_END - HOLD_END);
+                float startForearm = target.upperArm() + target.forearm();
+                return new ArmAngles(
+                    target.baseSwing(),
+                    target.upperArm() * progress,
+                    startForearm + (target.forearm() - startForearm) * progress,
+                    target.claw()
+                );
+            }
+            // 阶段4：收回
+            float progress = (animationProgress - EXTEND_END) / (1f - EXTEND_END);
+            return new ArmAngles(
+                target.baseSwing() * (1f - progress),
+                target.upperArm() * (1f - progress),
+                target.forearm() * (1f - progress),
+                target.claw() * (1f - progress)
+            );
         }
 
-        private float[] calculateTargetAngles(
+        private ArmAngles calculateTargetAngles(
             BlockPos targetPos,
             BlockPos placerPos,
             Direction facing,
             boolean upsideDown
         ) {
-            double dx = targetPos.getX() - placerPos.getX();
-            double dy = targetPos.getY() - placerPos.getY();
-            double dz = targetPos.getZ() - placerPos.getZ();
+            // 底座关节位于方块底面中心，倒置时位于顶面中心
+            Vec3 joint = Vec3.atBottomCenterOf(placerPos).add(0, upsideDown ? 1 : 0, 0);
+            Vec3 delta = Vec3.atCenterOf(targetPos).subtract(joint);
 
             Direction right = facing.getCounterClockWise();
+            double forwardDist = delta.x * facing.getStepX() + delta.z * facing.getStepZ();
+            double lateralDist = delta.x * right.getStepX() + delta.z * right.getStepZ();
+            // 倒置时底座绕 X 轴翻转，局部 X 轴方向相反
+            if (upsideDown) lateralDist = -lateralDist;
+            double verticalDist = upsideDown ? -delta.y : delta.y;
 
-            double forwardDist = dx * facing.getStepX() + dz * facing.getStepZ();
-            double rightDist = dx * right.getStepX() + dz * right.getStepZ();
+            float baseSwing = (float) Math.toDegrees(Math.atan2(lateralDist, forwardDist));
+            float horizontalDist = (float) Math.hypot(lateralDist, forwardDist);
 
-            final float baseAngle = (float) Math.toDegrees(Math.atan2(rightDist, forwardDist));
-            final float horizontalDist = (float) Math.sqrt(forwardDist * forwardDist + rightDist * rightDist);
+            // 逆解以肘关节为原点；距离超出臂展时 reach 被夹住，肘部自然完全伸展
+            double elbowHeight = verticalDist - ELBOW_HEIGHT;
+            float elevation = (float) Math.toDegrees(Math.atan2(elbowHeight, horizontalDist));
+            float distance = (float) Math.hypot(horizontalDist, elbowHeight);
+            float reach = Math.clamp(distance, 0.01f, UPPER_ARM_LENGTH + FOREARM_LENGTH);
+            float elbowBend = 180f - acosDegrees(
+                (UPPER_ARM_LENGTH * UPPER_ARM_LENGTH + FOREARM_LENGTH * FOREARM_LENGTH - reach * reach)
+                    / (2f * UPPER_ARM_LENGTH * FOREARM_LENGTH)
+            );
+            float shoulderElevation = elevation + acosDegrees(
+                (reach * reach + UPPER_ARM_LENGTH * UPPER_ARM_LENGTH - FOREARM_LENGTH * FOREARM_LENGTH)
+                    / (2f * reach * UPPER_ARM_LENGTH)
+            );
+            float forearmElevation = shoulderElevation - elbowBend;
 
-            float targetHeight = (float) dy - BASE_HEIGHT;
-            if (upsideDown) {
-                targetHeight = -(float) dy - BASE_HEIGHT;
-            }
+            float upperArm = shoulderElevation - UPPER_ARM_REST_ELEVATION;
+            float forearm = forearmElevation - FOREARM_REST_ELEVATION - upperArm;
 
-            final float elevationAngle = (float) Math.toDegrees(Math.atan2(targetHeight, horizontalDist));
-            final float distToTarget = (float) Math.sqrt(horizontalDist * horizontalDist + targetHeight * targetHeight);
-            final boolean isOverRange = distToTarget >= UPPER_ARM_LENGTH + FOREARM_LENGTH;
+            // 爪部由自身关节指向目标
+            double upperArmRad = Math.toRadians(UPPER_ARM_REST_ELEVATION + upperArm);
+            double forearmRad = Math.toRadians(FOREARM_REST_ELEVATION + upperArm + forearm);
+            double clawJointHeight = ELBOW_HEIGHT
+                + FOREARM_JOINT_LENGTH * Math.sin(upperArmRad)
+                + CLAW_JOINT_LENGTH * Math.sin(forearmRad);
+            double clawJointDepth = -FOREARM_JOINT_LENGTH * Math.cos(upperArmRad)
+                - CLAW_JOINT_LENGTH * Math.cos(forearmRad);
+            float aimElevation = (float) Math.toDegrees(
+                Math.atan2(verticalDist - clawJointHeight, horizontalDist + clawJointDepth)
+            );
 
-            float upperArmAngle;
-            float forearmAngle;
-            if (isOverRange) {
-                upperArmAngle = elevationAngle - 74f;
-                forearmAngle = 85f;
-            } else {
-                float clampedDist = Math.max(0.01f, distToTarget);
-
-                float cosForearm = (UPPER_ARM_LENGTH * UPPER_ARM_LENGTH + FOREARM_LENGTH * FOREARM_LENGTH - clampedDist * clampedDist)
-                    / (2 * UPPER_ARM_LENGTH * FOREARM_LENGTH);
-                cosForearm = Math.clamp(cosForearm, -1.0f, 1.0f);
-                float forearmAngleFromUpper = (float) Math.toDegrees(Math.acos(cosForearm));
-
-                float cosUpperArm = (clampedDist * clampedDist + UPPER_ARM_LENGTH * UPPER_ARM_LENGTH - FOREARM_LENGTH * FOREARM_LENGTH)
-                    / (2 * clampedDist * UPPER_ARM_LENGTH);
-                cosUpperArm = Math.clamp(cosUpperArm, -1.0f, 1.0f);
-                float upperArmAngleFromTarget = (float) Math.toDegrees(Math.acos(cosUpperArm));
-                upperArmAngle = -(180f - upperArmAngleFromTarget - elevationAngle) * 0.6f + 20f;
-                forearmAngle = forearmAngleFromUpper * 0.8f - 10f;
-            }
-
-            upperArmAngle += horizontalDist <= 2.0f ? -10f :
-                           (horizontalDist >= 4.0f ? -50f :
-                           -10f + (-35f) * (horizontalDist - 2.0f) / 2.0f);
-
-            // 在2-4格距离范围内，根据仰角增加小臂角度的动态修正（温和版）
-            float forearmHeightCorrection = 0f;
-            if (horizontalDist > 2.0f && horizontalDist < 4.0f) {
-                // 3格距离附近，高度变化对小臂角度的影响更明显
-                float distFactor = 1.0f - Math.abs(horizontalDist - 3.0f); // 在3格时最大
-                forearmHeightCorrection = elevationAngle * 0.2f * distFactor;
-            }
-            forearmAngle += forearmHeightCorrection;
-            
-            forearmAngle += horizontalDist >= 4.0f ? 40f : 0f;
-
-            // 蟹钳角度增强：在3格距离附近适度增加对高度变化的敏感度
-            float clawHeightSensitivity = -0.4f;
-            if (horizontalDist > 2.0f && horizontalDist < 4.0f) {
-                // 在3格距离时，敏感度从-0.4增加到-0.7（微调版）
-                float distFactor = 1.0f - Math.abs(horizontalDist - 3.0f);
-                clawHeightSensitivity = -0.4f + (-0.3f) * distFactor;
-            }
-            float clawAngle = 45f - elevationAngle * clawHeightSensitivity + (isOverRange ? -10f : 0f);
-
-            return new float[]{baseAngle, upperArmAngle, forearmAngle, clawAngle};
+            float claw = aimElevation - CLAW_REST_ELEVATION - upperArm - forearm;
+            return new ArmAngles(baseSwing, upperArm, forearm, claw);
         }
 
+        private static float acosDegrees(float cosine) {
+            return (float) Math.toDegrees(Math.acos(Math.clamp(cosine, -1f, 1f)));
+        }
+
+        /**
+         * 由关节偏移求该段在动画角为 0 时的仰角
+         */
+        private static float elevationOf(float offsetY, float offsetZ) {
+            return (float) Math.toDegrees(Math.atan2(offsetY, -offsetZ));
+        }
     }
 
     private record ArmRenderState(
@@ -311,13 +308,13 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                     );
                     entity.setClientRetractSoundPlayed(true);
                 }
-                float[] angles = PLACEMENT_ANIMATION.calculateArmAngles(
+                ArmAngles angles = PLACEMENT_ANIMATION.calculateArmAngles(
                     animationTargetPos, entity.getBlockPos(), facing, upsideDown, animationProgress
                 );
-                baseSwingAngle = angles[0];
-                upperArmAngle = angles[1];
-                forearmAngle = angles[2];
-                clawAngle = angles[3];
+                baseSwingAngle = angles.baseSwing();
+                upperArmAngle = angles.upperArm();
+                forearmAngle = angles.forearm();
+                clawAngle = angles.claw();
             }
         }
         
@@ -329,7 +326,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             animationProgress,
             isAnimationPlaying
         );
-        this.renderArm(entity, level, poseStack, buffer, partialTick, packedLight, packedOverlay, upsideDown, armState);
+        this.renderArm(entity, level, poseStack, buffer, partialTick, packedLight, packedOverlay, armState);
         poseStack.popPose();
     }
 
@@ -345,7 +342,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         pose.pushPose();
         this.applyBaseTransform(pose, Direction.NORTH, false);
         this.visitArmModels(
-            pose, false, state,
+            pose, state,
             (model, modelPose) -> this.renderModel(modelPose, buffer, model, packedLight, packedOverlay),
             () -> {}
         );
@@ -360,12 +357,10 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         float partialTick,
         int packedLight,
         int packedOverlay,
-        boolean upsideDown,
         ArmRenderState state
     ) {
         this.visitArmModels(
             poseStack,
-            upsideDown,
             state,
             (model, pose) -> this.renderWorldModel(pose, buffer, model, packedLight, packedOverlay, level),
             () -> this.renderHeldContent(poseStack, buffer, entity.getCurrentHeldBlock(), level, partialTick, packedLight, packedOverlay)
@@ -373,16 +368,16 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     }
 
     private void visitArmModels(
-        PoseStack poseStack, boolean upsideDown, ArmRenderState state, ModelConsumer consumer, Runnable heldContent
+        PoseStack poseStack, ArmRenderState state, ModelConsumer consumer, Runnable heldContent
     ) {
         poseStack.pushPose();
-        poseStack.mulPose((upsideDown ? Axis.YN : Axis.YP).rotationDegrees(state.baseSwingAngle()));
+        poseStack.mulPose(Axis.YP.rotationDegrees(state.baseSwingAngle()));
         poseStack.translate(-0.5, 0.0, -0.5);
         consumer.accept(BASE_MODEL, poseStack);
         poseStack.popPose();
 
         poseStack.pushPose();
-        poseStack.mulPose((upsideDown ? Axis.YN : Axis.YP).rotationDegrees(state.baseSwingAngle()));
+        poseStack.mulPose(Axis.YP.rotationDegrees(state.baseSwingAngle()));
         poseStack.translate(0, 0.625, 0);
         poseStack.mulPose(Axis.XP.rotationDegrees(state.upperArmAngle()));
         poseStack.translate(0, -0.625, 0);
@@ -402,7 +397,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
 
         boolean shouldClawBeOpen = state.animationPlaying()
             && state.animationProgress() > 0f
-            && state.animationProgress() <= 0.7f;
+            && state.animationProgress() <= PlacementAnimation.EXTEND_END;
         ModelResourceLocation currentClawModel = shouldClawBeOpen ? CLAW_OPEN_MODEL : CLAW_MODEL;
         consumer.accept(currentClawModel, poseStack);
 
@@ -426,13 +421,15 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             target = this.getNextTargetPosition(entity, level, facing, upsideDown);
         }
         float progress = target == null ? 0 : entity.getAnimationProgress(partialTick);
-        float[] angles = target == null ? new float[4] : PLACEMENT_ANIMATION.calculateArmAngles(
+        ArmAngles angles = target == null ? new ArmAngles(0f, 0f, 0f, 0f) : PLACEMENT_ANIMATION.calculateArmAngles(
             target, entity.getBlockPos(), facing, upsideDown, progress
         );
-        ArmRenderState arm = new ArmRenderState(angles[0], angles[1], angles[2], angles[3], progress, target != null);
+        ArmRenderState arm = new ArmRenderState(
+            angles.baseSwing(), angles.upperArm(), angles.forearm(), angles.claw(), progress, target != null
+        );
         pose.pushPose();
         this.applyBaseTransform(pose, facing, upsideDown);
-        this.visitArmModels(pose, upsideDown, arm, consumer, () -> {});
+        this.visitArmModels(pose, arm, consumer, () -> {});
         pose.popPose();
     }
 
@@ -444,15 +441,10 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     }
 
     private void applyHorizontalRotation(PoseStack poseStack, Direction facing, boolean upsideDown) {
-        float rotation = switch (facing) {
-            case WEST -> 90f;
-            case SOUTH -> 180f;
-            case EAST -> 270f;
-            default -> 0f; // NORTH
-        };
-        if (upsideDown && (facing == Direction.NORTH || facing == Direction.SOUTH)) {
-            rotation = (rotation + 180f) % 360f;
-        }
+        // 局部 -Z 为机械臂正前方；倒置时底座绕 X 轴翻转会让 Z 轴反向，旋转角随之取补角
+        float rotation = (float) Math.toDegrees(
+            Math.atan2(-facing.getStepX(), upsideDown ? facing.getStepZ() : -facing.getStepZ())
+        );
         poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
     }
     
