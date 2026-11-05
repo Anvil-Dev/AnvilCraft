@@ -421,6 +421,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private boolean flyoutAtClick;
     private int flyoutClickX;
     private int flyoutClickY;
+    /** 待显示提示的锚点，与文本一起提交到 flyoutClickX/Y。 */
+    private int noticeAnchorX;
+    private int noticeAnchorY;
 
     public StorageScreen(BlockPos sourcePos) {
         this(
@@ -982,11 +985,13 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
      *
      * <p>这类提示不能走动作栏：仓储界面开着时动作栏被界面盖住，玩家看不到任何反馈。</p>
      */
-    private void showNotice(Component message) {
+    private void showNotice(Component message, int x, int y) {
         if (message.getString().isEmpty()) {
             return;
         }
         this.flyoutMessage = message;
+        this.flyoutClickX = x;
+        this.flyoutClickY = y;
         this.flyoutAtClick = true;
         this.flyoutTimer = 0;
         this.flyoutVisible = true;
@@ -1977,9 +1982,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 } else {
                     action = StorageInput.FLUID_BUCKET;
                 }
-                // 失败提示要显示在点击处，故先记下点击位置
-                this.flyoutClickX = (int) mouseX;
-                this.flyoutClickY = (int) mouseY;
+                // 失败提示要显示在点击处，锚点先记下，等提示真正返回时再与文本一起提交，避免旧提示先按新位置画一帧
+                this.noticeAnchorX = (int) mouseX;
+                this.noticeAnchorY = (int) mouseY;
                 this.interactWithStorage(fluidSlot, button, action);
                 return true;
             }
@@ -2708,7 +2713,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 }
                 if (result.notice() != StorageServerStub.FluidNotice.NONE) {
                     // 交互失败原因由界面自己渲染，不走动作栏（会被界面盖住）
-                    this.showNotice(result.notice().text());
+                    this.showNotice(result.notice().text(), this.noticeAnchorX, this.noticeAnchorY);
                 }
                 if (result.changed()) {
                     if (this.preservingOrder) {
