@@ -60,6 +60,7 @@ public class CategorySettingsScreen extends Screen {
     private static final int BG_WIDTH = 300;
     private static final int BG_HEIGHT = 222;
     private final BlockPos sourcePos;
+    private final Component storageTitle;
     private final Player player;
     private final Registry<ICategory> registry;
     private PlayerSetting draftSetting;
@@ -116,9 +117,10 @@ public class CategorySettingsScreen extends Screen {
     };
     private int alternateHead = 0;
 
-    protected CategorySettingsScreen(BlockPos sourcePos) {
+    protected CategorySettingsScreen(BlockPos sourcePos, Component storageTitle) {
         super(Component.translatable("screen.anvilcraft.storage.category.setting.title"));
         this.sourcePos = sourcePos;
+        this.storageTitle = storageTitle;
         Minecraft minecraft = this.getMinecraft();
         this.player = Objects.requireNonNull(minecraft.player);
         this.registry = Objects.requireNonNull(minecraft.getConnection())
@@ -762,6 +764,6 @@ public class CategorySettingsScreen extends Screen {
     }
 
     private void openStorageScreen() {
-        this.minecraft.setScreenAndShow(new StorageScreen(this.sourcePos));
+        this.minecraft.setScreenAndShow(new StorageScreen(this.sourcePos, this.storageTitle));
     }
 }
