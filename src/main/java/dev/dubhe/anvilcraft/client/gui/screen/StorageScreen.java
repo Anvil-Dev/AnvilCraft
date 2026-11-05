@@ -215,6 +215,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private int flyoutTimer = StorageScreen.flyoutTotalTicks();
     private int flyoutClickX;
     private int flyoutClickY;
+    /** 待显示提示的锚点，与文本一起提交到 flyoutClickX/Y。 */
+    private int noticeAnchorX;
+    private int noticeAnchorY;
     private double fullness;
     private StorageServerStub.@Nullable Capacity capacity;
     private @Nullable UUID storageId;
@@ -710,9 +713,11 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         StorageClientStub.craftingUnlock(this.sourcePos).whenCompleteAsync((available, error) -> {
             this.interactionPending = false;
             if (error != null || !available) {
-                this.flyoutClickX = this.sx(287);
-                this.flyoutClickY = this.top + 208;
-                this.showNotice(Component.translatable("tooltip.anvilcraft.storage.missing_workbench"));
+                this.showNotice(
+                    Component.translatable("tooltip.anvilcraft.storage.missing_workbench"),
+                    this.sx(287),
+                    this.top + 208
+                );
                 return;
             }
             this.craftingAvailable = true;
@@ -1396,8 +1401,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     if (!this.carried.isEmpty()) this.interactWithStorage(fluidSlot, event.button(), StorageInput.PICKUP);
                     return true;
                 }
-                this.flyoutClickX = (int) event.x();
-                this.flyoutClickY = (int) event.y();
+                // 失败提示的锚点先记下，等提示真正返回时再与文本一起提交，避免旧提示先按新位置画一帧
+                this.noticeAnchorX = (int) event.x();
+                this.noticeAnchorY = (int) event.y();
                 StorageInput action;
                 if (event.hasShiftDown()) {
                     action = StorageInput.QUICK_MOVE_FROM_STORAGE;
@@ -1905,7 +1911,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     this.interactionPending = false;
                     return;
                 }
-                if (result.notice() != StorageServerStub.FluidNotice.NONE) this.showNotice(result.notice().text());
+                if (result.notice() != StorageServerStub.FluidNotice.NONE) {
+                    this.showNotice(result.notice().text(), this.noticeAnchorX, this.noticeAnchorY);
+                }
                 this.carried = result.carried();
                 this.player.inventoryMenu.setCarried(this.carried);
                 if (result.changed()) {
@@ -2384,9 +2392,14 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         StorageScreen.renderSlotCount(graphics, font, amount, entry.amount() == 0 ? 0xFFFFAA00 : -1, x, y);
     }
 
-    private void showNotice(Component message) {
+    /**
+     * 在指定位置显示一条提示浮窗，文本与锚点一起提交，避免旧提示按新位置多画一帧。
+     */
+    private void showNotice(Component message, int x, int y) {
         if (message.getString().isEmpty()) return;
         this.flyoutMessage = message;
+        this.flyoutClickX = x;
+        this.flyoutClickY = y;
         this.flyoutTimer = 0;
     }
 
