@@ -127,16 +127,24 @@ public abstract class AbstractLiquidReactionCategory implements IRecipeCategory<
         List<ItemIngredientPredicate> itemInputs = recipe.getInputItems();
         int inputCount = fluidInputs.size() + itemInputs.size();
         int inputGridSize = recipe.isHeaterRequired() ? HEATER_INPUT_GRID_SIZE : inputCount;
+        // 不消耗的输入流体按催化剂展示，避免被当成"要倒掉一整桶"
+        boolean notConsumed = recipe.isFluidInputNotConsumed();
         List<IRecipeSlotBuilder> fluidInputSlots = new ArrayList<>(fluidInputs.size());
         for (int index = 0; index < fluidInputs.size(); index++) {
             SlotPosition position = inputPosition(inputGridSize, index);
-            fluidInputSlots.add(addFluidSlot(
+            IRecipeSlotBuilder fluidSlot = addFluidSlot(
                 builder,
-                RecipeIngredientRole.INPUT,
+                notConsumed ? RecipeIngredientRole.CATALYST : RecipeIngredientRole.INPUT,
                 position,
                 fluidInputs.get(index),
                 false
-            ));
+            );
+            if (notConsumed) {
+                fluidSlot.addRichTooltipCallback(
+                    (slotView, tooltip) -> tooltip.add(JeiFluidUtil.TOOLTIP_NOT_CONSUMED)
+                );
+            }
+            fluidInputSlots.add(fluidSlot);
         }
         for (int index = 0; index < itemInputs.size(); index++) {
             SlotPosition position = inputPosition(inputGridSize, fluidInputs.size() + index);

@@ -2567,7 +2567,7 @@
   "tooltip.anvilcraft.item.ferrite_core_magnet_block": "Attracting the anvil below, when pushed and pulled by the piston, causes adjacent copper blocks to generate charges",
   "tooltip.anvilcraft.item.filter": "Matches items based on configuration, usable in any filter slot",
   "tooltip.anvilcraft.item.fish_tank": "It is sturdier than it looks, used for anvil synthesis",
-  "tooltip.anvilcraft.item.fish_tank.shift": "Can be used as a substitute for the alchemy pot to perform related anvil synthesis\nWearing it on your head provides a temporary underwater breathing effect\nRight-click the top with an item in hand to place the item inside\nRight-click the lower part of the fish tank with a tropical fish bucket in hand to release the tropical fish\nCan interact with Dispensers for fluid transfer",
+  "tooltip.anvilcraft.item.fish_tank.shift": "Wearing it on your head provides a temporary underwater breathing effect\nRight-click the top with an item in hand to place the item inside\nRight-click the lower part of the fish tank with a tropical fish bucket in hand to release the tropical fish\nCan interact with Dispensers for fluid transfer",
   "tooltip.anvilcraft.item.flint_block": "A large block of flint\nWhen pushed or pulled by a piston, it creates fire around it if an iron block is nearby",
   "tooltip.anvilcraft.item.fluid_tank": "Stores fluids",
   "tooltip.anvilcraft.item.fluid_tank.shift": "Stores 16B of fluids\nMenger Sponges expand it to 12800B and make it infinite when full\nCan interact with Dispensers for fluid transfer",

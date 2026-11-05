@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:item_compress",
+  "ingredients": [
+    {
+      "count": 9,
+      "items": "minecraft:bamboo"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:bamboo_block"
+    }
+  ]
+}

@@ -18,6 +18,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SolidLiquidRecipe;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
+import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
@@ -35,6 +36,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.fluids.CauldronFluidContent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -128,14 +130,21 @@ public class SolidLiquidCategory extends AbstractLiquidReactionCategory {
         if (inputMixed) {
             JeiItemUtil.addItemInputSlots(builder, itemInputs);
         }
-        addSmallFluidSlot(
+        // 不消耗的输入流体按催化剂展示，避免被当成"要倒掉一整桶"
+        final boolean notConsumed = recipe.isFluidInputNotConsumed();
+        IRecipeSlotBuilder fluidInputSlot = addSmallFluidSlot(
             builder,
-            RecipeIngredientRole.INPUT,
+            notConsumed ? RecipeIngredientRole.CATALYST : RecipeIngredientRole.INPUT,
             JeiSlotUtil.INPUT_X,
             inputMixed ? JeiSlotUtil.FLUID_Y : JeiSlotUtil.DEFAULT_Y,
             fluidInputs,
             false
         );
+        if (notConsumed && fluidInputSlot != null) {
+            fluidInputSlot.addRichTooltipCallback(
+                (slotView, tooltip) -> tooltip.add(JeiFluidUtil.TOOLTIP_NOT_CONSUMED)
+            );
+        }
         final boolean outputMixed = !itemResults.isEmpty() && !fluidResults.isEmpty();
         if (outputMixed) {
             JeiItemUtil.addItemOutputSlots(builder, itemResults);
@@ -152,7 +161,7 @@ public class SolidLiquidCategory extends AbstractLiquidReactionCategory {
         );
     }
 
-    private static void addSmallFluidSlot(
+    private static @Nullable IRecipeSlotBuilder addSmallFluidSlot(
         IRecipeLayoutBuilder builder,
         RecipeIngredientRole role,
         int x,
@@ -160,8 +169,8 @@ public class SolidLiquidCategory extends AbstractLiquidReactionCategory {
         List<FluidStack> fluids,
         boolean showCapacity
     ) {
-        if (fluids.isEmpty()) return;
-        JeiFluidUtil.addFluidSlot(
+        if (fluids.isEmpty()) return null;
+        return JeiFluidUtil.addFluidSlot(
             builder,
             role,
             x,
