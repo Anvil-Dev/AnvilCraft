@@ -12,7 +12,7 @@ def supporters = getConfig("supporters")
 tasks.withType(ProcessResources).configureEach {
     var replaceProperties = [
             minecraft_version       : libs.versions.minecraft.get(),
-            anvillib_version        : libs.versions.anvillib.asProvider().get(),
+            anvillib_version        : libs.versions.anvillib.get(),
             minecraft_version_range : minecraft_version_range,
             neo_version             : libs.versions.neoForge.get(),
             neo_version_range       : neo_version_range,
