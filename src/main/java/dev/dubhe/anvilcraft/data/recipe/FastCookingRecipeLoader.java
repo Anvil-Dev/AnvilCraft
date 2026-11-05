@@ -38,5 +38,10 @@ public class FastCookingRecipeLoader {
             .result(ModFoodItems.BEEF_MUSHROOM_STEW)
             .save(provider);
 
+        FastCookingRecipe.builder()
+            .requires(Items.MUD)
+            .result(Items.CLAY)
+            .save(provider);
+
     }
 }

@@ -7,14 +7,18 @@ import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.recipe.RecipeIngredientRole;
+import net.minecraft.ChatFormatting;
+import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -23,6 +27,8 @@ import java.util.List;
  */
 public final class JeiFluidUtil {
     private static final String SLOT_PREFIX = JeiBlockIngredientUtil.PREVIEW_SLOT_PREFIX + "fluid/";
+    public static final Component TOOLTIP_NOT_CONSUMED =
+        Component.translatable("jei.anvilcraft.tooltip.not_consumed").withStyle(ChatFormatting.GOLD);
 
     private JeiFluidUtil() {
     }
@@ -50,10 +56,26 @@ public final class JeiFluidUtil {
         int height,
         HasCauldronSimple cauldron
     ) {
-        addSlot(
-            builder, RecipeIngredientRole.INPUT, name, x, y, width, height,
-            getDisplayFluids(cauldron.fluid(), cauldron.consume()), false, 1.0f
+        // 既不消耗、也不转换成其它流体的固液反应只是要求锅里有这种流体，按催化剂展示
+        boolean notConsumed = cauldron.consume() <= 0 && cauldron.transforms().isEmpty();
+        IRecipeSlotBuilder slot = addSlot(
+            builder,
+            notConsumed ? RecipeIngredientRole.CATALYST : RecipeIngredientRole.INPUT,
+            name, x, y, width, height,
+            getDisplayFluids(cauldron.fluid(), getInputDisplayAmount(cauldron)),
+            false, 1.0f
         );
+        if (notConsumed && slot != null) {
+            slot.addRichTooltipCallback((slotView, tooltip) -> tooltip.add(JeiFluidUtil.TOOLTIP_NOT_CONSUMED));
+        }
+    }
+
+    /**
+     * 输入流体的展示量：消耗量大于 0 时就是消耗量，否则取谓词要求的最低量；
+     */
+    public static int getInputDisplayAmount(HasCauldronSimple cauldron) {
+        if (cauldron.consume() > 0) return cauldron.consume();
+        return cauldron.fluid().amount().flatMap(MinMaxBounds.Ints::min).orElse(0);
     }
 
     /**
@@ -114,7 +136,7 @@ public final class JeiFluidUtil {
         );
     }
 
-    private static void addSlot(
+    private static @Nullable IRecipeSlotBuilder addSlot(
         IRecipeLayoutBuilder builder,
         RecipeIngredientRole role,
         String name,
@@ -126,7 +148,7 @@ public final class JeiFluidUtil {
         boolean showCapacity,
         float chance
     ) {
-        if (fluids.isEmpty()) return;
+        if (fluids.isEmpty()) return null;
         IRecipeSlotBuilder slot = addFluidSlot(
             builder, role, x, y, width, height, fluids.getFirst().getAmount(), showCapacity, fluids
         )
@@ -135,6 +157,7 @@ public final class JeiFluidUtil {
             slot.addRichTooltipCallback((slotView, tooltip) ->
                                             tooltip.addAll(JeiRecipeUtil.getTooltips(ConstantValue.exactly(chance))));
         }
+        return slot;
     }
 
     public static IRecipeSlotBuilder addFluidSlot(

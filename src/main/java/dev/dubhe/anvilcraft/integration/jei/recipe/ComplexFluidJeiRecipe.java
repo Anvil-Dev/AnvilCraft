@@ -36,6 +36,11 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
     @Getter
     private final boolean heaterRequired;
     private final boolean linkFluidVariants;
+    /**
+     * 输入流体只要求锅里有、不会被消耗掉（固液反应常见），展示时按催化剂处理
+     */
+    @Getter
+    private final boolean fluidInputNotConsumed;
 
     private ComplexFluidJeiRecipe(
         List<ItemIngredientPredicate> inputItems,
@@ -44,6 +49,18 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
         List<List<FluidStack>> fluidResults,
         boolean heaterRequired,
         boolean linkFluidVariants
+    ) {
+        this(inputItems, resultItems, fluidInputs, fluidResults, heaterRequired, linkFluidVariants, false);
+    }
+
+    private ComplexFluidJeiRecipe(
+        List<ItemIngredientPredicate> inputItems,
+        List<ChanceItemStack> resultItems,
+        List<List<FluidStack>> fluidInputs,
+        List<List<FluidStack>> fluidResults,
+        boolean heaterRequired,
+        boolean linkFluidVariants,
+        boolean fluidInputNotConsumed
     ) {
         super(
             toSizedIngredients(fluidInputs),
@@ -57,13 +74,14 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
         this.displayFluidResults = copyFluidGroups(fluidResults);
         this.heaterRequired = heaterRequired;
         this.linkFluidVariants = linkFluidVariants;
+        this.fluidInputNotConsumed = fluidInputNotConsumed;
     }
 
     public static ComplexFluidJeiRecipe fromSolidLiquid(SolidLiquidRecipe recipe) {
         HasCauldronSimple cauldron = recipe.getHasCauldron();
         List<FluidStack> inputs = JeiFluidUtil.getDisplayFluids(
             cauldron.fluid(),
-            displayAmount(cauldron.consume())
+            JeiFluidUtil.getInputDisplayAmount(cauldron)
         );
         List<List<FluidStack>> results = cauldron.transforms().stream()
             .map(fluid -> JeiFluidUtil.getDisplayFluids(fluid, displayAmount(fluid.getAmount())))
@@ -75,7 +93,8 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
             asGroup(inputs),
             results,
             false,
-            false
+            false,
+            cauldron.consume() <= 0 && cauldron.transforms().isEmpty()
         );
     }
 
