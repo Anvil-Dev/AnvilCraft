@@ -2,11 +2,10 @@ package dev.dubhe.anvilcraft.init.storage;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.item.ModDataComponentPredicates;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
-import dev.dubhe.anvilcraft.item.property.predicate.ExtraEnchantmentsPredicate;
 import dev.dubhe.anvilcraft.saved.storage.category.BlockCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.CreativeModeTabCategory;
+import dev.dubhe.anvilcraft.saved.storage.category.EnchantedCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.FluidCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.HasComponentCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.ICategory;
@@ -83,23 +82,7 @@ public class ModCategories {
                 )
             )
         );
-        ctx.register(
-            ModCategories.ENCHANTED,
-            HasComponentCategory.or(
-                Items.ENCHANTED_BOOK,
-                ModCategories.ENCHANTED.identifier(),
-                Map.of(
-                    DataComponentPredicates.ENCHANTMENTS,
-                    EnchantmentsPredicate.enchantments(List.of()),
-                    DataComponentPredicates.STORED_ENCHANTMENTS,
-                    EnchantmentsPredicate.storedEnchantments(List.of()),
-                    ModDataComponentPredicates.MERCILESS_ENCH.get(),
-                    ExtraEnchantmentsPredicate.merciless(List.of()),
-                    ModDataComponentPredicates.DISABLED_ENCH.get(),
-                    ExtraEnchantmentsPredicate.disabled(List.of())
-                )
-            )
-        );
+        ctx.register(ModCategories.ENCHANTED, EnchantedCategory.INSTANCE);
     }
 
     private static ResourceKey<ICategory> key(String name) {
