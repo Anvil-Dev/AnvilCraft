@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsBeam;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
@@ -199,6 +200,9 @@ public class HeliostatsBlockEntity extends BlockEntity {
         }
         this.workResult = this.validatePos(this.irritatePos);
         if (this.workResult.isWorking()) {
+            if (this.level.isClientSide() && AnvilCraft.CLIENT_CONFIG.graphics.heliostatsBeam) {
+                HeliostatsBeam.track(this);
+            }
             HeaterManager.addProducer(this.getBlockPos(), Objects.requireNonNull(this.getLevel()), ModHeaterInfos.HELIOSTATS);
         } else {
             HeaterManager.removeProducer(this.getBlockPos(), Objects.requireNonNull(this.getLevel()), ModHeaterInfos.HELIOSTATS);

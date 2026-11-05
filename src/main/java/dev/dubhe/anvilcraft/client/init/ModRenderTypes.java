@@ -119,6 +119,11 @@ public class ModRenderTypes {
             .createRenderSetup()
     );
 
+    public static final RenderType HELIOSTATS_BEAM = RenderType.create(
+        "anvilcraft:heliostats_beam",
+        RenderSetup.builder(RenderPipelines.DEBUG_FILLED_BOX).sortOnUpload().createRenderSetup()
+    );
+
     public static final RenderType STELLAR_BEAM = RenderType.create(
         "anvilcraft:stellar_beam",
         RenderSetup.builder(ModRenderPipelines.STELLAR_BEAM)

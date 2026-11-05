@@ -3282,6 +3282,8 @@
   "anvilcraft.configuration.graphics.gravitational_lens.strength": "强度",
   "anvilcraft.configuration.graphics.gravitational_lens.strength.tooltip": "黑洞/白洞周围的透镜畸变强度（数值越高，光线弯折效果越强；默认值：0.002）",
   "anvilcraft.configuration.graphics.gravitational_lens.tooltip": "调整黑洞/白洞引力透镜效果的相关设置",
+  "anvilcraft.configuration.graphics.heliostats_beam": "定日镜光柱",
+  "anvilcraft.configuration.graphics.heliostats_beam.tooltip": "在工作中的定日镜照射的方块处显示渐隐的光柱",
   "anvilcraft.configuration.graphics.heliostats_render_distance": "定日镜渲染距离",
   "anvilcraft.configuration.graphics.heliostats_render_distance.tooltip": "控制定日镜的方块实体渲染的最大渲染距离（单位：格）",
   "anvilcraft.configuration.graphics.heliostats_sunflower_model": "定日镜向日葵模型",
