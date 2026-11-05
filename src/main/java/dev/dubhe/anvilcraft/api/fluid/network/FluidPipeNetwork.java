@@ -1005,7 +1005,10 @@ public class FluidPipeNetwork {
                 .filter(result -> result != null && result.cauldron())
                 .findFirst()
                 .orElse(null);
-            if (container == null || !container.cauldron()) {
+            if (container == null || !container.cauldron()
+                || container.handler().getClass() != endpoint.handler().getClass()) {
+                // 炼药锅被替换成另一种锅（例如原油锅被点燃成燃烧的炼药锅）时，
+                // 旧端点持有的能力实现会失效，必须重建网络换用新的处理器。
                 FluidNetworkManager.INSTANCE.markDirty(this.level);
                 return true;
             }
