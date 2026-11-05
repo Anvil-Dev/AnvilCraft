@@ -179,9 +179,13 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private static final int MAX_PRESERVED_SYNC_ATTEMPTS = 3;
     private static final int FLUID_SLOT_BASE = StoragePortManager.FLUID_SLOT_BASE;
     private static final int FLYOUT_PADDING = 2;
+    /** 缺失工作台/切石机提示浮窗：0.25s 淡入 + 停留 + 0.25s 淡出。 */
+    private static final int FLYOUT_FADE_IN_TICKS = 5;
+    private static final int FLYOUT_FADE_OUT_TICKS = 5;
 
-    private static int flyoutHoldTicks() {
-        return AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks;
+    private static int flyoutTotalTicks() {
+        return StorageScreen.FLYOUT_FADE_IN_TICKS + AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks
+            + StorageScreen.FLYOUT_FADE_OUT_TICKS;
     }
 
     private static FlyoutRenderer createFlyoutRenderer() {
@@ -210,7 +214,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private List<IntList> foldedGroups = List.of();
     private List<StorageServerStub.FluidEntry> fluids = List.of();
     private Component flyoutMessage = Component.empty();
-    private int flyoutTimer = StorageScreen.flyoutHoldTicks();
+    private int flyoutTimer = StorageScreen.flyoutTotalTicks();
     private int flyoutClickX;
     private int flyoutClickY;
     private double fullness;
@@ -467,7 +471,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             this.onClose();
             return;
         }
-        if (this.flyoutTimer < StorageScreen.flyoutHoldTicks()) this.flyoutTimer++;
+        if (this.flyoutTimer < StorageScreen.flyoutTotalTicks()) this.flyoutTimer++;
         if (this.metadataCooldown > 0) {
             this.metadataCooldown--;
         } else {
@@ -714,7 +718,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 return;
             }
             this.craftingAvailable = true;
-            this.flyoutTimer = StorageScreen.flyoutHoldTicks();
+            this.flyoutTimer = StorageScreen.flyoutTotalTicks();
             this.setCraftingMode(true);
             StorageClientStub.craftingSetLastOpened(this.sourcePos, true);
             this.refreshCrafting();
@@ -2401,9 +2405,15 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     private void extractFlyout(GuiGraphicsExtractor graphics) {
-        if (this.flyoutTimer >= StorageScreen.flyoutHoldTicks()) {
+        int elapsed = this.flyoutTimer - StorageScreen.FLYOUT_FADE_IN_TICKS;
+        float alpha = this.flyoutTimer < StorageScreen.FLYOUT_FADE_IN_TICKS
+            ? this.flyoutTimer / (float) StorageScreen.FLYOUT_FADE_IN_TICKS
+            : elapsed < AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks ? 1.0F
+            : 1.0F - (elapsed - AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks) / (float) StorageScreen.FLYOUT_FADE_OUT_TICKS;
+        if (alpha <= 0.0F) {
             return;
         }
+        StorageScreen.FLYOUT_RENDERER.alpha(alpha);
         try (FlyoutRenderer.Scope scope = StorageScreen.FLYOUT_RENDERER.open()) {
             scope.graphics(graphics)
                 .font(this.font)
