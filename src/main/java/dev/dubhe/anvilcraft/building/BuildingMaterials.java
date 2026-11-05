@@ -23,6 +23,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -44,6 +45,7 @@ public final class BuildingMaterials {
     private final ServerPlayer player;
     private final List<ItemStack> returned = new ArrayList<>();
     private final Source offhand;
+    private boolean renewableWaterReserved;
     private final List<UUID> fluidStorages;
     private final List<StoredFluid> storedFluids = new ArrayList<>();
 
@@ -241,6 +243,9 @@ public final class BuildingMaterials {
         }
         if (!group.separateContents) allocated.entities.addAll(plannedEntities);
         allocated.fluids.addAll(group.fluids);
+        if (group.renewableWater && !this.renewableWaterReserved) {
+            allocated.fluids.add(new FluidStack(Fluids.WATER, 2000));
+        }
         allocated.materials.addAll(group.materials);
         for (var entry : group.blockMaterials.entrySet()) {
             ItemStack expected = entry.getValue();
@@ -298,7 +303,7 @@ public final class BuildingMaterials {
                 }
             }
         }
-        if (!this.reserve(List.of(), group.fluids)) {
+        if (!this.reserve(List.of(), allocated.fluids)) {
             this.restoreSources(before, toolsBefore);
             return null;
         }
@@ -328,6 +333,7 @@ public final class BuildingMaterials {
                 if (count > 0) allocated.fluidPayments.add(new FluidPayment(source.storage, source.fluid.copyWithAmount(count)));
             }
         }
+        this.renewableWaterReserved |= group.renewableWater;
         return allocated;
     }
 
@@ -467,6 +473,9 @@ public final class BuildingMaterials {
     List<Component> missing(List<BuildingRodService.Group> groups) {
         List<ItemStack> items = new ArrayList<>();
         List<FluidStack> fluids = new ArrayList<>();
+        if (!this.renewableWaterReserved && groups.stream().anyMatch(group -> group.renewableWater)) {
+            fluids.add(new FluidStack(Fluids.WATER, 2000));
+        }
         List<Item> tools = new ArrayList<>();
         int ignitions = 0;
         int leads = 0;

@@ -165,6 +165,7 @@ public final class BuildingRodService {
         final List<EntityBuildAdapter.Planned> entities = new ArrayList<>();
         final Map<BlockPos, ItemStack> blockMaterials = new LinkedHashMap<>();
         final List<ItemStack> returned = new ArrayList<>();
+        boolean renewableWater;
         boolean separateContents;
         boolean componentMismatch;
         boolean missingContents;
@@ -589,15 +590,21 @@ public final class BuildingRodService {
                 decoration.decorations().stream().map(SignDecorationAdapter.Decoration::material)
                     .filter(material -> !material.isEmpty()).forEach(group.materials::add);
             }
-            if (state.hasProperty(BlockStateProperties.WATERLOGGED) && state.getValue(BlockStateProperties.WATERLOGGED)
-                && !player.level().getFluidState(pos).isSource()) group.fluids.add(new FluidStack(Fluids.WATER, 1000));
-            if (FluidBuildAdapter.isLiquidBlock(state)) {
-                if (!state.getFluidState().isSource()) continue;
-                group.fluids.add(FluidBuildAdapter.liquidOf(state));
-                continue;
+            boolean waterlogged = state.hasProperty(BlockStateProperties.WATERLOGGED)
+                && state.getValue(BlockStateProperties.WATERLOGGED);
+            boolean liquidSource = FluidBuildAdapter.isLiquidBlock(state) && state.getFluidState().isSource();
+            boolean existingWater = player.level().getFluidState(pos).isSource()
+                && player.level().getFluidState(pos).getType().isSame(Fluids.WATER);
+            if (waterlogged && !existingWater || liquidSource || state.is(Blocks.BUBBLE_COLUMN)) {
+                if (state.getFluidState().getType().isSame(Fluids.WATER)
+                    && state.getFluidState().canConvertToSource(player.level(), pos)) {
+                    group.renewableWater = true;
+                } else {
+                    group.fluids.add(waterlogged || state.is(Blocks.BUBBLE_COLUMN)
+                        ? new FluidStack(Fluids.WATER, 1000) : FluidBuildAdapter.liquidOf(state));
+                }
             }
-            if (state.is(Blocks.BUBBLE_COLUMN)) {
-                group.fluids.add(new FluidStack(Fluids.WATER, 1000));
+            if (FluidBuildAdapter.isLiquidBlock(state) || state.is(Blocks.BUBBLE_COLUMN)) {
                 continue;
             }
             if (FluidBuildAdapter.isFilledCauldron(state)) {
