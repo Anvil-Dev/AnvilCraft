@@ -101,7 +101,7 @@ public class HeliostatsRenderer
     }
 
     private static void applyHeadPose(PoseStack pose, List<Quaternionf> rotations) {
-        pose.translate(0.5, 1.3, 0.5);
+        pose.translate(0.5, HeliostatsBeam.MIRROR_PIVOT_Y, 0.5);
         for (Quaternionf rotation : rotations) pose.mulPose(rotation);
     }
 

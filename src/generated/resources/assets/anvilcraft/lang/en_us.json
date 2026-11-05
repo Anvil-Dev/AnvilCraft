@@ -345,6 +345,8 @@
   "anvilcraft.configuration.graphics.gravitational_lens.strength": "Strength",
   "anvilcraft.configuration.graphics.gravitational_lens.strength.tooltip": "Controls the lens distortion strength around Black/White Holes (higher values distort light more; default: 0.002)",
   "anvilcraft.configuration.graphics.gravitational_lens.tooltip": "Adjusts settings related to the gravitational lensing effect of Black/White Holes",
+  "anvilcraft.configuration.graphics.heliostats_beam": "Heliostats Beam",
+  "anvilcraft.configuration.graphics.heliostats_beam.tooltip": "Show a fading beam at the block illuminated by a working Heliostat",
   "anvilcraft.configuration.graphics.heliostats_render_distance": "Heliostats Render Distance",
   "anvilcraft.configuration.graphics.heliostats_render_distance.tooltip": "Controls the maximum render distance of the Heliostats' BER (in blocks)",
   "anvilcraft.configuration.graphics.heliostats_sunflower_model": "Heliostats Sunflower Model",
