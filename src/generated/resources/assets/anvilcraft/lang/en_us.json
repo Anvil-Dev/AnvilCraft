@@ -1248,6 +1248,7 @@
   "config.jade.plugin_anvilcraft.menger_sponge_client_provider": "Menger Sponge (Client)",
   "config.jade.plugin_anvilcraft.overflow_disposal_fluid_tank": "Overflow Disposal Fluid Tank",
   "config.jade.plugin_anvilcraft.power_provider": "Anvil Craft Power",
+  "config.jade.plugin_anvilcraft.redstone_wire_power": "Redstone Wire Power",
   "config.jade.plugin_anvilcraft.ruby_prism": "Ruby Prism",
   "config.jade.plugin_anvilcraft.smart_block_placer_provider": "Smart Block Placer",
   "config.jade.plugin_anvilcraft.space_overcompressor": "Space Overcompressor",
