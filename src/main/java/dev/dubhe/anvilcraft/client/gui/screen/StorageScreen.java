@@ -214,6 +214,17 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private static final int TOOLTIP_TOP_OFFSET = 12;
     /** 浮层与工具提示顶边之间额外留出的间距（像素）。 */
     private static final int FLYOUT_GAP = 6;
+    /** 浮窗淡入与淡出各占的刻数，各 0.25s。 */
+    private static final int FLYOUT_FADE_IN_TICKS = 5;
+    private static final int FLYOUT_FADE_OUT_TICKS = 5;
+
+    /**
+     * 浮窗从出现到完全消失的总刻数：淡入 + 停留 + 淡出。
+     */
+    private static int flyoutTotalTicks() {
+        return StorageScreen.FLYOUT_FADE_IN_TICKS + AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks
+            + StorageScreen.FLYOUT_FADE_OUT_TICKS;
+    }
 
     private static FlyoutRenderer createFlyoutRenderer() {
         FlyoutRenderer renderer = new FlyoutRenderer();
@@ -990,7 +1001,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.refreshTitle();
         if (
             this.flyoutVisible
-            && this.flyoutTimer < AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks
+            && this.flyoutTimer < StorageScreen.flyoutTotalTicks()
         ) {
             this.flyoutTimer++;
         } else if (this.flyoutVisible) {
@@ -1522,6 +1533,15 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         if (!this.flyoutVisible) {
             return;
         }
+        int elapsed = this.flyoutTimer - StorageScreen.FLYOUT_FADE_IN_TICKS;
+        float alpha = this.flyoutTimer < StorageScreen.FLYOUT_FADE_IN_TICKS
+            ? this.flyoutTimer / (float) StorageScreen.FLYOUT_FADE_IN_TICKS
+            : elapsed < AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks ? 1.0F
+            : 1.0F - (elapsed - AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks) / (float) StorageScreen.FLYOUT_FADE_OUT_TICKS;
+        if (alpha <= 0.0F) {
+            return;
+        }
+        StorageScreen.FLYOUT_RENDERER.alpha(alpha);
         // 先落地滞留的批量文本：数量数字经 drawString 进入共享缓冲，而 GuiGraphics#flush 是
         // 「关闭深度测试 + endBatch」——等它自己被刷新时会无视 z 直接画到浮层之上，
         // 因此必须先把它们刷出来，浮层才能真正盖在最上层。
