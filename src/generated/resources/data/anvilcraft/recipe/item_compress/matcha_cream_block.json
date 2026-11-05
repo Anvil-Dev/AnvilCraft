@@ -12,6 +12,7 @@
       "items": "minecraft:azalea_leaves"
     }
   ],
+  "priority": 13,
   "results": [
     {
       "id": "anvilcraft:matcha_cream_block"

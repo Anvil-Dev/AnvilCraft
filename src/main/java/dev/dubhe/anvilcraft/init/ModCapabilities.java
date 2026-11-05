@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.energy.IEnergyHandlerHolder;
 import dev.dubhe.anvilcraft.api.energy.ItemFEStorage;
+import dev.dubhe.anvilcraft.api.fluid.FireCauldronWrapper;
 import dev.dubhe.anvilcraft.api.fluid.HoneyBottleResourceHandler;
 import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.VoidFluidHandler;
@@ -129,6 +130,8 @@ public class ModCapabilities {
             ModBlocks.OBSIDIAN_CAULDRON.get()
         );
 
+        event.registerBlock(Capabilities.Fluid.BLOCK,
+            (level, pos, state, blockEntity, side) -> FireCauldronWrapper.get(level, pos), ModBlocks.FIRE_CAULDRON.get());
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.FISH_TANK.get(), ModCapabilities::fluid);
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.EXP_COLLECTOR.get(), ModCapabilities::fluid);
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.FLUID_TANK.get(), ModCapabilities::fluid);

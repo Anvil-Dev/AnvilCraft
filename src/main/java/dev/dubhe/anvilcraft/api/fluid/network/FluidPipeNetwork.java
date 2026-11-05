@@ -13,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -115,6 +116,8 @@ public class FluidPipeNetwork {
     @Getter
     private final List<FluidEndpoint> endpoints;
     private final List<FluidEndpoint> cauldronEndpoints;
+    /** 炼药锅换种类后能力实现可能改变；液位变化仍复用原处理器。 */
+    private final Map<BlockPos, Block> cauldronBlocks = new HashMap<>();
     private final List<FluidEndpoint> entityEndpoints;
     private final Set<FluidEndpoint> disconnectedEntityEndpoints = new HashSet<>();
     private final boolean directionalConstraints;
@@ -162,6 +165,9 @@ public class FluidPipeNetwork {
         for (FluidEndpoint endpoint : endpoints) {
             if (endpoint.cauldron()) {
                 this.cauldronEndpoints.add(endpoint);
+                if (endpoint.entity() == null) {
+                    this.cauldronBlocks.put(endpoint.containerPos(), level.getBlockState(endpoint.containerPos()).getBlock());
+                }
             }
             if (endpoint.entity() != null) {
                 this.entityEndpoints.add(endpoint);
@@ -184,11 +190,11 @@ public class FluidPipeNetwork {
         this.transferredThisTick = false;
         this.expireGlassDisplays();
         this.reachabilityCache.clear();
-        this.updateGasDisplay();
-        if (this.endpoints.size() < 2) {
+        if (this.canTickEndpoints()) {
             return;
         }
-        if (this.canTickEndpoints()) {
+        this.updateGasDisplay();
+        if (this.endpoints.size() < 2) {
             return;
         }
         // 每 tick 分配前重置各阀门预算（实时读取阀门当前流速设置）
@@ -222,7 +228,7 @@ public class FluidPipeNetwork {
         int sourceEffectiveHeight,
         FluidStack fluid
     ) {
-        if (fluid.isEmpty() || !this.parts.contains(entryPipePos)) {
+        if (fluid.isEmpty() || !this.parts.contains(entryPipePos) || this.canTickEndpoints()) {
             return null;
         }
         FluidStack simulated = simulateDrain(source, fluid);
@@ -994,6 +1000,10 @@ public class FluidPipeNetwork {
                 continue;
             }
             if (!this.level.isLoaded(endpoint.containerPos())) {
+                return true;
+            }
+            if (!this.level.getBlockState(endpoint.containerPos()).is(this.cauldronBlocks.get(endpoint.containerPos()))) {
+                FluidNetworkManager.INSTANCE.markDirty(this.level);
                 return true;
             }
             FluidContainerLookup.Result container = endpoint.entries().stream()

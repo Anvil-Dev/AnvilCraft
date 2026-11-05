@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.fluid.network;
 
 import dev.dubhe.anvilcraft.api.entity.IEntityCauldron;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
@@ -48,7 +49,8 @@ public final class FluidContainerLookup {
             side
         );
         if (blockHandler != null) {
-            boolean cauldron = CauldronFluidContent.getForBlock(state.getBlock()) != null;
+            boolean cauldron = state.is(ModBlocks.FIRE_CAULDRON)
+                || CauldronFluidContent.getForBlock(state.getBlock()) != null;
             return new Result(blockHandler, cauldron, null);
         }
 
