@@ -42,6 +42,7 @@ public class ItemCompressRecipeLoader {
             .requires(items, ModItemTags.CREAM, 4)
             .requires(Items.SUGAR)
             .result(ModBlocks.CREAM_BLOCK)
+            .priority(12)
             .save(provider);
 
         ItemCompressRecipe.builder()
@@ -49,6 +50,7 @@ public class ItemCompressRecipeLoader {
             .requires(Items.SUGAR)
             .requires(Items.SWEET_BERRIES)
             .result(ModBlocks.BERRY_CREAM_BLOCK)
+            .priority(13)
             .save(provider);
 
         ItemCompressRecipe.builder()
@@ -56,6 +58,7 @@ public class ItemCompressRecipeLoader {
             .requires(Items.SUGAR)
             .requires(ModFoodItems.CHOCOLATE)
             .result(ModBlocks.CHOCOLATE_CREAM_BLOCK)
+            .priority(13)
             .save(provider);
 
         ItemCompressRecipe.builder()
@@ -63,6 +66,7 @@ public class ItemCompressRecipeLoader {
             .requires(Items.SUGAR)
             .requires(Items.AZALEA_LEAVES)
             .result(ModBlocks.MATCHA_CREAM_BLOCK)
+            .priority(13)
             .save(provider);
 
         ItemCompressRecipe.builder()

@@ -12,6 +12,7 @@
       "items": "anvilcraft:chocolate"
     }
   ],
+  "priority": 13,
   "results": [
     {
       "id": "anvilcraft:chocolate_cream_block"
