@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.energy.IEnergyHandlerHolder;
 import dev.dubhe.anvilcraft.api.energy.ItemFEStorage;
+import dev.dubhe.anvilcraft.api.fluid.FireCauldronWrapper;
 import dev.dubhe.anvilcraft.api.fluid.HoneyBottleResourceHandler;
 import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.VoidFluidHandler;
@@ -150,6 +151,12 @@ public class ModCapabilities {
             Capabilities.Fluid.BLOCK,
             ModBlockEntities.CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE.get(),
             ModCapabilities::fluid
+        );
+
+        event.registerBlock(
+            Capabilities.Fluid.BLOCK,
+            (level, pos, state, blockEntity, side) -> new FireCauldronWrapper(level, pos),
+            ModBlocks.FIRE_CAULDRON.get()
         );
 
         event.registerBlock(
