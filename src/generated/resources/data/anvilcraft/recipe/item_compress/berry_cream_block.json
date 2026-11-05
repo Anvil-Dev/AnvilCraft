@@ -12,6 +12,7 @@
       "items": "minecraft:sweet_berries"
     }
   ],
+  "priority": 13,
   "results": [
     {
       "id": "anvilcraft:berry_cream_block"
