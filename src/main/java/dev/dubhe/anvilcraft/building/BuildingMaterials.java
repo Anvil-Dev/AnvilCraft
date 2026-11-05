@@ -169,7 +169,6 @@ public final class BuildingMaterials {
             return;
         }
         for (int slot = 0; slot < handler.size(); slot++) {
-            int index = slot;
             ItemResource resource = handler.getResource(slot);
             if (resource.isEmpty()) {
                 continue;
@@ -181,6 +180,7 @@ public final class BuildingMaterials {
             if (available == 0) {
                 continue;
             }
+            int index = slot;
             Source content = new Source(resource.toStack(), available,
                 () -> carriedItems(this.player).stream().anyMatch(item -> item == stack)
                     && ItemStack.matches(stack, container.resource)
