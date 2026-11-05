@@ -191,6 +191,38 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
         return result;
     }
 
+    /** 抽取单件储罐物品中的流体并更新物品；预留材料时应传入副本。 */
+    public static int drainItem(ItemStack stack, FluidStack fluid, HolderLookup.Provider registries) {
+        if (stack.getCount() != 1 || !stack.is(ModBlocks.FLUID_TANK.asItem()) || fluid.isEmpty()) {
+            return 0;
+        }
+        SingleFluidTankHandler itemTank = readItemTank(stack, registries);
+        int amount = itemTank.drain(fluid, IFluidHandler.FluidAction.EXECUTE).getAmount();
+        if (amount > 0) {
+            saveItemTank(stack, itemTank, registries);
+        }
+        return amount;
+    }
+
+    /** 向单件储罐物品补充流体并更新物品，返回实际接收量。 */
+    public static int insertIntoItem(ItemStack stack, FluidStack fluid, HolderLookup.Provider registries) {
+        if (stack.getCount() != 1 || !stack.is(ModBlocks.FLUID_TANK.asItem()) || fluid.isEmpty()) {
+            return 0;
+        }
+        SingleFluidTankHandler itemTank = readItemTank(stack, registries);
+        int amount = itemTank.fill(fluid, IFluidHandler.FluidAction.EXECUTE);
+        if (amount > 0) {
+            saveItemTank(stack, itemTank, registries);
+        }
+        return amount;
+    }
+
+    private static void saveItemTank(ItemStack stack, SingleFluidTankHandler itemTank, HolderLookup.Provider registries) {
+        CompoundTag data = getItemData(stack);
+        data.put(TAG_TANK, itemTank.serializeForItem(registries));
+        BlockItem.setBlockEntityData(stack, ModBlockEntities.FLUID_TANK.get(), data);
+    }
+
     private static SingleFluidTankHandler readItemTank(ItemStack stack, HolderLookup.Provider registries) {
         SingleFluidTankHandler itemTank = new SingleFluidTankHandler(
             BASE_CAPACITY,
