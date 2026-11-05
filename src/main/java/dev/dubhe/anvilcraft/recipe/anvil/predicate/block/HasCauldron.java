@@ -178,8 +178,9 @@ public record HasCauldron(
         FluidStack curFluid = HasCauldron.getCurFluidStack(cache, pos, entityCauldron);
         if (this.hasCheck() && !this.matchesFluid(curFluid)) return false;
 
-        // 不消耗且存量不足1000mB 否决
-        if (this.consume() == 0 && HasCauldron.getCur(cache, pos, entityCauldron) < 1000) return false;
+        // 要求特定流体、不消耗且存量不足1000mB 否决（不要求流体的空锅产流体配方不受约束）
+        if (this.hasCheck() && this.consume() == 0
+            && HasCauldron.getCur(cache, pos, entityCauldron) < 1000) return false;
 
         // 如果锅必须为可点燃锅
         if (this.ignited) {

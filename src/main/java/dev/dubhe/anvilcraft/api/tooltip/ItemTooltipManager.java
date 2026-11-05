@@ -1013,7 +1013,6 @@ public class ItemTooltipManager {
         ItemTooltipManager.SHIFT_ARGUMENTS.put(ModBlocks.SMART_BLOCK_PLACER.asItem(), smartBlockPlacerShiftArgs);
         ItemTooltipManager.SHIFT.put(
             ModBlocks.FISH_TANK.asItem(), """
-                                          Can be used as a substitute for the alchemy pot to perform related anvil synthesis
                                           Wearing it on your head provides a temporary underwater breathing effect
                                           Right-click the top with an item in hand to place the item inside
                                           Right-click the lower part of the fish tank with a tropical fish bucket in hand to release the tropical fish
