@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.integration.jade;
 import dev.dubhe.anvilcraft.block.AutoEnchantingTableBlock;
 import dev.dubhe.anvilcraft.block.CursedGoldBlock;
 import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
+import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
 import dev.dubhe.anvilcraft.block.WipBlock;
 import dev.dubhe.anvilcraft.block.container.FluidTankBlock;
 import dev.dubhe.anvilcraft.block.container.LargeFluidTankBlock;
@@ -47,6 +48,7 @@ import dev.dubhe.anvilcraft.integration.jade.provider.client.LargeFluidTankClien
 import dev.dubhe.anvilcraft.integration.jade.provider.client.MengerSpongeClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.OverflowDisposalTankClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.PowerBlockClientProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.client.RedstoneWirePowerClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.RubyPrismClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.SmartBlockPlacerClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.SpaceOvercompressorClientProvider;
@@ -111,5 +113,6 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
         registration.registerFluidStorageClient(LargeFluidTankClientProvider.INSTANCE);
         registration.registerBlockComponent(MengerSpongeClientProvider.INSTANCE, MengerSpongeBlock.class);
         registration.registerBlockComponent(WipBlockClientProvider.INSTANCE, WipBlock.class);
+        registration.registerBlockComponent(RedstoneWirePowerClientProvider.INSTANCE, RedstoneWireBlock.class);
     }
 }
