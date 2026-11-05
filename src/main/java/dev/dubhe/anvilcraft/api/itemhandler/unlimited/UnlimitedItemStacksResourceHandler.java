@@ -54,17 +54,14 @@ public class UnlimitedItemStacksResourceHandler implements IItemHandler, INBTSer
     /**
      * 暴露给外部 {@code IItemHandler} 消费者的槽位数。
      *
-     * <p>存储处理器只保留非空类型槽位（稀疏设计），但漏斗/管道等 {@code IItemHandler}
-     * 消费者需要至少一个可插入/可追加的槽位。这里返回「现有非空类型数 + 1」的槽位，
-     * 多出的一个作为「新类型」的增长槽。</p>
+     * <p>抽空物品只清除槽位内容，后续条目不会前移，因此必须暴露全部已有槽位，
+     * 包括迁移后超出类型上限的旧条目。只有没有可复用空槽且未达到类型上限时才提供增长槽。</p>
      *
-     * <p>注意：必须基于 {@link #getTypeCount()}（非空类型数）而非 {@link #size()}（列表长度），
-     * 否则在增长槽插入失败（空间/类型满）时会无限扩大槽位数，使
-     * {@code ItemHandlerHelper.insertItemStacked} 的遍历循环永不终止。</p>
+     * <p>增长槽由非空条目数决定，避免失败插入留下空槽后继续扩大遍历范围。</p>
      */
     @Override
     public int getSlots() {
-        return Math.min(this.getTypeCount() + 1, this.getTypeLimit());
+        return Math.max(this.size(), Math.min(this.getTypeCount() + 1, this.getTypeLimit()));
     }
 
     public UnlimitedItemStack getUnlimitedStackInSlot(int index) {
