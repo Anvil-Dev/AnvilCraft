@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.block.BlockPlacementRules;
 import dev.dubhe.anvilcraft.api.event.SmartBlockPlacerFindPointerEvent;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
@@ -74,6 +75,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     public static final int POSITION_COUNT = POSITION_GRID_SIZE * POSITIONS_PER_LAYER;
     private static final int POSITION_GRID_RADIUS = POSITION_GRID_SIZE / 2;
     private static final int POSITION_DISTANCE = 4;
+    private static final int DEFAULT_PLACEMENT_INTERVAL = 20;
+    // 一个放置周期内 PREPARE / EXTEND 的时长占比，剩下部分给 RESET
+    private static final float PREPARE_FRACTION = 0.3f;
+    private static final float EXTEND_FRACTION = 0.4f;
 
     private @Nullable PowerGrid grid;
 
@@ -86,6 +91,15 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      * 取值范围为 0 到 1
      */
     private float phaseProgress = 0.0F;
+    /**
+     * 当前阶段已经过的 tick 数；<br>
+     * 阶段完成用整数 tick 判定，避免浮点累加误差让周期多出一 tick
+     */
+    private int phaseElapsedTicks = 0;
+    /**
+     * 一次放置动画的总时长（tick），服务端每 tick 与配置对齐后同步给客户端
+     */
+    private int animationTicks = DEFAULT_PLACEMENT_INTERVAL;
     private @Nullable ITargetPointer pointer;
     private int selectedLayer;
     private int currentPlacementIndex;
@@ -292,6 +306,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         if (!(level instanceof ServerLevel serverLevel)) {
             return;
         }
+        this.animationTicks = getPlacementInterval();
         this.flushState(serverLevel, pos);
         if (!this.canOperate()) {
             return;
@@ -302,21 +317,16 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             }
         } else if (this.phase == ExecutionPhase.PREPARE) {
             if (this.advancePhaseProgress()) {
-                if (!this.isCurrentTargetAvailable(serverLevel)) {
-                    this.skipCurrentTarget();
-                    this.pointer = null;
-                    this.currentHeldBlock = null;
-                    this.transitionToPhase(serverLevel, pos, ExecutionPhase.IDLE);
-                } else if (this.refreshPointer(serverLevel) != null) {
-                    this.transitionToPhase(serverLevel, pos, ExecutionPhase.EXTEND);
-                } else {
-                    this.transitionToPhase(serverLevel, pos, ExecutionPhase.IDLE);
-                }
+                this.finishPrepare(serverLevel, pos);
             }
         } else if (this.phase == ExecutionPhase.EXTEND) {
             if (this.advancePhaseProgress()) {
                 this.applyToTargetPosition(serverLevel);
                 this.transitionToPhase(serverLevel, pos, ExecutionPhase.RESET);
+                if (this.getPhaseDurationTicks() <= 0) {
+                    // 收回阶段时长为 0 时当场结束，否则极短间隔会多出一 tick
+                    this.transitionToPhase(serverLevel, pos, ExecutionPhase.IDLE);
+                }
             }
         } else if (this.phase == ExecutionPhase.RESET) {
             if (this.advancePhaseProgress()) {
@@ -325,29 +335,128 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
     }
 
+    private void finishPrepare(ServerLevel level, BlockPos pos) {
+        if (!this.isCurrentTargetAvailable(level)) {
+            this.skipCurrentTarget();
+            this.pointer = null;
+            this.currentHeldBlock = null;
+            this.transitionToPhase(level, pos, ExecutionPhase.IDLE);
+        } else if (this.refreshPointer(level) != null) {
+            this.transitionToPhase(level, pos, ExecutionPhase.EXTEND);
+        } else {
+            this.transitionToPhase(level, pos, ExecutionPhase.IDLE);
+        }
+    }
+
     private boolean advancePhaseProgress() {
-        int phaseDuration = this.phase.getDurationTicks();
+        int phaseDuration = this.getPhaseDurationTicks();
+        this.phaseElapsedTicks++;
         if (phaseDuration <= 0) {
             this.phaseProgress = 1.0F;
             return true;
         }
-        this.phaseProgress = Math.min(this.phaseProgress + 1.0F / phaseDuration, 1.0F);
-        return this.phaseProgress >= 1.0F;
+        this.phaseProgress = Math.min((float) this.phaseElapsedTicks / phaseDuration, 1.0F);
+        return this.phaseElapsedTicks >= phaseDuration;
+    }
+
+    /**
+     * 一次放置周期的时长（tick），取自服务端配置
+     */
+    public static int getPlacementInterval() {
+        return Math.clamp(AnvilCraft.CONFIG.machines.smartBlockPlacerInterval, 2, 200);
+    }
+
+    private int getAnimationInterval() {
+        return Math.max(1, this.animationTicks);
+    }
+
+    /**
+     * 给定放置间隔时一次完整动画的时长（tick）
+     */
+    private static int animationTicks(int interval) {
+        return prepareTicks(interval) + extendTicks(interval) + resetTicks(interval);
+    }
+
+    private int prepareTicks() {
+        return prepareTicks(this.getAnimationInterval());
+    }
+
+    private static int prepareTicks(int interval) {
+        return Math.max(1, Math.round(Math.max(1, interval) * PREPARE_FRACTION));
+    }
+
+    private int extendTicks() {
+        return extendTicks(this.getAnimationInterval());
+    }
+
+    private static int extendTicks(int interval) {
+        return Math.max(1, Math.round(Math.max(1, interval) * EXTEND_FRACTION));
+    }
+
+    private int resetTicks() {
+        return resetTicks(this.getAnimationInterval());
+    }
+
+    private static int resetTicks(int interval) {
+        int clamped = Math.max(1, interval);
+        return Math.max(0, clamped - prepareTicks(clamped) - extendTicks(clamped));
+    }
+    /**
+     * 一次完整动画的时长（tick）
+     */
+
+    private int getAnimationDurationTicks() {
+        return animationTicks(this.getAnimationInterval());
+    }
+
+    /**
+     * 按当前配置的放置间隔计算给定基准功率下的耗电，最低为 1
+     */
+    public static int getInputPowerFor(int basePower) {
+        int totalTicks = animationTicks(getPlacementInterval());
+        return Math.max(1, Math.round(basePower * (float) DEFAULT_PLACEMENT_INTERVAL / totalTicks));
+    }
+
+    /**
+     * 当前阶段在动画中的起始 tick
+     */
+    private int getPhaseStartTick() {
+        return switch (this.phase) {
+            case IDLE, PREPARE -> 0;
+            case EXTEND -> this.prepareTicks();
+            case RESET -> this.prepareTicks() + this.extendTicks();
+        };
+    }
+
+    /**
+     * 当前阶段的持续时长（tick）
+     */
+    private int getPhaseDurationTicks() {
+        return switch (this.phase) {
+            case IDLE -> 0;
+            case PREPARE -> this.prepareTicks();
+            case EXTEND -> this.extendTicks();
+            case RESET -> this.resetTicks();
+        };
     }
 
     /**
      * 由 IDLE 进入 PREPARE。<br>
      * IDLE 只是供客户端复位动画的标记状态，不额外占用一个 tick，
-     * 因此这里把 PREPARE 的首个 tick 一并推进，保证连续放置间隔为 20gt。
+     * 因此这里把 PREPARE 的首个 tick 一并推进，保证连续放置间隔等于配置值。
      */
     private void startPrepare(ServerLevel level, BlockPos pos) {
         this.transitionToPhase(level, pos, ExecutionPhase.PREPARE);
-        this.advancePhaseProgress();
+        // 预置阶段只有 1 tick 时，入场推进即完成，需当场结算，否则会白占一 tick
+        if (this.advancePhaseProgress()) {
+            this.finishPrepare(level, pos);
+        }
     }
 
     private void transitionToPhase(ServerLevel level, BlockPos pos, ExecutionPhase nextPhase) {
         this.phase = nextPhase;
         this.phaseProgress = 0.0F;
+        this.phaseElapsedTicks = 0;
         this.setChanged();
         level.sendBlockUpdated(pos, this.getBlockState(), this.getBlockState(), 3);
     }
@@ -1256,16 +1365,16 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         if (!this.isAnimationActive()) {
             return 0.0F;
         }
+        int phaseDuration = this.getPhaseDurationTicks();
         float interpolatedPhaseProgress = this.phaseProgress;
-        if (this.canOperate()) {
+        if (this.canOperate() && phaseDuration > 0) {
             interpolatedPhaseProgress = Math.min(
-                interpolatedPhaseProgress + partialTick / this.phase.getDurationTicks(),
+                interpolatedPhaseProgress + partialTick / phaseDuration,
                 1.0F
             );
         }
-        float elapsedTicks = this.phase.getAnimationStartTick()
-            + interpolatedPhaseProgress * this.phase.getDurationTicks();
-        return elapsedTicks / ExecutionPhase.getAnimationDurationTicks();
+        float elapsedTicks = this.getPhaseStartTick() + interpolatedPhaseProgress * phaseDuration;
+        return Math.min(1.0F, elapsedTicks / this.getAnimationDurationTicks());
     }
 
     public boolean isOverloaded() {
@@ -1313,6 +1422,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         tag.put("placement", BlueprintPlacementMode.CODEC.encodeStart(ops, this.placement).getOrThrow());
         tag.put("phase", ExecutionPhase.CODEC.encodeStart(ops, this.phase).getOrThrow());
         tag.putFloat("progress", this.phaseProgress);
+        tag.putInt("animationTicks", this.animationTicks);
         tag.put("blueprintInventory", this.blueprintItemHandler.serializeNBT(registries));
         this.savePositionSelection(tag);
         this.saveBlueprintData(tag, registries);
@@ -1336,6 +1446,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             this.phase = ExecutionPhase.CODEC.parse(ops, tag.get("phase")).result().orElse(ExecutionPhase.IDLE);
         }
         this.phaseProgress = tag.getFloat("progress");
+        this.animationTicks = tag.contains("animationTicks") ? tag.getInt("animationTicks") : DEFAULT_PLACEMENT_INTERVAL;
+        this.phaseElapsedTicks = Math.round(this.phaseProgress * this.getPhaseDurationTicks());
         this.loadBlueprintItem(tag, registries);
         this.loadPositionSelection(tag);
         this.loadBlueprintData(tag, registries);
@@ -1408,7 +1520,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     // region IPowerConsumer
     @Override
     public int getInputPower() {
-        return this.target.getPower();
+        // 耗电与放置速度成反比，基准为默认间隔 20 tick 时的功率
+        return getInputPowerFor(this.target.getPower());
     }
 
     @Override
@@ -1534,24 +1647,13 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
     @Getter
     public enum ExecutionPhase implements StringRepresentable {
-        IDLE(0, 0),
-        PREPARE(0, 6),
-        EXTEND(6, 8),
-        RESET(14, 6),
+        IDLE,
+        PREPARE,
+        EXTEND,
+        RESET,
         ;
 
         public static final Codec<ExecutionPhase> CODEC = StringRepresentable.fromEnum(ExecutionPhase::values);
-        private final int animationStartTick;
-        private final int durationTicks;
-
-        ExecutionPhase(int animationStartTick, int durationTicks) {
-            this.animationStartTick = animationStartTick;
-            this.durationTicks = durationTicks;
-        }
-
-        public static int getAnimationDurationTicks() {
-            return RESET.animationStartTick + RESET.durationTicks;
-        }
 
         @Override
         public String getSerializedName() {

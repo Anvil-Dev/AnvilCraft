@@ -9,6 +9,8 @@ import dev.dubhe.anvilcraft.block.PowerConverterExtremelyBigBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterMiddleBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterSmallBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterSuperBigBlock;
+import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity.TargetMode;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
@@ -992,9 +994,23 @@ public class ItemTooltipManager {
             ModBlocks.SMART_BLOCK_PLACER.asItem(), """
                                                    Advanced block placer with 5x5x5 placement area, configurable via GUI
                                                    Supports pickup mode (from containers or drops) and move mode (direct block movement)
-                                                   Requires power supply, consumes 8 kW
-                                                   Put Structure Disk to enable Blue Print Mode, consumes 64 kW"""
+                                                   Requires power supply, consumes %s
+                                                   Put Structure Disk to enable Blue Print Mode, consumes %s"""
         );
+        // 耗电随配置的放置间隔变化，这里按当前配置动态取值
+        Supplier<?>[] smartBlockPlacerShiftArgs = {
+            () -> UnitUtil.electricityUnit(
+                SmartBlockPlacerBlockEntity.getInputPowerFor(TargetMode.POSITION.getPower()),
+                false,
+                false
+            ),
+            () -> UnitUtil.electricityUnit(
+                SmartBlockPlacerBlockEntity.getInputPowerFor(TargetMode.BLUEPRINT.getPower()),
+                false,
+                false
+            )
+        };
+        ItemTooltipManager.SHIFT_ARGUMENTS.put(ModBlocks.SMART_BLOCK_PLACER.asItem(), smartBlockPlacerShiftArgs);
         ItemTooltipManager.SHIFT.put(
             ModBlocks.FISH_TANK.asItem(), """
                                           Can be used as a substitute for the alchemy pot to perform related anvil synthesis
