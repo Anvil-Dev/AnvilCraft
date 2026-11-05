@@ -40,7 +40,8 @@ public record AutoEnchantingTableFluidPacket(BlockPos pos) implements IServerbou
         BlockEntity blockEntity = level.getBlockEntity(this.pos);
         if (!(blockEntity instanceof AutoEnchantingTableBlockEntity be)
             || !(containerMenu instanceof AutoEnchantingTableMenu menu)
-            || !menu.getBlockEntity().getBlockPos().equals(this.pos)) {
+            || menu.getBlockEntity() != be
+            || !menu.stillValid(player)) {
             return;
         }
         ItemStack carried = menu.getCarried();

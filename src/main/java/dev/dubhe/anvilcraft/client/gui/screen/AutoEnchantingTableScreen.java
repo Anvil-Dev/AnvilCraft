@@ -7,6 +7,7 @@ import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.Scrollable;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.AutoEnchantingTableBlockEntity;
+import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.gui.component.FluidDisplayWidget;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.constant.Constant;
@@ -134,7 +135,12 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
             this.menu.getBlockEntity().getFluidHandler(),
             (mouseX, mouseY, button) ->
                 PacketDistributor.sendToServer(new AutoEnchantingTableFluidPacket(this.menu.getBlockEntity().getBlockPos()))
-        ));
+        ) {
+            @Override
+            public boolean isValidClickButton(int button) {
+                return button == (AnvilCraftClient.CONFIG.controls.invertFluidPortBucketActions ? 1 : 0);
+            }
+        });
     }
 
     private void onSearchTextChange(String text) {
