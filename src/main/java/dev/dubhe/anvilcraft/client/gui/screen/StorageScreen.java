@@ -179,13 +179,11 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private static final int MAX_PRESERVED_SYNC_ATTEMPTS = 3;
     private static final int FLUID_SLOT_BASE = StoragePortManager.FLUID_SLOT_BASE;
     private static final int FLYOUT_PADDING = 2;
-    /** 缺失工作台/切石机提示浮窗：0.25s 淡入 + 停留 + 0.25s 淡出。 */
-    private static final int FLYOUT_FADE_IN_TICKS = 5;
-    private static final int FLYOUT_FADE_OUT_TICKS = 5;
 
     private static int flyoutTotalTicks() {
-        return StorageScreen.FLYOUT_FADE_IN_TICKS + AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks
-            + StorageScreen.FLYOUT_FADE_OUT_TICKS;
+        return AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutFadeInTicks
+            + AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks
+            + AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutFadeOutTicks;
     }
 
     private static FlyoutRenderer createFlyoutRenderer() {
@@ -713,7 +711,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             this.interactionPending = false;
             if (error != null || !available) {
                 this.flyoutClickX = this.sx(287);
-                this.flyoutClickY = this.top + 195;
+                this.flyoutClickY = this.top + 208;
                 this.showNotice(Component.translatable("tooltip.anvilcraft.storage.missing_workbench"));
                 return;
             }
@@ -2405,11 +2403,20 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     private void extractFlyout(GuiGraphicsExtractor graphics) {
-        int elapsed = this.flyoutTimer - StorageScreen.FLYOUT_FADE_IN_TICKS;
-        float alpha = this.flyoutTimer < StorageScreen.FLYOUT_FADE_IN_TICKS
-            ? this.flyoutTimer / (float) StorageScreen.FLYOUT_FADE_IN_TICKS
-            : elapsed < AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks ? 1.0F
-            : 1.0F - (elapsed - AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks) / (float) StorageScreen.FLYOUT_FADE_OUT_TICKS;
+        int fadeIn = AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutFadeInTicks;
+        int fadeOut = AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutFadeOutTicks;
+        int hold = AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks;
+        int elapsed = this.flyoutTimer - fadeIn;
+        float alpha;
+        if (this.flyoutTimer < fadeIn) {
+            alpha = this.flyoutTimer / (float) fadeIn;
+        } else if (elapsed < hold) {
+            alpha = 1.0F;
+        } else if (fadeOut <= 0) {
+            alpha = 0.0F;
+        } else {
+            alpha = 1.0F - (elapsed - hold) / (float) fadeOut;
+        }
         if (alpha <= 0.0F) {
             return;
         }

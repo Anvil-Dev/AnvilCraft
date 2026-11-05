@@ -334,6 +334,14 @@ public class AnvilCraftClientConfig {
         @BoundedDiscrete(min = 0, max = 100)
         public int storageFlyoutHoldTicks = 25;
 
+        @Comment("Controls the fade-in time of the Storage Screen's flyout (in ticks)")
+        @BoundedDiscrete(min = 0, max = 10)
+        public int storageFlyoutFadeInTicks = 4;
+
+        @Comment("Controls the fade-out time of the Storage Screen's flyout (in ticks)")
+        @BoundedDiscrete(min = 0, max = 10)
+        public int storageFlyoutFadeOutTicks = 4;
+
         @Comment("Controls the speed at which the Filter item cycles through its stored items (in milliseconds)")
         @BoundedDiscrete(min = 100, max = 5000)
         public int filterItemDisplayIntervalMillis = 1000;
