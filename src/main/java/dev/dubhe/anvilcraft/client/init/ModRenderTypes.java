@@ -342,6 +342,20 @@ public class ModRenderTypes {
         }
     );
 
+    public static final RenderType HELIOSTATS_BEAM = RenderType.create(
+        "anvilcraft:heliostats_beam",
+        DefaultVertexFormat.POSITION_COLOR,
+        VertexFormat.Mode.QUADS,
+        1536,
+        false,
+        true,
+        RenderType.CompositeState.builder()
+            .setShaderState(RenderStateShard.POSITION_COLOR_SHADER)
+            .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+            .setWriteMaskState(COLOR_WRITE)
+            .createCompositeState(false)
+    );
+
     public static final RenderType STELLAR_BEAM = RenderType.create(
         "anvilcraft:stellar_beam",
         DefaultVertexFormat.POSITION_COLOR,
