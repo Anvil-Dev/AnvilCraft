@@ -71,6 +71,11 @@ public class ItemCompressRecipeLoader {
             .save(provider);
 
         ItemCompressRecipe.builder()
+            .requires(Items.BAMBOO, 9)
+            .result(Items.BAMBOO_BLOCK)
+            .save(provider);
+
+        ItemCompressRecipe.builder()
             .requires(Items.COPPER_BLOCK, 2)
             .requires(
                 ItemIngredientPredicate

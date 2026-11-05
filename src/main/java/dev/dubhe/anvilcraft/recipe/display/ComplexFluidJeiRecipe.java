@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SolidLiquidRecipe;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
+import lombok.Getter;
 import mezz.jei.common.util.RegistryUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -34,12 +35,19 @@ import java.util.List;
 
 /** JEI 专用的复杂流体反应配方，用于展示同时包含物品和流体的大锅反应。 */
 public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
+    @Getter
     private final List<ItemIngredientPredicate> inputItems;
     private final List<ChanceItemStack> resultItems;
     private final List<List<FluidStack>> displayFluidInputs;
     private final List<List<FluidStack>> displayFluidResults;
+    @Getter
     private final boolean heaterRequired;
     private final boolean linkFluidVariants;
+    /**
+     * 输入流体只要求锅里有、不会被消耗掉（固液反应常见），展示时按催化剂处理
+     */
+    @Getter
+    private final boolean fluidInputNotConsumed;
 
     private ComplexFluidJeiRecipe(
         List<ItemIngredientPredicate> inputItems,
@@ -48,6 +56,18 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
         List<List<FluidStack>> fluidResults,
         boolean heaterRequired,
         boolean linkFluidVariants
+    ) {
+        this(inputItems, resultItems, fluidInputs, fluidResults, heaterRequired, linkFluidVariants, false);
+    }
+
+    private ComplexFluidJeiRecipe(
+        List<ItemIngredientPredicate> inputItems,
+        List<ChanceItemStack> resultItems,
+        List<List<FluidStack>> fluidInputs,
+        List<List<FluidStack>> fluidResults,
+        boolean heaterRequired,
+        boolean linkFluidVariants,
+        boolean fluidInputNotConsumed
     ) {
         super(
             ComplexFluidJeiRecipe.toSizedIngredients(fluidInputs),
@@ -61,6 +81,7 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
         this.displayFluidResults = ComplexFluidJeiRecipe.copyFluidGroups(fluidResults);
         this.heaterRequired = heaterRequired;
         this.linkFluidVariants = linkFluidVariants;
+        this.fluidInputNotConsumed = fluidInputNotConsumed;
     }
 
     public static boolean isComplex(SolidLiquidRecipe recipe) {
@@ -73,7 +94,7 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
         HasCauldronSimple cauldron = recipe.getHasCauldron();
         List<FluidStack> inputs = JeiFluidUtil.getDisplayFluids(
             cauldron.fluid(),
-            displayAmount(cauldron.consume())
+            JeiFluidUtil.getInputDisplayAmount(cauldron)
         );
         List<List<FluidStack>> results = cauldron.transforms().stream()
             .map(fluid -> JeiFluidUtil.getDisplayFluids(fluid, displayAmount(fluid.amount())))
@@ -85,7 +106,8 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
             asGroup(inputs),
             results,
             false,
-            false
+            false,
+            cauldron.consume() <= 0 && cauldron.transforms().isEmpty()
         );
     }
 
@@ -183,10 +205,6 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
         );
     }
 
-    public List<ItemIngredientPredicate> getInputItems() {
-        return this.inputItems;
-    }
-
     public List<ChanceItemStack> getDisplayItemResults() {
         return this.resultItems;
     }
@@ -205,10 +223,6 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
 
     public int getDisplayFluidResultCount() {
         return this.displayFluidResults.size();
-    }
-
-    public boolean isHeaterRequired() {
-        return this.heaterRequired;
     }
 
     public boolean shouldLinkFluidVariants() {

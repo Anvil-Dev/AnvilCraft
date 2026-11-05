@@ -29,7 +29,7 @@ import net.neoforged.neoforge.fluids.FluidStackTemplate;
 
 public class SolidLiquidRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
-        SolidLiquidRecipeLoader.solidLiquid(provider, Items.DIRT, Items.CLAY);
+        SolidLiquidRecipeLoader.solidLiquid(provider, Items.DIRT, Items.MUD);
         SolidLiquidRecipeLoader.solidLiquid(provider, Items.CRIMSON_FUNGUS, Items.NETHER_WART_BLOCK);
         SolidLiquidRecipeLoader.solidLiquid(provider, Items.WARPED_FUNGUS, Items.WARPED_WART_BLOCK);
         SolidLiquidRecipeLoader.solidLiquid(provider, Items.SPIDER_EYE, Items.FERMENTED_SPIDER_EYE);

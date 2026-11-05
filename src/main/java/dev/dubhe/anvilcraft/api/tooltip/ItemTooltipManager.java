@@ -451,7 +451,7 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModItems.STRUCTURE_DISK.get(), "Stores structure data, used in blueprint mode of Smart Block Placer");
         ItemTooltipManager.NORMAL.put(ModBlocks.STRUCTURE_SCANNER.asItem(), "Scans and stores structures in Structure Disk");
         ItemTooltipManager.NORMAL.put(ModBlocks.SMART_BLOCK_PLACER.asItem(), "Advanced block placer with 5x5x5 configurable placement area");
-        ItemTooltipManager.NORMAL.put(ModBlocks.FISH_TANK.asItem(), "Used for anvil synthesis and provides underwater breathing when worn");
+        ItemTooltipManager.NORMAL.put(ModBlocks.FISH_TANK.asItem(), "It is sturdier than it looks, used for anvil synthesis");
         ItemTooltipManager.NORMAL.put(ModBlocks.BLOCK_DEVOURER.asItem(), "Breaks 3×3 area of blocks in front when powered by redstone");
         ItemTooltipManager.NORMAL.put(ModBlocks.INDUCTION_LIGHT.asItem(), "Provides lighting and configurable special modes");
         ItemTooltipManager.NORMAL.put(ModBlocks.HELIOSTATS.asItem(), "Heats targeted blocks during the day");
@@ -755,10 +755,11 @@ public class ItemTooltipManager {
         );
         ItemTooltipManager.SHIFT.put(
             ModBlocks.FISH_TANK.asItem(), """
-                It is sturdier than it looks and can be used as a substitute for the alchemy pot to perform related anvil synthesis
+                Can be used as a substitute for the alchemy pot to perform related anvil synthesis
                 Wearing it on your head provides a temporary underwater breathing effect
                 Right-click the top with an item in hand to place the item inside
-                Right-click the lower part of the fish tank with a tropical fish bucket in hand to release the tropical fish"""
+                Right-click the lower part of the fish tank with a tropical fish bucket in hand to release the tropical fish
+                Can interact with Dispensers for fluid transfer"""
         );
         ItemTooltipManager.SHIFT.put(
             ModBlocks.BLOCK_DEVOURER.asItem(), """
