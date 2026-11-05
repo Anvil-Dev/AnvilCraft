@@ -370,19 +370,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         return Math.max(1, this.animationTicks);
     }
 
-    private static int prepareTicks(int interval) {
-        return Math.max(1, Math.round(Math.max(1, interval) * PREPARE_FRACTION));
-    }
-
-    private static int extendTicks(int interval) {
-        return Math.max(1, Math.round(Math.max(1, interval) * EXTEND_FRACTION));
-    }
-
-    private static int resetTicks(int interval) {
-        int clamped = Math.max(1, interval);
-        return Math.max(0, clamped - prepareTicks(clamped) - extendTicks(clamped));
-    }
-
     /**
      * 给定放置间隔时一次完整动画的时长（tick）
      */
@@ -394,17 +381,30 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         return prepareTicks(this.getAnimationInterval());
     }
 
+    private static int prepareTicks(int interval) {
+        return Math.max(1, Math.round(Math.max(1, interval) * PREPARE_FRACTION));
+    }
+
     private int extendTicks() {
         return extendTicks(this.getAnimationInterval());
+    }
+
+    private static int extendTicks(int interval) {
+        return Math.max(1, Math.round(Math.max(1, interval) * EXTEND_FRACTION));
     }
 
     private int resetTicks() {
         return resetTicks(this.getAnimationInterval());
     }
 
+    private static int resetTicks(int interval) {
+        int clamped = Math.max(1, interval);
+        return Math.max(0, clamped - prepareTicks(clamped) - extendTicks(clamped));
+    }
     /**
      * 一次完整动画的时长（tick）
      */
+
     private int getAnimationDurationTicks() {
         return animationTicks(this.getAnimationInterval());
     }
