@@ -1,0 +1,13 @@
+{
+  "type": "anvilcraft:fast_cooking",
+  "ingredients": [
+    {
+      "items": "minecraft:mud"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:clay"
+    }
+  ]
+}
