@@ -35,6 +35,7 @@ public final class BuildingPlan {
         final List<EntityBuildAdapter.Planned> entities = new ArrayList<>();
         final Map<BlockPos, ItemStack> blockMaterials = new LinkedHashMap<>();
         final List<ItemStack> returned = new ArrayList<>();
+        boolean renewableWater;
         boolean separateContents;
         boolean componentMismatch;
         boolean missingContents;
