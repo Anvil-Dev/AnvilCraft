@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.energy.ItemFEStorage;
 import dev.dubhe.anvilcraft.api.fluid.BottleFluidHandler;
 import dev.dubhe.anvilcraft.api.fluid.EnchantedBookFluidHandler;
+import dev.dubhe.anvilcraft.api.fluid.FireCauldronWrapper;
 import dev.dubhe.anvilcraft.api.fluid.MilkCauldronWrapper;
 import dev.dubhe.anvilcraft.api.fluid.PowderSnowWrapper;
 import dev.dubhe.anvilcraft.api.fluid.VoidFluidHandler;
@@ -44,6 +45,8 @@ import javax.annotation.Nullable;
 public class CapabilitiesEventListener {
     @SubscribeEvent
     public static void registerCapabilities(final RegisterCapabilitiesEvent event) {
+        event.registerBlock(Capabilities.FluidHandler.BLOCK,
+            (level, pos, state, blockEntity, side) -> new FireCauldronWrapper(level, pos), ModBlocks.FIRE_CAULDRON.get());
         if (ModList.get().isLoaded("nomansland")) {
             event.registerBlock(Capabilities.FluidHandler.BLOCK,
                 (level, pos, state, blockEntity, side) -> new MilkCauldronWrapper(level, pos),
