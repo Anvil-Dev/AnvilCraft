@@ -62,7 +62,7 @@ public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEn
     @Override
     public void collectSelectionModels(HeliostatsBlockEntity blockEntity, float partialTick, PoseStack poseStack, ModelConsumer consumer) {
         poseStack.pushPose();
-        poseStack.translate(0.5, 1.3, 0.5);
+        poseStack.translate(0.5, HeliostatsBeam.MIRROR_PIVOT_Y, 0.5);
         if (
             blockEntity.getWorkResult() != HeliostatsBlockEntity.WorkResult.NO_ROTATION_ANGLE
             && !blockEntity.getNormalVector3f().equals(new Vector3f())
