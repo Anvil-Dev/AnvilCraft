@@ -2,7 +2,6 @@ dependencies {
     compileOnly 'org.jspecify:jspecify:1.0.0'
     // AnvilLib
     api(libs.anvillib)
-    api(libs.anvillib.ui)
     interfaceInjectionData(libs.anvillib.recipe)
     interfaceInjectionData(libs.anvillib.moveableEntityBlock)
     jarJar(libs.anvillib)
