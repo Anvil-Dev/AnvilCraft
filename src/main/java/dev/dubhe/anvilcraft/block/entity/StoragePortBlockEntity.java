@@ -535,15 +535,17 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
     }
 
     private boolean hasAvailableItems() {
-        if (this.level != null && this.level.isClientSide()) {
-            return this.availableItems || !this.isBufferEmpty();
+        ItemResource mark = ItemResource.of(this.markedItem);
+        if (mark.isEmpty()) {
+            return false;
+        }
+        if (this.level != null && this.level.isClientSide() && this.availableItems) {
+            return true;
         }
         BaseStorage<?> core = this.getCoreStorage();
         ResourceHandler<ItemResource> target = core == null ? this.buffer : core.getAvailableItems();
-        ItemResource mark = ItemResource.of(this.markedItem);
         for (int slot = 0; slot < target.size(); slot++) {
-            if (target.getAmountAsLong(slot) > 0
-                && (core == null || mark.isEmpty() || target.getResource(slot).equals(mark))) {
+            if (target.getAmountAsLong(slot) > 0 && target.getResource(slot).equals(mark)) {
                 return true;
             }
         }
@@ -573,15 +575,22 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
 
         @Override
         public ItemResource getResource(int index) {
+            ItemResource marked = ItemResource.of(StoragePortBlockEntity.this.markedItem);
+            if (marked.isEmpty()) {
+                return ItemResource.EMPTY;
+            }
             if (this.linkedMarked()) {
-                return index == 0 ? ItemResource.of(StoragePortBlockEntity.this.markedItem) : ItemResource.EMPTY;
+                return index == 0 ? marked : ItemResource.EMPTY;
             }
             ResourceHandler<ItemResource> target = this.target();
-            return index >= 0 && index < target.size() ? target.getResource(index) : ItemResource.EMPTY;
+            return index >= 0 && index < target.size() && target.getResource(index).equals(marked) ? marked : ItemResource.EMPTY;
         }
 
         @Override
         public long getAmountAsLong(int index) {
+            if (this.getResource(index).isEmpty()) {
+                return 0;
+            }
             ResourceHandler<ItemResource> target = this.target();
             if (!this.linkedMarked()) {
                 return index >= 0 && index < target.size() ? target.getAmountAsLong(index) : 0;
