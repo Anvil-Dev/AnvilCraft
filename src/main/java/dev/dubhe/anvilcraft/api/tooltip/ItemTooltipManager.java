@@ -1081,11 +1081,13 @@ public class ItemTooltipManager {
                                                 Otherwise, links to the nearest Shulker Container within 64 blocks"""
         );
         ItemTooltipManager.SHIFT.put(
-            ModBlocks.STORAGE_PORT.asItem(), """
-                                             Right‑click with an item in hand to mark a port
-                                             A marked port will always keep one stack of items inside
-                                             Left‑click to take items out, right‑click to put items in
-                                             Hold right-click on a marked port with Anvil Hammer can remove the mark"""
+            ModBlocks.STORAGE_PORT.asItem(),
+            """
+                Right-click with an item to mark the port
+                When linked, items go directly into or out of the storage
+                Stored items are used before the port's internal items
+                The port can hold one stack of marked items internally
+                Hold right-click with an Anvil Hammer and move the cursor to clear the mark"""
         );
         ItemTooltipManager.SHIFT.put(
             ModBlocks.STORAGE_PORT_CONSOLIDATOR.asItem(), """
@@ -1222,12 +1224,11 @@ public class ItemTooltipManager {
                                                The input and output faces can never become overflow ports"""
         );
         ItemTooltipManager.SHIFT.put(
-            ModBlocks.ITEM_SPLITTER.asItem(), """
-                                              Holds 16 slots and accepts any mix of items
-                                              Every 8 game ticks, evenly splits its contents among the containers lined up in front
-                                              Right-click with an empty hand to take items out, sneak to take a whole stack
-                                              Can face up or down; anvil strikes have no effect when facing up
-                                              With no container in front, let a falling anvil strike it: the fall height decides how many shares are made, thrown past obstacles up to 16 blocks ahead
+            ModBlocks.ITEM_SPLITTER.asItem(), """ 
+                                              Holds 16 slots of items
+                                              Evenly splits its contents among the containers lined up in front
+                                              With no container in front, let a falling anvil strike it
+                                              The fall height decides how many shares are made, thrown past obstacles up to 16 blocks ahead
                                               Always divides strictly, the remainder stays inside"""
         );
         ItemTooltipManager.SHIFT.put(
@@ -1474,6 +1475,9 @@ public class ItemTooltipManager {
     }
 
     public static String getTranslationKeyShift(Item item) {
+        if (item == ModBlocks.STORAGE_PORT.asItem()) {
+            return ItemTooltipManager.getTranslationKey(item) + ".shift.direct_access";
+        }
         return ItemTooltipManager.getTranslationKey(item) + ".shift";
     }
 
