@@ -91,6 +91,7 @@
     "accessor.AvoidEntityGoalAccessor",
     "accessor.BaseSpawnerAccessor",
     "accessor.BlueprintBlockEventsAccessor",
+    "accessor.CreativeModeTabAccessor",
     "accessor.CropBlockAccessor",
     "accessor.DelegateBorderChangeListenerAccessor",
     "accessor.EntityAccessor",
