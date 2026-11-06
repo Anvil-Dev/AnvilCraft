@@ -120,17 +120,18 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
 
         @Override
         public ItemStack getStackInSlot(int slot) {
+            ItemStack mark = StoragePortBlockEntity.this.markedItem;
+            if (mark.isEmpty()) {
+                return ItemStack.EMPTY;
+            }
             UnlimitedItemStacksResourceHandler core = StoragePortBlockEntity.this.getCoreHandler();
             if (core == null) {
-                return StoragePortBlockEntity.this.buffer.getStackInSlot(slot);
-            }
-            if (StoragePortBlockEntity.this.markedItem.isEmpty()) {
-                return core.getStackInSlot(slot);
+                ItemStack buffered = StoragePortBlockEntity.this.buffer.getStackInSlot(slot);
+                return ItemStack.isSameItemSameComponents(mark, buffered) ? buffered : ItemStack.EMPTY;
             }
             if (slot != 0 || !(core instanceof LinkedStorageItems linked)) {
                 return ItemStack.EMPTY;
             }
-            ItemStack mark = StoragePortBlockEntity.this.markedItem;
             return mark.copyWithCount((int) Math.min(Integer.MAX_VALUE, linked.count(mark)));
         }
 
@@ -153,15 +154,17 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
 
         @Override
         public ItemStack extractItem(int slot, int amount, boolean simulate) {
+            ItemStack mark = StoragePortBlockEntity.this.markedItem;
+            if (mark.isEmpty()) {
+                return ItemStack.EMPTY;
+            }
             UnlimitedItemStacksResourceHandler core = StoragePortBlockEntity.this.getCoreHandler();
             if (core == null) {
-                return StoragePortBlockEntity.this.buffer.extractItem(slot, amount, simulate);
-            }
-            if (StoragePortBlockEntity.this.markedItem.isEmpty()) {
-                return core.extractItem(slot, amount, simulate);
+                return ItemStack.isSameItemSameComponents(mark, StoragePortBlockEntity.this.buffer.getStackInSlot(slot))
+                    ? StoragePortBlockEntity.this.buffer.extractItem(slot, amount, simulate) : ItemStack.EMPTY;
             }
             return slot == 0 && core instanceof LinkedStorageItems linked
-                ? linked.extract(StoragePortBlockEntity.this.markedItem, amount, simulate) : ItemStack.EMPTY;
+                ? linked.extract(mark, amount, simulate) : ItemStack.EMPTY;
         }
 
         @Override
@@ -410,15 +413,15 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
     }
 
     /**
-     * 是否拦截左键：缓存非空时取出物品；一旦开始取出，该玩家按住左键期间持续拦截，
+     * 是否拦截左键：存在可取出的标记物品时取出物品；一旦开始取出，该玩家按住左键期间持续拦截，
      * 避免取空后同一次按住被判定成挖掘（创造模式下会直接打掉方块）。
      * 命中模型外边缘的半像素框架、或空端口且该玩家未在按住取出时不拦截，允许正常挖掘。
      */
     @Override
     public boolean interceptsLeftClick(Player player, @Nullable BlockHitResult hit) {
         this.refreshAvailableItems();
-        if (!this.isLeftClickHeld(player) && !this.linkedItemsAvailable && this.isBufferEmpty()) {
-            // 空端口且该玩家没有正在进行的取出：不拦截，允许正常挖掘
+        if (!this.isLeftClickHeld(player) && (this.markedItem.isEmpty()
+            || !this.linkedItemsAvailable && !this.hasBufferedMarkedItems())) {
             return false;
         }
         if (
@@ -431,6 +434,16 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
         }
         this.armLeftClickHold(player);
         return true;
+    }
+
+    private boolean hasBufferedMarkedItems() {
+        for (int slot = 0; slot < this.buffer.getSlots(); slot++) {
+            ItemStack stack = this.buffer.getStackInSlot(slot);
+            if (!stack.isEmpty() && ItemStack.isSameItemSameComponents(this.markedItem, stack)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

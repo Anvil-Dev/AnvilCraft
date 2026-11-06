@@ -1081,11 +1081,14 @@ public class ItemTooltipManager {
                                                 Otherwise, links to the nearest Shulker Container within 64 blocks"""
         );
         ItemTooltipManager.SHIFT.put(
-            ModBlocks.STORAGE_PORT.asItem(), """
-                                             Right‑click with an item in hand to mark a port
-                                             A marked port will always keep one stack of items inside
-                                             Left‑click to take items out, right‑click to put items in
-                                             Hold right-click on a marked port with Anvil Hammer can remove the mark"""
+            ModBlocks.STORAGE_PORT.asItem(),
+            """
+            Right-click with an item to mark the port; only marked items can be extracted
+            Left-click to take items out, right-click to put items in; double-click to store all matching items
+            When linked, items go directly into or out of the storage; stored items are used before the port's internal items
+            The port can hold one stack of marked items internally; disconnecting keeps these items
+            Clearing the mark while linked moves the internal items into storage
+            Hold right-click with an Anvil Hammer and move the cursor to clear the mark"""
         );
         ItemTooltipManager.SHIFT.put(
             ModBlocks.STORAGE_PORT_CONSOLIDATOR.asItem(), """
@@ -1474,6 +1477,9 @@ public class ItemTooltipManager {
     }
 
     public static String getTranslationKeyShift(Item item) {
+        if (item == ModBlocks.STORAGE_PORT.asItem()) {
+            return ItemTooltipManager.getTranslationKey(item) + ".shift.direct_access";
+        }
         return ItemTooltipManager.getTranslationKey(item) + ".shift";
     }
 
