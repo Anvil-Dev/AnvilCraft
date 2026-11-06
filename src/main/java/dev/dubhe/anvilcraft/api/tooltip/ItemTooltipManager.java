@@ -664,20 +664,18 @@ public class ItemTooltipManager {
 
         ItemTooltipManager.NORMAL.put(ModBlocks.STORAGE_PORT.asItem(), "External input/output ports of the Shulker Container or the Hyperdimension Storage Station.");
         ItemTooltipManager.SHIFT.put(ModBlocks.STORAGE_PORT.asItem(), """
-                Right-click with an item to mark the port; only marked items can be extracted
-                Left-click to take items out, right-click to put items in; double-click to store all matching items
-                When linked, items go directly into or out of the storage; stored items are used before the port's internal items
-                The port can hold one stack of marked items internally; disconnecting keeps these items
-                Clearing the mark while linked moves the internal items into storage
+                Right-click with an item to mark the port
+                When linked, items go directly into or out of the storage
+                Stored items are used before the port's internal items
+                The port can hold one stack of marked items internally
                 Hold right-click with an Anvil Hammer and move the cursor to clear the mark""");
         ItemTooltipManager.NORMAL.put(ModBlocks.ITEM_SPLITTER.asItem(), "Evenly splits the stored items among the containers in front");
         ItemTooltipManager.SHIFT.put(
             ModBlocks.ITEM_SPLITTER.asItem(), """
-                Holds 16 slots and accepts any mix of items
-                Every 8 game ticks, evenly splits its contents among the containers lined up in front
-                Right-click with an empty hand to take items out, sneak to take a whole stack
-                Can face up or down; anvil strikes have no effect when facing up
-                With no container in front, let a falling anvil strike it: the fall height decides how many shares are made, thrown past obstacles up to 16 blocks ahead
+                Holds 16 slots of items
+                Evenly splits its contents among the containers lined up in front
+                With no container in front, let a falling anvil strike it
+                The fall height decides how many shares are made, thrown past obstacles up to 16 blocks ahead
                 Always divides strictly, the remainder stays inside"""
         );
 
@@ -757,7 +755,6 @@ public class ItemTooltipManager {
         );
         ItemTooltipManager.SHIFT.put(
             ModBlocks.FISH_TANK.asItem(), """
-                Can be used as a substitute for the alchemy pot to perform related anvil synthesis
                 Wearing it on your head provides a temporary underwater breathing effect
                 Right-click the top with an item in hand to place the item inside
                 Right-click the lower part of the fish tank with a tropical fish bucket in hand to release the tropical fish
