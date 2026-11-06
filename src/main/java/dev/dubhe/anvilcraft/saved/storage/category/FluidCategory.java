@@ -7,16 +7,16 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 
-/**
- * 流体分类：仓储所连端口中的流体条目。
- *
- * <p>流体不是物品，故 {@link #test} 恒为 false（没有任何物品属于流体分类，
- * 便于「只显示流体」），流体条目由 {@link #testFluid} 判定。</p>
- */
+/** 匹配仓储端口中的流体和装有流体的物品。 */
 public record FluidCategory() implements ICategory {
     public static final FluidCategory INSTANCE = new FluidCategory();
 
@@ -32,6 +32,19 @@ public record FluidCategory() implements ICategory {
 
     @Override
     public boolean test(UnlimitedItemStack stack) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+        ItemStack single = stack.getStack().copyWithCount(1);
+        ResourceHandler<FluidResource> handler = single.getCapability(Capabilities.Fluid.ITEM, ItemAccess.forStack(single));
+        if (handler == null) {
+            return false;
+        }
+        for (int index = 0; index < handler.size(); index++) {
+            if (!handler.getResource(index).isEmpty() && handler.getAmountAsLong(index) > 0) {
+                return true;
+            }
+        }
         return false;
     }
 
