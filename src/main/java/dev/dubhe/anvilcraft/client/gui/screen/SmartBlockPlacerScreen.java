@@ -71,30 +71,38 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPlacerMenu> {
-    private static final ResourceLocation BACKGROUND = SharedTextures.SMART_BLOCK_PLACER_BACKGROUND;
+    private static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "smart_block_placer");
+
+    private static final ResourceLocation LAYER_1 = SmartBlockPlacerScreen.texture("layer_1");
+    private static final ResourceLocation LAYER_2 = SmartBlockPlacerScreen.texture("layer_2");
+    private static final ResourceLocation LAYER_3 = SmartBlockPlacerScreen.texture("layer_3");
+    private static final ResourceLocation LAYER_4 = SmartBlockPlacerScreen.texture("layer_4");
+    private static final ResourceLocation LAYER_5 = SmartBlockPlacerScreen.texture("layer_5");
 
     private static final ResourceLocation[] LAYER_DEFAULT = {
-        SharedTextures.SMART_BLOCK_PLACER_LAYER_1,
-        SharedTextures.SMART_BLOCK_PLACER_LAYER_2,
-        SharedTextures.SMART_BLOCK_PLACER_LAYER_3,
-        SharedTextures.SMART_BLOCK_PLACER_LAYER_4,
-        SharedTextures.SMART_BLOCK_PLACER_LAYER_5
+        SmartBlockPlacerScreen.LAYER_1,
+        SmartBlockPlacerScreen.LAYER_2,
+        SmartBlockPlacerScreen.LAYER_3,
+        SmartBlockPlacerScreen.LAYER_4,
+        SmartBlockPlacerScreen.LAYER_5
     };
 
-    private static final ResourceLocation POSITION_SELECT = SharedTextures.SMART_BLOCK_PLACER_POSITION_SELECT;
+    private static final ResourceLocation POSITION_SELECT = SmartBlockPlacerScreen.texture("position_select");
 
-    private static final ResourceLocation LAYER_ALL = SharedTextures.SMART_BLOCK_PLACER_LAYER_ALL;
-    private static final ResourceLocation LAYER_SINGLE = SharedTextures.SMART_BLOCK_PLACER_LAYER_SINGLE;
+    private static final ResourceLocation LAYER_ALL = SmartBlockPlacerScreen.texture("layer_all");
+    private static final ResourceLocation LAYER_SINGLE = SmartBlockPlacerScreen.texture("layer_single");
 
-    private static final ResourceLocation PICKUP_MODE = SharedTextures.SMART_BLOCK_PLACER_PICKUP_MODE;
-    private static final ResourceLocation MOVE_MODE = SharedTextures.SMART_BLOCK_PLACER_MOVE_MODE;
+    private static final ResourceLocation PICKUP_MODE = SmartBlockPlacerScreen.texture("pickup_mode");
+    private static final ResourceLocation MOVE_MODE = SmartBlockPlacerScreen.texture("move_mode");
 
-    // 蓝图模式贴图（已在SharedTextures中注册）
-    private static final ResourceLocation BLUEPRINT_MODE_BG = SharedTextures.SMART_BLOCK_PLACER_BLUEPRINT_MODE;
+    private static final ResourceLocation BLUEPRINT_MODE_BG = SmartBlockPlacerScreen.texture("blueprint_mode");
 
-    // 跳过/停止缺少方块按钮贴图
-    private static final ResourceLocation SKIP_MISSING = SharedTextures.SMART_BLOCK_PLACER_SKIP_MISSING;
-    private static final ResourceLocation STOP_MISSING = SharedTextures.SMART_BLOCK_PLACER_STOP_MISSING;
+    private static final ResourceLocation SKIP_MISSING = SmartBlockPlacerScreen.texture("skip_missing");
+    private static final ResourceLocation STOP_MISSING = SmartBlockPlacerScreen.texture("stop_missing");
+
+    private static ResourceLocation texture(String name) {
+        return SharedTextures.textureGui("machine/smart_block_placer/" + name);
+    }
 
     private final List<TriStateButton> layerButtons = new ArrayList<>();
     private final TriStateButton[][] positionButtons = new TriStateButton[5][5];
