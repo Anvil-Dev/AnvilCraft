@@ -47,13 +47,20 @@ final class MultiFluidTankHandler implements ResourceHandler<FluidResource>, Val
     @Override
     public long getAmountAsLong(int index) {
         Objects.checkIndex(index, this.size());
-        return index < this.fluids.size() ? this.fluids.get(index).fluid().getAmount() : 0;
+        if (index >= this.fluids.size()) {
+            return 0;
+        }
+        StoredFluid stored = this.fluids.get(index);
+        return stored.infinite() ? Integer.MAX_VALUE : stored.fluid().getAmount();
     }
 
     @Override
     public long getCapacityAsLong(int index, FluidResource resource) {
         Objects.checkIndex(index, this.size());
-        if (this.enhanced) return this.infinityThreshold;
+        if (this.enhanced) {
+            return index < this.fluids.size() && this.fluids.get(index).infinite()
+                ? Integer.MAX_VALUE : this.infinityThreshold;
+        }
         if (this.fluids.isEmpty()) return this.baseCapacity;
         if (index >= this.fluids.size()) return this.getRemainingCapacity();
         StoredFluid stored = this.fluids.get(index);
