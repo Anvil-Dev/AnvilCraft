@@ -26,6 +26,16 @@ final class SingleFluidTankHandler extends FluidTank {
     }
 
     @Override
+    public FluidStack getFluidInTank(int tank) {
+        return this.infinite ? this.fluid.copyWithAmount(Integer.MAX_VALUE) : super.getFluidInTank(tank);
+    }
+
+    @Override
+    public int getTankCapacity(int tank) {
+        return this.infinite ? Integer.MAX_VALUE : super.getTankCapacity(tank);
+    }
+
+    @Override
     protected void onContentsChanged() {
         this.changeListener.run();
     }

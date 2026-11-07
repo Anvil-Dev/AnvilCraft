@@ -45,15 +45,20 @@ final class MultiFluidTankHandler implements IFluidHandler, INBTSerializable<Com
 
     @Override
     public FluidStack getFluidInTank(int tank) {
-        return tank >= 0 && tank < this.fluids.size()
-            ? this.fluids.get(tank).fluid()
-            : FluidStack.EMPTY;
+        if (tank < 0 || tank >= this.fluids.size()) {
+            return FluidStack.EMPTY;
+        }
+        StoredFluid stored = this.fluids.get(tank);
+        return stored.infinite() ? stored.fluid().copyWithAmount(Integer.MAX_VALUE) : stored.fluid();
     }
 
     @Override
     public int getTankCapacity(int tank) {
         if (tank < 0 || tank >= this.getTanks()) return 0;
-        if (this.enhanced) return this.infinityThreshold;
+        if (this.enhanced) {
+            return tank < this.fluids.size() && this.fluids.get(tank).infinite()
+                ? Integer.MAX_VALUE : this.infinityThreshold;
+        }
         if (this.fluids.isEmpty()) return this.baseCapacity;
 
         StoredFluid stored = this.fluids.get(tank);
