@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.storage;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.entity.IAnvilCraftEntityExtension;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
@@ -9,6 +10,7 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.MagnetUtil;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -32,9 +34,15 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 
 public class MagnetBlock extends Block implements IHammerRemovable {
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
+    private static final Map<Block, Double> CHARGE_NUMS = Map.of(
+        Blocks.COPPER_BLOCK, 1d / 4,
+        Blocks.EXPOSED_COPPER, 1d / 8,
+        Blocks.WEATHERED_COPPER, 1d / 16
+    );
 
     public MagnetBlock(Properties properties) {
         super(properties);
@@ -58,6 +66,21 @@ public class MagnetBlock extends Block implements IHammerRemovable {
     ) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
         this.attract(state, level, pos);
+    }
+
+    @Override
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
+        if (!movedByPiston || state.getValue(MagnetBlock.LIT)) {
+            return;
+        }
+        for (Direction face : Direction.values()) {
+            BlockPos copperPos = pos.relative(face);
+            Double charge = MagnetBlock.CHARGE_NUMS.get(level.getBlockState(copperPos).getBlock());
+            if (charge != null) {
+                ChargeCollectorManager.charge(charge, level, copperPos);
+            }
+        }
     }
 
     @Override
