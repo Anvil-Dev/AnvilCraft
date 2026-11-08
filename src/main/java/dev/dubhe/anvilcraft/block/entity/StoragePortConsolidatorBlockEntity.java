@@ -26,11 +26,10 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
@@ -40,9 +39,8 @@ import javax.annotation.Nullable;
  * <p>沿面相邻的仓储端口收集整个端口阵列，把各端口可取库存的并集作为物品能力暴露给外部物流，
  * 并把相连的流体端口按「一个端口一格」暴露为流体能力，读写都直通该端口的储罐；
  * 相连关系只穿过端口，不跨集装箱 / 存储站，因此集装箱两侧没有直接相连的端口阵列不会互通。
- * 整合器自身没有容积空间：输入物品按照相连端口的标记规则存入对应仓库或内部容器，
- * 其余情况只进入调用方指定槽位所属的端口，与仓储端口自身的存取规则一致，
- * 按槽位遍历（如 {@link ItemHandlerHelper#insertItem}）即可填满整个阵列。</p>
+ * 整合器输入始终进入各端口缓存，标记仓储输出槽仅暴露同种物品的一份数量，
+ * 按槽位遍历（如 {@link ItemHandlerHelper#insertItem}）即可填满整个阵列的缓存。</p>
  *
  * <p>右键为「塞入」：单击把手持物品塞入，双击把身上对应端口标记的物品全部塞入；
  * 手持流体容器时先尝试倒入相连的、已在存放同种流体的流体端口。</p>
@@ -298,45 +296,36 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
 
     private List<StoragePortBlockEntity> itemPorts() {
         List<StoragePortBlockEntity> result = new ArrayList<>();
-        Set<ResourceKey> marks = new HashSet<>();
-        StoragePortBlockEntity unmarked = null;
         for (int index = 0; index < this.ports.size(); index++) {
             StoragePortBlockEntity port = this.portAt(index);
-            if (port == null) {
-                continue;
-            }
-            if (this.storageId == null || !port.isConnectedTo(this.storageId)) {
-                result.add(port);
-            } else if (port.getMarkedItem().isEmpty()) {
-                unmarked = port;
-            }
-        }
-        if (unmarked != null) {
-            result.add(unmarked);
-            result.sort(Comparator.comparing(port -> port.getMarkedItem().isEmpty()));
-            return result;
-        }
-        for (int index = 0; index < this.ports.size(); index++) {
-            StoragePortBlockEntity port = this.portAt(index);
-            if (port != null && this.storageId != null && port.isConnectedTo(this.storageId)
-                && marks.add(ResourceKey.of(port.getMarkedItem()))) {
+            if (port != null) {
                 result.add(port);
             }
         }
-        result.sort(Comparator.comparing(port -> port.getMarkedItem().isEmpty()));
         return result;
+    }
+
+    private int itemSlots(StoragePortBlockEntity port, Set<ResourceKey> marks) {
+        int slots = port.getItemHandler().getSlots();
+        if (slots > StoragePortBlockEntity.BUFFER_SLOTS && this.storageId != null && port.isConnectedTo(this.storageId)
+            && !marks.add(ResourceKey.of(port.getMarkedItem()))) {
+            return StoragePortBlockEntity.BUFFER_SLOTS;
+        }
+        return slots;
     }
 
     private @Nullable PortSlot itemSlot(int slot) {
         if (slot < 0) {
             return null;
         }
+        Set<ResourceKey> marks = new HashSet<>();
         for (StoragePortBlockEntity port : this.itemPorts()) {
             IItemHandler handler = port.getItemHandler();
-            if (slot < handler.getSlots()) {
+            int slots = this.itemSlots(port, marks);
+            if (slot < slots) {
                 return new PortSlot(handler, slot);
             }
-            slot -= handler.getSlots();
+            slot -= slots;
         }
         return null;
     }
@@ -369,13 +358,14 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
         this.storageId = null;
     }
 
-    /** 相连端口的物品能力，同一仓库的同种标记只暴露一次。 */
+    /** 每个端口保留缓存槽，同一仓库同种标记的输出槽仅暴露一次。 */
     private class ConsolidatedItemHandler implements IItemHandler {
         @Override
         public int getSlots() {
             int slots = 0;
+            Set<ResourceKey> marks = new HashSet<>();
             for (StoragePortBlockEntity port : StoragePortConsolidatorBlockEntity.this.itemPorts()) {
-                slots += port.getItemHandler().getSlots();
+                slots += StoragePortConsolidatorBlockEntity.this.itemSlots(port, marks);
             }
             return slots;
         }

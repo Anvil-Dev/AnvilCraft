@@ -4,15 +4,12 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.IStoragePort;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
-import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
-import dev.dubhe.anvilcraft.api.itemhandler.unlimited.LinkedStorageItems;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.AbstractStoragePortBlock;
 import dev.dubhe.anvilcraft.block.StoragePortBlock;
 import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.block.item.StoragePortBlockItem;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
@@ -46,7 +43,7 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 /**
- * 仓储端口连接大仓库后直接存取共享库存，断开连接时使用自身保留的一组标记物品。
+ * 仓储端口连接大仓库后直接存取共享库存，输入经过自身的 32 格缓存，已连接时按标记从仓储提取。
  */
 public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerHolder, IStoragePort {
     /** 缓存格数 */
@@ -67,18 +64,11 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
 
     @Getter
     private final ItemStackHandler buffer = new ItemStackHandler(StoragePortBlockEntity.BUFFER_SLOTS) {
-        @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            if (stack.is(ModBlocks.SHULKER_CONTAINER.asItem())) {
-                return false;
-            }
-            ItemStack marked = StoragePortBlockEntity.this.markedItem;
-            return marked.isEmpty() || slot == 0 && ItemStack.isSameItemSameComponents(marked, stack);
-        }
 
         @Override
         protected void onContentsChanged(int slot) {
             StoragePortBlockEntity.this.setChanged();
+            StoragePortBlockEntity.this.refreshAvailableItems();
             if (StoragePortBlockEntity.this.storageId != null) {
                 StorageServerStub.onContentsChanged(StoragePortBlockEntity.this.storageId);
             }
@@ -111,75 +101,59 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
     private int workCountdown = 0;
     private boolean linkedItemsAvailable;
     private final IItemHandler itemHandler = new IItemHandler() {
+        private boolean linkedMarked() {
+            return !StoragePortBlockEntity.this.markedItem.isEmpty()
+                && StoragePortBlockEntity.this.getCoreHandler() != null;
+        }
+
         @Override
         public int getSlots() {
-            IItemHandler core = StoragePortBlockEntity.this.getCoreHandler();
-            return core == null ? StoragePortBlockEntity.this.buffer.getSlots()
-                : StoragePortBlockEntity.this.markedItem.isEmpty() ? core.getSlots() : 1;
+            return BUFFER_SLOTS + (this.linkedMarked() ? 1 : 0);
         }
 
         @Override
         public ItemStack getStackInSlot(int slot) {
             ItemStack mark = StoragePortBlockEntity.this.markedItem;
-            if (mark.isEmpty()) {
+            if (this.linkedMarked()) {
+                return slot == BUFFER_SLOTS ? mark.copyWithCount((int) Math.min(Integer.MAX_VALUE,
+                    StoragePortBlockEntity.this.getMarkedStorageCount())) : ItemStack.EMPTY;
+            }
+            if (slot < 0 || slot >= BUFFER_SLOTS) {
                 return ItemStack.EMPTY;
             }
-            UnlimitedItemStacksResourceHandler core = StoragePortBlockEntity.this.getCoreHandler();
-            if (core == null) {
-                ItemStack buffered = StoragePortBlockEntity.this.buffer.getStackInSlot(slot);
-                return ItemStack.isSameItemSameComponents(mark, buffered) ? buffered : ItemStack.EMPTY;
-            }
-            if (slot != 0 || !(core instanceof LinkedStorageItems linked)) {
-                return ItemStack.EMPTY;
-            }
-            return mark.copyWithCount((int) Math.min(Integer.MAX_VALUE, linked.count(mark)));
+            ItemStack stack = StoragePortBlockEntity.this.buffer.getStackInSlot(slot);
+            return mark.isEmpty() || ItemStack.isSameItemSameComponents(mark, stack) ? stack : ItemStack.EMPTY;
         }
 
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            UnlimitedItemStacksResourceHandler core = StoragePortBlockEntity.this.getCoreHandler();
-            if (core == null) {
-                return StoragePortBlockEntity.this.buffer.insertItem(slot, stack, simulate);
-            }
-            if (!this.isItemValid(slot, stack)) {
-                return stack;
-            }
-            ItemStack remainder = StoragePortBlockEntity.this.markedItem.isEmpty()
-                ? core.insertItem(slot, stack, simulate) : core.insertItem(stack, simulate);
-            if (!simulate) {
-                StoragePortBlockEntity.this.refreshAvailableItems();
-            }
-            return remainder;
+            return slot >= 0 && slot < BUFFER_SLOTS
+                ? StoragePortBlockEntity.this.buffer.insertItem(slot, stack, simulate) : stack;
         }
 
         @Override
         public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            ItemStack mark = StoragePortBlockEntity.this.markedItem;
-            if (mark.isEmpty()) {
+            if (amount <= 0) {
                 return ItemStack.EMPTY;
             }
-            UnlimitedItemStacksResourceHandler core = StoragePortBlockEntity.this.getCoreHandler();
-            if (core == null) {
-                return ItemStack.isSameItemSameComponents(mark, StoragePortBlockEntity.this.buffer.getStackInSlot(slot))
-                    ? StoragePortBlockEntity.this.buffer.extractItem(slot, amount, simulate) : ItemStack.EMPTY;
+            if (this.linkedMarked()) {
+                UnlimitedItemStacksResourceHandler core = StoragePortBlockEntity.this.getCoreHandler();
+                return slot == BUFFER_SLOTS && core != null
+                    ? core.extract(StoragePortBlockEntity.this.markedItem, amount, simulate) : ItemStack.EMPTY;
             }
-            return slot == 0 && core instanceof LinkedStorageItems linked
-                ? linked.extract(mark, amount, simulate) : ItemStack.EMPTY;
+            return this.getStackInSlot(slot).isEmpty() ? ItemStack.EMPTY
+                : StoragePortBlockEntity.this.buffer.extractItem(slot, amount, simulate);
         }
 
         @Override
         public int getSlotLimit(int slot) {
-            return StoragePortBlockEntity.this.getCoreHandler() == null
-                ? StoragePortBlockEntity.this.buffer.getSlotLimit(slot) : Integer.MAX_VALUE;
+            return slot == BUFFER_SLOTS && this.linkedMarked() ? Integer.MAX_VALUE
+                : slot >= 0 && slot < BUFFER_SLOTS ? StoragePortBlockEntity.this.buffer.getSlotLimit(slot) : 0;
         }
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            if (stack.is(ModBlocks.SHULKER_CONTAINER.asItem())) {
-                return false;
-            }
-            return StoragePortBlockEntity.this.markedItem.isEmpty()
-                || slot == 0 && ItemStack.isSameItemSameComponents(StoragePortBlockEntity.this.markedItem, stack);
+            return slot >= 0 && slot < BUFFER_SLOTS && StoragePortBlockEntity.this.buffer.isItemValid(slot, stack);
         }
     };
 
@@ -197,9 +171,6 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
         if (this.validateCountdown-- <= 0) {
             this.validateCountdown = StoragePortBlockEntity.VALIDATE_INTERVAL;
             this.validateLink();
-        }
-        if (!this.working) {
-            return;
         }
         if (this.workCountdown-- > 0) {
             return;
@@ -257,18 +228,12 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
     }
 
     /**
-     * 设置标记物品；标记变化时把缓存中旧内容尽力存入核心，并同步方块状态的 MARKED 属性。
+     * 设置输出标记；缓存内容不随标记改变。
      */
     public void setMarkedItem(ItemStack stack) {
         ItemStack mark = StoragePortBlockEntity.createMarker(stack);
         if (ItemStack.isSameItemSameComponents(this.markedItem, mark)) {
             return;
-        }
-        if (this.level != null && !this.level.isClientSide && this.getCoreHandler() != null) {
-            this.pushAllToCore();
-            if (!this.isBufferEmpty()) {
-                return;
-            }
         }
         this.markedItem = mark;
         if (this.level != null && !this.level.isClientSide) {
@@ -280,6 +245,7 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
             }
         }
         this.setChanged();
+        this.refreshAvailableItems();
         if (this.level != null) {
             this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), Block.UPDATE_ALL);
         }
@@ -372,13 +338,13 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
     }
 
     /**
-     * 右键：未标记时把手中物品标记并塞入，已标记时按标记塞入，双击塞入身上全部。
+     * 右键将手持物品存入缓存；首次设置标记，双击存入背包中的同种物品。
      */
     @Override
     public boolean onRightClick(Player player, InteractionHand hand, List<IStoragePort> ports) {
         ItemStack stack = player.getItemInHand(hand);
         // 铁砧锤：普通右键不调整任何状态（去标记需长按右键并滑动，见客户端手势）
-        if (stack.getItem() instanceof AnvilHammerItem || stack.is(ModBlocks.SHULKER_CONTAINER.asItem())) {
+        if (stack.getItem() instanceof AnvilHammerItem) {
             return false;
         }
         boolean doubleClick = this.isDoubleClick(player);
@@ -408,7 +374,7 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
             }
             return true;
         }
-        // 不对应物品：不替换标记
+        this.stuffFromHand(stack, stack.getMaxStackSize());
         return true;
     }
 
@@ -420,8 +386,7 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
     @Override
     public boolean interceptsLeftClick(Player player, @Nullable BlockHitResult hit) {
         this.refreshAvailableItems();
-        if (!this.isLeftClickHeld(player) && (this.markedItem.isEmpty()
-            || !this.linkedItemsAvailable && !this.hasBufferedMarkedItems())) {
+        if (!this.isLeftClickHeld(player) && !this.linkedItemsAvailable) {
             return false;
         }
         if (
@@ -434,16 +399,6 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
         }
         this.armLeftClickHold(player);
         return true;
-    }
-
-    private boolean hasBufferedMarkedItems() {
-        for (int slot = 0; slot < this.buffer.getSlots(); slot++) {
-            ItemStack stack = this.buffer.getStackInSlot(slot);
-            if (!stack.isEmpty() && ItemStack.isSameItemSameComponents(this.markedItem, stack)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -547,7 +502,8 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
         BlockPos core = StoragePortManager.findSoleCore(this.level, this.worldPosition);
         UUID id = core != null && this.level.getBlockEntity(core) instanceof StorageBlockEntity storage
             ? storage.getId() : null;
-        if (!java.util.Objects.equals(this.storageId, id)) {
+        boolean changed = !java.util.Objects.equals(this.storageId, id);
+        if (changed) {
             StoragePortManager.unregister(this.storageId, this.level.dimension(), this.worldPosition);
             this.storageId = id;
             if (id != null) {
@@ -557,17 +513,27 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
         this.coreMainPos = core;
         AbstractStoragePortBlock.refreshType(this.level, this.worldPosition, core);
         this.working = id != null;
-        if (!this.working && this.linkedItemsAvailable) {
-            this.linkedItemsAvailable = false;
-            this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), Block.UPDATE_CLIENTS);
+        if (changed && this.working) {
+            this.performTransfer(Integer.MAX_VALUE);
         }
+
     }
 
-    /** 连接关系有效时，将未标记的内部物品存入仓库。 */
-    private void performTransfer(int maxItemsPerScan) {
-        IItemHandler core = this.getCoreHandler();
-        if (core != null && this.markedItem.isEmpty()) {
-            ItemHandlerUtil.exportToTarget(this.buffer, maxItemsPerScan, stack -> true, core);
+    /** 缓存合并只遍历本端口槽位，仓储按物品索引接收。 */
+    private void performTransfer(int limit) {
+        UnlimitedItemStacksResourceHandler core = this.getCoreHandler();
+        if (core == null) {
+            return;
+        }
+        for (int slot = 0; slot < BUFFER_SLOTS && limit > 0; slot++) {
+            ItemStack stack = this.buffer.getStackInSlot(slot);
+            if (stack.isEmpty()) {
+                continue;
+            }
+            int requested = Math.min(limit, stack.getCount());
+            int inserted = requested - core.insertItem(stack.copyWithCount(requested), false).getCount();
+            this.buffer.extractItem(slot, inserted, false);
+            limit -= inserted;
         }
     }
 
@@ -576,20 +542,9 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
         return !this.isRemoved() && id.equals(this.storageId) && this.getCoreHandler() != null;
     }
 
-    /**
-     * 把缓存内全部物品尽力存入核心（标记切换时的一次性清理）。
-     */
-    private void pushAllToCore() {
-        IItemHandler core = this.getCoreHandler();
-        if (core == null) {
-            return;
-        }
-        ItemHandlerUtil.exportAllToTarget(this.buffer, stack -> true, core);
-    }
-
     @Nullable
     private UnlimitedItemStacksResourceHandler getCoreHandler() {
-        if (this.level == null || this.level.isClientSide || this.coreMainPos == null
+        if (this.level == null || this.level.isClientSide || this.isRemoved() || this.coreMainPos == null
             || !this.level.isLoaded(this.coreMainPos)) {
             return null;
         }
@@ -602,7 +557,7 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
             if (storage instanceof CrateBlockEntity crate) {
                 crate.refreshDispose();
             }
-            return Storages.get().getOrCreate(id, storage.getStorageType().clazz()).getAvailableItems();
+            return Storages.get().getOrCreate(id, storage.getStorageType().clazz()).getItems();
         }
         return null;
     }
@@ -612,23 +567,27 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
         return this.itemHandler;
     }
 
-    /** 当前标记物品的总量，包括关联核心及端口缓存，保留超过普通物品堆的计数。 */
-    public long getStoredCount() {
+    /** 仓储数量只查询标记物品，缓存通过独立的固定槽位展示。 */
+    public long getMarkedStorageCount() {
         if (this.markedItem.isEmpty()) {
             return 0;
         }
         UnlimitedItemStacksResourceHandler core = this.getCoreHandler();
-        if (core instanceof LinkedStorageItems linked) {
-            return linked.count(this.markedItem);
+        return core == null ? 0 : core.count(this.markedItem);
+    }
+
+    public long getStoredCount() {
+        if (this.getCoreHandler() != null) {
+            return this.getMarkedStorageCount();
         }
-        long amount = 0;
-        for (int slot = 0; slot < this.buffer.getSlots(); slot++) {
+        long count = 0;
+        for (int slot = 0; slot < BUFFER_SLOTS; slot++) {
             ItemStack stack = this.buffer.getStackInSlot(slot);
             if (ItemStack.isSameItemSameComponents(stack, this.markedItem)) {
-                amount += stack.getCount();
+                count += stack.getCount();
             }
         }
-        return amount;
+        return count;
     }
 
     @Override
