@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.anvilcraft.lib.v2.recipe.cache.ItemResourceHandlerCache;
+import dev.anvilcraft.lib.v2.recipe.util.ItemBatchPlan;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
@@ -133,6 +134,9 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
     private final FluidStackResourceHandler fluidHandler = new FluidStackResourceHandler() {
         @Override
         protected void onContentChanged(FluidStack original) {
+            if (FishTankBlockEntity.this.applyingRecipePlan) {
+                return;
+            }
             FishTankBlockEntity.this.setChanged();
             FishTankBlockEntity.this.refreshIgnited();
             FishTankBlockEntity.this.sendUpdate();
@@ -239,6 +243,9 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
 
         @Override
         protected void onContentsChanged(int index, ItemStack previousContents) {
+            if (FishTankBlockEntity.this.applyingRecipePlan) {
+                return;
+            }
             FishTankBlockEntity.this.setChanged();
             FishTankBlockEntity.this.refreshIgnited();
             FishTankBlockEntity.this.sendUpdate();
@@ -265,6 +272,9 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
 
         @Override
         protected void onContentsChanged(int index, ItemStack previousContents) {
+            if (FishTankBlockEntity.this.applyingRecipePlan) {
+                return;
+            }
             if (this.autoOutputting) return;
             this.checkAutoOutput(index);
             FishTankBlockEntity.this.setChanged();
@@ -319,6 +329,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             }
         }
     };
+    private boolean applyingRecipePlan;
     private boolean processingRecipe;
     private boolean processingOutput;
     private ItemStack @Nullable [] processingInputSnapshot;
@@ -454,6 +465,40 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
     }
 
     /// 输入槽为空时，允许本 tick 把输出槽中的产物当作原料再加工一次
+    /** 配方规划使用无世界引用的副本，避免匹配和流体转换提前修改真实鱼缸。 */
+    public FishTankBlockEntity copyForRecipe() {
+        FishTankBlockEntity snapshot = new FishTankBlockEntity(this.getType(), this.worldPosition, this.getBlockState());
+        snapshot.applyingRecipePlan = true;
+        snapshot.processingRecipe = true;
+        snapshot.processingOutput = this.processingOutput;
+        for (int slot = 0; slot < this.input.size(); slot++) {
+            snapshot.input.set(slot, this.input.getResource(slot), this.input.getAmountAsInt(slot));
+            snapshot.output.set(slot, this.output.getResource(slot), this.output.getAmountAsInt(slot));
+        }
+        snapshot.fluidHandler.set(this.fluidHandler.getResource(0), this.fluidHandler.getAmountAsInt(0));
+        snapshot.ignited = this.ignited;
+        return snapshot;
+    }
+
+    /** 输入、输出和流体采用同一批次前缀，完成后统一同步方块数据。 */
+    public void applyRecipePlan(ItemBatchPlan plan, FluidStack fluid, boolean ignited) {
+        List<ItemStack> inputs = plan.inputs();
+        List<ItemStack> outputs = plan.outputs();
+        this.applyingRecipePlan = true;
+        try {
+            for (int slot = 0; slot < this.input.size(); slot++) {
+                if (!this.processingOutput) {
+                    this.input.set(slot, ItemResource.of(inputs.get(slot)), inputs.get(slot).getCount());
+                }
+                this.output.set(slot, ItemResource.of(outputs.get(slot)), outputs.get(slot).getCount());
+            }
+            this.ignited = ignited;
+        } finally {
+            this.applyingRecipePlan = false;
+        }
+        this.fluidHandler.set(FluidResource.of(fluid), fluid.getAmount());
+    }
+
     public void beginRecipeProcessing() {
         this.processingRecipe = true;
         boolean hasInput = !FishTankBlockEntity.isEmpty(this.input);
@@ -1219,12 +1264,16 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             ItemResource resource = this.proxy.getResource(i);
             if (resource.is(ModItemTags.FIRE_STARTER)) {
                 try (Transaction transaction = Transaction.openRoot()) {
-                    this.proxy.extract(i, this.proxy.getResource(i), 1, transaction);
-                    transaction.commit();
+                    if (this.proxy.extract(i, resource, 1, transaction) == 1) {
+                        // 库存提交会再次检查点燃条件，先更新状态以免重复消耗点火物。
+                        this.setIgnited(true);
+                        transaction.commit();
+                        break;
+                    }
                 }
-                this.setIgnited(true);
             } else if (resource.is(ModItemTags.UNBROKEN_FIRE_STARTER)) {
                 this.setIgnited(true);
+                break;
             }
         }
         Level level = this.getLevel();
