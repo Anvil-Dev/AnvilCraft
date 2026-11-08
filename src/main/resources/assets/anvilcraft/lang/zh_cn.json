@@ -3672,5 +3672,9 @@
   "screen.anvilcraft.storage.crafting.clear.left": "左键点击：将未使用的物品移入仓储",
   "screen.anvilcraft.storage.crafting.clear.right": "右键点击：将未使用的物品移入玩家物品栏",
   "config.jade.plugin_anvilcraft.redstone_wire_power": "红石导线能量",
-  "tooltip.anvilcraft.item.storage_port.shift.direct_access": "手持物品右键点击可标记该端口\n连接后，物品会直接存入存储或从存储中取出\n优先使用连接仓储方块内的物品，然后再使用端口内部存储\n端口内部可存放一组已标记的物品\n手持铁砧锤按住右键以清除标记"
+  "tooltip.anvilcraft.item.storage_port.shift.direct_access": "手持物品右键点击可标记该端口\n连接后，物品会直接存入存储或从存储中取出\n优先使用连接仓储方块内的物品，然后再使用端口内部存储\n端口内部可存放一组已标记的物品\n手持铁砧锤按住右键以清除标记",
+  "message.anvilcraft.building_rod.wip_block": "仅创造模式可粘贴进程方块，强制粘贴可跳过",
+  "tooltip.anvilcraft.storage_port.cache": "缓存",
+  "tooltip.anvilcraft.storage_port.storage": "存储",
+  "tooltip.anvilcraft.storage_port.unmarked": "未标记物品"
 }
