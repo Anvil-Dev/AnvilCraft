@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.util.anvil;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.property.component.Merciless;
 import dev.dubhe.anvilcraft.item.property.component.Multiphase;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import lombok.Setter;
@@ -184,6 +185,9 @@ public class AnvilMenuResult {
             this.calculateFinalRepairCost(inputRight, result, renamingResult.namingCost, repairingCost, price)
         );
         EnchantmentHelper.setEnchantments(result, enchantments.toImmutable());
+        if (result.has(ModComponents.MERCILESS)) {
+            Merciless.absorbEnchantments(result, this.allowBeyondMaxLevel);
+        }
         this.result = result;
     }
 
