@@ -320,6 +320,10 @@ public final class BlueprintBlockConfiguration {
             Direction facing = Direction.from3DDataValue(config.getIntOr("facing", 0));
             config.putInt("facing", placement.rotation().rotate(placement.mirror().mirror(facing)).get3DDataValue());
         }
+        if (config.get("InitialBlock") instanceof CompoundTag) {
+            var initial = NbtUtils.readBlockState(BuiltInRegistries.BLOCK, config.getCompoundOrEmpty("InitialBlock"));
+            config.put("InitialBlock", NbtUtils.writeBlockState(placement.stateOf(initial)));
+        }
         if (config.contains("Facing")) {
             Direction facing = Direction.from3DDataValue(config.getIntOr("Facing", 0));
             config.putInt("Facing", placement.rotation().rotate(placement.mirror().mirror(facing)).get3DDataValue());
