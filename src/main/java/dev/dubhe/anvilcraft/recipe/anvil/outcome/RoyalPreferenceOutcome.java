@@ -3,9 +3,9 @@ package dev.dubhe.anvilcraft.recipe.anvil.outcome;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.recipe.cache.IItemHandlerCache;
-import dev.anvilcraft.lib.v2.recipe.cache.ItemCache;
-import dev.anvilcraft.lib.v2.recipe.cache.item.ICacheOutput;
+import dev.anvilcraft.lib.v2.recipe.outcome.IPlannedItemOutcome;
 import dev.anvilcraft.lib.v2.recipe.outcome.IRecipeOutcome;
+import dev.anvilcraft.lib.v2.recipe.outcome.PlannedItem;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeData;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
@@ -38,7 +38,7 @@ import java.util.Random;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
-public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeOutcome<RoyalPreferenceOutcome> {
+public record RoyalPreferenceOutcome(ChanceItemStack result) implements IPlannedItemOutcome<RoyalPreferenceOutcome> {
 
     /**
      * Context data key：标记当前配方是否为产出皇家钢的配方
@@ -67,12 +67,14 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
     }
 
     @Override
-    public void accept(InWorldRecipeContext context) {
+    public List<PlannedItem> plan(InWorldRecipeContext context) {
         ServerLevel level = context.getLevel();
         Vec3 pos = context.getPos();
 
         // 仅皇家钢配方才检查偏好
-        if (!context.get(IS_ROYAL_STEEL_RECIPE)) return;
+        if (!context.get(IS_ROYAL_STEEL_RECIPE)) {
+            return List.of();
+        }
 
         BlockPos belowPos = BlockPos.containing(pos.x, pos.y - 1, pos.z);
 
@@ -81,8 +83,7 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
         if (blockEntity instanceof IItemHandlerCache cache) {
             hasRecipeCache = true;
             if (hasRoyalPreferred(level, cache.getInput())) {
-                this.addBonus(context);
-                return;
+                return this.planBonus(context);
             }
         }
 
@@ -90,8 +91,7 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
         if (entityCauldron != null) {
             hasRecipeCache = true;
             if (hasRoyalPreferred(level, entityCauldron.getInput())) {
-                this.addBonus(context);
-                return;
+                return this.planBonus(context);
             }
         }
 
@@ -99,8 +99,7 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
             IItemHandler handler = level.getCapability(
                 Capabilities.ItemHandler.BLOCK, belowPos, null);
             if (handler != null && hasRoyalPreferred(level, handler)) {
-                this.addBonus(context);
-                return;
+                return this.planBonus(context);
             }
         }
 
@@ -110,19 +109,15 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
             INPUT_RANGE.x, INPUT_RANGE.y, INPUT_RANGE.z);
         for (ItemEntity itemEntity : level.getEntitiesOfClass(ItemEntity.class, inputBox)) {
             if (RoyalPreference.isRoyalPreferred(level, itemEntity.getItem())) {
-                this.addBonus(context);
-                return;
+                return this.planBonus(context);
             }
         }
+        return List.of();
     }
 
-    private void addBonus(InWorldRecipeContext context) {
+    private List<PlannedItem> planBonus(InWorldRecipeContext context) {
         ItemStack bonus = this.result.stack().copyWithCount(context.getInt(this.result.count()));
-        if (bonus.isEmpty()) return;
-        ItemCache cache = context.computeIfAbsent(ItemCache.ITEM_CACHE);
-        ICacheOutput output = cache.getOutput(bonus, context.getPos().add(OUTPUT_OFFSET));
-        output.grow(bonus, true);
-        context.putAcceptor(ItemCache.ITEM_CACHE.location(), ItemCache.DEFAULT_ACCEPTOR);
+        return bonus.isEmpty() ? List.of() : List.of(new PlannedItem(bonus, context.getPos().add(OUTPUT_OFFSET)));
     }
 
     private static boolean hasRoyalPreferred(ServerLevel level, IItemHandler handler) {

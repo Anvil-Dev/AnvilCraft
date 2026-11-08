@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import com.google.common.collect.ImmutableList;
 import dev.anvilcraft.lib.v2.recipe.cache.IItemHandlerCache;
+import dev.anvilcraft.lib.v2.recipe.util.ItemBatchPlan;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.FishTankEvent;
@@ -107,6 +108,9 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     private final FluidTank fluidHandler = new FluidTank(FishTankBlockEntity.CAPACITY) {
         @Override
         protected void onContentsChanged() {
+            if (FishTankBlockEntity.this.applyingRecipePlan) {
+                return;
+            }
             FishTankBlockEntity.this.setChanged();
             FishTankBlockEntity.this.refreshIgnited();
             FishTankBlockEntity.this.sendUpdate();
@@ -117,6 +121,12 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             if (this.getFluid().is(Fluids.WATER)) return;
             FishTankBlockEntity.this.dropFish();
             FishTankBlockEntity.this.updateFishState();
+        }
+
+        @Override
+        public void setFluid(FluidStack fluid) {
+            super.setFluid(fluid);
+            this.onContentsChanged();
         }
 
         @Override
@@ -261,6 +271,9 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
 
         @Override
         protected void onContentsChanged(int slot) {
+            if (FishTankBlockEntity.this.applyingRecipePlan) {
+                return;
+            }
             FishTankBlockEntity.this.setChanged();
             if (level == null || level.getBlockEntity(worldPosition) != FishTankBlockEntity.this) return;
             FishTankBlockEntity.this.refreshIgnited();
@@ -288,6 +301,9 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
 
         @Override
         protected void onContentsChanged(int slot) {
+            if (FishTankBlockEntity.this.applyingRecipePlan) {
+                return;
+            }
             if (this.autoOutputting || level == null || level.getBlockEntity(worldPosition) != FishTankBlockEntity.this) return;
             this.checkAutoOutput(slot);
             FishTankBlockEntity.this.setChanged();
@@ -345,6 +361,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         }
     };
     // 配方的不同产物缓存会重复同步同一输出槽，全部提交前不能让输出口清空槽位。
+    private boolean applyingRecipePlan;
     private boolean processingRecipe;
     private boolean processingOutput;
     private long lastRecipeProcessingGameTime = Long.MIN_VALUE;
@@ -479,6 +496,40 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
 
     public ItemStackHandler getOutputHandler() {
         return this.output;
+    }
+
+    /** 配方规划使用无世界引用的副本，避免匹配和流体转换提前修改真实鱼缸。 */
+    public FishTankBlockEntity copyForRecipe() {
+        FishTankBlockEntity snapshot = new FishTankBlockEntity(this.getType(), this.worldPosition, this.getBlockState());
+        snapshot.applyingRecipePlan = true;
+        snapshot.processingRecipe = true;
+        snapshot.processingOutput = this.processingOutput;
+        for (int slot = 0; slot < this.input.getSlots(); slot++) {
+            snapshot.input.setStackInSlot(slot, this.input.getStackInSlot(slot).copy());
+            snapshot.output.setStackInSlot(slot, this.output.getStackInSlot(slot).copy());
+        }
+        snapshot.fluidHandler.setFluid(this.fluidHandler.getFluid().copy());
+        snapshot.ignited = this.ignited;
+        return snapshot;
+    }
+
+    /** 输入、输出和流体采用同一批次前缀，完成后统一同步方块数据。 */
+    public void applyRecipePlan(ItemBatchPlan plan, FluidStack fluid, boolean ignited) {
+        List<ItemStack> inputs = plan.inputs();
+        List<ItemStack> outputs = plan.outputs();
+        this.applyingRecipePlan = true;
+        try {
+            for (int slot = 0; slot < this.input.getSlots(); slot++) {
+                if (!this.processingOutput) {
+                    this.input.setStackInSlot(slot, inputs.get(slot));
+                }
+                this.output.setStackInSlot(slot, outputs.get(slot));
+            }
+            this.ignited = ignited;
+        } finally {
+            this.applyingRecipePlan = false;
+        }
+        this.fluidHandler.setFluid(fluid.copy());
     }
 
     public void beginRecipeProcessing() {
@@ -1115,8 +1166,10 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             if (stack.is(ModItemTags.FIRE_STARTER)) {
                 stack.shrink(1);
                 this.setIgnited(true);
+                break;
             } else if (stack.is(ModItemTags.UNBROKEN_FIRE_STARTER)) {
                 this.setIgnited(true);
+                break;
             }
         }
         Level level = this.getLevel();
