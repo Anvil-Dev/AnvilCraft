@@ -28,6 +28,7 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -318,6 +319,7 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
                 result.add(port);
             }
         }
+        result.sort(Comparator.comparing(port -> port.getMarkedItem().isEmpty()));
         return result;
     }
 
@@ -385,31 +387,21 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
         @Override
         public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
             TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
-            int inserted = this.insertMarked(resource, amount, transaction);
-            if (inserted == amount) {
-                return inserted;
-            }
             ItemSlot slot = this.slot(index);
-            return inserted + (slot == null ? 0 : slot.handler().insert(slot.index(), resource, amount - inserted, transaction));
+            return slot == null ? 0 : slot.handler().insert(slot.index(), resource, amount, transaction);
         }
 
         @Override
         public int insert(ItemResource resource, int amount, TransactionContext transaction) {
             TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
-            int inserted = this.insertMarked(resource, amount, transaction);
-            for (int index = 0; index < StoragePortConsolidatorBlockEntity.this.ports.size() && inserted < amount; index++) {
-                var port = StoragePortConsolidatorBlockEntity.this.portAt(index);
-                if (port != null) {
-                    inserted += port.getItemHandler().insert(resource, amount - inserted, transaction);
+            int inserted = 0;
+            for (StoragePortBlockEntity port : StoragePortConsolidatorBlockEntity.this.itemPorts()) {
+                inserted += port.getItemHandler().insert(resource, amount - inserted, transaction);
+                if (inserted == amount) {
+                    break;
                 }
             }
             return inserted;
-        }
-
-        private int insertMarked(ItemResource resource, int amount, TransactionContext transaction) {
-            int marked = StoragePortConsolidatorBlockEntity.this.findMarkedPort(resource.toStack());
-            var port = StoragePortConsolidatorBlockEntity.this.portAt(marked);
-            return port == null ? 0 : port.getItemHandler().insert(resource, amount, transaction);
         }
 
         @Override
