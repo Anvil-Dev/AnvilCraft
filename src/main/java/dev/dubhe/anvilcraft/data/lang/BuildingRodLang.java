@@ -8,7 +8,7 @@ public final class BuildingRodLang {
 
     public static void init(RegistrumLangProvider provider) {
         provider.add("message.anvilcraft.building_rod.wip_block",
-            "Blueprints containing work-in-progress blocks can only be pasted in Creative mode");
+            "Use Creative mode to paste work-in-progress blocks, or force paste to treat them as air");
         provider.add("message.anvilcraft.building_rod.undo_partial",
             "Area restored; fluid refund pending. Make room in linked fluid storage and undo again before building");
         provider.add("message.anvilcraft.building_rod.undo_conflict",

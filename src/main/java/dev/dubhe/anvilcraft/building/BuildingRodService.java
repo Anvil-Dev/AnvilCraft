@@ -482,7 +482,8 @@ public final class BuildingRodService {
         if (tag == null) return;
         try {
             StructureSnapshot snapshot = BlueprintNormalizer.load(tag, player.registryAccess(), disk.direction(), disk.upsideDown());
-            if (!player.isCreative() && snapshot.blocks().stream().anyMatch(entry -> snapshot.stateOf(entry).is(ModBlocks.WIP_BLOCK))) {
+            if (!partial && !player.isCreative()
+                && snapshot.blocks().stream().anyMatch(entry -> snapshot.stateOf(entry).is(ModBlocks.WIP_BLOCK))) {
                 message(player, "wip_block");
                 return;
             }
@@ -497,7 +498,7 @@ public final class BuildingRodService {
             List<BlueprintTicks.Entry> ticks = new ArrayList<>();
             for (BlueprintPlacement copy : placements) {
                 snapshot.ticks().forEach(tick -> ticks.add(tick.at(copy.worldOf(tick.pos()))));
-                if (!planBlueprint(player, snapshot, copy, allGroups, declared)) return;
+                if (!planBlueprint(player, snapshot, copy, allGroups, declared, partial)) return;
             }
             var undoBounds = placements.getFirst().bounds(snapshot.size());
             undoBounds.encapsulate(placements.getLast().bounds(snapshot.size()));
@@ -510,11 +511,16 @@ public final class BuildingRodService {
 
     private static boolean planBlueprint(
         ServerPlayer player, StructureSnapshot snapshot, BlueprintPlacement placement,
-        List<Group> allGroups, Map<BlockPos, BlockState> declared
+        List<Group> allGroups, Map<BlockPos, BlockState> declared, boolean partial
     ) {
         final BlockPos sourceOrigin = BlueprintBlockConfiguration.sourceOrigin(snapshot);
         final Map<BlockPos, Group> groups = new LinkedHashMap<>();
         List<BlueprintMultiblocks.PlacedBlock> blueprint = BlueprintMultiblocks.expand(snapshot, placement, -1);
+        if (partial) {
+            blueprint = blueprint.stream().map(entry -> entry.state().is(ModBlocks.WIP_BLOCK)
+                ? new BlueprintMultiblocks.PlacedBlock(entry.pos(), Blocks.AIR.defaultBlockState(), Optional.empty())
+                : entry).toList();
+        }
         blueprint.forEach(entry -> declared.put(entry.pos(), entry.state()));
         Map<BlockPos, BlockPos> cakeMaterials = new LinkedHashMap<>();
         for (var entry : blueprint) {
