@@ -61,14 +61,9 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidRe
     public static final int CAPACITY_MB = 128 * 1000;
     /** 等效高度调整上限（格），即 20 米 */
     public static final int MAX_HEIGHT_BIAS = 20;
-    /** 目标水位区间下限 */
-    private static final double ADJUST_FILL_LOW = 0.5;
-    /** 目标水位区间上限 */
-    private static final double ADJUST_FILL_HIGH = 0.75;
-    /** 目标水位区间中点：区间外朝它调节 */
-    private static final double ADJUST_FILL_MID = (ADJUST_FILL_LOW + ADJUST_FILL_HIGH) / 2;
-    /** 每格水位偏差对应的单步调整量 */
-    private static final int ADJUST_RATE = 8;
+    private static final double ADJUST_FILL_START = 0.5;
+    private static final double ADJUST_DRAIN_START = 0.75;
+    private static final double ADJUST_STOP = 0.65;
     /** 端口贴附关系重校验间隔（tick） */
     private static final int VALIDATE_INTERVAL = 20;
     /** 等效高度调整间隔（tick） */
@@ -131,6 +126,9 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidRe
      */
     @Getter
     private int heightBias;
+    /** 抽入与排出状态保持到目标水位，避免在启动阈值附近反复换向。 */
+    private boolean drawing;
+    private boolean draining;
     /** 连接到的存储 ID；未连接时为 null，用于把流体变化通知给仓储 UI */
     @Nullable
     private UUID storageId = null;
@@ -161,14 +159,7 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidRe
         }
     }
 
-    /**
-     * 按内部水位调整等效高度，把流体维持在容积的 50%~75% 之间。
-     *
-     * <p>低于下限时降低自身等效高度，使自身成为更低的目标、吸引高处流体流入；
-     * 高于上限时提高等效高度，使其成为更高的源而向外排出；偏离中点越远调整越快。
-     * 已处于目标区间时保持偏置不动：若在区间内持续向中点回拉，等效高度会来回
-     * 穿越网络中其它容器，使端口在「吸入」与「排出」之间反复切换。</p>
-     */
+    /** 水位越过启动阈值后持续抽入或排出，到目标水位时停止。 */
     private void adjustHeightBias() {
         // 规格前置条件：仅在「通过管道连接了其他流体储存方块」时才调整。
         // 没有相邻管道时本端口不属于任何管网，偏置不会被读取（见 FluidNetworkScanner#heightBiasAt），
@@ -203,24 +194,41 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidRe
     }
 
     private int computeNextHeightBias() {
-        if (this.getFluid().isEmpty()) {
-            return 0;
-        }
         double fill = (double) this.tank.getAmountAsInt(0) / StorageFluidPortBlockEntity.CAPACITY_MB;
-        // 已在目标区间内：保持当前偏置，避免反复进出
-        if (fill >= StorageFluidPortBlockEntity.ADJUST_FILL_LOW
-            && fill <= StorageFluidPortBlockEntity.ADJUST_FILL_HIGH) {
+        if (this.drawing) {
+            if (fill >= StorageFluidPortBlockEntity.ADJUST_STOP) {
+                this.drawing = false;
+            }
+        } else if (this.draining) {
+            if (fill <= StorageFluidPortBlockEntity.ADJUST_STOP) {
+                this.draining = false;
+            }
+        } else if (fill < StorageFluidPortBlockEntity.ADJUST_FILL_START) {
+            this.drawing = true;
+        } else if (fill > StorageFluidPortBlockEntity.ADJUST_DRAIN_START) {
+            this.draining = true;
+        }
+        if (this.drawing) {
+            return -StorageFluidPortBlockEntity.MAX_HEIGHT_BIAS;
+        }
+        if (this.draining) {
+            return StorageFluidPortBlockEntity.MAX_HEIGHT_BIAS;
+        }
+        return this.alignedBias();
+    }
+
+    /** 停止时对齐同网最高容器，消除残留高度差导致的继续流入或回流。 */
+    private int alignedBias() {
+        Level level = this.level;
+        if (level == null) {
             return this.heightBias;
         }
-        // 朝区间中点调节，靠近边界时步长自然收敛到 0，不会在边界反复横跳
-        double error = StorageFluidPortBlockEntity.ADJUST_FILL_MID - fill;
-        int step = (int) Math.round(Math.abs(error) * StorageFluidPortBlockEntity.ADJUST_RATE);
-        if (step <= 0) {
+        Integer delta = FluidNetworkManager.INSTANCE.heightDeltaToHighestPeer(level, this.getBlockPos());
+        if (delta == null) {
             return this.heightBias;
         }
-        // error > 0 表示需要进液（降低高度），< 0 表示需要排液（提高高度）
-        int next = this.heightBias + (error < 0 ? step : -step);
-        return Math.clamp(next, -StorageFluidPortBlockEntity.MAX_HEIGHT_BIAS, StorageFluidPortBlockEntity.MAX_HEIGHT_BIAS);
+        return Math.clamp(this.heightBias + delta,
+            -StorageFluidPortBlockEntity.MAX_HEIGHT_BIAS, StorageFluidPortBlockEntity.MAX_HEIGHT_BIAS);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.fluid.network;
 
 import dev.dubhe.anvilcraft.api.entity.IEntityCauldron;
+import dev.dubhe.anvilcraft.entity.FluidTankMinecartEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -16,6 +17,10 @@ import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 /** 查找方块单元中由方块或实体提供的流体容器。 */
 public final class FluidContainerLookup {
     /**
@@ -28,7 +33,7 @@ public final class FluidContainerLookup {
 
     /**
      * 查找占据 {@code pos} 的流体端点。方块能力优先于实体能力。
-     * 实体归属于其碰撞箱中心所在的方块单元，避免移动实体同时从多个相邻位置暴露能力。
+     * 储罐矿车按碰撞箱覆盖的单元接入，重复入口由管网按处理器合并。
      */
     public static @Nullable Result find(Level level, BlockPos pos, @Nullable Direction side) {
         return find(level, pos, side, level.getBlockEntity(pos));
@@ -39,6 +44,18 @@ public final class FluidContainerLookup {
         BlockPos pos,
         @Nullable Direction side,
         @Nullable BlockEntity blockEntity
+    ) {
+        List<Result> results = findAll(level, pos, side, blockEntity);
+        return results.isEmpty() ? null : results.getFirst();
+    }
+
+    /** 返回前方单元内全部实体容器，供管网保留多辆储罐矿车。 */
+    public static List<Result> findAll(Level level, BlockPos pos, @Nullable Direction side) {
+        return findAll(level, pos, side, level.getBlockEntity(pos));
+    }
+
+    private static List<Result> findAll(
+        Level level, BlockPos pos, @Nullable Direction side, @Nullable BlockEntity blockEntity
     ) {
         BlockState state = blockEntity == null ? level.getBlockState(pos) : blockEntity.getBlockState();
         ResourceHandler<FluidResource> blockHandler = level.getCapability(
@@ -51,27 +68,23 @@ public final class FluidContainerLookup {
         if (blockHandler != null) {
             boolean cauldron = state.is(ModBlocks.FIRE_CAULDRON)
                 || CauldronFluidContent.getForBlock(state.getBlock()) != null;
-            return new Result(blockHandler, cauldron, null);
+            return List.of(new Result(blockHandler, cauldron, null));
         }
 
-        Entity selected = null;
-        ResourceHandler<FluidResource> selectedHandler = null;
-        for (Entity entity : level.getEntitiesOfClass(
-            Entity.class,
-            new AABB(pos),
-            candidate -> !candidate.isRemoved()
-                && BlockPos.containing(candidate.getBoundingBox().getCenter()).equals(pos)
-        )) {
+        List<Result> results = new ArrayList<>();
+        List<Entity> entities = level.getEntitiesOfClass(Entity.class, new AABB(pos), candidate -> !candidate.isRemoved()
+            && (candidate instanceof FluidTankMinecartEntity || BlockPos.containing(candidate.getBoundingBox().getCenter()).equals(pos)));
+        entities.sort(Comparator.comparingInt(Entity::getId));
+        for (Entity entity : entities) {
             ResourceHandler<FluidResource> handler = entity.getCapability(Capabilities.Fluid.ENTITY, side);
-            if (handler == null || selected != null && selected.getId() <= entity.getId()) {
+            if (handler == null) {
                 continue;
             }
-            selected = entity;
-            selectedHandler = handler;
+            boolean cauldron = entity instanceof IEntityCauldron entityCauldron
+                && entityCauldron.anvilcraft$usesWholeCauldronFluidTransfers();
+            results.add(new Result(handler, cauldron, entity));
         }
-        boolean cauldron = selected instanceof IEntityCauldron entityCauldron
-            && entityCauldron.anvilcraft$usesWholeCauldronFluidTransfers();
-        return selectedHandler == null ? null : new Result(selectedHandler, cauldron, selected);
+        return results;
     }
 
     /**
@@ -107,18 +120,23 @@ public final class FluidContainerLookup {
         return null;
     }
 
-    /** 返回实体端点是否仍与相邻管道部件实际接触。 */
+    /** 储罐矿车在管道前方一格内即可接入，其他实体保留实际接触判定。 */
     public static boolean isEntityConnectedToPipe(
         Level level, BlockPos containerPos, Direction sideToPipe, Entity entity
     ) {
         if (entity.isRemoved()
-            || !BlockPos.containing(entity.getBoundingBox().getCenter()).equals(containerPos)
             || entity.getCapability(Capabilities.Fluid.ENTITY, sideToPipe) == null) {
             return false;
         }
 
         BlockPos pipePos = containerPos.relative(sideToPipe);
-        if (!level.isLoaded(pipePos)) {
+        if (!level.isLoaded(pipePos) || !FluidNetworkScanner.isPipePart(level.getBlockState(pipePos))) {
+            return false;
+        }
+        if (entity instanceof FluidTankMinecartEntity) {
+            return entity.getBoundingBox().intersects(new AABB(containerPos));
+        }
+        if (!BlockPos.containing(entity.getBoundingBox().getCenter()).equals(containerPos)) {
             return false;
         }
         Vec3 towardPipe = Vec3.atLowerCornerOf(sideToPipe.getUnitVec3i()).scale(ENTITY_PIPE_CONTACT_TOLERANCE);

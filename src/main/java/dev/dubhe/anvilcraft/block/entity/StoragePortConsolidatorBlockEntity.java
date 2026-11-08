@@ -29,6 +29,7 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -40,7 +41,7 @@ import java.util.UUID;
  * 并把相连的流体端口按「一个端口一格」暴露为流体能力，读写都直通该端口的储罐；
  * 相连关系只穿过端口，不跨集装箱 / 存储站，因此集装箱两侧没有直接相连的端口阵列不会互通。
  * 整合器自身没有容积空间：输入物品直接进入相连端口，优先进入标记了对应物品的端口，
- * 其余情况只进入调用方指定槽位所属的端口，与仓储端口自身的缓存语义一致，
+ * 按槽位插入只访问对应缓存槽，整批插入优先使用标记端口，
  * 按槽位遍历（如 {@link ResourceHandler#insert}）即可填满整个阵列。
  * 未连接其他端口且直接接触唯一仓储核心时，物品能力直接访问该仓储的全部槽位。</p>
  *
@@ -306,8 +307,25 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
         return -1;
     }
 
-    private static int portIndex(int slot) {
-        return slot < 0 ? -1 : slot / StoragePortBlockEntity.BUFFER_SLOTS;
+    private List<StoragePortBlockEntity> itemPorts() {
+        List<StoragePortBlockEntity> result = new ArrayList<>();
+        for (int index = 0; index < this.ports.size(); index++) {
+            StoragePortBlockEntity port = this.portAt(index);
+            if (port != null) {
+                result.add(port);
+            }
+        }
+        result.sort(Comparator.comparing(port -> port.getMarkedItem().isEmpty()));
+        return result;
+    }
+
+    private @Nullable StoragePortBlockEntity bufferPort(int slot) {
+        if (slot < 0) {
+            return null;
+        }
+        List<StoragePortBlockEntity> itemPorts = this.itemPorts();
+        int index = slot / StoragePortBlockEntity.BUFFER_SLOTS;
+        return index < itemPorts.size() ? itemPorts.get(index) : null;
     }
 
     private static int bufferSlot(int slot) {
@@ -347,7 +365,7 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
             if (storage != null) {
                 return storage.size();
             }
-            return StoragePortConsolidatorBlockEntity.this.ports.size() * StoragePortBlockEntity.BUFFER_SLOTS;
+            return StoragePortConsolidatorBlockEntity.this.itemPorts().size() * StoragePortBlockEntity.BUFFER_SLOTS;
         }
 
         @Override
@@ -356,7 +374,7 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
             if (storage != null) {
                 return storage.getResource(index);
             }
-            var port = StoragePortConsolidatorBlockEntity.this.portAt(portIndex(index));
+            var port = StoragePortConsolidatorBlockEntity.this.bufferPort(index);
             return port == null ? ItemResource.EMPTY : port.getBuffer().getResource(bufferSlot(index));
         }
 
@@ -366,7 +384,7 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
             if (storage != null) {
                 return storage.getAmountAsLong(index);
             }
-            var port = StoragePortConsolidatorBlockEntity.this.portAt(portIndex(index));
+            var port = StoragePortConsolidatorBlockEntity.this.bufferPort(index);
             return port == null ? 0 : port.getBuffer().getAmountAsLong(bufferSlot(index));
         }
 
@@ -376,7 +394,7 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
             if (storage != null) {
                 return storage.getCapacityAsLong(index, resource);
             }
-            var port = StoragePortConsolidatorBlockEntity.this.portAt(portIndex(index));
+            var port = StoragePortConsolidatorBlockEntity.this.bufferPort(index);
             return port == null ? 0 : port.getBuffer().getCapacityAsLong(bufferSlot(index), resource);
         }
 
@@ -386,7 +404,7 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
             if (storage != null) {
                 return storage.isValid(index, resource);
             }
-            var port = StoragePortConsolidatorBlockEntity.this.portAt(portIndex(index));
+            var port = StoragePortConsolidatorBlockEntity.this.bufferPort(index);
             return port != null && port.getBuffer().isValid(bufferSlot(index), resource);
         }
 
@@ -397,12 +415,8 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
                 return storage.insert(index, resource, amount, transaction);
             }
             TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
-            int inserted = this.insertMarked(resource, amount, transaction);
-            if (inserted == amount) {
-                return inserted;
-            }
-            var port = StoragePortConsolidatorBlockEntity.this.portAt(portIndex(index));
-            return inserted + (port == null ? 0 : port.getBuffer().insert(resource, amount - inserted, transaction));
+            var port = StoragePortConsolidatorBlockEntity.this.bufferPort(index);
+            return port == null ? 0 : port.getBuffer().insert(bufferSlot(index), resource, amount, transaction);
         }
 
         @Override
@@ -412,20 +426,14 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
                 return storage.insert(resource, amount, transaction);
             }
             TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
-            int inserted = this.insertMarked(resource, amount, transaction);
-            for (int index = 0; index < StoragePortConsolidatorBlockEntity.this.ports.size() && inserted < amount; index++) {
-                var port = StoragePortConsolidatorBlockEntity.this.portAt(index);
-                if (port != null) {
-                    inserted += port.getBuffer().insert(resource, amount - inserted, transaction);
+            int inserted = 0;
+            for (StoragePortBlockEntity port : StoragePortConsolidatorBlockEntity.this.itemPorts()) {
+                inserted += port.getBuffer().insert(resource, amount - inserted, transaction);
+                if (inserted == amount) {
+                    break;
                 }
             }
             return inserted;
-        }
-
-        private int insertMarked(ItemResource resource, int amount, TransactionContext transaction) {
-            int marked = StoragePortConsolidatorBlockEntity.this.findMarkedPort(resource.toStack());
-            var port = StoragePortConsolidatorBlockEntity.this.portAt(marked);
-            return port == null ? 0 : port.getBuffer().insert(resource, amount, transaction);
         }
 
         @Override
@@ -435,7 +443,7 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
                 return storage.extract(index, resource, amount, transaction);
             }
             TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
-            var port = StoragePortConsolidatorBlockEntity.this.portAt(portIndex(index));
+            var port = StoragePortConsolidatorBlockEntity.this.bufferPort(index);
             return port == null ? 0 : port.getBuffer().extract(bufferSlot(index), resource, amount, transaction);
         }
 
