@@ -20,6 +20,7 @@ import dev.dubhe.anvilcraft.block.entity.CreativeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PulseGeneratorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
 import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.integration.jade.provider.AutoEnchantingTableProvider;
@@ -46,7 +47,9 @@ import dev.dubhe.anvilcraft.integration.jade.provider.RedstoneWireProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.RubyPrismProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.SmartBlockPlacerProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.SpaceOvercompressorProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.StoragePortProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.WipBlockProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.client.StoragePortClientProvider;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import snownee.jade.api.IWailaClientRegistration;
@@ -58,6 +61,7 @@ import snownee.jade.api.WailaPlugin;
 public class AnvilCraftJadePlugin implements IWailaPlugin {
     @Override
     public void register(IWailaCommonRegistration registration) {
+        registration.registerItemStorage(StoragePortProvider.INSTANCE, StoragePortBlockEntity.class);
         registration.registerBlockDataProvider(PowerBlockProvider.INSTANCE, BlockEntity.class);
         registration.registerBlockDataProvider(RubyPrismProvider.INSTANCE, BlockEntity.class);
         registration.registerBlockDataProvider(ItemDetectorProvider.INSTANCE, BlockEntity.class);
@@ -82,6 +86,7 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
 
     @Override
     public void registerClient(IWailaClientRegistration registration) {
+        registration.registerItemStorageClient(StoragePortClientProvider.INSTANCE);
         registration.registerBlockComponent(PowerBlockProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(RubyPrismProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(ItemDetectorProvider.INSTANCE, Block.class);

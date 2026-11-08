@@ -46,7 +46,7 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 /**
- * 仓储端口连接大仓库后直接存取共享库存，断开连接时使用自身保留的一组标记物品。
+ * 仓储端口连接大仓库后直接存取共享库存，断开连接时使用自身的 32 格库存。
  */
 public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerHolder, IStoragePort {
     /** 缓存格数 */
@@ -73,7 +73,7 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
                 return false;
             }
             ItemStack marked = StoragePortBlockEntity.this.markedItem;
-            return marked.isEmpty() || slot == 0 && ItemStack.isSameItemSameComponents(marked, stack);
+            return marked.isEmpty() || ItemStack.isSameItemSameComponents(marked, stack);
         }
 
         @Override
@@ -179,7 +179,8 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
                 return false;
             }
             return StoragePortBlockEntity.this.markedItem.isEmpty()
-                || slot == 0 && ItemStack.isSameItemSameComponents(StoragePortBlockEntity.this.markedItem, stack);
+                || (StoragePortBlockEntity.this.getCoreHandler() == null || slot == 0)
+                    && ItemStack.isSameItemSameComponents(StoragePortBlockEntity.this.markedItem, stack);
         }
     };
 
@@ -629,6 +630,12 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
             }
         }
         return amount;
+    }
+
+    /** 供库存提示读取完整存量，不应用于自动化提取的标记判定。 */
+    public IItemHandler getItemHandlerForDisplay() {
+        IItemHandler core = this.getCoreHandler();
+        return core == null ? this.buffer : core;
     }
 
     @Override
