@@ -19,5 +19,5 @@ navigation:
 <recipe id="anvilcraft:procedural_process/netherite_block"/>
 
 <tip>
-如果不想自己设计机器，可以参考手册的[机器](../009_machine/201_netherite_block.md)
+如果不想自己设计机器，可以参考手册的[远古残骸机](../009_machine/202_ancient_debris.md)和[下界合金块机](../009_machine/203_netherite_block.md)
 </tip>
