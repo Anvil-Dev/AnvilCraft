@@ -157,7 +157,7 @@ public class BlockEventListener {
             }
         } else if (
             stack.is(Items.IRON_BLOCK)
-            && targetState.is(BlockTags.ANVIL)
+            && (targetState.is(Blocks.CHIPPED_ANVIL) || targetState.is(Blocks.DAMAGED_ANVIL))
             && player.isShiftKeyDown()
         ) {
             onAnvilFixed(level, stack, pos, targetState);
