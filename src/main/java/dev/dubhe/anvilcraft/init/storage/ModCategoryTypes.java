@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.saved.storage.category.AndCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.BlockCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.CreativeModeTabCategory;
+import dev.dubhe.anvilcraft.saved.storage.category.EnchantedCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.FilterCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.FluidCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.HasComponentCategory;
@@ -25,6 +26,8 @@ public class ModCategoryTypes {
 
     public static final DeferredHolder<ICategory.Type<?>, BlockCategory.Type> BLOCK = ModCategoryTypes.REGISTER
         .register("block", BlockCategory.Type::new);
+    public static final DeferredHolder<ICategory.Type<?>, EnchantedCategory.Type> ENCHANTED = ModCategoryTypes.REGISTER
+        .register("enchanted", EnchantedCategory.Type::new);
     public static final DeferredHolder<ICategory.Type<?>, UnstackableCategory.Type> UNSTACKABLE = ModCategoryTypes.REGISTER
         .register("unstackable", UnstackableCategory.Type::new);
     public static final DeferredHolder<ICategory.Type<?>, AndCategory.Type> AND = ModCategoryTypes.REGISTER.register(

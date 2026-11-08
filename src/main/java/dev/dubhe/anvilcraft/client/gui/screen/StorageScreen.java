@@ -399,7 +399,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             SettingClientStub.setting(),
             _ -> SettingClientStub.update(SettingClientStub.listed().stream().toList())
                 .thenRunAsync(this::reorder, this.screenExecutor),
-            _ -> this.minecraft.setScreenAndShow(new CategorySettingsScreen(this.sourcePos))
+            _ -> this.minecraft.setScreenAndShow(new CategorySettingsScreen(this.sourcePos, this.displayTitle))
         ));
         this.addRenderableWidget(new TexturedButton(
             this.sx(278),

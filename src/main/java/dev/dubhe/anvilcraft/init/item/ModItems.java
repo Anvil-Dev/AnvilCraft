@@ -1203,8 +1203,6 @@ public class ModItems {
         .register();
     public static final ItemEntry<Item> PRISMARINE_CLUSTER = REGISTRUM.item("prismarine_cluster", Item::new)
         .register();
-    public static final ItemEntry<Item> SEA_HEART_SHELL = REGISTRUM.item("sea_heart_shell", Item::new)
-        .register();
     public static final ItemEntry<Item> CREAM = REGISTRUM
         .item("cream", Item::new)
         .tag(ModItemTags.CREAM)

@@ -72,14 +72,6 @@ public class VanillaRecipesLoader {
             .define('B', ModItems.SAPPHIRE)
             .unlockedBy("hasitem", AnvilCraftDatagen.has(lookup, ModItems.SAPPHIRE))
             .save(provider, AnvilCraft.recipe("trident"));
-        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, Items.HEART_OF_THE_SEA)
-            .pattern("A")
-            .pattern("B")
-            .pattern("A")
-            .define('A', ModItems.SEA_HEART_SHELL)
-            .define('B', ModItems.SAPPHIRE)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.SEA_HEART_SHELL), AnvilCraftDatagen.has(lookup, ModItems.SEA_HEART_SHELL))
-            .save(provider, AnvilCraft.recipe("heart_of_the_sea"));
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, Items.WET_SPONGE)
             .pattern("AA")
             .pattern("AA")

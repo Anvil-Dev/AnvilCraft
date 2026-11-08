@@ -81,7 +81,7 @@ final class CfaGravityController {
     }
 
     private static int calculateGravityRadius(CelestialBodyData body, boolean amplified, int redstoneSignal) {
-        float redstoneFactor = redstoneSignal / 5.0f;
+        float redstoneFactor = redstoneSignal / 15f;
         float fullRingScale = CelestialBodyData.ringSystemScale(body, amplified);
         float ringScale = CelestialBodyData.BASE_RING_SCALE
             + (fullRingScale - CelestialBodyData.BASE_RING_SCALE) * redstoneFactor;
@@ -92,18 +92,15 @@ final class CfaGravityController {
     }
 
     private static float calculateVisualCenterY(CelestialBodyData body, boolean amplified, int redstoneSignal) {
-        float redstoneFactor = redstoneSignal / 5.0f;
+        float redstoneFactor = redstoneSignal / 15f;
         float baseCenterY = amplified ? 6.5f : 4.5f;
         float fullCenterY = CelestialBodyData.dynamicCenterY(body, amplified);
         float visualCenterY = baseCenterY + (fullCenterY - baseCenterY) * redstoneFactor;
-        if (amplified) {
-            visualCenterY += 19.0f * (redstoneSignal / 15.0f);
-        }
         return visualCenterY;
     }
 
     private static double calculateBodyRadius(CelestialBodyData body, int redstoneSignal) {
-        float redstoneFactor = redstoneSignal / 5.0f;
+        float redstoneFactor = redstoneSignal / 15f;
         float rawBodyScale = body.bodyScale();
         float fullBodyScale = rawBodyScale * CelestialBodyData.BODY_SCALE_FACTOR;
         double visualRadius = (rawBodyScale + (fullBodyScale - rawBodyScale) * redstoneFactor) / 2.0;

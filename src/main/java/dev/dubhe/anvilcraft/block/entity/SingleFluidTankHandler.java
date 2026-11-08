@@ -42,12 +42,15 @@ final class SingleFluidTankHandler implements ResourceHandler<FluidResource>, Va
     @Override
     public long getAmountAsLong(int index) {
         Objects.checkIndex(index, 1);
-        return this.fluid.getAmount();
+        return this.infinite ? Integer.MAX_VALUE : this.fluid.getAmount();
     }
 
     @Override
     public long getCapacityAsLong(int index, FluidResource resource) {
         Objects.checkIndex(index, 1);
+        if (this.infinite) {
+            return Integer.MAX_VALUE;
+        }
         return this.enhanced ? this.infinityThreshold : this.baseCapacity;
     }
 

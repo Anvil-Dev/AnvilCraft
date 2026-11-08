@@ -8,8 +8,6 @@ import com.mojang.serialization.Codec;
 import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.anvilcraft.lib.v2.util.MathUtil;
-import dev.dubhe.anvilcraft.api.heat.HeatRecorder;
-import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.util.AabbUtil;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
 import net.minecraft.core.BlockPos;
@@ -142,13 +140,6 @@ public final class SlidingBlockSection {
             if (level.getFluidState(pos).getType() == Fluids.WATER
                 && state.hasProperty(BlockStateProperties.WATERLOGGED)) {
                 state = state.setValue(BlockStateProperties.WATERLOGGED, true);
-            }
-
-            if (state.is(ModBlockTags.HEATABLE_BLOCKS)) {
-                Optional<Block> prevTierBlock = HeatRecorder.getPrevTierHeatableBlock(level, pos, state);
-                if (prevTierBlock.isPresent()) {
-                    state = prevTierBlock.get().defaultBlockState();
-                }
             }
 
             boolean canBeReplaced = level.getBlockState(pos).canBeReplaced(

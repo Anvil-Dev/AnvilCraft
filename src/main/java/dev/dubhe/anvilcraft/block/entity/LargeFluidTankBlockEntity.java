@@ -217,6 +217,49 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidReso
         return result;
     }
 
+    /** 抽取单件储罐物品中的流体并更新物品；预留材料时应传入副本。 */
+    public static int drainItem(ItemStack stack, FluidStack fluid, HolderLookup.Provider registries) {
+        if (stack.getCount() != 1 || !stack.is(ModBlocks.LARGE_FLUID_TANK.asItem()) || fluid.isEmpty()) {
+            return 0;
+        }
+        MultiFluidTankHandler itemTank = readItemTank(stack, registries);
+        int amount;
+        try (Transaction transaction = Transaction.openRoot()) {
+            amount = itemTank.extract(FluidResource.of(fluid), fluid.getAmount(), transaction);
+            transaction.commit();
+        }
+        if (amount > 0) {
+            saveItemTank(stack, itemTank, registries);
+        }
+        return amount;
+    }
+
+    /** 向单件储罐物品补充流体并更新物品，返回实际接收量。 */
+    public static int insertIntoItem(ItemStack stack, FluidStack fluid, HolderLookup.Provider registries) {
+        if (stack.getCount() != 1 || !stack.is(ModBlocks.LARGE_FLUID_TANK.asItem()) || fluid.isEmpty()) {
+            return 0;
+        }
+        MultiFluidTankHandler itemTank = readItemTank(stack, registries);
+        int amount;
+        try (Transaction transaction = Transaction.openRoot()) {
+            amount = itemTank.insert(FluidResource.of(fluid), fluid.getAmount(), transaction);
+            transaction.commit();
+        }
+        if (amount > 0) {
+            saveItemTank(stack, itemTank, registries);
+        }
+        return amount;
+    }
+
+    private static void saveItemTank(ItemStack stack, MultiFluidTankHandler itemTank, HolderLookup.Provider registries) {
+        TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
+        itemTank.serializeForItem(output);
+        TypedEntityData<?> existing = stack.get(DataComponents.BLOCK_ENTITY_DATA);
+        CompoundTag data = existing == null ? new CompoundTag() : existing.copyTagWithoutId();
+        data.put("Tank", output.buildResult());
+        stack.set(DataComponents.BLOCK_ENTITY_DATA, TypedEntityData.of(ModBlockEntities.LARGE_FLUID_TANK.get(), data));
+    }
+
     private static MultiFluidTankHandler readItemTank(ItemStack stack, HolderLookup.Provider registries) {
         MultiFluidTankHandler itemTank = new MultiFluidTankHandler(
             LargeFluidTankBlockEntity.BASE_CAPACITY,

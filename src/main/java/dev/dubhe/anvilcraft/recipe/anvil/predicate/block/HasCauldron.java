@@ -209,6 +209,10 @@ public record HasCauldron(
         FluidStack curFluid = HasCauldron.getCurFluidStack(cache, pos, entityCauldron);
         if (this.hasCheck() && !this.matchesFluid(curFluid)) return false;
 
+        // 要求特定流体、不消耗且存量不足1000mB 否决（空锅条件与不要求流体的配方不受约束）
+        if (this.hasCheck() && !this.requiresEmptyCauldron() && this.consume() == 0
+            && HasCauldron.getCur(cache, pos, entityCauldron) < 1000) return false;
+
         // 如果锅必须为可点燃锅
         if (this.ignited) {
             if (entityCauldron != null) {
@@ -435,8 +439,8 @@ public record HasCauldron(
         }
         ResourceHandler<FluidResource> handler = HasCauldron.getFluidHandler(ctx, pos, entityCauldron);
         if (handler == null) return;
-        BlockCache cache = new BlockCache(ctx.getLevel());
-        if (ctx.getLevel().getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron) {
+        BlockCache cache = ctx.computeIfAbsent(BlockCache.BLOCK_CACHE);
+        if (cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron) {
             if (cauldron.isIgnited(cache, pos)) ignited = true;
         }
         if (entityCauldron != null && entityCauldron.anvilcraft$isIgnited()) ignited = true;
@@ -455,11 +459,9 @@ public record HasCauldron(
             }
             transaction.commit();
         }
-        cache = new BlockCache(ctx.getLevel());
-        if (ctx.getLevel().getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron) {
+        if (cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron) {
             if (cauldron.isIgnited(cache, pos) != ignited) {
                 cauldron.setIgnited(cache, pos, ignited);
-                cache.accept();
             }
         }
         if (entityCauldron != null && entityCauldron.anvilcraft$isIgnited() != ignited) {
@@ -517,7 +519,13 @@ public record HasCauldron(
         BlockPos pos,
         @Nullable IEntityCauldron entityCauldron
     ) {
-        if (entityCauldron != null) return entityCauldron.getFluidHandler();
+        if (entityCauldron != null) {
+            return entityCauldron.getFluidHandler();
+        }
+        BlockCache cache = ctx.computeIfAbsent(BlockCache.BLOCK_CACHE);
+        if (cache.getBlockEntity(pos) instanceof IFluidResourceHandlerHolder holder) {
+            return holder.getFluidHandler();
+        }
         return ctx.getLevel().getCapability(Capabilities.Fluid.BLOCK, pos, null);
     }
 

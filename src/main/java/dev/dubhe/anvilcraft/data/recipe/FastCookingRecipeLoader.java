@@ -42,6 +42,11 @@ public class FastCookingRecipeLoader {
             .save(provider);
 
         FastCookingRecipe.builder()
+            .requires(Items.MUD)
+            .result(Items.CLAY)
+            .save(provider);
+
+        FastCookingRecipe.builder()
             .requires(Items.SPIDER_EYE)
             .requires(Items.PUFFERFISH)
             .requires(Items.POISONOUS_POTATO)

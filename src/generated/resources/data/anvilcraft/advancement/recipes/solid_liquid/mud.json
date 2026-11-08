@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:solid_liquid/clay"
+        "recipe": "anvilcraft:solid_liquid/mud"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:solid_liquid/clay"
+      "anvilcraft:solid_liquid/mud"
     ]
   }
 }

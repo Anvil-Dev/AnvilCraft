@@ -311,32 +311,23 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
     }
 
     private List<StoragePortBlockEntity> itemPorts() {
-        List<StoragePortBlockEntity> linked = new ArrayList<>();
-        StoragePortBlockEntity unmarked = null;
+        List<StoragePortBlockEntity> result = new ArrayList<>();
         for (int index = 0; index < this.ports.size(); index++) {
             StoragePortBlockEntity port = this.portAt(index);
-            if (port == null) {
-                continue;
-            }
-            linked.add(port);
-            if (this.storageId != null && port.isConnectedTo(this.storageId) && port.getMarkedItem().isEmpty()) {
-                unmarked = port;
-            }
-        }
-        List<StoragePortBlockEntity> result = new ArrayList<>();
-        Set<ItemResource> marks = new HashSet<>();
-        for (StoragePortBlockEntity port : linked) {
-            if (this.storageId == null || !port.isConnectedTo(this.storageId)) {
-                result.add(port);
-            } else if (unmarked != null) {
-                if (port == unmarked) {
-                    result.add(port);
-                }
-            } else if (marks.add(ItemResource.of(port.getMarkedItem()))) {
+            if (port != null) {
                 result.add(port);
             }
         }
         return result;
+    }
+
+    private int itemSlots(StoragePortBlockEntity port, Set<ItemResource> marks) {
+        int slots = port.getItemHandler().size();
+        if (slots > StoragePortBlockEntity.BUFFER_SLOTS && this.storageId != null && port.isConnectedTo(this.storageId)
+            && !marks.add(ItemResource.of(port.getMarkedItem()))) {
+            return StoragePortBlockEntity.BUFFER_SLOTS;
+        }
+        return slots;
     }
 
     /** 按端口当前暴露的槽位映射，插入优先使用同种标记端口。 */
@@ -344,8 +335,9 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
         @Override
         public int size() {
             int size = 0;
+            Set<ItemResource> marks = new HashSet<>();
             for (StoragePortBlockEntity port : StoragePortConsolidatorBlockEntity.this.itemPorts()) {
-                size += port.getItemHandler().size();
+                size += StoragePortConsolidatorBlockEntity.this.itemSlots(port, marks);
             }
             return size;
         }
@@ -354,12 +346,14 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
             if (index < 0) {
                 return null;
             }
+            Set<ItemResource> marks = new HashSet<>();
             for (StoragePortBlockEntity port : StoragePortConsolidatorBlockEntity.this.itemPorts()) {
                 ResourceHandler<ItemResource> handler = port.getItemHandler();
-                if (index < handler.size()) {
+                int slots = StoragePortConsolidatorBlockEntity.this.itemSlots(port, marks);
+                if (index < slots) {
                     return new ItemSlot(handler, index);
                 }
-                index -= handler.size();
+                index -= slots;
             }
             return null;
         }

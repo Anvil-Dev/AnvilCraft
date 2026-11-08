@@ -23,6 +23,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
@@ -134,7 +135,12 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
             this.menu.getBlockEntity().getFluidHandler(),
             () ->
                 ClientPacketDistributor.sendToServer(new AutoEnchantingTableFluidPacket(this.menu.getBlockEntity().getBlockPos()))
-        ));
+        ) {
+            @Override
+            protected boolean isValidClickButton(MouseButtonInfo event) {
+                return event.button() == (AnvilCraft.CLIENT_CONFIG.controls.invertFluidPortBucketActions ? 1 : 0);
+            }
+        });
     }
 
     private void onSearchTextChange(String text) {

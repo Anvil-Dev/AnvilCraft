@@ -23,6 +23,9 @@ public class AnvilCraftClientConfig {
         @BoundedDiscrete(min = 32, max = 512)
         public int heliostatsRenderDistance = 128;
 
+        @Comment("Show a fading beam at the block illuminated by a working Heliostat")
+        public boolean heliostatsBeam = false;
+
         @Comment("Controls whether to render the sunflower head model for Heliostats in the Sunflower Plains biome")
         public boolean heliostatsSunflowerModel = true;
 

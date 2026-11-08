@@ -12,6 +12,7 @@
     "ItemStackFoodEffectMixin",
     "EndermanMixin",
     "accessor.LivingEntityAccessor",
+    "accessor.CreativeModeTabAccessor",
     "accessor.AvoidEntityGoalAccessor",
     "MunFallDamageMixin",
     "MunLevelLightMixin",

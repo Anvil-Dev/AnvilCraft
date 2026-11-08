@@ -3,13 +3,18 @@ package dev.dubhe.anvilcraft.integration.jade;
 import dev.dubhe.anvilcraft.block.AutoEnchantingTableBlock;
 import dev.dubhe.anvilcraft.block.CursedGoldBlock;
 import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
+import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
 import dev.dubhe.anvilcraft.block.WipBlock;
 import dev.dubhe.anvilcraft.block.container.FluidTankBlock;
 import dev.dubhe.anvilcraft.block.container.LargeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
+import dev.dubhe.anvilcraft.block.container.storage.HyperdimensionStorageStationBlock;
+import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.block.entity.AutoEnchantingTableBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeFluidTankBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.production.CrabTrapBlock;
@@ -31,6 +36,7 @@ import dev.dubhe.anvilcraft.integration.jade.provider.PowerBlockProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.RubyPrismProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.SmartBlockPlacerProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.SpaceOvercompressorProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.StoragePortProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.WipBlockProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.AutoEnchantingTableClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.BurningHeaterClientProvider;
@@ -47,9 +53,11 @@ import dev.dubhe.anvilcraft.integration.jade.provider.client.LargeFluidTankClien
 import dev.dubhe.anvilcraft.integration.jade.provider.client.MengerSpongeClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.OverflowDisposalTankClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.PowerBlockClientProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.client.RedstoneWirePowerClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.RubyPrismClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.SmartBlockPlacerClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.SpaceOvercompressorClientProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.client.StoragePortClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.WipBlockClientProvider;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -64,6 +72,10 @@ import snownee.jade.api.WailaPlugin;
 public class AnvilCraftJadePlugin implements IWailaPlugin {
     @Override
     public void register(IWailaCommonRegistration registration) {
+        registration.registerItemStorage(StoragePortProvider.INSTANCE, StoragePortBlockEntity.class);
+        registration.registerItemStorage(StoragePortProvider.INSTANCE, StorageBlockEntity.class);
+        registration.registerItemStorage(StoragePortProvider.INSTANCE, ShulkerContainerBlock.class);
+        registration.registerItemStorage(StoragePortProvider.INSTANCE, HyperdimensionStorageStationBlock.class);
         registration.registerBlockDataProvider(AutoEnchantingTableProvider.INSTANCE,
             AutoEnchantingTableBlockEntity.class);
         registration.registerBlockDataProvider(PowerBlockProvider.INSTANCE, Block.class);
@@ -87,6 +99,7 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
 
     @Override
     public void registerClient(IWailaClientRegistration registration) {
+        registration.registerItemStorageClient(StoragePortClientProvider.INSTANCE);
         registration.registerBlockComponent(ControlValveClientProvider.INSTANCE, ControlValveBlock.class);
         registration.registerBlockComponent(CursedGoldEnchantPowerProvider.INSTANCE, CursedGoldBlock.class);
         registration.registerCustomEnchantPower(ModBlocks.TRANSCENDIUM_BLOCK.get(), BlockState::getEnchantPowerBonus);
@@ -111,5 +124,6 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
         registration.registerFluidStorageClient(LargeFluidTankClientProvider.INSTANCE);
         registration.registerBlockComponent(MengerSpongeClientProvider.INSTANCE, MengerSpongeBlock.class);
         registration.registerBlockComponent(WipBlockClientProvider.INSTANCE, WipBlock.class);
+        registration.registerBlockComponent(RedstoneWirePowerClientProvider.INSTANCE, RedstoneWireBlock.class);
     }
 }

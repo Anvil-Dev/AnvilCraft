@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.building;
 
+import dev.anvilcraft.lib.v2.util.InventoryUtil;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
@@ -12,6 +13,7 @@ import dev.dubhe.anvilcraft.item.block.ResinBlockItem;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
@@ -21,6 +23,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
@@ -32,6 +35,7 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.LongSupplier;
@@ -44,6 +48,7 @@ public final class BuildingMaterials {
     private final ServerPlayer player;
     private final List<ItemStack> returned = new ArrayList<>();
     private final Source offhand;
+    private boolean renewableWaterReserved;
     private final List<UUID> fluidStorages;
     private final List<StoredFluid> storedFluids = new ArrayList<>();
 
@@ -66,12 +71,25 @@ public final class BuildingMaterials {
         private BuildingBlockMaterial.@Nullable Supplied blockMaterial;
         private int reserved;
         private boolean retainedTool;
+        private @Nullable Source container;
+        private final List<Source> contents = new ArrayList<>();
 
         private Source(ItemStack resource, long available, LongSupplier liveAmount, Extraction extract) {
             this.resource = resource.copy();
             this.available = available;
             this.liveAmount = liveAmount;
             this.extract = extract;
+        }
+
+        private long available() {
+            // 同一次放置不能同时消耗容器本体及其内容。
+            if (this.container != null && (this.container.reserved > 0 || this.container.retainedTool)) {
+                return 0;
+            }
+            if (this.contents.stream().anyMatch(source -> source.reserved > 0 || source.retainedTool)) {
+                return 0;
+            }
+            return this.available;
         }
     }
 
@@ -84,8 +102,14 @@ public final class BuildingMaterials {
         this.player = player;
         this.offhand = inventorySource(player, held);
         this.fluidStorages = new ArrayList<>(StorageServerStub.buildingFluidSources(player));
+        IdentityHashMap<ItemStack, Source> carried = new IdentityHashMap<>();
+        carried.put(held, this.offhand);
         for (ItemStack stack : PocketInventory.carriedItems(player)) {
-            if (!stack.isEmpty() && stack != held) this.sources.add(inventorySource(player, stack));
+            if (!stack.isEmpty() && stack != held) {
+                Source source = inventorySource(player, stack);
+                this.sources.add(source);
+                carried.put(stack, source);
+            }
         }
         for (UnlimitedItemStacksResourceHandler handler : StorageServerStub.buildingMaterialSources(player)) {
             for (int slot = 0; slot < handler.size(); slot++) {
@@ -102,6 +126,16 @@ public final class BuildingMaterials {
             }
         }
         if (!held.isEmpty()) this.sources.add(this.offhand);
+        for (ItemStack stack : carriedItems(player)) {
+            if (stack.isEmpty()) {
+                continue;
+            }
+            Source container = carried.get(stack);
+            if (container == null) {
+                container = inventorySource(player, stack);
+            }
+            this.addContainer(stack, container);
+        }
     }
 
     @FunctionalInterface
@@ -117,6 +151,49 @@ public final class BuildingMaterials {
             () -> ItemResource.of(stack).equals(resource) && PocketInventory.carriedItems(player).stream().anyMatch(item -> item == stack)
                 ? stack.getCount() : 0,
             (amount, transaction) -> access.extract(resource, amount, transaction));
+    }
+
+    private static List<ItemStack> carriedItems(ServerPlayer player) {
+        List<ItemStack> items = PocketInventory.carriedItems(player);
+        for (ItemStack stack : InventoryUtil.getCompatItems(player)) {
+            if (items.stream().noneMatch(item -> item == stack)) {
+                items.add(stack);
+            }
+        }
+        return items;
+    }
+
+    private void addContainer(ItemStack stack, Source container) {
+        if (stack.getCount() != 1) {
+            return;
+        }
+        var handler = ItemAccess.forStack(stack).getCapability(Capabilities.Item.ITEM);
+        if (handler == null) {
+            return;
+        }
+        for (int slot = 0; slot < handler.size(); slot++) {
+            ItemResource resource = handler.getResource(slot);
+            if (resource.isEmpty()) {
+                continue;
+            }
+            int available;
+            try (Transaction transaction = Transaction.openRoot()) {
+                available = handler.extract(slot, resource, handler.getAmountAsInt(slot), transaction);
+            }
+            if (available == 0) {
+                continue;
+            }
+            int index = slot;
+            Source content = new Source(resource.toStack(), available,
+                () -> carriedItems(this.player).stream().anyMatch(item -> item == stack)
+                    && ItemStack.matches(stack, container.resource)
+                    && index < handler.size() && handler.getResource(index).equals(resource)
+                    ? handler.getAmountAsLong(index) : 0,
+                (amount, transaction) -> handler.extract(index, resource, amount, transaction));
+            content.container = container;
+            container.contents.add(content);
+            this.sources.add(content);
+        }
     }
 
     public boolean reserve(List<ItemStack> materials) {
@@ -135,7 +212,7 @@ public final class BuildingMaterials {
     public boolean reserve(List<ItemStack> materials, List<FluidStack> fluids) {
         if (this.creative) return true;
         int[] before = this.sources.stream().mapToInt(source -> source.reserved).toArray();
-        int returnCount = this.returned.size();
+        List<ItemStack> returnedBefore = this.returned.stream().map(ItemStack::copy).toList();
         int[] fluidsBefore = this.storedFluids.stream().mapToInt(source -> source.reserved).toArray();
         if (!this.reserve(materials)) return false;
         for (FluidStack fluid : fluids) {
@@ -145,7 +222,12 @@ public final class BuildingMaterials {
                 for (int i = 0; i < this.storedFluids.size(); i++) {
                     this.storedFluids.get(i).reserved = i < fluidsBefore.length ? fluidsBefore[i] : 0;
                 }
-                this.returned.subList(returnCount, this.returned.size()).clear();
+                for (int i = 0; i < returnedBefore.size(); i++) {
+                    this.returned.get(i).set(
+                        DataComponents.BLOCK_ENTITY_DATA, returnedBefore.get(i).get(DataComponents.BLOCK_ENTITY_DATA)
+                    );
+                }
+                this.returned.subList(returnedBefore.size(), this.returned.size()).clear();
                 return false;
             }
         }
@@ -194,6 +276,9 @@ public final class BuildingMaterials {
         }
         if (!group.separateContents) allocated.entities.addAll(plannedEntities);
         allocated.fluids.addAll(group.fluids);
+        if (group.renewableWater && !this.renewableWaterReserved) {
+            allocated.fluids.add(new FluidStack(Fluids.WATER, 2000));
+        }
         allocated.materials.addAll(group.materials);
         for (var entry : group.blockMaterials.entrySet()) {
             ItemStack expected = entry.getValue();
@@ -251,7 +336,7 @@ public final class BuildingMaterials {
                 }
             }
         }
-        if (!this.reserve(List.of(), group.fluids)) {
+        if (!this.reserve(List.of(), allocated.fluids)) {
             this.restoreSources(before, toolsBefore);
             return null;
         }
@@ -274,13 +359,15 @@ public final class BuildingMaterials {
                 if (count > 0) allocated.materials.add(source.resource.copyWithCount(count));
             }
             allocated.returned.clear();
-            this.returned.subList(returnedBefore, this.returned.size()).forEach(stack -> allocated.returned.add(stack.copy()));
+            // 后续分组可继续抽取同一储罐，撤销记录需要最终返还的容器状态。
+            allocated.returned.addAll(this.returned.subList(returnedBefore, this.returned.size()));
             for (int i = 0; i < this.storedFluids.size(); i++) {
                 StoredFluid source = this.storedFluids.get(i);
                 int count = source.reserved - (i < fluidBefore.length ? fluidBefore[i] : 0);
                 if (count > 0) allocated.fluidPayments.add(new FluidPayment(source.storage, source.fluid.copyWithAmount(count)));
             }
         }
+        this.renewableWaterReserved |= group.renewableWater;
         return allocated;
     }
 
@@ -290,7 +377,9 @@ public final class BuildingMaterials {
     private boolean reserveTool(Item tool) {
         if (this.creative) return true;
         for (Source source : this.sources) {
-            if (!source.resource.is(tool) || source.available <= source.reserved) continue;
+            if (!source.resource.is(tool) || source.available() <= source.reserved) {
+                continue;
+            }
             source.retainedTool = true;
             return true;
         }
@@ -300,7 +389,7 @@ public final class BuildingMaterials {
     private boolean reserveHammer() {
         if (this.creative) return true;
         for (Source source : this.sources) {
-            if (source.resource.getItem() instanceof AnvilHammerItem && source.available > source.reserved) {
+            if (source.resource.getItem() instanceof AnvilHammerItem && source.available() > source.reserved) {
                 source.retainedTool = true;
                 return true;
             }
@@ -313,7 +402,9 @@ public final class BuildingMaterials {
         if (this.creative) return ItemStack.EMPTY;
         for (int pass = 0; pass < 2; pass++) {
             for (Source source : this.sources) {
-                if (source.available <= source.reserved + (source.retainedTool ? 1 : 0)) continue;
+                if (source.available() <= source.reserved + (source.retainedTool ? 1 : 0)) {
+                    continue;
+                }
                 var saved = source.resource.get(ModComponents.SAVED_ENTITY);
                 boolean resin = source.resource.getItem() instanceof ResinBlockItem && saved != null
                     && saved.type() == type;
@@ -332,7 +423,7 @@ public final class BuildingMaterials {
         if (this.creative) return 0;
         for (Source source : this.sources) {
             if (!source.resource.is(item)) continue;
-            int take = (int) Math.min(remaining, source.available - source.reserved - (source.retainedTool ? 1 : 0));
+            int take = (int) Math.min(remaining, source.available() - source.reserved - (source.retainedTool ? 1 : 0));
             if (take == 0) continue;
             source.reserved += take;
             remaining -= take;
@@ -356,7 +447,9 @@ public final class BuildingMaterials {
     private int reserveBlock(ItemStack expected, boolean exact, int remaining, List<BlockSupply> taken, boolean separateContents) {
         for (Source source : this.sources) {
             if (!ItemStack.isSameItem(source.resource, expected)
-                || source.available <= source.reserved + (source.retainedTool ? 1 : 0)) continue;
+                || source.available() <= source.reserved + (source.retainedTool ? 1 : 0)) {
+                continue;
+            }
             if (separateContents && source.blockMaterial == null) {
                 source.blockMaterial = BuildingBlockMaterial.separateContents(source.resource, this.player.level());
             }
@@ -364,7 +457,7 @@ public final class BuildingMaterials {
                 ? source.blockMaterial : new BuildingBlockMaterial.Supplied(source.resource, List.of());
             ItemStack empty = material.stack();
             if (ItemStack.isSameItemSameComponents(empty, expected) != exact) continue;
-            int take = (int) Math.min(remaining, source.available - source.reserved - (source.retainedTool ? 1 : 0));
+            int take = (int) Math.min(remaining, source.available() - source.reserved - (source.retainedTool ? 1 : 0));
             source.reserved += take;
             remaining -= take;
             List<ItemStack> returned = material.contents().stream()
@@ -379,7 +472,7 @@ public final class BuildingMaterials {
         int remaining = material.getCount();
         for (Source source : this.sources) {
             if (!ItemStack.isSameItemSameComponents(source.resource, material)) continue;
-            int take = (int) Math.min(remaining, source.available - source.reserved - (source.retainedTool ? 1 : 0));
+            int take = (int) Math.min(remaining, source.available() - source.reserved - (source.retainedTool ? 1 : 0));
             source.reserved += take;
             remaining -= take;
             if (remaining == 0) break;
@@ -389,6 +482,12 @@ public final class BuildingMaterials {
 
     private int reserveFluid(FluidStack fluid) {
         int remaining = fluid.getAmount();
+        for (ItemStack container : this.returned) {
+            if (remaining <= 0) {
+                break;
+            }
+            remaining -= this.drainTankItem(container, fluid.copyWithAmount(remaining));
+        }
         for (Source source : this.sources) {
             if (source == this.offhand) continue;
             remaining = this.reserveContainer(source, fluid, remaining);
@@ -414,6 +513,9 @@ public final class BuildingMaterials {
     List<Component> missing(List<BuildingPlan.Group> groups) {
         List<ItemStack> items = new ArrayList<>();
         List<FluidStack> fluids = new ArrayList<>();
+        if (!this.renewableWaterReserved && groups.stream().anyMatch(group -> group.renewableWater)) {
+            fluids.add(new FluidStack(Fluids.WATER, 2000));
+        }
         List<Item> tools = new ArrayList<>();
         int ignitions = 0;
         int leads = 0;
@@ -474,24 +576,42 @@ public final class BuildingMaterials {
     }
 
     private int reserveContainer(Source source, FluidStack fluid, int remaining) {
-        while (remaining > 0 && source.available > source.reserved + (source.retainedTool ? 1 : 0)) {
+        while (remaining > 0 && source.available() > source.reserved + (source.retainedTool ? 1 : 0)) {
             ItemStack container = source.resource.copyWithCount(1);
             var items = new ItemStacksResourceHandler(1);
             items.set(0, ItemResource.of(container), 1);
             var access = ItemAccess.forHandlerIndexStrict(items, 0);
             var handler = access.getCapability(Capabilities.Fluid.ITEM);
-            if (handler == null) break;
             int drained;
-            try (Transaction transaction = Transaction.openRoot()) {
-                drained = handler.extract(FluidResource.of(fluid), remaining, transaction);
-                if (drained <= 0) break;
-                transaction.commit();
+            if (handler == null) {
+                drained = this.drainTankItem(container, fluid.copyWithAmount(remaining));
+            } else {
+                try (Transaction transaction = Transaction.openRoot()) {
+                    drained = handler.extract(FluidResource.of(fluid), remaining, transaction);
+                    transaction.commit();
+                }
+                container = items.getResource(0).toStack(items.getAmountAsInt(0));
+            }
+            if (drained <= 0) {
+                break;
             }
             source.reserved++;
             remaining -= drained;
-            this.returned.add(items.getResource(0).toStack(items.getAmountAsInt(0)));
+            this.returned.add(container);
         }
         return remaining;
+    }
+
+    private int drainTankItem(ItemStack stack, FluidStack fluid) {
+        return stack.is(ModBlocks.LARGE_FLUID_TANK.asItem())
+            ? LargeFluidTankBlockEntity.drainItem(stack, fluid, this.player.registryAccess())
+            : FluidTankBlockEntity.drainItem(stack, fluid, this.player.registryAccess());
+    }
+
+    private int fillTankItem(ItemStack stack, FluidStack fluid) {
+        return stack.is(ModBlocks.LARGE_FLUID_TANK.asItem())
+            ? LargeFluidTankBlockEntity.insertIntoItem(stack, fluid, this.player.registryAccess())
+            : FluidTankBlockEntity.insertIntoItem(stack, fluid, this.player.registryAccess());
     }
 
     void excludeFluidSources(Predicate<BlockPos> excluded) {
@@ -501,10 +621,13 @@ public final class BuildingMaterials {
     void reserveRefundContainers(List<FluidStack> fluids, List<ItemStack> refunds) {
         List<ItemStack> filled = new ArrayList<>();
         for (FluidStack fluid : fluids) {
+            for (ItemStack stack : filled) {
+                fluid.shrink(this.fillTankItem(stack, fluid));
+            }
             for (ItemStack stack : refunds) this.fillRefundContainer(stack, fluid, filled);
             for (ItemStack stack : this.returned) this.fillRefundContainer(stack, fluid, filled);
             for (Source source : this.sources) {
-                while (!fluid.isEmpty() && source.available > source.reserved) {
+                while (!fluid.isEmpty() && source.available() > source.reserved) {
                     ItemStack container = source.resource.copyWithCount(1);
                     if (!this.fillRefundContainer(container, fluid, filled)) break;
                     source.reserved++;
@@ -530,14 +653,9 @@ public final class BuildingMaterials {
                     transaction.commit();
                 }
                 result = items.getResource(0).toStack(items.getAmountAsInt(0));
-            } else if (container.is(ModBlocks.FLUID_TANK.asItem())) {
-                amount = Math.min(fluid.getAmount(), FluidTankBlockEntity.BASE_CAPACITY);
-                result = FluidTankBlockEntity.fillItem(container, fluid.copyWithAmount(amount), this.player.registryAccess());
-            } else if (container.is(ModBlocks.LARGE_FLUID_TANK.asItem())) {
-                amount = Math.min(fluid.getAmount(), LargeFluidTankBlockEntity.BASE_CAPACITY);
-                result = LargeFluidTankBlockEntity.fillItem(container, List.of(fluid.copyWithAmount(amount)), this.player.registryAccess());
             } else {
-                break;
+                amount = this.fillTankItem(container, fluid);
+                result = container;
             }
             if (result.isEmpty()) break;
             if (amount <= 0) break;

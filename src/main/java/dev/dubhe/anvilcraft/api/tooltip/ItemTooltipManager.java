@@ -2,6 +2,8 @@ package dev.dubhe.anvilcraft.api.tooltip;
 
 import com.google.common.collect.Maps;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity.TargetMode;
 import dev.dubhe.anvilcraft.block.power.converter.PowerConverterBigBlock;
 import dev.dubhe.anvilcraft.block.power.converter.PowerConverterExtremelyBigBlock;
 import dev.dubhe.anvilcraft.block.power.converter.PowerConverterMiddleBlock;
@@ -16,6 +18,7 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.tooltip.StorageTooltip;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
+import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -448,7 +451,7 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModItems.STRUCTURE_DISK.get(), "Stores structure data, used in blueprint mode of Smart Block Placer");
         ItemTooltipManager.NORMAL.put(ModBlocks.STRUCTURE_SCANNER.asItem(), "Scans and stores structures in Structure Disk");
         ItemTooltipManager.NORMAL.put(ModBlocks.SMART_BLOCK_PLACER.asItem(), "Advanced block placer with 5x5x5 configurable placement area");
-        ItemTooltipManager.NORMAL.put(ModBlocks.FISH_TANK.asItem(), "Used for anvil synthesis and provides underwater breathing when worn");
+        ItemTooltipManager.NORMAL.put(ModBlocks.FISH_TANK.asItem(), "It is sturdier than it looks, used for anvil synthesis");
         ItemTooltipManager.NORMAL.put(ModBlocks.BLOCK_DEVOURER.asItem(), "Breaks 3×3 area of blocks in front when powered by redstone");
         ItemTooltipManager.NORMAL.put(ModBlocks.INDUCTION_LIGHT.asItem(), "Provides lighting and configurable special modes");
         ItemTooltipManager.NORMAL.put(ModBlocks.HELIOSTATS.asItem(), "Heats targeted blocks during the day");
@@ -661,18 +664,18 @@ public class ItemTooltipManager {
 
         ItemTooltipManager.NORMAL.put(ModBlocks.STORAGE_PORT.asItem(), "External input/output ports of the Shulker Container or the Hyperdimension Storage Station.");
         ItemTooltipManager.SHIFT.put(ModBlocks.STORAGE_PORT.asItem(), """
-                Right‑click with an item in hand to mark a port
-                A marked port will always keep one stack of items inside
-                Left‑click to take items out, right‑click to put items in
-                Hold right-click on a marked port with Anvil Hammer can remove the mark""");
+                Right-click with an item to mark the port
+                When linked, items go directly into or out of the storage
+                Stored items are used before the port's internal items
+                The port can hold one stack of marked items internally
+                Hold right-click with an Anvil Hammer and move the cursor to clear the mark""");
         ItemTooltipManager.NORMAL.put(ModBlocks.ITEM_SPLITTER.asItem(), "Evenly splits the stored items among the containers in front");
         ItemTooltipManager.SHIFT.put(
             ModBlocks.ITEM_SPLITTER.asItem(), """
-                Holds 16 slots and accepts any mix of items
-                Every 8 game ticks, evenly splits its contents among the containers lined up in front
-                Right-click with an empty hand to take items out, sneak to take a whole stack
-                Can face up or down; anvil strikes have no effect when facing up
-                With no container in front, let a falling anvil strike it: the fall height decides how many shares are made, thrown past obstacles up to 16 blocks ahead
+                Holds 16 slots of items
+                Evenly splits its contents among the containers lined up in front
+                With no container in front, let a falling anvil strike it
+                The fall height decides how many shares are made, thrown past obstacles up to 16 blocks ahead
                 Always divides strictly, the remainder stays inside"""
         );
 
@@ -741,8 +744,8 @@ public class ItemTooltipManager {
             ModBlocks.SMART_BLOCK_PLACER.asItem(), """
                 Advanced block placer with 5x5x5 placement area, configurable via GUI
                 Supports pickup mode (from containers or drops) and move mode (direct block movement)
-                Requires power supply, consumes 8 kW
-                Put Structure Disk to enable Blue Print Mode, consumes 64 kW"""
+                Requires power supply, consumes %s
+                Put Structure Disk to enable Blue Print Mode, consumes %s"""
         );
         ItemTooltipManager.SHIFT.put(
             ModBlocks.STRUCTURE_SCANNER.asItem(), """
@@ -752,10 +755,10 @@ public class ItemTooltipManager {
         );
         ItemTooltipManager.SHIFT.put(
             ModBlocks.FISH_TANK.asItem(), """
-                It is sturdier than it looks and can be used as a substitute for the alchemy pot to perform related anvil synthesis
                 Wearing it on your head provides a temporary underwater breathing effect
                 Right-click the top with an item in hand to place the item inside
-                Right-click the lower part of the fish tank with a tropical fish bucket in hand to release the tropical fish"""
+                Right-click the lower part of the fish tank with a tropical fish bucket in hand to release the tropical fish
+                Can interact with Dispensers for fluid transfer"""
         );
         ItemTooltipManager.SHIFT.put(
             ModBlocks.BLOCK_DEVOURER.asItem(), """
@@ -983,6 +986,19 @@ public class ItemTooltipManager {
             ).withStyle(ChatFormatting.GRAY));
             return;
         }
+        if (item == ModBlocks.SMART_BLOCK_PLACER.asItem()) {
+            // 耗电随配置的放置间隔变化，这里按当前配置动态取值
+            ItemTooltipManager.addTranslatedTooltip(builder, ItemTooltipManager.getTranslationKeyShift(item),
+                UnitUtil.electricityUnit(
+                    SmartBlockPlacerBlockEntity.getInputPowerFor(TargetMode.POSITION.getPower()),
+                    false
+                ),
+                UnitUtil.electricityUnit(
+                    SmartBlockPlacerBlockEntity.getInputPowerFor(TargetMode.BLUEPRINT.getPower()),
+                    false
+                ));
+            return;
+        }
         ItemTooltipManager.addTranslatedTooltip(builder, ItemTooltipManager.getTranslationKeyShift(item),
             item == ModBlocks.MASS_ENERGY_INVERTER.asItem()
                 ? new Object[]{AnvilCraft.CONFIG.machines.massEnergyInverterMassPerTick}
@@ -995,7 +1011,8 @@ public class ItemTooltipManager {
     }
 
     public static String getTranslationKeyShift(Item item) {
-        return ItemTooltipManager.getTranslationKey(item) + ".shift";
+        return ItemTooltipManager.getTranslationKey(item)
+            + (item == ModBlocks.STORAGE_PORT.asItem() ? ".shift.direct_access" : ".shift");
     }
 
     public static Map<Item, String> getShiftMap() {

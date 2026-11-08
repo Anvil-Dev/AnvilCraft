@@ -9,6 +9,7 @@
       "items": "minecraft:sugar"
     }
   ],
+  "priority": 12,
   "results": [
     {
       "id": "anvilcraft:cream_block"
