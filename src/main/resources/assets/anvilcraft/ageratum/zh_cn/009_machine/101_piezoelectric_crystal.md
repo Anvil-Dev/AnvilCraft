@@ -12,18 +12,33 @@ navigation:
 
 可以在此基础上继续展开
 
-## 图示
+### 图示
 
 <structure id="../../structures/machine/piezoelectric_crystal_0.snbt"/>
-
-<tip>
-左键调整位置；右键调整角度；PgUP/PgDN调整显示高度
-</tip>
 
 1. 脉冲发生器设置为循环模式：每间隔 5gt 输出信号 5gt，控制铁砧下落
 
 - 所有 <ref item="minecraft:smooth_stone"/> 可替换为 任意完整不透明方块
 - 所有 <ref item="minecraft:anvil"/> 可替换为 任意铁砧
+
+## 进阶版
+
+第一个发电机也可以用一些小技巧提高发电效率：
+
+发电量 10kW/个铁砧；共计 80kW
+
+### 图示
+
+<structure id="../../structures/machine/piezoelectric_crystal_0.nbt"/>
+
+1. 这里利用了砸船的小技巧和 0t 脉冲能让磁铁快速闪烁的小技巧
+
+- 铁砧碰到船时，如果离地面 1格 以内，会瞬间落地，这里利用花盆控制船的高度正好在 1格 内
+- 脉冲发生器每经过 4gt 输出 0gt 信号时，可以让磁铁最快闪烁
+
+<tip>
+你也可以在其它地方使用这些小技巧增加机器的效率
+</tip>
 
 # 皇家铁砧下弹压电发电机
 
@@ -33,15 +48,20 @@ navigation:
 
 发电量 15kW/个铁砧；共计 150kW
 
-## 图示
-
 <structure id="../../structures/machine/piezoelectric_crystal_1.snbt"/>
 
 <tip>
-左键调整位置；右键调整角度；PgUP/PgDN调整显示高度
+树脂块也有粘液块一样的弹性，同时不会粘旁边的方块
 </tip>
 
-1. 活塞边上的*脉冲发生器*设置为上升沿模式：延时 3gt 输出信号 3gt
-2. 更远的*脉冲发生器*设置为循环模式：每间隔 1gt 输出信号 9gt
+## 进阶版
 
-- 所有 <ref item="minecraft:smooth_stone"/> 可替换为 任意完整不透明方块
+可以用一些精妙的时序控制大幅提高发电效率，总之上面那个是老机器看看就行了，这个才是真实用（
+
+发电量 75kW/个铁砧；共计 300kW
+
+<structure id="../../structures/machine/piezoelectric_crystal_1.nbt"/>
+
+<tip>
+可以自行加长机器扩展发电量
+</tip>

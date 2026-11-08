@@ -3,6 +3,11 @@ package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
+import dev.dubhe.anvilcraft.block.container.storage.HyperdimensionStorageStationBlock;
+import dev.dubhe.anvilcraft.block.container.storage.LargeCrateBlock;
+import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
+import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
+import dev.dubhe.anvilcraft.block.state.OpenedCube3x3PartHalf;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -48,6 +53,9 @@ import java.util.function.IntFunction;
 public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInjectRecipe>> {
     private static final String INPUT_BLOCK = "input_block";
     private static final String TRANSCENDIUM_PREFIX = "item_inject/transcendium_";
+
+    private static final ResourceLocation CRATE_TO_CONTAINER = AnvilCraft.of("item_inject/crate_to_container");
+    private static final ResourceLocation CONTAINER_TO_STATION = AnvilCraft.of("item_inject/container_to_station");
 
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
@@ -119,6 +127,13 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
             JeiItemUtil.addDefaultInputSlots(builder, recipe.getInputItems());
         }
         JeiBlockIngredientUtil.addInputSlot(builder, INPUT_BLOCK, 72, 34, 18, 19, recipe.getFirstInputBlock());
+        if (recipeHolder.id().equals(ItemInjectCategory.CONTAINER_TO_STATION)) {
+            builder.addSlot(RecipeIngredientRole.INPUT, 31, 43)
+                .addItemStack(ModBlocks.SPACE_OVERCOMPRESSOR.asStack(4))
+                .addRichTooltipCallback((slotView, tooltip) -> tooltip.add(Component.translatable(
+                    "gui.anvilcraft.category.container_upgrade.requires_expansion"
+                ).withStyle(ChatFormatting.GOLD)));
+        }
         if (transcendiumTier >= 0) {
             addTranscendiumOutputSlots(builder, recipe, transcendiumTier);
         } else {
@@ -172,14 +187,21 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
                 .orElse(input.getFirst())
         );
         boolean giantAnvil = renderedState.getBlock() instanceof GiantAnvilBlock;
-        int inputScale = giantAnvil ? 8 : JeiBlockIngredientUtil.getRenderablePreviewScale(renderedState, 12);
-        int inputY = giantAnvil ? 44 : 40;
+        boolean containerUpgrade = isContainerUpgrade(recipeHolder);
+        if (containerUpgrade) {
+            renderedState = getContainerPreviewState(renderedState);
+        }
+        int inputScale = giantAnvil || containerUpgrade ? 8 : JeiBlockIngredientUtil.getRenderablePreviewScale(renderedState, 12);
+        int inputY = giantAnvil || containerUpgrade ? 44 : 40;
         RenderSupport.renderBlock(guiGraphics, renderedState, 81, inputY, 10, inputScale, RenderSupport.SINGLE_BLOCK);
 
         this.arrowIn.draw(guiGraphics, 54, 30);
         this.arrowOut.draw(guiGraphics, 92, 29);
 
         JeiSlotUtil.drawDefaultInputSlots(guiGraphics, this.slotDefault, recipe.getInputItems().size());
+        if (recipeHolder.id().equals(CONTAINER_TO_STATION)) {
+            this.slotDefault.draw(guiGraphics, 30, 42);
+        }
         int transcendiumTier = getTranscendiumTier(recipeHolder);
         if (transcendiumTier >= 0) {
             this.drawTranscendiumOutputSlots(guiGraphics, transcendiumTier);
@@ -197,7 +219,10 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
 
         if (!recipe.getResultBlocks().isEmpty()) {
             BlockState resultState = JeiBlockIngredientUtil.getRenderablePreviewState(recipe.getFirstResultBlock().state());
-            int resultScale = JeiBlockIngredientUtil.getRenderablePreviewScale(resultState, 12);
+            if (containerUpgrade) {
+                resultState = getContainerPreviewState(resultState);
+            }
+            int resultScale = containerUpgrade ? 8 : JeiBlockIngredientUtil.getRenderablePreviewScale(resultState, 12);
             int resultY = transcendiumTier >= 0
                           ? 45
                           : recipe.getResultItems().isEmpty() ? 30 : 49;
@@ -227,6 +252,16 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
                 List<BlockState> states = recipe.getFirstInputBlock().constructStatesForRender();
                 if (!states.isEmpty()) {
                     tooltip.addAll(TooltipUtil.tooltip(states.getFirst().getBlock()));
+                    if (ItemInjectCategory.isContainerUpgrade(recipeHolder)) {
+                        tooltip.add(Component.translatable("gui.anvilcraft.category.container_upgrade.drop_on_top")
+                            .withStyle(ChatFormatting.GOLD));
+                        tooltip.add(Component.translatable("gui.anvilcraft.category.container_upgrade.strike")
+                            .withStyle(ChatFormatting.GOLD));
+                    }
+                    if (recipeHolder.id().equals(ItemInjectCategory.CONTAINER_TO_STATION)) {
+                        tooltip.add(Component.translatable("gui.anvilcraft.category.container_upgrade.requires_expansion")
+                            .withStyle(ChatFormatting.GOLD));
+                    }
                 }
             }
         }
@@ -343,9 +378,49 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
             JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.ITEM_INJECT_TYPE.get())
         );
         recipes.addAll(getTranscendiumRecipes());
+        recipes.addAll(getContainerUpgradeRecipes());
         registration.addRecipes(
             AnvilCraftJeiPlugin.ITEM_INJECT,
             recipes);
+    }
+
+    private static BlockState getContainerPreviewState(BlockState state) {
+        return switch (state.getBlock()) {
+            case LargeCrateBlock ignored -> state.setValue(LargeCrateBlock.HALF, Cube3x3PartHalf.MID_CENTER);
+            case ShulkerContainerBlock ignored -> state.setValue(ShulkerContainerBlock.HALF, OpenedCube3x3PartHalf.MID_CENTER);
+            case HyperdimensionStorageStationBlock ignored -> {
+                yield state.setValue(HyperdimensionStorageStationBlock.HALF, Cube3x3PartHalf.MID_CENTER);
+            }
+            default -> throw new IllegalArgumentException("Unsupported container preview: " + state);
+        };
+    }
+
+    private static boolean isContainerUpgrade(RecipeHolder<ItemInjectRecipe> recipeHolder) {
+        ResourceLocation id = recipeHolder.id();
+        return id.equals(ItemInjectCategory.CRATE_TO_CONTAINER) || id.equals(ItemInjectCategory.CONTAINER_TO_STATION);
+    }
+
+    private static List<RecipeHolder<ItemInjectRecipe>> getContainerUpgradeRecipes() {
+        return List.of(
+            new RecipeHolder<>(
+                ItemInjectCategory.CRATE_TO_CONTAINER,
+                ItemInjectRecipe.builder()
+                    .inputBlock(ModBlocks.LARGE_CRATE)
+                    .requires(ModBlocks.SPACE_OVERCOMPRESSOR)
+                    .requires(Blocks.NETHERITE_BLOCK, 6)
+                    .resultBlock(ModBlocks.SHULKER_CONTAINER)
+                    .buildRecipe()
+            ),
+            new RecipeHolder<>(
+                ItemInjectCategory.CONTAINER_TO_STATION,
+                ItemInjectRecipe.builder()
+                    .inputBlock(ModBlocks.SHULKER_CONTAINER)
+                    .requires(ModBlocks.SINGULARITY_CRYSTAL)
+                    .requires(ModBlocks.HYPERCUBE, 16)
+                    .resultBlock(ModBlocks.HYPERDIMENSION_STORAGE_STATION)
+                    .buildRecipe()
+            )
+        );
     }
 
     private static List<RecipeHolder<ItemInjectRecipe>> getTranscendiumRecipes() {
@@ -379,5 +454,11 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.ITEM_INJECT);
+        registration.addRecipeCatalyst(ModBlocks.LARGE_CRATE.asStack(), AnvilCraftJeiPlugin.ITEM_INJECT);
+        registration.addRecipeCatalyst(ModBlocks.SPACE_OVERCOMPRESSOR.asStack(), AnvilCraftJeiPlugin.ITEM_INJECT);
+        registration.addRecipeCatalyst(Blocks.NETHERITE_BLOCK.asItem().getDefaultInstance(), AnvilCraftJeiPlugin.ITEM_INJECT);
+        registration.addRecipeCatalyst(ModBlocks.SHULKER_CONTAINER.asStack(), AnvilCraftJeiPlugin.ITEM_INJECT);
+        registration.addRecipeCatalyst(ModBlocks.SINGULARITY_CRYSTAL.asStack(), AnvilCraftJeiPlugin.ITEM_INJECT);
+        registration.addRecipeCatalyst(ModBlocks.HYPERCUBE.asStack(), AnvilCraftJeiPlugin.ITEM_INJECT);
     }
 }

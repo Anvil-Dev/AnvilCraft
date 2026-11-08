@@ -4,10 +4,10 @@ import dev.dubhe.anvilcraft.api.IStoragePort;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
-import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler.ResourceKey;
 import dev.dubhe.anvilcraft.block.AbstractStoragePortBlock;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
+import dev.dubhe.anvilcraft.saved.storage.Storages;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import net.minecraft.core.BlockPos;
@@ -27,21 +27,20 @@ import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
 /**
  * 仓储端口整合器方块实体。
  *
- * <p>沿面相邻的仓储端口收集整个端口阵列，把各端口可取库存的并集作为物品能力暴露给外部物流，
+ * <p>沿面相邻的仓储端口收集整个端口阵列，把各端口缓存的并集作为物品能力暴露给外部物流，
  * 并把相连的流体端口按「一个端口一格」暴露为流体能力，读写都直通该端口的储罐；
  * 相连关系只穿过端口，不跨集装箱 / 存储站，因此集装箱两侧没有直接相连的端口阵列不会互通。
- * 整合器输入始终进入各端口缓存，标记仓储输出槽仅暴露同种物品的一份数量，
- * 按槽位遍历（如 {@link ItemHandlerHelper#insertItem}）即可填满整个阵列的缓存。</p>
+ * 标记端口的缓存排在未标记端口之前，按槽位插入只访问对应缓存槽，
+ * 按槽位遍历（如 {@link ItemHandlerHelper#insertItem}）即可填满整个阵列的缓存。
+ * 未连接其他端口且直接接触唯一仓储核心时，物品能力直接访问该仓储的全部槽位。</p>
  *
  * <p>右键为「塞入」：单击把手持物品塞入，双击把身上对应端口标记的物品全部塞入；
  * 手持流体容器时先尝试倒入相连的、已在存放同种流体的流体端口。</p>
@@ -65,6 +64,8 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
     /** 整条链归属的存储 ID（登记进 {@link StoragePortManager} 用）；null 表示未接上核心 */
     @Nullable
     private UUID storageId = null;
+    @Nullable
+    private BlockPos directCorePos;
     private int validateCountdown;
 
     public StoragePortConsolidatorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
@@ -229,6 +230,11 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
                 this.fluidPorts.add(fluidPort.getBlockPos());
             }
         }
+        BlockPos directCore = linked.ports().isEmpty() ? linked.core() : null;
+        if (!Objects.equals(this.directCorePos, directCore)) {
+            this.directCorePos = directCore;
+            this.invalidateCapabilities();
+        }
         this.updateRegistration(linked.core());
     }
 
@@ -254,6 +260,21 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
         if (id != null) {
             StoragePortManager.register(id, this.level, this.worldPosition);
         }
+    }
+
+    @Nullable
+    private IItemHandler getDirectStorageHandler() {
+        if (this.isRemoved() || this.level == null || this.level.isClientSide
+            || this.directCorePos == null || !this.level.isLoaded(this.directCorePos)) {
+            return null;
+        }
+        if (this.level.getBlockEntity(this.directCorePos) instanceof StorageBlockEntity storage) {
+            UUID id = storage.getId();
+            if (id != null) {
+                return Storages.get().getOrCreate(id, storage.getStorageType().clazz()).getItems();
+            }
+        }
+        return null;
     }
 
     @Nullable
@@ -307,32 +328,18 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
         return result;
     }
 
-    private int itemSlots(StoragePortBlockEntity port, Set<ResourceKey> marks) {
-        int slots = port.getItemHandler().getSlots();
-        if (slots > StoragePortBlockEntity.BUFFER_SLOTS && this.storageId != null && port.isConnectedTo(this.storageId)
-            && !marks.add(ResourceKey.of(port.getMarkedItem()))) {
-            return StoragePortBlockEntity.BUFFER_SLOTS;
-        }
-        return slots;
-    }
-
-    private @Nullable PortSlot itemSlot(int slot) {
+    @Nullable
+    private StoragePortBlockEntity bufferPort(int slot) {
         if (slot < 0) {
             return null;
         }
-        Set<ResourceKey> marks = new HashSet<>();
-        for (StoragePortBlockEntity port : this.itemPorts()) {
-            IItemHandler handler = port.getItemHandler();
-            int slots = this.itemSlots(port, marks);
-            if (slot < slots) {
-                return new PortSlot(handler, slot);
-            }
-            slot -= slots;
-        }
-        return null;
+        List<StoragePortBlockEntity> itemPorts = this.itemPorts();
+        int index = slot / StoragePortBlockEntity.BUFFER_SLOTS;
+        return index < itemPorts.size() ? itemPorts.get(index) : null;
     }
 
-    private record PortSlot(IItemHandler handler, int slot) {
+    private static int bufferSlot(int slot) {
+        return slot % StoragePortBlockEntity.BUFFER_SLOTS;
     }
 
     @Override
@@ -360,46 +367,63 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
         this.storageId = null;
     }
 
-    /** 每个端口保留缓存槽，同一仓库同种标记的输出槽仅暴露一次。 */
+    /** 优先访问直连仓储，否则映射相连端口缓存并优先向标记端口插入。 */
     private class ConsolidatedItemHandler implements IItemHandler {
         @Override
         public int getSlots() {
-            int slots = 0;
-            Set<ResourceKey> marks = new HashSet<>();
-            for (StoragePortBlockEntity port : StoragePortConsolidatorBlockEntity.this.itemPorts()) {
-                slots += StoragePortConsolidatorBlockEntity.this.itemSlots(port, marks);
-            }
-            return slots;
+            IItemHandler storage = StoragePortConsolidatorBlockEntity.this.getDirectStorageHandler();
+            return storage != null ? storage.getSlots()
+                : StoragePortConsolidatorBlockEntity.this.itemPorts().size() * StoragePortBlockEntity.BUFFER_SLOTS;
         }
 
         @Override
         public ItemStack getStackInSlot(int slot) {
-            PortSlot target = StoragePortConsolidatorBlockEntity.this.itemSlot(slot);
-            return target == null ? ItemStack.EMPTY : target.handler().getStackInSlot(target.slot());
+            IItemHandler storage = StoragePortConsolidatorBlockEntity.this.getDirectStorageHandler();
+            if (storage != null) {
+                return storage.getStackInSlot(slot);
+            }
+            var port = StoragePortConsolidatorBlockEntity.this.bufferPort(slot);
+            return port == null ? ItemStack.EMPTY : port.getBuffer().getStackInSlot(bufferSlot(slot));
         }
 
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            PortSlot target = StoragePortConsolidatorBlockEntity.this.itemSlot(slot);
-            return target == null ? stack : target.handler().insertItem(target.slot(), stack, simulate);
+            IItemHandler storage = StoragePortConsolidatorBlockEntity.this.getDirectStorageHandler();
+            if (storage != null) {
+                return storage.insertItem(slot, stack, simulate);
+            }
+            var port = StoragePortConsolidatorBlockEntity.this.bufferPort(slot);
+            return port == null ? stack : port.getBuffer().insertItem(bufferSlot(slot), stack, simulate);
         }
 
         @Override
         public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            PortSlot target = StoragePortConsolidatorBlockEntity.this.itemSlot(slot);
-            return target == null ? ItemStack.EMPTY : target.handler().extractItem(target.slot(), amount, simulate);
+            IItemHandler storage = StoragePortConsolidatorBlockEntity.this.getDirectStorageHandler();
+            if (storage != null) {
+                return storage.extractItem(slot, amount, simulate);
+            }
+            var port = StoragePortConsolidatorBlockEntity.this.bufferPort(slot);
+            return port == null ? ItemStack.EMPTY : port.getBuffer().extractItem(bufferSlot(slot), amount, simulate);
         }
 
         @Override
         public int getSlotLimit(int slot) {
-            PortSlot target = StoragePortConsolidatorBlockEntity.this.itemSlot(slot);
-            return target == null ? 0 : target.handler().getSlotLimit(target.slot());
+            IItemHandler storage = StoragePortConsolidatorBlockEntity.this.getDirectStorageHandler();
+            if (storage != null) {
+                return storage.getSlotLimit(slot);
+            }
+            var port = StoragePortConsolidatorBlockEntity.this.bufferPort(slot);
+            return port == null ? 0 : port.getBuffer().getSlotLimit(bufferSlot(slot));
         }
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            PortSlot target = StoragePortConsolidatorBlockEntity.this.itemSlot(slot);
-            return target != null && target.handler().isItemValid(target.slot(), stack);
+            IItemHandler storage = StoragePortConsolidatorBlockEntity.this.getDirectStorageHandler();
+            if (storage != null) {
+                return storage.isItemValid(slot, stack);
+            }
+            var port = StoragePortConsolidatorBlockEntity.this.bufferPort(slot);
+            return port != null && port.getBuffer().isItemValid(bufferSlot(slot), stack);
         }
     }
 

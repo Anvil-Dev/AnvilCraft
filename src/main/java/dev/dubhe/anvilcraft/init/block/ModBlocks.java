@@ -1336,7 +1336,7 @@ public class ModBlocks {
     public static final BlockEntry<BlockPlacerBlock> BLOCK_PLACER = REGISTRUM.block("block_placer", BlockPlacerBlock::new)
         .simpleItem()
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never).explosionResistance(15F))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumBlockRecipeLoader::blockPlacer)

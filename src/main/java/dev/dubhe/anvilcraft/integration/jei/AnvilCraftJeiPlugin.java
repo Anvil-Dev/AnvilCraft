@@ -16,7 +16,6 @@ import dev.dubhe.anvilcraft.init.recipe.ModFrostMaterialPredicateTypes;
 import dev.dubhe.anvilcraft.integration.jei.category.AnvilCollisionCraftCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.BeaconConversionCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.ChargerChargingCategory;
-import dev.dubhe.anvilcraft.integration.jei.category.ContainerUpgradeCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.DecayCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.EnergyWeaponCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.FluidReactionCategory;
@@ -51,7 +50,6 @@ import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlockConver
 import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlockCraftingCategory;
 import dev.dubhe.anvilcraft.integration.jei.handlers.GhostIngredientHandler;
 import dev.dubhe.anvilcraft.integration.jei.recipe.BeaconConversionRecipe;
-import dev.dubhe.anvilcraft.integration.jei.recipe.ContainerUpgradeRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.DecayRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MineralFountainJeiRecipe;
@@ -141,8 +139,6 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     public static final RecipeType<BeaconConversionRecipe> BEACON_CONVERSION =
         createRecipeType("beacon_conversion", BeaconConversionRecipe.class);
     public static final RecipeType<DecayRecipe> DECAY = createRecipeType("decay", DecayRecipe.class);
-    public static final RecipeType<ContainerUpgradeRecipe> CONTAINER_UPGRADE =
-        createRecipeType("container_upgrade", ContainerUpgradeRecipe.class);
 
     public static final RecipeType<RecipeHolder<BlockCompressRecipe>> BLOCK_COMPRESS =
         createRecipeHolderType("block_compress");
@@ -247,7 +243,6 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         ProceduralProcessCategory.registerRecipes(registration);
         EnergyWeaponCategory.registerRecipes(registration);
         MineralFountainCategory.registerRecipes(registration);
-        ContainerUpgradeCategory.registerRecipes(registration);
         UseItemOnBlockCategory.registerRecipes(registration);
     }
 
@@ -299,7 +294,6 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         ProceduralProcessCategory.registerRecipeCatalysts(registration);
         EnergyWeaponCategory.registerRecipeCatalysts(registration);
         MineralFountainCategory.registerRecipeCatalysts(registration);
-        ContainerUpgradeCategory.registerRecipeCatalysts(registration);
 
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.BATCH_CRAFTER), RecipeTypes.CRAFTING);
 
@@ -351,7 +345,6 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addRecipeCategories(new ProceduralProcessCategory(guiHelper));
         registration.addRecipeCategories(new EnergyWeaponCategory(guiHelper));
         registration.addRecipeCategories(new MineralFountainCategory(guiHelper));
-        registration.addRecipeCategories(new ContainerUpgradeCategory(guiHelper));
         registration.addRecipeCategories(new UseItemOnBlockCategory(guiHelper));
     }
 
