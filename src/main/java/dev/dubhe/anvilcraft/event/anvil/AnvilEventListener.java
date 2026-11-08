@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.DamageAnvil;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessStepManager;
+import dev.dubhe.anvilcraft.recipe.anvil.util.FishTankRecipes;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingDiffRecipe;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 import dev.dubhe.anvilcraft.util.BlockMiningEffect;
@@ -123,7 +124,9 @@ public class AnvilEventListener {
         FishTankBlockEntity fishTank = level.getBlockEntity(pos.below(), ModBlockEntities.FISH_TANK.get()).orElse(null);
         if (fishTank != null) fishTank.beginRecipeProcessing();
         try {
-            manager.trigger(ModRecipeTriggers.ON_ANVIL_FALL_ON, context);
+            if (fishTank == null || !FishTankRecipes.trigger(manager, context, fishTank)) {
+                manager.trigger(ModRecipeTriggers.ON_ANVIL_FALL_ON, context);
+            }
             boolean damageAnvil = context.get(DamageAnvil.DAMAGE_ANVIL);
             if (!event.isAnvilDamage()) event.setAnvilDamage(damageAnvil);
             GiantAnvilBlock.SUPPRESS_DROPS.set(true);

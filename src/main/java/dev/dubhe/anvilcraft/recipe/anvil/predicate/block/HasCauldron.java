@@ -439,8 +439,8 @@ public record HasCauldron(
         }
         ResourceHandler<FluidResource> handler = HasCauldron.getFluidHandler(ctx, pos, entityCauldron);
         if (handler == null) return;
-        BlockCache cache = new BlockCache(ctx.getLevel());
-        if (ctx.getLevel().getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron) {
+        BlockCache cache = ctx.computeIfAbsent(BlockCache.BLOCK_CACHE);
+        if (cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron) {
             if (cauldron.isIgnited(cache, pos)) ignited = true;
         }
         if (entityCauldron != null && entityCauldron.anvilcraft$isIgnited()) ignited = true;
@@ -459,11 +459,9 @@ public record HasCauldron(
             }
             transaction.commit();
         }
-        cache = new BlockCache(ctx.getLevel());
-        if (ctx.getLevel().getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron) {
+        if (cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron) {
             if (cauldron.isIgnited(cache, pos) != ignited) {
                 cauldron.setIgnited(cache, pos, ignited);
-                cache.accept();
             }
         }
         if (entityCauldron != null && entityCauldron.anvilcraft$isIgnited() != ignited) {
@@ -521,7 +519,13 @@ public record HasCauldron(
         BlockPos pos,
         @Nullable IEntityCauldron entityCauldron
     ) {
-        if (entityCauldron != null) return entityCauldron.getFluidHandler();
+        if (entityCauldron != null) {
+            return entityCauldron.getFluidHandler();
+        }
+        BlockCache cache = ctx.computeIfAbsent(BlockCache.BLOCK_CACHE);
+        if (cache.getBlockEntity(pos) instanceof IFluidResourceHandlerHolder holder) {
+            return holder.getFluidHandler();
+        }
         return ctx.getLevel().getCapability(Capabilities.Fluid.BLOCK, pos, null);
     }
 
