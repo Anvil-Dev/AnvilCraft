@@ -50,7 +50,7 @@ public final class FishTankRecipes {
     public static boolean trigger(InWorldRecipeManager manager, InWorldRecipeContext impact, FishTankBlockEntity tank) {
         for (RecipeHolder<InWorldRecipe> holder : manager.recipeHolders.get(ModRecipeTriggers.ON_ANVIL_FALL_ON.get())) {
             final InWorldRecipe recipe = holder.value();
-            if (!(recipe instanceof AbstractProcessRecipe<?> process) || process.getHasCauldron() == null) {
+            if (!(recipe instanceof AbstractProcessRecipe<?> process) || process.getProperty().getHasCauldron() == null) {
                 boolean matches = recipe.matches(impact, impact.getLevel());
                 while (!impact.getStack().isEmpty()) {
                     impact.pop(impact.getStack().getLast());
