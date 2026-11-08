@@ -87,11 +87,17 @@ public class TooltipRenderHelper {
         int borderTopColor,
         int borderBottomColor
     ) {
-        ClientTooltipPositioner tooltipPositioner = DefaultTooltipPositioner.INSTANCE;
-        List<ClientTooltipComponent> components = lines.stream()
-            .map(Component::getVisualOrderText)
-            .map(ClientTooltipComponent::create)
-            .toList();
+        renderComponentsWithItemIcon(thiz, font, itemStack, lines.stream()
+            .map(Component::getVisualOrderText).map(ClientTooltipComponent::create).toList(),
+            x, y, backgroundColor, borderTopColor, borderBottomColor);
+    }
+
+    /** 为包含图标网格等自定义内容的浮窗复用边框与定位逻辑。 */
+    public static void renderComponentsWithItemIcon(
+        GuiGraphics thiz, Font font, ItemStack itemStack, List<ClientTooltipComponent> components,
+        int x, int y, int backgroundColor, int borderTopColor, int borderBottomColor
+    ) {
+        final ClientTooltipPositioner tooltipPositioner = DefaultTooltipPositioner.INSTANCE;
         if (components.isEmpty()) return;
         int width = 0;
         int height = components.size() == 1 ? -2 : 0;
@@ -101,16 +107,16 @@ public class TooltipRenderHelper {
             height += component.getHeight();
         }
 
+        boolean hasIcon = !itemStack.isEmpty();
+        height += hasIcon ? 16 + (components.size() > 1 ? 2 : 0) : 0;
         Vector2ic vector2ic = tooltipPositioner.positionTooltip(thiz.guiWidth(), thiz.guiHeight(), x, y, width, height);
         int vx = vector2ic.x();
         int vy = vector2ic.y();
         thiz.pose().pushPose();
 
-        boolean hasIcon = !itemStack.isEmpty();
-
         int finalVy = vy;
         int finalWidth = width;
-        int finalHeight = height + (hasIcon ? 16 : 0);
+        int finalHeight = height;
         thiz.drawManaged(() -> renderTooltipBackground(
             thiz, vx, finalVy, finalWidth, finalHeight, backgroundColor, borderTopColor, borderBottomColor));
         thiz.pose().translate(0.0F, 0.0F, 400.0F);

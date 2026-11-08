@@ -4,10 +4,10 @@ import dev.anvilcraft.lib.v2.rpc.RPC;
 import dev.anvilcraft.lib.v2.rpc.RpcTarget;
 import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
 import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
+import dev.dubhe.anvilcraft.client.gui.tooltip.StoragePortTooltipComponent;
 import dev.dubhe.anvilcraft.rpc.StoragePortServerStub;
-import dev.dubhe.anvilcraft.util.FormattingUtil;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalLong;
 import java.util.concurrent.CompletableFuture;
@@ -35,23 +36,55 @@ public final class StoragePortTooltipProvider extends ITooltipProvider.BlockEnti
 
     @Override
     public List<Component> tooltip(BlockEntity entity) {
+        return List.of(entity.getBlockState().getBlock().getName());
+    }
+
+    public List<ClientTooltipComponent> components(BlockEntity entity) {
         if (!(entity instanceof StoragePortBlockEntity port)) {
             return List.of();
         }
-        Component title = Component.translatable("tooltip.anvilcraft.storage_port.item").withStyle(ChatFormatting.BLUE);
         ItemStack marked = port.getMarkedItem();
         if (marked.isEmpty()) {
             this.resetClientState();
-            return List.of(title, Component.translatable("tooltip.anvilcraft.storage_port.unmarked")
-                .withStyle(ChatFormatting.GRAY));
+        } else {
+            this.refresh(port, marked);
         }
-        this.refresh(port, marked);
         var player = Minecraft.getInstance().player;
-        boolean original = player != null && player.isShiftKeyDown();
-        Component amount = this.count < 0 ? Component.translatable("tooltip.anvilcraft.waiting")
-            : Component.literal(original ? Long.toString(this.count) : FormattingUtil.toAbbrNum(this.count));
-        return List.of(title, Component.literal("  ").append(marked.getHoverName()).append(" × ").append(amount)
-            .withStyle(ChatFormatting.GRAY));
+        boolean exact = player != null && player.isShiftKeyDown();
+        List<StoragePortTooltipComponent.Entry> contents = new ArrayList<>();
+        for (int slot = 0; slot < StoragePortBlockEntity.BUFFER_SLOTS; slot++) {
+            ItemStack stack = port.getBuffer().getStackInSlot(slot);
+            if (stack.isEmpty()) {
+                continue;
+            }
+            int matching = -1;
+            for (int index = 0; index < contents.size(); index++) {
+                if (ItemStack.isSameItemSameComponents(contents.get(index).stack(), stack)) {
+                    matching = index;
+                    break;
+                }
+            }
+            if (matching < 0) {
+                contents.add(new StoragePortTooltipComponent.Entry(stack.copyWithCount(1), stack.getCount()));
+            } else {
+                var previous = contents.get(matching);
+                contents.set(matching, new StoragePortTooltipComponent.Entry(previous.stack(), previous.count() + stack.getCount()));
+            }
+        }
+        List<ClientTooltipComponent> result = new ArrayList<>();
+        result.add(ClientTooltipComponent.create(port.getBlockState().getBlock().getName().getVisualOrderText()));
+        result.add(new StoragePortTooltipComponent(Component.translatable("tooltip.anvilcraft.storage_port.cache"), contents, exact));
+        if (!marked.isEmpty()) {
+            result.add(new StoragePortTooltipComponent(Component.translatable("tooltip.anvilcraft.storage_port.storage"),
+                List.of(new StoragePortTooltipComponent.Entry(marked.copyWithCount(1), this.count)), exact));
+        }
+        int width = result.stream().mapToInt(component -> component.getWidth(Minecraft.getInstance().font)).max().orElse(0);
+        for (ClientTooltipComponent component : result) {
+            if (component instanceof StoragePortTooltipComponent section) {
+                section.setMinimumWidth(width);
+            }
+        }
+        return result;
     }
 
     private void refresh(StoragePortBlockEntity port, ItemStack marked) {
