@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
 import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StorageFluidPortBlockEntity;
 import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -22,7 +23,7 @@ public class FluidTankTooltipProvider extends ITooltipProvider.BlockEntityToolti
     @Override
     public boolean accepts(BlockEntity value) {
         return value instanceof FluidTankBlockEntity || value instanceof LargeFluidTankBlockEntity
-            || value instanceof FishTankBlockEntity;
+            || value instanceof FishTankBlockEntity || value instanceof StorageFluidPortBlockEntity;
     }
 
     @Override

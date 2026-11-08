@@ -612,6 +612,25 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
         return this.itemHandler;
     }
 
+    /** 当前标记物品的总量，包括关联核心及端口缓存，保留超过普通物品堆的计数。 */
+    public long getStoredCount() {
+        if (this.markedItem.isEmpty()) {
+            return 0;
+        }
+        UnlimitedItemStacksResourceHandler core = this.getCoreHandler();
+        if (core instanceof LinkedStorageItems linked) {
+            return linked.count(this.markedItem);
+        }
+        long amount = 0;
+        for (int slot = 0; slot < this.buffer.getSlots(); slot++) {
+            ItemStack stack = this.buffer.getStackInSlot(slot);
+            if (ItemStack.isSameItemSameComponents(stack, this.markedItem)) {
+                amount += stack.getCount();
+            }
+        }
+        return amount;
+    }
+
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
