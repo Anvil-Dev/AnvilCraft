@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.util;
 import dev.anvilcraft.lib.v2.util.DistExecutor;
 import dev.dubhe.anvilcraft.building.BlueprintNormalizer;
 import dev.dubhe.anvilcraft.building.BlueprintPlacement;
+import dev.dubhe.anvilcraft.building.StructureSnapshot;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.network.StructureDiskRequestPacket;
@@ -22,7 +23,7 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.LevelResource;
 import net.neoforged.api.distmarker.Dist;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,13 +82,7 @@ public class StructureLoadUtil {
         try {
             HolderLookup.Provider registry = level.registryAccess();
             var snapshot = BlueprintNormalizer.load(tag, registry, structureDiskData.direction(), structureDiskData.upsideDown());
-            StructureData data = new StructureData(new StructureDiskData(structureDiskData.file(), structureDiskData.name(),
-                structureDiskData.uuid(), Direction.NORTH, snapshot.size().getX(), snapshot.size().getY(),
-                snapshot.size().getZ(), false, structureDiskData.autoRotate()));
-            for (var entry : snapshot.blocks()) {
-                data.blocks.add(new BlockPosition(entry.pos().getX(), entry.pos().getY(), entry.pos().getZ(), snapshot.stateOf(entry)));
-            }
-            return data;
+            return StructureData.fromSnapshot(structureDiskData, snapshot);
         } catch (Exception e) {
             LOGGER.warn("Failed to parse cached structure {}: {}", fileName, e.getMessage());
             removeCachedStructureNbt(fileName);
@@ -354,16 +349,34 @@ public class StructureLoadUtil {
      */
     public static class StructureData {
         public final StructureDiskData diskData;
+        public final @Nullable StructureSnapshot snapshot;
         public int width;
         public int depth;
         public int height;
         public final List<BlockPosition> blocks = new ArrayList<>();
 
         public StructureData(StructureDiskData diskData) {
+            this(diskData, null);
+        }
+
+        private StructureData(StructureDiskData diskData, @Nullable StructureSnapshot snapshot) {
             this.diskData = diskData;
+            this.snapshot = snapshot;
             this.width = diskData.sizeX();
             this.depth = diskData.sizeZ();
             this.height = diskData.sizeY();
+        }
+
+        /** 保留已归一化快照的方块实体数据，使预览能够恢复模型所需的运行进度。 */
+        public static StructureData fromSnapshot(StructureDiskData disk, StructureSnapshot snapshot) {
+            StructureDiskData normalized = new StructureDiskData(disk.file(), disk.name(), disk.uuid(), Direction.NORTH,
+                snapshot.size().getX(), snapshot.size().getY(), snapshot.size().getZ(), false, disk.autoRotate());
+            StructureData data = new StructureData(normalized, snapshot);
+            for (var entry : snapshot.blocks()) {
+                data.blocks.add(new BlockPosition(entry.pos().getX(), entry.pos().getY(), entry.pos().getZ(),
+                    snapshot.stateOf(entry)));
+            }
+            return data;
         }
 
         public boolean isEmpty() {

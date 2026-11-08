@@ -10,6 +10,7 @@ import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import dev.dubhe.anvilcraft.building.BlueprintPlacement;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
@@ -23,6 +24,7 @@ import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
@@ -305,6 +307,11 @@ public class StructureDiskPreviewSupport {
         }
 
         LevelLike levelLike = new LevelLike(minecraft.level);
+        if (data.snapshot != null) {
+            levelLike.addBlueprint(data.snapshot, new BlueprintPlacement(BlockPos.ZERO, Rotation.NONE, Mirror.NONE));
+            return levelLike;
+        }
+
 
         // 计算旋转（基于scannerFacing）
         // 磁盘预览固定朝北显示，需要根据scannerFacing旋转方块朝向
