@@ -2,11 +2,13 @@ package dev.dubhe.anvilcraft.entity;
 
 import dev.dubhe.anvilcraft.api.fluid.FluidStackResourceHandler;
 import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidContainerLookup;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -41,7 +43,9 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
-import org.jspecify.annotations.Nullable;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /// 装载一个 16 桶流体储罐的矿车
 public class FluidTankMinecartEntity extends AbstractMinecart implements IFluidResourceHandlerHolder {
@@ -58,7 +62,7 @@ public class FluidTankMinecartEntity extends AbstractMinecart implements IFluidR
     );
 
     private final FluidStackResourceHandler tank = new FluidStackResourceHandler(FluidTankMinecartEntity.CAPACITY);
-    private @Nullable BlockPos fluidNetworkPos;
+    private Set<BlockPos> fluidNetworkPositions = Set.of();
     private FluidStack lastSyncedFluid = FluidStack.EMPTY;
 
     public FluidTankMinecartEntity(EntityType<? extends FluidTankMinecartEntity> type, Level level) {
@@ -89,21 +93,56 @@ public class FluidTankMinecartEntity extends AbstractMinecart implements IFluidR
         this.updateFluidNetworkRegistration();
     }
 
-    /// 矿车移动到新方块单元时把自己重新登记进流体管网
+    /// 矿车覆盖的单元改变时更新登记，跨格矿车保留每个管道入口
     private void updateFluidNetworkRegistration() {
-        BlockPos currentPos = BlockPos.containing(this.getBoundingBox().getCenter());
-        if (currentPos.equals(this.fluidNetworkPos)) return;
-        if (this.fluidNetworkPos != null) {
-            FluidNetworkManager.INSTANCE.removeContainer(this.level(), this.fluidNetworkPos);
+        var box = this.getBoundingBox();
+        Set<BlockPos> positions = BlockPos.betweenClosedStream(
+            Mth.floor(box.minX), Mth.floor(box.minY), Mth.floor(box.minZ),
+            Mth.floor(Math.nextDown(box.maxX)), Mth.floor(Math.nextDown(box.maxY)), Mth.floor(Math.nextDown(box.maxZ)))
+            .map(BlockPos::immutable).collect(Collectors.toSet());
+        if (positions.equals(this.fluidNetworkPositions)) {
+            return;
         }
-        this.fluidNetworkPos = currentPos.immutable();
-        FluidNetworkManager.INSTANCE.addContainer(this.level(), this.fluidNetworkPos);
+        for (BlockPos pos : this.fluidNetworkPositions) {
+            if (!positions.contains(pos)) {
+                this.unregisterPosition(pos);
+            }
+        }
+        for (BlockPos pos : positions) {
+            if (!this.fluidNetworkPositions.contains(pos)) {
+                FluidNetworkManager.INSTANCE.addContainer(this.level(), pos);
+            }
+        }
+        this.fluidNetworkPositions = positions;
+    }
+
+    private void unregisterPosition(BlockPos pos) {
+        if (!this.level().isLoaded(pos)) {
+            FluidNetworkManager.INSTANCE.removeContainer(this.level(), pos);
+            return;
+        }
+        boolean occupied = FluidContainerLookup.findAll(this.level(), pos, null).stream().anyMatch(result -> result.entity() != this);
+        for (Direction side : Direction.values()) {
+            if (occupied) {
+                break;
+            }
+            occupied = FluidContainerLookup.findAll(this.level(), pos, side).stream().anyMatch(result -> result.entity() != this);
+        }
+        if (occupied) {
+            FluidNetworkManager.INSTANCE.addContainer(this.level(), pos);
+        } else {
+            FluidNetworkManager.INSTANCE.removeContainer(this.level(), pos);
+        }
     }
 
     private void unregisterFromFluidNetwork() {
-        if (this.fluidNetworkPos == null || this.level().isClientSide()) return;
-        FluidNetworkManager.INSTANCE.removeContainer(this.level(), this.fluidNetworkPos);
-        this.fluidNetworkPos = null;
+        if (this.level().isClientSide()) {
+            return;
+        }
+        for (BlockPos pos : this.fluidNetworkPositions) {
+            this.unregisterPosition(pos);
+        }
+        this.fluidNetworkPositions = Set.of();
     }
 
     @Override
