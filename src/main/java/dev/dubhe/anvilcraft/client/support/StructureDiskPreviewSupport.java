@@ -1,5 +1,9 @@
 package dev.dubhe.anvilcraft.client.support;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.building.BlueprintNormalizer;
+import dev.dubhe.anvilcraft.building.BlueprintPlacement;
+import dev.dubhe.anvilcraft.building.ConstructionBlueprintException;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
@@ -10,16 +14,12 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -197,35 +197,13 @@ public class StructureDiskPreviewSupport {
         StructureDiskData diskData,
         HolderLookup.Provider registry
     ) {
-        ListTag paletteTag = tag.getListOrEmpty("palette");
-        ListTag blocksTag = tag.getListOrEmpty("blocks");
-        if (paletteTag.isEmpty() || blocksTag.isEmpty()) return null;
-
-        var blockLookup = registry.lookupOrThrow(Registries.BLOCK);
-        List<BlockState> palette = new ArrayList<>();
-        for (int i = 0; i < paletteTag.size(); i++) {
-            BlockState state = NbtUtils.readBlockState(blockLookup, paletteTag.getCompoundOrEmpty(i));
-            palette.add(state);
+        try {
+            var snapshot = BlueprintNormalizer.load(tag, registry, diskData.direction(), diskData.upsideDown());
+            return StructureLoadUtil.StructureData.fromSnapshot(diskData, snapshot);
+        } catch (ConstructionBlueprintException | IllegalArgumentException exception) {
+            AnvilCraft.LOGGER.warn("无法解析结构磁盘预览 {}", diskData.file(), exception);
+            return null;
         }
-        if (palette.isEmpty()) return null;
-
-        StructureLoadUtil.StructureData result = new StructureLoadUtil.StructureData(diskData);
-        for (int i = 0; i < blocksTag.size(); i++) {
-            CompoundTag blockTag = blocksTag.getCompoundOrEmpty(i);
-            ListTag posTag = blockTag.getListOrEmpty("pos");
-            if (posTag.size() < 3) continue;
-
-            int x = posTag.getInt(0).orElse(0);
-            int y = posTag.getInt(1).orElse(0);
-            int z = posTag.getInt(2).orElse(0);
-            int stateIndex = blockTag.getInt("state").orElse(-1);
-
-            if (stateIndex >= 0 && stateIndex < palette.size()) {
-                result.blocks.add(new StructureLoadUtil.BlockPosition(x, y, z, palette.get(stateIndex)));
-            }
-        }
-
-        return result;
     }
 
     @Nullable
@@ -236,6 +214,11 @@ public class StructureDiskPreviewSupport {
         if (minecraft.level == null) return null;
 
         LevelLike levelLike = new LevelLike(minecraft.level);
+        if (data.snapshot != null) {
+            levelLike.addBlueprint(data.snapshot, new BlueprintPlacement(BlockPos.ZERO, Rotation.NONE, Mirror.NONE));
+            return levelLike;
+        }
+
 
         Rotation rotation = switch (data.diskData.direction()) {
             case SOUTH -> Rotation.CLOCKWISE_180;
