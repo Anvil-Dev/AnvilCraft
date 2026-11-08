@@ -11,7 +11,6 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 import java.util.function.IntUnaryOperator;
-import javax.annotation.Nullable;
 
 public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResourceHandler {
     public static final String TYPE_LIMIT_KEY = "type_limit";
@@ -22,9 +21,6 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
     private int typeLimit;
     @Getter
     private int spaceSize;
-    /** 已占用空间；null 表示缓存失效，下次读取时重算 */
-    @Nullable
-    private Integer spaceUsed;
 
     public TypeLimitItemStacksResourceHandler(int spaceSize) {
         this(Integer.MAX_VALUE, spaceSize);
@@ -104,7 +100,7 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
             } else {
                 existing.setCount(existing.getCount() + amount);
             }
-            this.invalidateTypeIndex();
+            this.updateTypeIndex(slot);
             this.onContentsChanged(slot, existing);
         }
         ItemStack leftover = stack.copy();
@@ -189,37 +185,10 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
         super.deserializeNBT(provider, tag);
     }
 
-    /**
-     * 已占用空间。
-     *
-     * <p>逐条累加在上千条目下是 O(条目数)，而比较器与界面容量条会随内容变化反复读它，
-     * 故按条目内容缓存，条目变化时经 {@link #invalidateTypeIndex()} 失效。</p>
-     */
     public int getSpace() {
-        Integer cached = this.spaceUsed;
-        if (cached != null) {
-            return cached;
-        }
-        int space = 0;
-        for (UnlimitedItemStack stack : this.stacks) {
-            space = (int) Math.min(
-                Integer.MAX_VALUE,
-                (long) space + TypeLimitItemStacksResourceHandler.computeSpace(stack, stack.getCount())
-            );
-        }
-        this.spaceUsed = space;
-        return space;
+        return this.indexedSpace();
     }
 
-    @Override
-    protected void invalidateTypeIndex() {
-        super.invalidateTypeIndex();
-        this.spaceUsed = null;
-    }
-
-    /**
-     * 按已用物品种类计算饱满度，与界面显示的种类容量一致。
-     */
     @Override
     public double getFullness() {
         if (this.typeLimit == 0 || this.typeLimit == Integer.MAX_VALUE) {
@@ -246,12 +215,7 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
         if (this.getTypeCount() >= this.typeLimit) {
             return -1;
         }
-        for (int index = 0; index < this.size(); index++) {
-            if (this.stacks.get(index).isEmpty()) {
-                return index;
-            }
-        }
-        return this.size();
+        return this.firstEmptySlot();
     }
 
     private static int findMatchingSlot(List<UnlimitedItemStack> stacks, UnlimitedItemStack target) {

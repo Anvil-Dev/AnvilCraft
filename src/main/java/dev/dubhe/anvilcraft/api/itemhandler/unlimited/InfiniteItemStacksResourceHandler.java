@@ -69,7 +69,7 @@ public class InfiniteItemStacksResourceHandler extends UnlimitedItemStacksResour
             } else {
                 existing.grow(amount);
             }
-            this.invalidateTypeIndex();
+            this.updateTypeIndex(slot);
             this.onContentsChanged(slot, existing);
         }
         ItemStack leftover = stack.copy();
@@ -80,14 +80,13 @@ public class InfiniteItemStacksResourceHandler extends UnlimitedItemStacksResour
     @Override
     public ItemStack insertItem(ItemStack stack, boolean simulate) {
         if (stack.isEmpty()) return ItemStack.EMPTY;
-        for (int slot = 0; slot < this.size() && !stack.isEmpty(); slot++) {
-            UnlimitedItemStack existing = this.stacks.get(slot);
-            if (existing.isEmpty() || existing.isSameItemSameComponents(stack)) {
-                stack = this.insertItem(slot, stack, simulate);
+        for (int slot : this.matchingSlots(stack)) {
+            stack = this.insertItem(slot, stack, simulate);
+            if (stack.isEmpty()) {
+                return ItemStack.EMPTY;
             }
         }
-        if (stack.isEmpty()) return ItemStack.EMPTY;
-        return this.insertItem(this.size(), stack, simulate);
+        return this.insertItem(this.firstEmptySlot(), stack, simulate);
     }
 
     /**
@@ -102,7 +101,7 @@ public class InfiniteItemStacksResourceHandler extends UnlimitedItemStacksResour
     @Override
     protected void setStacks(NonNullList<UnlimitedItemStack> stacks) {
         this.stacks.clear();
-        this.stacks.addAll(stacks);
+        this.stacks.addAll(stacks.stream().map(UnlimitedItemStack::copy).toList());
         this.invalidateTypeIndex();
         this.onContentsChanged(-1, UnlimitedItemStack.EMPTY);
     }

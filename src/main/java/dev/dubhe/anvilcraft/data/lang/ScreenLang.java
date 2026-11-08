@@ -113,6 +113,8 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.fluid_tank.more", "and %s more...");
         provider.add("tooltip.anvilcraft.creative_crate.item", "Item:");
         provider.add("tooltip.anvilcraft.storage_port.item", "Item:");
+        provider.add("tooltip.anvilcraft.storage_port.cache", "Buffer");
+        provider.add("tooltip.anvilcraft.storage_port.storage", "Storage");
         provider.add("tooltip.anvilcraft.storage_port.unmarked", "No item marked");
 
         provider.add("tooltip.anvilcraft.large_cauldron.inputs", "Input Items:");

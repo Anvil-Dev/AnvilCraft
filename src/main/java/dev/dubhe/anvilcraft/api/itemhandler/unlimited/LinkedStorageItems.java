@@ -152,19 +152,7 @@ public class LinkedStorageItems extends UnlimitedItemStacksResourceHandler {
         if (resource.isEmpty() || amount <= 0) {
             return ItemStack.EMPTY;
         }
-        int extracted = 0;
-        int firstSlot = this.core.findSlot(resource);
-        if (firstSlot >= 0) {
-            extracted = this.core.extractUnlimited(firstSlot, amount, simulate).getCount();
-        }
-        for (int slot = 0; slot < this.core.size() && extracted < amount; slot++) {
-            if (slot == firstSlot) {
-                continue;
-            }
-            if (this.core.getUnlimitedStackInSlot(slot).isSameItemSameComponents(resource)) {
-                extracted += this.core.extractUnlimited(slot, amount - extracted, simulate).getCount();
-            }
-        }
+        int extracted = this.core.extract(resource, amount, simulate).getCount();
         for (StoragePortBlockEntity port : this.ports()) {
             if (extracted == amount) {
                 break;
