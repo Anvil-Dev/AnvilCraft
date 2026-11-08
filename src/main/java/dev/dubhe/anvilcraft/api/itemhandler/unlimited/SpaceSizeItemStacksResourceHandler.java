@@ -85,12 +85,7 @@ public class SpaceSizeItemStacksResourceHandler extends UnlimitedItemStacksResou
             return 0;
         }
 
-        NonNullList<UnlimitedItemStack> expanded = new NonNullList<>(
-            new ArrayList<>(this.copyToList()),
-            UnlimitedItemStack.EMPTY
-        );
-        expanded.add(UnlimitedItemStack.EMPTY);
-        this.setStacks(expanded);
+        this.appendSlot();
         return super.insert(resource, amount, transaction);
     }
 
@@ -117,14 +112,7 @@ public class SpaceSizeItemStacksResourceHandler extends UnlimitedItemStacksResou
     }
 
     public int getSpace() {
-        int space = 0;
-        for (UnlimitedItemStack stack : this.stacks) {
-            space = (int) Math.min(
-                Integer.MAX_VALUE,
-                (long) space + SpaceSizeItemStacksResourceHandler.computeSpace(stack, stack.getCount())
-            );
-        }
-        return space;
+        return this.indexedSpace();
     }
 
     @Override

@@ -52,8 +52,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * 仓储端口保留独立的标记物品库存，连接大仓库后直接访问大仓库及其端口库存。
- * 连通组件必须恰好接触一个核心，内部库存仅在核心同种物品耗尽后被取用。
+ * 仓储端口输入经过独立缓存，连通组件恰好接触一个核心时将缓存合并进仓储。
+ * 已连接且有标记时只从仓储提取标记物品，其他情况从缓存提取。
  */
 public class StoragePortBlockEntity extends BlockEntity implements IItemResourceHandlerHolder, IStoragePort {
     /** 缓存格数 */
@@ -76,24 +76,7 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
     private final ItemStacksResourceHandler buffer = new ItemStacksResourceHandler(StoragePortBlockEntity.BUFFER_SLOTS) {
         @Override
         public boolean isValid(int slot, ItemResource resource) {
-            ItemStack marked = StoragePortBlockEntity.this.markedItem;
-            return marked.isEmpty() || slot == 0 && ItemResource.of(marked).equals(resource);
-        }
-
-        @Override
-        public int insert(int slot, ItemResource resource, int amount, TransactionContext transaction) {
-            TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
-            ItemStack marked = StoragePortBlockEntity.this.markedItem;
-            if (!marked.isEmpty()) {
-                int stored = 0;
-                for (int index = 0; index < this.size(); index++) {
-                    if (this.getResource(index).equals(resource)) {
-                        stored += this.getAmountAsInt(index);
-                    }
-                }
-                amount = Math.min(amount, Math.max(0, marked.getMaxStackSize() - stored));
-            }
-            return super.insert(slot, resource, amount, transaction);
+            return true;
         }
 
         @Override
@@ -187,14 +170,11 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
     }
 
     /**
-     * 设置标记物品；已连接时先把内部库存完整存入核心，容量不足则保留原标记。
+     * 设置输出标记；缓存内容不随标记改变。
      */
     public void setMarkedItem(ItemStack stack) {
         ItemStack mark = StoragePortBlockEntity.createMarker(stack);
         if (ItemStack.isSameItemSameComponents(this.markedItem, mark)) {
-            return;
-        }
-        if (this.level != null && !this.level.isClientSide() && !this.pushAllToCore()) {
             return;
         }
         this.markedItem = mark;
@@ -298,7 +278,7 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
     }
 
     /**
-     * 右键：未标记时把手中物品标记并塞入，已标记时按标记塞入，双击塞入身上全部。
+     * 右键将手持物品存入缓存；首次设置标记，双击存入背包中的同种物品。
      */
     @Override
     public boolean onRightClick(Player player, InteractionHand hand, List<IStoragePort> ports) {
@@ -334,7 +314,7 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
             }
             return true;
         }
-        // 不对应物品：不替换标记
+        this.stuffFromHand(stack, stack.getMaxStackSize());
         return true;
     }
 
@@ -463,7 +443,8 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
         BlockPos core = StoragePortManager.findSoleCore(this.level, this.worldPosition);
         UUID nextId = core != null && this.level.getBlockEntity(core) instanceof StorageBlockEntity storage
             ? storage.getId() : null;
-        if (!Objects.equals(this.storageId, nextId)) {
+        boolean changed = !Objects.equals(this.storageId, nextId);
+        if (changed) {
             StoragePortManager.unregister(this.storageId, this.level.dimension(), this.worldPosition);
         }
         this.coreMainPos = core;
@@ -473,36 +454,30 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
         if (nextId != null) {
             StoragePortManager.register(nextId, this.level, this.worldPosition);
         }
-    }
-
-    /** 未标记时将已有内部库存限速存入核心。 */
-    private void performTransfer(int maxItemsPerScan) {
-        BaseStorage<?> core = this.getCoreStorage();
-        if (core != null && this.markedItem.isEmpty()) {
-            ItemHandlerUtil.exportToTarget(this.buffer, maxItemsPerScan, (resource, amount) -> true, core.getItems());
+        if (changed && this.working) {
+            this.performTransfer(Integer.MAX_VALUE);
         }
     }
 
-    private boolean pushAllToCore() {
+    /** 缓存合并只遍历本端口槽位，仓储按物品索引接收。 */
+    private void performTransfer(int limit) {
         BaseStorage<?> core = this.getCoreStorage();
         if (core == null) {
-            return true;
+            return;
         }
         try (Transaction transaction = Transaction.openRoot()) {
-            for (int slot = 0; slot < this.buffer.size(); slot++) {
+            for (int slot = 0; slot < BUFFER_SLOTS && limit > 0; slot++) {
                 ItemResource resource = this.buffer.getResource(slot);
-                int amount = this.buffer.getAmountAsInt(slot);
-                if (resource.isEmpty() || amount == 0) {
+                if (resource.isEmpty()) {
                     continue;
                 }
-                if (core.getItems().insert(resource, amount, transaction) != amount) {
-                    return false;
-                }
-                this.buffer.extract(slot, resource, amount, transaction);
+                int amount = Math.min(limit, this.buffer.getAmountAsInt(slot));
+                int inserted = core.getItems().insert(resource, amount, transaction);
+                this.buffer.extract(slot, resource, inserted, transaction);
+                limit -= inserted;
             }
             transaction.commit();
         }
-        return true;
     }
 
     private @Nullable BaseStorage<?> getCoreStorage() {
@@ -535,17 +510,11 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
     }
 
     private boolean hasAvailableItems() {
-        ItemResource mark = ItemResource.of(this.markedItem);
-        if (mark.isEmpty()) {
-            return false;
-        }
         if (this.level != null && this.level.isClientSide() && this.availableItems) {
             return true;
         }
-        BaseStorage<?> core = this.getCoreStorage();
-        ResourceHandler<ItemResource> target = core == null ? this.buffer : core.getAvailableItems();
-        for (int slot = 0; slot < target.size(); slot++) {
-            if (target.getAmountAsLong(slot) > 0 && target.getResource(slot).equals(mark)) {
+        for (int slot = 0; slot < this.inventory.size(); slot++) {
+            if (this.inventory.getAmountAsLong(slot) > 0) {
                 return true;
             }
         }
@@ -558,11 +527,6 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
     }
 
     private final class PortInventory implements ResourceHandler<ItemResource> {
-        private ResourceHandler<ItemResource> target() {
-            BaseStorage<?> storage = StoragePortBlockEntity.this.getCoreStorage();
-            return storage == null ? StoragePortBlockEntity.this.buffer : storage.getAvailableItems();
-        }
-
         private boolean linkedMarked() {
             return !StoragePortBlockEntity.this.markedItem.isEmpty()
                 && StoragePortBlockEntity.this.getCoreStorage() != null;
@@ -570,116 +534,87 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
 
         @Override
         public int size() {
-            return this.linkedMarked() ? 1 : this.target().size();
+            return BUFFER_SLOTS + (this.linkedMarked() ? 1 : 0);
         }
 
         @Override
         public ItemResource getResource(int index) {
             ItemResource marked = ItemResource.of(StoragePortBlockEntity.this.markedItem);
-            if (marked.isEmpty()) {
+            if (this.linkedMarked()) {
+                return index == BUFFER_SLOTS && StoragePortBlockEntity.this.getMarkedStorageCount() > 0
+                    ? marked : ItemResource.EMPTY;
+            }
+            if (index < 0 || index >= BUFFER_SLOTS) {
                 return ItemResource.EMPTY;
             }
-            if (this.linkedMarked()) {
-                return index == 0 ? marked : ItemResource.EMPTY;
-            }
-            ResourceHandler<ItemResource> target = this.target();
-            return index >= 0 && index < target.size() && target.getResource(index).equals(marked) ? marked : ItemResource.EMPTY;
+            ItemResource resource = StoragePortBlockEntity.this.buffer.getResource(index);
+            return marked.isEmpty() || resource.equals(marked) ? resource : ItemResource.EMPTY;
         }
 
         @Override
         public long getAmountAsLong(int index) {
-            if (this.getResource(index).isEmpty()) {
-                return 0;
+            if (this.linkedMarked()) {
+                return index == BUFFER_SLOTS ? StoragePortBlockEntity.this.getMarkedStorageCount() : 0;
             }
-            ResourceHandler<ItemResource> target = this.target();
-            if (!this.linkedMarked()) {
-                return index >= 0 && index < target.size() ? target.getAmountAsLong(index) : 0;
-            }
-            if (index != 0) {
-                return 0;
-            }
-            ItemResource marked = ItemResource.of(StoragePortBlockEntity.this.markedItem);
-            long amount = 0;
-            for (int slot = 0; slot < target.size(); slot++) {
-                if (target.getResource(slot).equals(marked)) {
-                    amount += target.getAmountAsLong(slot);
-                }
-            }
-            return amount;
+            return this.getResource(index).isEmpty() ? 0 : StoragePortBlockEntity.this.buffer.getAmountAsLong(index);
         }
 
         @Override
         public long getCapacityAsLong(int index, ItemResource resource) {
-            if (!resource.isEmpty() && !this.isValid(index, resource)) {
-                return 0;
-            }
-            if (this.linkedMarked()) {
-                return index == 0 ? Integer.MAX_VALUE : 0;
-            }
-            ResourceHandler<ItemResource> target = this.target();
-            return index >= 0 && index < target.size() ? target.getCapacityAsLong(index, resource) : 0;
+            return index == BUFFER_SLOTS && this.linkedMarked() ? Integer.MAX_VALUE
+                : index >= 0 && index < BUFFER_SLOTS ? StoragePortBlockEntity.this.buffer.getCapacityAsLong(index, resource) : 0;
         }
 
         @Override
         public boolean isValid(int index, ItemResource resource) {
-            ItemStack marked = StoragePortBlockEntity.this.markedItem;
-            if (!marked.isEmpty() && !ItemResource.of(marked).equals(resource)) {
-                return false;
-            }
-            if (this.linkedMarked()) {
-                BaseStorage<?> storage = StoragePortBlockEntity.this.getCoreStorage();
-                return index == 0 && storage != null && storage.getItems().isValid(0, resource);
-            }
-            ResourceHandler<ItemResource> target = this.target();
-            return index >= 0 && index < target.size() && target.isValid(index, resource);
+            return index >= 0 && index < BUFFER_SLOTS && StoragePortBlockEntity.this.buffer.isValid(index, resource);
         }
 
         @Override
         public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
-            TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
-            if (!this.isValid(index, resource)) {
-                return 0;
-            }
-            return this.linkedMarked() ? this.target().insert(resource, amount, transaction)
-                : this.target().insert(index, resource, amount, transaction);
+            return index >= 0 && index < BUFFER_SLOTS
+                ? StoragePortBlockEntity.this.buffer.insert(index, resource, amount, transaction) : 0;
         }
 
         @Override
         public int insert(ItemResource resource, int amount, TransactionContext transaction) {
-            TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
-            ItemStack marked = StoragePortBlockEntity.this.markedItem;
-            if (!marked.isEmpty() && !ItemResource.of(marked).equals(resource)) {
-                return 0;
-            }
-            return this.target().insert(resource, amount, transaction);
+            return StoragePortBlockEntity.this.buffer.insert(resource, amount, transaction);
         }
 
         @Override
         public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
             TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
-            if (!this.getResource(index).equals(resource)) {
-                return 0;
+            if (this.linkedMarked()) {
+                BaseStorage<?> core = StoragePortBlockEntity.this.getCoreStorage();
+                return index == BUFFER_SLOTS && core != null && resource.equals(ItemResource.of(StoragePortBlockEntity.this.markedItem))
+                    ? core.getItems().extract(resource, amount, transaction) : 0;
             }
-            return this.linkedMarked() ? this.target().extract(resource, amount, transaction)
-                : this.target().extract(index, resource, amount, transaction);
+            return this.getResource(index).equals(resource)
+                ? StoragePortBlockEntity.this.buffer.extract(index, resource, amount, transaction) : 0;
         }
     }
 
-    /** 当前标记物品的总量，包括关联核心及端口缓存，保留超过普通物品堆的计数。 */
-    public long getStoredCount() {
+    /** 仓储数量只查询标记物品，缓存通过独立的固定槽位展示。 */
+    public long getMarkedStorageCount() {
         if (this.markedItem.isEmpty()) {
             return 0;
         }
-        BaseStorage<?> storage = this.getCoreStorage();
-        ResourceHandler<ItemResource> handler = storage == null ? this.buffer : storage.getAvailableItems();
-        ItemResource marker = ItemResource.of(this.markedItem);
-        long amount = 0;
-        for (int slot = 0; slot < handler.size(); slot++) {
-            if (handler.getResource(slot).equals(marker)) {
-                amount += handler.getAmountAsLong(slot);
+        BaseStorage<?> core = this.getCoreStorage();
+        return core == null ? 0 : core.getItems().count(ItemResource.of(this.markedItem));
+    }
+
+    public long getStoredCount() {
+        if (this.getCoreStorage() != null) {
+            return this.getMarkedStorageCount();
+        }
+        ItemResource marked = ItemResource.of(this.markedItem);
+        long count = 0;
+        for (int slot = 0; slot < BUFFER_SLOTS; slot++) {
+            if (this.buffer.getResource(slot).equals(marked)) {
+                count += this.buffer.getAmountAsLong(slot);
             }
         }
-        return amount;
+        return count;
     }
 
     @Override

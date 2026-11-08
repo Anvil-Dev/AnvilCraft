@@ -108,12 +108,7 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
             return 0;
         }
         if (newIndex == this.size()) {
-            NonNullList<UnlimitedItemStack> expanded = new NonNullList<>(
-                new ArrayList<>(this.copyToList()),
-                UnlimitedItemStack.EMPTY
-            );
-            expanded.add(UnlimitedItemStack.EMPTY);
-            this.setStacks(expanded);
+            this.appendSlot();
         }
         return super.insert(newIndex, resource, amount, transaction);
     }
@@ -169,19 +164,9 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
     }
 
     public int getSpace() {
-        int space = 0;
-        for (UnlimitedItemStack stack : this.stacks) {
-            space = (int) Math.min(
-                Integer.MAX_VALUE,
-                (long) space + TypeLimitItemStacksResourceHandler.computeSpace(stack, stack.getCount())
-            );
-        }
-        return space;
+        return this.indexedSpace();
     }
 
-    /**
-     * 按已用物品种类计算饱满度，与界面显示的种类容量一致。
-     */
     @Override
     public double getFullness() {
         if (this.typeLimit == 0 || this.typeLimit == Integer.MAX_VALUE) {
@@ -237,22 +222,11 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
     }
 
     protected int findNewSlot() {
-        if (this.getTypeCount() >= this.typeLimit) return -1;
-        for (int index = 0; index < this.size(); index++) {
-            if (this.stacks.get(index).isEmpty()) {
-                return index;
-            }
-        }
-        return this.size();
+        return this.getTypeCount() >= this.typeLimit ? -1 : this.firstEmptySlot();
     }
 
     private int findMatchingSlot(ItemResource resource) {
-        for (int index = 0; index < this.size(); index++) {
-            if (this.stacks.get(index).isSameItemSameComponents(resource)) {
-                return index;
-            }
-        }
-        return -1;
+        return this.findSlot(resource);
     }
 
     private static int findMatchingSlot(List<UnlimitedItemStack> stacks, UnlimitedItemStack target) {
