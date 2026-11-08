@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.building;
 
+import dev.dubhe.anvilcraft.block.entity.WipBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -24,6 +25,11 @@ final class BlueprintRuntimeData {
     static CompoundTag take(BlockEntity entity, CompoundTag source) {
         CompoundTag runtime = new CompoundTag();
         for (String key : FIELDS) move(source, runtime, key);
+        if (entity instanceof WipBlockEntity) {
+            for (String key : List.of("StepCount", "InitialBlock", "Recipe")) {
+                move(source, runtime, key);
+            }
+        }
         if (entity instanceof AbstractFurnaceBlockEntity) {
             for (String key : List.of("BurnTime", "CookTime", "CookTimeTotal")) move(source, runtime, key);
         }
