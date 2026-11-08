@@ -12,8 +12,6 @@ navigation:
 
 If you need higher efficiency, you can simply extend it, or design your own more efficient machine.
 
-## Diagram
-
 <structure id="../../structures/machine/crush.snbt"/>
 
 <tip>
@@ -23,7 +21,7 @@ Left-click to adjust position; right-click to adjust angle; PgUp/PgDn to adjust 
 1. Set the pulse generator to loop mode: emit an 8gt signal every 8gt interval
 
 - All <ref item="minecraft:smooth_stone"/> can be replaced with any full opaque block
-- All <ref item="minecraft:smooth_stone_slab"/> can be replaced with any slab
+- All <ref item="minecraft:smooth_stone_slab"/> can be replaced with any block whose top surface is not a full face
 - All <ref item="minecraft:anvil"/> can be replaced with any anvil
 
 <warning>

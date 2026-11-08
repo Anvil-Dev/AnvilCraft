@@ -8,7 +8,7 @@ navigation:
 
 Want an inexhaustible supply of wood?
 
-If you have already seen the Log-to-Diamond Machine, you surely know that in AnvilCraft, wood can be processed into diamonds.
+By now, you know that wood can be processed into diamonds in AnvilCraft.
 
 Build a **Giant Anvil Tree Farm** like this, and logs will continuously flow into the chest without consuming bone meal.
 
@@ -16,21 +16,24 @@ Build a **Giant Anvil Tree Farm** like this, and logs will continuously flow int
 2. Use <ref item="anvilcraft:giant_anvil"/>'s earth-shaking shockwave to destroy large trees
 3. Use <ref item="anvilcraft:item_collector"/> to collect drops in a wide area
 
-## Diagram
-
-<structure id="../../structures/machine/tree.snbt"/>
-
-<tip>
-Left-click to adjust position; right-click to adjust angle; PgUp/PgDn to adjust display height
-</tip>
+<structure id="../../structures/machine/tree.nbt"/>
 
 <warning>
 The machine **_must not be rotated_**. Ensure the sapling is in the *northwest corner* of the machine, otherwise the tree cannot grow!
 </warning>
 
-1. <ref item="anvilcraft:item_collector"/> set collection radius: 8
-2. Set the <ref item="anvilcraft:magnetic_chute"/> on the side of the <ref item="anvilcraft:item_collector"/> to filter: Sapling
-3. Set the <ref item="anvilcraft:chute"/> below the <ref item="anvilcraft:item_collector"/> to filter: Logs, Sticks
+## Advanced Version
 
-- All <ref item="minecraft:glass"/> can be replaced with any full opaque block
-- All <ref item="minecraft:smooth_stone"/> can be replaced with any full block
+<structure id="../../structures/machine/tree_advanced.nbt"/>
+
+This tree farm is wild: it consumes about 90 stacks of bones per hour and produces over 600,000 logs per hour.
+Make sure you have an efficient skeleton spawner to supply it, and you will never run out of logs again!
+
+- The machine has two sections, planting and chopping, each with its own switch.
+- The planting switch is the pulse generator at the top. Set it to loop mode to start planting.
+- The chopping switch is the lever on the lower level. Turn the lever off to start chopping.
+- The machine has no built-in collection for the *logs* and *sticks* it produces. *You need to add your own collection system.*
+
+  <warning>
+  The machine **_must not be rotated_**. Ensure the sapling is in the *northwest corner* of the machine, otherwise the tree cannot grow!
+  </warning>

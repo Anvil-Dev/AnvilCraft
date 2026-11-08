@@ -88,7 +88,6 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.beacon_conversion.activate", "Use this item to activate beacon");
         provider.add("gui.anvilcraft.category.beacon_conversion.beacon_base", "Use this block as beacon base");
 
-        provider.add("gui.anvilcraft.category.container_upgrade", "Container Upgrade");
         provider.add("gui.anvilcraft.category.container_upgrade.drop_on_top", "Drop these items onto the container");
         provider.add("gui.anvilcraft.category.container_upgrade.strike", "Strike with an anvil to upgrade the container");
         provider.add("gui.anvilcraft.category.use_item_on_block", "Use Item on Block");

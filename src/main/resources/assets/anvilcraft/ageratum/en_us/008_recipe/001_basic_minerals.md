@@ -29,7 +29,7 @@ navigation:
 # Cobblestone Generator -- The Source of Everything
 
 <tip>
-You can try the prefab machines provided by this mod: [Cobblestone Generator](../009_machine/002_stone.md) / [Three-Mode Sand Machine](../009_machine/003_sand.md)
+You can try the prefab machine provided by this mod: [Three-Mode Sand Machine](../009_machine/003_sand.md)
 </tip>
 
 # <ref item="minecraft:gold_ingot"/>-<ref item="minecraft:clay_ball"/> Production Line

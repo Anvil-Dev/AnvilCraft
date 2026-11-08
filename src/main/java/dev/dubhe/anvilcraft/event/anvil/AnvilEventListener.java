@@ -22,7 +22,6 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.DamageAnvil;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessStepManager;
 import dev.dubhe.anvilcraft.recipe.anvil.util.FishTankRecipes;
-import dev.dubhe.anvilcraft.util.AnvilUtil;
 import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
@@ -35,6 +34,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -196,7 +196,21 @@ public class AnvilEventListener {
         }
 
         List<ItemStack> drops = BreakBlockUtil.drop(serverLevel, pos, miningEffect);
-        AnvilUtil.dropItems(drops, level, pos.getCenter());
+        Vec3 dropPos = pos.getCenter();
+        for (ItemStack drop : drops) {
+            if (drop.isEmpty()) {
+                continue;
+            }
+            int maxStackSize = drop.getMaxStackSize();
+            for (int remaining = drop.getCount(); remaining > 0; remaining -= maxStackSize) {
+                ItemEntity item = new ItemEntity(
+                    level, dropPos.x, dropPos.y, dropPos.z,
+                    drop.copyWithCount(Math.min(remaining, maxStackSize)), 0d, 0d, 0d
+                );
+                item.anvilcraft$setIsAdsorbable(true);
+                level.addFreshEntity(item);
+            }
+        }
         level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
     }
 
