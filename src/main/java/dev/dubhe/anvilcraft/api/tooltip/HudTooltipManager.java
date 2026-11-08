@@ -183,6 +183,13 @@ public class HudTooltipManager {
         ) {
             return;
         }
+        if (currentProvider instanceof StoragePortTooltipProvider port) {
+            TooltipRenderHelper.renderComponentsWithItemIcon(
+                guiGraphics, font, port.icon(entity), port.components(entity), tooltipPosX, tooltipPosY,
+                BACKGROUND_COLOR, BORDER_COLOR_TOP, BORDER_COLOR_BOTTOM
+            );
+            return;
+        }
         renderTooltipWithItemIcon(
             guiGraphics,
             font,
