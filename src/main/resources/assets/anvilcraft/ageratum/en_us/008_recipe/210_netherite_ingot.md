@@ -19,5 +19,5 @@ navigation:
 <recipe id="anvilcraft:procedural_process/netherite_block"/>
 
 <tip>
-If you don't want to design your own machine, refer to the [machine](../009_machine/201_netherite_block.md) in the manual
+If you don't want to design your own machine, refer to the [ancient debris machine](../009_machine/202_ancient_debris.md) and [netherite block machine](../009_machine/203_netherite_block.md) in the manual
 </tip>

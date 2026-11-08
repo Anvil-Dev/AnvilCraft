@@ -8,7 +8,7 @@ navigation:
 
 想要取之不尽用之不竭的木材吗？
 
-如果你已经看过 原木钻石机 ，你一定知道了在铁砧工艺中木材可以加工成钻石
+看到这里你一定知道了在铁砧工艺中木材可以加工成钻石
 
 建造这样一台**巨型铁砧树场**，原木就能源源不断进入箱子，并且不消耗骨粉
 
@@ -16,21 +16,24 @@ navigation:
 2. 使用<ref item="anvilcraft:giant_anvil"/>撼地的冲击波破坏大树
 3. 使用<ref item="anvilcraft:item_collector"/>范围收集掉落物
 
-## 图示
-
-<structure id="../../structures/machine/tree.snbt"/>
-
-<tip>
-左键调整位置；右键调整角度；PgUP/PgDN调整显示高度
-</tip>
+<structure id="../../structures/machine/tree.nbt"/>
 
 <warning>
 机器**_不可旋转_**，确保树苗在机器的*西北角*，否则树无法生长！
 </warning>
 
-1. <ref item="anvilcraft:item_collector"/>设置收集半径: 8
-2. <ref item="anvilcraft:item_collector"/>侧边的<ref item="anvilcraft:magnetic_chute"/>设置过滤: 树苗
-3. <ref item="anvilcraft:item_collector"/>下方的<ref item="anvilcraft:chute"/>设置过滤: 原木、木棍
+## 进阶版
 
-- 所有 <ref item="minecraft:glass"/> 可替换为 任意完整不透明方块
-- 所有 <ref item="minecraft:smooth_stone"/> 可替换为 任意完整方块
+<structure id="../../structures/machine/tree_advanced.nbt"/>
+
+这台树场非常疯狂，每小时消耗约 90组 骨头并产出 60万 以上原木。
+确保你有一个高效的骷髅刷怪笼能供应这台机器的消耗，以后就再也不缺原木了！
+
+- 机器分为两个部分，种树和砍树，各有一个开关
+- 种树的开关是顶部脉冲发生器，调整为循环模式即可开始种树
+- 砍树的开关是下层的拉杆，关闭拉杆就能开始砍树
+- 机器没有内置产物*原木*和*木棍*的收集，*你需要自己做收集*
+
+  <warning>
+  机器**_不可旋转_**，确保树苗在机器的*西北角*，否则树无法生长！
+  </warning>

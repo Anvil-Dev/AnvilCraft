@@ -12,8 +12,6 @@ navigation:
 
 如果需要更高效率，可以简单的延长，也可以自行设计更高效的机器
 
-## 图示
-
 <structure id="../../structures/machine/crush.snbt"/>
 
 <tip>
@@ -23,7 +21,7 @@ navigation:
 1. 脉冲发生器设置为循环模式：每间隔 8gt 发出长度 8gt 的信号
 
 - 所有 <ref item="minecraft:smooth_stone"/> 可替换为 任意完整不透明方块
-- 所有 <ref item="minecraft:smooth_stone_slab"/> 可替换为 任意台阶
+- 所有 <ref item="minecraft:smooth_stone_slab"/> 可替换为 任意上表面不完整方块
 - 所有 <ref item="minecraft:anvil"/> 可替换为 任意铁砧
 
 <warning>

@@ -1666,7 +1666,7 @@ public class ModBlocks {
         .item().transform(PropertiesProviderUtil::blockItem).build()
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(PropertiesProviderUtil::metalSound)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never).explosionResistance(15F))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumBlockRecipeLoader::blockPlacer)
