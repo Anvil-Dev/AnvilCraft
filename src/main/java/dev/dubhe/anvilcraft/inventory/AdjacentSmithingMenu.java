@@ -343,10 +343,13 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
                     remainder = handler.insertItem(preferredSlot, remainder, false);
                 }
             }
-            if (!remainder.isEmpty() && !(handler instanceof ReadOnlyItemHandlerWrapper)) {
+            if (!remainder.isEmpty()) {
                 for (int slot = 0; slot < handler.getSlots() && !remainder.isEmpty(); slot++) {
-                    if (slot == preferredSlot) continue;
-                    remainder = handler.insertItem(slot, remainder, false);
+                    if (slot == preferredSlot) {
+                        continue;
+                    }
+                    remainder = handler instanceof ReadOnlyItemHandlerWrapper wrapper
+                        ? wrapper.insertItemBypass(slot, remainder, false) : handler.insertItem(slot, remainder, false);
                 }
             }
         }
