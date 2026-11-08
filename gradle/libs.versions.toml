@@ -8,10 +8,6 @@ modDevGradle = "2.0.147"
 lombok = "9.2.0"
 machete = "2.0.1"
 anvillib = "2.0.0+snapshot.653"
-anvillib-cube = "2.0.0+snapshot.653"
-anvillib-multiblock = "2.0.0+snapshot.653"
-anvillib-math = "2.0.0+snapshot.653"
-anvillib-registrum = "2.0.0+snapshot.653"
 ageratum = "0.0.1+build.135"
 sodium = "0.9.2+mc26.1.2"
 iris = "1.11.4+26.1-neoforge"
@@ -21,10 +17,6 @@ curios = "15.0.0+26.1.2"
 xaero-minimap = { group = "maven.modrinth", name = "xaeros-minimap", version = "neoforge-26.1.2-26.6.1" }
 xaero-worldmap = { group = "maven.modrinth", name = "xaeros-world-map", version = "neoforge-26.1.2-1.47.1" }
 emi = { group = "curse.maven", name = "emi-unofficial-port-unstable-1544558", version.ref = "emi" }
-anvillib-registrum = { group = "dev.anvilcraft.lib", name = "anvillib-registrum-neoforge-26.1", version.ref = "anvillib-registrum" }
-anvillib-math = { group = "dev.anvilcraft.lib", name = "anvillib-math-neoforge-26.1", version.ref = "anvillib-math" }
-anvillib-multiblock = { group = "dev.anvilcraft.lib", name = "anvillib-multiblock-neoforge-26.1", version.ref = "anvillib-multiblock" }
-anvillib-cube = { group = "dev.anvilcraft.lib", name = "anvillib-cube-neoforge-26.1", version.ref = "anvillib-cube" }
 jei-common-api = { group = "mezz.jei", name = "jei-26.1.2-common-api", version.ref = "jei" }
 jei-neoforge-api = { group = "mezz.jei", name = "jei-26.1.2-neoforge-api", version.ref = "jei" }
 jei-neoforge = { group = "mezz.jei", name = "jei-26.1.2-neoforge", version.ref = "jei" }

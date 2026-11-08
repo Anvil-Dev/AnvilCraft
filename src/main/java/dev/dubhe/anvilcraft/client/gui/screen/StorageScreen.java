@@ -5,6 +5,8 @@ import com.google.common.collect.Lists;
 import com.google.common.math.LongMath;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
+import dev.anvilcraft.lib.v2.ui.flexible.FlyoutRenderer;
+import dev.anvilcraft.lib.v2.ui.flexible.PointerDirection;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
@@ -86,6 +88,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import org.joml.Vector2i;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -175,14 +178,24 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private static final int METADATA_REFRESH_INTERVAL = 10;
     private static final int MAX_PRESERVED_SYNC_ATTEMPTS = 3;
     private static final int FLUID_SLOT_BASE = StoragePortManager.FLUID_SLOT_BASE;
-    private static final int FLYOUT_FADE_IN_TICKS = 5;
-    private static final int FLYOUT_FADE_OUT_TICKS = 5;
+    private static final int FLYOUT_PADDING = 2;
+    /** 工具提示顶边相对鼠标的偏移与浮层之间的额外间距（像素）。 */
+    private static final int TOOLTIP_TOP_OFFSET = 12;
+    private static final int FLYOUT_GAP = 6;
 
     private static int flyoutTotalTicks() {
-        return StorageScreen.FLYOUT_FADE_IN_TICKS + AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks
-            + StorageScreen.FLYOUT_FADE_OUT_TICKS;
+        return AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutFadeInTicks
+            + AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks
+            + AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutFadeOutTicks;
     }
-    private static final Identifier FLYOUT_BACK = AnvilCraft.of("flex_button/shaded_1px");
+
+    private static FlyoutRenderer createFlyoutRenderer() {
+        FlyoutRenderer renderer = new FlyoutRenderer();
+        renderer.shaded1px();
+        return renderer;
+    }
+
+    private static final FlyoutRenderer FLYOUT_RENDERER = StorageScreen.createFlyoutRenderer();
     private final BlockPos sourcePos;
     private final Player player;
     private final boolean tracksOpenState;
@@ -205,6 +218,11 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private int flyoutTimer = StorageScreen.flyoutTotalTicks();
     private int flyoutClickX;
     private int flyoutClickY;
+    /** 浮窗是否锚定在点击处（失败提示）而非指向合成区（缺失工作台提示）。 */
+    private boolean flyoutAtClick;
+    /** 待显示提示的锚点，与文本一起提交到 flyoutClickX/Y。 */
+    private int noticeAnchorX;
+    private int noticeAnchorY;
     private double fullness;
     private StorageServerStub.@Nullable Capacity capacity;
     private @Nullable UUID storageId;
@@ -700,9 +718,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         StorageClientStub.craftingUnlock(this.sourcePos).whenCompleteAsync((available, error) -> {
             this.interactionPending = false;
             if (error != null || !available) {
-                this.flyoutClickX = this.sx(287);
-                this.flyoutClickY = this.top + 195;
-                this.showNotice(Component.translatable("tooltip.anvilcraft.storage.missing_workbench"));
+                this.showFlyout();
                 return;
             }
             this.craftingAvailable = true;
@@ -1386,8 +1402,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     if (!this.carried.isEmpty()) this.interactWithStorage(fluidSlot, event.button(), StorageInput.PICKUP);
                     return true;
                 }
-                this.flyoutClickX = (int) event.x();
-                this.flyoutClickY = (int) event.y();
+                // 失败提示的锚点先记下，等提示真正返回时再与文本一起提交，避免旧提示先按新位置画一帧
+                this.noticeAnchorX = (int) event.x();
+                this.noticeAnchorY = (int) event.y();
                 StorageInput action;
                 if (event.hasShiftDown()) {
                     action = StorageInput.QUICK_MOVE_FROM_STORAGE;
@@ -1895,7 +1912,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     this.interactionPending = false;
                     return;
                 }
-                if (result.notice() != StorageServerStub.FluidNotice.NONE) this.showNotice(result.notice().text());
+                if (result.notice() != StorageServerStub.FluidNotice.NONE) {
+                    this.showNotice(result.notice().text(), this.noticeAnchorX, this.noticeAnchorY);
+                }
                 this.carried = result.carried();
                 this.player.inventoryMenu.setCarried(this.carried);
                 if (result.changed()) {
@@ -2374,9 +2393,24 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         StorageScreen.renderSlotCount(graphics, font, amount, entry.amount() == 0 ? 0xFFFFAA00 : -1, x, y);
     }
 
-    private void showNotice(Component message) {
+    /**
+     * 在指定位置显示一条提示浮窗，文本与锚点一起提交，避免旧提示按新位置多画一帧。
+     */
+    private void showNotice(Component message, int x, int y) {
         if (message.getString().isEmpty()) return;
         this.flyoutMessage = message;
+        this.flyoutClickX = x;
+        this.flyoutClickY = y;
+        this.flyoutAtClick = true;
+        this.flyoutTimer = 0;
+    }
+
+    /**
+     * 显示「仓储内缺失工作台或切石机」浮窗，右对齐到合成区并落在合成按钮下方。
+     */
+    private void showFlyout() {
+        this.flyoutMessage = Component.translatable("tooltip.anvilcraft.storage.missing_workbench");
+        this.flyoutAtClick = false;
         this.flyoutTimer = 0;
     }
 
@@ -2393,20 +2427,59 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     private void extractFlyout(GuiGraphicsExtractor graphics) {
-        int elapsed = this.flyoutTimer - StorageScreen.FLYOUT_FADE_IN_TICKS;
-        float alpha = this.flyoutTimer < StorageScreen.FLYOUT_FADE_IN_TICKS
-            ? this.flyoutTimer / (float) StorageScreen.FLYOUT_FADE_IN_TICKS
-            : elapsed < AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks ? 1.0F
-            : 1.0F - (elapsed - AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks) / (float) StorageScreen.FLYOUT_FADE_OUT_TICKS;
-        if (alpha <= 0) return;
-        int width = this.font.width(this.flyoutMessage) + 5;
-        int height = this.font.lineHeight + 6;
-        int x = Mth.clamp(this.flyoutClickX - width / 2, 4, Math.max(4, this.width - width - 4));
-        int y = Math.max(4, this.flyoutClickY - 18 - height);
-        int color = (int) (alpha * 255.0F) << 24 | 0xFFFFFF;
-        graphics.nextStratum();
-        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, StorageScreen.FLYOUT_BACK, x, y, width, height, color);
-        graphics.text(this.font, this.flyoutMessage.copy().withColor(0xEE0000), x + 3, y + 3, color, false);
+        int fadeIn = AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutFadeInTicks;
+        int fadeOut = AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutFadeOutTicks;
+        int hold = AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks;
+        int elapsed = this.flyoutTimer - fadeIn;
+        float alpha;
+        if (this.flyoutTimer < fadeIn) {
+            alpha = this.flyoutTimer / (float) fadeIn;
+        } else if (elapsed < hold) {
+            alpha = 1.0F;
+        } else if (fadeOut <= 0) {
+            alpha = 0.0F;
+        } else {
+            alpha = 1.0F - (elapsed - hold) / (float) fadeOut;
+        }
+        if (alpha <= 0.0F) {
+            return;
+        }
+        StorageScreen.FLYOUT_RENDERER.alpha(alpha);
+        try (FlyoutRenderer.Scope scope = StorageScreen.FLYOUT_RENDERER.open()) {
+            scope.graphics(graphics)
+                .font(this.font)
+                .text(this.flyoutMessage.copy().withColor(0xEE0000))
+                .flexSize(StorageScreen.FLYOUT_PADDING);
+            Vector2i size = Objects.requireNonNull(scope.resolveSize());
+            int flyoutX;
+            int flyoutY;
+            if (this.flyoutAtClick) {
+                // 点击处提示：贴近点击位置上方居中，并夹在窗口内
+                flyoutX = Mth.clamp(this.flyoutClickX - size.x / 2, 4, Math.max(4, this.width - size.x - 4));
+                // 整体让开工具提示的顶边，否则底边会落进提示矩形内被盖住
+                flyoutY = Math.max(
+                    4,
+                    this.flyoutClickY - StorageScreen.TOOLTIP_TOP_OFFSET - StorageScreen.FLYOUT_GAP - size.y
+                );
+                // 浮窗整体落在点击位置上方，指针贴下边指向点击点
+                scope.pointer(
+                    PointerDirection.DOWN,
+                    Mth.clamp((this.flyoutClickX - flyoutX - 5) / (float) Math.max(size.x - 10, 1), 0.0F, 1.0F)
+                );
+            } else {
+                // 缺失工作台提示：右对齐到合成区，落在合成按钮下方，指针贴这个上边指向图标
+                flyoutX = this.sx(296) - size.x;
+                flyoutY = this.top + 219;
+                // 砧库自本体上边内缩 2px 起、按指针左边缘在剩余长度上的位置摆放，指针宽 6px；
+                // 由此反算百分比，使指针中心落在合成区图标中心 sx(286) 上
+                scope.pointer(
+                    PointerDirection.UP,
+                    (this.sx(286) - flyoutX - 5) / (float) Math.max(size.x - 10, 1)
+                );
+            }
+            graphics.nextStratum();
+            scope.pos(flyoutX, flyoutY).render();
+        }
     }
 
     private int fluidPourButton() {
