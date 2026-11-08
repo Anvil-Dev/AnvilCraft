@@ -33,7 +33,7 @@ public final class StoragePortServerStub {
         ServerLevel level = Validator.LEVEL.get();
         try {
             return level != null && level.getBlockEntity(pos) instanceof StoragePortBlockEntity port
-                ? port.getStoredCount() : -1;
+                ? port.getMarkedStorageCount() : -1;
         } finally {
             Validator.LEVEL.remove();
         }
