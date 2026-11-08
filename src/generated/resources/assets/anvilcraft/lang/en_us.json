@@ -1701,6 +1701,7 @@
   "message.anvilcraft.building_rod.undone": "Last placement undone",
   "message.anvilcraft.building_rod.unsupported": "This blueprint contains materials that cannot be supplied",
   "message.anvilcraft.building_rod.unsupported_type": "No supported building material for blueprint object: %s",
+  "message.anvilcraft.building_rod.wip_block": "Use Creative mode to paste work-in-progress blocks, or force paste to treat them as air",
   "message.anvilcraft.chute.cannot_place": "Chute cannot face this direction",
   "message.anvilcraft.code_gen_check": "Please check if the selected area is a cube and if the output slot has items.",
   "message.anvilcraft.code_gen_filed": "Code generation failed",
