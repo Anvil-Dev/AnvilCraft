@@ -77,23 +77,7 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
         @Override
         public boolean isValid(int slot, ItemResource resource) {
             ItemStack marked = StoragePortBlockEntity.this.markedItem;
-            return marked.isEmpty() || slot == 0 && ItemResource.of(marked).equals(resource);
-        }
-
-        @Override
-        public int insert(int slot, ItemResource resource, int amount, TransactionContext transaction) {
-            TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
-            ItemStack marked = StoragePortBlockEntity.this.markedItem;
-            if (!marked.isEmpty()) {
-                int stored = 0;
-                for (int index = 0; index < this.size(); index++) {
-                    if (this.getResource(index).equals(resource)) {
-                        stored += this.getAmountAsInt(index);
-                    }
-                }
-                amount = Math.min(amount, Math.max(0, marked.getMaxStackSize() - stored));
-            }
-            return super.insert(slot, resource, amount, transaction);
+            return marked.isEmpty() || ItemResource.of(marked).equals(resource);
         }
 
         @Override
@@ -680,6 +664,12 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
             }
         }
         return amount;
+    }
+
+    /** 供库存提示读取完整存量，不应用于自动化提取的标记判定。 */
+    public ResourceHandler<ItemResource> getItemHandlerForDisplay() {
+        BaseStorage<?> core = this.getCoreStorage();
+        return core == null ? this.buffer : core.getAvailableItems();
     }
 
     @Override
