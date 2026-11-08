@@ -45,6 +45,8 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.fluid_tank.more", "and %s more...");
         provider.add("screen.anvilcraft.storage_port.clear_mark", "Clear Mark");
         provider.add("tooltip.anvilcraft.storage_port.item", "Item:");
+        provider.add("tooltip.anvilcraft.storage_port.cache", "Buffer");
+        provider.add("tooltip.anvilcraft.storage_port.storage", "Storage");
         provider.add("tooltip.anvilcraft.storage_port.unmarked", "No item marked");
         provider.add("screen.anvilcraft.redstone_dice.uniform", "Uniform Mode");
         provider.add("screen.anvilcraft.redstone_dice.realistic", "Realistic Mode");

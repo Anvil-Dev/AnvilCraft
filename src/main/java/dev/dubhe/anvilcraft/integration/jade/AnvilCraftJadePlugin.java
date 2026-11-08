@@ -8,10 +8,13 @@ import dev.dubhe.anvilcraft.block.WipBlock;
 import dev.dubhe.anvilcraft.block.container.FluidTankBlock;
 import dev.dubhe.anvilcraft.block.container.LargeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
+import dev.dubhe.anvilcraft.block.container.storage.HyperdimensionStorageStationBlock;
+import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.block.entity.AutoEnchantingTableBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.production.CrabTrapBlock;
@@ -70,6 +73,9 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
     @Override
     public void register(IWailaCommonRegistration registration) {
         registration.registerItemStorage(StoragePortProvider.INSTANCE, StoragePortBlockEntity.class);
+        registration.registerItemStorage(StoragePortProvider.INSTANCE, StorageBlockEntity.class);
+        registration.registerItemStorage(StoragePortProvider.INSTANCE, ShulkerContainerBlock.class);
+        registration.registerItemStorage(StoragePortProvider.INSTANCE, HyperdimensionStorageStationBlock.class);
         registration.registerBlockDataProvider(AutoEnchantingTableProvider.INSTANCE,
             AutoEnchantingTableBlockEntity.class);
         registration.registerBlockDataProvider(PowerBlockProvider.INSTANCE, Block.class);
