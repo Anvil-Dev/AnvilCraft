@@ -482,6 +482,10 @@ public final class BuildingRodService {
         if (tag == null) return;
         try {
             StructureSnapshot snapshot = BlueprintNormalizer.load(tag, player.registryAccess(), disk.direction(), disk.upsideDown());
+            if (!player.isCreative() && snapshot.blocks().stream().anyMatch(entry -> snapshot.stateOf(entry).is(ModBlocks.WIP_BLOCK))) {
+                message(player, "wip_block");
+                return;
+            }
             BlueprintPlacement placement = new BlueprintPlacement(anchor, rotation, mirror);
             List<BlueprintPlacement> placements = placement.tile(snapshot, last);
             if (placements.isEmpty()) {
