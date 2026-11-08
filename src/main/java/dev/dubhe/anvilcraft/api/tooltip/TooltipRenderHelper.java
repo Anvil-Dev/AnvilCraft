@@ -107,8 +107,18 @@ public class TooltipRenderHelper {
         int borderTopColor,
         int borderBottomColor
     ) {
+        renderComponentsWithItemIcon(graphics, font, itemStack, lines.stream()
+            .map(Component::getVisualOrderText).map(ClientTooltipComponent::create).toList(),
+            x, y, backgroundColor, borderTopColor, borderBottomColor);
+    }
+
+    /** 为包含图标网格等自定义内容的浮窗复用边框与定位逻辑。 */
+    public static void renderComponentsWithItemIcon(
+        GuiGraphicsExtractor graphics, Font font, ItemStack itemStack, List<ClientTooltipComponent> components,
+        int x, int y, int backgroundColor, int borderTopColor, int borderBottomColor
+    ) {
         ((IGuiGraphicsExtractorExtension) graphics).anvilcraft$deferTooltip(() -> TooltipRenderHelper.extractTooltipWithItemIcon(
-            graphics, font, itemStack, lines, x, y, backgroundColor, borderTopColor, borderBottomColor
+            graphics, font, itemStack, components, x, y, backgroundColor, borderTopColor, borderBottomColor
         ));
     }
 
@@ -116,18 +126,14 @@ public class TooltipRenderHelper {
         GuiGraphicsExtractor graphics,
         Font font,
         ItemStack itemStack,
-        List<Component> lines,
+        List<ClientTooltipComponent> components,
         int x,
         int y,
         int backgroundColor,
         int borderTopColor,
         int borderBottomColor
     ) {
-        ClientTooltipPositioner tooltipPositioner = DefaultTooltipPositioner.INSTANCE;
-        List<ClientTooltipComponent> components = lines.stream()
-            .map(Component::getVisualOrderText)
-            .map(ClientTooltipComponent::create)
-            .toList();
+        final ClientTooltipPositioner tooltipPositioner = DefaultTooltipPositioner.INSTANCE;
         if (components.isEmpty()) return;
         int width = 0;
         int height = components.size() == 1 ? -2 : 0;
@@ -137,6 +143,7 @@ public class TooltipRenderHelper {
             height += component.getHeight(font);
         }
 
+        height += 16 + (components.size() > 1 ? 2 : 0);
         Vector2ic vector2ic = tooltipPositioner.positionTooltip(graphics.guiWidth(), graphics.guiHeight(), x, y, width, height);
         int vx = vector2ic.x();
         int vy = vector2ic.y();
@@ -144,7 +151,7 @@ public class TooltipRenderHelper {
 
         int finalVy = vy;
         int finalWidth = width;
-        int finalHeight = height + 16;
+        int finalHeight = height;
         TooltipRenderHelper.renderTooltipBackground(
             graphics,
             vx,

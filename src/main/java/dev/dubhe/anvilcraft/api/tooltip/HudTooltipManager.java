@@ -155,6 +155,13 @@ public class HudTooltipManager {
         if (
             (CompatUtil.HAS_JADE.get() && !AnvilCraftClient.CONFIG.ui.showGoggleTooltipWhenJadePresent)
             || tooltip.isEmpty()) return;
+        if (currentProvider instanceof StoragePortTooltipProvider port) {
+            TooltipRenderHelper.renderComponentsWithItemIcon(
+                graphics, font, port.icon(entity), port.components(entity), tooltipPosX, tooltipPosY,
+                BACKGROUND_COLOR, BORDER_COLOR_TOP, BORDER_COLOR_BOTTOM
+            );
+            return;
+        }
         TooltipRenderHelper.renderTooltipWithItemIcon(
             graphics,
             font,
