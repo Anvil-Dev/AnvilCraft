@@ -76,7 +76,8 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
     private final ItemStacksResourceHandler buffer = new ItemStacksResourceHandler(StoragePortBlockEntity.BUFFER_SLOTS) {
         @Override
         public boolean isValid(int slot, ItemResource resource) {
-            return true;
+            ItemStack marked = StoragePortBlockEntity.this.markedItem;
+            return marked.isEmpty() || ItemResource.of(marked).equals(resource);
         }
 
         @Override
