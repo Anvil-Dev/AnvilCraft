@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import dev.dubhe.anvilcraft.building.BlueprintNormalizer;
 import dev.dubhe.anvilcraft.building.BlueprintPlacement;
 import dev.dubhe.anvilcraft.building.ConstructionBlueprintException;
+import dev.dubhe.anvilcraft.building.StructureSnapshot;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.network.StructureDiskRequestPacket;
@@ -152,12 +153,7 @@ public class StructureLoadUtil {
         try {
             var snapshot = BlueprintNormalizer.load(
                 cached.orElseThrow(), level.registryAccess(), diskData.direction(), diskData.upsideDown());
-            var data = new StructureData(new StructureDiskData(diskData.file(), diskData.name(), diskData.uuid(), Direction.NORTH,
-                snapshot.size().getX(), snapshot.size().getY(), snapshot.size().getZ(), false, diskData.autoRotate()));
-            for (var entry : snapshot.blocks()) {
-                data.blocks.add(new BlockPosition(entry.pos().getX(), entry.pos().getY(), entry.pos().getZ(), snapshot.stateOf(entry)));
-            }
-            return data;
+            return StructureData.fromSnapshot(diskData, snapshot);
         } catch (ConstructionBlueprintException | RuntimeException exception) {
             LOGGER.warn("Failed to parse cached structure {}", diskData.file(), exception);
             removeCachedStructureNbt(diskData.file());
@@ -312,11 +308,11 @@ public class StructureLoadUtil {
     }
 
     /**
-     * 加载结构预览数据（仅调色板和方块列表），用于网络同步到客户端
+     * 加载包含方块实体和坐标元数据的结构预览，用于网络同步到客户端
      *
      * @param level    世界实例（服务端）
      * @param fileName 结构文件名（已校验）
-     * @return 预览CompoundTag（含palette+blocks），加载失败返回null
+     * @return 保留结构元数据的预览标签，加载失败返回 null
      */
     @Nullable
     public static CompoundTag loadPreviewData(Level level, String fileName) {
@@ -340,7 +336,7 @@ public class StructureLoadUtil {
             }
 
             CompoundTag fullTag = NbtIo.readCompressed(structureFile, NbtAccounter.create(128L * 1024 * 1024));
-            CompoundTag previewTag = new CompoundTag();
+            CompoundTag previewTag = fullTag.copy();
 
             // 复制调色板
             if (fullTag.contains("palette")) {
@@ -419,16 +415,34 @@ public class StructureLoadUtil {
      */
     public static class StructureData {
         public final StructureDiskData diskData;
+        public final @Nullable StructureSnapshot snapshot;
         public int width;
         public int depth;
         public int height;
         public final List<BlockPosition> blocks = new ArrayList<>();
 
         public StructureData(StructureDiskData diskData) {
+            this(diskData, null);
+        }
+
+        private StructureData(StructureDiskData diskData, @Nullable StructureSnapshot snapshot) {
             this.diskData = diskData;
+            this.snapshot = snapshot;
             this.width = diskData.sizeX();
             this.depth = diskData.sizeZ();
             this.height = diskData.sizeY();
+        }
+
+        /** 保留已归一化快照的方块实体数据，使预览能够恢复模型所需的运行进度。 */
+        public static StructureData fromSnapshot(StructureDiskData disk, StructureSnapshot snapshot) {
+            StructureDiskData normalized = new StructureDiskData(disk.file(), disk.name(), disk.uuid(), Direction.NORTH,
+                snapshot.size().getX(), snapshot.size().getY(), snapshot.size().getZ(), false, disk.autoRotate());
+            StructureData data = new StructureData(normalized, snapshot);
+            for (var entry : snapshot.blocks()) {
+                data.blocks.add(new BlockPosition(entry.pos().getX(), entry.pos().getY(), entry.pos().getZ(),
+                    snapshot.stateOf(entry)));
+            }
+            return data;
         }
 
         public boolean isEmpty() {
