@@ -26,6 +26,7 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -302,6 +303,7 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
                 result.add(port);
             }
         }
+        result.sort(Comparator.comparing(port -> port.getMarkedItem().isEmpty()));
         return result;
     }
 
