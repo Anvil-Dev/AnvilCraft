@@ -52,22 +52,6 @@ public class SharedTextures {
     public static final ResourceLocation SMALL_SLIDER = textureGui("machine/slider");
     public static final ResourceLocation STRUCTURE_TOOL_LOCKED = textureGui("machine/structure_tool_locked");
     
-    // SMART_BLOCK_PLACER
-    public static final ResourceLocation SMART_BLOCK_PLACER_BACKGROUND = bg("machine", "smart_block_placer");
-    public static final ResourceLocation SMART_BLOCK_PLACER_LAYER_1 = textureGui("machine/smart_block_placer/layer_1");
-    public static final ResourceLocation SMART_BLOCK_PLACER_LAYER_2 = textureGui("machine/smart_block_placer/layer_2");
-    public static final ResourceLocation SMART_BLOCK_PLACER_LAYER_3 = textureGui("machine/smart_block_placer/layer_3");
-    public static final ResourceLocation SMART_BLOCK_PLACER_LAYER_4 = textureGui("machine/smart_block_placer/layer_4");
-    public static final ResourceLocation SMART_BLOCK_PLACER_LAYER_5 = textureGui("machine/smart_block_placer/layer_5");
-    public static final ResourceLocation SMART_BLOCK_PLACER_POSITION_SELECT = textureGui("machine/smart_block_placer/position_select");
-    public static final ResourceLocation SMART_BLOCK_PLACER_LAYER_ALL = textureGui("machine/smart_block_placer/layer_all");
-    public static final ResourceLocation SMART_BLOCK_PLACER_LAYER_SINGLE = textureGui("machine/smart_block_placer/layer_single");
-    public static final ResourceLocation SMART_BLOCK_PLACER_PICKUP_MODE = textureGui("machine/smart_block_placer/pickup_mode");
-    public static final ResourceLocation SMART_BLOCK_PLACER_MOVE_MODE = textureGui("machine/smart_block_placer/move_mode");
-    public static final ResourceLocation SMART_BLOCK_PLACER_BLUEPRINT_MODE = textureGui("machine/smart_block_placer/blueprint_mode");
-    public static final ResourceLocation SMART_BLOCK_PLACER_SKIP_MISSING = textureGui("machine/smart_block_placer/skip_missing");
-    public static final ResourceLocation SMART_BLOCK_PLACER_STOP_MISSING = textureGui("machine/smart_block_placer/stop_missing");
-
     // MISC
     public static final ResourceLocation BOX_SELECTION = textureGui("misc/box_selection");
 
