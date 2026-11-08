@@ -50,6 +50,13 @@ public class RedhotBlock extends HeatableBlock implements IMoveableEntityBlock {
     }
 
     @Override
+    public void notifyMoved(Level level, BlockPos pos, BlockState state, BlockEntity be) {
+        if (be instanceof HeatableBlockEntity heatable) {
+            heatable.setDuration(0);
+        }
+    }
+
+    @Override
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
         if (
             !entity.isSteppingCarefully()
