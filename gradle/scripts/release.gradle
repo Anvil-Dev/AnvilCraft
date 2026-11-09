@@ -1,0 +1,20 @@
+publishing.repositories {
+    maven {
+        name = 'ReleaseStaging'
+        url = layout.buildDirectory.dir('release/staging')
+    }
+}
+
+tasks.register('stageRelease') {
+    group = 'publishing'
+    description = '构建并暂存统一发布使用的 Maven 文件。'
+    dependsOn tasks.named('build'), tasks.named('publishMavenJavaPublicationToReleaseStagingRepository')
+    doLast {
+        def embedded = configurations.jarJar.resolvedConfiguration.resolvedArtifacts.collectEntries { artifact ->
+            def id = artifact.moduleVersion.id
+            def hash = java.security.MessageDigest.getInstance('SHA-256').digest(artifact.file.bytes).encodeHex().toString()
+            [("${id.group}:${id.name}:${id.version}".toString()): hash]
+        }
+        layout.buildDirectory.file('release/embedded.json').get().asFile.text = groovy.json.JsonOutput.toJson(embedded)
+    }
+}

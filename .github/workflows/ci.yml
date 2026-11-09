@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BUILD_TYPE: snapshot
-      VERSION_TYPE: alpha
+      VERSION_TYPE: beta
     steps:
       - name: checkout
         uses: actions/checkout@v4
