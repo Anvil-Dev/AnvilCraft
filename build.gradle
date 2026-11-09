@@ -10,7 +10,7 @@ plugins {
 
 String buildType
 String buildNumber = System.getenv("GITHUB_RUN_NUMBER")
-String buildTypeEnv = System.getenv("BUILD_TYPE")
+String buildTypeEnv = providers.gradleProperty("anvilcraftRelease").isPresent() ? "release" : System.getenv("BUILD_TYPE")
 if (buildTypeEnv == "pr") {
     buildType = 'pr'
 } else if (buildTypeEnv == "hotfix") {
@@ -23,12 +23,7 @@ if (buildTypeEnv == "pr") {
 } else {
     buildType = 'build'
 }
-def githubRef = System.getenv("GITHUB_REF")
-if (githubRef != null && githubRef.startsWith("refs/tags/")) {
-    version = githubRef.substring(githubRef.lastIndexOf('/') + 1)
-} else {
-    version = "${mod_version}" + (buildNumber != null ? "+${buildType}.${buildNumber}" : "")
-}
+version = "${mod_version}" + (buildNumber != null ? "+${buildType}.${buildNumber}" : "")
 group = maven_group
 
 apply from: "$rootDir/gradle/scripts/moddevgradle.gradle"
@@ -53,4 +48,8 @@ machete {
 
 lombok {
     version = "1.18.34"
+}
+
+if (providers.gradleProperty("anvilcraftRelease").isPresent()) {
+    apply from: "$rootDir/gradle/scripts/release.gradle"
 }

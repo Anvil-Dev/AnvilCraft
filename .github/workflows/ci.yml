@@ -6,6 +6,8 @@ on:
       - releases/**
       - dev/**
     paths:
+      - .github/release/**
+      - .github/workflows/**
       - src/**
       - gradle/**
       - build.gradle
@@ -18,10 +20,13 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BUILD_TYPE: snapshot
-      VERSION_TYPE: alpha
+      VERSION_TYPE: beta
     steps:
       - name: checkout
         uses: actions/checkout@v4
+
+      - name: 校验发布流程与恢复逻辑
+        run: python3 -m unittest discover -s .github/release
 
       - name: Read Properties
         id: 'properties'
