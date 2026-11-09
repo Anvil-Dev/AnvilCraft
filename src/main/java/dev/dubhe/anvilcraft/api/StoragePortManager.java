@@ -186,6 +186,12 @@ public final class StoragePortManager {
         StoragePortManager.itemPortVersion++;
     }
 
+    /** 核心可用性改变时同时刷新端口列表和仓储汇总，避免等待端口定时检查。 */
+    public static void invalidateItemPorts(UUID storageId) {
+        StoragePortManager.itemPortVersion++;
+        StorageServerStub.onContentsChanged(storageId);
+    }
+
     /** 已登记端口的版本，用于刷新大仓库物品接口中的端口列表。 */
     public static long itemPortVersion() {
         return StoragePortManager.itemPortVersion;

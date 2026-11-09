@@ -151,6 +151,8 @@ public final class StorageServerStub {
     private final UUID storageId;
     private long version;
     private long orderVersion;
+    private List<BaseStorage<?>> viewedStorages = List.of();
+    private @Nullable StorageView view;
     private @Nullable TerminalContentsSnapshot terminalContents;
     private @Nullable ContentsPage craftingContents;
     private final Map<SortOptions, IntList> orders = new HashMap<>();
@@ -1601,7 +1603,9 @@ public final class StorageServerStub {
     public static void onContentsChanged(UUID storageId) {
         StorageComparatorManager.notifyContentsChanged(storageId);
         for (StorageServerStub stub : StorageServerStub.STUBS.values()) {
-            if (stub.storageId.equals(storageId)) {
+            if (stub.storageId.equals(storageId)
+                || stub.viewedStorages.stream().anyMatch(storage -> storage.getId().equals(storageId))) {
+                stub.view = null;
                 stub.version++;
                 stub.orderVersion = stub.version;
                 stub.orders.clear();
@@ -1953,9 +1957,7 @@ public final class StorageServerStub {
         List<CategoryEntry> categories
     ) {
         List<OrderEntry> entries = new ArrayList<>(view.size());
-        boolean requiresName = options.sort() == SortMode.NAME
-            || search.isEmpty()
-            || search.charAt(0) != '@' && search.charAt(0) != '#';
+        boolean requiresName = options.sort() == SortMode.NAME;
         for (int index = 0; index < view.size(); index++) {
             long amount = view.amount(index);
             if (amount <= 0) {
@@ -2380,7 +2382,7 @@ public final class StorageServerStub {
     private static StorageView getView(HolderLookup.Provider registries, UUID playerId, long sourcePos) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         if (TerminalSessions.contains(playerId, sourcePos)) {
-            return new StorageView(List.of(TerminalSessions.storage(player, sourcePos)), List.of());
+            return StorageServerStub.getView(playerId, List.of(TerminalSessions.storage(player, sourcePos)));
         }
         BlockPos pos = BlockPos.of(sourcePos);
         BlockEntity blockEntity = player.level().getBlockEntity(pos);
@@ -2396,7 +2398,7 @@ public final class StorageServerStub {
         if (storage instanceof CrateBlockEntity crate) crate.refreshDispose();
         String search = PlayerSettings.getSetting(registries, playerId).storage().getSearchContent().strip();
         if (search.isEmpty() || !(storage instanceof CrateBlockEntity)) {
-            return new StorageView(List.of(primary), List.of());
+            return StorageServerStub.getView(playerId, List.of(primary));
         }
         List<BaseStorage<?>> storages = new ArrayList<>();
         for (CrateBlockEntity crate : CrateBlock.getNearbyCrates(player.level(), pos)) {
@@ -2407,7 +2409,23 @@ public final class StorageServerStub {
                 });
             }
         }
-        return new StorageView(storages, List.of());
+        return StorageServerStub.getView(playerId, storages);
+    }
+
+    // 分页请求复用同一份汇总，库存或来源变化时重新构建。
+    private static StorageView getView(UUID playerId, List<BaseStorage<?>> storages) {
+        StorageServerStub stub = StorageServerStub.get(playerId, storages.getLast().getId());
+        if (!stub.viewedStorages.equals(storages)) {
+            stub.viewedStorages = List.copyOf(storages);
+            stub.view = null;
+            stub.version++;
+            stub.orderVersion = stub.version;
+            stub.orders.clear();
+        }
+        if (stub.view == null) {
+            stub.view = new StorageView(stub.viewedStorages, List.of());
+        }
+        return stub.view;
     }
 
     @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC")
@@ -3038,25 +3056,36 @@ public final class StorageServerStub {
 
     private static final class StorageView {
         private final List<BaseStorage<?>> storages;
-        private final List<Entry> entries = new ArrayList<>();
+        private @Nullable List<Entry> entries;
 
         private StorageView(List<BaseStorage<?>> storages, List<Entry> ignored) {
             this.storages = storages;
+        }
+
+        private List<Entry> entries() {
+            if (this.entries != null) {
+                return this.entries;
+            }
+            List<Entry> entries = new ArrayList<>();
             Map<ItemResource, Entry> merged = new HashMap<>();
-            for (int storageIndex = 0; storageIndex < storages.size(); storageIndex++) {
-                UnlimitedItemStacksResourceHandler items = storages.get(storageIndex).getAvailableItems();
+            for (int storageIndex = 0; storageIndex < this.storages.size(); storageIndex++) {
+                UnlimitedItemStacksResourceHandler items = this.storages.get(storageIndex).getAvailableItems();
                 for (int slot = 0; slot < items.size(); slot++) {
-                    if (items.getAmountAsLong(slot) <= 0) continue;
+                    if (items.getAmountAsLong(slot) <= 0) {
+                        continue;
+                    }
                     ItemResource resource = items.getResource(slot);
                     Entry entry = merged.get(resource);
                     if (entry == null) {
                         entry = new Entry(resource, 0);
                         merged.put(resource, entry);
-                        this.entries.add(entry);
+                        entries.add(entry);
                     }
                     entry.amount += items.getAmountAsLong(slot);
                 }
             }
+            this.entries = entries;
+            return entries;
         }
 
         BaseStorage<?> primary() {
@@ -3064,15 +3093,15 @@ public final class StorageServerStub {
         }
 
         int size() {
-            return this.entries.size();
+            return this.entries().size();
         }
 
         long amount(int index) {
-            return this.entries.get(index).amount;
+            return this.entries().get(index).amount;
         }
 
         ItemResource resource(int index) {
-            return this.entries.get(index).resource;
+            return this.entries().get(index).resource;
         }
 
         double fullness() {
@@ -3152,7 +3181,7 @@ public final class StorageServerStub {
 
         int extract(int index, ItemResource resource, int amount, Transaction tx) {
             if (amount <= 0) return 0;
-            Entry entry = this.entries.get(index);
+            Entry entry = this.entries().get(index);
             if (!entry.resource.equals(resource)) return 0;
             int extracted = this.extractByResource(resource, amount, tx);
             entry.updateSnapshots(tx);
