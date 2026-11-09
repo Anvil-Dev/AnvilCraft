@@ -1,13 +1,17 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.item.property.component.Merciless;
 import dev.dubhe.anvilcraft.util.anvil.AnvilMenuResult;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.ItemCombinerMenu;
+import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.CommonHooks;
@@ -59,6 +63,20 @@ abstract class AnvilMenuMixin extends ItemCombinerMenu {
             this.player
         );
         ci.cancel();
+    }
+
+    @WrapOperation(
+        method = "createResultInternal",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/inventory/ResultContainer;setItem(ILnet/minecraft/world/item/ItemStack;)V"
+        )
+    )
+    private void normalizeMercilessResult(ResultContainer container, int slot, ItemStack result, Operation<Void> original) {
+        if (result.has(ModComponents.MERCILESS)) {
+            Merciless.absorbEnchantments(result);
+        }
+        original.call(container, slot, result);
     }
 
     @Inject(method = "isValidBlock", at = @At("HEAD"), cancellable = true)
