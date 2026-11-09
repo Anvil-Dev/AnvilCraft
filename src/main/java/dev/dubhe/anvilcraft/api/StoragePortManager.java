@@ -146,7 +146,7 @@ public final class StoragePortManager {
             StoragePortManager.PORTS.put(level.dimension(), storageId, positions);
         }
         if (positions.add(pos.immutable())) {
-            StoragePortManager.itemPortsChanged(storageId);
+            StoragePortManager.invalidateItemPorts(storageId);
         }
     }
 
@@ -170,7 +170,7 @@ public final class StoragePortManager {
             return;
         }
         if (positions.remove(pos)) {
-            StoragePortManager.itemPortsChanged(storageId);
+            StoragePortManager.invalidateItemPorts(storageId);
         }
         if (positions.isEmpty()) {
             StoragePortManager.PORTS.remove(dimension, storageId);
@@ -369,7 +369,8 @@ public final class StoragePortManager {
         return StoragePortManager.ITEM_PORT_VERSIONS.getOrDefault(storageId, 0L);
     }
 
-    private static void itemPortsChanged(UUID storageId) {
+    /** 核心可用性改变时同时刷新端口列表和仓储汇总，避免等待端口定时检查。 */
+    public static void invalidateItemPorts(UUID storageId) {
         StoragePortManager.ITEM_PORT_VERSIONS.merge(storageId, 1L, Long::sum);
         StorageServerStub.onContentsChanged(storageId);
     }

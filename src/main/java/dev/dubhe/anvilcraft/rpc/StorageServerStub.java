@@ -165,6 +165,8 @@ public final class StorageServerStub {
     private final UUID storageId;
     private long version;
     private long orderVersion;
+    private List<BaseStorage<?>> viewedStorages = List.of();
+    private @Nullable StorageView view;
     private @Nullable List<ItemStack> craftingContents;
     private final Map<SortOptions, IntList> orders = new HashMap<>();
     private final Deque<UndoRecord> undoRecords = new ArrayDeque<>();
@@ -3938,7 +3940,9 @@ public final class StorageServerStub {
     public static void onContentsChanged(UUID storageId) {
         StorageComparatorManager.notifyContentsChanged(storageId);
         for (StorageServerStub stub : StorageServerStub.STUBS.values()) {
-            if (stub.storageId.equals(storageId)) {
+            if (stub.storageId.equals(storageId)
+                || stub.viewedStorages.stream().anyMatch(storage -> storage.getId().equals(storageId))) {
+                stub.view = null;
                 stub.version++;
                 stub.orderVersion = stub.version;
                 stub.orders.clear();
@@ -4999,9 +5003,7 @@ public final class StorageServerStub {
         boolean includeFluids
     ) {
         List<OrderEntry> entries = new ArrayList<>(view.size());
-        boolean requiresName = options.sort() == SortMode.NAME
-            || search.isEmpty()
-            || search.charAt(0) != '@' && search.charAt(0) != '#';
+        boolean requiresName = options.sort() == SortMode.NAME;
         for (int index = 0; index < view.size(); index++) {
             long amount = view.amount(index);
             if (amount <= 0) {
@@ -5618,16 +5620,14 @@ public final class StorageServerStub {
         RemoteTarget remote = StorageServerStub.REMOTE_STORAGES.getOrDefault(playerId, Map.of()).get(sourcePos);
         if (remote != null && remote.storageId() != null) {
             return switch (remote.kind()) {
-                case RemoteTarget.HYPERDIMENSION -> new StorageView(
-                    List.of(Storages.get().getOrCreate(remote.storageId(), HyperdimensionStorage.class)),
-                    List.of()
+                case RemoteTarget.HYPERDIMENSION -> StorageServerStub.getView(
+                    playerId, List.of(Storages.get().getOrCreate(remote.storageId(), HyperdimensionStorage.class))
                 );
                 // 本地 / 潜影终端：每次按当前状态重新解析目标（连接可能随距离 / 物品变化），
                 // 目标不可达时返回空视图（界面 / 浮窗显示为空存储）
                 case RemoteTarget.LARGE_CRATE -> StorageServerStub.findNearbyLargeCrate(player)
-                    .map(id -> new StorageView(
-                        List.of(Storages.get().getOrCreate(id, LargeCrateStorage.class)),
-                        List.of()
+                    .map(id -> StorageServerStub.getView(
+                        playerId, List.of(Storages.get().getOrCreate(id, LargeCrateStorage.class))
                     ))
                     .orElseGet(() -> StorageServerStub.emptyView(player));
                 case RemoteTarget.SHULKER_CONTAINER -> {
@@ -5635,7 +5635,7 @@ public final class StorageServerStub {
                     if (storages.isEmpty()) {
                         yield StorageServerStub.emptyView(player);
                     }
-                    yield new StorageView(storages, List.of());
+                    yield StorageServerStub.getView(playerId, storages);
                 }
                 default -> throw new IllegalStateException("Unknown terminal target kind: " + remote.kind());
             };
@@ -5661,7 +5661,7 @@ public final class StorageServerStub {
         }
         String search = PlayerSettings.getSetting(registries, playerId).storage().getSearchContent().strip();
         if (search.isEmpty() || !(storage instanceof CrateBlockEntity)) {
-            return new StorageView(List.of(primary), List.of());
+            return StorageServerStub.getView(playerId, List.of(primary));
         }
         List<BaseStorage<?>> storages = new ArrayList<>();
         for (CrateBlockEntity crate : CrateBlock.getNearbyCrates(player.level(), pos)) {
@@ -5674,7 +5674,23 @@ public final class StorageServerStub {
                 });
             }
         }
-        return new StorageView(storages, List.of());
+        return StorageServerStub.getView(playerId, storages);
+    }
+
+    // 分页请求复用同一份汇总，库存或来源变化时重新构建。
+    private static StorageView getView(UUID playerId, List<BaseStorage<?>> storages) {
+        StorageServerStub stub = StorageServerStub.get(playerId, storages.getLast().getId());
+        if (!stub.viewedStorages.equals(storages)) {
+            stub.viewedStorages = List.copyOf(storages);
+            stub.view = null;
+            stub.version++;
+            stub.orderVersion = stub.version;
+            stub.orders.clear();
+        }
+        if (stub.view == null) {
+            stub.view = new StorageView(stub.viewedStorages, List.of());
+        }
+        return stub.view;
     }
 
     private record SortOptions(SortMode sort, OrderMode order) {
@@ -5685,15 +5701,24 @@ public final class StorageServerStub {
 
     private static final class StorageView {
         private final List<BaseStorage<?>> storages;
-        private final List<Entry> entries = new ArrayList<>();
+        private @Nullable List<Entry> entries;
 
         private StorageView(List<BaseStorage<?>> storages, List<Entry> ignored) {
             this.storages = storages;
+        }
+
+        private List<Entry> entries() {
+            if (this.entries != null) {
+                return this.entries;
+            }
+            List<Entry> entries = new ArrayList<>();
             Map<UnlimitedItemStacksResourceHandler.ResourceKey, Entry> merged = new HashMap<>();
-            for (int storageIndex = 0; storageIndex < storages.size(); storageIndex++) {
-                UnlimitedItemStacksResourceHandler items = storages.get(storageIndex).getAvailableItems();
+            for (int storageIndex = 0; storageIndex < this.storages.size(); storageIndex++) {
+                UnlimitedItemStacksResourceHandler items = this.storages.get(storageIndex).getAvailableItems();
                 for (int slot = 0; slot < items.size(); slot++) {
-                    if (items.getAmountAsLong(slot) <= 0) continue;
+                    if (items.getAmountAsLong(slot) <= 0) {
+                        continue;
+                    }
                     ItemStack resource = items.getUnlimitedStackInSlot(slot).toStack().copyWithCount(1);
                     UnlimitedItemStacksResourceHandler.ResourceKey key =
                         UnlimitedItemStacksResourceHandler.ResourceKey.of(resource);
@@ -5701,11 +5726,13 @@ public final class StorageServerStub {
                     if (entry == null) {
                         entry = new Entry(resource, 0);
                         merged.put(key, entry);
-                        this.entries.add(entry);
+                        entries.add(entry);
                     }
                     entry.amount += items.getAmountAsLong(slot);
                 }
             }
+            this.entries = entries;
+            return entries;
         }
 
         BaseStorage<?> primary() {
@@ -5713,15 +5740,15 @@ public final class StorageServerStub {
         }
 
         int size() {
-            return this.entries.size();
+            return this.entries().size();
         }
 
         long amount(int index) {
-            return this.entries.get(index).amount;
+            return this.entries().get(index).amount;
         }
 
         ItemStack resource(int index) {
-            return this.entries.get(index).resource;
+            return this.entries().get(index).resource;
         }
 
         double fullness() {
@@ -5771,7 +5798,7 @@ public final class StorageServerStub {
 
         int extract(int index, int amount) {
             if (amount <= 0) return 0;
-            Entry entry = this.entries.get(index);
+            Entry entry = this.entries().get(index);
             int extracted = 0;
             for (BaseStorage<?> storage : this.storages) {
                 UnlimitedItemStacksResourceHandler items = storage.getItems();

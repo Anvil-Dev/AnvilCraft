@@ -3959,8 +3959,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     private CompletableFuture<List<StorageServerStub.SyncResult>> syncSlots(IntList slots) {
         List<CompletableFuture<StorageServerStub.SyncResult>> requests = new ArrayList<>();
-        for (int start = 0; start < slots.size(); start += StorageScreen.VISIBLE_STORAGE_SLOTS) {
-            int end = Math.min(start + StorageScreen.VISIBLE_STORAGE_SLOTS, slots.size());
+        for (int start = 0; start < slots.size(); start += StorageServerStub.CONTENTS_PAGE_SIZE) {
+            int end = Math.min(start + StorageServerStub.CONTENTS_PAGE_SIZE, slots.size());
             IntArrayList batch = new IntArrayList(end - start);
             for (int index = start; index < end; index++) {
                 batch.add(slots.getInt(index));
