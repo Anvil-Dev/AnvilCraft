@@ -59,6 +59,11 @@ public record Merciless() {
     }
 
     public static void absorbEnchantments(ItemStack stack) {
+        Merciless.absorbEnchantments(stack, false);
+    }
+
+    /** 铁砧预览使用其超限配置，日常吸收仅在魔咒上限内合并同级魔咒。 */
+    public static void absorbEnchantments(ItemStack stack, boolean allowBeyondMaxLevel) {
         ItemEnchantments enchantments = stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
         ItemEnchantments mercilessEnchs = stack.getOrDefault(
             ModComponents.MERCILESS_ENCHANTMENTS,
@@ -69,27 +74,18 @@ public record Merciless() {
             return;
         }
 
-        int levels = 0;
-
-        // 将已无情的魔咒的等级添至总等级
-        for (Holder<Enchantment> enchantment : mercilessEnchs.keySet()) {
-            levels += mercilessEnchs.getLevel(enchantment);
-        }
-        // 将未无情的魔咒的等级添至总等级并无效化
         ItemEnchantments.Mutable enchsMut = new ItemEnchantments.Mutable(enchantments);
         ItemEnchantments.Mutable mercilessEnchsMut = new ItemEnchantments.Mutable(mercilessEnchs);
         for (Iterator<Holder<Enchantment>> it = enchsMut.keySet().iterator(); it.hasNext(); ) {
             Holder<Enchantment> enchantment = it.next();
 
-            // 若已无情的魔咒拥有相同的等级，则将等级+1，否则将等级设为两者中高的那个，并修正levels
+            // 同级升级受所在铁砧规则约束，已有超限魔咒不因普通吸收而降级。
             int level = enchsMut.getLevel(enchantment);
             int mercilessLevel = mercilessEnchs.getLevel(enchantment);
-            if (mercilessLevel == level) {
+            if (mercilessLevel == level && (allowBeyondMaxLevel || level < enchantment.value().getMaxLevel())) {
                 level++;
-                levels++;
             } else {
                 level = Math.max(level, mercilessLevel);
-                levels += level - mercilessLevel;
             }
 
             // 将魔咒添至无情魔咒中并从源魔咒中删除
@@ -97,7 +93,9 @@ public record Merciless() {
             it.remove();
         }
         stack.set(DataComponents.ENCHANTMENTS, enchsMut.toImmutable());
-        stack.set(ModComponents.MERCILESS_ENCHANTMENTS, mercilessEnchsMut.toImmutable());
+        ItemEnchantments absorbed = mercilessEnchsMut.toImmutable();
+        stack.set(ModComponents.MERCILESS_ENCHANTMENTS, absorbed);
+        int levels = absorbed.entrySet().stream().mapToInt(entry -> entry.getIntValue()).sum();
 
         // 初始化
         float attackDamage = Math.round(Math.sqrt(levels) * 2 + (double) levels / 3);
