@@ -1,0 +1,54 @@
+name: Upload release to a mod site
+on:
+  workflow_call:
+    inputs:
+      tag: { type: string, required: true }
+      line: { type: string, required: true }
+      platform: { type: string, required: true }
+    secrets:
+      MODRINTH_TOKEN: { required: false }
+      CURSEFORGE_TOKEN: { required: false }
+      MAVEN_URL: { required: false }
+      MAVEN_USER: { required: false }
+      MAVEN_PASS: { required: false }
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag (e.g. v1.6.0 or v1.6.0+beta.1)
+        type: string
+        required: true
+      line:
+        description: Minecraft development branch
+        type: choice
+        options: ['1.21', '26.1']
+      platform:
+        description: Platform to retry
+        type: choice
+        options: [modrinth, curseforge]
+
+permissions: { contents: read, actions: read, statuses: write }
+jobs:
+  upload:
+    name: ${{ inputs.platform }} / ${{ inputs.line }}
+    if: github.ref == 'refs/heads/dev/1.21/1.6'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+    concurrency:
+      group: mod-site-${{ inputs.tag }}-${{ inputs.line }}-${{ inputs.platform }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v6
+        with: { persist-credentials: false }
+      - name: Upload verified files
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+          LINE: ${{ inputs.line }}
+          PLATFORM: ${{ inputs.platform }}
+          MAVEN_URL: ${{ secrets.MAVEN_URL }}
+          MAVEN_USERNAME: ${{ secrets.MAVEN_USER }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASS }}
+          MODRINTH_TOKEN: ${{ inputs.platform == 'modrinth' && secrets.MODRINTH_TOKEN || '' }}
+          CURSEFORGE_TOKEN: ${{ inputs.platform == 'curseforge' && secrets.CURSEFORGE_TOKEN || '' }}
+        run: python3 .github/release/mod_sites.py "$TAG" "$LINE" "$PLATFORM"

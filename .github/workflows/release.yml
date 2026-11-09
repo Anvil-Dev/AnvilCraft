@@ -1,90 +1,180 @@
-name: Upload Release Asset
+name: Release AnvilCraft
 on:
   workflow_dispatch:
-  release:
-    types: [ published ]
+    inputs:
+      generate_release_notes:
+        description: Include GitHub-generated release notes from dev/1.21/1.6
+        type: boolean
+        default: false
+      dry_run:
+        description: Build and verify both releases without publishing
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+concurrency:
+  group: anvilcraft-coordinated-release
+  cancel-in-progress: false
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  BUILD_TYPE: release
+  DRY_RUN: ${{ inputs.dry_run }}
+  GENERATE_RELEASE_NOTES: ${{ inputs.generate_release_notes }}
 
 jobs:
-  build:
-    permissions: write-all
+  prepare:
+    if: github.ref == 'refs/heads/dev/1.21/1.6'
     runs-on: ubuntu-latest
-    env:
-      BUILD_TYPE: release
-      VERSION_TYPE: ${{ github.event.release.prerelease && 'beta' || 'release' }}
+    # GitHub 的发布说明预览接口也要求 contents: write。
+    permissions: { contents: write, actions: read }
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      version: ${{ steps.plan.outputs.version }}
+      tag: ${{ steps.plan.outputs.tag }}
+      bump_patch: ${{ steps.plan.outputs.bump_patch }}
     steps:
-      - name: checkout
-        uses: actions/checkout@v4
-
-      - name: Read Properties
-        id: 'properties'
-        uses: christian-draeger/read-properties@1.1.1
+      - uses: actions/checkout@v6
+        with: { persist-credentials: false }
+      - name: Check release recovery and publication gates
+        run: python3 -m unittest discover -s .github/release
+      - id: plan
+        run: python3 .github/release/release.py prepare
+      - uses: actions/upload-artifact@v7
+        if: steps.plan.outputs.new == 'true'
         with:
-          path: gradle.properties
-          properties: 'mod_id mod_name java_version'
+          name: source-plan
+          path: release-plan.json
+          if-no-files-found: error
 
-      - name: Setup Java ${{ steps.properties.outputs.java_version }}
-        uses: actions/setup-java@v3.6.0
+  build:
+    needs: prepare
+    runs-on: ubuntu-latest
+    permissions: { contents: read, actions: read }
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    env:
+      LINE: ${{ matrix.line }}
+      SOURCE_SHA: ${{ matrix.sha }}
+      RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
+    steps:
+      - uses: actions/checkout@v6
+        with: { path: control, persist-credentials: false }
+      - id: cache
+        working-directory: control/.github/release
+        run: python3 -c 'import os; from common import artifact, output; output("built", bool(artifact("build-" + os.environ["LINE"])))'
+      - uses: actions/checkout@v6
+        if: steps.cache.outputs.built != 'True'
+        with:
+          ref: ${{ matrix.sha }}
+          path: source
+          persist-credentials: false
+      - uses: actions/setup-java@v5
+        if: steps.cache.outputs.built != 'True'
         with:
           distribution: zulu
-          java-version: ${{ steps.properties.outputs.java_version }}
-
-      - name: make gradle wrapper executable
-        if: ${{ runner.os != 'Windows' }}
-        run: chmod +x ./gradlew
-
-      - name: Build with Gradle
-        uses: gradle/actions/setup-gradle@v4.3.1
-
-      - name: Build
-        run: ./gradlew build
-
-      - name: Get Version
-        id: version
+          java-version: ${{ matrix.java }}
+      - uses: gradle/actions/setup-gradle@v6
+        if: steps.cache.outputs.built != 'True'
+      - name: Stage and verify local publications
+        if: steps.cache.outputs.built != 'True'
         run: |
-          MESSAGE=$(ls build/libs/* | grep sources.jar -v | grep shadow.jar -v | grep slim.jar -v | awk -F '${{ steps.properties.outputs.mod_id }}-neoforge-|.jar' '{print $2}')
-          echo "version=$MESSAGE" >> $GITHUB_OUTPUT
-
-      - name: capture build artifacts
-        uses: actions/upload-artifact@v4.3.3
+          (cd source && bash gradlew -PanvilcraftRelease stageRelease --no-configuration-cache)
+          python3 control/.github/release/artifacts.py source "$LINE" "$SOURCE_SHA" "$RELEASE_VERSION" source/build/release/dist
+      - uses: actions/upload-artifact@v7
+        if: steps.cache.outputs.built != 'True'
         with:
-          name: "${{ steps.properties.outputs.mod_name }} ${{ steps.version.outputs.version }}"
-          path: build/libs/anvilcraft-neoforge-${{ steps.version.outputs.version }}.jar
+          name: build-${{ matrix.line }}
+          path: source/build/release/
+          if-no-files-found: error
 
-      - name: Publish to maven
-        run: ./gradlew publish
+  seal:
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    permissions: { contents: write, actions: read }
+    steps:
+      - uses: actions/checkout@v6
+        with: { persist-credentials: false }
+      - uses: actions/download-artifact@v8
+        with: { name: source-plan }
+      - uses: actions/download-artifact@v8
+        with: { pattern: 'build-*', path: bundles }
+      - run: python3 .github/release/release.py seal
+
+  maven:
+    needs: [prepare, seal]
+    if: ${{ !inputs.dry_run }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions: { actions: read, contents: read, statuses: write }
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    env:
+      TAG: ${{ needs.prepare.outputs.tag }}
+      LINE: ${{ matrix.line }}
+    steps:
+      - uses: actions/checkout@v6
+        with: { persist-credentials: false }
+      - uses: actions/download-artifact@v8
+        with:
+          name: build-${{ matrix.line }}
+          path: built
+      - name: 上传原版 Maven 文件并核验远端
         env:
           MAVEN_URL: ${{ secrets.MAVEN_URL }}
           MAVEN_USERNAME: ${{ secrets.MAVEN_USER }}
           MAVEN_PASSWORD: ${{ secrets.MAVEN_PASS }}
-        continue-on-error: true
+        run: python3 .github/release/maven.py "$TAG" "$LINE" built/staging
 
-      - name: Upload Release Jar
-        uses: softprops/action-gh-release@v0.1.15
-        with:
-          files: |
-            build/libs/anvilcraft-neoforge-${{ steps.version.outputs.version }}.jar
+  mod-sites:
+    needs: [prepare, seal]
+    if: ${{ !inputs.dry_run }}
+    permissions: { actions: read, contents: read, statuses: write }
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+        platform: [modrinth, curseforge]
+    uses: ./.github/workflows/mod_site.yml
+    with:
+      tag: ${{ needs.prepare.outputs.tag }}
+      line: ${{ matrix.target.line }}
+      platform: ${{ matrix.platform }}
+    secrets:
+      MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+      CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+      MAVEN_URL: ${{ secrets.MAVEN_URL }}
+      MAVEN_USER: ${{ secrets.MAVEN_USER }}
+      MAVEN_PASS: ${{ secrets.MAVEN_PASS }}
 
-      - name: publish neoforge mc mod
-        uses: Kir-Antipov/mc-publish@v3.3
-        continue-on-error: true
-        with:
-          name: "${{ steps.properties.outputs.mod_name }} For NeoForge v${{ steps.version.outputs.version }}"
-          version: ${{ steps.version.outputs.version }}
-          game-versions: 1.21.1
-          version-type: ${{ env.VERSION_TYPE }}
-          java: 21
-          fail-mode: skip
-          changelog: ${{ github.event.release.body }}
-          dependencies: |
-            anvil-lib(embedded){modrinth:nKAcAL9b}{curseforge:1484302}
+  publish:
+    needs: [prepare, seal, maven]
+    runs-on: ubuntu-latest
+    permissions: { contents: write, statuses: read }
+    env:
+      TAG: ${{ needs.prepare.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v6
+        with: { persist-credentials: false }
+      - run: python3 .github/release/release.py publish "$TAG"
 
-          modrinth-id: vuISAWPc
-          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          modrinth-featured: true
-
-          curseforge-id: 986251
-          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-
-          files: |
-            build/libs/anvilcraft-neoforge-${{ steps.version.outputs.version }}.jar
-            build/libs/anvilcraft-neoforge-${{ steps.version.outputs.version }}-sources.jar
+  bump:
+    needs: [prepare, publish]
+    if: needs.prepare.outputs.bump_patch == 'true'
+    runs-on: ubuntu-latest
+    permissions: { contents: write, pull-requests: write }
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    env:
+      TAG: ${{ needs.prepare.outputs.tag }}
+      LINE: ${{ matrix.line }}
+    steps:
+      - uses: actions/checkout@v6
+        with: { persist-credentials: false }
+      - run: python3 .github/release/release.py bump "$TAG" "$LINE"
