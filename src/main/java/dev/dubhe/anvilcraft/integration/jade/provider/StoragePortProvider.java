@@ -4,7 +4,6 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.container.storage.HyperdimensionStorageStationBlock;
 import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -19,7 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** 端口仅展示固定大小的缓存和标记物品计数，仓储本体阻止通用库存枚举。 */
+/** 端口展示缓存和标记物品计数，潜影集装箱与超维存储站阻止通用库存枚举。 */
 public enum StoragePortProvider implements IServerExtensionProvider<ItemStack> {
     INSTANCE;
 
@@ -34,8 +33,7 @@ public enum StoragePortProvider implements IServerExtensionProvider<ItemStack> {
         if (block.getBlockEntity() instanceof StoragePortBlockEntity port) {
             return this.portGroups(port);
         }
-        return block.getBlockEntity() instanceof StorageBlockEntity
-            || block.getBlockState().getBlock() instanceof ShulkerContainerBlock
+        return block.getBlockState().getBlock() instanceof ShulkerContainerBlock
             || block.getBlockState().getBlock() instanceof HyperdimensionStorageStationBlock ? List.of() : null;
     }
 

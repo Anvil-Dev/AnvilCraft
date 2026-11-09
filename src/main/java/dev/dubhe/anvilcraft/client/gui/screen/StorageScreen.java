@@ -229,6 +229,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private long version = -1;
     private long orderVersion = -1;
     private int scrollRow;
+    private boolean draggingStorageSlider;
     private int reorderRequest;
     private int syncRequest;
     private int interactionRequest;
@@ -290,6 +291,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     protected void init() {
+        this.draggingStorageSlider = false;
         if (this.tracksOpenState) {
             StorageClientStub.setOpen(this.sourcePos, true);
         }
@@ -1180,6 +1182,27 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         );
     }
 
+    private boolean isOverStorageSlider(double mouseX, double mouseY) {
+        return this.getMaxScrollRow() > 0 && MathUtil.isInRange(
+            mouseX, mouseY,
+            this.sx(StorageScreen.SLIDER_X) - 2, this.top + StorageScreen.SLIDER_Y,
+            this.sx(StorageScreen.SLIDER_X) + StorageScreen.SLIDER_WIDTH + 2,
+            this.top + StorageScreen.SLIDER_Y + StorageScreen.SLIDER_TRACK_HEIGHT
+        );
+    }
+
+    private void dragStorageSlider(double mouseY) {
+        double progress = (mouseY - this.top - StorageScreen.SLIDER_Y - StorageScreen.SLIDER_HEIGHT / 2d)
+            / (StorageScreen.SLIDER_TRACK_HEIGHT - StorageScreen.SLIDER_HEIGHT);
+        int nextScrollRow = (int) Math.round(Mth.clamp(progress, 0, 1) * this.getMaxScrollRow());
+        if (nextScrollRow != this.scrollRow) {
+            this.scrollRow = nextScrollRow;
+            if (!this.nbtFolded) {
+                this.syncVisible();
+            }
+        }
+    }
+
     private void extractPlayerInventory(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         Inventory inv = this.player.getInventory();
 
@@ -1384,6 +1407,11 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             this.setFocused(hovered ? this.search : null);
         }
 
+        if (event.button() == 0 && this.isOverStorageSlider(event.x(), event.y())) {
+            this.draggingStorageSlider = true;
+            this.dragStorageSlider(event.y());
+            return true;
+        }
         if (this.craftingMode && this.clickCraftingPanel(event)) return true;
         this.lastCraftingClickSlot = -1;
         if (event.button() == 1 && MathUtil.isInRange(event.x(), event.y(),
@@ -1536,6 +1564,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        if (this.draggingStorageSlider) {
+            if (event.button() == 0) {
+                this.dragStorageSlider(event.y());
+            }
+            return true;
+        }
         if (this.craftingPrediction.isPending() || this.takePrediction != null) return true;
         if (this.recipeDragging) {
             this.scrollCraftingRecipes(event.y());
@@ -1572,6 +1606,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     public boolean mouseReleased(MouseButtonEvent event) {
+        if (event.button() == 0 && this.draggingStorageSlider) {
+            this.draggingStorageSlider = false;
+            return true;
+        }
         if (this.craftingPrediction.isPending() || this.takePrediction != null) return true;
         if (this.recipeDragging) {
             this.recipeDragging = false;
@@ -2140,6 +2178,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     public void removed() {
+        this.draggingStorageSlider = false;
         this.takePrediction = null;
         this.takeResponses = CompletableFuture.completedFuture(null);
         this.craftingPrediction = new StorageCraftingPrediction();
