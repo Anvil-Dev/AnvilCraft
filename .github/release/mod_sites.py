@@ -66,8 +66,7 @@ def send(sha, context, upload, reconcile=None):
         return prior["description"]
     receipt = reconcile() if reconcile else None
     if not receipt:
-        require(not prior or prior["state"] != "pending",
-                f"Check the remote file before retrying {context}; see RELEASING.md")
+        require(not prior, f"Upload already attempted; no retry for {context}: {prior}")
         record(sha, context, "pending", "upload in progress")
         try:
             receipt = str(upload())
@@ -157,6 +156,6 @@ if __name__ == "__main__":
     try:
         run(*sys.argv[1:])
     except Exception as error:
-        summary(f"**Pending distribution** — {' / '.join(sys.argv[1:])}\n\n{error}")
-        print("::warning::Mod-site upload incomplete. See the job summary for the receipt or retry target.")
+        summary(f"**Distribution incomplete (not retried)** — {' / '.join(sys.argv[1:])}\n\n{error}")
+        print("::warning::Mod-site upload incomplete. See the job summary for the receipt and failure reason. No automatic retry.")
         raise

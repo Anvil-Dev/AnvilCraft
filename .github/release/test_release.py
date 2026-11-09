@@ -116,7 +116,7 @@ class ReleaseTests(unittest.TestCase):
             release.seal()
             self.assertEqual((len(tags), len(drafts), len(uploads), len(set(uploads))), (1, 1, 2, 2))
 
-    def test_partial_curseforge_upload_resumes_each_file(self):
+    def test_partial_curseforge_failure_is_not_retried(self):
         ledger, uploads = {}, []
         def record(_, context, state, description):
             ledger[context] = {"state": state, "description": description}
@@ -134,14 +134,15 @@ class ReleaseTests(unittest.TestCase):
             with self.assertRaises(mod_sites.Rejected):
                 mod_sites.publish_curseforge(*args)
             for _ in range(2):
-                self.assertEqual(mod_sites.publish_curseforge(*args), "1, 3")
-            self.assertEqual(uploads, ["x.jar", "x-sources.jar", "x-sources.jar"])
+                with self.assertRaisesRegex(ValueError, "no retry"):
+                    mod_sites.publish_curseforge(*args)
+            self.assertEqual(uploads, ["x.jar", "x-sources.jar"])
 
     def test_uncertain_upload_requires_reconciliation(self):
         with patch.object(mod_sites, "commit_status", return_value={"state": "pending"}), \
                 patch.object(mod_sites, "record"):
             upload = Mock()
-            with self.assertRaisesRegex(ValueError, "remote file"):
+            with self.assertRaisesRegex(ValueError, "no retry"):
                 mod_sites.send("sha", "context", upload)
             self.assertEqual(mod_sites.send("sha", "context", upload, lambda: "verified-id"), "verified-id")
             upload.assert_not_called()

@@ -57,14 +57,13 @@ class ReleaseOptionsTests(unittest.TestCase):
                 def api(path, data=None):
                     if path == "git/matching-refs/heads/dev/":
                         return refs
-                    self.assertEqual(path, "releases/generate-notes")
-                    self.assertEqual(data, {"tag_name": "v" + version, "target_commitish": "sha-1.21"})
-                    return {"name": "Generated title", "body": notes}
+                    self.fail(path)
                 with self.subTest(version=version, notes=enabled), tempfile.TemporaryDirectory() as tmp, chdir(tmp), \
                         patch.dict(os.environ, {"GENERATE_RELEASE_NOTES": str(enabled).lower(), "DRY_RUN": "true"}), \
                         patch.object(release, "artifact", side_effect=[None, {"id": 1}]), \
                         patch.object(release, "contents", side_effect=content), \
                         patch.object(release, "github", side_effect=api) as github, \
+                        patch.object(release, "generate_notes", return_value={"previous_tag_name": "v1.9.0", "release_notes": notes}) as generate, \
                         patch.object(release, "gh"), patch.object(release, "output") as output:
                     release.prepare()
                     plan = json.loads(Path("release-plan.json").read_text())
@@ -73,7 +72,9 @@ class ReleaseOptionsTests(unittest.TestCase):
                     # 分支或输入变化后，重跑仍需复用原计划。
                     with patch.dict(os.environ, {"GENERATE_RELEASE_NOTES": str(not enabled).lower()}):
                         release.prepare()
-                    self.assertEqual(github.call_count, 2 if enabled else 1)
+                    self.assertEqual(github.call_count, 1)
+                    self.assertEqual(generate.call_count, 1 if enabled else 0)
+                    self.assertEqual(plan.get("previous_tag_name"), "v1.9.0" if enabled else None)
                     self.assertEqual(json.loads(Path("release-plan.json").read_text()), plan)
 
     def test_qualified_tags_preserve_version_and_original_notes(self):

@@ -10,9 +10,11 @@ from urllib.parse import quote
 from common import (ANCHOR, BRANCHES, LINES, VERSION_LINE, artifact, commit_status, contents, digest, gh, github,
                     mod_version, output, release_type, repo, require, summary, tag_manifest)
 
+from release_notes import generate as generate_notes
+
 
 def prepare():
-    require(os.environ["GITHUB_REF"] == "refs/heads/" + BRANCHES[ANCHOR], "Run Release AnvilCraft from dev/1.21/1.6")
+    require(os.environ["GITHUB_REF"] == "refs/heads/" + BRANCHES[ANCHOR], "Run Create Multi-Version Releases from dev/1.21/1.6")
     plan_file = Path("release-plan.json")
     saved = artifact("source-plan")
     if saved:
@@ -38,9 +40,7 @@ def prepare():
         plan = {"repo": repo(), "tag": "v" + version, "version": version,
                 "run": os.environ["GITHUB_RUN_ID"], "targets": targets}
         if os.environ.get("GENERATE_RELEASE_NOTES") == "true":
-            plan["release_notes"] = github("releases/generate-notes", {
-                "tag_name": plan["tag"], "target_commitish": targets[ANCHOR]["sha"],
-            })["body"]
+            plan.update(generate_notes(plan, ANCHOR))
         plan_file.write_text(json.dumps(plan, indent=2) + "\n")
     if os.environ.get("DRY_RUN") != "true":
         existing = tag_manifest(plan["tag"])
