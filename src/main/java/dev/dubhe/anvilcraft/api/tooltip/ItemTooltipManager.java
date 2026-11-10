@@ -654,11 +654,14 @@ public class ItemTooltipManager {
                 Survival players left-click to take out items"""
         );
         ItemTooltipManager.NORMAL.put(
-            ModBlocks.STORAGE_PORT_CONSOLIDATOR.asItem(),
-            "Exposes the contents of the connected Storage Ports and Fluid Ports to external logistics"
+            ModBlocks.STORAGE_PORT_CONSOLIDATOR.asItem(), """
+                Exposes the contents of connected Storage Ports and Fluid Ports to external logistics
+                Attached directly to a Shulker Container or Hyperdimension Storage Station, also relays that storage"""
         );
         ItemTooltipManager.SHIFT.put(ModBlocks.STORAGE_PORT_CONSOLIDATOR.asItem(), """
                 Exposes the contents of connected storage ports to storage buses
+                Attached directly to a storage, exposes it read-only and buffers 32 slots of input
+                Buffered items are inserted into the storage over time; breaking it drops the buffer
                 Inputs are prioritized into ports with matching filters
                 Right-click with a fluid bucket to pour fluid into the corresponding fluid port""");
 
