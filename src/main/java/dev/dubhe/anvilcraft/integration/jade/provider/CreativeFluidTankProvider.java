@@ -29,7 +29,6 @@ public enum CreativeFluidTankProvider implements IServerExtensionProvider<FluidV
         );
         if (handler == null) return null;
         FluidResource resource = handler.getResource(0);
-        if (resource.isEmpty()) return null;
         FluidView.Data data = new FluidView.Data(
             JadeFluidObject.of(
                 resource.getFluid(),

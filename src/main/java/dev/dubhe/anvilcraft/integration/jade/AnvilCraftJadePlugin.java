@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
 import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
+import dev.dubhe.anvilcraft.block.logistics.storage.StorageFluidPortBlock;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.production.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.utility.MengerSpongeBlock;
@@ -30,6 +31,7 @@ import dev.dubhe.anvilcraft.integration.jade.provider.DischargerProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.HeatableBlockProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.ItemDetectorProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.LargeFluidTankProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.MengerSpongeFluidProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.MultiPartPowerBlockProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.PowerBlockProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.RubyPrismProvider;
@@ -90,7 +92,9 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
         registration.registerFluidStorage(CreativeFluidTankProvider.INSTANCE, CreativeFluidTankBlockEntity.class);
         registration.registerFluidStorage(LargeFluidTankProvider.INSTANCE, FluidTankBlock.class);
         registration.registerFluidStorage(LargeFluidTankProvider.INSTANCE, LargeFluidTankBlock.class);
+        registration.registerFluidStorage(LargeFluidTankProvider.INSTANCE, StorageFluidPortBlock.class);
         registration.registerFluidStorage(LargeFluidTankProvider.INSTANCE, LargeCauldronBlock.class);
+        registration.registerFluidStorage(MengerSpongeFluidProvider.INSTANCE, MengerSpongeBlock.class);
         registration.registerBlockDataProvider(WipBlockProvider.INSTANCE, WipBlock.class);
         registration.registerBlockDataProvider(MultiPartPowerBlockProvider.INSTANCE, AbstractMultiPartBlock.class);
     }

@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.integration.jade.provider.client;
 
-import com.google.common.collect.ImmutableList;
 import dev.dubhe.anvilcraft.integration.jade.provider.CreativeFluidTankProvider;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -24,14 +23,10 @@ public enum CreativeFluidTankClientProvider implements IClientExtensionProvider<
     @Override
     public List<ClientViewGroup<FluidView>> getClientGroups(Accessor<?> accessor, List<ViewGroup<FluidView.Data>> groups) {
         JadeFluidObject fluid = groups.getFirst().views.getFirst().fluids().getFirst();
-        if (fluid.isEmpty()) return ImmutableList.of();
-        FluidView view = new FluidView(
-            JadeUI.fluid(fluid),
-            Component.translatable("tooltip.anvilcraft.jade.infinity").withStyle(ChatFormatting.GRAY),
-            Component.translatable("tooltip.anvilcraft.jade.infinity").withStyle(ChatFormatting.GRAY)
-        );
+        Component infinity = Component.translatable("tooltip.anvilcraft.jade.infinity").withStyle(ChatFormatting.GRAY);
+        FluidView view = new FluidView(JadeUI.fluid(fluid), infinity, infinity);
         view.fluidName = fluid.getDisplayName();
-        view.ratio = 1.0F;
+        view.ratio = fluid.isEmpty() ? 0.0F : 1.0F;
         if (fluid.is(Fluids.EMPTY)) {
             view.overrideText = NarratableComponent.translatable(
                 "jade.fluid",
