@@ -4,13 +4,19 @@ import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.block.entity.StoragePortConsolidatorBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 /**
  * 仓储端口整合器方块。
@@ -34,6 +40,27 @@ public class StoragePortConsolidatorBlock extends AbstractStoragePortBlock {
     @Nullable
     public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
         return ModBlockEntities.STORAGE_PORT_CONSOLIDATOR.create(blockPos, blockState);
+    }
+
+    @Override
+    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        List<ItemStack> drops = super.getDrops(state, params);
+        if (params.getOptionalParameter(LootContextParams.BLOCK_ENTITY)
+            instanceof StoragePortConsolidatorBlockEntity consolidator) {
+            consolidator.addBufferDrops(drops);
+        }
+        return drops;
+    }
+
+    @Override
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        // 创造模式敲掉带缓存的整合器：把缓存物品作为掉落物弹出，避免直接删除
+        if (!level.isClientSide && player.hasInfiniteMaterials()
+            && level.getBlockEntity(pos) instanceof StoragePortConsolidatorBlockEntity consolidator
+            && !consolidator.isBufferEmpty()) {
+            consolidator.dropBuffer(level, pos);
+        }
+        return super.playerWillDestroy(level, pos, state, player);
     }
 
     @Override
