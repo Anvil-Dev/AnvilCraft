@@ -12,7 +12,7 @@ import mod_sites
 import release
 from common import LINES, digest, mod_version, staging_digest
 
-TAG = "v2.0.0"
+TAG = "2.0.0"
 PLAN = {"tag": TAG, "version": "2.0.0", "targets": {
     line: {"sha": f"sha-{line}", "game": line, "jar": f"{line}.jar", "files": {f"{line}.jar": line}}
     for line in LINES}}
@@ -27,19 +27,23 @@ class ReleaseTests(unittest.TestCase):
         for module in (release, mod_sites):
             self.enterContext(patch.object(module, "summary"))
 
-    def test_preflight_rejects_a_branch_with_a_different_version(self):
+    def test_preflight_uses_input_tag_despite_different_development_versions(self):
         refs = [{"ref": f"refs/heads/dev/{line}/1.6", "object": {"sha": line}} for line in LINES]
         def content(path, sha):
             if path != "gradle.properties":
                 return b""
-            version = "2.0.1" if sha == "26.1" else "2.0.0"
-            return f"java_version=25\nmod_version={version}\n".encode()
-        with patch.dict(os.environ, {"GITHUB_REF": "refs/heads/dev/1.21/1.6", "GITHUB_SHA": "1.21"}), \
+            return f"java_version=25\nmod_version=development-{sha}\n".encode()
+        tag = "3.2.0+pre-release.13"
+        with tempfile.TemporaryDirectory() as tmp, chdir(tmp), \
+                patch.dict(os.environ, {"GITHUB_REF": "refs/heads/dev/1.21/1.6", "GITHUB_SHA": "1.21",
+                                        "RELEASE_TAG": tag, "DRY_RUN": "true", "GENERATE_RELEASE_NOTES": "false"}), \
                 patch.object(release, "artifact", return_value=None), patch.object(release, "github", return_value=refs), \
                 patch.object(release, "contents", side_effect=content), patch.object(release, "output") as output:
-            with self.assertRaisesRegex(ValueError, "Branches disagree"):
-                release.prepare()
-            output.assert_not_called()
+            release.prepare()
+            plan = json.loads(Path("release-plan.json").read_text())
+            self.assertEqual((plan["tag"], plan["version"]), (tag, tag))
+            self.assertEqual(set(plan["targets"]), set(LINES))
+            self.assertEqual(dict(c.args for c in output.call_args_list)["tag"], tag)
 
     def test_staging_digest_covers_extra_and_modified_files(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -148,8 +152,8 @@ class ReleaseTests(unittest.TestCase):
             upload.assert_not_called()
 
     def test_bump_preserves_bytes_and_reuses_single_commit_and_pr(self):
-        original = b"# Config\r\nmod_version=2.0.0\r\njava_version=25\r\n"
-        files = {"base": original}
+        original = b"# Config\r\nmod_version=1.6.0+snapshot.42\r\njava_version=25\r\n"
+        files = {"base": original, "sha-26.1": original}
         head, prs, payloads = [], [], []
         def github(path, data=None, **kwargs):
             if data is not None:
@@ -183,13 +187,13 @@ class ReleaseTests(unittest.TestCase):
                 patch.object(release, "github", side_effect=github):
             release.bump(TAG, "26.1")
             release.bump(TAG, "26.1")
-            self.assertEqual(files["bump"], original.replace(b"2.0.0", b"2.0.1"))
+            self.assertEqual(files["bump"], original.replace(b"1.6.0+snapshot.42", b"2.0.1"))
             self.assertEqual(len(payloads), 4)
             self.assertEqual(prs[0]["title"], next(d["message"] for key, d in payloads if key == "git/commits"))
             self.assertIn("[skip ci]", prs[0]["title"])
             files["base"] = files["bump"]
             release.bump(TAG, "26.1")
-            files["base"] = original.replace(b"2.0.0", b"2.1.0")
+            files["base"] = original.replace(b"1.6.0+snapshot.42", b"2.1.0")
             with self.assertRaisesRegex(ValueError, "expected"):
                 release.bump(TAG, "26.1")
             files["base"] = original
@@ -198,8 +202,8 @@ class ReleaseTests(unittest.TestCase):
                 release.bump(TAG, "26.1")
             self.assertEqual(len(payloads), 4)
 
-    def test_invalid_release_versions(self):
-        for raw in (b"", b"mod_version=2.0", b"mod_version=02.0.0", b"mod_version=2.0.0+snapshot.5",
+    def test_requires_one_nonempty_development_version(self):
+        for raw in (b"", b"mod_version=", b"mod_version=   ",
                     b"mod_version=2.0.0\nmod_version=2.0.1"):
             with self.assertRaises(ValueError):
                 mod_version(raw)

@@ -1,6 +1,6 @@
 # AnvilCraft 双分支发布
 
-在默认分支 `dev/1.21/1.6` 打开 **Actions → Create Multi-Version Releases → Run workflow**。流程锁定 `dev/1.21/1.6` 和 `dev/26.1/1.6` 的完整 SHA，要求两条分支的根 `mod_version` 完全一致。先合入 `dev/26.1/1.6` 的构建适配，再合入默认分支总控。预检会拒绝尚未完成适配的分支。
+在默认分支 `dev/1.21/1.6` 打开 **Actions → Create Multi-Version Releases → Run workflow**，在必填的 `tag` 中输入本次版本，例如 `1.6.0+pre-release.13`，不加 `v` 前缀。流程锁定 `dev/1.21/1.6` 和 `dev/26.1/1.6` 的完整 SHA，发布版本只取输入 tag。构建通过 `-Pmod_version=<tag>` 覆盖 Gradle 属性，不修改源码中的 `gradle.properties`，也不要求两条分支的开发版本一致。先合入 `dev/26.1/1.6` 的构建适配，再合入默认分支总控。预检会拒绝尚未完成适配的分支。
 
 勾选 `dry_run` 时只构建和校验，不创建 tag、发布文件或升版 PR。两条分支分别使用自己的 Gradle Wrapper、JDK 和依赖版本运行一次 `stageRelease`。校验包括主包、源码包、NeoForge 描述文件、内嵌 AnvilLib 和 Ageratum 的实际字节、Maven 坐标、POM 的 `api` 依赖范围及 Gradle 模块元数据。
 
@@ -10,7 +10,7 @@
 
 版本后缀使用 `+`，`N` 为无前导零的非负整数。
 
-| mod_version | GitHub 类型 | Modrinth / CurseForge 类型 | 发布后升 patch |
+| 输入 tag | GitHub 类型 | Modrinth / CurseForge 类型 | 发布后升 patch |
 | --- | --- | --- | --- |
 | `X.Y.Z+alpha.N` | Pre-release | Alpha | 否 |
 | `X.Y.Z+beta.N` | Pre-release | Beta | 否 |
@@ -20,7 +20,7 @@
 | `X.Y.Z+hotfix.N` | Release | Release | 否 |
 | `X.Y.Z` | Release | Release | 是 |
 
-例如两条分支都设为 `1.6.0+rc.1` 时，tag 为 `v1.6.0+rc.1`，JAR 和 Maven 版本保留完整后缀。下一次发布前需要先将两条分支推进到同一版本。普通开发推送继续构建 `+snapshot.N` 并上架 Beta，PR 构建使用 `+pr.N`，沿用现有服务端启动测试。
+例如输入 `1.6.0+pre-release.13` 时，生成的 tag 就是 `1.6.0+pre-release.13`，JAR 和 Maven 版本使用该完整值，GitHub 自动标记为 Pre-release，发布后不升 patch。下一次发布只需填写新的 tag。普通开发推送继续构建 `+snapshot.N` 并上架 Alpha，PR 构建使用 `+pr.N`，沿用现有服务端启动测试。
 
 带注解 tag 指向锁定的 `dev/1.21/1.6` 提交，注释包含两个源码 SHA、运行编号、平台项目 ID 和文件校验值。GitHub 草稿只附两个主 JAR，文件名使用实际游戏版本，例如 `anvilcraft-neoforge-1.21.1-1.6.0.jar` 和 `anvilcraft-neoforge-26.1.2-1.6.0.jar`。
 
@@ -32,7 +32,7 @@
 | GitHub | 两个主包校验通过，两个 Maven 成功回执齐全 | 重跑原运行续传缺失附件或重试公开草稿 |
 | Modrinth、CurseForge | 各自接收主包和源码附件 | 四项独立任务记录结果，失败不重试；失败或仍在上传均不阻塞 GitHub 公开与升版 |
 
-纯 `X.Y.Z` 的 Release 公开后，分别从两条开发分支的最新提交创建下一 patch 的 PR，仅修改根 `mod_version`。PR 标题和唯一提交标题都带 `[skip ci]`；维护者按正常审核流程 squash 合并时保留默认标题，即可跳过该次开发构建。重跑复用固定升版分支和已有 PR，已升至目标版本则完成，其他版本报告冲突。
+纯 `X.Y.Z` 的 Release 公开后，分别从两条开发分支的最新提交创建下一 patch 的 PR，仅修改根 `mod_version`。PR 标题和唯一提交标题都带 `[skip ci]`；维护者按正常审核流程 squash 合并时保留默认标题，即可跳过该次开发构建。下一 patch 按输入 tag 计算；仅当根版本仍等于锁定源码中的开发版本时才修改，若已是目标版本则记为完成，其他版本报告冲突。重跑复用固定升版分支和已有 PR。
 
 ## 续跑
 
@@ -40,7 +40,7 @@
 
 两站上传各执行一次。原运行重跑时复用成功回执，已有失败或未决记录不会再次上传。Actions 构件过期后，文件仍按原始校验值从 GitHub 和内部 Maven 读取。
 
-进度记录在锁定源码提交的状态中，名称形如 `release/v1.6.0/26.1/maven`、`release/v1.6.0/26.1/modrinth`、`release/v1.6.0/26.1/curseforge/jar` 和 `release/v1.6.0/26.1/curseforge/sources`。每条状态链接到对应 Actions 运行，摘要列出平台、游戏版本、回执或失败原因。
+进度记录在锁定源码提交的状态中，名称形如 `release/1.6.0/26.1/maven`、`release/1.6.0/26.1/modrinth`、`release/1.6.0/26.1/curseforge/jar` 和 `release/1.6.0/26.1/curseforge/sources`。每条状态链接到对应 Actions 运行，摘要列出平台、游戏版本、回执或失败原因。
 
 Modrinth 上传结果不明时，自动按主包 SHA-512 查询远端并核对版本类型、文件和游戏版本。CurseForge 为主包和源码包分别保留文件 ID；上传超时而未得到 ID 时，必须先在作者后台核对项目、文件名和哈希。确认已接收后使用 `success` 和文件 ID 补录状态。原运行重跑时只核对远端或复用回执，不重传失败文件。
 

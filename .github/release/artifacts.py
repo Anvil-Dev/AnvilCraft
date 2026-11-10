@@ -10,13 +10,13 @@ import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
 
-from common import digest, mod_version, require, staging_digest, summary
+from common import digest, release_type, require, staging_digest, summary
 
 
 def collect(source, line, sha, version, dest):
     actual_sha = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=source, text=True).strip()
     require(actual_sha == sha, f"Expected {sha} for {line}, found {actual_sha}")
-    require(mod_version((source / "gradle.properties").read_bytes()) == version, "Version drift")
+    release_type(version)
     catalog = tomllib.loads((source / "gradle/libs.versions.toml").read_text(encoding="utf-8"))
     game = catalog["versions"]["minecraft"]
     properties = dict(row.split("=", 1) for row in (source / "gradle.properties").read_text(encoding="utf-8").splitlines()

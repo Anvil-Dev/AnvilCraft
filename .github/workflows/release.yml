@@ -2,6 +2,10 @@ name: Create Multi-Version Releases
 on:
   workflow_dispatch:
     inputs:
+      tag:
+        description: 发布 tag 与构建版本，不带 v（例如 1.6.0+pre-release.13）
+        type: string
+        required: true
       generate_release_notes:
         description: Include GitHub-generated release notes from dev/1.21/1.6
         type: boolean
@@ -19,6 +23,7 @@ concurrency:
 env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   BUILD_TYPE: release
+  RELEASE_TAG: ${{ inputs.tag }}
   DRY_RUN: ${{ inputs.dry_run }}
   GENERATE_RELEASE_NOTES: ${{ inputs.generate_release_notes }}
 
@@ -81,7 +86,7 @@ jobs:
       - name: Stage and verify local publications
         if: steps.cache.outputs.built != 'True'
         run: |
-          (cd source && bash gradlew -PanvilcraftRelease stageRelease --no-configuration-cache)
+          (cd source && bash gradlew -PanvilcraftRelease "-Pmod_version=$RELEASE_VERSION" stageRelease --no-configuration-cache)
           python3 control/.github/release/artifacts.py source "$LINE" "$SOURCE_SHA" "$RELEASE_VERSION" source/build/release/dist
       - uses: actions/upload-artifact@v7
         if: steps.cache.outputs.built != 'True'
