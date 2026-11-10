@@ -15,29 +15,28 @@ from release_notes import generate as generate_notes
 
 def prepare():
     require(os.environ["GITHUB_REF"] == "refs/heads/" + BRANCHES[ANCHOR], "Run Create Multi-Version Releases from dev/1.21/1.6")
+    tag = os.environ.get("RELEASE_TAG", "")
+    release_type(tag)
     plan_file = Path("release-plan.json")
     saved = artifact("source-plan")
     if saved:
         gh("run", "download", os.environ["GITHUB_RUN_ID"], "-n", "source-plan")
         plan = json.loads(plan_file.read_text())
+        require(plan["tag"] == tag, "Input tag differs from the original release plan")
     else:
         refs = github("git/matching-refs/heads/dev/")
         heads = {ref["ref"]: ref["object"]["sha"] for ref in refs}
         targets = {}
-        versions = {}
         for line in LINES:
             sha = heads["refs/heads/" + BRANCHES[line]]
             if line == ANCHOR:
                 require(sha == os.environ["GITHUB_SHA"], "Default branch advanced before preflight; dispatch again")
             props = contents("gradle.properties", sha)
-            versions[line] = mod_version(props)
             java = re.search(rb"(?m)^java_version=(\d+)\s*$", props).group(1).decode()
             # 在构建前检查两条分支是否都已完成适配。
             contents("gradle/scripts/release.gradle", sha)
             targets[line] = {"sha": sha, "java": java}
-        require(len(set(versions.values())) == 1, f"Branches disagree on mod_version: {versions}")
-        version = versions[ANCHOR]
-        plan = {"repo": repo(), "tag": "v" + version, "version": version,
+        plan = {"repo": repo(), "tag": tag, "version": tag,
                 "run": os.environ["GITHUB_RUN_ID"], "targets": targets}
         if os.environ.get("GENERATE_RELEASE_NOTES") == "true":
             plan.update(generate_notes(plan, ANCHOR))
@@ -164,7 +163,8 @@ def bump(tag, line):
     if current == next_version:
         summary(f"{base} is already at {next_version}.")
         return
-    require(current == version, f"{base} is at {current}; expected {version}")
+    expected = mod_version(contents("gradle.properties", plan["targets"][line]["sha"]))
+    require(current == expected, f"{base} is at {current}; expected {expected} from the locked source")
     title = f"chore(release): 将版本推进到 {next_version} [skip ci]"
     owner = repo().split("/")[0]
     prior = github(f"pulls?state=all&base={quote(base, safe='')}&head={quote(owner + ':' + head, safe='')}")
@@ -178,7 +178,7 @@ def bump(tag, line):
                 and [f["filename"] for f in commit["files"]] == ["gradle.properties"],
                 f"Unexpected content on {head}")
         parent = contents("gradle.properties", commit["parents"][0]["sha"])
-        require(mod_version(parent) == version and contents("gradle.properties", ref["object"]["sha"]) ==
+        require(mod_version(parent) == expected and contents("gradle.properties", ref["object"]["sha"]) ==
                 VERSION_LINE.sub(lambda m: m[1] + next_version.encode() + m[3], parent), f"Conflicting {head}")
     else:
         updated = VERSION_LINE.sub(lambda m: m[1] + next_version.encode() + m[3], props)

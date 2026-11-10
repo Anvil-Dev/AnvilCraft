@@ -42,10 +42,10 @@ class ReleaseOptionsTests(unittest.TestCase):
             with self.subTest(version=version):
                 self.assertEqual(common.mod_version(f"mod_version={version}\r\n".encode()), version)
                 self.assertEqual(common.release_type(version), kind)
-        for version in ("2.0.0-beta.1", "2.0.0+alpha", "2.0.0+rc.01", "2.0.0+beta.-1",
+        for version in ("2.0", "02.0.0", "2.0.0-beta.1", "2.0.0+alpha", "2.0.0+rc.01", "2.0.0+beta.-1",
                         "2.0.0+snapshot.5", "2.0.0+unknown.1", "2.0.0+build.1+rc.2", "2.0.0+hotfix.1/other"):
             with self.subTest(invalid=version), self.assertRaises(ValueError):
-                common.mod_version(f"mod_version={version}".encode())
+                common.release_type(version)
 
     def test_prepare_freezes_native_notes_and_bump_policy(self):
         refs = [{"ref": f"refs/heads/dev/{line}/1.6", "object": {"sha": f"sha-{line}"}} for line in common.LINES]
@@ -53,13 +53,13 @@ class ReleaseOptionsTests(unittest.TestCase):
         for version, _, bump in CASES:
             for enabled in (False, True):
                 def content(path, _sha):
-                    return f"mod_version={version}\njava_version=25\n".encode() if path == "gradle.properties" else b""
+                    return b"mod_version=1.6.0\njava_version=25\n" if path == "gradle.properties" else b""
                 def api(path, data=None):
                     if path == "git/matching-refs/heads/dev/":
                         return refs
                     self.fail(path)
                 with self.subTest(version=version, notes=enabled), tempfile.TemporaryDirectory() as tmp, chdir(tmp), \
-                        patch.dict(os.environ, {"GENERATE_RELEASE_NOTES": str(enabled).lower(), "DRY_RUN": "true"}), \
+                        patch.dict(os.environ, {"GENERATE_RELEASE_NOTES": str(enabled).lower(), "DRY_RUN": "true", "RELEASE_TAG": version}), \
                         patch.object(release, "artifact", side_effect=[None, {"id": 1}]), \
                         patch.object(release, "contents", side_effect=content), \
                         patch.object(release, "github", side_effect=api) as github, \
@@ -77,9 +77,28 @@ class ReleaseOptionsTests(unittest.TestCase):
                     self.assertEqual(plan.get("previous_tag_name"), "v1.9.0" if enabled else None)
                     self.assertEqual(json.loads(Path("release-plan.json").read_text()), plan)
 
+    def test_invalid_tag_is_rejected_before_preflight(self):
+        for tag in ("", "v2.0.0", "2.0", "2.0.0-beta.1", "2.0.0+snapshot.5", "2.0.0\n", "$(example)"):
+            with self.subTest(tag=tag), patch.dict(os.environ, {"RELEASE_TAG": tag}), \
+                    patch.object(release, "artifact") as artifact, patch.object(release, "github") as github:
+                with self.assertRaises(ValueError):
+                    release.prepare()
+                artifact.assert_not_called()
+                github.assert_not_called()
+
+    def test_rerun_cannot_relabel_a_frozen_plan(self):
+        with tempfile.TemporaryDirectory() as tmp, chdir(tmp), \
+                patch.dict(os.environ, {"RELEASE_TAG": "2.0.1"}), \
+                patch.object(release, "artifact", return_value={"id": 1}), patch.object(release, "gh"), \
+                patch.object(release, "github") as github:
+            Path("release-plan.json").write_text(json.dumps(PLAN))
+            with self.assertRaisesRegex(ValueError, "tag differs"):
+                release.prepare()
+            github.assert_not_called()
+
     def test_qualified_tags_preserve_version_and_original_notes(self):
         for version, _, _ in CASES:
-            tag = "v" + version
+            tag = version
             targets = {}
             for line in common.LINES:
                 stem = f"anvilcraft-neoforge-{line}-{version}"
@@ -99,7 +118,7 @@ class ReleaseOptionsTests(unittest.TestCase):
 
     def test_seal_preserves_generated_notes_when_reusing_a_draft(self):
         native = "## What's Changed\n* PR #42 by @contributor\n"
-        plan = dict(PLAN, tag="v2.0.0+beta.1", version="2.0.0+beta.1", release_notes=native)
+        plan = dict(PLAN, tag="2.0.0+beta.1", version="2.0.0+beta.1", release_notes=native)
         drafts, tags = [], []
         def api(path, data=None, **kwargs):
             if path == "git/tags":
@@ -138,7 +157,7 @@ class ReleaseOptionsTests(unittest.TestCase):
                     patch.object(release, "release_by_tag", return_value=draft), \
                     patch.object(release, "commit_status", return_value={"state": "success"}), \
                     patch.object(release, "github", return_value={"html_url": "example"}) as github:
-                release.publish("v" + version)
+                release.publish(version)
                 github.assert_called_once_with("releases/42", {
                     "draft": False, "prerelease": prerelease, "make_latest": "false" if prerelease else "true",
                 }, method="PATCH")
@@ -150,10 +169,10 @@ class ReleaseOptionsTests(unittest.TestCase):
                 patch.object(release, "commit_status", return_value={"state": "pending"}), \
                 patch.object(release, "github") as github:
             with self.assertRaisesRegex(ValueError, "Maven has not published"):
-                release.publish("v" + plan["version"])
+                release.publish(plan["version"])
             lookup.return_value = dict(DRAFT, prerelease=False)
             with self.assertRaisesRegex(ValueError, "Conflicting release type"):
-                release.publish("v" + plan["version"])
+                release.publish(plan["version"])
             github.assert_not_called()
 
     def test_all_qualified_versions_skip_bump_without_writing(self):
@@ -163,7 +182,7 @@ class ReleaseOptionsTests(unittest.TestCase):
             with self.subTest(version=version), patch.object(release, "tag_manifest", return_value=dict(PLAN, version=version)), \
                     patch.object(release, "release_by_tag", return_value={"draft": False}), \
                     patch.object(release, "github") as github, patch.object(release, "contents") as contents:
-                release.bump("v" + version, "26.1")
+                release.bump(version, "26.1")
                 github.assert_not_called()
                 contents.assert_not_called()
 

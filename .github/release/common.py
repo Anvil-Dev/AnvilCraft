@@ -65,9 +65,7 @@ def release_type(version):
 def mod_version(properties):
     matches = VERSION_LINE.findall(properties)
     require(len(matches) == 1, "Expected one mod_version property")
-    version = matches[0][1].decode()
-    release_type(version)
-    return version
+    return matches[0][1].decode()
 
 
 def digest(path, algorithm="sha256"):
@@ -107,7 +105,7 @@ def artifact(name):
 
 
 def tag_manifest(tag):
-    require(re.fullmatch("v" + VERSION, tag), f"Invalid release tag: {tag}")
+    require(re.fullmatch(VERSION, tag), f"Invalid release tag: {tag}")
     ref = github(f"git/ref/tags/{tag}", missing=True)
     if ref is None:
         return None
@@ -115,13 +113,13 @@ def tag_manifest(tag):
     obj = github("git/tags/" + ref["object"]["sha"])
     manifest = json.loads(obj["message"].strip().split("\n\n", 1)[1])
     require(manifest["tag"] == tag and manifest["repo"] == repo()
-            and manifest["version"] == tag[1:] and re.fullmatch(r"[0-9]+", manifest["run"])
+            and manifest["version"] == tag and re.fullmatch(r"[0-9]+", manifest["run"])
             and set(manifest["targets"]) == set(LINES)
             and obj["object"]["sha"] == manifest["targets"][ANCHOR]["sha"], "Conflicting release tag")
     for target in manifest["targets"].values():
         require(re.fullmatch(r"[0-9]+(?:\.[0-9]+)+", target["game"])
                 and re.fullmatch(r"[0-9a-f]{40}", target["sha"]), "Invalid Minecraft version or source SHA")
-        stem = f"anvilcraft-neoforge-{target['game']}-{tag[1:]}"
+        stem = f"anvilcraft-neoforge-{target['game']}-{tag}"
         require(target["jar"] == stem + ".jar" and set(target["files"]) ==
                 {stem + suffix for suffix in (".jar", "-sources.jar")}
                 and all(re.fullmatch(r"[0-9a-f]{64}", value) for value in target["files"].values()),
