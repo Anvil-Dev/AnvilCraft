@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity.storage;
 
 import dev.dubhe.anvilcraft.api.StorageComparatorManager;
+import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.TerminalSourceManager;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.SpaceSizeItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
@@ -53,6 +54,7 @@ public class StorageBlockEntity extends BlockEntity {
             return;
         }
         this.id = id;
+        this.invalidateItemPorts(this.id);
         this.setChanged();
         TerminalSourceManager.registerIfApplicable(this);
         StorageComparatorManager.registerIfApplicable(this);
@@ -63,10 +65,18 @@ public class StorageBlockEntity extends BlockEntity {
     }
 
     public void clearId() {
+        final UUID previousId = this.id;
         TerminalSourceManager.unregisterIfApplicable(this);
         StorageComparatorManager.unregisterIfApplicable(this);
         this.id = null;
+        this.invalidateItemPorts(previousId);
         this.setChanged();
+    }
+
+    private void invalidateItemPorts(@Nullable UUID storageId) {
+        if (storageId != null && this.level != null && !this.level.isClientSide()) {
+            StoragePortManager.invalidateItemPorts(storageId);
+        }
     }
 
     @Override
@@ -78,11 +88,16 @@ public class StorageBlockEntity extends BlockEntity {
 
     @Override
     protected void loadAdditional(ValueInput input) {
+        final UUID previousId = this.id;
         StorageComparatorManager.unregisterIfApplicable(this);
         // 信任加载的数据
         input.read("storage_id", UUIDUtil.CODEC).ifPresent(id -> this.id = id);
         TerminalSourceManager.registerIfApplicable(this);
         StorageComparatorManager.registerIfApplicable(this);
+        this.invalidateItemPorts(previousId);
+        if (!java.util.Objects.equals(previousId, this.id)) {
+            this.invalidateItemPorts(this.id);
+        }
     }
 
     @Override
@@ -90,6 +105,7 @@ public class StorageBlockEntity extends BlockEntity {
         super.onLoad();
         TerminalSourceManager.registerIfApplicable(this);
         StorageComparatorManager.registerIfApplicable(this);
+        this.invalidateItemPorts(this.id);
     }
 
     @Override
@@ -97,6 +113,7 @@ public class StorageBlockEntity extends BlockEntity {
         TerminalSourceManager.unregisterIfApplicable(this);
         StorageComparatorManager.unregisterIfApplicable(this);
         super.onChunkUnloaded();
+        this.invalidateItemPorts(this.id);
     }
 
     @Override
@@ -104,6 +121,7 @@ public class StorageBlockEntity extends BlockEntity {
         TerminalSourceManager.unregisterIfApplicable(this);
         StorageComparatorManager.unregisterIfApplicable(this);
         super.setRemoved();
+        this.invalidateItemPorts(this.id);
     }
 
     @Override
