@@ -79,6 +79,8 @@ Right-click to insert while holding a fluid bucket to keep the fluid intact
 
 - Similar to a *Drawer Manager*, it combines the contents of all connected <ref item="anvilcraft:storage_port"/>s and <ref item="anvilcraft:storage_fluid_port"/>s and exposes the combined contents to external logistics
 - *Connection* rule: connections cannot pass through a container or *storage station*; they can only extend through adjacent *storage ports* (including *storage fluid ports*)
+- When placed directly against a <ref item="anvilcraft:shulker_container"/> or <ref item="anvilcraft:hyperdimension_storage_station"/>, it gains a 32-slot buffer: external logistics can extract from the storage directly, while inputs enter the buffer first and are inserted over time
+- Breaking it while its buffer is not empty drops the buffered items
 
 # Terminals
 
