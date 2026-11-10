@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity.storage;
 
 import dev.dubhe.anvilcraft.api.StorageComparatorManager;
+import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.TerminalSourceManager;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.SpaceSizeItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
@@ -27,10 +28,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
-import javax.annotation.Nullable;
 
 public class StorageBlockEntity extends BlockEntity {
     private final Holder<IStorageType<?>> storageType;
@@ -47,6 +48,7 @@ public class StorageBlockEntity extends BlockEntity {
             return;
         }
         this.id = id;
+        this.invalidateItemPorts(this.id);
         this.setChanged();
         TerminalSourceManager.registerIfApplicable(this);
         StorageComparatorManager.registerIfApplicable(this);
@@ -57,7 +59,9 @@ public class StorageBlockEntity extends BlockEntity {
     }
 
     public void clearId() {
+        final UUID previousId = this.id;
         this.id = null;
+        this.invalidateItemPorts(previousId);
         this.setChanged();
     }
 
@@ -69,6 +73,12 @@ public class StorageBlockEntity extends BlockEntity {
         return this.storageType.value();
     }
 
+    private void invalidateItemPorts(@Nullable UUID storageId) {
+        if (storageId != null && this.level != null && !this.level.isClientSide) {
+            StoragePortManager.invalidateItemPorts(storageId);
+        }
+    }
+
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         if (this.id != null) {
@@ -78,16 +88,22 @@ public class StorageBlockEntity extends BlockEntity {
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        final UUID previousId = this.id;
         if (tag.contains("storage_id")) {
             this.id = tag.getUUID("storage_id");
         }
         TerminalSourceManager.registerIfApplicable(this);
+        this.invalidateItemPorts(previousId);
+        if (!java.util.Objects.equals(previousId, this.id)) {
+            this.invalidateItemPorts(this.id);
+        }
     }
 
     @Override
     public void onLoad() {
         super.onLoad();
         StorageComparatorManager.registerIfApplicable(this);
+        this.invalidateItemPorts(this.id);
     }
 
     @Override
@@ -109,6 +125,7 @@ public class StorageBlockEntity extends BlockEntity {
         super.onChunkUnloaded();
         TerminalSourceManager.unregisterIfApplicable(this);
         StorageComparatorManager.unregisterIfApplicable(this);
+        this.invalidateItemPorts(this.id);
     }
 
     @Override
@@ -116,6 +133,7 @@ public class StorageBlockEntity extends BlockEntity {
         super.setRemoved();
         TerminalSourceManager.unregisterIfApplicable(this);
         StorageComparatorManager.unregisterIfApplicable(this);
+        this.invalidateItemPorts(this.id);
     }
 
     @Override
