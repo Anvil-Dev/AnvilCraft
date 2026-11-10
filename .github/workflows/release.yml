@@ -1,4 +1,4 @@
-name: Release AnvilCraft
+name: Create Multi-Version Releases
 on:
   workflow_dispatch:
     inputs:
@@ -91,6 +91,7 @@ jobs:
           if-no-files-found: error
 
   seal:
+    name: Upload ReleaseFile
     needs: [prepare, build]
     runs-on: ubuntu-latest
     permissions: { contents: write, actions: read }
@@ -139,17 +140,24 @@ jobs:
       matrix:
         target: ${{ fromJSON(needs.prepare.outputs.matrix) }}
         platform: [modrinth, curseforge]
-    uses: ./.github/workflows/mod_site.yml
-    with:
-      tag: ${{ needs.prepare.outputs.tag }}
-      line: ${{ matrix.target.line }}
-      platform: ${{ matrix.platform }}
-    secrets:
-      MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
-      CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
-      MAVEN_URL: ${{ secrets.MAVEN_URL }}
-      MAVEN_USER: ${{ secrets.MAVEN_USER }}
-      MAVEN_PASS: ${{ secrets.MAVEN_PASS }}
+    name: ${{ matrix.platform }} / ${{ matrix.target.line }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+        with: { persist-credentials: false }
+      - name: Upload verified files once
+        env:
+          TAG: ${{ needs.prepare.outputs.tag }}
+          LINE: ${{ matrix.target.line }}
+          PLATFORM: ${{ matrix.platform }}
+          MODRINTH_TOKEN: ${{ matrix.platform == 'modrinth' && secrets.MODRINTH_TOKEN || '' }}
+          CURSEFORGE_TOKEN: ${{ matrix.platform == 'curseforge' && secrets.CURSEFORGE_TOKEN || '' }}
+          MAVEN_URL: ${{ secrets.MAVEN_URL }}
+          MAVEN_USERNAME: ${{ secrets.MAVEN_USER }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASS }}
+        run: python3 .github/release/mod_sites.py "$TAG" "$LINE" "$PLATFORM"
 
   publish:
     needs: [prepare, seal, maven]
