@@ -78,6 +78,8 @@ items:
 
 - 类似*抽屉管理器*，会将所有相连的<ref item="anvilcraft:storage_port"/>和<ref item="anvilcraft:storage_fluid_port"/>中的内容汇总，并将汇总结果提供给外部物流
 - *相连*判定：不能跨过集装箱或*存储站*，只能沿相邻的*仓储端口*（包括*仓储流体端口*）延伸连接
+- 直接贴附<ref item="anvilcraft:shulker_container"/>或<ref item="anvilcraft:hyperdimension_storage_station"/>时，自身获得 32 格缓存：外部物流可直接取出仓储中的物品，输入则先进入缓存并逐步存入仓储
+- 缓存非空时被破坏，缓存中的物品会掉落
 
 # 终端
 
