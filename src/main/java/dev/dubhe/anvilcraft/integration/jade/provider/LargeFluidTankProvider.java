@@ -53,12 +53,13 @@ public enum LargeFluidTankProvider implements IServerExtensionProvider<FluidView
         if (blockAccessor.getBlockEntity() instanceof StorageFluidPortBlockEntity port) {
             FluidStack remembered = port.getRememberedFluid();
             FluidResource resource = FluidResource.of(remembered);
+            boolean infinite = port.isInfinite();
             return List.of(singleFluidGroup(
                 LargeFluidTankProvider.FLUID_PORT_GROUP,
                 resource,
                 port.getFluidHandler().getAmountAsLong(0),
-                StorageFluidPortBlockEntity.CAPACITY_MB,
-                false
+                infinite ? Integer.MAX_VALUE : StorageFluidPortBlockEntity.CAPACITY_MB,
+                infinite
             ));
         }
         if (blockAccessor.getBlockEntity() instanceof LargeCauldronBlockEntity cauldron) {

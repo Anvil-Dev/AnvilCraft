@@ -1,10 +1,13 @@
 package dev.dubhe.anvilcraft.api.fluid.network;
 
+import dev.dubhe.anvilcraft.api.fluid.InfiniteFluidSource;
 import dev.dubhe.anvilcraft.block.entity.fluid.GlassPipeBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -151,6 +154,63 @@ public final class FluidNetworkManager {
             return null;
         }
         return highestPeer - self;
+    }
+
+    /**
+     * 查同网内其他端点正在无限供给的流体。
+     *
+     * <p>仓储流体端口据此判断自己是否接入了无限储罐。仅接受实现了
+     * {@link InfiniteFluidSource} 的处理器（创造储罐、小型/大型储罐），端口自身不实现该接口，
+     * 因此端口之间不会互相维持无限状态。</p>
+     *
+     * @param level        世界
+     * @param containerPos 发起查询的容器位置，自身端点会被跳过
+     * @param preferred    优先匹配的流体；为 {@link FluidResource#EMPTY} 时接受任意无限源
+     * @return 无限供给的流体；没有接入管网、网内没有无限源时为空栈
+     */
+    public FluidStack findInfiniteFluid(Level level, BlockPos containerPos, FluidResource preferred) {
+        if (level.isClientSide()) {
+            return FluidStack.EMPTY;
+        }
+        LevelData d = this.byLevel.get(level);
+        if (d == null) {
+            return FluidStack.EMPTY;
+        }
+        FluidPipeNetwork network = networkAt(level, containerPos, d);
+        if (network == null) {
+            return FluidStack.EMPTY;
+        }
+        FluidEndpoint self = null;
+        for (FluidEndpoint endpoint : network.getEndpoints()) {
+            if (endpoint.containerPos().equals(containerPos)) {
+                self = endpoint;
+                break;
+            }
+        }
+        if (self == null) {
+            return FluidStack.EMPTY;
+        }
+        FluidStack fallback = FluidStack.EMPTY;
+        for (FluidEndpoint endpoint : network.getEndpoints()) {
+            if (endpoint.containerPos().equals(containerPos)) {
+                continue;
+            }
+            if (!(endpoint.handler() instanceof InfiniteFluidSource source)) {
+                continue;
+            }
+            for (FluidStack fluid : source.getInfiniteFluids()) {
+                if (fluid.isEmpty() || !network.canReach(endpoint, self, fluid)) {
+                    continue;
+                }
+                if (preferred.isEmpty() || preferred.equals(FluidResource.of(fluid))) {
+                    return fluid;
+                }
+                if (fallback.isEmpty()) {
+                    fallback = fluid;
+                }
+            }
+        }
+        return fallback;
     }
 
     /**

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.fluidtank;
 
 import dev.dubhe.anvilcraft.api.fluid.GasDisplayFillProvider;
+import dev.dubhe.anvilcraft.api.fluid.InfiniteFluidSource;
 import net.minecraft.core.NonNullList;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -14,10 +15,16 @@ import java.util.List;
  * insert 接受并丢弃流体，不改变玩家配置的流体种类；
  * extract 永远返回请求量（无限供给已设定的流体）。
  */
-public class CreativeFluidHandler extends FluidStacksResourceHandler implements GasDisplayFillProvider {
+public class CreativeFluidHandler extends FluidStacksResourceHandler implements GasDisplayFillProvider, InfiniteFluidSource {
 
     public CreativeFluidHandler() {
         super(NonNullList.of(FluidStack.EMPTY, FluidStack.EMPTY), Integer.MAX_VALUE);
+    }
+
+    @Override
+    public List<FluidStack> getInfiniteFluids() {
+        FluidResource resource = this.getResource(0);
+        return resource.isEmpty() ? List.of() : List.of(resource.toStack(1));
     }
 
     @Override

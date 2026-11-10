@@ -24,6 +24,9 @@ public class FluidAmountUtil {
      * @return 显示文本，例如 {@code 500 mB}、{@code 1.25 B}、{@code 128 B}、{@code 1K B}
      */
     public static String formatAmount(int amountMb) {
+        if (amountMb == Integer.MAX_VALUE) {
+            return "∞";
+        }
         if (amountMb < FluidType.BUCKET_VOLUME) {
             return amountMb + " mB";
         }
@@ -49,6 +52,9 @@ public class FluidAmountUtil {
      * @return 精确文本，例如 {@code 500 mB}、{@code 1.575 B}、{@code 1536 B}
      */
     public static String formatExactAmount(int amountMb) {
+        if (amountMb == Integer.MAX_VALUE) {
+            return "∞";
+        }
         if (amountMb < FluidType.BUCKET_VOLUME) {
             return amountMb + " mB";
         }
