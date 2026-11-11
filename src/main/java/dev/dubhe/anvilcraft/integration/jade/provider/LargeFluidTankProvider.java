@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StorageFluidPortBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StoragePortConsolidatorBlockEntity;
 import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -28,6 +29,8 @@ public enum LargeFluidTankProvider implements IServerExtensionProvider<FluidView
     /** 单流体容器的组标识：小储罐与仓储流体端口复用同一套总存量标题 */
     public static final String FLUID_TANK_GROUP = "fluid_tank";
     public static final String FLUID_PORT_GROUP = "fluid_port";
+    /** 仓储端口整合器的流体组：逐端口列出，不显示总存量标题 */
+    public static final String FLUID_CONSOLIDATOR_GROUP = "fluid_consolidator";
     public static final String TOTAL_KEY = "Total";
     public static final String CAPACITY_KEY = "Capacity";
     public static final String ENHANCED_KEY = "Enhanced";
@@ -62,6 +65,9 @@ public enum LargeFluidTankProvider implements IServerExtensionProvider<FluidView
                 infinite
             ));
         }
+        if (blockAccessor.getBlockEntity() instanceof StoragePortConsolidatorBlockEntity consolidator) {
+            return consolidatorGroups(consolidator);
+        }
         if (blockAccessor.getBlockEntity() instanceof LargeCauldronBlockEntity cauldron) {
             ResourceHandler<FluidResource> handler = cauldron.getFluidHandler();
             List<FluidView.Data> fluids = new ArrayList<>();
@@ -85,13 +91,20 @@ public enum LargeFluidTankProvider implements IServerExtensionProvider<FluidView
 
         ResourceHandler<FluidResource> handler = tank.getFluidHandler();
         boolean enhanced = tank.isEnhanced();
-        boolean hasInfiniteFluid = tank.getStoredFluids().stream().anyMatch(tank::isInfinite);
+        boolean hasStoredFluid = false;
+        for (int index = 0; index < handler.size(); index++) {
+            if (!handler.getResource(index).isEmpty()) {
+                hasStoredFluid = true;
+                break;
+            }
+        }
         long totalAmount = 0;
         int infiniteCount = 0;
         List<FluidView.Data> fluids = new ArrayList<>();
         for (int index = 0; index < handler.size(); index++) {
             FluidResource resource = handler.getResource(index);
-            if (resource.isEmpty() && hasInfiniteFluid) continue;
+            // 空槽只在整罐为空时作为占位条显示；已有流体时不再显示空接纳槽
+            if (resource.isEmpty() && hasStoredFluid) continue;
             long amount = handler.getAmountAsLong(index);
             boolean infinite = amount == Integer.MAX_VALUE;
             if (!resource.isEmpty()) {
@@ -119,6 +132,43 @@ public enum LargeFluidTankProvider implements IServerExtensionProvider<FluidView
             enhanced ? 0L : LargeFluidTankBlockEntity.BASE_CAPACITY
         );
         group.getExtraData().putBoolean(LargeFluidTankProvider.ENHANCED_KEY, enhanced);
+        group.getExtraData().putInt(LargeFluidTankProvider.INFINITE_KEY, infiniteCount);
+        return List.of(group);
+    }
+
+    /**
+     * 仓储端口整合器的流体组：逐个暴露它当前暴露的流体端口储罐；
+     * 端口因接入无限储罐而无限时，同样按无限容量显示 ∞。
+     */
+    private static List<ViewGroup<FluidView.Data>> consolidatorGroups(StoragePortConsolidatorBlockEntity consolidator) {
+        ResourceHandler<FluidResource> handler = consolidator.getFluidHandler();
+        int tanks = handler.size();
+        if (tanks <= 0) {
+            return List.of();
+        }
+        long total = 0;
+        int infiniteCount = 0;
+        List<FluidView.Data> views = new ArrayList<>();
+        for (int index = 0; index < tanks; index++) {
+            FluidResource resource = handler.getResource(index);
+            boolean infinite = consolidator.isFluidInfinite(index);
+            if (infinite) {
+                infiniteCount++;
+            } else {
+                total += handler.getAmountAsLong(index);
+            }
+            views.add(new FluidView.Data(
+                JadeFluidObject.of(resource.getFluid(), handler.getAmountAsLong(index), resource.getComponentsPatch()),
+                infinite ? Integer.MAX_VALUE : StorageFluidPortBlockEntity.CAPACITY_MB
+            ));
+        }
+        ViewGroup<FluidView.Data> group = new ViewGroup<>(views);
+        group.id = LargeFluidTankProvider.FLUID_CONSOLIDATOR_GROUP;
+        group.getExtraData().putLong(LargeFluidTankProvider.TOTAL_KEY, total);
+        group.getExtraData().putLong(
+            LargeFluidTankProvider.CAPACITY_KEY,
+            (long) StorageFluidPortBlockEntity.CAPACITY_MB * tanks
+        );
         group.getExtraData().putInt(LargeFluidTankProvider.INFINITE_KEY, infiniteCount);
         return List.of(group);
     }

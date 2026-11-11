@@ -27,8 +27,8 @@ public enum MengerSpongeClientProvider implements IBlockComponentProvider {
         tooltip.add(accessor.getBlock().getName().copy().withStyle(ChatFormatting.WHITE));
         tooltip.add(JadeUI.progress(
             new ProgressView(
-                // 透明填充：只保留“Empty ∞”文字，不绘制白色进度条底色
-                ProgressView.Part.of(1.0f, 0x00000000),
+                // 进度 0：只保留边框和“Empty ∞”文字，不绘制任何填充色
+                ProgressView.Part.of(0.0f, 0x00000000),
                 Component.translatable("jade.fluid.empty").withStyle(ChatFormatting.GRAY)
                     .append(" ")
                     .append(Component.translatable("tooltip.anvilcraft.jade.infinity").withStyle(ChatFormatting.GRAY)),
