@@ -26,11 +26,12 @@ public class MengerSpongeProvider extends FluidStorageProvider.ForBlock {
         IElementHelper helper = IElementHelper.get();
         tooltip.clear();
         tooltip.add(Component.translatable("block.anvilcraft.menger_sponge").withStyle(ChatFormatting.WHITE));
-        tooltip.add(helper.progress(1.0f,
+        // 进度 0：只保留边框和“Empty ∞”文字，不绘制任何填充色
+        tooltip.add(helper.progress(0.0f,
             Component.translatable("jade.fluid.empty").withStyle(ChatFormatting.WHITE)
                 .append(" ")
                 .append(Component.translatable("tooltip.anvilcraft.jade.infinity").withStyle(ChatFormatting.GRAY)),
-            helper.progressStyle().color(0x00000000, 0x00000000),
+            helper.progressStyle(),
             BoxStyle.getNestedBox(), true));
     }
 

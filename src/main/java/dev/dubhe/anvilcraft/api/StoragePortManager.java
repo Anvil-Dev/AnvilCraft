@@ -342,7 +342,7 @@ public final class StoragePortManager {
      *
      * <p>存储可跨维度（超维存储站），故按列取该存储在所有维度下的登记。</p>
      */
-    private static List<StorageFluidPortBlockEntity> liveFluidPorts(UUID storageId) {
+    public static List<StorageFluidPortBlockEntity> liveFluidPorts(UUID storageId) {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         if (server == null || StoragePortManager.PORTS.isEmpty()) {
             return List.of();

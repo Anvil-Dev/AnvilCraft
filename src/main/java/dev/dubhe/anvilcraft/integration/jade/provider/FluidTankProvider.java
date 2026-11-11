@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StorageFluidPortBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StoragePortConsolidatorBlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -26,6 +27,7 @@ public class FluidTankProvider implements IServerExtensionProvider<CompoundTag> 
     public static final String LARGE_TANK_GROUP = "large_tank";
     public static final String FLUID_TANK_GROUP = "fluid_tank";
     public static final String FLUID_PORT_GROUP = "fluid_port";
+    public static final String FLUID_CONSOLIDATOR_GROUP = "fluid_consolidator";
     public static final String TOTAL_KEY = "Total";
     public static final String CAPACITY_KEY = "Capacity";
     public static final String ENHANCED_KEY = "Enhanced";
@@ -63,6 +65,9 @@ public class FluidTankProvider implements IServerExtensionProvider<CompoundTag> 
                 infinite ? Integer.MAX_VALUE : StorageFluidPortBlockEntity.CAPACITY_MB,
                 infinite
             ));
+        }
+        if (blockAccessor.getBlockEntity() instanceof StoragePortConsolidatorBlockEntity consolidator) {
+            return consolidatorGroups(consolidator);
         }
         if (!(blockAccessor.getBlockEntity() instanceof LargeFluidTankBlockEntity tank)) {
             return null;
@@ -117,6 +122,45 @@ public class FluidTankProvider implements IServerExtensionProvider<CompoundTag> 
             enhanced ? 0L : LargeFluidTankBlockEntity.BASE_CAPACITY
         );
         group.getExtraData().putBoolean(FluidTankProvider.ENHANCED_KEY, enhanced);
+        group.getExtraData().putInt(FluidTankProvider.INFINITE_KEY, infiniteCount);
+        return List.of(group);
+    }
+
+    /**
+     * 仓储端口整合器的流体组：逐个暴露它当前暴露的流体端口储罐；
+     * 端口因接入无限储罐而无限时，同样按无限容量显示 ∞。
+     */
+    private static List<ViewGroup<CompoundTag>> consolidatorGroups(StoragePortConsolidatorBlockEntity consolidator) {
+        IFluidHandler handler = consolidator.getFluidHandler();
+        int tanks = handler.getTanks();
+        if (tanks <= 0) {
+            return List.of();
+        }
+        long total = 0;
+        int infiniteCount = 0;
+        List<CompoundTag> views = new ArrayList<>();
+        for (int index = 0; index < tanks; index++) {
+            FluidStack fluid = handler.getFluidInTank(index);
+            boolean infinite = consolidator.isFluidInfinite(index);
+            if (infinite) {
+                infiniteCount++;
+            } else {
+                total += fluid.getAmount();
+            }
+            views.add(FluidView.writeDefault(
+                fluid.isEmpty()
+                    ? JadeFluidObject.empty()
+                    : JadeFluidObject.of(fluid.getFluid(), fluid.getAmount(), fluid.getComponentsPatch()),
+                infinite ? Integer.MAX_VALUE : StorageFluidPortBlockEntity.CAPACITY_MB
+            ));
+        }
+        ViewGroup<CompoundTag> group = new ViewGroup<>(views);
+        group.id = FluidTankProvider.FLUID_CONSOLIDATOR_GROUP;
+        group.getExtraData().putLong(FluidTankProvider.TOTAL_KEY, total);
+        group.getExtraData().putLong(
+            FluidTankProvider.CAPACITY_KEY,
+            (long) StorageFluidPortBlockEntity.CAPACITY_MB * tanks
+        );
         group.getExtraData().putInt(FluidTankProvider.INFINITE_KEY, infiniteCount);
         return List.of(group);
     }
