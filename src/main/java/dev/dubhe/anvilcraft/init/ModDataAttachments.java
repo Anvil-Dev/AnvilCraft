@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.AmuletRaffleProbability;
 import dev.dubhe.anvilcraft.inventory.PocketInventory;
+import dev.dubhe.anvilcraft.inventory.SmithingTemplateAdditions;
 import dev.dubhe.anvilcraft.inventory.SmithingTemplateFavorites;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.neoforged.bus.api.IEventBus;
@@ -35,6 +36,11 @@ public class ModDataAttachments {
             .serialize(Codec.BOOL.fieldOf("zombificated_by_curse"))
             .build()
     );
+
+    public static final Supplier<AttachmentType<SmithingTemplateAdditions>> SMITHING_TEMPLATE_ADDITIONS =
+        ATTACHMENT_TYPES.register("smithing_template_additions",
+            () -> AttachmentType.builder(() -> SmithingTemplateAdditions.EMPTY)
+                .serialize(SmithingTemplateAdditions.CODEC).copyOnDeath().build());
 
     public static final Supplier<AttachmentType<SmithingTemplateFavorites>> SMITHING_TEMPLATE_FAVORITES =
         ModDataAttachments.ATTACHMENT_TYPES.register(

@@ -14,6 +14,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.JewelCraftingScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.StructureScannerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.TradingStationScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.TranscendenceSmithingScreen;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.integration.jei.category.AnvilCollisionCraftCategory;
@@ -53,6 +54,7 @@ import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlock4DCate
 import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlockConversionCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlockCraftingCategory;
 import dev.dubhe.anvilcraft.integration.jei.handlers.GhostIngredientHandler;
+import dev.dubhe.anvilcraft.integration.jei.handlers.SmithingTemplateGhostHandler;
 import dev.dubhe.anvilcraft.integration.jei.recipe.BeaconConversionRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.DecayRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
@@ -338,6 +340,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
 
     @Override
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
+        registration.addGhostIngredientHandler(TranscendenceSmithingScreen.class, new SmithingTemplateGhostHandler());
         registration.addGuiContainerHandler(InventoryScreen.class,
             new PocketGuiHandler<>());
         registration.addGuiContainerHandler(CreativeModeInventoryScreen.class,
