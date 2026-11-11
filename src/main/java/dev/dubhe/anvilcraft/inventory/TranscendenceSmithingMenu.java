@@ -14,7 +14,6 @@ import dev.dubhe.anvilcraft.recipe.frost.DeformationRecipe;
 import dev.dubhe.anvilcraft.recipe.frost.FrostSmithingOption;
 import dev.dubhe.anvilcraft.recipe.frost.FrostSmithingRecipeInput;
 import dev.dubhe.anvilcraft.recipe.frost.IFrostSmithingRecipe;
-import dev.dubhe.anvilcraft.recipe.frost.PermutationRecipe;
 import dev.dubhe.anvilcraft.recipe.multiple.BaseMultipleToOneSmithingRecipe;
 import dev.dubhe.anvilcraft.recipe.multiple.MultipleToOneSmithingRecipeInput;
 import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
@@ -44,7 +43,9 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
@@ -86,6 +87,7 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
     private final Container emberInputs;
     private final ResultContainer royalFrostResult = new ResultContainer();
     private final ResultContainer emberResult = new ResultContainer();
+    private final Map<Item, RecipeTemplate> recipeTemplates;
     private final List<RecipeHolder<SmithingRecipe>> royalRecipes;
     private final List<RecipeHolder<BaseMultipleToOneSmithingRecipe>> emberRecipes;
     private final List<RecipeHolder<? extends IFrostSmithingRecipe>> frostRecipes;
@@ -147,6 +149,7 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
             RecipesRecord.getRecipes(this.level).byType(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get())
         );
         this.frostRecipes = this.collectFrostRecipes();
+        this.recipeTemplates = this.collectRecipeTemplates();
         this.royalFrostInputs = this.createInputContainer(2);
         this.emberInputs = this.createInputContainer(9);
 
@@ -163,6 +166,33 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
         result.addAll(RecipesRecord.getRecipes(this.level).byType(ModRecipeTypes.PERMUTATION.get()));
         result.addAll(RecipesRecord.getRecipes(this.level).byType(ModRecipeTypes.DEFORMATION.get()));
         return List.copyOf(result);
+    }
+
+    /** 在菜单创建时按配方建立候选索引，兼容未继承模板类或未添加模板标签的普通物品。 */
+    private Map<Item, RecipeTemplate> collectRecipeTemplates() {
+        Map<Item, RecipeTemplate> templates = new HashMap<>();
+        for (Item item : BuiltInRegistries.ITEM) {
+            ItemStack stack = item.getDefaultInstance();
+            if (stack.isEmpty() || !stack.isItemEnabled(this.level.enabledFeatures())) {
+                continue;
+            }
+            if (this.royalRecipes.stream().anyMatch(recipe ->
+                Ingredient.testOptionalIngredient(recipe.value().templateIngredient(), stack))) {
+                templates.put(item, new RecipeTemplate(Mode.ROYAL, 0));
+                continue;
+            }
+            int inputSize = this.emberRecipes.stream().map(RecipeHolder::value)
+                .filter(recipe -> recipe.isTemplateIngredient(stack)).mapToInt(BaseMultipleToOneSmithingRecipe::inputSize).max().orElse(0);
+            if (inputSize > 0) {
+                templates.put(item, new RecipeTemplate(Mode.EMBER, inputSize));
+            } else if (this.frostRecipes.stream().anyMatch(recipe -> recipe.value().isTemplate(stack))) {
+                templates.put(item, new RecipeTemplate(Mode.FROST, 0));
+            }
+        }
+        return Map.copyOf(templates);
+    }
+
+    private record RecipeTemplate(Mode mode, int emberInputSize) {
     }
 
     private Container createInputContainer(int size) {
@@ -260,7 +290,8 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
             || this.selectedTemplate.getItem() instanceof DeformationTemplateItem) {
             return Mode.FROST;
         }
-        return Mode.ROYAL;
+        RecipeTemplate template = this.recipeTemplates.get(this.selectedTemplate.getItem());
+        return template == null ? Mode.ROYAL : template.mode();
     }
 
     public boolean hasSelectedTemplate() {
@@ -275,7 +306,8 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
         if (this.selectedTemplate.getItem() instanceof BaseMultipleToOneTemplateItem template) {
             return template.getSize();
         }
-        return 0;
+        RecipeTemplate template = this.recipeTemplates.get(this.selectedTemplate.getItem());
+        return template == null ? 0 : template.emberInputSize();
     }
 
     public List<ItemStack> getEmberInputStacks() {
@@ -388,7 +420,7 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
             .map(Item::getDefaultInstance)
             .filter(stack -> !stack.isEmpty())
             .filter(stack -> stack.isItemEnabled(this.level.enabledFeatures()))
-            .filter(TranscendenceSmithingMenu::isTemplateItem)
+            .filter(stack -> isTemplateItem(stack) || this.recipeTemplates.containsKey(stack.getItem()))
             .map(stack -> stack.copyWithCount(1))
             .sorted(Comparator
                 .comparingInt((ItemStack stack) -> favoriteIndex(favorites, itemId(stack)))
@@ -514,17 +546,18 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
         for (int index = 0; index < inputSize; index++) {
             inputs.add(this.emberInputs.getItem(index + 1));
         }
+        Optional<RecipeHolder<BaseMultipleToOneSmithingRecipe>> matching = this.emberRecipes.stream()
+            .filter(recipe -> recipe.value().inputSize() <= inputs.size())
+            .filter(recipe -> inputs.subList(recipe.value().inputSize(), inputs.size()).stream().allMatch(ItemStack::isEmpty))
+            .filter(recipe -> recipe.value().matches(new MultipleToOneSmithingRecipeInput(
+                this.selectedTemplate, this.emberInputs.getItem(0), inputs.subList(0, recipe.value().inputSize())), this.level))
+            .findFirst();
+        if (matching.isEmpty()) {
+            return;
+        }
+        RecipeHolder<BaseMultipleToOneSmithingRecipe> recipe = matching.get();
         MultipleToOneSmithingRecipeInput input = new MultipleToOneSmithingRecipeInput(
-            this.selectedTemplate,
-            this.emberInputs.getItem(0),
-            inputs
-        );
-        List<RecipeHolder<BaseMultipleToOneSmithingRecipe>> matches = RecipesRecord.getRecipes(this.level)
-            .getRecipesFor(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get(), input, this.level)
-            .toList();
-        if (matches.isEmpty()) return;
-
-        RecipeHolder<BaseMultipleToOneSmithingRecipe> recipe = matches.getFirst();
+            this.selectedTemplate, this.emberInputs.getItem(0), inputs.subList(0, recipe.value().inputSize()));
         ItemStack result = recipe.value().assemble(input, this.level);
         if (!result.isItemEnabled(this.level.enabledFeatures())) return;
         this.selectedEmberRecipe = recipe;
@@ -538,17 +571,10 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
             this.royalFrostInputs.getItem(0),
             this.royalFrostInputs.getItem(1)
         );
-        if (this.selectedTemplate.getItem() instanceof PermutationTemplateItem) {
-            List<RecipeHolder<PermutationRecipe>> matches = RecipesRecord.getRecipes(this.level)
-                .getRecipesFor(ModRecipeTypes.PERMUTATION.get(), input, this.level)
-                .toList();
-            if (!matches.isEmpty()) this.setFrostResult(matches.getFirst(), input);
-            return;
-        }
-        List<RecipeHolder<DeformationRecipe>> matches = RecipesRecord.getRecipes(this.level)
-            .getRecipesFor(ModRecipeTypes.DEFORMATION.get(), input, this.level)
-            .toList();
-        if (!matches.isEmpty()) this.setFrostResult(matches.getFirst(), input);
+        this.frostRecipes.stream().filter(recipe -> recipe.value().matches(input, this.level))
+            .sorted(Comparator.comparingInt(recipe ->
+                this.selectedTemplate.getItem() instanceof DeformationTemplateItem && recipe.value() instanceof DeformationRecipe ? 0 : 1))
+            .findFirst().ifPresent(recipe -> this.setFrostResult(recipe, input));
     }
 
     private void setFrostResult(
@@ -589,7 +615,12 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
 
     private boolean canTakeEmberResult() {
         if (this.selectedEmberRecipe == null) return false;
-        int inputSize = this.getEmberInputSize();
+        int inputSize = this.selectedEmberRecipe.value().inputSize();
+        for (int index = inputSize + 1; index <= this.getEmberInputSize(); index++) {
+            if (!this.emberInputs.getItem(index).isEmpty()) {
+                return false;
+            }
+        }
         List<ItemStack> inputs = new ArrayList<>(inputSize);
         for (int index = 0; index < inputSize; index++) {
             inputs.add(this.emberInputs.getItem(index + 1));
@@ -627,16 +658,17 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
     }
 
     private void takeEmberResult(Player player, ItemStack stack) {
+        final int inputSize = this.selectedEmberRecipe == null ? 0 : this.selectedEmberRecipe.value().inputSize();
         stack.onCraftedBy(player, stack.getCount());
         List<ItemStack> relevantItems = new ArrayList<>();
         relevantItems.add(this.selectedTemplate);
         relevantItems.add(this.emberInputs.getItem(0));
-        for (int index = 1; index <= this.getEmberInputSize(); index++) {
+        for (int index = 1; index <= inputSize; index++) {
             relevantItems.add(this.emberInputs.getItem(index));
         }
         this.emberResult.awardUsedRecipes(player, relevantItems);
         this.consumeItem(this.emberInputs, 0);
-        for (int index = 1; index <= this.getEmberInputSize(); index++) {
+        for (int index = 1; index <= inputSize; index++) {
             this.consumeItem(this.emberInputs, index);
         }
         this.playSmithingSound();
