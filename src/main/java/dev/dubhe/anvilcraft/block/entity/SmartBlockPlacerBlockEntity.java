@@ -14,6 +14,7 @@ import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.LensBlock;
 import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.UseItemOnBlock;
+import dev.dubhe.anvilcraft.block.placement.BlueprintMaterialBudget;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.ModTargetPointers;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -247,6 +248,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return this.findPointer(level, null);
         }
 
+        if (this.placement == BlueprintPlacementMode.WAIT && this.operation == OperationMode.PICKUP
+            && !this.hasBlueprintMaterials(level)) {
+            return null;
+        }
+
         for (int checked = 0; checked < POSITION_COUNT; checked++) {
             BlueprintTarget blueprintTarget = this.findNextBlueprintTarget(level);
             if (blueprintTarget == null) {
@@ -289,6 +295,31 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
         return event.getPointer();
     }
+
+    private boolean hasBlueprintMaterials(ServerLevel level) {
+        BlockPlacementUtil.BlueprintLayout layout = this.getBlueprintLayout();
+        List<BlockState> required = new ArrayList<>();
+        for (int order = 0; order < layout.orderCount(); order++) {
+            int index = layout.getStorageIndexForOrder(order);
+            BlockState state = layout.getState(index);
+            if (!state.isAir() && !BlockPlacementUtil.isSecondaryBlueprintPart(state)
+                && !BlockPlacementUtil.isBlueprintStatePresent(level, layout.getPosition(index), state)) {
+                required.add(state);
+            }
+        }
+        if (required.isEmpty()) {
+            return true;
+        }
+        BlueprintMaterialBudget budget = new BlueprintMaterialBudget(level, this.getSourcePos(), this.getFacing());
+        for (BlockState state : required) {
+            if (!budget.reserve(state)) {
+                this.updateMissingBlock(level, this.createDisplayedBlock(level, state));
+                return false;
+            }
+        }
+        return true;
+    }
+
     // endregion
 
     // region Execution
