@@ -37,22 +37,29 @@ public class FluidTankClientProvider implements IClientExtensionProvider<Compoun
         for (ViewGroup<CompoundTag> group : groups) {
             boolean largeTank = FluidTankProvider.LARGE_TANK_GROUP.equals(group.id);
             boolean singleFluid = FluidTankProvider.FLUID_TANK_GROUP.equals(group.id)
-                || FluidTankProvider.FLUID_PORT_GROUP.equals(group.id);
+                || FluidTankProvider.FLUID_PORT_GROUP.equals(group.id)
+                || FluidTankProvider.FLUID_CONSOLIDATOR_GROUP.equals(group.id);
             if (!largeTank && !singleFluid) {
                 continue;
             }
             boolean enhanced = group.getExtraData().getBoolean(FluidTankProvider.ENHANCED_KEY);
             long sharedCapacity = group.getExtraData().getLong(FluidTankProvider.CAPACITY_KEY);
+            // 单条目组（小储罐 / 流体端口）直接以组的无限标记为准；
+            // 整合器可能只有部分端口无限，按每条目自己的容量判断，不能整组一刀切
+            boolean groupInfinite = !largeTank
+                && group.views.size() == 1
+                && group.getExtraData().getInt(FluidTankProvider.INFINITE_KEY) > 0;
             boolean hasStoredFluid = group.views.stream()
                 .anyMatch(FluidTankClientProvider::hasStoredFluid);
             List<FluidView> views = group.views.stream()
-                .map(tag -> createView(tag, largeTank, enhanced, sharedCapacity, hasStoredFluid))
+                .map(tag -> createView(tag, largeTank, enhanced, sharedCapacity, hasStoredFluid, groupInfinite))
                 .filter(Objects::nonNull)
                 .toList();
             ClientViewGroup<FluidView> client = new ClientViewGroup<>(views);
             if (largeTank) {
                 client.title = largeTankTitle(group);
-            } else {
+            } else if (!FluidTankProvider.FLUID_CONSOLIDATOR_GROUP.equals(group.id)) {
+                // 仓储端口整合器只是把各端口的流体列出来，不显示总存量标题
                 client.title = singleFluidTitle(group);
             }
             result.add(client);
@@ -72,7 +79,8 @@ public class FluidTankClientProvider implements IClientExtensionProvider<Compoun
         boolean largeTank,
         boolean enhanced,
         long sharedCapacity,
-        boolean hasStoredFluid
+        boolean hasStoredFluid,
+        boolean groupInfinite
     ) {
         FluidView view = FluidView.readDefault(tag);
         if (view == null) {
@@ -86,7 +94,7 @@ public class FluidTankClientProvider implements IClientExtensionProvider<Compoun
         }
         long amount = fluid.getAmount();
         long capacity = tag.getLong("capacity");
-        boolean infinite = capacity == Integer.MAX_VALUE;
+        boolean infinite = groupInfinite || capacity == Integer.MAX_VALUE;
         view.fluidName = fluid.getType() == Fluids.EMPTY
             ? FluidView.EMPTY_FLUID.copy()
             : snownee.jade.util.CommonProxy.getFluidName(fluid);
@@ -95,11 +103,15 @@ public class FluidTankClientProvider implements IClientExtensionProvider<Compoun
         view.ratio = infinite ? 1.0F : ratio(amount, capacity);
 
         if (fluid.isEmpty()) {
-            view.overrideText = Component.translatable(
-                "jade.fluid",
-                FluidView.EMPTY_FLUID,
-                Component.literal(view.max).withStyle(ChatFormatting.GRAY)
-            );
+            view.overrideText = infinite
+                ? Component.translatable("jade.fluid.empty").withStyle(ChatFormatting.WHITE)
+                    .append(" ")
+                    .append(infinity())
+                : Component.translatable(
+                    "jade.fluid",
+                    FluidView.EMPTY_FLUID,
+                    Component.literal(view.max).withStyle(ChatFormatting.GRAY)
+                );
             return view;
         }
         if (largeTank) {
@@ -135,6 +147,21 @@ public class FluidTankClientProvider implements IClientExtensionProvider<Compoun
 
     private static Component singleFluidTitle(ViewGroup<CompoundTag> group) {
         if (group.getExtraData().getInt(FluidTankProvider.INFINITE_KEY) > 0) {
+            if (FluidTankProvider.FLUID_CONSOLIDATOR_GROUP.equals(group.id)) {
+                // 整合器可能只有部分端口无限，已存量仍按有限部分统计
+                MutableComponent title = Component.translatable(
+                    "tooltip.anvilcraft.large_fluid_tank.total_infinite",
+                    formatAmount(group.getExtraData().getLong(FluidTankProvider.TOTAL_KEY))
+                ).withStyle(ChatFormatting.GRAY);
+                int infinite = group.getExtraData().getInt(FluidTankProvider.INFINITE_KEY);
+                if (infinite > 1) {
+                    title.append(Component.translatable(
+                        "tooltip.anvilcraft.large_fluid_tank.infinite_count",
+                        infinite
+                    ));
+                }
+                return title;
+            }
             return Component.translatable(
                 "tooltip.anvilcraft.large_fluid_tank.total_infinite",
                 Component.translatable("tooltip.anvilcraft.jade.infinity")

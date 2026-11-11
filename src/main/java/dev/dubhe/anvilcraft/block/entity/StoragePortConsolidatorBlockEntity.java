@@ -47,6 +47,7 @@ import javax.annotation.Nullable;
  *
  * <p>沿面相邻的仓储端口收集整个端口阵列，把各端口缓存的并集作为物品能力暴露给外部物流，
  * 并把相连的流体端口按「一个端口一格」暴露为流体能力，读写都直通该端口的储罐；
+ * 接上集装箱时还会并入该存储名下登记的其它流体端口，避免外接端口只对集装箱可见；
  * 相连关系只穿过端口，不跨集装箱 / 存储站，因此集装箱两侧没有直接相连的端口阵列不会互通。
  * 标记端口的缓存排在未标记端口之前，按槽位插入只访问对应缓存槽，
  * 按槽位遍历（如 {@link ItemHandlerHelper#insertItem}）即可填满整个阵列的缓存；
@@ -380,17 +381,49 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
         return blockEntity instanceof StoragePortBlockEntity port ? port : null;
     }
 
+    /**
+     * 本整合器当前对外暴露的流体端口：先算面相邻直连端口，再并入同一存储名下已登记的
+     * 流体端口（集装箱外接的端口即使没贴着整合器也要暴露）。同一端口只保留一次。
+     */
+    private List<StorageFluidPortBlockEntity> fluidTargets() {
+        List<StorageFluidPortBlockEntity> targets = new ArrayList<>();
+        Set<StorageFluidPortBlockEntity> seen = new HashSet<>();
+        if (this.level != null) {
+            for (BlockPos pos : this.fluidPorts) {
+                if (!this.level.isLoaded(pos)) {
+                    continue;
+                }
+                if (this.level.getBlockEntity(pos) instanceof StorageFluidPortBlockEntity port
+                    && seen.add(port)) {
+                    targets.add(port);
+                }
+            }
+        }
+        if (this.storageId != null && this.level != null && !this.level.isClientSide) {
+            for (StorageFluidPortBlockEntity port : StoragePortManager.liveFluidPorts(this.storageId)) {
+                if (seen.add(port)) {
+                    targets.add(port);
+                }
+            }
+        }
+        return targets;
+    }
+
     @Nullable
-    private StorageFluidPortBlockEntity fluidPortAt(int index) {
-        if (this.level == null || index < 0 || index >= this.fluidPorts.size()) {
-            return null;
-        }
-        BlockPos pos = this.fluidPorts.get(index);
-        if (!this.level.isLoaded(pos)) {
-            return null;
-        }
-        BlockEntity blockEntity = this.level.getBlockEntity(pos);
-        return blockEntity instanceof StorageFluidPortBlockEntity port ? port : null;
+    private StorageFluidPortBlockEntity fluidTargetAt(int index) {
+        List<StorageFluidPortBlockEntity> targets = this.fluidTargets();
+        return index < 0 || index >= targets.size() ? null : targets.get(index);
+    }
+
+    /**
+     * 第 {@code index} 个暴露的流体端口是否处于无限供给状态，供 Jade 等预览显示 ∞。
+     *
+     * @param index 流体槽位下标
+     * @return 该槽位对应端口无限时返回 {@code true}
+     */
+    public boolean isFluidInfinite(int index) {
+        StorageFluidPortBlockEntity port = this.fluidTargetAt(index);
+        return port != null && port.isInfinite();
     }
 
     /**
@@ -594,7 +627,8 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
     }
 
     /**
-     * 相连流体端口储罐拼成的流体能力：每个流体端口一格，读写都直通该端口的储罐。
+     * 流体端口储罐拼成的流体能力：每个端口一格，读写都直通该端口的储罐。
+     * 端口来源包括面相邻直连端口，以及当前存储名下登记的其它流体端口。
      *
      * <p>端口的储罐只存单一流体，所以 {@code fill} 优先选择已经在存同种流体的端口，
      * 其次才是第一个空端口，避免同一种流体被拆到多个端口；{@code drain} 从第一个
@@ -603,24 +637,24 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
     private class ConsolidatedFluidHandler implements IFluidHandler {
         @Override
         public int getTanks() {
-            return StoragePortConsolidatorBlockEntity.this.fluidPorts.size();
+            return StoragePortConsolidatorBlockEntity.this.fluidTargets().size();
         }
 
         @Override
         public FluidStack getFluidInTank(int tank) {
-            StorageFluidPortBlockEntity port = StoragePortConsolidatorBlockEntity.this.fluidPortAt(tank);
+            StorageFluidPortBlockEntity port = StoragePortConsolidatorBlockEntity.this.fluidTargetAt(tank);
             return port == null ? FluidStack.EMPTY : port.getFluid();
         }
 
         @Override
         public int getTankCapacity(int tank) {
-            StorageFluidPortBlockEntity port = StoragePortConsolidatorBlockEntity.this.fluidPortAt(tank);
+            StorageFluidPortBlockEntity port = StoragePortConsolidatorBlockEntity.this.fluidTargetAt(tank);
             return port == null ? 0 : port.getFluidHandler().getTankCapacity(0);
         }
 
         @Override
         public boolean isFluidValid(int tank, FluidStack stack) {
-            StorageFluidPortBlockEntity port = StoragePortConsolidatorBlockEntity.this.fluidPortAt(tank);
+            StorageFluidPortBlockEntity port = StoragePortConsolidatorBlockEntity.this.fluidTargetAt(tank);
             if (port == null || stack.isEmpty()) {
                 return false;
             }
@@ -638,7 +672,7 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
         @Override
         public FluidStack drain(FluidStack resource, FluidAction action) {
             for (int index = 0; index < this.getTanks(); index++) {
-                StorageFluidPortBlockEntity port = StoragePortConsolidatorBlockEntity.this.fluidPortAt(index);
+                StorageFluidPortBlockEntity port = StoragePortConsolidatorBlockEntity.this.fluidTargetAt(index);
                 if (port == null || !FluidStack.isSameFluidSameComponents(port.getFluid(), resource)) {
                     continue;
                 }
@@ -653,7 +687,7 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
         @Override
         public FluidStack drain(int maxDrain, FluidAction action) {
             for (int index = 0; index < this.getTanks(); index++) {
-                StorageFluidPortBlockEntity port = StoragePortConsolidatorBlockEntity.this.fluidPortAt(index);
+                StorageFluidPortBlockEntity port = StoragePortConsolidatorBlockEntity.this.fluidTargetAt(index);
                 if (port == null || port.getFluid().isEmpty()) {
                     continue;
                 }
@@ -676,7 +710,7 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
             }
             StorageFluidPortBlockEntity empty = null;
             for (int index = 0; index < this.getTanks(); index++) {
-                StorageFluidPortBlockEntity port = StoragePortConsolidatorBlockEntity.this.fluidPortAt(index);
+                StorageFluidPortBlockEntity port = StoragePortConsolidatorBlockEntity.this.fluidTargetAt(index);
                 if (port == null) {
                     continue;
                 }
