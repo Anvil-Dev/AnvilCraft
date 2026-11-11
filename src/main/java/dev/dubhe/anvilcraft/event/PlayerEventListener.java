@@ -37,7 +37,9 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -110,19 +112,33 @@ public class PlayerEventListener {
         ) {
             return;
         }
-        if (!player.isShiftKeyDown() || entities.isEmpty()) {
+        if (!player.isShiftKeyDown() || entities.isEmpty() || item.isEmpty()) {
             return;
         }
-        MagnetizedNodeEntity node = entities.getFirst();
-        ItemStack stack = item.copy();
-        stack.setCount(1);
-        if (!player.isCreative()) {
-            item.shrink(1);
+        // 先执行正常方块放置，只有放置未成功时才向节点投放物品。
+        if (item.getItem() instanceof BlockItem) {
+            InteractionResult result = item.useOn(new UseOnContext(player, hand, event.getHitVec()));
+            // 可食用方块放置失败后会开始进食，这不属于成功放置。
+            if (player.isUsingItem() && player.getUseItem() == item) {
+                player.stopUsingItem();
+            } else if (result.consumesAction()) {
+                event.setCancellationResult(result);
+                event.setCanceled(true);
+                return;
+            }
         }
-        ItemEntity itemEntity = new ItemEntity(level, node.position().x, node.position().y, node.position().z, stack);
-        itemEntity.setDeltaMovement(0, 0, 0);
-        itemEntity.setPickUpDelay(60);
-        level.addFreshEntity(itemEntity);
+        if (!level.isClientSide()) {
+            MagnetizedNodeEntity node = entities.getFirst();
+            ItemStack stack = item.copyWithCount(1);
+            if (!player.isCreative()) {
+                item.shrink(1);
+            }
+            ItemEntity itemEntity = new ItemEntity(level, node.position().x, node.position().y, node.position().z, stack);
+            itemEntity.setDeltaMovement(0, 0, 0);
+            itemEntity.setPickUpDelay(60);
+            level.addFreshEntity(itemEntity);
+        }
+        event.setCancellationResult(InteractionResult.sidedSuccess(level.isClientSide()));
         event.setCanceled(true);
     }
 
