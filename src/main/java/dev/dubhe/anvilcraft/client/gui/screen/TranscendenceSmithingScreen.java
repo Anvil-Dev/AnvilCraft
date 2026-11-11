@@ -15,6 +15,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.state.ArmorStandRenderState;
@@ -120,6 +121,10 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
     private ItemStack previewStack = ItemStack.EMPTY;
     private int scrollRow;
     private boolean draggingSlider;
+    private ItemStack draggedTemplate = ItemStack.EMPTY;
+    private boolean draggingTemplate;
+    private double templateDragX;
+    private double templateDragY;
 
     public TranscendenceSmithingScreen(
         TranscendenceSmithingMenu menu,
@@ -385,6 +390,9 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
     }
 
     private void extractVirtualTemplate(GuiGraphicsExtractor graphics) {
+        if (this.menu.getSlot(TranscendenceSmithingMenu.TEMPLATE_SLOT).hasItem()) {
+            return;
+        }
         ItemStack template = this.menu.getSelectedTemplate();
         if (template.isEmpty()) return;
         graphics.item(
@@ -474,7 +482,25 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
     }
 
     @Override
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractContents(graphics, mouseX, mouseY, partialTick);
+        if (this.draggingTemplate) {
+            int x = mouseX - 8;
+            int y = mouseY - 8;
+            graphics.nextStratum();
+            graphics.item(this.draggedTemplate, x, y);
+            if (!this.isOverTemplatePanel(mouseX, mouseY)) {
+                graphics.nextStratum();
+                graphics.fill(x, y, x + 16, y + 16, 0x80FF0000);
+            }
+        }
+    }
+
+    @Override
     protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        if (this.draggingTemplate) {
+            return;
+        }
         super.extractTooltip(graphics, mouseX, mouseY);
         this.extractTemplateTooltip(graphics, mouseX, mouseY);
         this.extractVirtualTemplateTooltip(graphics, mouseX, mouseY);
@@ -495,6 +521,9 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
     }
 
     private void extractVirtualTemplateTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        if (this.menu.getSlot(TranscendenceSmithingMenu.TEMPLATE_SLOT).hasItem()) {
+            return;
+        }
         if (!this.isHovering(
             TranscendenceSmithingScreen.VIRTUAL_TEMPLATE_X, TranscendenceSmithingScreen.VIRTUAL_TEMPLATE_Y, 16, 16, mouseX, mouseY)) {
             return;
@@ -647,6 +676,16 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
         }
         ItemStack template = this.templateAt(mouseX, mouseY);
         if (!template.isEmpty() && (button == 0 || button == 1)) {
+            if (this.searchBox != null) {
+                this.searchBox.setFocused(false);
+            }
+            if (button == 0 && this.menu.isAddedTemplate(template)) {
+                this.draggedTemplate = template.copyWithCount(1);
+                this.draggingTemplate = false;
+                this.templateDragX = mouseX;
+                this.templateDragY = mouseY;
+                return true;
+            }
             Identifier templateId = BuiltInRegistries.ITEM.getKey(template.getItem());
             this.playTemplateClickSound();
             ClientPacketDistributor.sendToServer(new TranscendenceSmithingPackets.TemplateAction(
@@ -654,7 +693,6 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
                 templateId,
                 button == 1
             ));
-            if (this.searchBox != null) this.searchBox.setFocused(false);
             return true;
         }
         if (this.isOverTemplateGrid(mouseX, mouseY)) return true;
@@ -665,6 +703,48 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
         return super.mouseClicked(event, handled);
     }
 
+    /** JEI 的拖入范围只覆盖模板列表，不会向实物槽生成物品。 */
+    public Rect2i getTemplateDropArea() {
+        return new Rect2i(this.panelX() + TEMPLATE_GRID_X, this.panelY() + TEMPLATE_GRID_Y,
+            COLUMN_COUNT * TEMPLATE_SLOT_SIZE, VISIBLE_ROW_COUNT * TEMPLATE_SLOT_SIZE);
+    }
+
+    public void addTemplate(ItemStack stack) {
+        if (this.menu.canAddTemplate(stack)) {
+            ClientPacketDistributor.sendToServer(
+                new TranscendenceSmithingPackets.AddTemplate(this.menu.containerId, stack.copyWithCount(1)));
+            this.playTemplateClickSound();
+        }
+    }
+
+    private boolean finishTemplateDrag(double mouseX, double mouseY, int button) {
+        if (button != 0 || this.draggedTemplate.isEmpty()) {
+            return false;
+        }
+        this.moveTemplateDrag(mouseX, mouseY, button);
+        var id = BuiltInRegistries.ITEM.getKey(this.draggedTemplate.getItem());
+        if (this.draggingTemplate && !this.isOverTemplatePanel(mouseX, mouseY)) {
+            ClientPacketDistributor.sendToServer(new TranscendenceSmithingPackets.RemoveTemplate(this.menu.containerId, id));
+            this.playTemplateClickSound();
+        } else if (!this.draggingTemplate) {
+            ClientPacketDistributor.sendToServer(new TranscendenceSmithingPackets.TemplateAction(this.menu.containerId, id, false));
+            this.playTemplateClickSound();
+        }
+        this.draggedTemplate = ItemStack.EMPTY;
+        this.draggingTemplate = false;
+        return true;
+    }
+
+    private boolean moveTemplateDrag(double mouseX, double mouseY, int button) {
+        if (button != 0 || this.draggedTemplate.isEmpty()) {
+            return false;
+        }
+        double dx = mouseX - this.templateDragX;
+        double dy = mouseY - this.templateDragY;
+        this.draggingTemplate |= dx * dx + dy * dy >= 16;
+        return true;
+    }
+
     private void playTemplateClickSound() {
         this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f));
     }
@@ -672,11 +752,17 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
     @Override
     public boolean mouseReleased(MouseButtonEvent event) {
         this.draggingSlider = false;
+        if (this.finishTemplateDrag(event.x(), event.y(), event.button())) {
+            return true;
+        }
         return super.mouseReleased(event);
     }
 
     @Override
     public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        if (this.moveTemplateDrag(event.x(), event.y(), event.button())) {
+            return true;
+        }
         if (this.draggingSlider && event.button() == 0) {
             this.updateScrollFromSlider(event.y(), this.maxScrollRow());
             return true;

@@ -85,6 +85,50 @@ public final class TranscendenceSmithingPackets {
         }
     }
 
+    /** 从 JEI 拖入的候选物品，仅用于添加模板目录条目。 */
+    public record AddTemplate(int containerId, ItemStack template) implements IServerboundPacket {
+        public static final Type<AddTemplate> TYPE = TranscendenceSmithingPackets.type("add_template");
+        public static final StreamCodec<RegistryFriendlyByteBuf, AddTemplate> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.VAR_INT, AddTemplate::containerId,
+            ItemStack.STREAM_CODEC, AddTemplate::template, AddTemplate::new
+        );
+
+        @Override
+        public Type<AddTemplate> type() {
+            return TYPE;
+        }
+
+        @Override
+        public void handleOnServer(Player player) {
+            if (player.containerMenu.containerId == this.containerId
+                && player.containerMenu instanceof TranscendenceSmithingMenu menu) {
+                menu.addTemplate(player, this.template);
+            }
+        }
+    }
+
+    /** 拖出模板区后删除玩家手动添加的条目。 */
+    public record RemoveTemplate(int containerId, Identifier template) implements IServerboundPacket {
+        public static final Type<RemoveTemplate> TYPE = TranscendenceSmithingPackets.type("remove_template");
+        public static final StreamCodec<ByteBuf, RemoveTemplate> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.VAR_INT, RemoveTemplate::containerId,
+            Identifier.STREAM_CODEC, RemoveTemplate::template, RemoveTemplate::new
+        );
+
+        @Override
+        public Type<RemoveTemplate> type() {
+            return TYPE;
+        }
+
+        @Override
+        public void handleOnServer(Player player) {
+            if (player.containerMenu.containerId == this.containerId
+                && player.containerMenu instanceof TranscendenceSmithingMenu menu) {
+                menu.removeTemplate(player, this.template);
+            }
+        }
+    }
+
     /** 客户端切换浮霜模式的候选结果。 */
     public record TurnResult(int containerId, boolean left) implements IServerboundPacket {
         public static final Type<TurnResult> TYPE = TranscendenceSmithingPackets.type("turn_result");
