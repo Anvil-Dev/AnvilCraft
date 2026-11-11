@@ -98,6 +98,10 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
         registration.registerFluidStorage(LargeFluidTankProvider.INSTANCE, FluidTankBlock.class);
         registration.registerFluidStorage(LargeFluidTankProvider.INSTANCE, LargeFluidTankBlock.class);
         registration.registerFluidStorage(LargeFluidTankProvider.INSTANCE, StorageFluidPortBlock.class);
+        registration.registerFluidStorage(
+            LargeFluidTankProvider.INSTANCE,
+            StoragePortConsolidatorBlockEntity.class
+        );
         registration.registerFluidStorage(LargeFluidTankProvider.INSTANCE, LargeCauldronBlock.class);
         registration.registerFluidStorage(MengerSpongeFluidProvider.INSTANCE, MengerSpongeBlock.class);
         registration.registerBlockDataProvider(WipBlockProvider.INSTANCE, WipBlock.class);

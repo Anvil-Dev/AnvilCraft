@@ -35,8 +35,9 @@ public enum LargeFluidTankClientProvider implements IClientExtensionProvider<Flu
             boolean largeTank = LargeFluidTankProvider.LARGE_TANK_GROUP.equals(group.id);
             boolean singleFluid = LargeFluidTankProvider.FLUID_TANK_GROUP.equals(group.id)
                 || LargeFluidTankProvider.FLUID_PORT_GROUP.equals(group.id);
+            boolean consolidator = LargeFluidTankProvider.FLUID_CONSOLIDATOR_GROUP.equals(group.id);
             List<FluidView> views = group.views.stream()
-                .map(data -> createGroupView(data, group, largeTank, singleFluid, hasInfiniteFluid))
+                .map(data -> createGroupView(data, group, largeTank, singleFluid, consolidator, hasInfiniteFluid))
                 .filter(Objects::nonNull)
                 .toList();
             if (views.isEmpty()) {
@@ -48,6 +49,7 @@ public enum LargeFluidTankClientProvider implements IClientExtensionProvider<Flu
             } else if (singleFluid) {
                 client.title = singleFluidTitle(group);
             }
+            // 整合器只是把各端口的流体列出来，不显示总存量标题
             result.add(client);
         }
         return result;
@@ -58,6 +60,7 @@ public enum LargeFluidTankClientProvider implements IClientExtensionProvider<Flu
         ViewGroup<FluidView.Data> group,
         boolean largeTank,
         boolean singleFluid,
+        boolean consolidator,
         boolean hasInfiniteFluid
     ) {
         if (largeTank) {
@@ -66,7 +69,41 @@ public enum LargeFluidTankClientProvider implements IClientExtensionProvider<Flu
         if (singleFluid) {
             return createSingleFluidView(data, group);
         }
+        if (consolidator) {
+            return createConsolidatorView(data);
+        }
         return createView(data, hasInfiniteFluid);
+    }
+
+    /**
+     * 整合器的单个端口行：按该端口自己的容量判断是否无限，
+     * 避免同一组里只有部分端口无限时被整组染成 ∞。
+     */
+    private static @Nullable FluidView createConsolidatorView(FluidView.Data data) {
+        if (data.capacity() <= 0) {
+            return null;
+        }
+        JadeFluidObject fluid = data.fluids().getFirst();
+        long amount = fluid.getAmount();
+        long capacity = data.capacity();
+        boolean infinite = capacity == Integer.MAX_VALUE;
+        Component infinity = Component.translatable("tooltip.anvilcraft.jade.infinity")
+            .withStyle(ChatFormatting.GRAY);
+        FluidView view = new FluidView(
+            JadeUI.fluid(fluid),
+            infinite ? infinity : formatAmount(amount),
+            infinite ? infinity : formatAmount(capacity)
+        );
+        view.fluidName = fluid.getDisplayName();
+        view.ratio = infinite ? 1.0F : Math.clamp((float) amount / capacity, 0.0F, 1.0F);
+        if (fluid.is(Fluids.EMPTY)) {
+            view.overrideText = emptyFluidText(view);
+        } else {
+            view.overrideText = view.fluidName.copy().withStyle(ChatFormatting.WHITE)
+                .append(" ")
+                .append(infinite ? infinity : formatAmount(amount));
+        }
+        return view;
     }
 
     /**

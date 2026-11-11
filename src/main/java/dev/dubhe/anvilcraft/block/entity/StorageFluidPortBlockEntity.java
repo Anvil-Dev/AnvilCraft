@@ -70,6 +70,8 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidRe
     /** 等效高度调整间隔（tick） */
     private static final int ADJUST_INTERVAL = 10;
     private static final String TAG_TANK = "Tank";
+    /** 只随方块更新包同步给客户端，供 HUD 判断无限状态；不写入存档 */
+    private static final String TAG_INFINITE = "Infinite";
 
     @Getter
     private final FluidStacksResourceHandler tank = new FluidStacksResourceHandler(1, StorageFluidPortBlockEntity.CAPACITY_MB) {
@@ -490,6 +492,8 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidRe
         ValueOutput tank = output.child(TAG_TANK);
         FluidStack fluid = this.storedFluid();
         if (!fluid.isEmpty()) tank.store("Fluid", FluidStack.CODEC, fluid);
+        // 无限状态只在运行时有效，但客户端 HUD 需要它才能显示 ∞，故随方块更新包同步
+        output.putBoolean(TAG_INFINITE, this.infinite);
         return output.buildResult();
     }
 
@@ -504,7 +508,8 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidRe
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         FluidStack fluid = input.childOrEmpty(TAG_TANK).read("Fluid", FluidStack.OPTIONAL_CODEC).orElse(FluidStack.EMPTY);
-        this.infinite = false;
+        // 方块更新包会带无限标记；存档里没有该字段，读不到时按有限处理
+        this.infinite = input.getBooleanOr(TAG_INFINITE, false);
         this.tank.set(0, FluidResource.of(fluid),
             Math.min(fluid.getAmount(), StorageFluidPortBlockEntity.CAPACITY_MB));
     }
