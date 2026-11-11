@@ -147,21 +147,6 @@ public class FluidTankClientProvider implements IClientExtensionProvider<Compoun
 
     private static Component singleFluidTitle(ViewGroup<CompoundTag> group) {
         if (group.getExtraData().getInt(FluidTankProvider.INFINITE_KEY) > 0) {
-            if (FluidTankProvider.FLUID_CONSOLIDATOR_GROUP.equals(group.id)) {
-                // 整合器可能只有部分端口无限，已存量仍按有限部分统计
-                MutableComponent title = Component.translatable(
-                    "tooltip.anvilcraft.large_fluid_tank.total_infinite",
-                    formatAmount(group.getExtraData().getLong(FluidTankProvider.TOTAL_KEY))
-                ).withStyle(ChatFormatting.GRAY);
-                int infinite = group.getExtraData().getInt(FluidTankProvider.INFINITE_KEY);
-                if (infinite > 1) {
-                    title.append(Component.translatable(
-                        "tooltip.anvilcraft.large_fluid_tank.infinite_count",
-                        infinite
-                    ));
-                }
-                return title;
-            }
             return Component.translatable(
                 "tooltip.anvilcraft.large_fluid_tank.total_infinite",
                 Component.translatable("tooltip.anvilcraft.jade.infinity")
