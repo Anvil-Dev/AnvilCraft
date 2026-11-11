@@ -48,9 +48,10 @@ public class ShulkerContainerBlockEntity extends StorageBlockEntity {
     public boolean isEmpty() {
         if (this.getTotalCount() != 0) return false;
         if (this.getId() == null) return true;
+        // 新放置的空箱只有标识，仓储记录会在首次使用时创建。
         return Storages.get().get(this.getId(), ShulkerContainerStorage.class)
             .map(storage -> storage.getItems().getTypeLimit() == ShulkerContainerStorage.DEFAULT_TYPE_LIMIT)
-            .orElse(false);
+            .orElse(true);
     }
 
     public void setOpen(ServerPlayer player, boolean opened) {
