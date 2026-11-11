@@ -1,10 +1,13 @@
 package dev.dubhe.anvilcraft.api.fluidtank;
 
 import dev.dubhe.anvilcraft.api.fluid.GasDisplayFillProvider;
+import dev.dubhe.anvilcraft.api.fluid.InfiniteFluidSource;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
-public class InfinityFluidTank extends FluidTank implements GasDisplayFillProvider {
+import java.util.List;
+
+public class InfinityFluidTank extends FluidTank implements GasDisplayFillProvider, InfiniteFluidSource {
     public InfinityFluidTank() {
         super(Integer.MAX_VALUE);
     }
@@ -41,6 +44,11 @@ public class InfinityFluidTank extends FluidTank implements GasDisplayFillProvid
      * 而其容量报告为 {@link Integer#MAX_VALUE}——若按"存量 / 容量"换算，管道内气体会
      * 透明到看不见。故持有该气体时显示填充率恒为 1。
      */
+    @Override
+    public List<FluidStack> getInfiniteFluids() {
+        return this.fluid.isEmpty() ? List.of() : List.of(this.fluid.copy());
+    }
+
     @Override
     public float gasDisplayFill(FluidStack gas) {
         return !this.isEmpty() && FluidStack.isSameFluidSameComponents(this.fluid, gas) ? 1.0f : 0.0f;

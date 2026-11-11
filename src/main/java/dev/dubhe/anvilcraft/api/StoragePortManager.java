@@ -208,7 +208,9 @@ public final class StoragePortManager {
                 result.add(new StorageServerStub.FluidEntry(fluid.copy(), drained ? 0 : fluid.getAmount()));
             } else if (!drained) {
                 StorageServerStub.FluidEntry old = result.get(index);
-                result.set(index, new StorageServerStub.FluidEntry(old.icon(), old.amount() + fluid.getAmount()));
+                long total = (long) old.amount() + fluid.getAmount();
+                result.set(index, new StorageServerStub.FluidEntry(
+                    old.icon(), (int) Math.min(total, Integer.MAX_VALUE)));
             }
         }
         return result;

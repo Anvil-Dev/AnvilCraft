@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.fluid.GasDisplayFillProvider;
+import dev.dubhe.anvilcraft.api.fluid.InfiniteFluidSource;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,7 +18,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import java.util.ArrayList;
 import java.util.List;
 
-final class MultiFluidTankHandler implements IFluidHandler, INBTSerializable<CompoundTag>, GasDisplayFillProvider {
+final class MultiFluidTankHandler implements IFluidHandler, INBTSerializable<CompoundTag>, GasDisplayFillProvider, InfiniteFluidSource {
     private static final String TAG_FLUIDS = "Fluids";
     private static final String TAG_FLUID = "Fluid";
     private static final String TAG_ENHANCED = "Enhanced";
@@ -137,6 +138,17 @@ final class MultiFluidTankHandler implements IFluidHandler, INBTSerializable<Com
                 this.fluids.remove(index);
             }
             this.changeListener.run();
+        }
+        return result;
+    }
+
+    @Override
+    public List<FluidStack> getInfiniteFluids() {
+        List<FluidStack> result = new ArrayList<>();
+        for (StoredFluid stored : this.fluids) {
+            if (stored.infinite()) {
+                result.add(stored.fluid().copy());
+            }
         }
         return result;
     }

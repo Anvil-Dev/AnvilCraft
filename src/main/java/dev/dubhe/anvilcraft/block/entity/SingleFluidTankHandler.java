@@ -2,11 +2,14 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import dev.dubhe.anvilcraft.api.fluid.InfiniteFluidSource;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
-final class SingleFluidTankHandler extends FluidTank {
+import java.util.List;
+
+final class SingleFluidTankHandler extends FluidTank implements InfiniteFluidSource {
     private static final String TAG_FLUID = "Fluid";
     private static final String TAG_ENHANCED = "Enhanced";
     private static final String TAG_INFINITE = "Infinite";
@@ -99,6 +102,11 @@ final class SingleFluidTankHandler extends FluidTank {
 
     boolean isInfinite() {
         return this.infinite;
+    }
+
+    @Override
+    public List<FluidStack> getInfiniteFluids() {
+        return this.infinite ? List.of(this.fluid.copy()) : List.of();
     }
 
     boolean isEnhanced() {

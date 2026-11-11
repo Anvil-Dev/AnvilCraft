@@ -29,8 +29,8 @@ public class MengerSpongeProvider extends FluidStorageProvider.ForBlock {
         tooltip.add(helper.progress(1.0f,
             Component.translatable("jade.fluid.empty").withStyle(ChatFormatting.WHITE)
                 .append(" ")
-                .append(Component.translatable("tooltip.anvilcraft.infinity").withStyle(ChatFormatting.GRAY)),
-            helper.progressStyle(),
+                .append(Component.translatable("tooltip.anvilcraft.jade.infinity").withStyle(ChatFormatting.GRAY)),
+            helper.progressStyle().color(0x00000000, 0x00000000),
             BoxStyle.getNestedBox(), true));
     }
 
