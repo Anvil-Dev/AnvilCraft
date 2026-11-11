@@ -41,9 +41,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
@@ -52,7 +50,7 @@ import javax.annotation.Nullable;
 /**
  * 超限锻造台菜单。
  *
- * <p>模板仅用于选择配方模式，不进入任何容器槽位。</p>
+ * <p>左侧可选择虚拟模板，也可放入实物模板；实物归玩家所有，锻造不消耗模板。</p>
  */
 public class TranscendenceSmithingMenu extends AbstractContainerMenu {
     public static final int ROYAL_FROST_FIRST_INPUT_SLOT = 0;
@@ -62,6 +60,7 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
     public static final int EMBER_INPUT_SLOT_END = 11;
     public static final int ROYAL_FROST_RESULT_SLOT = 11;
     public static final int EMBER_RESULT_SLOT = 12;
+    public static final int TEMPLATE_SLOT = 49;
 
     private static final int PLAYER_INVENTORY_SLOT_START = 13;
     private static final int PLAYER_INVENTORY_SLOT_END = 40;
@@ -82,11 +81,12 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
     private final ContainerLevelAccess access;
     private final Level level;
     private final Player menuPlayer;
+    private final Container templateInput;
     private final Container royalFrostInputs;
     private final Container emberInputs;
     private final ResultContainer royalFrostResult = new ResultContainer();
     private final ResultContainer emberResult = new ResultContainer();
-    private final Map<Item, RecipeTemplate> recipeTemplates;
+    private @Nullable RecipeTemplate selectedTemplateType;
     private final List<RecipeHolder<SmithingRecipe>> royalRecipes;
     private final List<RecipeHolder<BaseMultipleToOneSmithingRecipe>> emberRecipes;
     private final List<RecipeHolder<? extends IFrostSmithingRecipe>> frostRecipes;
@@ -152,13 +152,19 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
         this.emberRecipes = this.level.getRecipeManager()
             .getAllRecipesFor(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING_TYPE.get());
         this.frostRecipes = this.collectFrostRecipes();
-        this.recipeTemplates = this.collectRecipeTemplates();
+        this.templateInput = this.createInputContainer(1);
         this.royalFrostInputs = this.createInputContainer(2);
         this.emberInputs = this.createInputContainer(9);
 
         this.addInputSlots();
         this.addResultSlots();
         this.addPlayerInventory(playerInventory);
+        this.addSlot(new Slot(this.templateInput, 0, 8, 48) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return TranscendenceSmithingMenu.this.acceptsTemplate(stack);
+            }
+        });
         if (!this.level.isClientSide) {
             this.refreshTemplateCatalog();
         }
@@ -171,27 +177,21 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
         return List.copyOf(result);
     }
 
-    /** 在菜单创建时按配方建立候选索引，兼容未继承模板类或未添加模板标签的普通物品。 */
-    private Map<Item, RecipeTemplate> collectRecipeTemplates() {
-        Map<Item, RecipeTemplate> templates = new HashMap<>();
-        for (Item item : BuiltInRegistries.ITEM) {
-            ItemStack stack = item.getDefaultInstance();
-            if (stack.isEmpty() || !stack.isItemEnabled(this.level.enabledFeatures())) {
-                continue;
-            }
-            if (this.royalRecipes.stream().anyMatch(recipe -> recipe.value().isTemplateIngredient(stack))) {
-                templates.put(item, new RecipeTemplate(Mode.ROYAL, 0));
-                continue;
-            }
-            int inputSize = this.emberRecipes.stream().map(RecipeHolder::value)
-                .filter(recipe -> recipe.isTemplateIngredient(stack)).mapToInt(BaseMultipleToOneSmithingRecipe::inputSize).max().orElse(0);
-            if (inputSize > 0) {
-                templates.put(item, new RecipeTemplate(Mode.EMBER, inputSize));
-            } else if (this.frostRecipes.stream().anyMatch(recipe -> recipe.value().isTemplate(stack))) {
-                templates.put(item, new RecipeTemplate(Mode.FROST, 0));
-            }
+    /** 只校验玩家提供的模板，不枚举全部物品自动加入目录。 */
+    private @Nullable RecipeTemplate recipeTemplate(ItemStack stack) {
+        if (stack.isEmpty() || !stack.isItemEnabled(this.level.enabledFeatures())) {
+            return null;
         }
-        return Map.copyOf(templates);
+        if (this.royalRecipes.stream().anyMatch(recipe -> recipe.value().isTemplateIngredient(stack))) {
+            return new RecipeTemplate(Mode.ROYAL, 0);
+        }
+        int inputSize = this.emberRecipes.stream().map(RecipeHolder::value)
+            .filter(recipe -> recipe.isTemplateIngredient(stack)).mapToInt(BaseMultipleToOneSmithingRecipe::inputSize).max().orElse(0);
+        if (inputSize > 0) {
+            return new RecipeTemplate(Mode.EMBER, inputSize);
+        }
+        return this.frostRecipes.stream().anyMatch(recipe -> recipe.value().isTemplate(stack))
+            ? new RecipeTemplate(Mode.FROST, 0) : null;
     }
 
     private record RecipeTemplate(Mode mode, int emberInputSize) {
@@ -280,7 +280,7 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
             || this.selectedTemplate.getItem() instanceof DeformationTemplateItem) {
             return Mode.FROST;
         }
-        RecipeTemplate template = this.recipeTemplates.get(this.selectedTemplate.getItem());
+        RecipeTemplate template = this.selectedTemplateType;
         return template == null ? Mode.ROYAL : template.mode();
     }
 
@@ -296,7 +296,7 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
         if (this.selectedTemplate.getItem() instanceof BaseMultipleToOneTemplateItem template) {
             return template.getSize();
         }
-        RecipeTemplate template = this.recipeTemplates.get(this.selectedTemplate.getItem());
+        RecipeTemplate template = this.selectedTemplateType;
         return template == null ? 0 : template.emberInputSize();
     }
 
@@ -324,13 +324,14 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
         return this.getMode() == Mode.EMBER ? this.emberResult.getItem(0) : this.royalFrostResult.getItem(0);
     }
 
-    /** 接收服务端同步的模板目录、置顶顺序与当前虚拟模板。 */
+    /** 接收服务端同步的模板目录、置顶顺序与当前选用的模板。 */
     public void handleTemplateSync(
         List<ItemStack> syncedTemplates,
         List<ResourceLocation> favorites,
         ItemStack template
     ) {
-        final boolean templateChanged = !ItemStack.isSameItemSameComponents(this.selectedTemplate, template);
+        final boolean templateChanged = this.selectedTemplate.getCount() != template.getCount()
+            || !ItemStack.isSameItemSameComponents(this.selectedTemplate, template);
         this.templates = syncedTemplates.stream().map(ItemStack::copy).toList();
         this.favoriteTemplates = List.copyOf(favorites);
         this.selectedTemplate = template.copy();
@@ -339,11 +340,74 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
         }
     }
 
-    /** 为配方转移选用内置模板，重复请求保留当前选择。 */
+    private boolean acceptsTemplate(ItemStack stack) {
+        return !stack.isEmpty() && stack.isItemEnabled(this.level.enabledFeatures())
+            && (isTemplateItem(stack) || this.recipeTemplate(stack) != null);
+    }
+
+    public boolean canAddTemplate(ItemStack stack) {
+        return this.recipeTemplate(stack.copyWithCount(1)) != null
+            && this.templates.stream().noneMatch(existing -> existing.is(stack.getItem()));
+    }
+
+    public boolean isAddedTemplate(ItemStack stack) {
+        return !stack.isEmpty() && !isTemplateItem(stack)
+            && this.templates.stream().anyMatch(existing -> existing.is(stack.getItem()));
+    }
+
+    /** JEI 仅提交候选，服务端重新校验配方后保存到当前玩家。 */
+    public boolean addTemplate(Player player, ItemStack stack) {
+        if (!(player instanceof ServerPlayer) || player != this.menuPlayer || !this.stillValid(player)) {
+            return false;
+        }
+        this.refreshTemplateCatalog();
+        ItemStack template = stack.copyWithCount(1);
+        if (!this.canAddTemplate(template)) {
+            return false;
+        }
+        SmithingTemplateAdditions additions = player.getData(ModDataAttachments.SMITHING_TEMPLATE_ADDITIONS);
+        player.setData(ModDataAttachments.SMITHING_TEMPLATE_ADDITIONS, additions.add(template));
+        this.refreshTemplateCatalog();
+        this.broadcastChanges();
+        return true;
+    }
+
+    /** 删除玩家添加的条目；当前使用的实物模板通过正常归还流程处理。 */
+    public void removeTemplate(Player player, ResourceLocation id) {
+        if (!(player instanceof ServerPlayer) || player != this.menuPlayer || !this.stillValid(player)) {
+            return;
+        }
+        this.refreshTemplateCatalog();
+        ItemStack template = this.templates.stream().filter(stack -> itemId(stack).equals(id)).findFirst().orElse(ItemStack.EMPTY);
+        if (!this.isAddedTemplate(template)) {
+            return;
+        }
+        SmithingTemplateAdditions additions = player.getData(ModDataAttachments.SMITHING_TEMPLATE_ADDITIONS);
+        player.setData(ModDataAttachments.SMITHING_TEMPLATE_ADDITIONS, additions.remove(template));
+        SmithingTemplateFavorites favorites = player.getData(ModDataAttachments.SMITHING_TEMPLATE_FAVORITES);
+        if (favorites.templates().contains(id)) {
+            player.setData(ModDataAttachments.SMITHING_TEMPLATE_FAVORITES, favorites.toggle(id));
+        }
+        this.refreshTemplateCatalog();
+        if (this.isSelectedTemplate(template)) {
+            this.selectTemplate(player, ItemStack.EMPTY);
+        } else {
+            this.broadcastChanges();
+        }
+    }
+
+    /** 配方转移保持已经放入的相同模板，另选模板时归还实物。 */
     public boolean selectTemplateForTransfer(ServerPlayer player, ItemStack template) {
-        if (player != this.menuPlayer || !this.stillValid(player)) return false;
+        if (player != this.menuPlayer || !this.stillValid(player)) {
+            return false;
+        }
         if (!ItemStack.isSameItemSameComponents(this.selectedTemplate, template)) {
-            this.handleTemplateAction(player, itemId(template), false);
+            this.refreshTemplateCatalog();
+            Optional<ItemStack> candidate = this.templates.stream().filter(stack -> stack.is(template.getItem())).findFirst();
+            if (candidate.isEmpty()) {
+                return false;
+            }
+            this.selectTemplate(player, candidate.get().copyWithCount(1));
         }
         return ItemStack.isSameItemSameComponents(this.selectedTemplate, template);
     }
@@ -359,7 +423,15 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
 
         if (toggleFavorite) {
             SmithingTemplateFavorites favorites = player.getData(ModDataAttachments.SMITHING_TEMPLATE_FAVORITES);
-            player.setData(ModDataAttachments.SMITHING_TEMPLATE_FAVORITES, favorites.toggle(templateId));
+            SmithingTemplateFavorites updated = favorites.toggle(templateId);
+            player.setData(ModDataAttachments.SMITHING_TEMPLATE_FAVORITES, updated);
+            if (this.isAddedTemplate(requested.get())) {
+                SmithingTemplateAdditions additions = player.getData(ModDataAttachments.SMITHING_TEMPLATE_ADDITIONS);
+                player.setData(ModDataAttachments.SMITHING_TEMPLATE_ADDITIONS, new SmithingTemplateAdditions(
+                    additions.templates().stream()
+                        .sorted(Comparator.comparingInt(stack -> favoriteIndex(updated.templates(), itemId(stack))))
+                        .toList()));
+            }
             this.refreshTemplateCatalog();
             this.syncTemplateData(serverPlayer);
             return;
@@ -369,12 +441,16 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
         final ItemStack nextTemplate = this.isSelectedTemplate(template)
             ? ItemStack.EMPTY
             : template.copyWithCount(1);
+        this.selectTemplate(player, nextTemplate);
+    }
+
+    private void selectTemplate(Player player, ItemStack template) {
+        this.clearContainer(player, this.templateInput);
         this.clearContainer(player, this.royalFrostInputs);
         this.clearContainer(player, this.emberInputs);
-        this.selectedTemplate = nextTemplate;
+        this.selectedTemplate = template;
         this.createResult();
         this.templateDataDirty = true;
-        this.syncTemplateData(serverPlayer);
         this.broadcastChanges();
     }
 
@@ -389,7 +465,20 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
     @Override
     public void slotsChanged(Container container) {
         super.slotsChanged(container);
-        if (container == this.royalFrostInputs || container == this.emberInputs) {
+        if (container == this.templateInput) {
+            // 客户端全量槽位同步也会写入空槽，选中状态只由服务端模板包更新。
+            if (!this.level.isClientSide) {
+                ItemStack template = this.templateInput.getItem(0).copy();
+                boolean changed = !ItemStack.isSameItemSameComponents(this.selectedTemplate, template);
+                this.selectedTemplate = template;
+                if (changed) {
+                    this.clearContainer(this.menuPlayer, this.royalFrostInputs);
+                    this.clearContainer(this.menuPlayer, this.emberInputs);
+                }
+                this.templateDataDirty = true;
+            }
+            this.createResult();
+        } else if (container == this.royalFrostInputs || container == this.emberInputs) {
             this.createResult();
         }
     }
@@ -399,16 +488,21 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
         List<ResourceLocation> favorites = this.menuPlayer
             .getData(ModDataAttachments.SMITHING_TEMPLATE_FAVORITES)
             .templates();
-        List<ItemStack> discovered = BuiltInRegistries.ITEM.stream()
+        List<ItemStack> discovered = new ArrayList<>(BuiltInRegistries.ITEM.stream()
             .map(Item::getDefaultInstance)
             .filter(stack -> !stack.isEmpty())
             .filter(stack -> stack.isItemEnabled(this.level.enabledFeatures()))
-            .filter(stack -> isTemplateItem(stack) || this.recipeTemplates.containsKey(stack.getItem()))
+            .filter(TranscendenceSmithingMenu::isTemplateItem)
             .map(stack -> stack.copyWithCount(1))
             .sorted(Comparator
                 .comparingInt((ItemStack stack) -> favoriteIndex(favorites, itemId(stack)))
                 .thenComparingInt(stack -> BuiltInRegistries.ITEM.getId(stack.getItem())))
-            .toList();
+            .toList());
+        for (ItemStack stack : this.menuPlayer.getData(ModDataAttachments.SMITHING_TEMPLATE_ADDITIONS).templates()) {
+            if (this.recipeTemplate(stack) != null && discovered.stream().noneMatch(existing -> existing.is(stack.getItem()))) {
+                discovered.add(stack.copyWithCount(1));
+            }
+        }
         if (!sameTemplates(this.templates, discovered) || !this.favoriteTemplates.equals(favorites)) {
             this.templates = discovered;
             this.favoriteTemplates = List.copyOf(favorites);
@@ -482,6 +576,7 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
     }
 
     private void createResult() {
+        this.selectedTemplateType = this.recipeTemplate(this.selectedTemplate);
         this.clearRecipeState();
         if (!this.hasSelectedTemplate()) return;
         switch (this.getMode()) {
@@ -705,12 +800,13 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
                 return ItemStack.EMPTY;
             }
             slot.onQuickCraft(stack, original);
-        } else if (index < ROYAL_FROST_RESULT_SLOT) {
+        } else if (index < ROYAL_FROST_RESULT_SLOT || index == TEMPLATE_SLOT) {
             if (!this.moveItemStackTo(stack, PLAYER_INVENTORY_SLOT_START, PLAYER_HOTBAR_SLOT_END, false)) {
                 return ItemStack.EMPTY;
             }
-        } else if (index >= PLAYER_INVENTORY_SLOT_START) {
-            if (!this.moveIntoActiveInput(stack) && !this.moveWithinPlayerInventory(stack, index)) {
+        } else if (index >= PLAYER_INVENTORY_SLOT_START && index < PLAYER_HOTBAR_SLOT_END) {
+            if (!(this.getSlot(TEMPLATE_SLOT).mayPlace(stack) && this.moveItemStackTo(stack, TEMPLATE_SLOT, TEMPLATE_SLOT + 1, false))
+                && !this.moveIntoActiveInput(stack) && !this.moveWithinPlayerInventory(stack, index)) {
                 return ItemStack.EMPTY;
             }
         }
@@ -778,6 +874,7 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
     public void removed(Player player) {
         super.removed(player);
         this.access.execute((level, pos) -> {
+            this.clearContainer(player, this.templateInput);
             this.clearContainer(player, this.royalFrostInputs);
             this.clearContainer(player, this.emberInputs);
         });
