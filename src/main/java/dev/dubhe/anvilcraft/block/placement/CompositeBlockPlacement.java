@@ -45,7 +45,8 @@ public final class CompositeBlockPlacement {
             ? ModBlocks.STAMPING_PLATFORM.asStack() : new ItemStack(state.getBlock().asItem());
     }
 
-    private static ItemStack materialFor(BlockState state) {
+    /** 组合放置所需的附加材料，供放置与整份蓝图预检共用。 */
+    public static ItemStack materialFor(BlockState state) {
         if (state.getBlock() instanceof CandleCakeBlock cake) {
             return new ItemStack(cake.candleBlock.asItem());
         }
