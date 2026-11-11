@@ -13,6 +13,8 @@ import dev.dubhe.anvilcraft.saved.storage.Storages;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -25,6 +27,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.TransferPreconditions;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -73,6 +76,16 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
     private final List<ItemStack> marks = new ArrayList<>();
     /** 相连的流体端口坐标，与 {@link ConsolidatedFluidHandler} 的储罐下标一一对应 */
     private final List<BlockPos> fluidPorts = new ArrayList<>();
+    /** 暴露流体端口快照；连接或登记变化时失效，避免按索引访问每次都重建列表 */
+    @Nullable
+    private List<StorageFluidPortBlockEntity> fluidTargetCache;
+    /** 快照对应的存储归属 */
+    @Nullable
+    private UUID fluidTargetCacheStorageId;
+    /** 快照对应的端口登记版本 */
+    private long fluidTargetCacheVersion = -1L;
+    /** 快照对应的相邻端口数量 */
+    private int fluidTargetCachePorts = -1;
     /** 直连仓储核心时的输入缓存；未直连时不使用 */
     private final ItemStacksResourceHandler buffer = new ItemStacksResourceHandler(BUFFER_SLOTS) {
         @Override
@@ -295,6 +308,8 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
         this.ports.clear();
         this.marks.clear();
         this.fluidPorts.clear();
+        // 端口集合重算后快照必然过期
+        this.invalidateFluidTargets();
         if (this.level == null) {
             return;
         }
@@ -335,6 +350,8 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
         }
         StoragePortManager.unregister(this.storageId, this.level.dimension(), this.worldPosition);
         this.storageId = id;
+        // 归属改变会改变暴露的端口集合
+        this.invalidateFluidTargets();
         if (id != null) {
             StoragePortManager.register(id, this.level, this.worldPosition);
         }
@@ -380,29 +397,80 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
     /**
      * 本整合器当前对外暴露的流体端口：先算面相邻直连端口，再并入同一存储名下已登记的
      * 流体端口（集装箱外接的端口即使没贴着整合器也要暴露）。同一端口只保留一次。
+     *
+     * <p>结果按维度与坐标排序后缓存：{@code ResourceHandler} 的按索引操作会在热路径上
+     * 反复取值，若每次都重建不仅 O(N²)，登记集合的迭代顺序还会让同一个下标在两个调用间
+     * 指向不同端口。缓存于连接、归属或登记版本变化时失效。</p>
      */
     private List<StorageFluidPortBlockEntity> fluidTargets() {
-        List<StorageFluidPortBlockEntity> targets = new ArrayList<>();
-        Set<StorageFluidPortBlockEntity> seen = new HashSet<>();
+        UUID storageId = this.storageId;
+        long version = StoragePortManager.itemPortVersion();
+        if (this.fluidTargetCache != null
+            && Objects.equals(this.fluidTargetCacheStorageId, storageId)
+            && this.fluidTargetCacheVersion == version
+            && this.fluidTargetCachePorts == this.fluidPorts.size()) {
+            return this.fluidTargetCache;
+        }
+        List<PortRef> refs = new ArrayList<>();
+        Set<PortRef> known = new HashSet<>();
         if (this.level != null) {
+            ResourceKey<Level> dimension = this.level.dimension();
             for (BlockPos pos : this.fluidPorts) {
-                if (!this.level.isLoaded(pos)) {
-                    continue;
-                }
-                if (this.level.getBlockEntity(pos) instanceof StorageFluidPortBlockEntity port
-                    && seen.add(port)) {
-                    targets.add(port);
+                if (known.add(new PortRef(dimension, pos.asLong()))) {
+                    refs.add(new PortRef(dimension, pos.asLong()));
                 }
             }
         }
-        if (this.storageId != null && this.level != null && !this.level.isClientSide()) {
-            for (StorageFluidPortBlockEntity port : StoragePortManager.liveFluidPorts(this.storageId)) {
-                if (seen.add(port)) {
-                    targets.add(port);
+        if (storageId != null && this.level != null && !this.level.isClientSide()) {
+            for (StorageFluidPortBlockEntity port : StoragePortManager.liveFluidPorts(storageId)) {
+                if (port.getLevel() != null
+                    && known.add(new PortRef(port.getLevel().dimension(), port.getBlockPos().asLong()))) {
+                    refs.add(new PortRef(port.getLevel().dimension(), port.getBlockPos().asLong()));
                 }
             }
         }
-        return targets;
+        // 固定排序：同一端口任何时候都得到同一个下标
+        refs.sort(Comparator
+            .comparing((PortRef ref) -> ref.dimension().identifier().toString())
+            .thenComparingLong(PortRef::packedPos));
+        List<StorageFluidPortBlockEntity> targets = new ArrayList<>(refs.size());
+        Set<StorageFluidPortBlockEntity> seen = new HashSet<>();
+        for (PortRef ref : refs) {
+            BlockPos pos = BlockPos.of(ref.packedPos());
+            Level portLevel = this.level != null && this.level.dimension().equals(ref.dimension())
+                ? this.level
+                : this.serverLevelOf(ref.dimension());
+            if (portLevel == null || !portLevel.isLoaded(pos)) {
+                continue;
+            }
+            if (portLevel.getBlockEntity(pos) instanceof StorageFluidPortBlockEntity port
+                && seen.add(port)) {
+                targets.add(port);
+            }
+        }
+        List<StorageFluidPortBlockEntity> snapshot = List.copyOf(targets);
+        this.fluidTargetCache = snapshot;
+        this.fluidTargetCacheStorageId = storageId;
+        this.fluidTargetCacheVersion = version;
+        this.fluidTargetCachePorts = this.fluidPorts.size();
+        return snapshot;
+    }
+
+    /** 一个流体端口的身份：维度 + 打包坐标，用于去重与稳定排序。 */
+    private record PortRef(ResourceKey<Level> dimension, long packedPos) {
+    }
+
+    @Nullable
+    private Level serverLevelOf(ResourceKey<Level> dimension) {
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        return server == null ? null : server.getLevel(dimension);
+    }
+
+    /** 连接、归属或端口增删后丢弃快照。 */
+    private void invalidateFluidTargets() {
+        this.fluidTargetCache = null;
+        this.fluidTargetCacheVersion = -1L;
+        this.fluidTargetCachePorts = -1;
     }
 
     /**

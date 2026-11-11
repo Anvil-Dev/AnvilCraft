@@ -176,7 +176,13 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidRe
     /** 抽入与排出状态保持到目标水位，避免在启动阈值附近反复换向。 */
     private boolean drawing;
     private boolean draining;
-    /** 是否因通过管道接入无限储罐而处于无限存量状态；断开后重算，不持久化 */
+    /**
+     * 是否因通过管道接入无限储罐而处于无限存量状态；断开后重算，不持久化。
+     *
+     * <p>内部储罐恒为真实容量（128 B），无限只在 {@code getFluid}/{@code getCapacity} 等读取
+     * 与 {@code extract}/{@code insert} 处放大为 {@link Integer#MAX_VALUE}；
+     * 直接读 {@code tank.getAmountAsInt(0)} 仍会看到 128 B。</p>
+     */
     private boolean infinite;
     /** 连接到的存储 ID；未连接时为 null，用于把流体变化通知给仓储 UI */
     @Nullable
@@ -336,6 +342,8 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidRe
         super.onLoad();
         if (this.level != null && !this.level.isClientSide()) {
             FluidNetworkManager.INSTANCE.addContainer(this.level, this.getBlockPos());
+            // 无限状态不落盘，重载后立刻重算一次，避免前 ADJUST_INTERVAL tick 内按有限容量处理
+            this.refreshInfinite();
         }
     }
 
