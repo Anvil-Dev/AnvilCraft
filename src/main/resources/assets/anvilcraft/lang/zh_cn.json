@@ -1575,7 +1575,7 @@
   "tooltip.anvilcraft.heliostats.unknown": "  原因不明",
   "tooltip.anvilcraft.heliostats.unspecified_irradiation_block": "  未指定光源方块",
   "tooltip.anvilcraft.item.abnormal_amulet": "生效时防止由食物以及携带铀、钚、漂浮粉末或诅咒金物品造成的有害效果",
-  "tooltip.anvilcraft.item.acceleration_ring": "在两个环之间生成可加速铁砧、投掷物或佩戴铁砧锤的玩家的加速场",
+  "tooltip.anvilcraft.item.acceleration_ring": "在两个环之间生成加速场，加速铁砧、投掷物或佩戴铁砧锤的玩家",
   "tooltip.anvilcraft.item.activator_sliding_rail": "充能后，滑过的方块会被激活一次",
   "tooltip.anvilcraft.item.active_silencer": "消除附近选定的声音",
   "tooltip.anvilcraft.item.advanced_comparator": "支持迟滞比较模式与窗口比较模式",
@@ -3070,7 +3070,7 @@
   "tooltip.anvilcraft.item.storage_port_consolidator.shift": "将连接的仓储端口的内容暴露给外部物流\n直接贴附潜影集装箱或超维存储站时，以只读方式暴露其存储，并提供 32 格输入缓存\n缓存中的物品会逐步存入存储，破坏时掉落缓存物品\n输入会优先进入带有匹配标记物的端口\n手持流体桶右键单击可将流体倒入相应的流体端口",
   "anvilcraft.configuration.plasma_jets_fish_tank_consume_amount": "等离子喷流鱼缸消耗量",
   "anvilcraft.configuration.plasma_jets_fish_tank_consume_amount.tooltip": "等离子喷流以鱼缸为底时单次消耗的燃料值（单位：mB）",
-  "tooltip.anvilcraft.item.storage_port_consolidator": "将连接的仓储端口、仓储流体端口或直接贴附的潜影集装箱 / 超维存储站的内容暴露给外部物流",
+  "tooltip.anvilcraft.item.storage_port_consolidator": "将连接的存储端口和流体端口的内容暴露给外部物流\n直接贴附于潜影集装箱或超维存储站时，也会中转其存储",
   "advancements.anvilcraft.no_remnant.title": "一无所有",
   "death.attack.anvilcraft.star_contact": "%1$s 成为了日冕的一部分",
   "message.anvilcraft.building_rod.contents_missing": "缺少匹配的容器内容物，请在 3 秒内再次右键点击，以放置空容器",
@@ -3680,5 +3680,9 @@
   "message.anvilcraft.building_rod.wip_block": "仅创造模式可粘贴进程方块，强制粘贴可跳过",
   "tooltip.anvilcraft.storage_port.cache": "缓存",
   "tooltip.anvilcraft.storage_port.storage": "存储",
-  "tooltip.anvilcraft.storage_port.unmarked": "未标记物品"
+  "tooltip.anvilcraft.storage_port.unmarked": "未标记物品",
+  "anvilcraft.configuration.ui.storage_flyout_fade_in_ticks": "存储弹出菜单淡入时长（刻）",
+  "anvilcraft.configuration.ui.storage_flyout_fade_in_ticks.tooltip": "控制存储界面弹出菜单的淡入时间（单位：刻）",
+  "anvilcraft.configuration.ui.storage_flyout_fade_out_ticks": "存储弹出菜单淡出时长（刻）",
+  "anvilcraft.configuration.ui.storage_flyout_fade_out_ticks.tooltip": "控制存储界面弹出菜单的淡出时间（单位：刻）"
 }
