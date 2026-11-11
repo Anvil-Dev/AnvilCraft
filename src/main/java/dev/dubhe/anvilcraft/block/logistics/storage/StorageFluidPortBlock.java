@@ -39,8 +39,12 @@ public class StorageFluidPortBlock extends AbstractStoragePortBlock {
         if (!(level.getBlockEntity(pos) instanceof StorageFluidPortBlockEntity port)) {
             return 0;
         }
-        int amount = port.getFluid().getAmount();
-        return amount == 0 ? 0 : amount * 14 / StorageFluidPortBlockEntity.CAPACITY_MB + 1;
+        long amount = port.getFluid().getAmount();
+        if (amount == 0) {
+            return 0;
+        }
+        // 无限存量时数量为 Integer.MAX_VALUE，用 long 计算避免溢出
+        return (int) Math.min(15, amount * 14L / StorageFluidPortBlockEntity.CAPACITY_MB + 1);
     }
 
     @Override

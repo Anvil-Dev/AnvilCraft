@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import com.mojang.serialization.Codec;
 import dev.dubhe.anvilcraft.api.fluid.GasDisplayFillProvider;
+import dev.dubhe.anvilcraft.api.fluid.InfiniteFluidSource;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
@@ -16,7 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-final class MultiFluidTankHandler implements ResourceHandler<FluidResource>, ValueIOSerializable, GasDisplayFillProvider {
+final class MultiFluidTankHandler implements
+    ResourceHandler<FluidResource>, ValueIOSerializable, GasDisplayFillProvider, InfiniteFluidSource {
     private static final Codec<List<FluidStack>> FLUIDS_CODEC = FluidStack.OPTIONAL_CODEC.listOf();
     private static final Codec<List<Boolean>> FLAGS_CODEC = Codec.BOOL.listOf();
 
@@ -133,6 +135,17 @@ final class MultiFluidTankHandler implements ResourceHandler<FluidResource>, Val
         stored.fluid().shrink(extracted);
         if (stored.fluid().isEmpty()) this.fluids.remove(index);
         return extracted;
+    }
+
+    @Override
+    public List<FluidStack> getInfiniteFluids() {
+        List<FluidStack> result = new ArrayList<>();
+        for (StoredFluid stored : this.fluids) {
+            if (stored.infinite()) {
+                result.add(stored.fluid().copy());
+            }
+        }
+        return result;
     }
 
     List<FluidStack> copyFluids() {

@@ -43,6 +43,10 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.fluid_tank.capacity.value.infinity", "  %s / ∞");
         provider.add("tooltip.anvilcraft.fluid_tank.fluid", "Fluid:");
         provider.add("tooltip.anvilcraft.fluid_tank.more", "and %s more...");
+        provider.add("tooltip.anvilcraft.large_fluid_tank.total", "Total: %s / %s (%s)");
+        provider.add("tooltip.anvilcraft.large_fluid_tank.total_infinite", "Infinite capacity · Stored: %s");
+        provider.add("tooltip.anvilcraft.large_fluid_tank.infinite_count", " · %s infinite");
+        provider.add("tooltip.anvilcraft.large_fluid_tank.share", "(%s)");
         provider.add("screen.anvilcraft.storage_port.clear_mark", "Clear Mark");
         provider.add("tooltip.anvilcraft.storage_port.item", "Item:");
         provider.add("tooltip.anvilcraft.storage_port.cache", "Buffer");

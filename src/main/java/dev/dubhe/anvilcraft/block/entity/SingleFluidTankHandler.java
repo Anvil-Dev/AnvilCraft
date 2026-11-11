@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.fluid.InfiniteFluidSource;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
@@ -10,9 +11,10 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
+import java.util.List;
 import java.util.Objects;
 
-final class SingleFluidTankHandler implements ResourceHandler<FluidResource>, ValueIOSerializable {
+final class SingleFluidTankHandler implements ResourceHandler<FluidResource>, ValueIOSerializable, InfiniteFluidSource {
     private final int baseCapacity;
     private final int infinityThreshold;
     private final Runnable changeListener;
@@ -119,6 +121,11 @@ final class SingleFluidTankHandler implements ResourceHandler<FluidResource>, Va
 
     boolean isInfinite() {
         return this.infinite;
+    }
+
+    @Override
+    public List<FluidStack> getInfiniteFluids() {
+        return this.infinite ? List.of(this.fluid.copy()) : List.of();
     }
 
     boolean isEnhanced() {

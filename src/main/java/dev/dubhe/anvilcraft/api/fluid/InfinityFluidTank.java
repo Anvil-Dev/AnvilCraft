@@ -11,9 +11,11 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
+import java.util.List;
+
 @Getter
 @Setter
-public class InfinityFluidTank extends FluidStacksResourceHandler {
+public class InfinityFluidTank extends FluidStacksResourceHandler implements InfiniteFluidSource {
     private boolean infinity;
 
     public InfinityFluidTank(int capacity) {
@@ -38,6 +40,12 @@ public class InfinityFluidTank extends FluidStacksResourceHandler {
     protected int getCapacity(int index, FluidResource resource) {
         if (this.isInfinity()) return Integer.MAX_VALUE;
         return super.getCapacity(index, resource);
+    }
+
+    @Override
+    public List<FluidStack> getInfiniteFluids() {
+        FluidResource resource = this.getResource(0);
+        return this.infinity && !resource.isEmpty() ? List.of(resource.toStack(1)) : List.of();
     }
 
     public void setCapacity(int capacity) {
