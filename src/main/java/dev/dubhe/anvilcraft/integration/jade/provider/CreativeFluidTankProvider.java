@@ -33,9 +33,9 @@ public class CreativeFluidTankProvider extends FluidStorageProvider.ForBlock {
                 tooltip.add(helper.progress(0.0f,
                     Component.translatable("jade.fluid.empty").withStyle(ChatFormatting.WHITE)
                         .append(" ")
-                        .append(Component.translatable("tooltip.anvilcraft.infinity").withStyle(ChatFormatting.GRAY)),
+                        .append(Component.translatable("tooltip.anvilcraft.jade.infinity").withStyle(ChatFormatting.GRAY)),
                     helper.progressStyle(),
-                    BoxStyle.getNestedBox(), true));
+                    BoxStyle.getTransparent(), true));
                 return;
             }
 
@@ -49,9 +49,9 @@ public class CreativeFluidTankProvider extends FluidStorageProvider.ForBlock {
                 helper.progress(1.0f, stack.getHoverName().copy()
                     .withStyle(ChatFormatting.WHITE)
                     .append(" ")
-                    .append(Component.translatable("tooltip.anvilcraft.infinity").withStyle(ChatFormatting.GRAY)),
+                    .append(Component.translatable("tooltip.anvilcraft.jade.infinity").withStyle(ChatFormatting.GRAY)),
                 helper.progressStyle().overlay(helper.fluid(fluidObj)),
-                BoxStyle.getNestedBox(), true)
+                BoxStyle.getTransparent(), true)
             );
         }
     }

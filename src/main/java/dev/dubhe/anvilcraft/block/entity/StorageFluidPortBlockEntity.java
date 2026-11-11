@@ -66,9 +66,79 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
     /** 等效高度调整间隔（tick） */
     private static final int ADJUST_INTERVAL = 10;
     private static final String TAG_TANK = "Tank";
+    /** 只随方块更新包同步给客户端，供 Jade 判断无限状态；不写入存档 */
+    private static final String TAG_INFINITE = "Infinite";
 
     @Getter
     private final FluidTank tank = new FluidTank(StorageFluidPortBlockEntity.CAPACITY_MB) {
+        @Override
+        public int getCapacity() {
+            return StorageFluidPortBlockEntity.this.infinite
+                ? Integer.MAX_VALUE
+                : super.getCapacity();
+        }
+
+        @Override
+        public int getTankCapacity(int tank) {
+            return StorageFluidPortBlockEntity.this.infinite
+                ? Integer.MAX_VALUE
+                : super.getTankCapacity(tank);
+        }
+
+        @Override
+        public FluidStack getFluid() {
+            return StorageFluidPortBlockEntity.this.infinite
+                ? this.fluid.copyWithAmount(Integer.MAX_VALUE)
+                : super.getFluid();
+        }
+
+        @Override
+        public FluidStack getFluidInTank(int tank) {
+            return StorageFluidPortBlockEntity.this.infinite
+                ? this.fluid.copyWithAmount(Integer.MAX_VALUE)
+                : super.getFluidInTank(tank);
+        }
+
+        @Override
+        public int getFluidAmount() {
+            return StorageFluidPortBlockEntity.this.infinite
+                ? Integer.MAX_VALUE
+                : super.getFluidAmount();
+        }
+
+        @Override
+        public int fill(FluidStack resource, IFluidHandler.FluidAction action) {
+            if (StorageFluidPortBlockEntity.this.infinite) {
+                return !resource.isEmpty()
+                    && FluidStack.isSameFluidSameComponents(this.fluid, resource)
+                    ? resource.getAmount() : 0;
+            }
+            return super.fill(resource, action);
+        }
+
+        @Override
+        public FluidStack drain(int maxDrain, IFluidHandler.FluidAction action) {
+            if (StorageFluidPortBlockEntity.this.infinite) {
+                return maxDrain <= 0 || this.fluid.isEmpty()
+                    ? FluidStack.EMPTY
+                    : this.fluid.copyWithAmount(maxDrain);
+            }
+            return super.drain(maxDrain, action);
+        }
+
+        @Override
+        public FluidStack drain(FluidStack resource, IFluidHandler.FluidAction action) {
+            if (StorageFluidPortBlockEntity.this.infinite) {
+                if (resource.isEmpty()
+                    || this.fluid.isEmpty()
+                    || !FluidStack.isSameFluidSameComponents(this.fluid, resource)) {
+                    return FluidStack.EMPTY;
+                }
+                return resource.copy();
+            }
+            return super.drain(resource, action);
+        }
+
         @Override
         protected void onContentsChanged() {
             StorageFluidPortBlockEntity.this.rememberFluid();
@@ -128,6 +198,8 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
      * 直到水位升到 {@link #ADJUST_STOP} 才复位。
      */
     private boolean drawing = false;
+    /** 是否因通过管道接入无限储罐而处于无限存量状态；断开后重算，不持久化 */
+    private boolean infinite = false;
     /**
      * 排出方向的施密特锁存位：水位高于 {@link #ADJUST_DRAIN_START} 时置位并保持，
      * 直到水位降到 {@link #ADJUST_STOP} 才复位。
@@ -161,8 +233,57 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
         }
         if (this.adjustCountdown-- <= 0) {
             this.adjustCountdown = StorageFluidPortBlockEntity.ADJUST_INTERVAL;
+            this.refreshInfinite();
             this.adjustHeightBias();
         }
+    }
+
+    /**
+     * 重算无限状态：同网内存在正在无限供给同一流体的储罐时变为无限；
+     * 断开后恢复为普通满存量端口。
+     */
+    private void refreshInfinite() {
+        if (this.level == null || this.level.isClientSide) {
+            return;
+        }
+        FluidStack current = this.tank.getFluid();
+        FluidStack source = FluidNetworkManager.INSTANCE.findInfiniteFluid(
+            this.level, this.getBlockPos(), current);
+        if (source.isEmpty()
+            || (!current.isEmpty() && !FluidStack.isSameFluidSameComponents(current, source))) {
+            this.setInfinite(false, FluidStack.EMPTY);
+            return;
+        }
+        this.setInfinite(true, source);
+    }
+
+    /**
+     * 切换无限状态；变为无限时把储量拉满并记录流体种类，恢复有限时保留满存量。
+     */
+    private void setInfinite(boolean value, FluidStack source) {
+        if (this.infinite == value
+            && (!value || FluidStack.isSameFluidSameComponents(this.tank.getFluid(), source))) {
+            return;
+        }
+        this.infinite = value;
+        FluidStack fluid = value ? source : this.tank.getFluid();
+        if (!fluid.isEmpty()) {
+            // 内部始终保存真实的满罐 128 B，无限只在读取/抽取时放大，避免把 MAX 写进存档
+            this.tank.setFluid(fluid.copyWithAmount(StorageFluidPortBlockEntity.CAPACITY_MB));
+        }
+        this.setChanged();
+        if (this.level != null) {
+            BlockState state = this.getBlockState();
+            this.level.sendBlockUpdated(this.worldPosition, state, state, Block.UPDATE_ALL);
+            if (!this.level.isClientSide && this.storageId != null) {
+                StorageServerStub.onContentsChanged(this.storageId);
+            }
+        }
+    }
+
+    /** 当前是否因接入无限储罐而无限供给。 */
+    public boolean isInfinite() {
+        return this.infinite;
     }
 
     /**
@@ -351,7 +472,8 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
         if (this.tank.isEmpty()) {
             return false;
         }
-        this.tank.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.EXECUTE);
+        this.infinite = false;
+        this.tank.setFluid(FluidStack.EMPTY);
         return true;
     }
 
@@ -395,6 +517,22 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
         return this.tank.getFluid();
     }
 
+    /** 存档与同步用的流体：无限状态只在运行时生效，落盘数量按真实容量截断。 */
+    private FluidStack storedFluid() {
+        FluidStack fluid = this.tank.getFluid().copy();
+        if (fluid.getAmount() > StorageFluidPortBlockEntity.CAPACITY_MB) {
+            fluid.setAmount(StorageFluidPortBlockEntity.CAPACITY_MB);
+        }
+        return fluid;
+    }
+
+    /** 用有限容量副本写出 tank 数据，避免把无限状态的 {@code Integer.MAX_VALUE} 落盘。 */
+    private CompoundTag writeTank(HolderLookup.Provider registries) {
+        FluidTank copy = new FluidTank(StorageFluidPortBlockEntity.CAPACITY_MB);
+        copy.setFluid(this.storedFluid());
+        return copy.writeToNBT(registries, new CompoundTag());
+    }
+
     /**
      * 把流体写入掉落的方块物品（拆除保留流体）。
      *
@@ -423,7 +561,8 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
         // 同步流体，保证客户端渲染与 UI 读取一致；为空也要写，否则客户端会残留旧流体
-        tag.put(StorageFluidPortBlockEntity.TAG_TANK, this.tank.writeToNBT(registries, new CompoundTag()));
+        tag.put(StorageFluidPortBlockEntity.TAG_TANK, this.writeTank(registries));
+        tag.putBoolean(StorageFluidPortBlockEntity.TAG_INFINITE, this.infinite);
         return tag;
     }
 
@@ -432,7 +571,7 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
         super.saveAdditional(tag, registries);
         // 空槽时不写流体数据：空端口被存成物品不该多出一个空 tank 组件，否则会与未放置过的端口无法堆叠
         if (!this.tank.isEmpty()) {
-            tag.put(StorageFluidPortBlockEntity.TAG_TANK, this.tank.writeToNBT(registries, new CompoundTag()));
+            tag.put(StorageFluidPortBlockEntity.TAG_TANK, this.writeTank(registries));
         }
     }
 
@@ -445,8 +584,13 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
+        this.infinite = tag.getBoolean(StorageFluidPortBlockEntity.TAG_INFINITE);
         if (tag.contains(StorageFluidPortBlockEntity.TAG_TANK)) {
             this.tank.readFromNBT(registries, tag.getCompound(StorageFluidPortBlockEntity.TAG_TANK));
+            FluidStack fluid = this.tank.getFluid();
+            if (fluid.getAmount() > StorageFluidPortBlockEntity.CAPACITY_MB) {
+                this.tank.setFluid(fluid.copyWithAmount(StorageFluidPortBlockEntity.CAPACITY_MB));
+            }
         }
     }
 

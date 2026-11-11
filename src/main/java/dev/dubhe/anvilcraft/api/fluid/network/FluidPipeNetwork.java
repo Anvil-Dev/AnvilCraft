@@ -1689,6 +1689,27 @@ public class FluidPipeNetwork {
     }
 
     /**
+     * 判断某种流体能否从 {@code source} 端点沿当前方向约束与过滤阀到达 {@code target} 端点。
+     *
+     * <p>无限储罐可能有多种无限流体，仓储流体端口用本方法结合过滤阀的实际放行结果，
+     * 选出真正能流到自己的那一种，而不是简单取储罐里第一个无限流体。
+     */
+    public boolean canReach(FluidEndpoint source, FluidEndpoint target, FluidStack fluid) {
+        for (FluidEndpoint.Entry entry : this.connectedEntries(source)) {
+            if (!this.canDrainFromEntry(entry)) {
+                continue;
+            }
+            Reachability reach = this.directionalConstraints
+                ? this.computeReachableCached(entry.fromPipePos(), fluid)
+                : null;
+            if (this.isEndpointReachable(reach, target)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * 判断目标端点是否真正可达：任一接入点在 BFS 结果中，且该接入点若是二极管（泵）能朝容器合法离开，
      * 且接入点朝容器那一面若装有止逆阀，流向必须允许朝容器。
      */
