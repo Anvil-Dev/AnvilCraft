@@ -748,7 +748,7 @@ public class ModBlocks {
         .item((block, properties) -> new SimpleMultiPartBlockItem<>(block, properties) {
             @Override
             public boolean doesSneakBypassUse(ItemStack stack, LevelReader level, BlockPos pos, Player player) {
-                return true;
+                return level.getBlockState(pos).is(ModBlocks.CRATE);
             }
         })
         .transform(PropertiesProviderUtil::blockItem)
