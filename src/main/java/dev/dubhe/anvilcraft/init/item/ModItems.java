@@ -156,10 +156,7 @@ import java.util.function.Function;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
-@SuppressWarnings({
-    "unused",
-    "CodeBlock2Expr"
-})
+@SuppressWarnings({"unused", "CodeBlock2Expr", "Convert2Lambda"})
 public class ModItems {
     public static final ItemEntry<GuideBookItem> GUIDE_BOOK = REGISTRUM.item("guide_book", GuideBookItem::new)
         .properties(p -> p.stacksTo(1))
@@ -772,10 +769,13 @@ public class ModItems {
 
     public static final ItemEntry<DiskItem> DISK = REGISTRUM.item("disk", DiskItem::new)
         .properties(p -> p.stacksTo(1))
-        .model(() -> (ctx, generator) -> {
-            var model = ModelTemplates.FLAT_ITEM.create(ctx.get(), TextureMapping.layer0(ctx.get()), generator.modelOutput);
-            generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.composite(
-                ItemModelUtils.plainModel(model), ItemModelUtils.specialModel(model, DiskItemRenderer.Unbaked.INSTANCE)));
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, DiskItem> ctx, RegistrumItemModelGenerator generator) {
+                var model = ModelTemplates.FLAT_ITEM.create(ctx.get(), TextureMapping.layer0(ctx.get()), generator.modelOutput);
+                generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.composite(
+                    ItemModelUtils.plainModel(model), ItemModelUtils.specialModel(model, DiskItemRenderer.Unbaked.INSTANCE)));
+            }
         })
         .recipe(RegistrumItemRecipeLoader::disk)
         .register();
@@ -783,19 +783,25 @@ public class ModItems {
     public static final ItemEntry<StructureDiskItem> STRUCTURE_DISK = REGISTRUM
         .item("structure_disk", StructureDiskItem::new)
         .properties(p -> p.stacksTo(1))
-        .model(() -> (ctx, generator) -> {
-            var model = ModelTemplates.FLAT_ITEM.create(ctx.get(), TextureMapping.layer0(ctx.get()), generator.modelOutput);
-            generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.composite(
-                ItemModelUtils.plainModel(model), ItemModelUtils.specialModel(model, DiskItemRenderer.Unbaked.INSTANCE)));
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, StructureDiskItem> ctx, RegistrumItemModelGenerator generator) {
+                var model = ModelTemplates.FLAT_ITEM.create(ctx.get(), TextureMapping.layer0(ctx.get()), generator.modelOutput);
+                generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.composite(
+                    ItemModelUtils.plainModel(model), ItemModelUtils.specialModel(model, DiskItemRenderer.Unbaked.INSTANCE)));
+            }
         })
         .recipe(RegistrumItemRecipeLoader::structureDisk)
         .register();
 
     public static final ItemEntry<FilterItem> FILTER = REGISTRUM.item("filter", FilterItem::new)
-        .model(() -> (ctx, generator) -> {
-            var model = ModelTemplates.FLAT_ITEM.create(ctx.get(), TextureMapping.layer0(ctx.get()), generator.modelOutput);
-            generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.composite(
-                ItemModelUtils.plainModel(model), ItemModelUtils.specialModel(model, FilterItemRenderer.Unbaked.INSTANCE)));
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, FilterItem> ctx, RegistrumItemModelGenerator generator) {
+                var model = ModelTemplates.FLAT_ITEM.create(ctx.get(), TextureMapping.layer0(ctx.get()), generator.modelOutput);
+                generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.composite(
+                    ItemModelUtils.plainModel(model), ItemModelUtils.specialModel(model, FilterItemRenderer.Unbaked.INSTANCE)));
+            }
         })
         .recipe(RegistrumItemRecipeLoader::filter)
         .properties(properties -> properties.stacksTo(16))
@@ -1563,10 +1569,13 @@ public class ModItems {
         .register();
 
     public static final ItemEntry<CheckValveItem> CHECK_VALVE = REGISTRUM.item("check_valve", CheckValveItem::new)
-        .model(() -> (ctx, generator) -> {
-            var itemModel = new ModelTemplate(Optional.of(ctx.getId().withPrefix("block/")), Optional.empty())
-                .create(ctx.get(), new TextureMapping(), generator.modelOutput);
-            generator.createWithExistingModel(ctx.get(), itemModel);
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, CheckValveItem> ctx, RegistrumItemModelGenerator generator) {
+                var itemModel = new ModelTemplate(Optional.of(ctx.getId().withPrefix("block/")), Optional.empty())
+                    .create(ctx.get(), new TextureMapping(), generator.modelOutput);
+                generator.createWithExistingModel(ctx.get(), itemModel);
+            }
         })
         .recipe(RegistrumItemRecipeLoader::checkValve)
         .register();

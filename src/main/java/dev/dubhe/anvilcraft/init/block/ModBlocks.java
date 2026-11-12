@@ -1,9 +1,12 @@
 package dev.dubhe.anvilcraft.init.block;
 
 import com.mojang.math.Quadrant;
+import dev.anvilcraft.lib.v2.registrum.providers.DataGenContext;
 import dev.anvilcraft.lib.v2.registrum.providers.ProviderType;
+import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumItemModelGenerator;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.model.PropertyDispatchWrap;
 import dev.anvilcraft.lib.v2.registrum.util.entry.BlockEntry;
+import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
@@ -320,6 +323,7 @@ import net.minecraft.util.ColorRGBA;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -367,10 +371,7 @@ import java.util.function.Supplier;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
-@SuppressWarnings({
-    "unused",
-    "CodeBlock2Expr"
-})
+@SuppressWarnings({"unused", "CodeBlock2Expr", "Convert2Lambda"})
 public class ModBlocks {
     public static final BlockEntry<AutoEnchantingTableBlock> AUTO_ENCHANTING_TABLE = REGISTRUM
         .block("auto_enchanting_table", AutoEnchantingTableBlock::new)
@@ -598,10 +599,18 @@ public class ModBlocks {
         .item(CreativeContainerBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
         .properties(properties -> properties.rarity(Rarity.EPIC))
-        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(
-            ctx.get(),
-            ItemModelUtils.specialModel(ctx.getId().withPrefix("block/"), CreativeFluidTankItemRenderer.Unbaked.INSTANCE)
-        ))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(
+                DataGenContext<Item, CreativeContainerBlockItem> ctx,
+                RegistrumItemModelGenerator generator
+            ) {
+                generator.itemModelOutput.accept(
+                    ctx.get(),
+                    ItemModelUtils.specialModel(ctx.getId().withPrefix("block/"), CreativeFluidTankItemRenderer.Unbaked.INSTANCE)
+                );
+            }
+        })
         .build()
         .register();
 
@@ -612,10 +621,18 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(FluidTankBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> (ctx, generator) -> DataGenUtil
-            .<FluidTankBlockItem>specialBlockItem(FluidTankItemRenderer.Unbaked.INSTANCE, false)
-            .accept(ctx, generator)
-        )
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(
+                DataGenContext<Item, FluidTankBlockItem> ctx,
+                RegistrumItemModelGenerator generator
+            ) {
+                DataGenUtil.<FluidTankBlockItem>specialBlockItem(
+                    FluidTankItemRenderer.Unbaked.INSTANCE,
+                    false
+                ).accept(ctx, generator);
+            }
+        })
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::fluidTank)
@@ -636,10 +653,18 @@ public class ModBlocks {
         .item(LargeFluidTankBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
         .properties(properties -> properties.stacksTo(16))
-        .model(() -> (ctx, generator) -> DataGenUtil
-            .<LargeFluidTankBlockItem>specialBlockItem(LargeFluidTankItemRenderer.Unbaked.INSTANCE, true)
-            .accept(ctx, generator)
-        )
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(
+                DataGenContext<Item, LargeFluidTankBlockItem> ctx,
+                RegistrumItemModelGenerator generator
+            ) {
+                DataGenUtil.<LargeFluidTankBlockItem>specialBlockItem(
+                    LargeFluidTankItemRenderer.Unbaked.INSTANCE,
+                    true
+                ).accept(ctx, generator);
+            }
+        })
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -679,10 +704,18 @@ public class ModBlocks {
         .item(CreativeContainerBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
         .properties(properties -> properties.rarity(Rarity.EPIC))
-        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(
-            ctx.get(),
-            ItemModelUtils.specialModel(ctx.getId().withPrefix("block/"), CreativeCrateItemRenderer.Unbaked.INSTANCE)
-        ))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(
+                DataGenContext<Item, CreativeContainerBlockItem> ctx,
+                RegistrumItemModelGenerator generator
+            ) {
+                generator.itemModelOutput.accept(
+                    ctx.get(),
+                    ItemModelUtils.specialModel(ctx.getId().withPrefix("block/"), CreativeCrateItemRenderer.Unbaked.INSTANCE)
+                );
+            }
+        })
         .build()
         .register();
 
@@ -1199,11 +1232,19 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(TeslaTowerItem::new)
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(
-            ctx.get(),
-            ItemModelUtils.plainModel(ctx.getId().withPrefix("block/").withSuffix("_overall")),
-            new ClientItem.Properties(true, true, 1.0F)
-        ))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(
+                DataGenContext<Item, TeslaTowerItem> ctx,
+                RegistrumItemModelGenerator generator
+            ) {
+                generator.itemModelOutput.accept(
+                    ctx.get(),
+                    ItemModelUtils.plainModel(ctx.getId().withPrefix("block/").withSuffix("_overall")),
+                    new ClientItem.Properties(true, true, 1.0F)
+                );
+            }
+        })
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::teslaTower)
@@ -1371,7 +1412,12 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .item()
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> (ctx, generator) -> generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/").withSuffix("_0")))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
+                generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/").withSuffix("_0"));
+            }
+        })
         .build()
         .recipe(RegistrumBlockRecipeLoader::loadMonitor)
         .register();
@@ -1395,7 +1441,12 @@ public class ModBlocks {
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(ModItemTags.POWER_CONVERTER)
-        .model(() -> (ctx, generator) -> generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/")))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
+                generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/"));
+            }
+        })
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
@@ -1419,7 +1470,12 @@ public class ModBlocks {
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(ModItemTags.POWER_CONVERTER)
-        .model(() -> (ctx, generator) -> generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/")))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
+                generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/"));
+            }
+        })
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
@@ -1443,7 +1499,12 @@ public class ModBlocks {
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(ModItemTags.POWER_CONVERTER)
-        .model(() -> (ctx, generator) -> generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/")))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
+                generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/"));
+            }
+        })
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
@@ -1467,7 +1528,12 @@ public class ModBlocks {
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(ModItemTags.POWER_CONVERTER)
-        .model(() -> (ctx, generator) -> generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/")))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
+                generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/"));
+            }
+        })
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
@@ -1491,7 +1557,12 @@ public class ModBlocks {
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(ModItemTags.POWER_CONVERTER)
-        .model(() -> (ctx, generator) -> generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/")))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
+                generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/"));
+            }
+        })
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
@@ -1624,10 +1695,15 @@ public class ModBlocks {
         })
         .item(SmartBlockPlacerBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(
-            ctx.get(), new SmartBlockPlacerItemModel.Unbaked(ctx.getId().withPrefix("block/")),
-            new ClientItem.Properties(true, true, 1.0F)
-        ))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, SmartBlockPlacerBlockItem> ctx, RegistrumItemModelGenerator generator) {
+                generator.itemModelOutput.accept(
+                    ctx.get(), new SmartBlockPlacerItemModel.Unbaked(ctx.getId().withPrefix("block/")),
+                    new ClientItem.Properties(true, true, 1.0F)
+                );
+            }
+        })
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::smartBlockPlacer)
@@ -2235,7 +2311,15 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .item(CelestialForgingAnvilPortalBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> (ctx, generator) -> generator.createWithExistingModel(ctx.get(), AnvilCraft.of("block/celestial_forging_anvil_gate")))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(
+                DataGenContext<Item, CelestialForgingAnvilPortalBlockItem> ctx,
+                RegistrumItemModelGenerator generator
+            ) {
+                generator.createWithExistingModel(ctx.get(), AnvilCraft.of("block/celestial_forging_anvil_gate"));
+            }
+        })
         .properties(properties -> properties
             .rarity(Rarity.EPIC)
             .component(ModComponents.ETERNAL, Eternal.DEFAULT)
@@ -2317,10 +2401,18 @@ public class ModBlocks {
         .loot((tables, block) -> tables.add(block, LootTable.lootTable()))
         .item(RuinsBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> (ctx, generator) -> DataGenUtil.<RuinsBlockItem>specialItem(
-            RuinsBlockItemRenderer.Unbaked.INSTANCE,
-            false
-        ).accept(ctx, generator))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(
+                DataGenContext<Item, RuinsBlockItem> ctx,
+                RegistrumItemModelGenerator generator
+            ) {
+                DataGenUtil.<RuinsBlockItem>specialItem(
+                    RuinsBlockItemRenderer.Unbaked.INSTANCE,
+                    false
+                ).accept(ctx, generator);
+            }
+        })
         .build()
         .register();
 
@@ -2878,7 +2970,12 @@ public class ModBlocks {
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(ItemTags.WALLS)
-        .model(() -> (ctx, generator) -> generator.createWithExistingModel(ctx.get(), AnvilCraft.of("block/heavy_iron_wall_inventory")))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
+                generator.createWithExistingModel(ctx.get(), AnvilCraft.of("block/heavy_iron_wall_inventory"));
+            }
+        })
         .build()
         .register();
 
@@ -3233,10 +3330,13 @@ public class ModBlocks {
         .properties(properties -> properties.sound(SoundType.HONEY_BLOCK))
         .item(ResinBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> (ctx, generator) -> DataGenUtil
-            .<ResinBlockItem>specialBlockItem(new HasMobBlockItemRenderer.Unbaked(ctx.get().getBlock()), false)
-            .accept(ctx, generator)
-        )
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, ResinBlockItem> ctx, RegistrumItemModelGenerator generator) {
+                DataGenUtil.<ResinBlockItem>specialBlockItem(new HasMobBlockItemRenderer.Unbaked(ctx.get().getBlock()), false)
+                    .accept(ctx, generator);
+            }
+        })
         .tag(Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_RESIN)
         .build()
         .tag(Tags.Blocks.STORAGE_BLOCKS, ModBlockTags.STORAGE_BLOCKS_RESIN)
@@ -3261,10 +3361,13 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(HasMobBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> (ctx, generator) -> DataGenUtil
-            .<HasMobBlockItem>specialBlockItem(new HasMobBlockItemRenderer.Unbaked(ctx.get().getBlock()), false)
-            .accept(ctx, generator)
-        )
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, HasMobBlockItem> ctx, RegistrumItemModelGenerator generator) {
+                DataGenUtil.<HasMobBlockItem>specialBlockItem(new HasMobBlockItemRenderer.Unbaked(ctx.get().getBlock()), false)
+                    .accept(ctx, generator);
+            }
+        })
         .properties(properties -> properties.component(
             ModComponents.SAVED_ENTITY,
             new SavedEntity(EntityType.MOOSHROOM, new CompoundTag(), false)
@@ -3291,10 +3394,13 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(HasMobBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> (ctx, generator) -> DataGenUtil
-            .<HasMobBlockItem>specialBlockItem(new HasMobBlockItemRenderer.Unbaked(ctx.get().getBlock()), false)
-            .accept(ctx, generator)
-        )
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, HasMobBlockItem> ctx, RegistrumItemModelGenerator generator) {
+                DataGenUtil.<HasMobBlockItem>specialBlockItem(new HasMobBlockItemRenderer.Unbaked(ctx.get().getBlock()), false)
+                    .accept(ctx, generator);
+            }
+        })
         .properties(properties -> properties.component(
             ModComponents.SAVED_ENTITY,
             new SavedEntity(EntityType.ZOMBIE, new CompoundTag(), true)
@@ -4927,10 +5033,18 @@ public class ModBlocks {
             .requiresCorrectToolForDrops())
         .item(StorageFluidPortBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> (ctx, generator) -> {
-            var model = ctx.getId().withPrefix("block/");
-            generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.composite(ItemModelUtils.plainModel(model),
-                ItemModelUtils.specialModel(model, StorageFluidPortItemRenderer.Unbaked.INSTANCE)));
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, StorageFluidPortBlockItem> ctx, RegistrumItemModelGenerator generator) {
+                var model = ctx.getId().withPrefix("block/");
+                generator.itemModelOutput.accept(
+                    ctx.get(),
+                    ItemModelUtils.composite(
+                        ItemModelUtils.plainModel(model),
+                        ItemModelUtils.specialModel(model, StorageFluidPortItemRenderer.Unbaked.INSTANCE)
+                    )
+                );
+            }
         })
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -4962,12 +5076,15 @@ public class ModBlocks {
             .requiresCorrectToolForDrops())
         .item(StoragePortBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> (ctx, generator) -> {
-            var model = ctx.getId().withPrefix("block/");
-            generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.composite(
-                ItemModelUtils.plainModel(model),
-                ItemModelUtils.specialModel(model, StoragePortItemRenderer.Unbaked.INSTANCE)
-            ));
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, StoragePortBlockItem> ctx, RegistrumItemModelGenerator generator) {
+                var model = ctx.getId().withPrefix("block/");
+                generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.composite(
+                    ItemModelUtils.plainModel(model),
+                    ItemModelUtils.specialModel(model, StoragePortItemRenderer.Unbaked.INSTANCE)
+                ));
+            }
         })
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -5267,10 +5384,18 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(
-            ctx.get(),
-            ItemModelUtils.specialModel(AnvilCraft.of("block/monolith_core"), new MonolithItemRenderer.Unbaked(ctx.get().getBlock()))
-        ))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
+                generator.itemModelOutput.accept(
+                    ctx.get(),
+                    ItemModelUtils.specialModel(
+                        AnvilCraft.of("block/monolith_core"),
+                        new MonolithItemRenderer.Unbaked(ctx.get().getBlock())
+                    )
+                );
+            }
+        })
         .build()
         .recipe(RegistrumBlockRecipeLoader::monolithCore)
         .register();
@@ -5286,10 +5411,18 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(
-            ctx.get(),
-            ItemModelUtils.specialModel(AnvilCraft.of("block/monolith_line"), new MonolithItemRenderer.Unbaked(ctx.get().getBlock()))
-        ))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
+                generator.itemModelOutput.accept(
+                    ctx.get(),
+                    ItemModelUtils.specialModel(
+                        AnvilCraft.of("block/monolith_line"),
+                        new MonolithItemRenderer.Unbaked(ctx.get().getBlock())
+                    )
+                );
+            }
+        })
         .build()
         .recipe(RegistrumBlockRecipeLoader::monolithLine)
         .register();
