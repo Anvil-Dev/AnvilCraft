@@ -1,47 +1,47 @@
 ---
 navigation:
   title: "Mass Production of Concrete"
-  icon: "anvilcraft:reinforced_concrete_white"
+  icon: "anvilcraft:white_reinforced_concrete"
 items:
-  - anvilcraft:reinforced_concrete_white
-  - anvilcraft:reinforced_concrete_light_gray
-  - anvilcraft:reinforced_concrete_gray
-  - anvilcraft:reinforced_concrete_black
-  - anvilcraft:reinforced_concrete_brown
-  - anvilcraft:reinforced_concrete_red
-  - anvilcraft:reinforced_concrete_orange
-  - anvilcraft:reinforced_concrete_yellow
-  - anvilcraft:reinforced_concrete_lime
-  - anvilcraft:reinforced_concrete_green
-  - anvilcraft:reinforced_concrete_cyan
-  - anvilcraft:reinforced_concrete_light_blue
-  - anvilcraft:reinforced_concrete_blue
-  - anvilcraft:reinforced_concrete_purple
-  - anvilcraft:reinforced_concrete_magenta
-  - anvilcraft:reinforced_concrete_pink
+  - anvilcraft:white_reinforced_concrete
+  - anvilcraft:light_gray_reinforced_concrete
+  - anvilcraft:gray_reinforced_concrete
+  - anvilcraft:black_reinforced_concrete
+  - anvilcraft:brown_reinforced_concrete
+  - anvilcraft:red_reinforced_concrete
+  - anvilcraft:orange_reinforced_concrete
+  - anvilcraft:yellow_reinforced_concrete
+  - anvilcraft:lime_reinforced_concrete
+  - anvilcraft:green_reinforced_concrete
+  - anvilcraft:cyan_reinforced_concrete
+  - anvilcraft:light_blue_reinforced_concrete
+  - anvilcraft:blue_reinforced_concrete
+  - anvilcraft:purple_reinforced_concrete
+  - anvilcraft:magenta_reinforced_concrete
+  - anvilcraft:pink_reinforced_concrete
 ---
 
 # Mass Production of Concrete
 
 <row halign="center">
-<item id="anvilcraft:reinforced_concrete_white"/>
-<item id="anvilcraft:reinforced_concrete_light_gray"/>
-<item id="anvilcraft:reinforced_concrete_gray"/>
-<item id="anvilcraft:reinforced_concrete_black"/>
-<item id="anvilcraft:reinforced_concrete_brown"/>
-<item id="anvilcraft:reinforced_concrete_red"/>
-<item id="anvilcraft:reinforced_concrete_orange"/>
-<item id="anvilcraft:reinforced_concrete_yellow"/>
+<item id="anvilcraft:white_reinforced_concrete"/>
+<item id="anvilcraft:light_gray_reinforced_concrete"/>
+<item id="anvilcraft:gray_reinforced_concrete"/>
+<item id="anvilcraft:black_reinforced_concrete"/>
+<item id="anvilcraft:brown_reinforced_concrete"/>
+<item id="anvilcraft:red_reinforced_concrete"/>
+<item id="anvilcraft:orange_reinforced_concrete"/>
+<item id="anvilcraft:yellow_reinforced_concrete"/>
 </row>
 <row halign="center">
-<item id="anvilcraft:reinforced_concrete_lime"/>
-<item id="anvilcraft:reinforced_concrete_green"/>
-<item id="anvilcraft:reinforced_concrete_cyan"/>
-<item id="anvilcraft:reinforced_concrete_light_blue"/>
-<item id="anvilcraft:reinforced_concrete_blue"/>
-<item id="anvilcraft:reinforced_concrete_purple"/>
-<item id="anvilcraft:reinforced_concrete_magenta"/>
-<item id="anvilcraft:reinforced_concrete_pink"/>
+<item id="anvilcraft:lime_reinforced_concrete"/>
+<item id="anvilcraft:green_reinforced_concrete"/>
+<item id="anvilcraft:cyan_reinforced_concrete"/>
+<item id="anvilcraft:light_blue_reinforced_concrete"/>
+<item id="anvilcraft:blue_reinforced_concrete"/>
+<item id="anvilcraft:purple_reinforced_concrete"/>
+<item id="anvilcraft:magenta_reinforced_concrete"/>
+<item id="anvilcraft:pink_reinforced_concrete"/>
 </row>
 
 ---
