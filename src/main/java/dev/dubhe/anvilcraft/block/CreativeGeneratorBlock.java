@@ -54,7 +54,7 @@ public class CreativeGeneratorBlock extends BetterBaseEntityBlock implements IHa
         }
         if (level.getBlockEntity(pos) instanceof CreativeGeneratorBlockEntity entity
             && player instanceof ServerPlayer serverPlayer) {
-            ModMenuTypes.open(serverPlayer, entity, pos);
+            ModMenuTypes.open(serverPlayer, entity);
             PacketDistributor.sendToPlayer(serverPlayer, new SliderInitPacket(entity.getPower()));
         }
         return InteractionResult.SUCCESS;

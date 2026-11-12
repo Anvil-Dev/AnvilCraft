@@ -97,12 +97,12 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
-        return new SliderMenu(i, this::setPower);
+        return new SliderMenu(i, this.getPower(), this::setPower);
     }
 
     @Override
     public void writeClientSideData(AbstractContainerMenu menu, RegistryFriendlyByteBuf buffer) {
-        buffer.writeBlockPos(this.getBlockPos());
+        buffer.writeVarInt(this.getPower());
     }
 
     public void setPower(int power) {

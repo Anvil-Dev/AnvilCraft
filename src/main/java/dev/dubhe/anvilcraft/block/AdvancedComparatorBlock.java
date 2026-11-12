@@ -19,6 +19,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.decoration.ItemFrame;
@@ -263,6 +264,11 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
 
     public static int getDelay() {
         return 1;
+    }
+
+    @Override
+    protected @Nullable MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
+        return level.getBlockEntity(pos) instanceof AdvancedComparatorBlockEntity blockEntity ? blockEntity : null;
     }
 
     @Override
