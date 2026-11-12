@@ -33,6 +33,9 @@ public record ExpCollectorSyncPacket(BlockPos pos) implements IServerboundPacket
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (!(player.containerMenu instanceof ExpCollectorMenu menu)) return;
         ExpCollectorBlockEntity collector = menu.getBlockEntity();
         if (!collector.getBlockPos().equals(this.pos)) return;

@@ -35,6 +35,9 @@ public record AutoEnchantingTableFluidPacket(BlockPos pos) implements IServerbou
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         Level level = player.level();
         AbstractContainerMenu containerMenu = player.containerMenu;
         BlockEntity blockEntity = level.getBlockEntity(this.pos);

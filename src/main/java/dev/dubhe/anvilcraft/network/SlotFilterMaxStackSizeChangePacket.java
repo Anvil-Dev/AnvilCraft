@@ -39,6 +39,9 @@ public record SlotFilterMaxStackSizeChangePacket(int index, int maxStackSize) im
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (!player.hasContainerOpen()) return;
         if (!(player.containerMenu instanceof IFilterMenu menu)) return;
         IFilterBlockEntity filter = menu.getFilterBlockEntity();

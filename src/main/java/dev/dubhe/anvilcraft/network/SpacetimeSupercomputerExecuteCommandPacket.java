@@ -33,6 +33,9 @@ public record SpacetimeSupercomputerExecuteCommandPacket(BlockPos pos, String co
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         Level level = player.level();
         BlockEntity blockEntity = level.getBlockEntity(this.pos);
         if (blockEntity instanceof SpacetimeSupercomputerBlockEntity spacetimeSupercomputerBlockEntity) {

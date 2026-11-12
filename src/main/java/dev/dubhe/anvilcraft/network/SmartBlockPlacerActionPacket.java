@@ -45,6 +45,9 @@ public record SmartBlockPlacerActionPacket(String action, int value, String name
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (!(player.containerMenu instanceof SmartBlockPlacerMenu menu)) {
             return;
         }

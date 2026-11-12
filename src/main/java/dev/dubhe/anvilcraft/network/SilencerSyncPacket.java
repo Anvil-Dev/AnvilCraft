@@ -32,6 +32,9 @@ public record SilencerSyncPacket(BlockPos pos, List<Identifier> sounds) implemen
 
     @Override
     public void handleOnBothSide(Player player) {
+        if (!player.level().isClientSide() && player.isSpectator()) {
+            return;
+        }
         if (player.level().isLoaded(this.pos)) {
             return;
         }

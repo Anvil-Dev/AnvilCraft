@@ -37,6 +37,9 @@ public record HammerChangeFlexibleMultiPartBlockPacket(BlockPos pos, BlockState 
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         Level level = player.level();
         if (!level.isLoaded(this.pos)) {
             return;

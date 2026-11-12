@@ -79,6 +79,9 @@ public record StructureScannerActionPacket(
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (!(player.containerMenu instanceof StructureScannerMenu menu) || !menu.stillValid(player)) {
             return;
         }
