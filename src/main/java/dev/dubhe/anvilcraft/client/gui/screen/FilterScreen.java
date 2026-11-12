@@ -52,7 +52,7 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
             this.topPos + 26,
             16,
             16,
-            List.of(INCLUDE_COMPONENTS_DISABLE, INCLUDE_COMPONENTS_ENABLE),
+            List.of(INCLUDE_COMPONENTS_ENABLE, INCLUDE_COMPONENTS_DISABLE),
             16,
             16,
             32,
@@ -61,8 +61,8 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
                 this.sync();
             },
             List.of(
-                Component.translatable("screen.anvilcraft.filter.mismatch_component"),
-                Component.translatable("screen.anvilcraft.filter.match_component")
+                Component.translatable("screen.anvilcraft.filter.match_component"),
+                Component.translatable("screen.anvilcraft.filter.mismatch_component")
             )
         )).setCurrent(container.includeComponents() ? 0 : 1);
         this.addRenderableWidget(new SwitchableButton(
