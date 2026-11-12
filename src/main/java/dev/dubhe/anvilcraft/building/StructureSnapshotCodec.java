@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.building;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.state.Color;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderGetter;
@@ -133,6 +135,7 @@ public final class StructureSnapshotCodec {
         throws ConstructionBlueprintException {
         HolderGetter<Block> lookup = registries.lookupOrThrow(Registries.BLOCK);
         Set<String> unknownIds = new LinkedHashSet<>();
+        List<CompoundTag> states = new ArrayList<>(paletteTag.size());
         for (int index = 0; index < paletteTag.size(); index++) {
             CompoundTag stateTag = paletteTag.getCompound(index);
             String rawName = stateTag.getString("Name");
@@ -140,7 +143,13 @@ public final class StructureSnapshotCodec {
             if (id == null) {
                 throw new ConstructionBlueprintException("corrupt_palette", "invalid block id: " + rawName);
             }
-            if (lookup.get(ResourceKey.create(Registries.BLOCK, id)).isEmpty()) {
+            ResourceLocation normalizedId = normalizeConcreteId(id);
+            if (!normalizedId.equals(id)) {
+                stateTag = stateTag.copy();
+                stateTag.putString("Name", normalizedId.toString());
+            }
+            states.add(stateTag);
+            if (lookup.get(ResourceKey.create(Registries.BLOCK, normalizedId)).isEmpty()) {
                 unknownIds.add(id.toString());
             }
         }
@@ -149,9 +158,26 @@ public final class StructureSnapshotCodec {
         }
         List<BlockState> palette = new ArrayList<>(paletteTag.size());
         for (int index = 0; index < paletteTag.size(); index++) {
-            palette.add(NbtUtils.readBlockState(lookup, paletteTag.getCompound(index)));
+            palette.add(NbtUtils.readBlockState(lookup, states.get(index)));
         }
         return palette;
+    }
+
+    private static ResourceLocation normalizeConcreteId(ResourceLocation id) {
+        if (!id.getNamespace().equals(AnvilCraft.MOD_ID)) {
+            return id;
+        }
+        for (Color color : Color.values()) {
+            String prefix = color + "_reinforced_concrete";
+            if (!id.getPath().startsWith(prefix)) {
+                continue;
+            }
+            String suffix = id.getPath().substring(prefix.length());
+            if (List.of("", "_slab", "_stair", "_wall").contains(suffix)) {
+                return AnvilCraft.of("reinforced_concrete_" + color + suffix);
+            }
+        }
+        return id;
     }
 
     private static List<StructureSnapshot.BlockEntry> parseBlocks(
