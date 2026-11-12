@@ -10,6 +10,7 @@
       "translate": "advancements.anvilcraft.electric_allergy.description"
     },
     "frame": "challenge",
+    "hidden": true,
     "icon": {
       "count": 1,
       "id": "anvilcraft:celestial_forging_anvil"
