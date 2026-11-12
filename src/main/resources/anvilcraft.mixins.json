@@ -111,6 +111,7 @@
     "ProjectileUtilMixin",
     "RecipeManagerMixin",
     "RedstoneWireBlockMixin",
+    "SignalGetterMixin",
     "ServerExplosionMixin",
     "ServerGamePacketListenerMixin",
     "ServerLevelFireSpreadMixin",

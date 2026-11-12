@@ -4,7 +4,7 @@ navigation:
   icon: "minecraft:iron_ingot"
 ---
 
-# Resource: Iron Farm
+# Iron Farm
 
 <ref item="minecraft:iron_ingot"/> is very important, so you need to build an iron farm.
 
@@ -14,29 +14,39 @@ Utilize [Anvil Looting](../001_feature/000_anvil_loot.md) combined with the [Dis
 2. Use a <ref item="minecraft:dispenser"/> to use some of the iron to repair the injured Iron Golem
 3. Obtain infinite <ref item="minecraft:iron_ingot"/> from a single Iron Golem
 
-## Diagram
-
 <structure id="../../structures/machine/iron.nbt"/>
 
-<tip>
-Left-click to adjust position; right-click to adjust angle; PgUp/PgDn to adjust display height
-</tip>
+<warning>
+Use only one anvil (at most two, with their drops staggered).
+</warning>
 
-1. Place the Iron Golem at the *button*'s location; the *glass panes* will restrict its movement
-2. Set all repeaters to 3 ticks (excessively high frequency will cause surplus iron ingots fired by the <ref item="minecraft:dispenser"/> to not be retrieved by the chute in time)
-3. Set the <ref item="anvilcraft:magnetic_chute"/> next to the <ref item="minecraft:dispenser"/> to filter: Iron Ingot
-4. Set the <ref item="anvilcraft:magnetic_chute"/> next to the dropper to filter: Anvil
-5. Use solid <ref item="minecraft:glass"/> pillars to push items upward
-6. Remember to place an anvil after building
+After building the machine, add one Iron Golem as shown below:
+
+<structure id="../../structures/machine/iron_golem_placement.nbt"/>
+
+1. The Iron Golem will stay in place after spawning, but be careful not to bump into it.
+2. Press the button on the piston to push the block down, then remove the piston and replace it with a block.
+3. Hold Shift and place a button while aiming at the hopper's top face. It will attach to the side of the block, completing the setup.
+
+- This iron farm uses **solid** <ref item="minecraft:glass"/> pillars to push items upward. Chutes inside the pillars collect iron and poppies.
+- Place at least three chutes inside the pillar to collect all the items and keep the machine from jamming.
 
 <info>
-- All _reinforced concrete_ does not need to be built; it is only for counting blocks
-- All <ref item="minecraft:glass"/> can be replaced with any full opaque block
-- All <ref item="minecraft:smooth_stone"/> can be replaced with any full block
-- All <ref item="minecraft:smooth_stone_slab"/> can be replaced with any slab
-- All <ref item="minecraft:anvil"/> can be replaced with any anvil, except <ref item="minecraft:damaged_anvil"/>, as it will disappear directly without dropping anything
+- All <ref item="minecraft:glass"/> can be replaced with any full block.
+- All <ref item="minecraft:oak_planks"/> can be replaced with any full opaque block.
+- Crates can be replaced with barrels, but not chests.
 </info>
 
 <warning>
-The top <ref item="anvilcraft:magnetic_chute"/> must not be replaced, otherwise the *anvil* may fly out from the side
+The structure at the top of the iron farm must match the handbook, or anvils may be lost.
 </warning>
+
+## Late-Game Iron Farm
+
+<structure id="../../structures/machine/iron_advanced.nbt"/>
+
+The late-game iron farm uses neutron irradiation to rapidly multiply iron blocks, producing 270 iron blocks per second. It may not match the output of an excellent Iron Golem farm, but it has major advantages in space requirements and performance.
+
+<tip>
+Click a pulse generator in the structure to view its configuration, or export the structure and paste it with a Building Rod.
+</tip>

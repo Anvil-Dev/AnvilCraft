@@ -4,7 +4,7 @@ navigation:
   icon: "minecraft:scaffolding"
 ---
 
-# 加工：自动过筛
+# 自动过筛机
 
 - 阅读[矿物获取](../008_recipe/001_basic_minerals.md)可知，*过筛*可以从闪长岩粉碎而成的石英砂中筛选出石英
 - 但每次*过筛*只有一部分原料能被使用，手动反复过筛费时又费力
@@ -13,5 +13,5 @@ navigation:
 <structure id="../../structures/machine/mesh.nbt"/>
 
 <tip>
-左键调整位置；右键调整角度；PgUP/PgDN调整显示高度
+可以点击结构中的脉冲发生器来查看配置，或导出使用建筑杖粘贴
 </tip>

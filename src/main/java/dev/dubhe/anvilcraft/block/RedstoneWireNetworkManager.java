@@ -1073,7 +1073,7 @@ public final class RedstoneWireNetworkManager {
                         ? RedstoneWireBlock.terminalTarget(this.level, wirePos, wireState, tangent)
                         : wirePos.relative(tangent);
                     BlockState inputState = this.level.getBlockState(inputPos);
-                    Direction inputDirection = inputState.is(Blocks.REDSTONE_WIRE) && !inputPos.equals(wirePos.relative(tangent))
+                    Direction inputDirection = !inputPos.equals(wirePos.relative(tangent))
                         ? wireState.getValue(RedstoneWireBlock.ATTACHMENT) : tangent;
                     if (inputState.is(Blocks.REDSTONE_WIRE) && inputDirection.getAxis().isHorizontal()
                         && !inputState.getValue(RedStoneWireBlock.PROPERTY_BY_DIRECTION.get(inputDirection.getOpposite())).isConnected()) {
@@ -1198,7 +1198,9 @@ public final class RedstoneWireNetworkManager {
             if (this.restoringBlueprint) return;
             for (LongIterator iterator = changed.iterator(); iterator.hasNext();) {
                 BlockPos pos = BlockPos.of(iterator.nextLong());
-                this.level.updateNeighborsAt(pos, this.level.getBlockState(pos).getBlock());
+                BlockState state = this.level.getBlockState(pos);
+                this.level.updateNeighborsAt(pos, state.getBlock());
+                RedstoneWireBlock.notifyAboveSupport(this.level, pos, state);
             }
         }
 
