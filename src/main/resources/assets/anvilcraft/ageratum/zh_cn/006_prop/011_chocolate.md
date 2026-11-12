@@ -7,11 +7,11 @@ items:
   - anvilcraft:chocolate_block
   - anvilcraft:chocolate_slab
   - anvilcraft:chocolate_stairs
-  - anvilcraft:chocolate_black
+  - anvilcraft:black_chocolate
   - anvilcraft:black_chocolate_block
   - anvilcraft:black_chocolate_slab
   - anvilcraft:black_chocolate_stairs
-  - anvilcraft:chocolate_white
+  - anvilcraft:white_chocolate
   - anvilcraft:white_chocolate_block
   - anvilcraft:white_chocolate_slab
   - anvilcraft:white_chocolate_stairs
@@ -38,13 +38,13 @@ items:
 <item id="anvilcraft:chocolate_stairs"/>
 </row>
 <row halign="center">
-<item id="anvilcraft:chocolate_black"/>
+<item id="anvilcraft:black_chocolate"/>
 <item id="anvilcraft:black_chocolate_block"/>
 <item id="anvilcraft:black_chocolate_slab"/>
 <item id="anvilcraft:black_chocolate_stairs"/>
 </row>
 <row halign="center">
-<item id="anvilcraft:chocolate_white"/>
+<item id="anvilcraft:white_chocolate"/>
 <item id="anvilcraft:white_chocolate_block"/>
 <item id="anvilcraft:white_chocolate_slab"/>
 <item id="anvilcraft:white_chocolate_stairs"/>
@@ -53,8 +53,8 @@ items:
 # 食用
 
 - <ref item="anvilcraft:chocolate"/>：2 饥饿值 + 16 饱和度 + 30s 迅捷IV
-- <ref item="anvilcraft:chocolate_black"/>：2 饥饿值 + 8 饱和度 + 30s 迅捷II + 30s 急迫III
-- <ref item="anvilcraft:chocolate_white"/>：2 饥饿值 + 8 饱和度 + 30s 迅捷II + 30s 跳跃提升IV
+- <ref item="anvilcraft:black_chocolate"/>：2 饥饿值 + 8 饱和度 + 30s 迅捷II + 30s 急迫III
+- <ref item="anvilcraft:white_chocolate"/>：2 饥饿值 + 8 饱和度 + 30s 迅捷II + 30s 跳跃提升IV
 
 饱了也能吃
 
@@ -69,8 +69,8 @@ items:
 ---
 <row halign="center">
 <recipe id="anvilcraft:chocolate"/>
-<recipe id="anvilcraft:chocolate_black"/>
-<recipe id="anvilcraft:chocolate_white"/>
+<recipe id="anvilcraft:black_chocolate"/>
+<recipe id="anvilcraft:white_chocolate"/>
 </row>
 
 # 巧克力方块
@@ -78,8 +78,8 @@ items:
 站在巧克力块/楼梯/台阶上可以持续获得效果：
 
 - <ref item="anvilcraft:chocolate"/>：迅捷10
-- <ref item="anvilcraft:chocolate_black"/>：迅捷5 + 急迫4
-- <ref item="anvilcraft:chocolate_white"/>：迅捷5 + 跳跃提升6
+- <ref item="anvilcraft:black_chocolate"/>：迅捷5 + 急迫4
+- <ref item="anvilcraft:white_chocolate"/>：迅捷5 + 跳跃提升6
 - <ref item="anvilcraft:black_white_chocolate_block"/>: 迅捷5 + 跳跃提升6 + 急迫4
 
 <row halign="center">
