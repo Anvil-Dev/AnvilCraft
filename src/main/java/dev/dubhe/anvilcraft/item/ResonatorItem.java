@@ -291,7 +291,7 @@ public abstract class ResonatorItem extends TieredItem {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         ItemStack stack = player.getItemInHand(usedHand);
         if (getMode(stack) == AUTO_MODE && this.canStartResonanceMining(stack)) {
-            return InteractionResultHolder.fail(stack);
+            return InteractionResultHolder.pass(stack);
         }
         return super.use(level, player, usedHand);
     }
