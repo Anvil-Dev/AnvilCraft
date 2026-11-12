@@ -25,7 +25,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -69,19 +68,19 @@ public class JewelCraftingCategory implements IRecipeCategory<RecipeHolder<Jewel
     }
 
     @Override
-    public @Nullable IDrawable getIcon() {
+    public IDrawable getIcon() {
         return this.icon;
     }
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<JewelCraftingRecipe> recipe, IFocusGroup focuses) {
-        builder.addSlot(RecipeIngredientRole.INPUT, 59, 11).addItemStack(recipe.value().result().create().copyWithCount(1));
+        builder.addSlot(RecipeIngredientRole.INPUT, 59, 11).add(recipe.value().result().create().copyWithCount(1));
         for (int i = 0; i < recipe.value().mergedIngredients().size(); i++) {
             var entry = recipe.value().mergedIngredients().get(i);
             builder.addSlot(RecipeIngredientRole.INPUT, 5 + i * 18, 37).addItemStacks(entry.getKey().getValues().stream()
                 .map(holder -> new ItemStack(holder.value(), entry.getIntValue())).toList());
         }
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 135, 24).addItemStack(recipe.value().result().create());
+        builder.addSlot(RecipeIngredientRole.OUTPUT, 135, 24).add(recipe.value().result().create());
     }
 
     @Override

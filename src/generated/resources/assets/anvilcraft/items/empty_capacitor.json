@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "anvilcraft:item/capacitor_empty"
+    "model": "anvilcraft:item/empty_capacitor"
   }
 }

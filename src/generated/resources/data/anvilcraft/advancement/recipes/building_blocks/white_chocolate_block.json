@@ -1,27 +1,27 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_chocolate_white": {
-      "conditions": {
-        "items": [
-          {
-            "items": "anvilcraft:chocolate_white"
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
     "has_the_recipe": {
       "conditions": {
         "recipe": "anvilcraft:white_chocolate_block"
       },
       "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_white_chocolate": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:white_chocolate"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
     }
   },
   "requirements": [
     [
       "has_the_recipe",
-      "has_chocolate_white"
+      "has_white_chocolate"
     ]
   ],
   "rewards": {

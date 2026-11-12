@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:charger_charging/supercapacitor_empty"
+        "recipe": "anvilcraft:charger_charging/empty_capacitor"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:charger_charging/supercapacitor_empty"
+      "anvilcraft:charger_charging/empty_capacitor"
     ]
   }
 }

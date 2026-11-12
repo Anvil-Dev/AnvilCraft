@@ -3,7 +3,7 @@
   "ingredient": "anvilcraft:capacitor",
   "power": 64,
   "result": {
-    "id": "anvilcraft:capacitor_empty"
+    "id": "anvilcraft:empty_capacitor"
   },
   "time": 1200
 }

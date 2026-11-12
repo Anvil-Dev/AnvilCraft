@@ -1,6 +1,6 @@
 {
   "type": "anvilcraft:charger_charging",
-  "ingredient": "anvilcraft:supercapacitor_empty",
+  "ingredient": "anvilcraft:empty_supercapacitor",
   "power": -700,
   "result": {
     "id": "anvilcraft:supercapacitor"

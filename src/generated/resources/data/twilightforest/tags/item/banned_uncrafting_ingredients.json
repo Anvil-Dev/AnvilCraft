@@ -14,9 +14,9 @@
     "anvilcraft:transcendence_deco_block",
     "anvilcraft:transcendence_deco_outline",
     "anvilcraft:capacitor",
-    "anvilcraft:capacitor_empty",
+    "anvilcraft:empty_capacitor",
     "anvilcraft:supercapacitor",
-    "anvilcraft:supercapacitor_empty",
+    "anvilcraft:empty_supercapacitor",
     "anvilcraft:neutronium_ingot",
     "anvilcraft:charged_neutronium_ingot",
     "anvilcraft:stable_neutronium_ingot"

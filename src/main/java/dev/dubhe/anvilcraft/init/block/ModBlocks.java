@@ -1,13 +1,9 @@
 package dev.dubhe.anvilcraft.init.block;
 
 import com.mojang.math.Quadrant;
-import dev.anvilcraft.lib.v2.registrum.providers.DataGenContext;
 import dev.anvilcraft.lib.v2.registrum.providers.ProviderType;
-import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumBlockModelGenerator;
-import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumItemModelGenerator;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.model.PropertyDispatchWrap;
 import dev.anvilcraft.lib.v2.registrum.util.entry.BlockEntry;
-import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
@@ -297,8 +293,6 @@ import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.util.registrater.DataGenUtil;
 import dev.dubhe.anvilcraft.util.registrater.ModelProviderUtil;
 import dev.dubhe.anvilcraft.util.registrater.PropertiesProviderUtil;
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
@@ -326,7 +320,6 @@ import net.minecraft.util.ColorRGBA;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -366,6 +359,9 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCon
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.neoforge.common.Tags;
 
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -602,20 +598,13 @@ public class ModBlocks {
         .item(CreativeContainerBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
         .properties(properties -> properties.rarity(Rarity.EPIC))
-        .model(() -> new NonNullBiConsumer<>() {
-            @Override
-            public void accept(
-                DataGenContext<Item, CreativeContainerBlockItem> ctx,
-                RegistrumItemModelGenerator generator
-            ) {
-                generator.itemModelOutput.accept(ctx.get(),
-                    ItemModelUtils.specialModel(ctx.getId().withPrefix("block/"), CreativeFluidTankItemRenderer.Unbaked.INSTANCE));
-            }
-        })
+        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(
+            ctx.get(),
+            ItemModelUtils.specialModel(ctx.getId().withPrefix("block/"), CreativeFluidTankItemRenderer.Unbaked.INSTANCE)
+        ))
         .build()
         .register();
 
-    @SuppressWarnings("Convert2Lambda")
     public static final BlockEntry<FluidTankBlock> FLUID_TANK = REGISTRUM.block("fluid_tank", FluidTankBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(PropertiesProviderUtil::metalSound)
@@ -623,24 +612,15 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(FluidTankBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> new NonNullBiConsumer<>() {
-            @Override
-            public void accept(
-                DataGenContext<Item, FluidTankBlockItem> ctx,
-                RegistrumItemModelGenerator generator
-            ) {
-                DataGenUtil.<FluidTankBlockItem>specialBlockItem(
-                    FluidTankItemRenderer.Unbaked.INSTANCE,
-                    false
-                ).accept(ctx, generator);
-            }
-        })
+        .model(() -> (ctx, generator) -> DataGenUtil
+            .<FluidTankBlockItem>specialBlockItem(FluidTankItemRenderer.Unbaked.INSTANCE, false)
+            .accept(ctx, generator)
+        )
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::fluidTank)
         .register();
 
-    @SuppressWarnings("Convert2Lambda")
     public static final BlockEntry<LargeFluidTankBlock> LARGE_FLUID_TANK = REGISTRUM.block(
             "large_fluid_tank",
             LargeFluidTankBlock::new
@@ -656,18 +636,10 @@ public class ModBlocks {
         .item(LargeFluidTankBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
         .properties(properties -> properties.stacksTo(16))
-        .model(() -> new NonNullBiConsumer<>() {
-            @Override
-            public void accept(
-                DataGenContext<Item, LargeFluidTankBlockItem> ctx,
-                RegistrumItemModelGenerator generator
-            ) {
-                DataGenUtil.<LargeFluidTankBlockItem>specialBlockItem(
-                    LargeFluidTankItemRenderer.Unbaked.INSTANCE,
-                    true
-                ).accept(ctx, generator);
-            }
-        })
+        .model(() -> (ctx, generator) -> DataGenUtil
+            .<LargeFluidTankBlockItem>specialBlockItem(LargeFluidTankItemRenderer.Unbaked.INSTANCE, true)
+            .accept(ctx, generator)
+        )
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -707,16 +679,10 @@ public class ModBlocks {
         .item(CreativeContainerBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
         .properties(properties -> properties.rarity(Rarity.EPIC))
-        .model(() -> new NonNullBiConsumer<>() {
-            @Override
-            public void accept(
-                DataGenContext<Item, CreativeContainerBlockItem> ctx,
-                RegistrumItemModelGenerator generator
-            ) {
-                generator.itemModelOutput.accept(ctx.get(),
-                    ItemModelUtils.specialModel(ctx.getId().withPrefix("block/"), CreativeCrateItemRenderer.Unbaked.INSTANCE));
-            }
-        })
+        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(
+            ctx.get(),
+            ItemModelUtils.specialModel(ctx.getId().withPrefix("block/"), CreativeCrateItemRenderer.Unbaked.INSTANCE)
+        ))
         .build()
         .register();
 
@@ -1221,7 +1187,6 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::remoteTransmissionPole)
         .register();
 
-    @SuppressWarnings("Convert2Lambda")
     public static final BlockEntry<TeslaTowerBlock> TESLA_TOWER = REGISTRUM.block("tesla_tower", TeslaTowerBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)
         .loot(SimpleMultiPartBlock::loot)
@@ -1234,19 +1199,11 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(TeslaTowerItem::new)
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> new NonNullBiConsumer<>() {
-            @Override
-            public void accept(
-                DataGenContext<Item, TeslaTowerItem> ctx,
-                RegistrumItemModelGenerator generator
-            ) {
-                generator.itemModelOutput.accept(
-                    ctx.get(),
-                    ItemModelUtils.plainModel(ctx.getId().withPrefix("block/").withSuffix("_overall")),
-                    new ClientItem.Properties(true, true, 1.0F)
-                );
-            }
-        })
+        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(
+            ctx.get(),
+            ItemModelUtils.plainModel(ctx.getId().withPrefix("block/").withSuffix("_overall")),
+            new ClientItem.Properties(true, true, 1.0F)
+        ))
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::teslaTower)
@@ -1400,7 +1357,6 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::heliostats)
         .register();
 
-    @SuppressWarnings("Convert2Lambda")
     public static final BlockEntry<LoadMonitorBlock> LOAD_MONITOR = REGISTRUM.block("load_monitor", LoadMonitorBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(PropertiesProviderUtil::metalSound)
@@ -1415,17 +1371,11 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .item()
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> new NonNullBiConsumer<>() {
-            @Override
-            public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
-                generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/").withSuffix("_0"));
-            }
-        })
+        .model(() -> (ctx, generator) -> generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/").withSuffix("_0")))
         .build()
         .recipe(RegistrumBlockRecipeLoader::loadMonitor)
         .register();
 
-    @SuppressWarnings("Convert2Lambda")
     public static final BlockEntry<PowerConverterSmallBlock> POWER_CONVERTER_SMALL = REGISTRUM.block(
             "power_converter_small",
             PowerConverterSmallBlock::new
@@ -1445,17 +1395,11 @@ public class ModBlocks {
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(ModItemTags.POWER_CONVERTER)
-        .model(() -> new NonNullBiConsumer<>() {
-            @Override
-            public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
-                generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/"));
-            }
-        })
+        .model(() -> (ctx, generator) -> generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/")))
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
-    @SuppressWarnings("Convert2Lambda")
     public static final BlockEntry<PowerConverterMiddleBlock> POWER_CONVERTER_MIDDLE = REGISTRUM.block(
             "power_converter_middle",
             PowerConverterMiddleBlock::new
@@ -1475,17 +1419,11 @@ public class ModBlocks {
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(ModItemTags.POWER_CONVERTER)
-        .model(() -> new NonNullBiConsumer<>() {
-            @Override
-            public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
-                generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/"));
-            }
-        })
+        .model(() -> (ctx, generator) -> generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/")))
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
-    @SuppressWarnings("Convert2Lambda")
     public static final BlockEntry<PowerConverterBigBlock> POWER_CONVERTER_BIG = REGISTRUM.block(
             "power_converter_big",
             PowerConverterBigBlock::new
@@ -1505,17 +1443,11 @@ public class ModBlocks {
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(ModItemTags.POWER_CONVERTER)
-        .model(() -> new NonNullBiConsumer<>() {
-            @Override
-            public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
-                generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/"));
-            }
-        })
+        .model(() -> (ctx, generator) -> generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/")))
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
-    @SuppressWarnings("Convert2Lambda")
     public static final BlockEntry<PowerConverterSuperBigBlock> POWER_CONVERTER_SUPER_BIG = REGISTRUM.block(
             "power_converter_super_big",
             PowerConverterSuperBigBlock::new
@@ -1535,17 +1467,11 @@ public class ModBlocks {
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(ModItemTags.POWER_CONVERTER)
-        .model(() -> new NonNullBiConsumer<>() {
-            @Override
-            public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
-                generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/"));
-            }
-        })
+        .model(() -> (ctx, generator) -> generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/")))
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
-    @SuppressWarnings("Convert2Lambda")
     public static final BlockEntry<PowerConverterExtremelyBigBlock> POWER_CONVERTER_EXTREMELY_BIG = REGISTRUM.block(
             "power_converter_extremely_big",
             PowerConverterExtremelyBigBlock::new
@@ -1565,12 +1491,7 @@ public class ModBlocks {
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(ModItemTags.POWER_CONVERTER)
-        .model(() -> new NonNullBiConsumer<>() {
-            @Override
-            public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
-                generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/"));
-            }
-        })
+        .model(() -> (ctx, generator) -> generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/")))
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
@@ -1672,7 +1593,6 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::blockPlacer)
         .register();
 
-    @SuppressWarnings("Convert2Lambda")
     public static final BlockEntry<SmartBlockPlacerBlock> SMART_BLOCK_PLACER = REGISTRUM
         .block("smart_block_placer", SmartBlockPlacerBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
@@ -1695,24 +1615,19 @@ public class ModBlocks {
                             case WEST -> Quadrant.R270;
                             default -> Quadrant.R0;
                         };
-                        Quadrant yrot = isUpsideDown
+                        Quadrant rotY = isUpsideDown
                                         ? Quadrant.values()[(baseY.ordinal() + 2) % 4]
                                         : baseY;
                         return BlockModelGenerators.plainVariant(model)
-                            .with(v -> v.withXRot(isUpsideDown ? Quadrant.R180 : Quadrant.R0).withYRot(yrot));
+                            .with(v -> v.withXRot(isUpsideDown ? Quadrant.R180 : Quadrant.R0).withYRot(rotY));
                     })));
         })
         .item(SmartBlockPlacerBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> new NonNullBiConsumer<>() {
-            @Override
-            public void accept(DataGenContext<Item, SmartBlockPlacerBlockItem> ctx, RegistrumItemModelGenerator generator) {
-                generator.itemModelOutput.accept(
-                    ctx.get(), new SmartBlockPlacerItemModel.Unbaked(ctx.getId().withPrefix("block/")),
-                    new ClientItem.Properties(true, true, 1.0F)
-                );
-            }
-        })
+        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(
+            ctx.get(), new SmartBlockPlacerItemModel.Unbaked(ctx.getId().withPrefix("block/")),
+            new ClientItem.Properties(true, true, 1.0F)
+        ))
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::smartBlockPlacer)
@@ -1735,11 +1650,11 @@ public class ModBlocks {
                             case WEST -> Quadrant.R270;
                             default -> Quadrant.R0;
                         };
-                        Quadrant yrot = isUpsideDown
+                        Quadrant rotY = isUpsideDown
                                         ? Quadrant.values()[(baseY.ordinal() + 2) % 4]
                                         : baseY;
                         return BlockModelGenerators.plainVariant(model)
-                            .with(v -> v.withXRot(isUpsideDown ? Quadrant.R180 : Quadrant.R0).withYRot(yrot));
+                            .with(v -> v.withXRot(isUpsideDown ? Quadrant.R180 : Quadrant.R0).withYRot(rotY));
                     })));
         })
         .item().transform(PropertiesProviderUtil::blockItem).build()
@@ -2016,39 +1931,30 @@ public class ModBlocks {
         .build()
         .register();
 
-    @SuppressWarnings("Convert2Lambda")
     public static BlockEntry<SlidingRailBlock> SLIDING_RAIL = REGISTRUM.block("sliding_rail", SlidingRailBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(PropertiesProviderUtil::metalSound)
         .properties(it -> it.noOcclusion().isValidSpawn(Blocks::never).mapColor(MapColor.COLOR_GRAY))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.SLIDING_RAILS)
-        .blockstate(() -> new NonNullBiConsumer<>() {
-            @Override
-            public void accept(
-                DataGenContext<Block, SlidingRailBlock> ctx,
-                RegistrumBlockModelGenerator generator
-            ) {
-                generator.blockStateOutput.accept(
-                    MultiVariantGenerator.dispatch(ctx.get())
-                        .with(
-                            PropertyDispatchWrap.initial(SlidingRailBlock.AXIS)
-                                .select(
-                                    Direction.Axis.X,
-                                    BlockModelGenerators.plainVariant(AnvilCraft.of("block/sliding_rail"))
-                                        .with(BlockModelGenerators.Y_ROT_90)
-                                )
-                                .select(
-                                    Direction.Axis.Z,
-                                    BlockModelGenerators.plainVariant(AnvilCraft.of("block/sliding_rail"))
-                                )
-                                .select(
-                                    Direction.Axis.Y,
-                                    BlockModelGenerators.plainVariant(AnvilCraft.of("block/sliding_rail_cross"))
-                                )
-                                .dispatch()
-                        ));
-            }
-        })
+        .blockstate(() -> (ctx, generator) -> generator.blockStateOutput.accept(
+            MultiVariantGenerator.dispatch(ctx.get())
+                .with(
+                    PropertyDispatchWrap.initial(SlidingRailBlock.AXIS)
+                        .select(
+                            Direction.Axis.X,
+                            BlockModelGenerators.plainVariant(AnvilCraft.of("block/sliding_rail"))
+                                .with(BlockModelGenerators.Y_ROT_90)
+                        )
+                        .select(
+                            Direction.Axis.Z,
+                            BlockModelGenerators.plainVariant(AnvilCraft.of("block/sliding_rail"))
+                        )
+                        .select(
+                            Direction.Axis.Y,
+                            BlockModelGenerators.plainVariant(AnvilCraft.of("block/sliding_rail_cross"))
+                        )
+                        .dispatch()
+                )))
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .model(DataGenUtil::blockItem)
@@ -2296,7 +2202,6 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .register();
 
-    @SuppressWarnings("Convert2Lambda")
     public static final BlockEntry<CelestialBackGateBlock> CELESTIAL_BACK_GATE = REGISTRUM
         .block("celestial_back_gate", CelestialBackGateBlock::new)
         .lang("Celestial Back Gate")
@@ -2330,15 +2235,7 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .item(CelestialForgingAnvilPortalBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> new NonNullBiConsumer<>() {
-            @Override
-            public void accept(
-                DataGenContext<Item, CelestialForgingAnvilPortalBlockItem> ctx,
-                RegistrumItemModelGenerator generator
-            ) {
-                generator.createWithExistingModel(ctx.get(), AnvilCraft.of("block/celestial_forging_anvil_gate"));
-            }
-        })
+        .model(() -> (ctx, generator) -> generator.createWithExistingModel(ctx.get(), AnvilCraft.of("block/celestial_forging_anvil_gate")))
         .properties(properties -> properties
             .rarity(Rarity.EPIC)
             .component(ModComponents.ETERNAL, Eternal.DEFAULT)
@@ -2420,18 +2317,10 @@ public class ModBlocks {
         .loot((tables, block) -> tables.add(block, LootTable.lootTable()))
         .item(RuinsBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> new NonNullBiConsumer<>() {
-            @Override
-            public void accept(
-                DataGenContext<Item, RuinsBlockItem> ctx,
-                RegistrumItemModelGenerator generator
-            ) {
-                DataGenUtil.<RuinsBlockItem>specialItem(
-                    RuinsBlockItemRenderer.Unbaked.INSTANCE,
-                    false
-                ).accept(ctx, generator);
-            }
-        })
+        .model(() -> (ctx, generator) -> DataGenUtil.<RuinsBlockItem>specialItem(
+            RuinsBlockItemRenderer.Unbaked.INSTANCE,
+            false
+        ).accept(ctx, generator))
         .build()
         .register();
 
@@ -2979,7 +2868,6 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::heavyIronBeam)
         .register();
 
-    @SuppressWarnings("Convert2Lambda")
     public static final BlockEntry<HeavyIronWallBlock> HEAVY_IRON_WALL = REGISTRUM.block("heavy_iron_wall", HeavyIronWallBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(PropertiesProviderUtil::metalSound)
@@ -2990,12 +2878,7 @@ public class ModBlocks {
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(ItemTags.WALLS)
-        .model(() -> new NonNullBiConsumer<>() {
-            @Override
-            public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
-                generator.createWithExistingModel(ctx.get(), AnvilCraft.of("block/heavy_iron_wall_inventory"));
-            }
-        })
+        .model(() -> (ctx, generator) -> generator.createWithExistingModel(ctx.get(), AnvilCraft.of("block/heavy_iron_wall_inventory")))
         .build()
         .register();
 
@@ -3350,13 +3233,8 @@ public class ModBlocks {
         .properties(properties -> properties.sound(SoundType.HONEY_BLOCK))
         .item(ResinBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> new NonNullBiConsumer<>() {
-            @Override
-            public void accept(DataGenContext<Item, ResinBlockItem> ctx, RegistrumItemModelGenerator generator) {
-                DataGenUtil.<ResinBlockItem>specialBlockItem(new HasMobBlockItemRenderer.Unbaked(ctx.get().getBlock()), false)
-                    .accept(ctx, generator);
-            }
-        })
+        .model(() -> (ctx, generator) -> DataGenUtil.<ResinBlockItem>specialBlockItem(new HasMobBlockItemRenderer.Unbaked(ctx.get().getBlock()), false)
+            .accept(ctx, generator))
         .tag(Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_RESIN)
         .build()
         .tag(Tags.Blocks.STORAGE_BLOCKS, ModBlockTags.STORAGE_BLOCKS_RESIN)
@@ -3381,13 +3259,8 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(HasMobBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> new NonNullBiConsumer<>() {
-            @Override
-            public void accept(DataGenContext<Item, HasMobBlockItem> ctx, RegistrumItemModelGenerator generator) {
-                DataGenUtil.<HasMobBlockItem>specialBlockItem(new HasMobBlockItemRenderer.Unbaked(ctx.get().getBlock()), false)
-                    .accept(ctx, generator);
-            }
-        })
+        .model(() -> (ctx, generator) -> DataGenUtil.<HasMobBlockItem>specialBlockItem(new HasMobBlockItemRenderer.Unbaked(ctx.get().getBlock()), false)
+            .accept(ctx, generator))
         .properties(properties -> properties.component(
             ModComponents.SAVED_ENTITY,
             new SavedEntity(EntityType.MOOSHROOM, new CompoundTag(), false)
@@ -3414,13 +3287,8 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(HasMobBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> new NonNullBiConsumer<>() {
-            @Override
-            public void accept(DataGenContext<Item, HasMobBlockItem> ctx, RegistrumItemModelGenerator generator) {
-                DataGenUtil.<HasMobBlockItem>specialBlockItem(new HasMobBlockItemRenderer.Unbaked(ctx.get().getBlock()), false)
-                    .accept(ctx, generator);
-            }
-        })
+        .model(() -> (ctx, generator) -> DataGenUtil.<HasMobBlockItem>specialBlockItem(new HasMobBlockItemRenderer.Unbaked(ctx.get().getBlock()), false)
+            .accept(ctx, generator))
         .properties(properties -> properties.component(
             ModComponents.SAVED_ENTITY,
             new SavedEntity(EntityType.ZOMBIE, new CompoundTag(), true)
@@ -3905,14 +3773,127 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::whiteChocolateStairs)
         .register();
 
-    public static final Object2ObjectMap<Color, BlockEntry<ReinforcedConcreteBlock>> REINFORCED_CONCRETES =
-        ModBlocks.registerReinforcedConcretes();
-    public static final Object2ObjectMap<Color, BlockEntry<SlabBlock>> REINFORCED_CONCRETE_SLABS =
-        ModBlocks.registerReinforcedConcreteSlabs();
-    public static final Object2ObjectMap<Color, BlockEntry<StairBlock>> REINFORCED_CONCRETE_STAIRS =
-        ModBlocks.registerReinforcedConcreteStairs();
-    public static final Object2ObjectMap<Color, BlockEntry<WallBlock>> REINFORCED_CONCRETE_WALLS =
-        ModBlocks.registerReinforcedConcreteWalls();
+    public static final Map<Color, BlockEntry<ReinforcedConcreteBlock>> REINFORCED_CONCRETES;
+    public static final Map<Color, BlockEntry<SlabBlock>> REINFORCED_CONCRETE_SLABS;
+    public static final Map<Color, BlockEntry<StairBlock>> REINFORCED_CONCRETE_STAIRS;
+    public static final Map<Color, BlockEntry<WallBlock>> REINFORCED_CONCRETE_WALLS;
+
+    static {
+        EnumMap<Color, BlockEntry<ReinforcedConcreteBlock>> full = new EnumMap<>(Color.class);
+        EnumMap<Color, BlockEntry<SlabBlock>> slab = new EnumMap<>(Color.class);
+        EnumMap<Color, BlockEntry<StairBlock>> stair = new EnumMap<>(Color.class);
+        EnumMap<Color, BlockEntry<WallBlock>> wall = new EnumMap<>(Color.class);
+        for (Color color : Color.values()) {
+            var entryFull = ModBlocks.registerReinforcedConcreteBlock(color);
+            full.put(color, entryFull);
+
+            var entrySlab = ModBlocks.registerReinforcedConcreteSlabBlock(color, entryFull);
+            slab.put(color, entrySlab);
+
+            var entryStair = ModBlocks.registerReinforcedConcreteStairBlock(color, entryFull);
+            stair.put(color, entryStair);
+
+            var entryWall = ModBlocks.registerReinforcedConcreteWallBlock(color, entryFull);
+            wall.put(color, entryWall);
+        }
+        REINFORCED_CONCRETES = Collections.unmodifiableMap(full);
+        REINFORCED_CONCRETE_SLABS = Collections.unmodifiableMap(slab);
+        REINFORCED_CONCRETE_STAIRS = Collections.unmodifiableMap(stair);
+        REINFORCED_CONCRETE_WALLS = Collections.unmodifiableMap(wall);
+    }
+
+    private static BlockEntry<ReinforcedConcreteBlock> registerReinforcedConcreteBlock(Color color) {
+        return REGISTRUM
+            .block(color + "_reinforced_concrete", p -> new ReinforcedConcreteBlock(p, color))
+            .initialProperties(() -> Blocks.TERRACOTTA)
+            .aliasFrom(AnvilCraft.of("reinforced_concrete_" + color))
+            .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
+            .item()
+            .transform(PropertiesProviderUtil::blockItem)
+            .tag(ModItemTags.REINFORCED_CONCRETE, Tags.Items.DYED, ModItemTags.DYED_COLORS.get(color))
+            .build()
+            .blockstate(() -> (ctx, generator) -> {
+                Identifier singleModel = generator.withParent(ModelTemplates.CUBE_ALL)
+                    .texture(TextureSlot.ALL, generator.modLoc("block/%s_reinforced_concrete".formatted(color)), false)
+                    .build(generator.modLoc("block/%s_reinforced_concrete".formatted(color)));
+                Identifier topModel = generator.withParent(ModelTemplates.CUBE_COLUMN)
+                    .texture(TextureSlot.END, generator.modLoc("block/%s_reinforced_concrete".formatted(color)), false)
+                    .texture(TextureSlot.SIDE, generator.modLoc("block/%s_reinforced_concrete_top".formatted(color)), false)
+                    .build(generator.modLoc("block/%s_reinforced_concrete_top".formatted(color)));
+                Identifier bottomModel = generator.withParent(ModelTemplates.CUBE_COLUMN)
+                    .texture(TextureSlot.END, generator.modLoc("block/%s_reinforced_concrete".formatted(color)), false)
+                    .texture(TextureSlot.SIDE, generator.modLoc("block/%s_reinforced_concrete_bottom".formatted(color)), false)
+                    .build(generator.modLoc("block/%s_reinforced_concrete_bottom".formatted(color)));
+                generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
+                                                      .with(
+                                                          PropertyDispatchWrap.initial(ReinforcedConcreteBlock.HALF)
+                                                              .select(
+                                                                  ReinforcedConcreteHalf.TOP,
+                                                                  BlockModelGenerators.plainVariant(topModel)
+                                                              )
+                                                              .select(
+                                                                  ReinforcedConcreteHalf.SINGLE,
+                                                                  BlockModelGenerators.plainVariant(singleModel)
+                                                              )
+                                                              .select(
+                                                                  ReinforcedConcreteHalf.BOTTOM,
+                                                                  BlockModelGenerators.plainVariant(bottomModel)
+                                                              )
+                                                              .dispatch()
+                                                      ));
+            })
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
+            .register();
+    }
+
+    private static BlockEntry<SlabBlock> registerReinforcedConcreteSlabBlock(Color color, BlockEntry<ReinforcedConcreteBlock> parent) {
+        return REGISTRUM.block(color + "_reinforced_concrete_slab", SlabBlock::new)
+            .initialProperties(() -> Blocks.TERRACOTTA)
+            .aliasFrom(AnvilCraft.of("reinforced_concrete_" + color + "_slab"))
+            .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
+            .item()
+            .transform(PropertiesProviderUtil::blockItem)
+            .tag(ModItemTags.REINFORCED_CONCRETE, ItemTags.SLABS, Tags.Items.DYED, ModItemTags.DYED_COLORS.get(color))
+            .build()
+            .blockstate(() -> DataGenUtil.slabBlock(AnvilCraft.of("block/%s_reinforced_concrete".formatted(color))))
+            .loot((tables, block) -> tables.add(block, tables.createSlabItemTable(block)))
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.SLABS, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
+            .recipe(RegistrumBlockRecipeLoader.reinforcedConcreteSlab(parent))
+            .register();
+    }
+
+    private static BlockEntry<StairBlock> registerReinforcedConcreteStairBlock(Color color, BlockEntry<ReinforcedConcreteBlock> parent) {
+        return REGISTRUM.block(
+                color + "_reinforced_concrete_stair",
+                properties -> new StairBlock(parent.getDefaultState(), properties)
+            )
+            .initialProperties(() -> Blocks.TERRACOTTA)
+            .aliasFrom(AnvilCraft.of("reinforced_concrete_" + color + "_stair"))
+            .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
+            .item()
+            .transform(PropertiesProviderUtil::blockItem)
+            .tag(ModItemTags.REINFORCED_CONCRETE, ItemTags.STAIRS, Tags.Items.DYED, ModItemTags.DYED_COLORS.get(color))
+            .build()
+            .blockstate(() -> DataGenUtil.stairsBlock(AnvilCraft.of("block/%s_reinforced_concrete".formatted(color))))
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.STAIRS, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
+            .recipe(RegistrumBlockRecipeLoader.reinforcedConcreteStair(parent))
+            .register();
+    }
+
+    private static BlockEntry<WallBlock> registerReinforcedConcreteWallBlock(Color color, BlockEntry<ReinforcedConcreteBlock> parent) {
+        return REGISTRUM.block(color + "_reinforced_concrete_wall", WallBlock::new)
+            .initialProperties(() -> Blocks.TERRACOTTA)
+            .aliasFrom(AnvilCraft.of("reinforced_concrete_" + color + "_wall"))
+            .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
+            .blockstate(() -> DataGenUtil.wallBlock(AnvilCraft.of("block/%s_reinforced_concrete_wall".formatted(color))))
+            .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WALLS, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
+            .recipe(RegistrumBlockRecipeLoader.reinforcedConcreteWall(parent))
+            .item()
+            .transform(PropertiesProviderUtil::blockItem)
+            .tag(ModItemTags.REINFORCED_CONCRETE, ItemTags.WALLS, Tags.Items.DYED, ModItemTags.DYED_COLORS.get(color))
+            .build()
+            .register();
+    }
 
     public static final BlockEntry<HeatedBlock> HEATED_NETHERITE_BLOCK = REGISTRUM.block("heated_netherite_block", HeatedBlock::new)
         .lang("Heated Block of Netherite")
@@ -4444,176 +4425,32 @@ public class ModBlocks {
         .onRegister(block -> Item.BY_BLOCK.put(block, Items.CAULDRON))
         .register();
 
-    public static final Object2ObjectMap<Color, BlockEntry<CementCauldronBlock>> CEMENT_CAULDRONS = ModBlocks.registerAllCementCauldrons();
+    public static final Map<Color, BlockEntry<CementCauldronBlock>> CEMENT_CAULDRONS;
 
-    private static Object2ObjectMap<Color, BlockEntry<ReinforcedConcreteBlock>> registerReinforcedConcretes() {
-        Object2ObjectMap<Color, BlockEntry<ReinforcedConcreteBlock>> map = new Object2ObjectLinkedOpenHashMap<>();
-        for (Color color : Color.values()) {
-            var entry = ModBlocks.registerReinforcedConcreteBlock(color);
-            map.put(color, entry);
-        }
-        return map;
-    }
-
-    private static BlockEntry<ReinforcedConcreteBlock> registerReinforcedConcreteBlock(Color color) {
-        // noinspection Convert2Lambda
-        return REGISTRUM.block(
-                color + "_reinforced_concrete",
-                p -> new ReinforcedConcreteBlock(p, color)
-            ).initialProperties(() -> Blocks.TERRACOTTA)
-            .aliasFrom(AnvilCraft.of("reinforced_concrete_" + color))
-            .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
-            .item()
-            .transform(PropertiesProviderUtil::blockItem)
-            .tag(ModItemTags.REINFORCED_CONCRETE, Tags.Items.DYED, ModItemTags.DYED_COLORS.get(color))
-            .build()
-            .blockstate(() -> new NonNullBiConsumer<>() {
-                @Override
-                public void accept(
-                    DataGenContext<Block, ReinforcedConcreteBlock> ctx,
-                    RegistrumBlockModelGenerator generator
-                ) {
-                    Identifier singleModel = generator.withParent(ModelTemplates.CUBE_ALL)
-                        .texture(TextureSlot.ALL, generator.modLoc("block/%s_reinforced_concrete".formatted(color)), false)
-                        .build(generator.modLoc("block/%s_reinforced_concrete".formatted(color)));
-                    Identifier topModel = generator.withParent(ModelTemplates.CUBE_COLUMN)
-                        .texture(TextureSlot.END, generator.modLoc("block/%s_reinforced_concrete".formatted(color)), false)
-                        .texture(TextureSlot.SIDE, generator.modLoc("block/%s_reinforced_concrete_top".formatted(color)), false)
-                        .build(generator.modLoc("block/%s_reinforced_concrete_top".formatted(color)));
-                    Identifier bottomModel = generator.withParent(ModelTemplates.CUBE_COLUMN)
-                        .texture(TextureSlot.END, generator.modLoc("block/%s_reinforced_concrete".formatted(color)), false)
-                        .texture(TextureSlot.SIDE, generator.modLoc("block/%s_reinforced_concrete_bottom".formatted(color)), false)
-                        .build(generator.modLoc("block/%s_reinforced_concrete_bottom".formatted(color)));
-                    generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
-                        .with(
-                            PropertyDispatchWrap.initial(ReinforcedConcreteBlock.HALF)
-                                .select(
-                                    ReinforcedConcreteHalf.TOP,
-                                    BlockModelGenerators.plainVariant(topModel)
-                                )
-                                .select(
-                                    ReinforcedConcreteHalf.SINGLE,
-                                    BlockModelGenerators.plainVariant(singleModel)
-                                )
-                                .select(
-                                    ReinforcedConcreteHalf.BOTTOM,
-                                    BlockModelGenerators.plainVariant(bottomModel)
-                                )
-                                .dispatch()
-                        ));
-                }
-            })
-            .tag(BlockTags.MINEABLE_WITH_PICKAXE, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
-            .register();
-    }
-
-    private static Object2ObjectMap<Color, BlockEntry<SlabBlock>> registerReinforcedConcreteSlabs() {
-        Object2ObjectMap<Color, BlockEntry<SlabBlock>> map = new Object2ObjectLinkedOpenHashMap<>();
-        for (Color color : Color.values()) {
-            var entry = ModBlocks.registerReinforcedConcreteSlabBlock(color, ModBlocks.REINFORCED_CONCRETES.get(color));
-            map.put(color, entry);
-        }
-        return map;
-    }
-
-    private static BlockEntry<SlabBlock> registerReinforcedConcreteSlabBlock(Color color, BlockEntry<ReinforcedConcreteBlock> parent) {
-        return REGISTRUM.block(color + "_reinforced_concrete_slab", SlabBlock::new)
-            .initialProperties(() -> Blocks.TERRACOTTA)
-            .aliasFrom(AnvilCraft.of("reinforced_concrete_" + color + "_slab"))
-            .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
-            .item()
-            .transform(PropertiesProviderUtil::blockItem)
-            .tag(ModItemTags.REINFORCED_CONCRETE, ItemTags.SLABS, Tags.Items.DYED, ModItemTags.DYED_COLORS.get(color))
-            .build()
-            .blockstate(() -> DataGenUtil.slabBlock(AnvilCraft.of("block/%s_reinforced_concrete".formatted(color))))
-            .loot((tables, block) -> tables.add(block, tables.createSlabItemTable(block)))
-            .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.SLABS, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
-            .recipe(RegistrumBlockRecipeLoader.reinforcedConcreteSlab(parent))
-            .register();
-    }
-
-    private static Object2ObjectMap<Color, BlockEntry<StairBlock>> registerReinforcedConcreteStairs() {
-        Object2ObjectMap<Color, BlockEntry<StairBlock>> map = new Object2ObjectLinkedOpenHashMap<>();
-        for (Color color : Color.values()) {
-            var entry = ModBlocks.registerReinforcedConcreteStairBlock(color, ModBlocks.REINFORCED_CONCRETES.get(color));
-            map.put(color, entry);
-        }
-        return map;
-    }
-
-    private static BlockEntry<StairBlock> registerReinforcedConcreteStairBlock(Color color, BlockEntry<ReinforcedConcreteBlock> parent) {
-        return REGISTRUM.block(
-                color + "_reinforced_concrete_stair",
-                properties -> new StairBlock(parent.getDefaultState(), properties)
-            )
-            .initialProperties(() -> Blocks.TERRACOTTA)
-            .aliasFrom(AnvilCraft.of("reinforced_concrete_" + color + "_stair"))
-            .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
-            .item()
-            .transform(PropertiesProviderUtil::blockItem)
-            .tag(ModItemTags.REINFORCED_CONCRETE, ItemTags.STAIRS, Tags.Items.DYED, ModItemTags.DYED_COLORS.get(color))
-            .build()
-            .blockstate(() -> DataGenUtil.stairsBlock(AnvilCraft.of("block/%s_reinforced_concrete".formatted(color))))
-            .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.STAIRS, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
-            .recipe(RegistrumBlockRecipeLoader.reinforcedConcreteStair(parent))
-            .register();
-    }
-
-    private static Object2ObjectMap<Color, BlockEntry<WallBlock>> registerReinforcedConcreteWalls() {
-        Object2ObjectMap<Color, BlockEntry<WallBlock>> map = new Object2ObjectLinkedOpenHashMap<>();
-        for (Color color : Color.values()) {
-            var entry = ModBlocks.registerReinforcedConcreteWallBlock(color, ModBlocks.REINFORCED_CONCRETES.get(color));
-            map.put(color, entry);
-        }
-        return map;
-    }
-
-    private static BlockEntry<WallBlock> registerReinforcedConcreteWallBlock(Color color, BlockEntry<ReinforcedConcreteBlock> parent) {
-        return REGISTRUM.block(color + "_reinforced_concrete_wall", WallBlock::new)
-            .initialProperties(() -> Blocks.TERRACOTTA)
-            .aliasFrom(AnvilCraft.of("reinforced_concrete_" + color + "_wall"))
-            .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
-            .blockstate(() -> DataGenUtil.wallBlock(AnvilCraft.of("block/%s_reinforced_concrete_wall".formatted(color))))
-            .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WALLS, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
-            .recipe(RegistrumBlockRecipeLoader.reinforcedConcreteWall(parent))
-            .item()
-            .transform(PropertiesProviderUtil::blockItem)
-            .tag(ModItemTags.REINFORCED_CONCRETE, ItemTags.WALLS, Tags.Items.DYED, ModItemTags.DYED_COLORS.get(color))
-            .build()
-            .register();
-    }
-
-    private static Object2ObjectMap<Color, BlockEntry<CementCauldronBlock>> registerAllCementCauldrons() {
-        Object2ObjectMap<Color, BlockEntry<CementCauldronBlock>> map = new Object2ObjectLinkedOpenHashMap<>();
+    static {
+        EnumMap<Color, BlockEntry<CementCauldronBlock>> map = new EnumMap<>(Color.class);
         for (Color color : Color.values()) {
             var entry = ModBlocks.registerCementCauldron(color);
             map.put(color, entry);
         }
-        return map;
+        CEMENT_CAULDRONS = Collections.unmodifiableMap(map);
     }
 
-    @SuppressWarnings("Convert2Lambda")
     private static BlockEntry<CementCauldronBlock> registerCementCauldron(Color color) {
         return REGISTRUM.block(color + "_cement_cauldron", p -> new CementCauldronBlock(p, color))
             .initialProperties(() -> Blocks.CAULDRON)
-            .blockstate(() -> new NonNullBiConsumer<>() {
-                @Override
-                public void accept(
-                    DataGenContext<Block, CementCauldronBlock> ctx,
-                    RegistrumBlockModelGenerator generator
-                ) {
-                    TextureMapping mapping = new TextureMapping()
-                        .put(TextureSlot.BOTTOM, new Material(generator.mcLoc("block/cauldron_bottom")))
-                        .put(TextureSlot.INSIDE, new Material(generator.mcLoc("block/cauldron_inner")))
-                        .put(TextureSlot.SIDE, new Material(generator.mcLoc("block/cauldron_side")))
-                        .put(TextureSlot.TOP, new Material(generator.mcLoc("block/cauldron_top")))
-                        .put(TextureSlot.PARTICLE, new Material(generator.mcLoc("block/cauldron_side")))
-                        .put(TextureSlot.CONTENT, new Material(generator.modLoc("block/%s_cement".formatted(color))));
-                    generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(
-                        ctx.get(),
-                        BlockModelGenerators.plainVariant(generator.withParent(ModelTemplates.CAULDRON_FULL, mapping).build(ctx.get()))
-                    ));
-                }
+            .blockstate(() -> (ctx, generator) -> {
+                TextureMapping mapping = new TextureMapping()
+                    .put(TextureSlot.BOTTOM, new Material(generator.mcLoc("block/cauldron_bottom")))
+                    .put(TextureSlot.INSIDE, new Material(generator.mcLoc("block/cauldron_inner")))
+                    .put(TextureSlot.SIDE, new Material(generator.mcLoc("block/cauldron_side")))
+                    .put(TextureSlot.TOP, new Material(generator.mcLoc("block/cauldron_top")))
+                    .put(TextureSlot.PARTICLE, new Material(generator.mcLoc("block/cauldron_side")))
+                    .put(TextureSlot.CONTENT, new Material(generator.modLoc("block/%s_cement".formatted(color))));
+                generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(
+                    ctx.get(),
+                    BlockModelGenerators.plainVariant(generator.withParent(ModelTemplates.CAULDRON_FULL, mapping).build(ctx.get()))
+                ));
             })
             .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.CAULDRONS)
@@ -4735,15 +4572,15 @@ public class ModBlocks {
         .blockstate(ModelProviderUtil::liquid)
         .register();
 
-    public static final Object2ObjectMap<Color, BlockEntry<LiquidBlock>> CEMENTS = ModBlocks.registerAllCementLiquidBlock();
+    public static final Map<Color, BlockEntry<LiquidBlock>> CEMENTS;
 
-    private static Object2ObjectMap<Color, BlockEntry<LiquidBlock>> registerAllCementLiquidBlock() {
-        Object2ObjectMap<Color, BlockEntry<LiquidBlock>> map = new Object2ObjectLinkedOpenHashMap<>();
+    static {
+        EnumMap<Color, BlockEntry<LiquidBlock>> map = new EnumMap<>(Color.class);
         for (Color color : Color.values()) {
             var entry = ModBlocks.registerCementLiquidBlock(color);
             map.put(color, entry);
         }
-        return map;
+        CEMENTS = Collections.unmodifiableMap(map);
     }
 
     private static BlockEntry<LiquidBlock> registerCementLiquidBlock(Color color) {
@@ -4903,44 +4740,40 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::singularityCrystal)
         .register();
 
-    @SuppressWarnings("Convert2Lambda")
     public static final BlockEntry<SugarBlock> SUGAR_BLOCK = REGISTRUM.block("sugar_block", SugarBlock::new)
         .initialProperties(() -> Blocks.LAPIS_BLOCK)
         .loot(SugarBlock::loot)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.STORAGE_BLOCKS_SUGAR, Tags.Blocks.STORAGE_BLOCKS)
-        .blockstate(() -> new NonNullBiConsumer<>() {
-            @Override
-            public void accept(DataGenContext<Block, SugarBlock> ctx, RegistrumBlockModelGenerator generator) {
-                Identifier block = ModelLocationUtils.getModelLocation(ctx.get());
-                Identifier stage0 = ModelTemplates.CUBE_ALL.create(
-                    block,
-                    new TextureMapping().put(TextureSlot.ALL, new Material(generator.modLoc("block/sugar_block"), false)),
-                    generator.modelOutput
-                );
-                Identifier stage1 = ModelTemplates.CUBE_ALL.create(
-                    block.withSuffix("_1"),
-                    new TextureMapping().put(TextureSlot.ALL, new Material(generator.modLoc("block/sugar_block_1"), false)),
-                    generator.modelOutput
-                );
-                Identifier stage2 = ModelTemplates.CUBE_ALL.create(
-                    block.withSuffix("_2"),
-                    new TextureMapping().put(TextureSlot.ALL, new Material(generator.modLoc("block/sugar_block_2"), false)),
-                    generator.modelOutput
-                );
-                Identifier stage3 = ModelTemplates.CUBE_ALL.create(
-                    block.withSuffix("_3"),
-                    new TextureMapping().put(TextureSlot.ALL, new Material(generator.modLoc("block/sugar_block_3"), false)),
-                    generator.modelOutput
-                );
-                generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get()).with(
-                    PropertyDispatchWrap.initial(SugarBlock.FRAGMENTATION_DEGREE)
-                        .select(FragmentationDegree.ZERO, BlockModelGenerators.plainVariant(stage0))
-                        .select(FragmentationDegree.ONE, BlockModelGenerators.plainVariant(stage1))
-                        .select(FragmentationDegree.TWO, BlockModelGenerators.plainVariant(stage2))
-                        .select(FragmentationDegree.THREE, BlockModelGenerators.plainVariant(stage3))
-                        .dispatch()
-                ));
-            }
+        .blockstate(() -> (ctx, generator) -> {
+            Identifier block = ModelLocationUtils.getModelLocation(ctx.get());
+            Identifier stage0 = ModelTemplates.CUBE_ALL.create(
+                block,
+                new TextureMapping().put(TextureSlot.ALL, new Material(generator.modLoc("block/sugar_block"), false)),
+                generator.modelOutput
+            );
+            Identifier stage1 = ModelTemplates.CUBE_ALL.create(
+                block.withSuffix("_1"),
+                new TextureMapping().put(TextureSlot.ALL, new Material(generator.modLoc("block/sugar_block_1"), false)),
+                generator.modelOutput
+            );
+            Identifier stage2 = ModelTemplates.CUBE_ALL.create(
+                block.withSuffix("_2"),
+                new TextureMapping().put(TextureSlot.ALL, new Material(generator.modLoc("block/sugar_block_2"), false)),
+                generator.modelOutput
+            );
+            Identifier stage3 = ModelTemplates.CUBE_ALL.create(
+                block.withSuffix("_3"),
+                new TextureMapping().put(TextureSlot.ALL, new Material(generator.modLoc("block/sugar_block_3"), false)),
+                generator.modelOutput
+            );
+            generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get()).with(
+                PropertyDispatchWrap.initial(SugarBlock.FRAGMENTATION_DEGREE)
+                    .select(FragmentationDegree.ZERO, BlockModelGenerators.plainVariant(stage0))
+                    .select(FragmentationDegree.ONE, BlockModelGenerators.plainVariant(stage1))
+                    .select(FragmentationDegree.TWO, BlockModelGenerators.plainVariant(stage2))
+                    .select(FragmentationDegree.THREE, BlockModelGenerators.plainVariant(stage3))
+                    .dispatch()
+            ));
         })
         .item()
         .transform(PropertiesProviderUtil::blockItem)
@@ -5088,13 +4921,10 @@ public class ModBlocks {
             .requiresCorrectToolForDrops())
         .item(StorageFluidPortBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> new NonNullBiConsumer<>() {
-            @Override
-            public void accept(DataGenContext<Item, StorageFluidPortBlockItem> ctx, RegistrumItemModelGenerator generator) {
-                var model = ctx.getId().withPrefix("block/");
-                generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.composite(ItemModelUtils.plainModel(model),
-                    ItemModelUtils.specialModel(model, StorageFluidPortItemRenderer.Unbaked.INSTANCE)));
-            }
+        .model(() -> (ctx, generator) -> {
+            var model = ctx.getId().withPrefix("block/");
+            generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.composite(ItemModelUtils.plainModel(model),
+                ItemModelUtils.specialModel(model, StorageFluidPortItemRenderer.Unbaked.INSTANCE)));
         })
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -5126,15 +4956,12 @@ public class ModBlocks {
             .requiresCorrectToolForDrops())
         .item(StoragePortBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> new NonNullBiConsumer<>() {
-            @Override
-            public void accept(DataGenContext<Item, StoragePortBlockItem> ctx, RegistrumItemModelGenerator generator) {
-                var model = ctx.getId().withPrefix("block/");
-                generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.composite(
-                    ItemModelUtils.plainModel(model),
-                    ItemModelUtils.specialModel(model, StoragePortItemRenderer.Unbaked.INSTANCE)
-                ));
-            }
+        .model(() -> (ctx, generator) -> {
+            var model = ctx.getId().withPrefix("block/");
+            generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.composite(
+                ItemModelUtils.plainModel(model),
+                ItemModelUtils.specialModel(model, StoragePortItemRenderer.Unbaked.INSTANCE)
+            ));
         })
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -5434,14 +5261,9 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> new NonNullBiConsumer<>() {
-            @Override
-            public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
-                generator.itemModelOutput.accept(ctx.get(),
-                    ItemModelUtils.specialModel(AnvilCraft.of("block/monolith_core"),
-                        new MonolithItemRenderer.Unbaked(ctx.get().getBlock())));
-            }
-        })
+        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(ctx.get(),
+                                                                                                                                                    ItemModelUtils.specialModel(AnvilCraft.of("block/monolith_core"),
+                new MonolithItemRenderer.Unbaked(ctx.get().getBlock()))))
         .build()
         .recipe(RegistrumBlockRecipeLoader::monolithCore)
         .register();
@@ -5457,14 +5279,9 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> new NonNullBiConsumer<>() {
-            @Override
-            public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
-                generator.itemModelOutput.accept(ctx.get(),
-                    ItemModelUtils.specialModel(AnvilCraft.of("block/monolith_line"),
-                        new MonolithItemRenderer.Unbaked(ctx.get().getBlock())));
-            }
-        })
+        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(ctx.get(),
+                                                                                                                                                    ItemModelUtils.specialModel(AnvilCraft.of("block/monolith_line"),
+                new MonolithItemRenderer.Unbaked(ctx.get().getBlock()))))
         .build()
         .recipe(RegistrumBlockRecipeLoader::monolithLine)
         .register();
@@ -5485,17 +5302,10 @@ public class ModBlocks {
         .transform(PropertiesProviderUtil::blockItem)
         .properties(properties -> properties.stacksTo(16).useBlockDescriptionPrefix())
         .setData(ProviderType.LANG, (_, _) -> {})
-        .model(() -> new NonNullBiConsumer<>() {
-            @Override
-            public void accept(
-                DataGenContext<Item, SimpleMultiPartBlockItem<Cube3x3PartHalf>> ctx,
-                RegistrumItemModelGenerator generator
-            ) {
-                generator.itemModelOutput.accept(ctx.get(),
-                    ItemModelUtils.specialModel(AnvilCraft.of("block/giant_monolith_core"),
-                        new MonolithItemRenderer.Unbaked(ctx.get().getBlock())));
-            }
-        })
+        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(
+            ctx.get(),
+            ItemModelUtils.specialModel(AnvilCraft.of("block/giant_monolith_core"), new MonolithItemRenderer.Unbaked(ctx.get().getBlock()))
+        ))
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .register();
@@ -5511,14 +5321,9 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> new NonNullBiConsumer<>() {
-            @Override
-            public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
-                generator.itemModelOutput.accept(ctx.get(),
-                    ItemModelUtils.specialModel(AnvilCraft.of("block/giant_monolith_line"),
-                        new MonolithItemRenderer.Unbaked(ctx.get().getBlock())));
-            }
-        })
+        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(ctx.get(),
+                                                                                                                                                    ItemModelUtils.specialModel(AnvilCraft.of("block/giant_monolith_line"),
+                new MonolithItemRenderer.Unbaked(ctx.get().getBlock()))))
         .build()
         .register();
 

@@ -1,21 +1,31 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_copper_plates": {
+    "has_cocoa_liquor": {
       "conditions": {
         "items": [
           {
-            "items": "#c:plates/copper"
+            "items": "anvilcraft:cocoa_liquor"
           }
         ]
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_resin": {
+    "has_cream": {
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:resin"
+            "items": "anvilcraft:cream"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_sugar": {
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:sugar"
           }
         ]
       },
@@ -23,7 +33,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:capacitor_empty"
+        "recipe": "anvilcraft:black_chocolate"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -31,13 +41,14 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_copper_plates",
-      "has_resin"
+      "has_cocoa_liquor",
+      "has_cream",
+      "has_sugar"
     ]
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:capacitor_empty"
+      "anvilcraft:black_chocolate"
     ]
   }
 }

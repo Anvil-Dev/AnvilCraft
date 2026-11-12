@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "A": "anvilcraft:chocolate_white"
+    "A": "anvilcraft:white_chocolate"
   },
   "pattern": [
     "AAA",

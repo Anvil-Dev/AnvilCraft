@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_cocoa_liquor": {
+    "has_cocoa_butter": {
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:cocoa_liquor"
+            "items": "anvilcraft:cocoa_butter"
           }
         ]
       },
@@ -33,7 +33,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:chocolate_black"
+        "recipe": "anvilcraft:white_chocolate"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -41,14 +41,14 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_cocoa_liquor",
+      "has_cocoa_butter",
       "has_cream",
       "has_sugar"
     ]
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:chocolate_black"
+      "anvilcraft:white_chocolate"
     ]
   }
 }
