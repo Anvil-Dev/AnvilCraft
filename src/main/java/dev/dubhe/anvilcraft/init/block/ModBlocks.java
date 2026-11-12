@@ -3233,8 +3233,10 @@ public class ModBlocks {
         .properties(properties -> properties.sound(SoundType.HONEY_BLOCK))
         .item(ResinBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> (ctx, generator) -> DataGenUtil.<ResinBlockItem>specialBlockItem(new HasMobBlockItemRenderer.Unbaked(ctx.get().getBlock()), false)
-            .accept(ctx, generator))
+        .model(() -> (ctx, generator) -> DataGenUtil
+            .<ResinBlockItem>specialBlockItem(new HasMobBlockItemRenderer.Unbaked(ctx.get().getBlock()), false)
+            .accept(ctx, generator)
+        )
         .tag(Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_RESIN)
         .build()
         .tag(Tags.Blocks.STORAGE_BLOCKS, ModBlockTags.STORAGE_BLOCKS_RESIN)
@@ -3259,8 +3261,10 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(HasMobBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> (ctx, generator) -> DataGenUtil.<HasMobBlockItem>specialBlockItem(new HasMobBlockItemRenderer.Unbaked(ctx.get().getBlock()), false)
-            .accept(ctx, generator))
+        .model(() -> (ctx, generator) -> DataGenUtil
+            .<HasMobBlockItem>specialBlockItem(new HasMobBlockItemRenderer.Unbaked(ctx.get().getBlock()), false)
+            .accept(ctx, generator)
+        )
         .properties(properties -> properties.component(
             ModComponents.SAVED_ENTITY,
             new SavedEntity(EntityType.MOOSHROOM, new CompoundTag(), false)
@@ -3287,8 +3291,10 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(HasMobBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> (ctx, generator) -> DataGenUtil.<HasMobBlockItem>specialBlockItem(new HasMobBlockItemRenderer.Unbaked(ctx.get().getBlock()), false)
-            .accept(ctx, generator))
+        .model(() -> (ctx, generator) -> DataGenUtil
+            .<HasMobBlockItem>specialBlockItem(new HasMobBlockItemRenderer.Unbaked(ctx.get().getBlock()), false)
+            .accept(ctx, generator)
+        )
         .properties(properties -> properties.component(
             ModComponents.SAVED_ENTITY,
             new SavedEntity(EntityType.ZOMBIE, new CompoundTag(), true)
@@ -5261,9 +5267,10 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(ctx.get(),
-                                                                                                                                                    ItemModelUtils.specialModel(AnvilCraft.of("block/monolith_core"),
-                new MonolithItemRenderer.Unbaked(ctx.get().getBlock()))))
+        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(
+            ctx.get(),
+            ItemModelUtils.specialModel(AnvilCraft.of("block/monolith_core"), new MonolithItemRenderer.Unbaked(ctx.get().getBlock()))
+        ))
         .build()
         .recipe(RegistrumBlockRecipeLoader::monolithCore)
         .register();
@@ -5279,9 +5286,10 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(ctx.get(),
-                                                                                                                                                    ItemModelUtils.specialModel(AnvilCraft.of("block/monolith_line"),
-                new MonolithItemRenderer.Unbaked(ctx.get().getBlock()))))
+        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(
+            ctx.get(),
+            ItemModelUtils.specialModel(AnvilCraft.of("block/monolith_line"), new MonolithItemRenderer.Unbaked(ctx.get().getBlock()))
+        ))
         .build()
         .recipe(RegistrumBlockRecipeLoader::monolithLine)
         .register();
@@ -5321,9 +5329,10 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(ctx.get(),
-                                                                                                                                                    ItemModelUtils.specialModel(AnvilCraft.of("block/giant_monolith_line"),
-                new MonolithItemRenderer.Unbaked(ctx.get().getBlock()))))
+        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(
+            ctx.get(),
+            ItemModelUtils.specialModel(AnvilCraft.of("block/giant_monolith_line"), new MonolithItemRenderer.Unbaked(ctx.get().getBlock()))
+        ))
         .build()
         .register();
 
