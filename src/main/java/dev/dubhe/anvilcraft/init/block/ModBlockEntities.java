@@ -289,7 +289,7 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<LensBlockEntity> LENS = REGISTRUM.blockEntity(
         "lens",
         LensBlockEntity::new
-    ).validBlock(ModBlocks.LENS).register();
+    ).renderer(() -> LaserBlockRenderer::new).validBlock(ModBlocks.LENS).register();
 
     public static final BlockEntityEntry<OverseerBlockEntity> OVERSEER = REGISTRUM.blockEntity(
         "overseer",
