@@ -135,7 +135,9 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModItems.EMBER_ANVIL_HAMMER.get(), "It's a hammer, an anvil, a wrench, goggles, and a mace");
         ItemTooltipManager.NORMAL.put(ModItems.FROST_ANVIL_HAMMER.get(), "It's a hammer, an anvil, a wrench, goggles, and a mace");
         ItemTooltipManager.NORMAL.put(ModItems.TRANSCENDENCE_ANVIL_HAMMER.get(), "It's a hammer, an anvil, a wrench, goggles, and a mace");
-        ItemTooltipManager.NORMAL.put(ModBlocks.CURSED_GOLD_BLOCK.asItem(), "Carriers will be cursed");
+        ItemTooltipManager.NORMAL.put(ModBlocks.CURSED_GOLD_BLOCK.asItem(), """
+            Carriers will be cursed
+            Reduce 1 level of Ench Power""");
         ItemTooltipManager.NORMAL.put(ModItems.CURSED_GOLD_INGOT.get(), "Carriers will be cursed");
         ItemTooltipManager.NORMAL.put(ModItems.CURSED_GOLD_NUGGET.get(), "Carriers will be cursed");
         ItemTooltipManager.NORMAL.put(ModBlocks.ENCHANTED_GOLD_BLOCK.asItem(), "Carrying enchanted gold cancels cursed gold debuffs");
@@ -741,6 +743,10 @@ public class ItemTooltipManager {
         );
         ItemTooltipManager.NORMAL.put(ModBlocks.LENS.asItem(), "Use special glass to enchant lasers");
         ItemTooltipManager.NORMAL.put(ModItems.CHECK_VALVE.get(), "Allows fluid to flow in only one direction");
+        ItemTooltipManager.NORMAL.put(
+            ModItems.CIVILIZATION_CATALYST.get(),
+            "Material for building a Monolith Deployer, used in the Celestial Forging Anvil"
+        );
         ItemTooltipManager.NORMAL.put(
             ModItems.DYSON_SPHERE_COMPONENT.get(),
             "Material for building a Dyson Sphere, used in the Celestial Forging Anvil"
