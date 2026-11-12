@@ -5458,40 +5458,64 @@ public class ModBlocks {
             GiantMonolithCoreBlock::new
         )
         .initialProperties(() -> Blocks.REINFORCED_DEEPSLATE)
-        .properties(properties -> properties.pushReaction(PushReaction.BLOCK))
+        .properties(properties -> properties
+            .pushReaction(PushReaction.BLOCK)
+            .lightLevel(state -> 10)
+            .noOcclusion()
+            .noCollision()
+            .overrideLootTable(Optional.of(ResourceKey.create(Registries.LOOT_TABLE, AnvilCraft.of("blocks/giant_monolith_core"))))
+        )
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .loot(SimpleMultiPartBlock::loot)
-        .properties(properties -> properties.lightLevel(state -> 10).noOcclusion().noCollision())
-        .properties(properties -> properties.overrideLootTable(Optional.of(ResourceKey.create(
-            Registries.LOOT_TABLE, AnvilCraft.of("blocks/giant_monolith_core")))))
         .lang("Giant Monolith Core")
         .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
         .transform(PropertiesProviderUtil::blockItem)
         .properties(properties -> properties.stacksTo(16).useBlockDescriptionPrefix())
         .setData(ProviderType.LANG, (_, _) -> {})
-        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(
-            ctx.get(),
-            ItemModelUtils.specialModel(AnvilCraft.of("block/giant_monolith_core"), new MonolithItemRenderer.Unbaked(ctx.get().getBlock()))
-        ))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(
+                DataGenContext<Item, SimpleMultiPartBlockItem<Cube3x3PartHalf>> ctx,
+                RegistrumItemModelGenerator generator
+            ) {
+                generator.itemModelOutput.accept(
+                    ctx.get(),
+                    ItemModelUtils.specialModel(
+                        AnvilCraft.of("block/giant_monolith_core"),
+                        new MonolithItemRenderer.Unbaked(ctx.get().getBlock())
+                    )
+                );
+            }
+        })
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .register();
 
     public static final BlockEntry<MonolithLineBlock> GIANT_MONOLITH_LINE = REGISTRUM.block("giant_monolith_line", MonolithLineBlock::new)
         .initialProperties(() -> Blocks.REINFORCED_DEEPSLATE)
-        .properties(properties -> properties.pushReaction(PushReaction.BLOCK))
+        .properties(properties -> properties
+            .pushReaction(PushReaction.BLOCK)
+            .lightLevel(state -> 10)
+            .noOcclusion()
+            .noCollision()
+            .overrideLootTable(Optional.of(ResourceKey.create(Registries.LOOT_TABLE, AnvilCraft.of("blocks/giant_monolith_line"))))
+        )
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
-        .properties(properties -> properties.lightLevel(state -> 10).noOcclusion().noCollision())
-        .properties(properties -> properties.overrideLootTable(Optional.of(ResourceKey.create(
-            Registries.LOOT_TABLE, AnvilCraft.of("blocks/giant_monolith_line")))))
-        .lang("Giant Monolith Line")
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(
-            ctx.get(),
-            ItemModelUtils.specialModel(AnvilCraft.of("block/giant_monolith_line"), new MonolithItemRenderer.Unbaked(ctx.get().getBlock()))
-        ))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
+                generator.itemModelOutput.accept(
+                    ctx.get(),
+                    ItemModelUtils.specialModel(
+                        AnvilCraft.of("block/giant_monolith_line"),
+                        new MonolithItemRenderer.Unbaked(ctx.get().getBlock())
+                    )
+                );
+            }
+        })
         .build()
         .register();
 
