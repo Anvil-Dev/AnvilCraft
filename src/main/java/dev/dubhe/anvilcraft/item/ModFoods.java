@@ -6,14 +6,14 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Items;
 
 public class ModFoods {
-    public static final FoodProperties CHOCOLATE = new FoodProperties.Builder()
+    public static final FoodProperties CHOCOLATE = ModFoods.builder()
         .nutrition(2)
         .saturationModifier(4.0f)
         .alwaysEdible()
         .fast()
         .effect(() -> new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 600, 3), 1.0f)
         .build();
-    public static final FoodProperties CHOCOLATE_BLACK = new FoodProperties.Builder()
+    public static final FoodProperties BLACK_CHOCOLATE = ModFoods.builder()
         .nutrition(2)
         .saturationModifier(2.0f)
         .alwaysEdible()
@@ -21,7 +21,9 @@ public class ModFoods {
         .effect(() -> new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 600, 1), 1.0f)
         .effect(() -> new MobEffectInstance(MobEffects.DIG_SPEED, 600, 2), 1.0f)
         .build();
-    public static final FoodProperties CHOCOLATE_WHITE = new FoodProperties.Builder()
+    @Deprecated(forRemoval = true)
+    public static final FoodProperties CHOCOLATE_BLACK = ModFoods.BLACK_CHOCOLATE;
+    public static final FoodProperties WHITE_CHOCOLATE = ModFoods.builder()
         .nutrition(2)
         .saturationModifier(2.0f)
         .alwaysEdible()
@@ -29,13 +31,24 @@ public class ModFoods {
         .effect(() -> new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 600, 1), 1.0f)
         .effect(() -> new MobEffectInstance(MobEffects.JUMP, 600, 3), 1.0f)
         .build();
-    public static final FoodProperties CREAMY_BREAD_ROLL =
-        new FoodProperties.Builder().nutrition(8).saturationModifier(0.5f).build();
-    public static final FoodProperties BEEF_MUSHROOM_STEW =
-        new FoodProperties.Builder().nutrition(10).saturationModifier(0.8f).usingConvertsTo(Items.BOWL).build();
-    public static final FoodProperties CURSED_GOLDEN_APPLE = new FoodProperties.Builder()
+    @Deprecated(forRemoval = true)
+    public static final FoodProperties CHOCOLATE_WHITE = ModFoods.WHITE_CHOCOLATE;
+    public static final FoodProperties CREAMY_BREAD_ROLL = ModFoods.builder()
+        .nutrition(8)
+        .saturationModifier(0.5f)
+        .build();
+    public static final FoodProperties BEEF_MUSHROOM_STEW = ModFoods.builder()
+        .nutrition(10)
+        .saturationModifier(0.8f)
+        .usingConvertsTo(Items.BOWL)
+        .build();
+    public static final FoodProperties CURSED_GOLDEN_APPLE = ModFoods.builder()
         .nutrition(4)
         .saturationModifier(0.3f)
         .alwaysEdible()
         .build();
+
+    private static FoodProperties.Builder builder() {
+        return new FoodProperties.Builder();
+    }
 }

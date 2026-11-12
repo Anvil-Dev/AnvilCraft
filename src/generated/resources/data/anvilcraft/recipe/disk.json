@@ -3,7 +3,7 @@
   "category": "equipment",
   "key": {
     "A": {
-      "item": "anvilcraft:hardend_resin"
+      "item": "anvilcraft:hardened_resin"
     },
     "B": {
       "item": "minecraft:iron_ingot"

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "bottom": "anvilcraft:block/cyan_reinforced_concrete",
+    "side": "anvilcraft:block/cyan_reinforced_concrete",
+    "top": "anvilcraft:block/cyan_reinforced_concrete"
+  }
+}

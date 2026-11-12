@@ -76,7 +76,7 @@ public class JewelCraftingRecipeGeneratingCache extends BaseGeneratingCache<Jewe
         }
         for (Item musicDisc : this.musicDiscs) {
             JewelCraftingRecipe recipe = JewelCraftingRecipe.builder()
-                .requires(ModItems.HARDEND_RESIN, 4)
+                .requires(ModItems.HARDENED_RESIN, 4)
                 .requires(Items.PAPER)
                 .result(musicDisc.getDefaultInstance())
                 .hasVanishingCurse(false)

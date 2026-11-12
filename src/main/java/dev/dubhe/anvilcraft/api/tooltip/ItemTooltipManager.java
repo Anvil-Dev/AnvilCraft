@@ -872,11 +872,11 @@ public class ItemTooltipManager {
             "Tasty chocolate made with real cocoa butter, eat a bite to gain Speed"
         );
         ItemTooltipManager.NORMAL.put(
-            ModFoodItems.CHOCOLATE_BLACK.get(),
+            ModFoodItems.BLACK_CHOCOLATE.get(),
             "Tasty dark chocolate made with real cocoa butter, eat a bite to gain Haste"
         );
         ItemTooltipManager.NORMAL.put(
-            ModFoodItems.CHOCOLATE_WHITE.get(),
+            ModFoodItems.WHITE_CHOCOLATE.get(),
             "Tasty white chocolate made with real cocoa butter, eat a bite to gain Jump Boost"
         );
         ItemTooltipManager.NORMAL.put(ModBlocks.CHOCOLATE_BLOCK.asItem(), "Made by real cocoa butter, step on it to gain Speed");

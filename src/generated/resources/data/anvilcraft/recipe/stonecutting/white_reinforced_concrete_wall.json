@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "anvilcraft:white_reinforced_concrete"
+  },
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:white_reinforced_concrete_wall"
+  }
+}

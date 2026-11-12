@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "anvilcraft:magenta_reinforced_concrete"
+  },
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:magenta_reinforced_concrete_stairs"
+  }
+}

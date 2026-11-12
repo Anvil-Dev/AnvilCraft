@@ -12,7 +12,7 @@
       "item": "anvilcraft:anvil_hammer"
     },
     "D": {
-      "item": "anvilcraft:capacitor_empty"
+      "item": "anvilcraft:empty_capacitor"
     }
   },
   "pattern": [

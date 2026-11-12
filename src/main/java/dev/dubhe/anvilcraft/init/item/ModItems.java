@@ -117,8 +117,6 @@ import dev.dubhe.anvilcraft.saved.storage.CraftingStorage;
 import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import dev.dubhe.anvilcraft.util.DataGenUtil;
 import dev.dubhe.anvilcraft.util.registrater.ModelProviderUtil;
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
@@ -146,6 +144,9 @@ import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.Tags;
 
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -167,35 +168,35 @@ public class ModItems {
     public static final ItemEntry<GeodeItem> GEODE = REGISTRUM.item("geode", GeodeItem::new).register();
     public static final ItemEntry<? extends PickaxeItem> AMETHYST_PICKAXE = REGISTRUM.item("amethyst_pickaxe", AmethystPickaxeItem::new)
         .recipe(RegistrumItemRecipeLoader.pickaxe(Items.AMETHYST_SHARD, (ctx, provider) ->
-            enchanted(ctx.get(), Enchantments.FORTUNE, 3, provider.getProvider())
+            ModItems.enchanted(ctx.get(), Enchantments.FORTUNE, 3, provider.getProvider())
         ))
         .model((ctx, provider) -> provider.handheld(ctx))
         .tag(ItemTags.PICKAXES, ItemTags.CLUSTER_MAX_HARVESTABLES, Tags.Items.MINING_TOOL_TOOLS)
         .register();
     public static final ItemEntry<? extends AxeItem> AMETHYST_AXE = REGISTRUM.item("amethyst_axe", AmethystAxeItem::new)
         .recipe(RegistrumItemRecipeLoader.axe(Items.AMETHYST_SHARD, (ctx, provider) ->
-            enchanted(ctx.get(), ModEnchantments.FELLING_KEY, 1, provider.getProvider())
+            ModItems.enchanted(ctx.get(), ModEnchantments.FELLING_KEY, 1, provider.getProvider())
         ))
         .model((ctx, provider) -> provider.handheld(ctx))
         .tag(ItemTags.AXES, Tags.Items.MELEE_WEAPON_TOOLS)
         .register();
     public static final ItemEntry<? extends HoeItem> AMETHYST_HOE = REGISTRUM.item("amethyst_hoe", AmethystHoeItem::new)
         .recipe(RegistrumItemRecipeLoader.hoe(Items.AMETHYST_SHARD, (ctx, provider) ->
-            enchanted(ctx.get(), ModEnchantments.HARVEST_KEY, 1, provider.getProvider())
+            ModItems.enchanted(ctx.get(), ModEnchantments.HARVEST_KEY, 1, provider.getProvider())
         ))
         .model((ctx, provider) -> provider.handheld(ctx))
         .tag(ItemTags.HOES)
         .register();
     public static final ItemEntry<? extends SwordItem> AMETHYST_SWORD = REGISTRUM.item("amethyst_sword", AmethystSwordItem::new)
         .recipe(RegistrumItemRecipeLoader.sword(Items.AMETHYST_SHARD, (ctx, provider) ->
-            enchanted(ctx.get(), ModEnchantments.BEHEADING_KEY, 1, provider.getProvider())
+            ModItems.enchanted(ctx.get(), ModEnchantments.BEHEADING_KEY, 1, provider.getProvider())
         ))
         .model((ctx, provider) -> provider.handheld(ctx))
         .tag(ItemTags.SWORDS, Tags.Items.MELEE_WEAPON_TOOLS)
         .register();
     public static final ItemEntry<? extends ShovelItem> AMETHYST_SHOVEL = REGISTRUM.item("amethyst_shovel", AmethystShovelItem::new)
         .recipe(RegistrumItemRecipeLoader.shovel(Items.AMETHYST_SHARD, (ctx, provider) ->
-            enchanted(ctx.get(), Enchantments.EFFICIENCY, 3, provider.getProvider())
+            ModItems.enchanted(ctx.get(), Enchantments.EFFICIENCY, 3, provider.getProvider())
         ))
         .model((ctx, provider) -> provider.handheld(ctx))
         .tag(ItemTags.SHOVELS)
@@ -517,7 +518,6 @@ public class ModItems {
         .register();
 
     public static final ItemEntry<? extends IonocraftItem> IONOCRAFT = REGISTRUM.item("ionocraft", IonocraftItem::new)
-        .initialProperties(Item.Properties::new)
         .recipe(RegistrumItemRecipeLoader::ionocraft)
         .register();
 
@@ -605,7 +605,8 @@ public class ModItems {
         .register();
     public static final ItemEntry<EmberMetalUpgradeTemplateItem> EMBER_METAL_UPGRADE_SMITHING_TEMPLATE = REGISTRUM
         .item("ember_metal_upgrade_smithing_template", EmberMetalUpgradeTemplateItem::new)
-        .lang("Smithing Template").tag(ModItemTags.TEMPLATES)
+        .lang("Smithing Template")
+        .tag(ModItemTags.TEMPLATES)
         .register();
     public static final ItemEntry<PermutationTemplateItem> PERMUTATION_TEMPLATE_ITEM = REGISTRUM
         .item("permutation_smithing_template", PermutationTemplateItem::new)
@@ -720,85 +721,85 @@ public class ModItems {
             .register();
     }
 
-    public static final ItemEntry<? extends Item> EMERALD_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> EMERALD_AMULET = ModItems.createAmuletItem(
         "emerald",
         ModAmulets.EMERALD.getKey(),
         ModAmulets.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(Items.EMERALD_BLOCK),
         ModItemTags.AUTO_ENCHANTING_TABLE_PRIMERS
     );
-    public static final ItemEntry<? extends Item> TOPAZ_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> TOPAZ_AMULET = ModItems.createAmuletItem(
         "topaz",
         ModAmulets.TOPAZ.getKey(),
         ModAmulets.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(ModBlocks.TOPAZ_BLOCK)
     );
-    public static final ItemEntry<? extends Item> RUBY_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> RUBY_AMULET = ModItems.createAmuletItem(
         "ruby",
         ModAmulets.RUBY.getKey(),
         ModAmulets.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(ModBlocks.RUBY_BLOCK)
     );
-    public static final ItemEntry<? extends Item> SAPPHIRE_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> SAPPHIRE_AMULET = ModItems.createAmuletItem(
         "sapphire",
         ModAmulets.SAPPHIRE.getKey(),
         ModAmulets.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(ModBlocks.SAPPHIRE_BLOCK)
     );
-    public static final ItemEntry<? extends Item> ANVIL_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> ANVIL_AMULET = ModItems.createAmuletItem(
         "anvil",
         ModAmulets.ANVIL.getKey(),
         ModAmulets.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(Items.ANVIL)
     );
-    public static final ItemEntry<? extends Item> COMRADE_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> COMRADE_AMULET = ModItems.createAmuletItem(
         "comrade",
         ComradeAmuletItem::new,
         ModAmulets.COMRADE.getKey(),
         ModAmulets.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(Items.NAME_TAG, 4)
     );
-    public static final ItemEntry<? extends Item> FEATHER_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> FEATHER_AMULET = ModItems.createAmuletItem(
         "feather",
         ModAmulets.FEATHER.getKey(),
         ModAmulets.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(Items.FEATHER, 16).requires(Items.PHANTOM_MEMBRANE, 4)
     );
-    public static final ItemEntry<? extends Item> ARMADILLO_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> ARMADILLO_AMULET = ModItems.createAmuletItem(
         "armadillo",
         ModAmulets.ARMADILLO.getKey(),
         ModAmulets.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(Items.SPIDER_EYE, 16).requires(Items.ARMADILLO_SCUTE, 4)
     );
-    public static final ItemEntry<? extends Item> CAT_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> CAT_AMULET = ModItems.createAmuletItem(
         "cat",
         ModAmulets.CAT.getKey(),
         ModAmulets.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(Items.SALMON, 16).requires(Items.COD, 16)
     );
-    public static final ItemEntry<? extends Item> DOG_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> DOG_AMULET = ModItems.createAmuletItem(
         "dog",
         ModAmulets.DOG.getKey(),
         ModAmulets.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(Items.BONE, 16).requires(ItemTags.MEAT, 16)
     );
-    public static final ItemEntry<? extends Item> SILENCE_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> SILENCE_AMULET = ModItems.createAmuletItem(
         "silence",
         ModAmulets.SILENCE.getKey(),
         ModAmulets.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(Items.ECHO_SHARD, 16)
     );
-    public static final ItemEntry<? extends Item> ABNORMAL_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> ABNORMAL_AMULET = ModItems.createAmuletItem(
         "abnormal",
         ModAmulets.ABNORMAL.getKey(),
         ModAmulets.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(ModItems.CURSED_GOLD_INGOT, 1).requires(ModItems.LEVITATION_POWDER, 16)
     );
-    public static final ItemEntry<? extends Item> GEM_AMULET = createBigAmuletItem(
+    public static final ItemEntry<? extends Item> GEM_AMULET = ModItems.createBigAmuletItem(
         "gem",
         ModAmulets.GEM.getKey()
     );
-    public static final ItemEntry<? extends Item> NATURE_AMULET = createBigAmuletItem(
+    public static final ItemEntry<? extends Item> NATURE_AMULET = ModItems.createBigAmuletItem(
         "nature",
         ModAmulets.NATURE.getKey()
     );
@@ -807,8 +808,9 @@ public class ModItems {
         .model(DataGenUtil::noExtraModelOrState)
         .tag(ModItemTags.CAPACITOR)
         .register();
-    public static final ItemEntry<EmptyCapacitorItem> CAPACITOR_EMPTY = REGISTRUM.item("capacitor_empty", EmptyCapacitorItem::new)
-        .lang("Empty Capacitor")
+    public static final ItemEntry<EmptyCapacitorItem> CAPACITOR_EMPTY = REGISTRUM
+        .item("empty_capacitor", EmptyCapacitorItem::new)
+        .aliasFrom(AnvilCraft.of("capacitor_empty"))
         .model(DataGenUtil::noExtraModelOrState)
         .tag(ModItemTags.CAPACITOR)
         .recipe(RegistrumItemRecipeLoader::capacitorEmpty)
@@ -816,16 +818,16 @@ public class ModItems {
     public static final ItemEntry<SuperCapacitorItem> SUPER_CAPACITOR = REGISTRUM.item("supercapacitor", SuperCapacitorItem::new)
         .model(DataGenUtil::noExtraModelOrState)
         .register();
-    public static final ItemEntry<EmptySuperCapacitorItem> SUPER_CAPACITOR_EMPTY = REGISTRUM.item(
-        "supercapacitor_empty",
-        EmptySuperCapacitorItem::new
-    ).lang("Empty Supercapacitor").model(DataGenUtil::noExtraModelOrState).register();
+    public static final ItemEntry<EmptySuperCapacitorItem> SUPER_CAPACITOR_EMPTY = REGISTRUM
+        .item("empty_supercapacitor", EmptySuperCapacitorItem::new)
+        .aliasFrom(AnvilCraft.of("supercapacitor_empty"))
+        .model(DataGenUtil::noExtraModelOrState)
+        .register();
 
     public static final ItemEntry<Item> TIN_CAN = REGISTRUM.item("tin_can", Item::new).register();
 
     public static final ItemEntry<FluidTankMinecartItem> FLUID_TANK_MINECART = REGISTRUM
         .item("fluid_tank_minecart", FluidTankMinecartItem::new)
-        .lang("Fluid Tank Minecart")
         .recipe(RegistrumItemRecipeLoader::fluidTankMinecart)
         .register();
 
@@ -948,19 +950,13 @@ public class ModItems {
         .recipe(RegistrumItemRecipeLoader::cursedGoldNugget)
         .register();
     // 附魔黄金系
-    public static final ItemEntry<EnchantedGoldIngotItem> ENCHANTED_GOLD_INGOT = REGISTRUM.item(
-        "enchanted_gold_ingot",
-        EnchantedGoldIngotItem::new
-    )
-        .lang("Enchanted Gold Ingot")
+    public static final ItemEntry<EnchantedGoldIngotItem> ENCHANTED_GOLD_INGOT = REGISTRUM
+        .item("enchanted_gold_ingot", EnchantedGoldIngotItem::new)
         .tag(ItemTags.BEACON_PAYMENT_ITEMS, ItemTags.PIGLIN_LOVED, Tags.Items.INGOTS, ModItemTags.ENCHANTED_GOLD)
         .recipe(RegistrumItemRecipeLoader::enchantedGoldIngot)
         .register();
-    public static final ItemEntry<EnchantedGoldItem> ENCHANTED_GOLD_NUGGET = REGISTRUM.item(
-        "enchanted_gold_nugget",
-        EnchantedGoldItem::new
-    )
-        .lang("Enchanted Gold Nugget")
+    public static final ItemEntry<EnchantedGoldItem> ENCHANTED_GOLD_NUGGET = REGISTRUM
+        .item("enchanted_gold_nugget", EnchantedGoldItem::new)
         .tag(ItemTags.PIGLIN_LOVED, Tags.Items.NUGGETS, ModItemTags.ENCHANTED_GOLD)
         .recipe(RegistrumItemRecipeLoader::enchantedGoldNugget)
         .register();
@@ -989,7 +985,12 @@ public class ModItems {
         .tag(Tags.Items.GEMS, ModItemTags.GEMS_AMBER)
         .recipe(RegistrumItemRecipeLoader::amber)
         .register();
-    public static final ItemEntry<Item> HARDEND_RESIN = REGISTRUM.item("hardend_resin", Item::new).register();
+    public static final ItemEntry<Item> HARDENED_RESIN = REGISTRUM
+        .item("hardened_resin", Item::new)
+        .aliasFrom(AnvilCraft.of("hardend_resin"))
+        .register();
+    @Deprecated(forRemoval = true)
+    public static final ItemEntry<Item> HARDEND_RESIN = ModItems.HARDENED_RESIN;
     public static final ItemEntry<Item> WOOD_FIBER = REGISTRUM.item("wood_fiber", Item::new).register();
     public static final ItemEntry<Item> CIRCUIT_BOARD = REGISTRUM.item("circuit_board", Item::new)
         .recipe(RegistrumItemRecipeLoader::circuitBoard)
@@ -1162,13 +1163,11 @@ public class ModItems {
         .register();
 
     public static final ItemEntry<Item> NEGATIVE_MATTER = REGISTRUM.item("negative_matter", Item::new)
-        .initialProperties(Item.Properties::new)
         .tag(ModItemTags.COMPRESS_ITEM)
         .recipe(RegistrumItemRecipeLoader::negativeMatter)
         .register();
 
     public static final ItemEntry<Item> NEGATIVE_MATTER_NUGGET = REGISTRUM.item("negative_matter_nugget", Item::new)
-        .initialProperties(Item.Properties::new)
         .tag(Tags.Items.NUGGETS)
         .recipe(RegistrumItemRecipeLoader::negativeMatterNugget)
         .register();
@@ -1287,7 +1286,24 @@ public class ModItems {
         .model(ModelProviderUtil::bucket)
         .register();
 
-    public static final Object2ObjectMap<Color, ItemEntry<BucketItem>> CEMENT_BUCKETS = registerAllCementBuckets();
+    public static final Map<Color, ItemEntry<BucketItem>> CEMENT_BUCKETS;
+
+    static {
+        EnumMap<Color, ItemEntry<BucketItem>> map = new EnumMap<>(Color.class);
+        for (Color color : Color.values()) {
+            var entry = ModItems.registerCementBucket(color);
+            map.put(color, entry);
+        }
+        CEMENT_BUCKETS = Collections.unmodifiableMap(map);
+    }
+
+    private static ItemEntry<BucketItem> registerCementBucket(Color color) {
+        return REGISTRUM.item("%s_cement_bucket".formatted(color), ModItems.bucket(() -> ModFluids.SOURCE_CEMENTS.get(color)))
+            .tag(Tags.Items.BUCKETS, ModItemTags.CEMENT_BUCKETS)
+            .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
+            .model(ModelProviderUtil::bucket)
+            .register();
+    }
 
     public static ItemEntry<BucketItem> MELT_GEM_BUCKET = REGISTRUM.item("melt_gem_bucket", ModItems.bucket(() -> ModFluids.MELT_GEM))
         .tag(Tags.Items.BUCKETS)
@@ -1297,21 +1313,18 @@ public class ModItems {
 
     public static final ItemEntry<BucketItem> HYDROGEN_BUCKET = REGISTRUM.item("hydrogen_bucket", ModItems.bucket(() -> ModFluids.HYDROGEN))
         .tag(Tags.Items.BUCKETS)
-        .lang("Hydrogen Bucket")
         .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucketGassy)
         .register();
 
     public static final ItemEntry<BucketItem> OXYGEN_BUCKET = REGISTRUM.item("oxygen_bucket", ModItems.bucket(() -> ModFluids.OXYGEN))
         .tag(Tags.Items.BUCKETS)
-        .lang("Oxygen Bucket")
         .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucketGassy)
         .register();
 
     public static final ItemEntry<BucketItem> HELIUM_BUCKET = REGISTRUM.item("helium_bucket", ModItems.bucket(() -> ModFluids.HELIUM))
         .tag(Tags.Items.BUCKETS)
-        .lang("Helium Bucket")
         .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucketGassy)
         .register();
@@ -1319,7 +1332,6 @@ public class ModItems {
     public static final ItemEntry<BucketItem> DEUTERIUM_BUCKET = REGISTRUM
         .item("deuterium_bucket", ModItems.bucket(() -> ModFluids.DEUTERIUM))
         .tag(Tags.Items.BUCKETS)
-        .lang("Deuterium Bucket")
         .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucketGassy)
         .register();
@@ -1327,7 +1339,6 @@ public class ModItems {
     public static final ItemEntry<BucketItem> XENON_BUCKET = REGISTRUM
         .item("xenon_bucket", ModItems.bucket(() -> ModFluids.XENON))
         .tag(Tags.Items.BUCKETS)
-        .lang("Xenon Bucket")
         .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucketGassy)
         .register();
@@ -1335,7 +1346,6 @@ public class ModItems {
     public static final ItemEntry<BucketItem> KRYPTON_BUCKET = REGISTRUM
         .item("krypton_bucket", ModItems.bucket(() -> ModFluids.KRYPTON))
         .tag(Tags.Items.BUCKETS)
-        .lang("Krypton Bucket")
         .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucketGassy)
         .register();
@@ -1343,7 +1353,6 @@ public class ModItems {
     public static final ItemEntry<BucketItem> PRIMORDIAL_MATTER_BUCKET = REGISTRUM
         .item("primordial_matter_bucket", ModItems.bucket(() -> ModFluids.PRIMORDIAL_MATTER))
         .tag(Tags.Items.BUCKETS)
-        .lang("Primordial Matter Bucket")
         .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucketGassy)
         .register();
@@ -1358,7 +1367,6 @@ public class ModItems {
 
     public static final ItemEntry<PipeBlockItem> GLASS_PIPE = REGISTRUM
         .item("glass_pipe", properties -> new PipeBlockItem(properties, ModBlocks.GLASS_PIPE_STRAIGHT))
-        .lang("Glass Pipe")
         .model((ctx, provider) -> provider
             .withExistingParent(ctx.getId().toString(), AnvilCraft.of("block/glass_pipe"))
         )
@@ -1366,29 +1374,11 @@ public class ModItems {
         .register();
 
     public static final ItemEntry<CheckValveItem> CHECK_VALVE = REGISTRUM.item("check_valve", CheckValveItem::new)
-        .lang("Check Valve")
         .model((ctx, provider) -> provider
             .withExistingParent(ctx.getId().toString(), AnvilCraft.of("block/check_valve"))
         )
         .recipe(RegistrumItemRecipeLoader::checkValve)
         .register();
-
-    private static Object2ObjectMap<Color, ItemEntry<BucketItem>> registerAllCementBuckets() {
-        Object2ObjectMap<Color, ItemEntry<BucketItem>> map = new Object2ObjectLinkedOpenHashMap<>();
-        for (Color color : Color.values()) {
-            var entry = registerCementBucket(color);
-            map.put(color, entry);
-        }
-        return map;
-    }
-
-    private static ItemEntry<BucketItem> registerCementBucket(Color color) {
-        return REGISTRUM.item("%s_cement_bucket".formatted(color), ModItems.bucket(() -> ModFluids.SOURCE_CEMENTS.get(color)))
-            .tag(Tags.Items.BUCKETS, ModItemTags.CEMENT_BUCKETS)
-            .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
-            .model(ModelProviderUtil::bucket)
-            .register();
-    }
 
     public static void register() {
     }
@@ -1401,7 +1391,6 @@ public class ModItems {
         } else {
             AnvilCraft.LOGGER.error("", new NoSuchElementException(enchKey.location().toString()));
         }
-        // stack.enchant(registries.holderOrThrow(enchKey), level);
         return stack;
     }
 
@@ -1410,7 +1399,7 @@ public class ModItems {
         int level
     ) {
         return (ctx, modifier) -> {
-            modifier.accept(enchanted(ctx.get(), enchKey, level, modifier.getParameters().holders()));
+            modifier.accept(ModItems.enchanted(ctx.get(), enchKey, level, modifier.getParameters().holders()));
         };
     }
 

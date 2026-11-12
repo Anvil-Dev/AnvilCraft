@@ -3,7 +3,7 @@
   "category": "redstone",
   "key": {
     "H": {
-      "item": "anvilcraft:hardend_resin"
+      "item": "anvilcraft:hardened_resin"
     },
     "I": {
       "item": "minecraft:iron_ingot"

@@ -1,7 +1,0 @@
-{
-  "parent": "minecraft:block/cube_column",
-  "textures": {
-    "end": "anvilcraft:block/reinforced_concrete_black",
-    "side": "anvilcraft:block/reinforced_concrete_black_bottom"
-  }
-}
