@@ -83,7 +83,7 @@ public class ModEntities {
 
     public static final EntityEntry<? extends IonocraftEntity> IONOCRAFT = AnvilCraft.REGISTRUM
         .<IonocraftEntity>entity("ionocraft", IonocraftEntity::new, MobCategory.MISC)
-        .properties(it -> it.sized(0.98f, 0.98f)
+        .properties(it -> it.sized(0.75f, 0.48f)
             .eyeHeight(0.5625F)
             .clientTrackingRange(10)
         ).renderer(() -> IonocraftRenderer::new)
