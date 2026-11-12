@@ -762,7 +762,8 @@ public class ModAdvancementsHandler {
                 ModBlocks.CELESTIAL_FORGING_ANVIL,
                 Component.translatable("advancements.anvilcraft.electric_allergy.title"),
                 Component.translatable("advancements.anvilcraft.electric_allergy.description"),
-                AdvancementType.CHALLENGE
+                AdvancementType.CHALLENGE,
+                true
             )
             .requireAny()
             .electricAllergy("electric_allergy")
