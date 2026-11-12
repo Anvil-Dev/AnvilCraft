@@ -4,7 +4,7 @@ navigation:
   icon: "minecraft:ancient_debris"
 ---
 
-# 加工：远古残骸
+# 远古残骸再生机
 
 以下机器用于[量产下界合金](../008_recipe/210_netherite_ingot.md)中的远古残骸加工
 
@@ -15,7 +15,7 @@ navigation:
 - <ref item="anvilcraft:pulse_generator"/>设为(循环模式| 16gt | 0gt)
 - 所有 <ref item="minecraft:smooth_stone"/> 可替换为 任意完整不透明方块
 
-## 进阶版
+## 进阶版远古残骸再生机
 
 <structure id="../../structures/machine/ancient_debris_advanced.nbt"/>
 
@@ -23,5 +23,5 @@ navigation:
 但每次关机会额外喷出 1 个下界合金碎片浪费掉。还有，开机前记得给加热器通电！
 
 <tip>
-你也可以尝试设计其它架构的残骸机
+可以点击结构中的脉冲发生器来查看配置，或导出使用建筑杖粘贴
 </tip>

@@ -4,7 +4,7 @@ navigation:
   icon: "minecraft:scaffolding"
 ---
 
-# Processing: Automatic Meshing
+# Automatic Meshing Machine
 
 - From reading [Mineral Acquisition](../008_recipe/001_basic_minerals.md), you know that *meshing* can sift quartz from quartz sand produced by crushing diorite
 - However, only a portion of the material is used each *meshing* operation, and manually repeating the process is time-consuming and laborious
@@ -13,5 +13,5 @@ navigation:
 <structure id="../../structures/machine/mesh.nbt"/>
 
 <tip>
-Left-click to adjust position; right-click to adjust angle; PgUp/PgDn to adjust display height
+Click a pulse generator in the structure to view its configuration, or export the structure and paste it with a Building Rod.
 </tip>

@@ -4,7 +4,7 @@ navigation:
   icon: "minecraft:spruce_sapling"
 ---
 
-# 简易树厂
+# 简单树厂
 
 想要取之不尽用之不竭的木材吗？
 
@@ -22,7 +22,7 @@ navigation:
 机器**_不可旋转_**，确保树苗在机器的*西北角*，否则树无法生长！
 </warning>
 
-## 进阶版
+## 进阶版骨粉树场
 
 <structure id="../../structures/machine/tree_advanced.nbt"/>
 
@@ -37,3 +37,7 @@ navigation:
   <warning>
   机器**_不可旋转_**，确保树苗在机器的*西北角*，否则树无法生长！
   </warning>
+
+  <tips>
+  可以点击结构中的脉冲发生器来查看配置，或导出使用建筑杖粘贴
+  </tips>>

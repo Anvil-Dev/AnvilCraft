@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.AbstractStoragePortBlock;
+import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
 import dev.dubhe.anvilcraft.block.batch.BaseBatchCraftingBlock;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
@@ -38,12 +39,20 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
 
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class BlockEventListener {
+    @SubscribeEvent
+    public static void updateWallWires(BlockEvent.NeighborNotifyEvent event) {
+        if (event.getLevel() instanceof Level level && !level.isClientSide()) {
+            RedstoneWireBlock.neighborChangedAboveSupport(level, event.getPos(), event.getState().getBlock());
+        }
+    }
+
     /**
      * 侦听左键方块事件
      *

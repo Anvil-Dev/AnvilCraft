@@ -4,7 +4,7 @@ navigation:
   icon: "minecraft:sand"
 ---
 
-# 资源：三模沙机
+# 刷石机 & 砸沙机
 
 制造沙砾和沙子的机器，结构和刷石机类似
 
@@ -13,5 +13,5 @@ navigation:
 <structure id="../../structures/machine/sand.nbt"/>
 
 <tip>
-可以点击结构中的脉冲发生器来查看配置
+可以点击结构中的脉冲发生器来查看配置，或导出使用建筑杖粘贴
 </tip>

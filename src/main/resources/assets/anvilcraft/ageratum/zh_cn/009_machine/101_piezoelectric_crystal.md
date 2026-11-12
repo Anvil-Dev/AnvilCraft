@@ -12,8 +12,6 @@ navigation:
 
 可以在此基础上继续展开
 
-### 图示
-
 <structure id="../../structures/machine/piezoelectric_crystal_0.snbt"/>
 
 1. 脉冲发生器设置为循环模式：每间隔 5gt 输出信号 5gt，控制铁砧下落
@@ -21,13 +19,11 @@ navigation:
 - 所有 <ref item="minecraft:smooth_stone"/> 可替换为 任意完整不透明方块
 - 所有 <ref item="minecraft:anvil"/> 可替换为 任意铁砧
 
-## 进阶版
+## 进阶版压电发电机
 
 第一个发电机也可以用一些小技巧提高发电效率：
 
 发电量 10kW/个铁砧；共计 80kW
-
-### 图示
 
 <structure id="../../structures/machine/piezoelectric_crystal_0.nbt"/>
 
@@ -54,7 +50,7 @@ navigation:
 树脂块也有粘液块一样的弹性，同时不会粘旁边的方块
 </tip>
 
-## 进阶版
+## 进阶版皇家铁砧下弹压电发电机
 
 可以用一些精妙的时序控制大幅提高发电效率，总之上面那个是老机器看看就行了，这个才是真实用（
 

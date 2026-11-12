@@ -4,7 +4,7 @@ navigation:
   icon: "minecraft:piston"
 ---
 
-# Resource: Tunnel Boring Machine
+# Tunnel Boring Machine
 
 Tunnel Boring Machine: A machine that can destroy blocks ahead of it while continuously advancing itself, making it convenient for creating tunnels.
 
@@ -17,13 +17,7 @@ Here is an example of a simple *Tunnel Boring Machine*:
 - Activate <ref item="anvilcraft:block_devourer"/> with redstone to continuously destroy blocks in a 3x3 area ahead
 - Can be used to build transportation routes or mine in the excavated tunnels
 
-## Diagram
-
 <structure id="../../structures/machine/tunnel_boring_3x.snbt"/>
-
-<tip>
-Left-click to adjust position; right-click to adjust angle; PgUp/PgDn to adjust display height
-</tip>
 
 1. When building the structure, the redstone block should be placed last
 2. Place a storage minecart on the rail
@@ -32,7 +26,7 @@ Left-click to adjust position; right-click to adjust angle; PgUp/PgDn to adjust 
 
 - All <ref item="minecraft:smooth_stone"/> can be replaced with any full opaque block
 
-# Large TBM (7x7)
+# Advanced Tunnel Boring Machine (7x7)
 
 By controlling the anvil's fall onto the <ref item="anvilcraft:block_devourer"/>, you can excavate larger tunnels.
 
@@ -40,14 +34,7 @@ An anvil dropped from a height of 2 blocks will cause the <ref item="anvilcraft:
 
 Here is a simple approach to excavate a spacious 7x7 cross-section tunnel.
 
-## Diagram
-
 <structure id="../../structures/machine/tunnel_boring_7x.snbt"/>
-
-<tip>
-Left-click to adjust position; right-click to adjust angle; PgUp/PgDn to adjust display height
-</tip>
-
 
 1. Place a storage minecart on the rail
 2. After building, activate the *observer* at the very back

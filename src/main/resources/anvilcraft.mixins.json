@@ -73,6 +73,7 @@
     "ProjectileUtilMixin",
     "RecipeManagerMixin",
     "RedstoneWireBlockMixin",
+    "SignalGetterMixin",
     "ServerGamePacketListenerMixin",
     "ServerLevelMixin",
     "ServerPlayerContainerListenerMixin",
