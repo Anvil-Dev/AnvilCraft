@@ -99,8 +99,10 @@ public final class StorageComparatorManager {
             if (level == null) {
                 continue;
             }
-            for (BlockPos pos : positions) {
-                if (level.getBlockEntity(pos) instanceof StorageBlockEntity storage) {
+            for (BlockPos pos : Set.copyOf(positions)) {
+                var chunk = level.getChunkSource().getChunkNow(pos.getX() >> 4, pos.getZ() >> 4);
+                if (chunk != null && chunk.getBlockEntity(pos) instanceof StorageBlockEntity storage
+                    && !storage.isRemoved() && storageId.equals(storage.getId())) {
                     storage.refreshComparatorSignal();
                 }
             }
