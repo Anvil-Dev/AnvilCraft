@@ -15,6 +15,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -284,5 +285,10 @@ public class ControlValveBlockEntity extends BlockEntity implements MenuProvider
             Codec.INT.fieldOf("Slot").forGetter(FilterData::slot),
             FluidStack.OPTIONAL_CODEC.fieldOf("Fluid").forGetter(FilterData::fluid)
         ).apply(instance, FilterData::new));
+    }
+
+    @Override
+    public void writeClientSideData(AbstractContainerMenu menu, RegistryFriendlyByteBuf buffer) {
+        buffer.writeBlockPos(this.getBlockPos());
     }
 }
