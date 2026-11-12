@@ -37,6 +37,9 @@ public record StructureScannerSavePacket(int containerId, String name, boolean a
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (!(player.containerMenu instanceof StructureScannerMenu menu)
             || menu.containerId != this.containerId || !menu.stillValid(player)) return;
         var scanner = menu.getBlockEntity();

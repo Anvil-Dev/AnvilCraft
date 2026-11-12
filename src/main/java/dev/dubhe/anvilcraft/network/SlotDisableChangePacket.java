@@ -36,6 +36,9 @@ public record SlotDisableChangePacket(int index, boolean state) implements ISens
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (!(player.containerMenu instanceof IFilterMenu menu)) return;
         menu.setSlotDisabled(this.index, this.state);
         menu.flush();

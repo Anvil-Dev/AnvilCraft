@@ -25,6 +25,9 @@ public record SliderUpdatePacket(int value) implements IServerboundPacket {
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (!(player.containerMenu instanceof SliderMenu menu)) return;
         Callback<Integer> callback = menu.getCallback();
         if (callback == null) return;

@@ -50,6 +50,9 @@ public record StructureScannerActionPacket(String action, int value, String name
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (!(player.containerMenu instanceof StructureScannerMenu menu) || !menu.stillValid(player)) {
             return;
         }

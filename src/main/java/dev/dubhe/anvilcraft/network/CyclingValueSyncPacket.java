@@ -26,6 +26,9 @@ public record CyclingValueSyncPacket(int index, String name) implements IServerb
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (player.containerMenu instanceof CyclingValueHandler handler) {
             handler.notify(this.index, this.name);
         }

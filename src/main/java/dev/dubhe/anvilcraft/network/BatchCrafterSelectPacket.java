@@ -32,6 +32,9 @@ public record BatchCrafterSelectPacket(int selecting, BlockPos pos) implements I
 
     @Override
     public void handleOnBothSide(Player player) {
+        if (!player.level().isClientSide && player.isSpectator()) {
+            return;
+        }
         Level level = player.level();
         if (!level.isLoaded(this.pos)) return;
 

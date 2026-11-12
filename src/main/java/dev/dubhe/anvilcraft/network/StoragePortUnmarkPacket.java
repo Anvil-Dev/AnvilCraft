@@ -31,6 +31,9 @@ public record StoragePortUnmarkPacket(BlockPos pos) implements IServerboundPacke
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (!(player.getMainHandItem().getItem() instanceof AnvilHammerItem)) {
             return;
         }

@@ -26,6 +26,9 @@ public record MachineCycleFilterModePacket(Mode filterMode) implements IServerbo
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (!(player.containerMenu instanceof ItemDetectorMenu menu)) return;
         menu.setFilterMode(this.filterMode);
         menu.flush();

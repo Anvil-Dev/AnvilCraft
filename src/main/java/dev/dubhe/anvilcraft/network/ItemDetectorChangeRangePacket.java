@@ -24,6 +24,9 @@ public record ItemDetectorChangeRangePacket(int range) implements IServerboundPa
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (!(player.containerMenu instanceof ItemDetectorMenu menu)) return;
         menu.setRange(this.range);
     }
