@@ -491,7 +491,7 @@ public abstract class ResonatorItem extends Item implements IItemTooltipProvider
     public InteractionResult use(Level level, Player player, InteractionHand usedHand) {
         ItemStack stack = player.getItemInHand(usedHand);
         if (getMode(stack) == ResonateMode.AUTO && this.canStartResonanceMining(stack)) {
-            return InteractionResult.FAIL;
+            return InteractionResult.PASS;
         }
         return super.use(level, player, usedHand);
     }
