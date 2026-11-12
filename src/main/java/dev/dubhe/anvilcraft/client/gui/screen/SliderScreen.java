@@ -47,8 +47,9 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
         this.value.setTextColorUneditable(-1);
         this.value.setBordered(false);
         this.value.setMaxLength(50);
+        this.sliderWidget.setValue(this.menu.getInitialValue());
+        this.value.setValue(Integer.toString(this.menu.getInitialValue()));
         this.value.setResponder(this::onValueInput);
-        this.value.setValue("");
         TexturedButton max = new TexturedButton(
             152 + offsetX,
             43 + offsetY,

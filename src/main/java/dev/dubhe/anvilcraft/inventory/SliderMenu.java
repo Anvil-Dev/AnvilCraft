@@ -3,6 +3,8 @@ package dev.dubhe.anvilcraft.inventory;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.util.Callback;
 import lombok.Getter;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
@@ -12,16 +14,19 @@ import org.jspecify.annotations.Nullable;
 
 @Getter
 public class SliderMenu extends AbstractContainerMenu {
+    private final int initialValue;
     private final @Nullable Callback<Integer> callback;
 
-    public SliderMenu(@Nullable MenuType<?> menuType, int containerId) {
+    public SliderMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
         super(menuType, containerId);
         this.callback = null;
+        this.initialValue = extraData.readVarInt();
     }
 
-    public SliderMenu(int containerId, Callback<Integer> callback) {
+    public SliderMenu(int containerId, int initialValue, Callback<Integer> callback) {
         super(ModMenuTypes.SLIDER.get(), containerId);
         this.callback = callback;
+        this.initialValue = initialValue;
     }
 
     @Override

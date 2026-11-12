@@ -19,6 +19,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -345,7 +346,6 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
 
     @Override
     public @Nullable AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
-        if (player.isSpectator()) return null;
         return new ItemDetectorMenu(ModMenuTypes.ITEM_DETECTOR.get(), id, inventory, this);
     }
 
@@ -472,5 +472,10 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         public Mode cycle() {
             return this == Mode.ANY ? Mode.ALL : Mode.ANY;
         }
+    }
+
+    @Override
+    public void writeClientSideData(AbstractContainerMenu menu, RegistryFriendlyByteBuf buffer) {
+        buffer.writeBlockPos(this.getBlockPos());
     }
 }

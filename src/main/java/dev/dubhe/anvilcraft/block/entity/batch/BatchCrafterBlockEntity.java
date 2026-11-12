@@ -166,7 +166,6 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
-        if (player.isSpectator()) return null;
         return new BatchCrafterMenu(ModMenuTypes.BATCH_CRAFTER.get(), i, inventory, this);
     }
 

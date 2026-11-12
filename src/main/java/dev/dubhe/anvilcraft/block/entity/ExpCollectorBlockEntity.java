@@ -330,7 +330,6 @@ public class ExpCollectorBlockEntity extends BlockEntity
 
     @Override
     public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
-        if (player.isSpectator()) return null;
         return new ExpCollectorMenu(ModMenuTypes.EXP_COLLECTOR.get(), containerId, inventory, this);
     }
 

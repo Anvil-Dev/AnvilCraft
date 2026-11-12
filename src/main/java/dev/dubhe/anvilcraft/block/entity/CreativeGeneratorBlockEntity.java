@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.SliderMenu;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.MenuProvider;
@@ -104,8 +105,7 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
-        if (player.isSpectator()) return null;
-        return new SliderMenu(i, this::setPower);
+        return new SliderMenu(i, this.getPower(), this::setPower);
     }
 
     public void setPower(int power) {
@@ -137,5 +137,10 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
     @Override
     public int getRange() {
         return 2;
+    }
+
+    @Override
+    public void writeClientSideData(AbstractContainerMenu menu, RegistryFriendlyByteBuf buffer) {
+        buffer.writeVarInt(this.getPower());
     }
 }
