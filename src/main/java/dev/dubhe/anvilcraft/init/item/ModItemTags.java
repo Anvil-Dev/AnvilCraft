@@ -22,6 +22,7 @@ public class ModItemTags {
     public static final TagKey<Item> CREAM = ModItemTags.bindC("foods/cream");
     public static final TagKey<Item> FLOUR = ModItemTags.bindC("foods/flour");
     public static final TagKey<Item> DOUGH = ModItemTags.bindC("foods/dough");
+    public static final TagKey<Item> EGGS = ModItemTags.bindC("eggs");
     public static final TagKey<Item> RAW_MUTTON = ModItemTags.bindC("foods/raw_mutton");
     public static final TagKey<Item> RAW_BEEF = ModItemTags.bindC("foods/raw_beef");
     public static final TagKey<Item> RAW_CHICKEN = ModItemTags.bindC("foods/raw_chicken");

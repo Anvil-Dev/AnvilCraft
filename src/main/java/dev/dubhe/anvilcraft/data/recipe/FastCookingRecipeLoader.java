@@ -21,7 +21,7 @@ public class FastCookingRecipeLoader {
 
         FastCookingRecipe.builder()
             .requires(items, ModItemTags.DOUGH)
-            .requires(Items.EGG)
+            .requires(items, ModItemTags.EGGS)
             .requires(Items.SUGAR)
             .result(ModBlocks.CAKE_BASE_BLOCK)
             .save(provider);

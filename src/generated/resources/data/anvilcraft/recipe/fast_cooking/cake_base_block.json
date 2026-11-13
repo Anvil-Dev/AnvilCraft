@@ -5,7 +5,7 @@
       "items": "#c:foods/dough"
     },
     {
-      "items": "minecraft:egg"
+      "items": "#c:eggs"
     },
     {
       "items": "minecraft:sugar"
