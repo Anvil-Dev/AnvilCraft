@@ -570,10 +570,10 @@ public class RegistrumItemRecipeLoader {
             .pattern("ABA")
             .pattern("ACA")
             .pattern("AAA")
-            .define('A', ModItems.HARDEND_RESIN)
+            .define('A', ModItems.HARDENED_RESIN)
             .define('B', Items.IRON_INGOT)
             .define('C', ModItems.MAGNET_INGOT)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.HARDEND_RESIN), AnvilCraftDatagen.has(lookup, ModItems.HARDEND_RESIN))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.HARDENED_RESIN), AnvilCraftDatagen.has(lookup, ModItems.HARDENED_RESIN))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(lookup, Items.IRON_INGOT))
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.MAGNET_INGOT), AnvilCraftDatagen.has(lookup, ModItems.MAGNET_INGOT))
             .save(provider);
@@ -597,10 +597,10 @@ public class RegistrumItemRecipeLoader {
             .pattern("ACA")
             .pattern("ABA")
             .pattern("AAA")
-            .define('A', ModItems.HARDEND_RESIN)
+            .define('A', ModItems.HARDENED_RESIN)
             .define('B', Items.HOPPER)
             .define('C', ModItems.CIRCUIT_BOARD)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.HARDEND_RESIN), AnvilCraftDatagen.has(lookup, ModItems.HARDEND_RESIN))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.HARDENED_RESIN), AnvilCraftDatagen.has(lookup, ModItems.HARDENED_RESIN))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.HOPPER), AnvilCraftDatagen.has(lookup, Items.HOPPER))
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CIRCUIT_BOARD), AnvilCraftDatagen.has(lookup, ModItems.CIRCUIT_BOARD))
             .save(provider);
@@ -667,9 +667,9 @@ public class RegistrumItemRecipeLoader {
             .pattern("AAA")
             .pattern("ABA")
             .pattern("AAA")
-            .define('A', ModItems.HARDEND_RESIN)
+            .define('A', ModItems.HARDENED_RESIN)
             .define('B', ModFoodItems.PILL)
-            .unlockedBy("has_hardend_resin", AnvilCraftDatagen.has(lookup, ModItems.HARDEND_RESIN))
+            .unlockedBy("has_hardend_resin", AnvilCraftDatagen.has(lookup, ModItems.HARDENED_RESIN))
             .unlockedBy("has_pill", AnvilCraftDatagen.has(lookup, ModFoodItems.PILL))
             .save(provider);
     }
@@ -844,7 +844,7 @@ public class RegistrumItemRecipeLoader {
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HYPERCUBE.asItem()),
                 AnvilCraftDatagen.has(provider.getItems(), ModBlocks.HYPERCUBE))
             .save(TerminalUpgradeRecipe.output(provider));
-        hyperdimensionTerminalUnbind(ctx, provider);
+        RegistrumItemRecipeLoader.hyperdimensionTerminalUnbind(ctx, provider);
     }
 
     public static <T extends Item> void hyperdimensionTerminalUnbind(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
@@ -1000,9 +1000,9 @@ public class RegistrumItemRecipeLoader {
             .pattern("W")
             .pattern("R")
             .define('W', ModBlocks.REDSTONE_WIRE)
-            .define('R', ModItems.HARDEND_RESIN)
+            .define('R', ModItems.HARDENED_RESIN)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.REDSTONE_WIRE), AnvilCraftDatagen.has(lookup, ModBlocks.REDSTONE_WIRE))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.HARDEND_RESIN), AnvilCraftDatagen.has(lookup, ModItems.HARDEND_RESIN))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.HARDENED_RESIN), AnvilCraftDatagen.has(lookup, ModItems.HARDENED_RESIN))
             .save(provider);
     }
 
@@ -1012,13 +1012,13 @@ public class RegistrumItemRecipeLoader {
             .pattern("CDC")
             .pattern("DCD")
             .pattern("BBB")
-            .define('B', ModItems.HARDEND_RESIN)
+            .define('B', ModItems.HARDENED_RESIN)
             .define('C', ModItemTags.COPPER_NUGGETS)
             .define('D', Tags.Items.GEMS_QUARTZ)
             .group(ctx.getId().toString())
             .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModItems.HARDEND_RESIN),
-                AnvilCraftDatagen.has(lookup, ModItems.HARDEND_RESIN)
+                AnvilCraftDatagen.hasItem(ModItems.HARDENED_RESIN),
+                AnvilCraftDatagen.has(lookup, ModItems.HARDENED_RESIN)
             )
             .save(provider);
     }
@@ -1849,7 +1849,7 @@ public class RegistrumItemRecipeLoader {
             .pattern("R R")
             .pattern("RIR")
             .pattern("B B")
-            .define('R', ModItems.HARDEND_RESIN)
+            .define('R', ModItems.HARDENED_RESIN)
             .define('I', Items.IRON_BOOTS)
             .define('B', ModBlocks.RESIN_BLOCK)
             .unlockedBy("has_material", AnvilCraftDatagen.has(provider.getItems(), Items.IRON_BOOTS))

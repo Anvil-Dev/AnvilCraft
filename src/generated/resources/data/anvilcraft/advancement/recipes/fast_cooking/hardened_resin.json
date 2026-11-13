@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:fast_cooking/hardend_resin"
+        "recipe": "anvilcraft:fast_cooking/hardened_resin"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:fast_cooking/hardend_resin"
+      "anvilcraft:fast_cooking/hardened_resin"
     ]
   }
 }

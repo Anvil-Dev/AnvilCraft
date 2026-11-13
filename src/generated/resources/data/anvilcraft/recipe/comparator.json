@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "B": "anvilcraft:hardend_resin",
+    "B": "anvilcraft:hardened_resin",
     "Q": "minecraft:quartz",
     "T": "minecraft:redstone_torch"
   },

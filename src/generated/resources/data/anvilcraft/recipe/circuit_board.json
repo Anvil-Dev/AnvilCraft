@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "R": "anvilcraft:hardend_resin",
+    "R": "anvilcraft:hardened_resin",
     "W": "anvilcraft:redstone_wire"
   },
   "pattern": [

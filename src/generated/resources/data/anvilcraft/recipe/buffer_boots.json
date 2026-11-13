@@ -4,7 +4,7 @@
   "key": {
     "B": "anvilcraft:resin_block",
     "I": "minecraft:iron_boots",
-    "R": "anvilcraft:hardend_resin"
+    "R": "anvilcraft:hardened_resin"
   },
   "pattern": [
     "R R",
