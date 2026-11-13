@@ -568,6 +568,7 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<CelestialForgingAnvilPortalBlockEntity> CELESTIAL_FORGING_ANVIL_PORTAL = REGISTRUM
         .blockEntity("celestial_forging_anvil_portal", CelestialForgingAnvilPortalBlockEntity::new)
         .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL)
+        .renderer(() -> LaserBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<CelestialForgingAnvilLogisticsInterfaceBlockEntity> CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE =
@@ -588,6 +589,7 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<CelestialForgingAnvilLaserInterfaceBlockEntity> CELESTIAL_FORGING_ANVIL_LASER_INTERFACE = REGISTRUM
         .blockEntity("celestial_forging_anvil_laser_interface", CelestialForgingAnvilLaserInterfaceBlockEntity::createBlockEntity)
         .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE)
+        .renderer(() -> LaserBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<StampingPlatformBlockEntity> STAMPING_PLATFORM = REGISTRUM
