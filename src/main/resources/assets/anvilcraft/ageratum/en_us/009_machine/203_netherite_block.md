@@ -4,7 +4,7 @@ navigation:
   icon: "minecraft:netherite_block"
 ---
 
-# Processing: Netherite
+# Netherite Production Machine
 
 This machine implements [Mass Production of Netherite](../008_recipe/210_netherite_ingot.md)
 
@@ -14,12 +14,12 @@ This machine implements [Mass Production of Netherite](../008_recipe/210_netheri
 
 Before use, fill the crates on both sides with enough <ref item="minecraft:gold_block"/> and <ref item="minecraft:ancient_debris"/>.
 
-## Advanced Version
+## Advanced Netherite Production Machine
 
 <structure id="../../structures/machine/netherite_block_advanced.nbt"/>
 
 This highly efficient machine produces 5 netherite blocks per second, making it ideal for stockpiling materials and then producing a large batch of netherite blocks. Remember to supply power to the heater before starting the machine!
 
 <tip>
-You can also try designing other netherite block machine layouts.
+Click a pulse generator in the structure to view its configuration, or export the structure and paste it with a Building Rod.
 </tip>

@@ -4,7 +4,7 @@ navigation:
   icon: "minecraft:ancient_debris"
 ---
 
-# Processing: Ancient Debris
+# Ancient Debris Regeneration Machine
 
 These machines handle ancient debris processing for [Mass Production of Netherite](../008_recipe/210_netherite_ingot.md)
 
@@ -15,7 +15,7 @@ These machines handle ancient debris processing for [Mass Production of Netherit
 - Set the <ref item="anvilcraft:pulse_generator"/> to (Loop Mode | 16gt | 0gt)
 - All <ref item="minecraft:smooth_stone"/> can be replaced with any full opaque block
 
-## Advanced Version
+## Advanced Ancient Debris Regeneration Machine
 
 <structure id="../../structures/machine/ancient_debris_advanced.nbt"/>
 
@@ -23,5 +23,5 @@ This highly efficient machine processes 5 ancient debris blocks per second, maki
 However, each shutdown ejects and wastes 1 extra netherite scrap. Remember to supply power to the heater before starting the machine!
 
 <tip>
-You can also try designing other ancient debris machine layouts.
+Click a pulse generator in the structure to view its configuration, or export the structure and paste it with a Building Rod.
 </tip>
