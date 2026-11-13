@@ -22,6 +22,7 @@ import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.TeslaTowerMenu;
+import dev.dubhe.anvilcraft.network.TeslaFilterSyncPacket;
 import dev.dubhe.anvilcraft.util.DistanceComparator;
 import it.unimi.dsi.fastutil.Pair;
 import lombok.Getter;
@@ -398,6 +399,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
     @Override
     public void writeClientSideData(AbstractContainerMenu menu, RegistryFriendlyByteBuf buffer) {
         buffer.writeBlockPos(this.getBlockPos());
+        TeslaFilterSyncPacket.STREAM_CODEC.encode(buffer, TeslaFilterSyncPacket.create(this.getAllowList()));
     }
 
     public List<Pair<TeslaFilter, String>> getAllowList() {

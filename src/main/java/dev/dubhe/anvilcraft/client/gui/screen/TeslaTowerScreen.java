@@ -257,6 +257,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
             .toList()
         );
         this.filteredFilters.addAll(this.allFilter);
+        this.handleSync(List.copyOf(this.menu.getBlockEntity().getAllowList()));
     }
 
     private boolean mouseInLeft(double mouseX, double mouseY, int leftPos, int topPos) {

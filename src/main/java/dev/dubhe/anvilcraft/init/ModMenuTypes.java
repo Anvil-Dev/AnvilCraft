@@ -121,7 +121,7 @@ public class ModMenuTypes {
     public static final MenuEntry<SliderMenu> SLIDER = REGISTRUM
         .menu(
             "slider",
-            (menuType, containerId, inventory) -> new SliderMenu(menuType, containerId),
+            (menuType, containerId, inventory, extraData) -> new SliderMenu(menuType, containerId, inventory, extraData),
             () -> SliderScreen::new)
         .register();
 
