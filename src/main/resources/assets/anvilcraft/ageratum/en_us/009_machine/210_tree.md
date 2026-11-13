@@ -22,7 +22,7 @@ Build a **Giant Anvil Tree Farm** like this, and logs will continuously flow int
 The machine **_must not be rotated_**. Ensure the sapling is in the *northwest corner* of the machine, otherwise the tree cannot grow!
 </warning>
 
-## Advanced Version
+## Advanced Bone Meal Tree Farm
 
 <structure id="../../structures/machine/tree_advanced.nbt"/>
 
@@ -37,3 +37,7 @@ Make sure you have an efficient skeleton spawner to supply it, and you will neve
   <warning>
   The machine **_must not be rotated_**. Ensure the sapling is in the *northwest corner* of the machine, otherwise the tree cannot grow!
   </warning>
+
+  <tip>
+  Click a pulse generator in the structure to view its configuration, or export the structure and paste it with a Building Rod.
+  </tip>

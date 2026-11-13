@@ -12,8 +12,6 @@ Output: 4kW per anvil; 32kW total
 
 You can further expand upon this foundation.
 
-### Diagram
-
 <structure id="../../structures/machine/piezoelectric_crystal_0.snbt"/>
 
 1. Set the pulse generator to loop mode: emit a 5gt signal every 5gt interval, controlling the anvil drop
@@ -21,13 +19,11 @@ You can further expand upon this foundation.
 - All <ref item="minecraft:smooth_stone"/> can be replaced with any full opaque block
 - All <ref item="minecraft:anvil"/> can be replaced with any anvil
 
-## Advanced Version
+## Advanced Piezoelectric Generator
 
 You can also improve your first generator's efficiency with a few tricks:
 
 Output: 10kW per anvil; 80kW total
-
-### Diagram
 
 <structure id="../../structures/machine/piezoelectric_crystal_0.nbt"/>
 
@@ -54,7 +50,7 @@ Output: 15kW per anvil; 150kW total
 Resin blocks are as bouncy as slime blocks, but do not stick to adjacent blocks.
 </tip>
 
-## Advanced Version
+## Advanced Royal Anvil Downward-Bounce Piezoelectric Generator
 
 Precise timing can greatly improve power output. The machine above is an older design to look over; this is the practical one.
 
