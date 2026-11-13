@@ -35,6 +35,9 @@ public record MachineOutputDirectionPacket(Direction direction) implements ISens
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (!(player.containerMenu instanceof BaseMachineMenu menu)) return;
         Direction direction = this.direction();
         menu.setDirection(direction);

@@ -37,6 +37,9 @@ public record PulseGeneratorUpdatePacket(
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (!(player.containerMenu instanceof PulseGeneratorMenu menu)) return;
         PulseGeneratorBlockEntity repeater = menu.getBlockEntity();
         repeater.setStartMode(this.startMode);

@@ -26,6 +26,9 @@ public record TeslaAddFilterPacket(String id, String arg) implements IServerboun
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (player.containerMenu instanceof TeslaTowerMenu menu) {
             menu.addFilter(this.id, this.arg);
         }

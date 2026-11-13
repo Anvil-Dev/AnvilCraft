@@ -24,6 +24,9 @@ public record SilencerAddMutedPacket(Identifier soundId) implements IServerbound
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (player.containerMenu instanceof ActiveSilencerMenu menu) {
             menu.addSound(this.soundId);
         }

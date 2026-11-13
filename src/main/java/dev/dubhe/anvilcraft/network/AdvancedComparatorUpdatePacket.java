@@ -42,6 +42,9 @@ public record AdvancedComparatorUpdatePacket(
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (!player.hasContainerOpen()) return;
         if (!(player.containerMenu instanceof AdvancedComparatorMenu menu)) return;
         AdvancedComparatorBlockEntity repeater = menu.getBlockEntity();

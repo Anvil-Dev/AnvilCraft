@@ -24,6 +24,9 @@ public record SilencerRemoveMutedPacket(Identifier soundId) implements IServerbo
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (player.containerMenu instanceof ActiveSilencerMenu menu) {
             menu.removeSound(this.soundId);
         }

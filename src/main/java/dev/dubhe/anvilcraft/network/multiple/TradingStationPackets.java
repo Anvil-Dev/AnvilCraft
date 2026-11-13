@@ -52,6 +52,9 @@ public class TradingStationPackets {
 
         @Override
         public void handleOnServer(Player player) {
+            if (player.isSpectator()) {
+                return;
+            }
             if (this.slot < 0 || this.slot >= 3) return;
             Level level = player.level();
             Optional<TradingStationBlockEntity> beOp = TradingStationPackets.getOpenStation(player, this.pos);
@@ -92,6 +95,9 @@ public class TradingStationPackets {
 
         @Override
         public void handleOnServer(Player player) {
+            if (player.isSpectator()) {
+                return;
+            }
             Optional<TradingStationBlockEntity> beOp = TradingStationPackets.getOpenStation(player, this.pos);
             if (beOp.isEmpty()) return;
             TradingStationBlockEntity be = beOp.get();
