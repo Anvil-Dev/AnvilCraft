@@ -1,7 +1,0 @@
-{
-	"parent": "anvilcraft:item/capacitor",
-	"textures": {
-		"0": "anvilcraft:item/capacitor_empty",
-		"particle": "anvilcraft:item/capacitor_empty"
-	}
-}

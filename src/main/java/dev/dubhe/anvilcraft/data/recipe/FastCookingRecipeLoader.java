@@ -13,7 +13,7 @@ public class FastCookingRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
         FastCookingRecipe.builder()
             .requires(ModItemTags.RESIN)
-            .result(ModItems.HARDEND_RESIN)
+            .result(ModItems.HARDENED_RESIN)
             .save(provider);
 
         FastCookingRecipe.builder()

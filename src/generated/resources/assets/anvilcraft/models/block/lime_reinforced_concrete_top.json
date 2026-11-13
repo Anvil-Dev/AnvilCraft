@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "anvilcraft:block/lime_reinforced_concrete",
+    "side": "anvilcraft:block/lime_reinforced_concrete_top"
+  }
+}

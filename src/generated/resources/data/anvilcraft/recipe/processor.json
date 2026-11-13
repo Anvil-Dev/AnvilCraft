@@ -4,7 +4,7 @@
   "group": "anvilcraft:processor",
   "key": {
     "B": {
-      "item": "anvilcraft:hardend_resin"
+      "item": "anvilcraft:hardened_resin"
     },
     "C": {
       "tag": "c:nuggets/copper"

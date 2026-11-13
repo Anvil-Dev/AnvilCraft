@@ -53,9 +53,9 @@ public class RegistrumBlockRecipeLoader {
             .pattern("RHR")
             .pattern("III")
             .define('R', Items.REDSTONE)
-            .define('H', ModItems.HARDEND_RESIN)
+            .define('H', ModItems.HARDENED_RESIN)
             .define('I', Items.IRON_INGOT)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.HARDEND_RESIN), AnvilCraftDatagen.has(ModItems.HARDEND_RESIN))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.HARDENED_RESIN), AnvilCraftDatagen.has(ModItems.HARDENED_RESIN))
             .save(provider);
     }
 
@@ -1751,8 +1751,8 @@ public class RegistrumBlockRecipeLoader {
             .pattern("AAA")
             .pattern("AAA")
             .pattern("AAA")
-            .define('A', ModFoodItems.CHOCOLATE_BLACK)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.CHOCOLATE_BLACK), AnvilCraftDatagen.has(ModFoodItems.CHOCOLATE_BLACK))
+            .define('A', ModFoodItems.BLACK_CHOCOLATE)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.BLACK_CHOCOLATE), AnvilCraftDatagen.has(ModFoodItems.BLACK_CHOCOLATE))
             .save(provider);
     }
 
@@ -1761,8 +1761,8 @@ public class RegistrumBlockRecipeLoader {
             .pattern("AAA")
             .pattern("AAA")
             .pattern("AAA")
-            .define('A', ModFoodItems.CHOCOLATE_WHITE)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.CHOCOLATE_WHITE), AnvilCraftDatagen.has(ModFoodItems.CHOCOLATE_WHITE))
+            .define('A', ModFoodItems.WHITE_CHOCOLATE)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.WHITE_CHOCOLATE), AnvilCraftDatagen.has(ModFoodItems.WHITE_CHOCOLATE))
             .save(provider);
     }
 

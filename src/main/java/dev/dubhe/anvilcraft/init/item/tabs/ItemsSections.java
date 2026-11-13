@@ -156,8 +156,8 @@ public class ItemsSections extends DisplayItemsGenerator {
             content -> {
                 content.accept(ModFoodItems.CURSED_GOLDEN_APPLE);
                 content.accept(ModFoodItems.CHOCOLATE);
-                content.accept(ModFoodItems.CHOCOLATE_BLACK);
-                content.accept(ModFoodItems.CHOCOLATE_WHITE);
+                content.accept(ModFoodItems.BLACK_CHOCOLATE);
+                content.accept(ModFoodItems.WHITE_CHOCOLATE);
                 content.accept(ModFoodItems.CREAMY_BREAD_ROLL);
                 content.accept(ModFoodItems.BEEF_MUSHROOM_STEW);
                 content.accept(ModFoodItems.PILL);
@@ -236,7 +236,7 @@ public class ItemsSections extends DisplayItemsGenerator {
                 content.accept(ModItems.MULTIPHASE_MATTER);
                 content.accept(ModItems.RESIN);
                 content.accept(ModItems.AMBER);
-                content.accept(ModItems.HARDEND_RESIN);
+                content.accept(ModItems.HARDENED_RESIN);
                 content.accept(ModItems.WOOD_FIBER);
                 content.accept(ModItems.SPONGE_GEMMULE);
                 content.accept(ModItems.LIME_POWDER);

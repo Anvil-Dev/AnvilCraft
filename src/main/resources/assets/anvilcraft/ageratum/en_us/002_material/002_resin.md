@@ -6,7 +6,7 @@ categories:
   - misc ingredients blocks
 items:
   - anvilcraft:resin
-  - anvilcraft:hardend_resin
+  - anvilcraft:hardened_resin
   - anvilcraft:circuit_board
   - anvilcraft:processor
 ---
@@ -15,7 +15,7 @@ items:
 
 <row halign="center">
 <item id="anvilcraft:resin"/>
-<item id="anvilcraft:hardend_resin"/>
+<item id="anvilcraft:hardened_resin"/>
 <item id="anvilcraft:circuit_board"/>
 </row>
 
@@ -26,15 +26,15 @@ items:
 
 ## Usage
 
-Can be used to craft <ref item="anvilcraft:resin_block"/>, <ref item="anvilcraft:hardend_resin"/>, <ref item="minecraft:slime_ball"/>, etc...
+Can be used to craft <ref item="anvilcraft:resin_block"/>, <ref item="anvilcraft:hardened_resin"/>, <ref item="minecraft:slime_ball"/>, etc...
 
 <row halign="center">
 <recipe id="anvilcraft:resin_block"/>
-<recipe id="anvilcraft:fast_cooking/hardend_resin"/>
+<recipe id="anvilcraft:fast_cooking/hardened_resin"/>
 <recipe id="anvilcraft:fast_cooking/slime_ball"/>
 </row>
 
-# <ref item="anvilcraft:hardend_resin"/>
+# <ref item="anvilcraft:hardened_resin"/>
 
 Used to craft <ref item="anvilcraft:circuit_board"/> and more...
 

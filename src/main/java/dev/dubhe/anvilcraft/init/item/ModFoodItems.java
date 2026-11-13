@@ -39,7 +39,6 @@ public class ModFoodItems {
 
     public static final ItemEntry<CursedGoldenAppleItem> CURSED_GOLDEN_APPLE = REGISTRUM
         .item("cursed_golden_apple", properties -> new CursedGoldenAppleItem(properties.food(ModFoods.CURSED_GOLDEN_APPLE)))
-        .lang("Cursed Golden Apple")
         .tag(Tags.Items.FOODS)
         .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.FOOD, ctx.get())
             .pattern("AAA")
@@ -97,8 +96,9 @@ public class ModFoodItems {
         })
         .register();
 
-    public static final ItemEntry<Item> CHOCOLATE_BLACK = REGISTRUM
-        .item("chocolate_black", p -> new Item(p.food(ModFoods.CHOCOLATE_BLACK)))
+    public static final ItemEntry<Item> BLACK_CHOCOLATE = REGISTRUM
+        .item("black_chocolate", p -> new Item(p.food(ModFoods.BLACK_CHOCOLATE)))
+        .aliasFrom(AnvilCraft.of("chocolate_black"))
         .tag(Tags.Items.FOODS)
         .lang("Dark Chocolate")
         .recipe((ctx, provider) -> {
@@ -123,10 +123,13 @@ public class ModFoodItems {
         })
         .register();
 
-    public static final ItemEntry<Item> CHOCOLATE_WHITE = REGISTRUM
-        .item("chocolate_white", p -> new Item(p.food(ModFoods.CHOCOLATE_WHITE)))
+    @Deprecated(forRemoval = true)
+    public static final ItemEntry<Item> CHOCOLATE_BLACK = ModFoodItems.BLACK_CHOCOLATE;
+
+    public static final ItemEntry<Item> WHITE_CHOCOLATE = REGISTRUM
+        .item("white_chocolate", p -> new Item(p.food(ModFoods.WHITE_CHOCOLATE)))
+        .aliasFrom(AnvilCraft.of("chocolate_white"))
         .tag(Tags.Items.FOODS)
-        .lang("White Chocolate")
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.FOOD, ctx.get(), 4)
                 .pattern("AAA")
@@ -147,6 +150,9 @@ public class ModFoodItems {
                 )
                 .save(provider, AnvilCraft.of("white_chocolate_from_block"));
         }).register();
+
+    @Deprecated(forRemoval = true)
+    public static final ItemEntry<Item> CHOCOLATE_WHITE = ModFoodItems.WHITE_CHOCOLATE;
 
     public static final ItemEntry<Item> CREAMY_BREAD_ROLL = REGISTRUM
         .item("creamy_bread_roll", p -> new Item(p.food(ModFoods.CREAMY_BREAD_ROLL)))

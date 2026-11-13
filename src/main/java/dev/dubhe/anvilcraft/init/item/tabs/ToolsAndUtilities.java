@@ -116,8 +116,8 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         // Food and consumables. Ingredient foods also appear in Ingredients.
         this.plain(ModFoodItems.CURSED_GOLDEN_APPLE);
         this.plain(ModFoodItems.CHOCOLATE);
-        this.plain(ModFoodItems.CHOCOLATE_BLACK);
-        this.plain(ModFoodItems.CHOCOLATE_WHITE);
+        this.plain(ModFoodItems.BLACK_CHOCOLATE);
+        this.plain(ModFoodItems.WHITE_CHOCOLATE);
         this.plain(ModFoodItems.CREAMY_BREAD_ROLL);
         this.plain(ModFoodItems.BEEF_MUSHROOM_STEW);
         this.plain(ModFoodItems.PILL);

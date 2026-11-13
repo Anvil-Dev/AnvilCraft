@@ -11,11 +11,11 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_hardend_resin": {
+    "has_hardened_resin": {
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:hardend_resin"
+            "items": "anvilcraft:hardened_resin"
           }
         ]
       },
@@ -41,7 +41,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_hardend_resin",
+      "has_hardened_resin",
       "has_hopper",
       "has_circuit_board"
     ]

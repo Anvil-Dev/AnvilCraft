@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_hardend_resin": {
+    "has_hardened_resin": {
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:hardend_resin"
+            "items": "anvilcraft:hardened_resin"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_hardend_resin"
+      "has_hardened_resin"
     ]
   ],
   "rewards": {

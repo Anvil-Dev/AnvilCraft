@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:stonecutting/light_blue_reinforced_concrete_wall"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "hasitem": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:light_blue_reinforced_concrete"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "hasitem"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:stonecutting/light_blue_reinforced_concrete_wall"
+    ]
+  }
+}

@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_chocolate_black": {
+    "has_black_chocolate": {
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:chocolate_black"
+            "items": "anvilcraft:black_chocolate"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_chocolate_black"
+      "has_black_chocolate"
     ]
   ],
   "rewards": {

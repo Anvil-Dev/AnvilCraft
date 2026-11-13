@@ -3,6 +3,8 @@ package dev.dubhe.anvilcraft.data.recipe;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetResourceRecipe;
+import dev.dubhe.anvilcraft.block.state.Color;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
@@ -157,7 +159,7 @@ public class PlanetResourceRecipeLoader {
             PlanetResourceRecipe.builder(PlanetResourceRecipe.Category.WASTELAND)
                 .wasteland(new PlanetResourceRecipe.WastelandData(
                     PlanetResourceRecipe.entries(entries -> entries
-                        .id("anvilcraft:reinforced_concrete_gray", 60)
+                        .item(ModBlocks.REINFORCED_CONCRETES.get(Color.GRAY).asItem(), 60)
                         .id("anvilcraft:circuit_board", 30)
                         .id("anvilcraft:processor", 5)
                         .id("anvilcraft:raw_uranium", 3)
