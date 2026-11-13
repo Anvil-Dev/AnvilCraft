@@ -19,9 +19,6 @@ import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeManager;
 import dev.anvilcraft.lib.v2.recipe.util.ItemBatchPlan;
 import dev.anvilcraft.lib.v2.recipe.util.Range;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.recipe.CauldronProcessing;
-import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
-import dev.dubhe.anvilcraft.block.entity.BurningHeaterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.DamageAnvil;
@@ -64,7 +61,7 @@ public final class FishTankRecipes {
             List<ItemStack> inputs = stacks(tank.getInput());
             List<ItemStack> outputs = stacks(tank.getOutputHandler());
             List<BatchState> batches = new ArrayList<>();
-            int limit = batchLimit(process, impact, tank.getBlockPos().below());
+            int limit = Math.min(process.maxEfficiency(), AnvilLibRecipe.CONFIG.inWorldRecipeMaxEfficiency);
             Predicate<ItemBatchPlan.Batch> prepare = batch -> prepare(holder, impact, tank, snapshot, batches, batch);
             ItemBatchPlan.SlotCapacity capacity = (slot, stack) -> tank.getOutputHandler().getSlotLimit(slot);
             ItemBatchPlan plan = tank.isProcessingOutput()
@@ -91,27 +88,6 @@ public final class FishTankRecipes {
             return true;
         }
         return true;
-    }
-
-    private static int batchLimit(AbstractProcessRecipe<?> recipe, InWorldRecipeContext impact, BlockPos heaterPos) {
-        int limit = Math.min(recipe.maxEfficiency(), AnvilLibRecipe.CONFIG.inWorldRecipeMaxEfficiency);
-        var processor = recipe.getProperty().getCauldronProcessor();
-        if (processor == null || !(impact.getLevel().getBlockEntity(heaterPos) instanceof BurningHeaterBlockEntity heater)) {
-            return limit;
-        }
-        for (IRecipeOutcome<?> outcome : recipe.outcomes()) {
-            if (!(outcome instanceof SuperHeatingRecipe.ConsumeFuel) || impact.get(SuperHeatingRecipe.ConsumeFuel.FUEL_CONSUMED)) {
-                continue;
-            }
-            int remaining = Math.max(0, heater.getBurnTime() - SuperHeatingRecipe.ConsumeFuel.FUEL_COST_TICKS);
-            int heat = remaining >= BurningHeaterBlockEntity.LIT_THRESHOLD ? 2 : remaining > 0 ? 1 : 0;
-            var after = heater.getBlockState().setValue(BurningHeaterBlock.LEVEL, heat);
-            if (!CauldronProcessing.matches(processor, after)) {
-                return Math.min(limit, 1);
-            }
-            break;
-        }
-        return limit;
     }
 
     private static boolean prepare(
