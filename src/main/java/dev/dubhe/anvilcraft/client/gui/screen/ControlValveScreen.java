@@ -72,6 +72,7 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
     /** 客户端本地过滤器物品缓存（服务端回传更新） */
     private ItemStack filterItem = ItemStack.EMPTY;
     private List<FluidStack> filterFluids = List.of();
+    private boolean updatingValueBox;
 
     private FluidRateSlider slider;
     private EditBox valueBox;
@@ -119,12 +120,20 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
         this.addRenderableWidget(add);
         this.addRenderableWidget(max);
         this.addRenderableWidget(this.valueBox);
+        ControlValveBlockEntity blockEntity = this.menu.getBlockEntity();
+        if (blockEntity != null) {
+            this.setValue(blockEntity.getMaxRate());
+            this.setFilter(0, blockEntity.getFilter(0));
+            this.setFilterItem(blockEntity.getFilterItem());
+        }
     }
 
     /** 服务端 init 包设置初值。 */
     public void setValue(int value) {
         this.slider.setValue(value);
+        this.updatingValueBox = true;
         this.valueBox.setValue(Integer.toString(value));
+        this.updatingValueBox = false;
     }
 
     /** 该阀门是否被红石锁定（实时读客户端 BE）。 */
@@ -165,6 +174,9 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
     }
 
     private void onValueInput(String text) {
+        if (this.updatingValueBox) {
+            return;
+        }
         if (this.isLocked()) {
             return;
         }
