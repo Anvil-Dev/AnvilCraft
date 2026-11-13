@@ -127,6 +127,12 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
             _ -> this.updateSlider(FluidRateSlider.MAX)
         ));
         this.addRenderableWidget(this.valueBox);
+        ControlValveBlockEntity blockEntity = this.menu.getBlockEntity();
+        if (blockEntity != null) {
+            this.setValue(blockEntity.getMaxRate());
+            this.setFilter(0, blockEntity.getFilter(0));
+            this.setFilterItem(blockEntity.getFilterItem());
+        }
         this.setValue(this.value);
     }
 
