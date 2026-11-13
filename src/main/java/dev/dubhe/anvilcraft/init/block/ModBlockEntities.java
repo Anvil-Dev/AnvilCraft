@@ -499,6 +499,7 @@ public class ModBlockEntities {
 
     public static final BlockEntityEntry<LensBlockEntity> LENS = REGISTRUM
         .blockEntity("lens", LensBlockEntity::new)
+        .renderer(() -> LaserBlockEntityRenderer::new)
         .validBlocks(ModBlocks.LENS)
         .register();
 
