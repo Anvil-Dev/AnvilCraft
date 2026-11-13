@@ -38,6 +38,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.Connection;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -1418,5 +1419,10 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     public void removePortal(Cube323PartHalf side) {
         WormholeStabilizerHandler wh = this.megastructureManager.getWormholeHandler();
         wh.removePortal(side, this);
+    }
+
+    @Override
+    public void writeClientSideData(AbstractContainerMenu menu, RegistryFriendlyByteBuf buffer) {
+        buffer.writeBlockPos(this.getBlockPos());
     }
 }

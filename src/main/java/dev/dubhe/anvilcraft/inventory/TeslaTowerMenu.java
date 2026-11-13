@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.inventory;
 import dev.dubhe.anvilcraft.api.teslatower.TeslaFilter;
 import dev.dubhe.anvilcraft.block.entity.TeslaTowerBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.network.TeslaFilterSyncPacket;
 import it.unimi.dsi.fastutil.Pair;
 import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
@@ -36,6 +37,9 @@ public class TeslaTowerMenu extends AbstractContainerMenu {
     public TeslaTowerMenu(
         @Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
         this(menuType, containerId, inventory, Objects.requireNonNull(inventory.player.level().getBlockEntity(extraData.readBlockPos())));
+        this.handleSync(TeslaFilterSyncPacket.STREAM_CODEC.decode(extraData).filters().stream()
+            .map(data -> Pair.of(data.filter(), data.extra()))
+            .toList());
     }
 
     @Override

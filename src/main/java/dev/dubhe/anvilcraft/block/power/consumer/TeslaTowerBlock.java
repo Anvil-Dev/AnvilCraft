@@ -16,6 +16,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -182,6 +183,11 @@ public class TeslaTowerBlock
     }
 
     @Override
+    protected @Nullable MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
+        return level.getBlockEntity(this.getMainPartPos(pos, state)) instanceof TeslaTowerBlockEntity blockEntity ? blockEntity : null;
+    }
+
+    @Override
     protected InteractionResult useWithoutItem(
         BlockState state,
         Level level,
@@ -197,7 +203,7 @@ public class TeslaTowerBlock
             BlockEntity blockEntity = level.getBlockEntity(mainPartPos);
             if (blockEntity instanceof TeslaTowerBlockEntity teslaTowerBlockEntity && player instanceof ServerPlayer sp) {
                 if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
-                ModMenuTypes.open(sp, teslaTowerBlockEntity, mainPartPos);
+                ModMenuTypes.open(sp, teslaTowerBlockEntity);
                 PacketDistributor.sendToPlayer(sp, TeslaFilterSyncPacket.create(teslaTowerBlockEntity.getAllowList()));
                 return InteractionResult.SUCCESS;
             }

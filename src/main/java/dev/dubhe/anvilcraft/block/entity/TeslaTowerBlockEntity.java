@@ -24,6 +24,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.TeslaTowerMenu;
+import dev.dubhe.anvilcraft.network.TeslaFilterSyncPacket;
 import dev.dubhe.anvilcraft.util.DistanceComparator;
 import it.unimi.dsi.fastutil.Pair;
 import lombok.Getter;
@@ -34,6 +35,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -420,7 +422,9 @@ public class TeslaTowerBlockEntity extends BlockEntity
 
     @Override
     public @Nullable AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
-        if (this.level == null || player.isSpectator()) return null;
+        if (this.level == null) {
+            return null;
+        }
         BlockState blockState = this.level.getBlockState(this.getBlockPos());
         int offsetY = blockState.getValue(TeslaTowerBlock.HALF).getOffsetY();
         if (this.level.getBlockEntity(this.getBlockPos().above(-offsetY)) instanceof TeslaTowerBlockEntity teslaTowerBlockEntity) {
@@ -460,5 +464,11 @@ public class TeslaTowerBlockEntity extends BlockEntity
             filters.add(Pair.of(TeslaFilter.getFilter(id.get()), arg.get()));
         });
         this.handleSync(filters);
+    }
+
+    @Override
+    public void writeClientSideData(AbstractContainerMenu menu, RegistryFriendlyByteBuf buffer) {
+        buffer.writeBlockPos(this.getBlockPos());
+        TeslaFilterSyncPacket.STREAM_CODEC.encode(buffer, TeslaFilterSyncPacket.create(this.getAllowList()));
     }
 }
