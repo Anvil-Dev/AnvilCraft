@@ -17,12 +17,15 @@ import dev.dubhe.anvilcraft.api.itemhandler.unlimited.SpaceSizeItemStacksResourc
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.TypeLimitItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
+import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.LargeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.block.item.ShulkerContainerBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.storage.ModStorageTypes;
@@ -5130,6 +5133,11 @@ public final class StorageServerStub {
                 return FluidOutcome.CHANGED;
             }
         }
+        // 指针上拿着储罐且没倒出东西：这一下的意图是「把流体灌进储罐」。
+        // 储罐按一次倒满处理，与桶固定 1000 mB 的语义不同，故在装桶流程之前分流
+        if (StorageServerStub.isFluidTankItem(carried)) {
+            return StorageServerStub.fillTankFromStorage(player, view, carried, fluid);
+        }
         FilledBucket filled = StorageServerStub.fillBucketFromStorage(player, view, fluid, false);
         if (filled.stack().isEmpty()) {
             return FluidOutcome.failed(filled.notice());
@@ -5419,6 +5427,9 @@ public final class StorageServerStub {
         if (stack.isEmpty() || maxAmount <= 0) {
             return 0;
         }
+        if (StorageServerStub.isFluidTankItem(stack)) {
+            return StorageServerStub.pourTankIntoFluidPort(player, view, stack) > 0 ? 1 : 0;
+        }
         PotionContents potion = stack.get(DataComponents.POTION_CONTENTS);
         boolean waterBottle = stack.is(Items.POTION) && potion != null && potion.is(Potions.WATER);
         FluidStack content = waterBottle ? new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME / 4)
@@ -5456,6 +5467,119 @@ public final class StorageServerStub {
             StorageServerStub.playBucketSound(player, content, SoundActions.BUCKET_EMPTY, bottle);
         }
         return poured;
+    }
+
+    private static boolean isFluidTankItem(ItemStack stack) {
+        return stack.is(ModBlocks.FLUID_TANK.asItem()) || stack.is(ModBlocks.LARGE_FLUID_TANK.asItem());
+    }
+
+    private static List<FluidStack> tankFluids(ItemStack stack, HolderLookup.Provider registries) {
+        return stack.is(ModBlocks.LARGE_FLUID_TANK.asItem())
+            ? LargeFluidTankBlockEntity.containedFluids(stack, registries)
+            : List.of(FluidTankBlockEntity.containedFluid(stack, registries));
+    }
+
+    private static int tankRemainingCapacity(ItemStack stack, HolderLookup.Provider registries) {
+        return stack.is(ModBlocks.LARGE_FLUID_TANK.asItem())
+            ? LargeFluidTankBlockEntity.remainingCapacity(stack, registries)
+            : FluidTankBlockEntity.remainingCapacity(stack, registries);
+    }
+
+    private static int insertIntoTankItem(ItemStack stack, FluidStack fluid, HolderLookup.Provider registries) {
+        return stack.is(ModBlocks.LARGE_FLUID_TANK.asItem())
+            ? LargeFluidTankBlockEntity.insertIntoItem(stack, fluid, registries)
+            : FluidTankBlockEntity.insertIntoItem(stack, fluid, registries);
+    }
+
+    private static int drainFromTankItem(ItemStack stack, FluidStack fluid, HolderLookup.Provider registries) {
+        return stack.is(ModBlocks.LARGE_FLUID_TANK.asItem())
+            ? LargeFluidTankBlockEntity.drainItem(stack, fluid, registries)
+            : FluidTankBlockEntity.drainItem(stack, fluid, registries);
+    }
+
+    private static int pourTankIntoFluidPort(ServerPlayer player, StorageView view, ItemStack stack) {
+        if (stack.isEmpty()) {
+            return 0;
+        }
+        UUID storageId = view.primary().getId();
+        HolderLookup.Provider registries = player.registryAccess();
+        // 整叠储罐共享同一份方块实体数据，只能逐件处理：先拷出其中一件来倒，
+        // 倒完再让整叠减 1 并把倒空的罐按空桶的老规矩还回去
+        ItemStack single = stack.copyWithCount(1);
+        List<FluidStack> fluids = StorageServerStub.tankFluids(single, registries);
+        if (fluids.stream().allMatch(FluidStack::isEmpty)) {
+            return 0;
+        }
+        // 先按流体分别算出可倒量，确认有得倒再整体提交，
+        // 避免端口写入失败却已把罐里的流体扣掉
+        List<FluidStack> moved = new ArrayList<>();
+        for (FluidStack fluid : fluids) {
+            if (fluid.isEmpty()) continue;
+            IFluidHandler acceptor = StoragePortManager.findAcceptor(storageId, fluid);
+            if (acceptor == null) continue;
+            // 直接用 EXECUTE 的返回值记账：再先 SIMULATE 一次也不会更准，
+            // 反而可能在两次调用之间容量变化时多扣罐里的流体
+            int accepted = acceptor.fill(fluid, IFluidHandler.FluidAction.EXECUTE);
+            if (accepted <= 0) continue;
+            moved.add(fluid.copyWithAmount(accepted));
+        }
+        if (moved.isEmpty()) {
+            return 0;
+        }
+        // 端口写入成功后才把罐内数据扣掉：储罐物品没有 ITEM 流体能力，
+        // 只能借方块实体的静态方法直接改写 Tank 数据
+        for (FluidStack fluid : moved) {
+            StorageServerStub.drainFromTankItem(single, fluid, registries);
+        }
+        StorageServerStub.playBucketSound(player, moved.getFirst(), SoundActions.BUCKET_EMPTY, false);
+        // 倒空的罐按空容器处理：进仓储或背包，指针上的那一件减少 1
+        StorageServerStub.giveEmptiedContainerToStorage(view, player, single);
+        stack.shrink(1);
+        return moved.size();
+    }
+
+    private static FluidOutcome fillTankFromStorage(
+        ServerPlayer player,
+        StorageView view,
+        ItemStack carried,
+        FluidStack fluid
+    ) {
+        if (carried.isEmpty()) {
+            return FluidOutcome.failed(FluidNotice.NONE);
+        }
+        HolderLookup.Provider registries = player.registryAccess();
+        int space = StorageServerStub.tankRemainingCapacity(carried, registries);
+        if (space <= 0) {
+            return FluidOutcome.failed(FluidNotice.NONE);
+        }
+        UUID storageId = view.primary().getId();
+        FluidEntry entry = StoragePortManager.find(storageId, fluid);
+        if (entry == null) {
+            return FluidOutcome.failed(FluidNotice.NONE);
+        }
+        int amount = Math.min(space, entry.amount());
+        if (amount <= 0) {
+            return FluidOutcome.failed(FluidNotice.NOT_ENOUGH);
+        }
+        // 先在一件的副本上灌，拿到真实接收量；罐里已有别种流体且不相容时接收量为 0
+        ItemStack filled = carried.copyWithCount(1);
+        int accepted = StorageServerStub.insertIntoTankItem(filled, entry.icon().copyWithAmount(amount), registries);
+        if (accepted <= 0) {
+            return FluidOutcome.failed(FluidNotice.NONE);
+        }
+        if (StoragePortManager.drain(storageId, entry.icon(), accepted) < accepted) {
+            return FluidOutcome.failed(FluidNotice.NOT_ENOUGH);
+        }
+        // 端口已抽出等量流体，副本也已灌好，直接决定成品去向
+        if (carried.getCount() == 1) {
+            // 单件时直接把指针上的储罐换成灌好的那件，与装桶时把指针换成满桶一致
+            player.containerMenu.setCarried(filled);
+        } else {
+            StorageServerStub.giveBucket(player, view, filled);
+            carried.shrink(1);
+        }
+        StorageServerStub.playBucketSound(player, entry.icon(), SoundActions.BUCKET_FILL, false);
+        return FluidOutcome.CHANGED;
     }
 
     /**
