@@ -5,18 +5,14 @@ import dev.dubhe.anvilcraft.util.MagnetUtil;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderOwner;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.particles.BlockParticleOption;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -29,15 +25,14 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.ItemSteerable;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ShearsItem;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.CustomModelData;
@@ -45,17 +40,9 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseFireBlock;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.BrushableBlock;
-import net.minecraft.world.level.block.RenderShape;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BrushableBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.common.IShearable;
 import net.neoforged.neoforge.common.ItemAbilities;
@@ -175,7 +162,7 @@ public class MultitoolItem extends Item {
     @Override
     public int getUseDuration(ItemStack stack, LivingEntity entity) {
         return switch (MultitoolItem.getMode(stack)) {
-            case BRUSH_MODE -> 200;
+            case BRUSH_MODE -> Items.BRUSH.getUseDuration(stack, entity);
             case SPYGLASS_MODE -> 1200;
             default -> super.getUseDuration(stack, entity);
         };
@@ -184,7 +171,7 @@ public class MultitoolItem extends Item {
     @Override
     public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
         if (MultitoolItem.getMode(stack) == BRUSH_MODE) {
-            this.onUseTickAsBrush(level, livingEntity, stack, remainingUseDuration);
+            Items.BRUSH.onUseTick(level, livingEntity, stack, remainingUseDuration);
         } else {
             super.onUseTick(level, livingEntity, stack, remainingUseDuration);
         }
@@ -373,93 +360,11 @@ public class MultitoolItem extends Item {
     }
 
     public InteractionResult useOnAsBrush(UseOnContext context) {
-        Player player = context.getPlayer();
-        if (player != null && this.calculateHitResult(player).getType() == HitResult.Type.BLOCK) {
-            player.startUsingItem(context.getHand());
-        }
-
-        return InteractionResult.CONSUME;
+        return Items.BRUSH.useOn(context);
     }
 
     public InteractionResult useOnAsMagnet(UseOnContext context) {
         return MagnetUtil.placeMagnetizedNode(this, context);
-    }
-
-    private HitResult calculateHitResult(Player player) {
-        return ProjectileUtil.getHitResultOnViewVector(
-            player,
-            (entity) -> !entity.isSpectator() && player.isPickable(),
-            player.blockInteractionRange()
-        );
-    }
-
-    private void spawnDustParticles(Level level, BlockHitResult hitResult, BlockState state, Vec3 pos, HumanoidArm arm) {
-        int i = arm == HumanoidArm.RIGHT ? 1 : -1;
-        int j = level.getRandom().nextInt(7, 12);
-        BlockParticleOption blockparticleoption = new BlockParticleOption(ParticleTypes.BLOCK, state);
-        Direction direction = hitResult.getDirection();
-        DustParticlesDelta dustparticlesdelta = DustParticlesDelta.fromDirection(pos, direction);
-        Vec3 vec3 = hitResult.getLocation();
-        for (int k = 0; k < j; ++k) {
-            level.addParticle(
-                blockparticleoption,
-                vec3.x - (double) (direction == Direction.WEST ? 1.0E-6F : 0.0F),
-                vec3.y,
-                vec3.z - (double) (direction == Direction.NORTH ? 1.0E-6F : 0.0F),
-                dustparticlesdelta.xd() * (double) i * (double) 3.0F * level.getRandom().nextDouble(),
-                0.0F,
-                dustparticlesdelta.zd() * (double) i * (double) 3.0F * level.getRandom().nextDouble()
-            );
-        }
-    }
-
-    private void onUseTickAsBrush(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
-        if (remainingUseDuration >= 0 && livingEntity instanceof Player player) {
-            HitResult hitresult = this.calculateHitResult(player);
-            if (hitresult instanceof BlockHitResult blockhitresult) {
-                if (hitresult.getType() == HitResult.Type.BLOCK) {
-                    int i = this.getUseDuration(stack, livingEntity) - remainingUseDuration + 1;
-                    boolean flag = i % 10 == 5;
-                    if (flag) {
-                        BlockPos blockpos = blockhitresult.getBlockPos();
-                        BlockState blockstate = level.getBlockState(blockpos);
-                        HumanoidArm humanoidarm = livingEntity.getUsedItemHand() == InteractionHand.MAIN_HAND
-                                                  ? player.getMainArm()
-                                                  : player.getMainArm().getOpposite();
-                        if (blockstate.shouldSpawnTerrainParticles() && blockstate.getRenderShape() != RenderShape.INVISIBLE) {
-                            this.spawnDustParticles(level, blockhitresult, blockstate, livingEntity.getViewVector(0.0F), humanoidarm);
-                        }
-
-                        Block var15 = blockstate.getBlock();
-                        SoundEvent soundevent;
-                        if (var15 instanceof BrushableBlock brushableBlock) {
-                            soundevent = brushableBlock.getBrushSound();
-                        } else {
-                            soundevent = SoundEvents.BRUSH_GENERIC;
-                        }
-
-                        level.playSound(player, blockpos, soundevent, SoundSource.BLOCKS);
-                        if (!level.isClientSide()) {
-                            BlockEntity var18 = level.getBlockEntity(blockpos);
-                            if (var18 instanceof BrushableBlockEntity brushableBlockEntity) {
-                                boolean flag1 = brushableBlockEntity.brush(level.getGameTime(), player, blockhitresult.getDirection());
-                                if (flag1) {
-                                    EquipmentSlot equipmentslot = stack.equals(player.getItemBySlot(EquipmentSlot.OFFHAND))
-                                                                  ? EquipmentSlot.OFFHAND
-                                                                  : EquipmentSlot.MAINHAND;
-                                    stack.hurtAndBreak(1, livingEntity, equipmentslot);
-                                }
-                            }
-                        }
-                    }
-                    return;
-                }
-            }
-
-            livingEntity.releaseUsingItem();
-        } else {
-            livingEntity.releaseUsingItem();
-        }
     }
 
     private boolean mineBlockAsShears(ItemStack stack, Level level, BlockState state, LivingEntity miningEntity) {
@@ -524,18 +429,6 @@ public class MultitoolItem extends Item {
 
     private void stopUsing(LivingEntity entity) {
         entity.playSound(SoundEvents.SPYGLASS_STOP_USING, 1.0F, 1.0F);
-    }
-
-    record DustParticlesDelta(double xd, double yd, double zd) {
-        public static DustParticlesDelta fromDirection(Vec3 pos, Direction direction) {
-            return switch (direction) {
-                case DOWN, UP -> new DustParticlesDelta(pos.z(), 0.0F, -pos.x());
-                case NORTH -> new DustParticlesDelta(1.0F, 0.0F, -0.1);
-                case SOUTH -> new DustParticlesDelta(-1.0F, 0.0F, 0.1);
-                case WEST -> new DustParticlesDelta(-0.1, 0.0F, -1.0F);
-                case EAST -> new DustParticlesDelta(0.1, 0.0F, 1.0F);
-            };
-        }
     }
 
     public static class MultitoolHolder extends Holder.Reference<Item> {
