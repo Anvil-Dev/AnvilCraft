@@ -186,6 +186,17 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
         return readItemTank(stack, registries).getTotalAmount() == 0;
     }
 
+    public static List<FluidStack> containedFluids(ItemStack stack, HolderLookup.Provider registries) {
+        if (!stack.is(ModBlocks.LARGE_FLUID_TANK.asItem())) return List.of();
+        return readItemTank(stack, registries).copyFluids();
+    }
+
+    public static int remainingCapacity(ItemStack stack, HolderLookup.Provider registries) {
+        if (!stack.is(ModBlocks.LARGE_FLUID_TANK.asItem())) return 0;
+        long stored = readItemTank(stack, registries).getTotalAmount();
+        return (int) Math.max(0, BASE_CAPACITY - stored);
+    }
+
     public static ItemStack fillItem(
         ItemStack stack,
         List<FluidStack> fluids,

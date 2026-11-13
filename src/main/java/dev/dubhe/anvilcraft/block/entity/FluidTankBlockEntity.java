@@ -172,6 +172,16 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
         return readItemTank(stack, registries).getFluid().isEmpty();
     }
 
+    public static FluidStack containedFluid(ItemStack stack, HolderLookup.Provider registries) {
+        if (!stack.is(ModBlocks.FLUID_TANK.asItem())) return FluidStack.EMPTY;
+        return readItemTank(stack, registries).getFluid();
+    }
+
+    public static int remainingCapacity(ItemStack stack, HolderLookup.Provider registries) {
+        if (!stack.is(ModBlocks.FLUID_TANK.asItem())) return 0;
+        return Math.max(0, BASE_CAPACITY - readItemTank(stack, registries).getFluidAmount());
+    }
+
     public static ItemStack fillItem(ItemStack stack, FluidStack fluid, HolderLookup.Provider registries) {
         if (fluid.isEmpty() || !isEmptyItem(stack, registries)) return ItemStack.EMPTY;
 
