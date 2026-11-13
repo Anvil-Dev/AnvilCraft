@@ -62,8 +62,8 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
                 this.sync();
             },
             List.of(
-                Component.translatable("screen.anvilcraft.filter.mismatch_component"),
-                Component.translatable("screen.anvilcraft.filter.match_component")
+                Component.translatable("screen.anvilcraft.filter.match_component"),
+                Component.translatable("screen.anvilcraft.filter.mismatch_component")
             )
         )).setCurrent(container.includeComponents() ? 0 : 1);
         this.addRenderableWidget(new SwitchableButton(
