@@ -44,6 +44,9 @@ public record ControlValveFilterPacket(int index, FluidStack fluid) implements I
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (!(player.containerMenu instanceof ControlValveMenu menu) || menu.getBlockEntity() == null) {
             return;
         }

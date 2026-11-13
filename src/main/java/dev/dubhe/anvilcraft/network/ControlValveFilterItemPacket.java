@@ -47,6 +47,9 @@ public record ControlValveFilterItemPacket(ItemStack filterItem) implements ISen
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (!(player.containerMenu instanceof ControlValveMenu menu) || menu.getBlockEntity() == null) {
             return;
         }

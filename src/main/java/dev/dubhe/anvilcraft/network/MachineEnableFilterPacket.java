@@ -37,6 +37,9 @@ public record MachineEnableFilterPacket(boolean filterEnabled) implements ISensi
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (!player.hasContainerOpen()) return;
         if (!(player.containerMenu instanceof IFilterMenu menu)) return;
         menu.setFilterEnabled(this.filterEnabled());

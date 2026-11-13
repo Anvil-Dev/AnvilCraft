@@ -47,6 +47,9 @@ public record SlotFilterChangePacket(int index, ItemStack filter) implements ISe
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (!(player.containerMenu instanceof IFilterMenu menu)) return;
         menu.setFilter(this.index, this.filter);
         menu.flush();

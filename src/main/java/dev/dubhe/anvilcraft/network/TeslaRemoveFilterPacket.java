@@ -26,6 +26,9 @@ public record TeslaRemoveFilterPacket(String id, String arg) implements IServerb
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (player.containerMenu instanceof TeslaTowerMenu menu) {
             menu.removeFilter(this.id, this.arg);
         }

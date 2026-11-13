@@ -33,6 +33,9 @@ public record CreativeLaserUpdatePacket(int level, LensType lensType, boolean ga
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (!(player.containerMenu instanceof CreativeLaserMenu menu)) return;
         CreativeLaserBlockEntity blockEntity = menu.getBlockEntity();
         if (blockEntity == null) return;

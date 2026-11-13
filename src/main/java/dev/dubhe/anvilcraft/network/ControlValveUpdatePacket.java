@@ -28,6 +28,9 @@ public record ControlValveUpdatePacket(int maxRate) implements IServerboundPacke
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (!(player.containerMenu instanceof ControlValveMenu menu)) {
             return;
         }

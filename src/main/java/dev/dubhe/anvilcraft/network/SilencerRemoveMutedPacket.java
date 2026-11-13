@@ -24,6 +24,9 @@ public record SilencerRemoveMutedPacket(ResourceLocation soundId) implements ISe
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (player.containerMenu instanceof ActiveSilencerMenu menu) {
             menu.removeSound(this.soundId);
         }

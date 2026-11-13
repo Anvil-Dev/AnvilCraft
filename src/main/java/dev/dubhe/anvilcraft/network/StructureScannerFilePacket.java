@@ -45,6 +45,9 @@ public record StructureScannerFilePacket(int containerId, UUID id, Action action
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator() && this.action != Action.LIST) {
+            return;
+        }
         if (!(player instanceof ServerPlayer serverPlayer) || !(player.containerMenu instanceof StructureScannerMenu menu)
             || menu.containerId != this.containerId || !menu.stillValid(player)) return;
         StructureScannerFiles.handle(serverPlayer, menu, this);

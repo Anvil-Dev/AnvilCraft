@@ -24,6 +24,9 @@ public record AutoEnchantingTableLevelPacket(int level) implements IServerboundP
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (!player.hasContainerOpen()) return;
         if (!(player.containerMenu instanceof AutoEnchantingTableMenu menu)) return;
         menu.setLiquidLevel(this.level);

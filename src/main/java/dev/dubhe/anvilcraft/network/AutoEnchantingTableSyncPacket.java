@@ -26,6 +26,9 @@ public record AutoEnchantingTableSyncPacket(int index, boolean select) implement
 
     @Override
     public void handleOnServer(Player player) {
+        if (player.isSpectator()) {
+            return;
+        }
         if (!player.hasContainerOpen()) return;
         if (!(player.containerMenu instanceof AutoEnchantingTableMenu menu)) return;
         if (this.select) {
