@@ -10,7 +10,6 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.Amulet;
 import dev.dubhe.anvilcraft.block.item.CheckValveItem;
 import dev.dubhe.anvilcraft.block.state.Color;
-import dev.dubhe.anvilcraft.client.init.ModEquipmentAssets;
 import dev.dubhe.anvilcraft.client.renderer.item.DiskItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.EnergyWeaponExhaustedProperty;
 import dev.dubhe.anvilcraft.client.renderer.item.FilterItemRenderer;
@@ -57,7 +56,6 @@ import dev.dubhe.anvilcraft.item.property.component.Eternal;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
 import dev.dubhe.anvilcraft.item.property.component.Multiphase;
 import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
-import dev.dubhe.anvilcraft.item.property.predicate.IntegerComponentPredicate;
 import dev.dubhe.anvilcraft.item.template.EmberMetalUpgradeTemplateItem;
 import dev.dubhe.anvilcraft.item.template.FrostMetalUpgradeTemplateItem;
 import dev.dubhe.anvilcraft.item.template.RoyalSteelUpgradeTemplateItem;
@@ -123,26 +121,19 @@ import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import dev.dubhe.anvilcraft.util.dummy.DummyHolder;
 import dev.dubhe.anvilcraft.util.registrater.DataGenUtil;
 import dev.dubhe.anvilcraft.util.registrater.ModelProviderUtil;
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplate;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
-import net.minecraft.client.renderer.item.properties.conditional.ComponentMatches;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.component.predicates.DataComponentPredicate;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Unit;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
@@ -152,22 +143,20 @@ import net.minecraft.world.item.component.UseCooldown;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
-import net.minecraft.world.item.equipment.ArmorMaterials;
 import net.minecraft.world.item.equipment.ArmorType;
-import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
-@SuppressWarnings({
-    "unused",
-    "CodeBlock2Expr"
-})
+@SuppressWarnings({"unused", "CodeBlock2Expr", "Convert2Lambda"})
 public class ModItems {
     public static final ItemEntry<GuideBookItem> GUIDE_BOOK = REGISTRUM.item("guide_book", GuideBookItem::new)
         .properties(p -> p.stacksTo(1))
@@ -735,69 +724,45 @@ public class ModItems {
 
     // 升级锻造模板
     public static final ItemEntry<RoyalSteelUpgradeTemplateItem> ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE = REGISTRUM
-        .item(
-            "royal_steel_upgrade_smithing_template",
-            RoyalSteelUpgradeTemplateItem::new
-        )
-        .lang("Smithing Template")
+        .item("royal_steel_upgrade_smithing_template", RoyalSteelUpgradeTemplateItem::new)
+        .lang("Royal Steel Upgrade")
         .tag(ModItemTags.TEMPLATES)
         .register();
     public static final ItemEntry<FrostMetalUpgradeTemplateItem> FROST_METAL_UPGRADE_SMITHING_TEMPLATE = REGISTRUM
-        .item(
-            "frost_metal_upgrade_smithing_template",
-            FrostMetalUpgradeTemplateItem::new
-        )
-        .lang("Smithing Template")
+        .item("frost_metal_upgrade_smithing_template", FrostMetalUpgradeTemplateItem::new)
+        .lang("Frost Metal Upgrade")
         .tag(ModItemTags.TEMPLATES)
         .register();
     public static final ItemEntry<EmberMetalUpgradeTemplateItem> EMBER_METAL_UPGRADE_SMITHING_TEMPLATE = REGISTRUM
-        .item(
-            "ember_metal_upgrade_smithing_template",
-            EmberMetalUpgradeTemplateItem::new
-        )
-        .lang("Smithing Template")
+        .item("ember_metal_upgrade_smithing_template", EmberMetalUpgradeTemplateItem::new)
+        .lang("Ember Metal Upgrade")
         .tag(ModItemTags.TEMPLATES)
         .register();
     public static final ItemEntry<PermutationTemplateItem> PERMUTATION_TEMPLATE = REGISTRUM
-        .item(
-            "permutation_smithing_template",
-            PermutationTemplateItem::new
-        )
+        .item("permutation_smithing_template", PermutationTemplateItem::new)
         .recipe(RegistrumItemRecipeLoader::permutationTemplateItem)
         .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(ModItemTags.TEMPLATES, ModItemTags.EXPLOSION_PROOF)
         .register();
     public static final ItemEntry<DeformationTemplateItem> DEFORMATION_TEMPLATE = REGISTRUM
-        .item(
-            "deformation_smithing_template",
-            DeformationTemplateItem::new
-        )
+        .item("deformation_smithing_template", DeformationTemplateItem::new)
         .recipe(RegistrumItemRecipeLoader::deformationTemplateItem)
         .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(ModItemTags.TEMPLATES, ModItemTags.EXPLOSION_PROOF)
         .register();
 
     public static final ItemEntry<TwoToOneTemplateItem> TWO_TO_ONE_SMITHING_TEMPLATE = REGISTRUM
-        .item(
-            "two_to_one_smithing_template",
-            TwoToOneTemplateItem::new
-        )
+        .item("two_to_one_smithing_template", TwoToOneTemplateItem::new)
         .lang("Two to One Smithing Template")
         .tag(ModItemTags.MULTIPLE_TO_ONE_SMITHING_TEMPLATES)
         .register();
     public static final ItemEntry<FourToOneTemplateItem> FOUR_TO_ONE_SMITHING_TEMPLATE = REGISTRUM
-        .item(
-            "four_to_one_smithing_template",
-            FourToOneTemplateItem::new
-        )
+        .item("four_to_one_smithing_template", FourToOneTemplateItem::new)
         .lang("Four to One Smithing Template")
         .tag(ModItemTags.MULTIPLE_TO_ONE_SMITHING_TEMPLATES)
         .register();
     public static final ItemEntry<EightToOneTemplateItem> EIGHT_TO_ONE_SMITHING_TEMPLATE = REGISTRUM
-        .item(
-            "eight_to_one_smithing_template",
-            EightToOneTemplateItem::new
-        )
+        .item("eight_to_one_smithing_template", EightToOneTemplateItem::new)
         .lang("Eight to One Smithing Template")
         .tag(ModItemTags.MULTIPLE_TO_ONE_SMITHING_TEMPLATES)
         .register();
@@ -843,7 +808,6 @@ public class ModItems {
         .register();
 
     public static final ItemEntry<BuildingRodItem> BUILDING_ROD = REGISTRUM.item("building_rod", BuildingRodItem::new)
-        .lang("Building Rod")
         .model(DataGenUtil::buildingRod)
         .recipe(RegistrumItemRecipeLoader::buildingRod)
         .register();
@@ -878,6 +842,7 @@ public class ModItems {
         .recipe(RegistrumItemRecipeLoader::totemOfRage)
         .register();
 
+    @SuppressWarnings("SameParameterValue")
     private static ItemEntry<? extends Item> createAmuletItem(
         String type,
         ResourceKey<Amulet> amulet,
@@ -1002,8 +967,9 @@ public class ModItems {
         .model(DataGenUtil::onlyInfo)
         .tag(ModItemTags.CAPACITOR)
         .register();
-    public static final ItemEntry<EmptyCapacitorItem> CAPACITOR_EMPTY = REGISTRUM.item("capacitor_empty", EmptyCapacitorItem::new)
-        .lang("Empty Capacitor")
+    public static final ItemEntry<EmptyCapacitorItem> CAPACITOR_EMPTY = REGISTRUM
+        .item("empty_capacitor", EmptyCapacitorItem::new)
+        .aliasFrom(AnvilCraft.of("capacitor_empty"))
         .model(DataGenUtil::onlyInfo)
         .tag(ModItemTags.CAPACITOR)
         .recipe(RegistrumItemRecipeLoader::capacitorEmpty)
@@ -1012,11 +978,8 @@ public class ModItems {
         .model(DataGenUtil::onlyInfo)
         .register();
     public static final ItemEntry<EmptySuperCapacitorItem> SUPER_CAPACITOR_EMPTY = REGISTRUM
-        .item(
-            "supercapacitor_empty",
-            EmptySuperCapacitorItem::new
-        )
-        .lang("Empty Supercapacitor")
+        .item("empty_supercapacitor", EmptySuperCapacitorItem::new)
+        .aliasFrom(AnvilCraft.of("supercapacitor_empty"))
         .model(DataGenUtil::onlyInfo)
         .register();
 
@@ -1025,7 +988,6 @@ public class ModItems {
 
     public static final ItemEntry<FluidTankMinecartItem> FLUID_TANK_MINECART = REGISTRUM
         .item("fluid_tank_minecart", FluidTankMinecartItem::new)
-        .lang("Fluid Tank Minecart")
         .recipe(RegistrumItemRecipeLoader::fluidTankMinecart)
         .register();
 
@@ -1149,19 +1111,13 @@ public class ModItems {
         .tag(ItemTags.PIGLIN_LOVED, Tags.Items.NUGGETS)
         .recipe(RegistrumItemRecipeLoader::cursedGoldNugget)
         .register();
-    public static final ItemEntry<EnchantedGoldIngotItem> ENCHANTED_GOLD_INGOT = REGISTRUM.item(
-        "enchanted_gold_ingot",
-        EnchantedGoldIngotItem::new
-    )
-        .lang("Enchanted Gold Ingot")
+    public static final ItemEntry<EnchantedGoldIngotItem> ENCHANTED_GOLD_INGOT = REGISTRUM
+        .item("enchanted_gold_ingot", EnchantedGoldIngotItem::new)
         .tag(ItemTags.BEACON_PAYMENT_ITEMS, ItemTags.PIGLIN_LOVED, Tags.Items.INGOTS, ModItemTags.ENCHANTED_GOLD)
         .recipe(RegistrumItemRecipeLoader::enchantedGoldIngot)
         .register();
-    public static final ItemEntry<EnchantedGoldItem> ENCHANTED_GOLD_NUGGET = REGISTRUM.item(
-        "enchanted_gold_nugget",
-        EnchantedGoldItem::new
-    )
-        .lang("Enchanted Gold Nugget")
+    public static final ItemEntry<EnchantedGoldItem> ENCHANTED_GOLD_NUGGET = REGISTRUM
+        .item("enchanted_gold_nugget", EnchantedGoldItem::new)
         .tag(ItemTags.PIGLIN_LOVED, Tags.Items.NUGGETS, ModItemTags.ENCHANTED_GOLD)
         .recipe(RegistrumItemRecipeLoader::enchantedGoldNugget)
         .register();
@@ -1505,16 +1461,15 @@ public class ModItems {
         .register();
 
     public static final ItemEntry<Item> LEGACY_ESSENCE = REGISTRUM.item("legacy_essence", Item::new)
-        .lang("Legacy Essence")
         .register();
 
     public static final ItemEntry<Item> CIVILIZATION_CATALYST = REGISTRUM.item("civilization_catalyst", Item::new)
-        .lang("Civilization Catalyst")
         .recipe(RegistrumItemRecipeLoader::civilizationCatalyst)
         .register();
 
     public static final ItemEntry<BucketItem> EXP_BUCKET = REGISTRUM
         .item("exp_bucket", p -> new BucketItem(ModFluids.EXP_FLUID.get(), p))
+        .lang("EXP Bucket")
         .tag(ModItemTags.EXP_BUCKETS, Tags.Items.BUCKETS)
         .initialProperties(() -> new Item.Properties().stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucket)
@@ -1526,15 +1481,15 @@ public class ModItems {
         .model(ModelProviderUtil::bucket)
         .register();
 
-    public static final Object2ObjectMap<Color, ItemEntry<BucketItem>> CEMENT_BUCKETS = ModItems.registerAllCementBuckets();
+    public static final Map<Color, ItemEntry<BucketItem>> CEMENT_BUCKETS;
 
-    private static Object2ObjectMap<Color, ItemEntry<BucketItem>> registerAllCementBuckets() {
-        Object2ObjectMap<Color, ItemEntry<BucketItem>> map = new Object2ObjectLinkedOpenHashMap<>();
+    static {
+        EnumMap<Color, ItemEntry<BucketItem>> map = new EnumMap<>(Color.class);
         for (Color color : Color.values()) {
             var entry = ModItems.registerCementBucket(color);
             map.put(color, entry);
         }
-        return map;
+        CEMENT_BUCKETS = Collections.unmodifiableMap(map);
     }
 
     private static ItemEntry<BucketItem> registerCementBucket(Color color) {
@@ -1555,7 +1510,6 @@ public class ModItems {
     public static final ItemEntry<BucketItem> HYDROGEN_BUCKET = REGISTRUM
         .item("hydrogen_bucket", p -> new BucketItem(ModFluids.HYDROGEN.get(), p))
         .tag(Tags.Items.BUCKETS)
-        .lang("Hydrogen Bucket")
         .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucketGassy)
         .register();
@@ -1563,7 +1517,6 @@ public class ModItems {
     public static final ItemEntry<BucketItem> OXYGEN_BUCKET = REGISTRUM
         .item("oxygen_bucket", p -> new BucketItem(ModFluids.OXYGEN.get(), p))
         .tag(Tags.Items.BUCKETS)
-        .lang("Oxygen Bucket")
         .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucketGassy)
         .register();
@@ -1571,7 +1524,6 @@ public class ModItems {
     public static final ItemEntry<BucketItem> HELIUM_BUCKET = REGISTRUM
         .item("helium_bucket", p -> new BucketItem(ModFluids.HELIUM.get(), p))
         .tag(Tags.Items.BUCKETS)
-        .lang("Helium Bucket")
         .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucketGassy)
         .register();
@@ -1579,7 +1531,6 @@ public class ModItems {
     public static final ItemEntry<BucketItem> DEUTERIUM_BUCKET = REGISTRUM
         .item("deuterium_bucket", p -> new BucketItem(ModFluids.DEUTERIUM.get(), p))
         .tag(Tags.Items.BUCKETS)
-        .lang("Deuterium Bucket")
         .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucketGassy)
         .register();
@@ -1587,7 +1538,6 @@ public class ModItems {
     public static final ItemEntry<BucketItem> XENON_BUCKET = REGISTRUM
         .item("xenon_bucket", p -> new BucketItem(ModFluids.XENON.get(), p))
         .tag(Tags.Items.BUCKETS)
-        .lang("Xenon Bucket")
         .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucketGassy)
         .register();
@@ -1595,7 +1545,6 @@ public class ModItems {
     public static final ItemEntry<BucketItem> KRYPTON_BUCKET = REGISTRUM
         .item("krypton_bucket", p -> new BucketItem(ModFluids.KRYPTON.get(), p))
         .tag(Tags.Items.BUCKETS)
-        .lang("Krypton Bucket")
         .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucketGassy)
         .register();
@@ -1603,7 +1552,6 @@ public class ModItems {
     public static final ItemEntry<BucketItem> PRIMORDIAL_MATTER_BUCKET = REGISTRUM
         .item("primordial_matter_bucket", p -> new BucketItem(ModFluids.PRIMORDIAL_MATTER.get(), p))
         .tag(Tags.Items.BUCKETS)
-        .lang("Primordial Matter Bucket")
         .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucketGassy)
         .register();
@@ -1616,7 +1564,6 @@ public class ModItems {
 
     public static final ItemEntry<PipeBlockItem> GLASS_PIPE = REGISTRUM
         .item("glass_pipe", properties -> new PipeBlockItem(properties, ModBlocks.GLASS_PIPE_STRAIGHT))
-        .lang("Glass Pipe")
         .model(DataGenUtil::onlyInfo)
         .tag(ModItemTags.DISALLOW_HAND_INSERT_INTO_TANK)
         .register();

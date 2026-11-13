@@ -39,14 +39,14 @@ items:
 
 <row halign="center">
 <recipe id="anvilcraft:charger_charging/capacitor"/>
-<recipe id="anvilcraft:charger_charging/capacitor_empty"/>
+<recipe id="anvilcraft:charger_charging/empty_capacitor"/>
 </row>
 
 ---
 
 <row halign="center">
 <recipe id="anvilcraft:charger_charging/supercapacitor"/>
-<recipe id="anvilcraft:charger_charging/supercapacitor_empty"/>
+<recipe id="anvilcraft:charger_charging/empty_supercapacitor"/>
 </row>
 
 ---

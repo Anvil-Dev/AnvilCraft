@@ -3,7 +3,7 @@
   "ingredient": "anvilcraft:supercapacitor",
   "power": 640,
   "result": {
-    "id": "anvilcraft:supercapacitor_empty"
+    "id": "anvilcraft:empty_supercapacitor"
   },
   "time": 2400
 }

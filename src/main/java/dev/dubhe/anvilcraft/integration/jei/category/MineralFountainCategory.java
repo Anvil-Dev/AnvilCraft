@@ -97,37 +97,37 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
 
     @Override
     public int getWidth() {
-        return WIDTH;
+        return MineralFountainCategory.WIDTH;
     }
 
     @Override
     public int getHeight() {
-        return HEIGHT;
+        return MineralFountainCategory.HEIGHT;
     }
 
     @Override
-    public @Nullable IDrawable getIcon() {
+    public IDrawable getIcon() {
         return this.icon;
     }
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, MineralFountainJeiRecipe recipe, IFocusGroup focuses) {
         List<MineralFountainJeiRecipe.SideRequirement> sideSlots = recipe.sideSlots();
-        for (int i = 0; i < SIDE_SLOT_AREAS.length; i++) {
+        for (int i = 0; i < MineralFountainCategory.SIDE_SLOT_AREAS.length; i++) {
             if (i >= sideSlots.size()) break;
             MineralFountainJeiRecipe.SideRequirement side = sideSlots.get(i);
-            int[] area = SIDE_SLOT_AREAS[i];
+            int[] area = MineralFountainCategory.SIDE_SLOT_AREAS[i];
             JeiBlockIngredientUtil.addSlot(
                 builder,
                 RecipeIngredientRole.INPUT,
-                SIDE_BLOCK_PREFIX + i,
+                MineralFountainCategory.SIDE_BLOCK_PREFIX + i,
                 area[0],
                 area[1],
                 area[2],
                 area[3],
                 JeiBlockIngredientUtil.toItemStacks(side.states()),
                 JeiBlockIngredientUtil.toFluidStacks(side.states())
-            ).addRichTooltipCallback((slot, tooltip) -> tooltip.add(
+            ).addRichTooltipCallback((_, tooltip) -> tooltip.add(
                 Component.translatable(
                     "gui.anvilcraft.category.mineral_fountain.side_count",
                     side.count()
@@ -138,7 +138,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         List<ItemStack> fromStacks = JeiBlockIngredientUtil.toItemStacks(recipe.fromBlocks());
         if (!fromStacks.isEmpty()) {
             JeiBlockIngredientUtil.addSlot(
-                builder, RecipeIngredientRole.INPUT, FROM_BLOCK, 40, 28, 16, 13, fromStacks
+                builder, RecipeIngredientRole.INPUT, MineralFountainCategory.FROM_BLOCK, 40, 28, 16, 13, fromStacks
             );
         }
 
@@ -146,7 +146,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         JeiBlockIngredientUtil.addSlot(
             builder,
             RecipeIngredientRole.OUTPUT,
-            OUTPUT_BLOCK,
+            MineralFountainCategory.OUTPUT_BLOCK,
             118,
             28,
             16,
@@ -157,17 +157,17 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             BlockState displayed = JeiBlockIngredientUtil.toBlockState(
                 slot.getDisplayedIngredient().orElse(null), outcomeStates
             );
-            tooltip.addAll(getChanceTooltips(
+            tooltip.addAll(MineralFountainCategory.getChanceTooltips(
                 recipe, displayed == null ? outcomeStates.getFirst() : displayed
             ));
             if (recipe.dimension() != null) {
-                tooltip.add(getDimensionName(recipe.dimension()).copy().withStyle(ChatFormatting.GRAY));
+                tooltip.add(MineralFountainCategory.getDimensionName(recipe.dimension()).copy().withStyle(ChatFormatting.GRAY));
             }
         });
 
         if (!recipe.fluids().isEmpty()) {
             IIngredientAcceptor<?> invisible = builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT);
-            recipe.fluids().forEach(fluid -> invisible.addFluidStack(
+            recipe.fluids().forEach(fluid -> invisible.add(
                 fluid.getFluid(), fluid.getAmount(), fluid.getComponentsPatch()
             ));
         }
@@ -189,7 +189,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
 
         List<MineralFountainJeiRecipe.SideRequirement> sideSlots = recipe.sideSlots();
         for (int i = 0; i < Math.min(2, sideSlots.size()); i++) {
-            renderSideSlot(guiGraphics, recipeSlotsView, sideSlots, i);
+            MineralFountainCategory.renderSideSlot(guiGraphics, recipeSlotsView, sideSlots, i);
         }
 
         RenderSupport.renderBlockAt(
@@ -197,21 +197,22 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             ModBlocks.MINERAL_FOUNTAIN.getDefaultState(),
             48,
             50,
-            BLOCK_SCALE
+            MineralFountainCategory.BLOCK_SCALE
         );
 
         for (int i = 2; i < Math.min(4, sideSlots.size()); i++) {
-            renderSideSlot(guiGraphics, recipeSlotsView, sideSlots, i);
+            MineralFountainCategory.renderSideSlot(guiGraphics, recipeSlotsView, sideSlots, i);
         }
 
         if (!recipe.fromBlocks().isEmpty()) {
-            JeiBlockIngredientUtil.getDisplayedState(recipeSlotsView, FROM_BLOCK, recipe.fromBlocks()).ifPresent(state ->
+            JeiBlockIngredientUtil.getDisplayedState(recipeSlotsView,
+                                                     MineralFountainCategory.FROM_BLOCK, recipe.fromBlocks()).ifPresent(state ->
                 RenderSupport.renderBlockAt(
                     guiGraphics,
                     state,
                     48,
                     39.5f,
-                    BLOCK_SCALE
+                    MineralFountainCategory.BLOCK_SCALE
                 )
             );
         }
@@ -221,11 +222,11 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             ModBlocks.MINERAL_FOUNTAIN.getDefaultState(),
             126,
             50,
-            BLOCK_SCALE
+            MineralFountainCategory.BLOCK_SCALE
         );
 
         BlockState resultState = JeiBlockIngredientUtil.toBlockState(
-            JeiBlockIngredientUtil.getDisplayedIngredient(recipeSlotsView, OUTPUT_BLOCK).orElse(null),
+            JeiBlockIngredientUtil.getDisplayedIngredient(recipeSlotsView, MineralFountainCategory.OUTPUT_BLOCK).orElse(null),
             recipe.outcomeStates()
         );
         if (resultState == null) resultState = recipe.outcomeStates().getFirst();
@@ -234,19 +235,19 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             resultState,
             126,
             39.5f,
-            BLOCK_SCALE
+            MineralFountainCategory.BLOCK_SCALE
         );
 
         this.arrow.draw(guiGraphics, 82, 37);
 
         if (recipe.dimension() != null) {
-            Component dimensionName = getDimensionName(recipe.dimension()).copy().withStyle(ChatFormatting.WHITE);
+            Component dimensionName = MineralFountainCategory.getDimensionName(recipe.dimension()).copy().withStyle(ChatFormatting.WHITE);
             guiGraphics.centeredText(Minecraft.getInstance().font, dimensionName, 126, 65, 0xFFFFFFFF);
         }
     }
 
     @Override
-    public @Nullable Identifier getRegistryName(MineralFountainJeiRecipe recipe) {
+    public Identifier getIdentifier(MineralFountainJeiRecipe recipe) {
         return recipe.id();
     }
 
@@ -261,18 +262,18 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
 
         Map<String, List<RecipeHolder<MineralFountainActiveRecipe>>> activeGroups = new LinkedHashMap<>();
         for (RecipeHolder<MineralFountainActiveRecipe> holder : activeRecipes) {
-            activeGroups.computeIfAbsent(activeGroupKey(holder.value()), key -> new ArrayList<>()).add(holder);
+            activeGroups.computeIfAbsent(MineralFountainCategory.activeGroupKey(holder.value()), _ -> new ArrayList<>()).add(holder);
         }
         for (List<RecipeHolder<MineralFountainActiveRecipe>> group : activeGroups.values()) {
-            displays.add(mergeActive(group));
+            displays.add(MineralFountainCategory.mergeActive(group));
         }
 
         Map<String, List<RecipeHolder<MineralFountainPassiveRecipe>>> passiveGroups = new LinkedHashMap<>();
         for (RecipeHolder<MineralFountainPassiveRecipe> holder : passiveRecipes) {
-            passiveGroups.computeIfAbsent(passiveGroupKey(holder.value()), key -> new ArrayList<>()).add(holder);
+            passiveGroups.computeIfAbsent(MineralFountainCategory.passiveGroupKey(holder.value()), _ -> new ArrayList<>()).add(holder);
         }
         for (List<RecipeHolder<MineralFountainPassiveRecipe>> group : passiveGroups.values()) {
-            displays.add(mergePassive(group));
+            displays.add(MineralFountainCategory.mergePassive(group));
         }
 
         Map<Identifier, MineralFountainActiveRecipe> activeById = new LinkedHashMap<>();
@@ -284,7 +285,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             MineralFountainReplacementRecipe recipe = holder.value();
             displays.add(new MineralFountainJeiRecipe(
                 holder.id().identifier(),
-                replacementAround(recipe, activeById),
+                MineralFountainCategory.replacementAround(recipe, activeById),
                 recipe.getFromBlock().constructStatesForRender(),
                 List.of(new MineralFountainJeiRecipe.Outcome(
                     recipe.getToBlock().state(), NumberProviderUtil.expected(recipe.getToBlock().chance())
@@ -292,7 +293,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
                 recipe.getToFluid().map(FluidStackTemplate::create).map(List::of).orElse(List.of()),
                 recipe.getDimension().orElse(null),
                 recipe.getReplaceChance(),
-                replacementTarget(recipe)
+                MineralFountainCategory.replacementTarget(recipe)
             ));
         }
 
@@ -308,13 +309,13 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             MineralFountainActiveRecipe recipe = holder.value();
             outcomes.add(new MineralFountainJeiRecipe.Outcome(
                 recipe.getToBlock().state(),
-                shareOf(recipe, weightTotal, holder.value().getToBlock())
+                MineralFountainCategory.shareOf(recipe, weightTotal, holder.value().getToBlock())
             ));
             recipe.getToFluid().map(FluidStackTemplate::create).ifPresent(fluids::add);
         }
         return new MineralFountainJeiRecipe(
             group.getFirst().id().identifier(),
-            sideRequirements(first),
+            MineralFountainCategory.sideRequirements(first),
             first.getFromBlock().constructStatesForRender(),
             outcomes,
             fluids,
@@ -333,7 +334,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             MineralFountainPassiveRecipe recipe = holder.value();
             outcomes.add(new MineralFountainJeiRecipe.Outcome(
                 recipe.getToBlock().state(),
-                shareOf(recipe, weightTotal, recipe.getToBlock())
+                MineralFountainCategory.shareOf(recipe, weightTotal, recipe.getToBlock())
             ));
             recipe.getToFluid().map(FluidStackTemplate::create).ifPresent(fluids::add);
         }
@@ -361,12 +362,12 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
     }
 
     private static String activeGroupKey(MineralFountainActiveRecipe recipe) {
-        return passiveGroupKey(recipe) + "#" + aroundKey(recipe.getAround());
+        return MineralFountainCategory.passiveGroupKey(recipe) + "#" + MineralFountainCategory.aroundKey(recipe.getAround());
     }
 
     private static String aroundKey(List<AroundRequirement> around) {
         return around.stream()
-            .map(requirement -> requirement.count() + "x" + predicateKey(requirement.block()))
+            .map(requirement -> requirement.count() + "x" + MineralFountainCategory.predicateKey(requirement.block()))
             .collect(Collectors.joining(","));
     }
 
@@ -415,7 +416,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             tooltips.add(
                 Component.translatable(
                     "gui.anvilcraft.category.chance",
-                    formatPercentage(chance)
+                    MineralFountainCategory.formatPercentage(chance)
                 ).withStyle(ChatFormatting.GRAY)
             );
         }
@@ -423,7 +424,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             tooltips.add(
                 Component.translatable(
                     "gui.anvilcraft.category.mineral_fountain.replace_chance",
-                    formatPercentage(recipe.replacementChance())
+                    MineralFountainCategory.formatPercentage(recipe.replacementChance())
                 ).withStyle(ChatFormatting.GRAY)
             );
             if (recipe.replacementTarget() != null) {
@@ -439,10 +440,10 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
     }
 
     private static String formatPercentage(double chance) {
-        String percentage = FORMATTER.format(chance * 100);
-        if (chance < 1 && percentage.equals(FORMATTER.format(100))) {
+        String percentage = MineralFountainCategory.FORMATTER.format(chance * 100);
+        if (chance < 1 && percentage.equals(MineralFountainCategory.FORMATTER.format(100))) {
             BigDecimal exact = BigDecimal.valueOf(chance).movePointRight(2);
-            DecimalFormat localized = (DecimalFormat) FORMATTER.clone();
+            DecimalFormat localized = (DecimalFormat) MineralFountainCategory.FORMATTER.clone();
             localized.setMaximumFractionDigits(Math.max(0, exact.scale()));
             return localized.format(exact);
         }
@@ -457,7 +458,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         int count = 0;
         for (Map.Entry<Identifier, MineralFountainActiveRecipe> entry : activeById.entrySet()) {
             if (!recipe.appliesTo(entry.getKey())) continue;
-            if (!sharesFromBlock(recipe.getFromBlock(), entry.getValue().getFromBlock())) continue;
+            if (!MineralFountainCategory.sharesFromBlock(recipe.getFromBlock(), entry.getValue().getFromBlock())) continue;
             for (AroundRequirement requirement : entry.getValue().getAround()) {
                 states.addAll(requirement.block().constructStatesForRender());
                 count = Math.max(count, requirement.count());
@@ -485,7 +486,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(ModBlocks.MINERAL_FOUNTAIN.asStack(), AnvilCraftJeiPlugin.MINERAL_FOUNTAIN);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.MINERAL_FOUNTAIN, ModBlocks.MINERAL_FOUNTAIN.asStack());
     }
 
     private static void renderSideSlot(
@@ -496,21 +497,21 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
     ) {
         MineralFountainJeiRecipe.SideRequirement side = sideSlots.get(index);
         BlockState state = JeiBlockIngredientUtil.toBlockState(
-            JeiBlockIngredientUtil.getDisplayedIngredient(recipeSlotsView, SIDE_BLOCK_PREFIX + index).orElse(null),
+            JeiBlockIngredientUtil.getDisplayedIngredient(recipeSlotsView, MineralFountainCategory.SIDE_BLOCK_PREFIX + index).orElse(null),
             side.states()
         );
         if (state == null) state = side.states().getFirst();
-        renderSideBlock(guiGraphics, state, index);
+        MineralFountainCategory.renderSideBlock(guiGraphics, state, index);
     }
 
     private static void renderSideBlock(GuiGraphicsExtractor guiGraphics, BlockState state, int index) {
-        int[] position = SIDE_POSITIONS[index];
+        int[] position = MineralFountainCategory.SIDE_POSITIONS[index];
         RenderSupport.renderBlockAt(
             guiGraphics,
             state,
             position[0],
             position[1],
-            BLOCK_SCALE
+            MineralFountainCategory.BLOCK_SCALE
         );
     }
 

@@ -2155,10 +2155,10 @@ public class RegistrumBlockRecipeLoader {
             .pattern("AAA")
             .pattern("AAA")
             .pattern("AAA")
-            .define('A', ModFoodItems.CHOCOLATE_BLACK)
+            .define('A', ModFoodItems.BLACK_CHOCOLATE)
             .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModFoodItems.CHOCOLATE_BLACK),
-                AnvilCraftDatagen.has(lookup, ModFoodItems.CHOCOLATE_BLACK)
+                AnvilCraftDatagen.hasItem(ModFoodItems.BLACK_CHOCOLATE),
+                AnvilCraftDatagen.has(lookup, ModFoodItems.BLACK_CHOCOLATE)
             )
             .save(provider);
     }
@@ -2169,10 +2169,10 @@ public class RegistrumBlockRecipeLoader {
             .pattern("AAA")
             .pattern("AAA")
             .pattern("AAA")
-            .define('A', ModFoodItems.CHOCOLATE_WHITE)
+            .define('A', ModFoodItems.WHITE_CHOCOLATE)
             .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModFoodItems.CHOCOLATE_WHITE),
-                AnvilCraftDatagen.has(lookup, ModFoodItems.CHOCOLATE_WHITE)
+                AnvilCraftDatagen.hasItem(ModFoodItems.WHITE_CHOCOLATE),
+                AnvilCraftDatagen.has(lookup, ModFoodItems.WHITE_CHOCOLATE)
             )
             .save(provider);
     }

@@ -4,29 +4,29 @@ navigation:
   icon: "anvilcraft:capacitor"
 items:
   - anvilcraft:capacitor
-  - anvilcraft:capacitor_empty
+  - anvilcraft:empty_capacitor
   - anvilcraft:supercapacitor
-  - anvilcraft:supercapacitor_empty
+  - anvilcraft:empty_supercapacitor
 ---
 
 # Capacitor
 
 <row halign="center">
 <item id="anvilcraft:capacitor"/>
-<item id="anvilcraft:capacitor_empty"/>
+<item id="anvilcraft:empty_capacitor"/>
 <item id="anvilcraft:supercapacitor"/>
-<item id="anvilcraft:supercapacitor_empty"/>
+<item id="anvilcraft:empty_supercapacitor"/>
 </row>
 
 # <ref item="anvilcraft:capacitor"/>
 
 - Can work with <ref item="anvilcraft:charger"/> to store or release electrical energy
 
-<recipe id="anvilcraft:capacitor_empty"/>
+<recipe id="anvilcraft:empty_capacitor"/>
 
 <row halign="center">
 <recipe id="anvilcraft:charger_charging/capacitor"/>
-<recipe id="anvilcraft:charger_charging/capacitor_empty"/>
+<recipe id="anvilcraft:charger_charging/empty_capacitor"/>
 </row>
 
 # <ref item="anvilcraft:supercapacitor"/>
@@ -37,11 +37,11 @@ The resin block must contain a Creeper
 If it is a charged version, there is a 50% chance of a massive explosion, and a 50% chance of obtaining a fully charged capacitor
 </danger>
 
-<recipe id="anvilcraft:item_compress/supercapacitor_empty"/>
+<recipe id="anvilcraft:item_compress/empty_supercapacitor"/>
 
 <row halign="center">
 <recipe id="anvilcraft:charger_charging/supercapacitor"/>
-<recipe id="anvilcraft:charger_charging/supercapacitor_empty"/>
+<recipe id="anvilcraft:charger_charging/empty_supercapacitor"/>
 </row>
 
 ## Salvaging

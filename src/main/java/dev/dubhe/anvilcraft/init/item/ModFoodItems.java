@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.init.item;
 
 import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.RegistrumItemRecipeLoader;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -22,7 +23,6 @@ import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 public class ModFoodItems {
     public static final ItemEntry<CursedGoldenAppleItem> CURSED_GOLDEN_APPLE = REGISTRUM
         .item("cursed_golden_apple", properties -> new CursedGoldenAppleItem(properties.food(ModFoods.CURSED_GOLDEN_APPLE)))
-        .lang("Cursed Golden Apple")
         .tag(Tags.Items.FOODS)
         .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.FOOD, ctx.get())
             .pattern("AAA")
@@ -44,8 +44,9 @@ public class ModFoodItems {
         .recipe(RegistrumItemRecipeLoader::chocolate)
         .register();
 
-    public static final ItemEntry<Item> CHOCOLATE_BLACK = REGISTRUM
-        .item("chocolate_black", Item::new)
+    public static final ItemEntry<Item> BLACK_CHOCOLATE = REGISTRUM
+        .item("black_chocolate", Item::new)
+        .aliasFrom(AnvilCraft.of("chocolate_black"))
         .properties(properties -> properties
             .food(ModFoods.CHOCOLATE_BLACK, ModConsumables.CHOCOLATE_BLACK)
         )
@@ -53,14 +54,21 @@ public class ModFoodItems {
         .recipe(RegistrumItemRecipeLoader::chocolateBlack)
         .register();
 
-    public static final ItemEntry<Item> CHOCOLATE_WHITE = REGISTRUM
-        .item("chocolate_white", Item::new)
+    @Deprecated(forRemoval = true)
+    public static final ItemEntry<Item> CHOCOLATE_BLACK = ModFoodItems.BLACK_CHOCOLATE;
+
+    public static final ItemEntry<Item> WHITE_CHOCOLATE = REGISTRUM
+        .item("white_chocolate", Item::new)
+        .aliasFrom(AnvilCraft.of("chocolate_white"))
         .properties(properties -> properties
             .food(ModFoods.CHOCOLATE_WHITE, ModConsumables.CHOCOLATE_WHITE)
         )
         .tag(Tags.Items.FOODS)
         .recipe(RegistrumItemRecipeLoader::chocolateWhite)
         .register();
+
+    @Deprecated(forRemoval = true)
+    public static final ItemEntry<Item> CHOCOLATE_WHITE = ModFoodItems.WHITE_CHOCOLATE;
 
     public static final ItemEntry<Item> CREAMY_BREAD_ROLL = REGISTRUM
         .item("creamy_bread_roll", Item::new)

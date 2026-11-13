@@ -2,8 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": "anvilcraft:cocoa_butter",
-    "B": "anvilcraft:cream",
+    "A": "anvilcraft:cocoa_liquor",
+    "B": "anvilcraft:cocoa_butter",
     "C": "minecraft:sugar"
   },
   "pattern": [
@@ -13,6 +13,6 @@
   ],
   "result": {
     "count": 4,
-    "id": "anvilcraft:chocolate_white"
+    "id": "anvilcraft:black_chocolate"
   }
 }

@@ -4,29 +4,29 @@ navigation:
   icon: "anvilcraft:capacitor"
 items:
   - anvilcraft:capacitor
-  - anvilcraft:capacitor_empty
+  - anvilcraft:empty_capacitor
   - anvilcraft:supercapacitor
-  - anvilcraft:supercapacitor_empty
+  - anvilcraft:empty_supercapacitor
 ---
 
 # 电容器
 
 <row halign="center">
 <item id="anvilcraft:capacitor"/>
-<item id="anvilcraft:capacitor_empty"/>
+<item id="anvilcraft:empty_capacitor"/>
 <item id="anvilcraft:supercapacitor"/>
-<item id="anvilcraft:supercapacitor_empty"/>
+<item id="anvilcraft:empty_supercapacitor"/>
 </row>
 
 # <ref item="anvilcraft:capacitor"/>
 
 - 能够配合<ref item="anvilcraft:charger"/>存储电能或释放电能
 
-<recipe id="anvilcraft:capacitor_empty"/>
+<recipe id="anvilcraft:empty_capacitor"/>
 
 <row halign="center">
 <recipe id="anvilcraft:charger_charging/capacitor"/>
-<recipe id="anvilcraft:charger_charging/capacitor_empty"/>
+<recipe id="anvilcraft:charger_charging/empty_capacitor"/>
 </row>
 
 # <ref item="anvilcraft:supercapacitor"/>
@@ -37,11 +37,11 @@ items:
 若为高压版本，有50%概率发生大爆炸、有50%概率获得充满的电容器
 </danger>
 
-<recipe id="anvilcraft:item_compress/supercapacitor_empty"/>
+<recipe id="anvilcraft:item_compress/empty_supercapacitor"/>
 
 <row halign="center">
 <recipe id="anvilcraft:charger_charging/supercapacitor"/>
-<recipe id="anvilcraft:charger_charging/supercapacitor_empty"/>
+<recipe id="anvilcraft:charger_charging/empty_supercapacitor"/>
 </row>
 
 ## 拆解

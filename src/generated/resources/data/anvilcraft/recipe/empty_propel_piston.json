@@ -3,7 +3,7 @@
   "category": "redstone",
   "key": {
     "A": "anvilcraft:ionocraft",
-    "B": "anvilcraft:capacitor_empty",
+    "B": "anvilcraft:empty_capacitor",
     "C": "minecraft:iron_ingot",
     "D": "minecraft:piston",
     "E": "anvilcraft:ruby"
