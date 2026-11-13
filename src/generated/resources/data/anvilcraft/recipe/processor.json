@@ -3,7 +3,7 @@
   "category": "misc",
   "group": "anvilcraft:processor",
   "key": {
-    "B": "anvilcraft:hardend_resin",
+    "B": "anvilcraft:hardened_resin",
     "C": "#c:nuggets/copper",
     "D": "#c:gems/quartz"
   },

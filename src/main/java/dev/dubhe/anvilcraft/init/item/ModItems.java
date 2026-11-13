@@ -1145,8 +1145,12 @@ public class ModItems {
         .tag(Tags.Items.GEMS, ModItemTags.GEMS_AMBER)
         .recipe(RegistrumItemRecipeLoader::amber)
         .register();
-    public static final ItemEntry<Item> HARDEND_RESIN = REGISTRUM.item("hardend_resin", Item::new)
+    public static final ItemEntry<Item> HARDENED_RESIN = REGISTRUM
+        .item("hardened_resin", Item::new)
+        .aliasFrom(AnvilCraft.of("hardend_resin"))
         .register();
+    @Deprecated(forRemoval = true)
+    public static final ItemEntry<Item> HARDEND_RESIN = ModItems.HARDENED_RESIN;
     public static final ItemEntry<Item> WOOD_FIBER = REGISTRUM.item("wood_fiber", Item::new)
         .register();
     public static final ItemEntry<Item> CIRCUIT_BOARD = REGISTRUM.item("circuit_board", Item::new)

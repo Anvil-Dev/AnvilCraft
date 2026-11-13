@@ -2,8 +2,8 @@
 	"credit": "Made by XeKr with Blockbench",
 	"ambientocclusion": false,
 	"textures": {
-		"0": "anvilcraft:item/supercapacitor_empty",
-		"particle": "anvilcraft:item/supercapacitor_empty"
+		"0": "anvilcraft:item/empty_supercapacitor",
+		"particle": "anvilcraft:item/empty_supercapacitor"
 	},
 	"elements": [
 		{

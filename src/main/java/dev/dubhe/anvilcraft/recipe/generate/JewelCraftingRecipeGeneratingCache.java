@@ -9,7 +9,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.SmithingTrimRecipe;
 import net.minecraft.world.level.block.entity.DecoratedPotPatterns;
@@ -21,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class JewelCraftingRecipeGeneratingCache extends BaseGeneratingCache<JewelCraftingRecipe> {
-    private static final Logger logger = logger();
+    private static final Logger logger = BaseGeneratingCache.logger();
 
     private final List<Item> bannerPatterns = new ArrayList<>();
     private final List<Item> musicDiscs = new ArrayList<>();
@@ -32,19 +31,22 @@ public class JewelCraftingRecipeGeneratingCache extends BaseGeneratingCache<Jewe
         super(registries, "jewel_crafting", "jewel crafting recipe");
         for (Holder<Item> holder : registries.lookupOrThrow(Registries.ITEM).listElements().toList()) {
             if (holder.components().has(DataComponents.PROVIDES_BANNER_PATTERNS)) {
-                logger.debug(
-                    "Add a banner pattern {} for generating jewel crafting recipes", BuiltInRegistries.ITEM.getKey(holder.value()));
+                JewelCraftingRecipeGeneratingCache.logger.debug(
+                    "Add a banner pattern {} for generating jewel crafting recipes", BuiltInRegistries.ITEM.getKey(holder.value())
+                );
                 this.bannerPatterns.add(holder.value());
             } else if (holder.components().has(DataComponents.JUKEBOX_PLAYABLE)) {
-                logger.debug(
-                    "Add a music disc {} for generating jewel crafting recipes", BuiltInRegistries.ITEM.getKey(holder.value()));
+                JewelCraftingRecipeGeneratingCache.logger.debug(
+                    "Add a music disc {} for generating jewel crafting recipes", BuiltInRegistries.ITEM.getKey(holder.value())
+                );
                 this.musicDiscs.add(holder.value());
             } else if (
                 DecoratedPotPatterns.getPatternFromItem(holder.value()) != null
-                    && !holder.value().equals(Items.BRICK)
+                && !holder.value().equals(Items.BRICK)
             ) {
-                logger.debug(
-                    "Add a pottery sherd {} for generating jewel crafting recipes", BuiltInRegistries.ITEM.getKey(holder.value()));
+                JewelCraftingRecipeGeneratingCache.logger.debug(
+                    "Add a pottery sherd {} for generating jewel crafting recipes", BuiltInRegistries.ITEM.getKey(holder.value())
+                );
                 this.potterySherds.add(holder.value());
             }
         }
@@ -58,7 +60,8 @@ public class JewelCraftingRecipeGeneratingCache extends BaseGeneratingCache<Jewe
 
     @Override
     public Optional<List<RecipeHolder<JewelCraftingRecipe>>> buildRecipes() {
-        if (this.bannerPatterns.isEmpty()
+        if (
+            this.bannerPatterns.isEmpty()
             && this.musicDiscs.isEmpty()
             && this.potterySherds.isEmpty()
             && this.trimTemplates.isEmpty()
@@ -75,16 +78,16 @@ public class JewelCraftingRecipeGeneratingCache extends BaseGeneratingCache<Jewe
                 .result(bannerPattern)
                 .hasVanishingCurse(false)
                 .buildRecipe();
-            recipeHolders.add(new RecipeHolder<>(generateRecipeId("banner_patterns", bannerPattern, bannerPattern), recipe));
+            recipeHolders.add(new RecipeHolder<>(this.generateRecipeId("banner_patterns", bannerPattern, bannerPattern), recipe));
         }
         for (Item musicDisc : this.musicDiscs) {
             JewelCraftingRecipe recipe = JewelCraftingRecipe.builder(this.registries.lookupOrThrow(Registries.ITEM))
-                .requires(ModItems.HARDEND_RESIN, 4)
+                .requires(ModItems.HARDENED_RESIN, 4)
                 .requires(Items.PAPER)
                 .result(musicDisc)
                 .hasVanishingCurse(false)
                 .buildRecipe();
-            recipeHolders.add(new RecipeHolder<>(generateRecipeId("music_discs", musicDisc, musicDisc), recipe));
+            recipeHolders.add(new RecipeHolder<>(this.generateRecipeId("music_discs", musicDisc, musicDisc), recipe));
         }
         for (Item potterySherd : this.potterySherds) {
             JewelCraftingRecipe recipe = JewelCraftingRecipe.builder(this.registries.lookupOrThrow(Registries.ITEM))
@@ -92,7 +95,7 @@ public class JewelCraftingRecipeGeneratingCache extends BaseGeneratingCache<Jewe
                 .result(potterySherd)
                 .hasVanishingCurse(false)
                 .buildRecipe();
-            recipeHolders.add(new RecipeHolder<>(generateRecipeId("pottery_sherds", potterySherd, potterySherd), recipe));
+            recipeHolders.add(new RecipeHolder<>(this.generateRecipeId("pottery_sherds", potterySherd, potterySherd), recipe));
         }
         for (Item trimTemplate : this.trimTemplates) {
             JewelCraftingRecipe recipe = JewelCraftingRecipe.builder(this.registries.lookupOrThrow(Registries.ITEM))
@@ -101,7 +104,7 @@ public class JewelCraftingRecipeGeneratingCache extends BaseGeneratingCache<Jewe
                 .result(trimTemplate)
                 .hasVanishingCurse(false)
                 .buildRecipe();
-            recipeHolders.add(new RecipeHolder<>(generateRecipeId("trim_templates", trimTemplate, trimTemplate), recipe));
+            recipeHolders.add(new RecipeHolder<>(this.generateRecipeId("trim_templates", trimTemplate, trimTemplate), recipe));
         }
 
         return Optional.of(recipeHolders);

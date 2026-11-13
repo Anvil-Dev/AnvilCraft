@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.init.item.tabs;
 
-import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.world.item.Items;
 
@@ -10,7 +9,7 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModItems.SPONGE_GEMMULE);
         this.plain(ModItems.AMBER);
         this.plain(ModItems.RESIN);
-        this.plain(ModItems.HARDEND_RESIN);
+        this.plain(ModItems.HARDENED_RESIN);
         this.plain(ModItems.WOOD_FIBER);
         this.plain(ModItems.LIME_POWDER);
         this.plain(ModItems.CRAB_CLAW);

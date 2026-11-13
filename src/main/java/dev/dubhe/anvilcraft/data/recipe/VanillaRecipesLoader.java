@@ -84,8 +84,8 @@ public class VanillaRecipesLoader {
             .pattern("BBB")
             .define('R', Items.REDSTONE)
             .define('T', Items.REDSTONE_TORCH)
-            .define('B', ModItems.HARDEND_RESIN)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.HARDEND_RESIN), AnvilCraftDatagen.has(lookup, ModItems.HARDEND_RESIN))
+            .define('B', ModItems.HARDENED_RESIN)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.HARDENED_RESIN), AnvilCraftDatagen.has(lookup, ModItems.HARDENED_RESIN))
             .save(provider, AnvilCraft.recipe("repeater"));
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, Items.COMPARATOR)
             .pattern(" T ")
@@ -93,8 +93,8 @@ public class VanillaRecipesLoader {
             .pattern("BBB")
             .define('Q', Items.QUARTZ)
             .define('T', Items.REDSTONE_TORCH)
-            .define('B', ModItems.HARDEND_RESIN)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.HARDEND_RESIN), AnvilCraftDatagen.has(lookup, ModItems.HARDEND_RESIN))
+            .define('B', ModItems.HARDENED_RESIN)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.HARDENED_RESIN), AnvilCraftDatagen.has(lookup, ModItems.HARDENED_RESIN))
             .save(provider, AnvilCraft.recipe("comparator"));
 
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.BUILDING_BLOCKS, Items.IRON_BLOCK, 9)

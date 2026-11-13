@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "A": "anvilcraft:hardend_resin",
+    "A": "anvilcraft:hardened_resin",
     "B": "minecraft:iron_ingot",
     "C": "anvilcraft:magnet_ingot"
   },

@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
   "key": {
-    "H": "anvilcraft:hardend_resin",
+    "H": "anvilcraft:hardened_resin",
     "I": "minecraft:iron_ingot",
     "R": "minecraft:redstone"
   },

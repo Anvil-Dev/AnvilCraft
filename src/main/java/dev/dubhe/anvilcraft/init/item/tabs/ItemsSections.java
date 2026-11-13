@@ -235,7 +235,7 @@ public class ItemsSections extends DisplayItemsGenerator {
                 content.accept(ModItems.MULTIPHASE_MATTER);
                 content.accept(ModItems.RESIN);
                 content.accept(ModItems.AMBER);
-                content.accept(ModItems.HARDEND_RESIN);
+                content.accept(ModItems.HARDENED_RESIN);
                 content.accept(ModItems.WOOD_FIBER);
                 content.accept(ModItems.SPONGE_GEMMULE);
                 content.accept(ModItems.LIME_POWDER);

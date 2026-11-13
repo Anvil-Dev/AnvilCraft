@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "A": "anvilcraft:hardend_resin",
+    "A": "anvilcraft:hardened_resin",
     "B": "minecraft:hopper",
     "C": "anvilcraft:circuit_board"
   },

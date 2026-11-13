@@ -152,10 +152,10 @@ public class RegistrumBlockRecipeLoader {
             .pattern("RHR")
             .pattern("III")
             .define('R', Items.REDSTONE)
-            .define('H', ModItems.HARDEND_RESIN)
+            .define('H', ModItems.HARDENED_RESIN)
             .define('I', Items.IRON_INGOT)
             .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModItems.HARDEND_RESIN), AnvilCraftDatagen.has(provider.getItems(), ModItems.HARDEND_RESIN)
+                AnvilCraftDatagen.hasItem(ModItems.HARDENED_RESIN), AnvilCraftDatagen.has(provider.getItems(), ModItems.HARDENED_RESIN)
             )
             .save(provider);
     }

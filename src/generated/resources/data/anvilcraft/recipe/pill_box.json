@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": "anvilcraft:hardend_resin",
+    "A": "anvilcraft:hardened_resin",
     "B": "anvilcraft:pill"
   },
   "pattern": [

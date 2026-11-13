@@ -16,7 +16,7 @@ public class FastCookingRecipeLoader {
         HolderGetter<Item> items = provider.getItems();
         FastCookingRecipe.builder()
             .requires(items, ModItemTags.RESIN)
-            .result(ModItems.HARDEND_RESIN)
+            .result(ModItems.HARDENED_RESIN)
             .save(provider);
 
         FastCookingRecipe.builder()
