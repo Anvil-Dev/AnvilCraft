@@ -7,10 +7,12 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 仓储合成面板的持久数据：① 切石机输入（单槽）、② 合成输入（9 宫格）、切石机配方选择，
@@ -60,6 +62,30 @@ public record CraftingStorage(
         CraftingStorage::toStorage,
         CraftingStorage::decode
     );
+
+    @Override
+    public boolean equals(@Nullable Object object) {
+        return object instanceof CraftingStorage storage
+            && ItemStack.matches(this.stonecutterInput, storage.stonecutterInput)
+            && ItemStack.listMatches(this.craftingInput, storage.craftingInput)
+            && this.stonecutterSelected == storage.stonecutterSelected
+            && this.lastOpened == storage.lastOpened
+            && this.autoFill == storage.autoFill
+            && this.toStorage == storage.toStorage;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+            ItemStack.hashItemAndComponents(this.stonecutterInput),
+            this.stonecutterInput.getCount(),
+            ItemStack.hashStackList(this.craftingInput),
+            this.stonecutterSelected,
+            this.lastOpened,
+            this.autoFill,
+            this.toStorage
+        );
+    }
 
     private static CraftingStorage decode(
         ItemStack stonecutterInput,
