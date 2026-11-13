@@ -26,7 +26,8 @@ public class LargeCrateBlockEntity extends StorageBlockEntity {
         }
         for (Cube3x3PartHalf part : Cube3x3PartHalf.values()) {
             BlockPos partPos = block.getMainPartPos(this.getBlockPos(), state).offset(part.getOffset());
-            if (level.getBlockState(partPos).getBlock() instanceof LargeCrateBlock) {
+            if (level.hasChunk(partPos.getX() >> 4, partPos.getZ() >> 4)
+                && level.getBlockState(partPos).getBlock() instanceof LargeCrateBlock) {
                 level.updateNeighbourForOutputSignal(partPos, block);
             }
         }
