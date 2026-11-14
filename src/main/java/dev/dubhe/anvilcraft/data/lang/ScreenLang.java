@@ -795,6 +795,11 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.structure_scanner.auto_rotate_off", "Auto rotation: off");
         provider.add("screen.anvilcraft.structure_scanner.auto_rotate_on", "Auto rotation: on");
         provider.add("screen.anvilcraft.structure_scanner.confirm", "Record structure to disk");
+        provider.add("screen.anvilcraft.structure_scanner.undo_replace", "Undo the last replacement");
+        provider.add("screen.anvilcraft.structure_scanner.replace", "Replace the selected block");
+        provider.add("screen.anvilcraft.structure_scanner.replace_all", "Replace all blocks with exactly the same block state");
+        provider.add("screen.anvilcraft.structure_scanner.replacement", "Replacement block (drag from JEI; right-click to clear)");
+        provider.add("screen.anvilcraft.structure_scanner.replacement_facing", "Facing: %s (left-click to cycle)");
         provider.add("screen.anvilcraft.structure_scanner.export", "Export structure");
         provider.add("screen.anvilcraft.structure_scanner.export_file", "Export file");
         provider.add("screen.anvilcraft.structure_scanner.exported", "Structure exported: %s");

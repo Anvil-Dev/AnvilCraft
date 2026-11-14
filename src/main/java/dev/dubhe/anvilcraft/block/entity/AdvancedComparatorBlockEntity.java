@@ -83,10 +83,9 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
         super.loadAdditional(input);
         CompoundTag data = input.read("ExtraData", CompoundTag.CODEC).orElse(new CompoundTag());
         this.readDataNbt(data);
-        if ((this.compareMode == Mode.HYSTERESIS && this.inputtingSignal >= this.highLimit)
-            || (this.compareMode == Mode.WINDOW && this.inputtingSignal <= this.highLimit)) {
-            this.state = State.OUTPUT_HIGH;
-        } else this.state = State.OUTPUT_LOW;
+        // 方块状态已保存实际输出；恢复比较结果时需抵消反相，保留迟滞区间内的记忆。
+        this.state = this.getBlockState().getValue(AdvancedComparatorBlock.POWERED) != this.outputInvert
+            ? State.OUTPUT_HIGH : State.OUTPUT_LOW;
         Optional.ofNullable(this.getLevel())
             .ifPresent(level1 ->
                 level1.scheduleTick(this.getBlockPos(), ModBlocks.ADVANCED_COMPARATOR.get(), 1));

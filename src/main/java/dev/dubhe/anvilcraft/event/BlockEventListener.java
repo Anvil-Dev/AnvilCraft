@@ -44,9 +44,9 @@ import java.util.function.Supplier;
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class BlockEventListener {
     @SubscribeEvent
-    public static void updateWallWires(BlockEvent.NeighborNotifyEvent event) {
+    public static void updateCornerWires(BlockEvent.NeighborNotifyEvent event) {
         if (event.getLevel() instanceof Level level && !level.isClientSide()) {
-            RedstoneWireBlock.neighborChangedAboveSupport(level, event.getPos(), event.getState().getBlock());
+            RedstoneWireBlock.neighborChangedAroundSupport(level, event.getPos(), event.getState().getBlock());
         }
     }
 

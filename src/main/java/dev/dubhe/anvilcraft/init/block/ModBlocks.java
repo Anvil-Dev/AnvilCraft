@@ -1929,7 +1929,7 @@ public class ModBlocks {
         .build()
         .register();
     public static final BlockEntry<? extends Block> CHUTE = REGISTRUM.block("chute", ChuteBlock::new)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .initialProperties(() -> Blocks.END_STONE)
         .properties(PropertiesProviderUtil::metalSound)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -1953,7 +1953,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<SimpleChuteBlock> SIMPLE_CHUTE = REGISTRUM.block("simple_chute", SimpleChuteBlock::new)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .initialProperties(() -> Blocks.END_STONE)
         .properties(PropertiesProviderUtil::metalSound)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -1963,7 +1963,7 @@ public class ModBlocks {
 
     public static final BlockEntry<SimpleMagneticChuteBlock> SIMPLE_MAGNETIC_CHUTE = REGISTRUM
         .block("simple_magnetic_chute", SimpleMagneticChuteBlock::new)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .initialProperties(() -> Blocks.END_STONE)
         .properties(PropertiesProviderUtil::metalSound)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)

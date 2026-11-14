@@ -1,5 +1,8 @@
 package dev.dubhe.anvilcraft.client;
 
+import dev.anvilcraft.lib.v2.integration.Integration;
+import dev.anvilcraft.lib.v2.integration.IntegrationHook;
+import dev.anvilcraft.lib.v2.integration.IntegrationType;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.component.extend.MDRecipeComponent;
 import dev.anvilcraft.resource.ageratum.client.registries.AgeratumRegistries;
 import dev.dubhe.anvilcraft.AnvilCraft;
@@ -31,8 +34,12 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-@SuppressWarnings("unused")
+@Integration(value = "ageratum", type = IntegrationType.CLIENT)
 public class AnvilCraftRecipeComponentFactories {
+    public void applyClient() {
+        RECIPE_COMPONENT_FACTORIES.register(IntegrationHook.getModEventBus());
+    }
+
     public static final DeferredRegister<MDRecipeComponent.RecipeComponentFactory<?>>
         RECIPE_COMPONENT_FACTORIES = DeferredRegister.create(AgeratumRegistries.RECIPE_COMPONENT_FACTORY_REGISTRY_KEY, AnvilCraft.MOD_ID);
 
@@ -244,6 +251,6 @@ public class AnvilCraftRecipeComponentFactories {
         )
     );
 
-    private AnvilCraftRecipeComponentFactories() {
+    public AnvilCraftRecipeComponentFactories() {
     }
 }

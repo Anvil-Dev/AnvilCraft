@@ -23,6 +23,7 @@ import dev.dubhe.anvilcraft.client.renderer.laser.CachedLaserBlockEntityRenderer
 import dev.dubhe.anvilcraft.client.selection.ModelSelectionDenylist;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PillSelectorSupport;
+import dev.dubhe.anvilcraft.client.support.StorageStructurePreview;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
 import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -81,7 +82,6 @@ public class AnvilCraftClient {
         modBus.addListener(ModRenderTypes::registerBuffers);
         AnvilCraftClient.modEventBus = modBus;
         AnvilCraftClient.modContainer = container;
-        AnvilCraftRecipeComponentFactories.RECIPE_COMPONENT_FACTORIES.register(modBus);
         InspectionSupport.initializeClient();
 
         IntegrationHook.setModEventBus(modBus);
@@ -93,6 +93,7 @@ public class AnvilCraftClient {
     public static void clientSetup(FMLClientSetupEvent event) {
         ModCreativeVariantGroups.register();
         event.enqueueWork(() -> {
+            StorageStructurePreview.register();
             CachedBlockEntityRenderDispatcher.INSTANCE.registerRenderer(
                 ModBlockEntities.CREATIVE_LASER.get(),
                 new CachedLaserBlockEntityRenderer<>()

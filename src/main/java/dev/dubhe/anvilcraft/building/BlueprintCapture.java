@@ -68,7 +68,7 @@ public final class BlueprintCapture {
                 }
                 var entity = level.getBlockEntity(part);
                 blocks.put(part, new StructureSnapshot.BlockEntry(part.subtract(origin), index,
-                    Optional.ofNullable(entity).map(value -> value.saveWithFullMetadata(level.registryAccess()))));
+                    Optional.ofNullable(entity).map(StoragePreviewSnapshot::captureBlockEntity)));
             });
         }
         List<StructureSnapshot.EntityEntry> entities = new ArrayList<>();

@@ -1,16 +1,21 @@
 package dev.dubhe.anvilcraft.event;
 
+import dev.anvilcraft.lib.v2.integration.Integration;
 import dev.anvilcraft.resource.ageratum.Ageratum;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.CheckIntegrationLoadedEvent;
 import dev.dubhe.anvilcraft.api.event.GuideBookEvent;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.NeoForge;
 
-@EventBusSubscriber(modid = AnvilCraft.MOD_ID)
+@Integration("ageratum")
 public class GuideEventListener {
     public static final String INDEX_FILE = "index";
+
+    public void apply() {
+        NeoForge.EVENT_BUS.register(GuideEventListener.class);
+    }
 
     @SubscribeEvent
     public static void onHasGuide(GuideBookEvent.HasGuideBookEvent event) {

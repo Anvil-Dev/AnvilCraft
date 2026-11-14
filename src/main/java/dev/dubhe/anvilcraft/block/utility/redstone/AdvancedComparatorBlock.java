@@ -243,7 +243,6 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
         if (level.isClientSide() || optional.isEmpty()) return;
         AdvancedComparatorBlockEntity blockEntity = optional.get();
         blockEntity.updateInputtingSignal(level, pos, state);
-        this.updateBlockAndNeighbours(level, pos, state, blockEntity);
         this.update(level, pos, state);
         level.scheduleTick(pos, this, AdvancedComparatorBlock.getDelay());
     }

@@ -1200,7 +1200,7 @@ public final class RedstoneWireNetworkManager {
                 BlockPos pos = BlockPos.of(iterator.nextLong());
                 BlockState state = this.level.getBlockState(pos);
                 this.level.updateNeighborsAt(pos, state.getBlock());
-                RedstoneWireBlock.notifyAboveSupport(this.level, pos, state);
+                RedstoneWireBlock.notifyCornerTargets(this.level, pos, state);
             }
         }
 

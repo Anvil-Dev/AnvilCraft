@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.client.support;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder.ModelRenderTarget;
@@ -22,6 +21,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.shapes.Shapes;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.jspecify.annotations.Nullable;
 
@@ -84,9 +85,10 @@ public final class HammerWheelIconRenderer {
             (float) Math.hypot(graphics.pose().m10(), graphics.pose().m11())));
         graphics.pose().scale(1 / resolution, 1 / resolution);
         float extent = 16 * menuScale * resolution;
-        GuiRenderExtras.submitStructure(graphics, iconLevel, iconLevel.getMinPos().orElseThrow(), iconLevel.getMaxPos().orElseThrow(),
-            -extent, -extent, extent, extent,
-            scale * resolution, false, false, pose, (collector, modelPose) -> {
+        StructurePreviewScene.of(iconLevel, false).submit(graphics,
+            new Matrix4f(pose.last().pose()).translate(-0.5f, -0.5f, -0.5f),
+            Math.round(-extent), Math.round(-extent), Math.round(extent), Math.round(extent),
+            scale * resolution, Shapes.empty(), 0, (collector, modelPose) -> {
                 if (entityState != null) {
                     renderer.submit(entityState, modelPose, collector,
                         client.gameRenderer.getGameRenderState().levelRenderState.cameraRenderState);

@@ -220,8 +220,6 @@
     "client.ScaledGuiItemPipMixin",
     "client.ScaledGuiItemExtractionMixin",
     "client.ScaledGuiItemRendererMixin",
-    "client.SmartPlacerScanTimeMixin",
-    "client.SmartPlacerStructureLightingMixin",
     "client.ItemStackRenderStateAccessor",
     "client.ProcessingModelShapeMixin",
     "client.ProcessingModelBakeMixin",

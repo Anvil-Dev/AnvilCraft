@@ -53,7 +53,9 @@ public class FallingBlockCollisionEventListener {
         }
         Vec3 entityPos = event.getEntity().position();
         BlockPos pos = event.getPos();
-        if (AnvilCraft.CONFIG.world.anvilCollisionCraftSpeed > event.getSpeed()) return;
+        if (event.getSpeed() <= AnvilCraft.CONFIG.world.anvilCollisionCraftSpeed) {
+            return;
+        }
         RecipeHolder<AnvilCollisionCraftRecipe> resultRecipe = null;
         Collection<RecipeHolder<AnvilCollisionCraftRecipe>> recipes = level.getServer()
             .getRecipeManager()

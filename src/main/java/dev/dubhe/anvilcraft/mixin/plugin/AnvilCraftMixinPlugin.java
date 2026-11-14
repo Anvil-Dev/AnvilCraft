@@ -22,6 +22,7 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
     private static boolean hasIris = false;
     private static boolean hasArchitectury = false;
     private static boolean hasSodium = false;
+    private static boolean hasAgeratum = false;
 
     private boolean isLoaded(String clazz) {
         return AnvilCraftMixinPlugin.class.getClassLoader().getResource(clazz) != null;
@@ -29,6 +30,8 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public void onLoad(String mixinPackage) {
+        AnvilCraftMixinPlugin.hasAgeratum = FMLLoader.getCurrent().getLoadingModList().getMods().stream()
+            .anyMatch(it -> it.getModId().equals("ageratum"));
         AnvilCraftMixinPlugin.hasZetaPiston = this.isLoaded("org/violetmoon/zeta/piston/ZetaPistonStructureResolver.class");
         AnvilCraftMixinPlugin.hasReiScreen = this.isLoaded("me/shedaniel/rei/impl/client/gui/screen/DefaultDisplayViewingScreen.class");
         AnvilCraftMixinPlugin.hasCreate = this.isLoaded("com/simibubi/create/Create.class");
@@ -57,6 +60,9 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+        if (mixinClassName.startsWith("dev.dubhe.anvilcraft.mixin.client.Handbook")) {
+            return AnvilCraftMixinPlugin.hasAgeratum;
+        }
         if (mixinClassName.contains("Xaero")) return this.isLoaded(targetClassName.replace('.', '/') + ".class");
         if (mixinClassName.endsWith("PistonStructureResolverMixin")) return !AnvilCraftMixinPlugin.hasZetaPiston;
         if (mixinClassName.endsWith("DefaultDisplayViewingScreenMixin")) return AnvilCraftMixinPlugin.hasReiScreen;

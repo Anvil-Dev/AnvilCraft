@@ -276,7 +276,14 @@ public class ClientEventListener {
             FilterSelectorSupport.setCurrentFilterStack(itemStack);
             FilterSelectorSupport.render(graphics, x, y);
         } else if (itemStack.is(ModItems.STRUCTURE_DISK)) {
-            StructureDiskPreviewSupport.renderPreviewAt(graphics, itemStack, x, y);
+            int tooltipWidth = event.getComponents().stream().mapToInt(component -> component.getWidth(event.getFont())).max().orElse(0);
+            int tooltipHeight = event.getComponents().stream().mapToInt(component -> component.getHeight(event.getFont())).sum();
+            if (event.getComponents().size() == 1) {
+                tooltipHeight -= 2;
+            }
+            var position = event.getTooltipPositioner().positionTooltip(event.getScreenWidth(), event.getScreenHeight(),
+                x, y, tooltipWidth, tooltipHeight);
+            StructureDiskPreviewSupport.renderPreviewAt(graphics, itemStack, x, y, position.x(), position.y(), tooltipWidth);
         } else {
             FilterSelectorSupport.setCurrentFilterStack(ItemStack.EMPTY);
         }
