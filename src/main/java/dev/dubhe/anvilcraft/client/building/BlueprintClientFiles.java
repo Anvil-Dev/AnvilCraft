@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.client.building;
 import dev.dubhe.anvilcraft.building.ConstructionBlueprintException;
 import dev.dubhe.anvilcraft.building.StructureSnapshotCodec;
 import dev.dubhe.anvilcraft.client.gui.screen.StructureScannerScreen;
+import dev.dubhe.anvilcraft.network.StructureScannerEditPacket;
 import dev.dubhe.anvilcraft.network.StructureScannerFilePacket;
 import dev.dubhe.anvilcraft.network.StructureScannerFilePacket.Action;
 import dev.dubhe.anvilcraft.network.StructureScannerFileResultPacket;
@@ -11,12 +12,15 @@ import dev.dubhe.anvilcraft.util.StructureFileTransfer;
 import dev.dubhe.anvilcraft.util.StructureScannerRecipes;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
@@ -31,7 +35,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-import javax.annotation.Nullable;
 
 public final class BlueprintClientFiles {
     @Nullable private static UUID pending;
@@ -43,6 +46,7 @@ public final class BlueprintClientFiles {
     private static int pendingContainerId = -1;
     private static String fileName = "";
     private static boolean exporting;
+    private static boolean editing;
     private static boolean uploading;
     private static boolean selecting;
     private static int selectionContainerId = -1;
@@ -181,6 +185,15 @@ public final class BlueprintClientFiles {
         return pending != null || selecting;
     }
 
+    public static void requestEdit(int containerId, StructureScannerEditPacket.Action action, BlockPos pos, ItemStack replacement) {
+        if (isBusy()) {
+            return;
+        }
+        UUID id = begin(containerId, "edit.nbt", false);
+        editing = true;
+        Minecraft.getInstance().getConnection().send(new StructureScannerEditPacket(containerId, id, action, pos, replacement));
+    }
+
     public static void requestImport(int containerId, String name) {
         if (isBusy()) return;
         UUID id = begin(containerId, name, false);
@@ -249,6 +262,14 @@ public final class BlueprintClientFiles {
                 && screen.getMenu().containerId == pendingContainerId) {
                 var tag = NbtIo.readCompressed(new ByteArrayInputStream(download.finish()), NbtAccounter.create(16L * 1024 * 1024));
                 var snapshot = StructureSnapshotCodec.parse(tag, minecraft.level.registryAccess()).snapshot();
+                if (editing) {
+                    screen.onBlueprintEdited(tag.getString("anvilcraft:edit_name"), snapshot,
+                        BlockPos.CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE, tag.get("anvilcraft:preview_offset")).getOrThrow(),
+                        BlockPos.CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE, tag.get("anvilcraft:preview_size")).getOrThrow(),
+                        tag.getBoolean("anvilcraft:can_undo_replacement"));
+                    clearTransfer();
+                    return;
+                }
                 screen.onImportComplete(fileName.substring(0, fileName.lastIndexOf('.')), snapshot);
                 int added = tag.getInt("anvilcraft:added_parts");
                 int removed = tag.getInt("anvilcraft:removed_parts");
@@ -293,6 +314,7 @@ public final class BlueprintClientFiles {
         pendingContainerId = -1;
         download = null;
         exporting = false;
+        editing = false;
         uploading = false;
     }
 

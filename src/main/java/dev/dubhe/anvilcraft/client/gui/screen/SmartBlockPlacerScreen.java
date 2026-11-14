@@ -1,36 +1,32 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
-import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.pipeline.TextureTarget;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.shaders.ProgramManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.datafixers.util.Either;
 import com.mojang.math.Axis;
+import dev.anvilcraft.lib.v2.rendering.preview.ViewportCameraRig;
+import dev.anvilcraft.lib.v2.rendering.preview.gui.StructureGuiPreview;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
+import dev.dubhe.anvilcraft.building.BlueprintBlockConfiguration;
+import dev.dubhe.anvilcraft.building.BlueprintPlacement;
+import dev.dubhe.anvilcraft.building.StructureSnapshot;
+import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.gui.component.StructureScannerButtonState;
 import dev.dubhe.anvilcraft.client.gui.component.TriStateButton;
-import dev.dubhe.anvilcraft.client.init.ModShaders;
-import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
+import dev.dubhe.anvilcraft.client.support.StructurePreviewScene;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
 import dev.dubhe.anvilcraft.network.SmartBlockPlacerActionPacket;
 import dev.dubhe.anvilcraft.util.BlockPlacementUtil;
 import dev.dubhe.anvilcraft.util.LevelLike;
+import dev.dubhe.anvilcraft.util.StructureLoadUtil;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
@@ -40,51 +36,50 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.navigation.CommonInputs;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
+import org.joml.Vector3f;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import javax.annotation.Nullable;
 
 public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPlacerMenu> {
     private static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "smart_block_placer");
 
-    private static final ResourceLocation LAYER_1 = SmartBlockPlacerScreen.texture("layer_1");
-    private static final ResourceLocation LAYER_2 = SmartBlockPlacerScreen.texture("layer_2");
-    private static final ResourceLocation LAYER_3 = SmartBlockPlacerScreen.texture("layer_3");
-    private static final ResourceLocation LAYER_4 = SmartBlockPlacerScreen.texture("layer_4");
-    private static final ResourceLocation LAYER_5 = SmartBlockPlacerScreen.texture("layer_5");
-
     private static final ResourceLocation[] LAYER_DEFAULT = {
-        SmartBlockPlacerScreen.LAYER_1,
-        SmartBlockPlacerScreen.LAYER_2,
-        SmartBlockPlacerScreen.LAYER_3,
-        SmartBlockPlacerScreen.LAYER_4,
-        SmartBlockPlacerScreen.LAYER_5
+        SmartBlockPlacerScreen.texture("layer_1"),
+        SmartBlockPlacerScreen.texture("layer_2"),
+        SmartBlockPlacerScreen.texture("layer_3"),
+        SmartBlockPlacerScreen.texture("layer_4"),
+        SmartBlockPlacerScreen.texture("layer_5")
     };
 
     private static final ResourceLocation POSITION_SELECT = SmartBlockPlacerScreen.texture("position_select");
@@ -97,6 +92,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
     private static final ResourceLocation BLUEPRINT_MODE_BG = SmartBlockPlacerScreen.texture("blueprint_mode");
 
+    // 跳过/停止缺少方块按钮贴图
     private static final ResourceLocation SKIP_MISSING = SmartBlockPlacerScreen.texture("skip_missing");
     private static final ResourceLocation STOP_MISSING = SmartBlockPlacerScreen.texture("stop_missing");
 
@@ -109,8 +105,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private @Nullable ModeButton layerModeButton;  // 分层显示切换按钮
     private @Nullable ModeButton operationModeButton;  // 取物/移动模式切换按钮
     private @Nullable ModeButton skipMissingButton;  // 跳过缺少方块按钮
-    private @Nullable ModeButton stopMissingButton;  // 停止在缺少方块按钮
     private @Nullable ModeButton pressedModeButton;
+    private @Nullable ModeButton stopMissingButton;  // 停止在缺少方块按钮
     private int currentViewLayer = 0;
     private boolean[] layerPositions = new boolean[SmartBlockPlacerBlockEntity.POSITION_COUNT];
     private boolean showAllLayers = true;
@@ -126,25 +122,22 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private int previewWindowY;
     private final int previewWindowWidth = 112;
     private final int previewWindowHeight = 88;
-    private boolean isPreviewDragging = false;
+    private int previewDragButton = -1;
+    private boolean previewDragged;
+    private float previewZoom = 1;
+    private float previewPanX;
+    private float previewPanY;
+    private float handbookPanX;
+    private float handbookPanY;
+    private final ViewportCameraRig previewCamera = new ViewportCameraRig();
+    private final StructureGuiPreview structureGuiPreview = new StructureGuiPreview();
+    @Nullable private StructurePreviewScene previewScene;
     private int lastMouseX = 0;
     private int lastMouseY = 0;
 
-    // 离屏帧缓冲 — 用于扫描预览后处理
-    @Nullable
-    private RenderTarget previewFbo;
-    private float previewRotationY = 45.0f;
-    private float previewRotationX = -30.0f;
-    private static final float MIN_ROTATION_X = -60.0f;
-    private static final float MAX_ROTATION_X = 0.0f;
-
     private static final int PREVIEW_BLOCK_SWITCH_INTERVAL = 80;
     private static final int STRUCTURE_INFO_MAX_WIDTH = 80;
-    /** 预览窗口内边距，与结构扫描仪保持一致。 */
     private static final float PREVIEW_PADDING = 4.0F;
-    /** 预览的偏航角偏移，两种模式共用同一观察角度。 */
-    private static final float PREVIEW_YAW_OFFSET = 135.0F;
-    /** 预览中放置器的位置：朝北摆放，放置范围在其前方（Z 更小处）。 */
     private static final int PLACER_PREVIEW_X = 2;
     private static final int PLACER_PREVIEW_Y = 0;
     private static final int PLACER_PREVIEW_Y_UPSIDE_DOWN = 4;
@@ -152,16 +145,17 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
     // LevelLike 缓存
     private @Nullable LevelLike cachedPreviewLevelLike;
+    private BlockPlacementUtil.BlueprintExtent cachedBlueprintExtent =
+        BlockPlacementUtil.BlueprintExtent.of(new BlockState[0], SmartBlockPlacerBlockEntity.POSITION_GRID_SIZE);
+    private BlockState cachedPlacerState = Blocks.AIR.defaultBlockState();
+    private ItemStack cachedBlueprintItem = ItemStack.EMPTY;
+    @Nullable private StructureSnapshot cachedBlueprintSnapshot;
     private boolean[] cachedLayerPositions = new boolean[SmartBlockPlacerBlockEntity.POSITION_COUNT];
     private int cachedViewLayer = -1;
     private boolean cachedShowAllLayers = true;
     private boolean cachedPickupMode = true;
     private boolean cachedBlueprintMode = false;  // 缓存蓝图模式状态
     private BlockState[] cachedBlueprintStates = new BlockState[SmartBlockPlacerBlockEntity.POSITION_COUNT];
-    private BlockPlacementUtil.BlueprintExtent cachedBlueprintExtent =
-        BlockPlacementUtil.BlueprintExtent.of(new BlockState[0], SmartBlockPlacerBlockEntity.POSITION_GRID_SIZE);
-    private BlockState cachedPlacerState = Blocks.AIR.defaultBlockState();
-    private ItemStack cachedBlueprintItem = ItemStack.EMPTY;
     private long cachedGameTimeBlockType = -1;  // 用于追踪方块类型的游戏时间
 
     // 蓝图名字滚动相关
@@ -178,9 +172,10 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         this.imageHeight = 201;
     }
 
-    @SuppressWarnings("checkstyle:LocalVariableName")
     @Override
     protected void init() {
+        this.previewDragButton = -1;
+        this.structureGuiPreview.clear();
         this.cancelModeButtonPress();
         super.init();
         this.titleLabelY = Constant.SCREEN_TITLE_Y;
@@ -224,7 +219,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                 16,
                 LAYER_DEFAULT[i],
                 16,
-                16,
+                48,
                 (btn) -> this.onLayerButtonClick(index),
                 List.of(Component.translatable("screen.anvilcraft.smart_block_placer.layer." + (i + 1)))
             );
@@ -553,8 +548,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             16,
             POSITION_SELECT,
             16,
-            16,
-            (btn) -> this.onPositionButtonClick(btn, positionIndex, tooltipSelected, tooltipUnselected),
+            48,
+            (btn) -> this.onPositionButtonClick((TriStateButton) btn, positionIndex, tooltipSelected, tooltipUnselected),
             selected ? tooltipSelected : tooltipUnselected
         );
         button.setSelected(selected);
@@ -678,8 +673,26 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (this.structureGuiPreview.mouseReleased(button)) {
+            return true;
+        }
         this.dragTargetState = null;
-        this.isPreviewDragging = false;
+        if (button == this.previewDragButton) {
+            if (!this.previewDragged && this.isMouseInPreviewWindow(mouseX, mouseY) && this.previewScene != null) {
+                var pos = StructurePreviewScene.pick(this.previewScene.level(), this.previewCamera,
+                    this.previewWindowWidth, this.previewWindowHeight, mouseX - this.previewWindowX, mouseY - this.previewWindowY,
+                    Integer.MIN_VALUE, Integer.MAX_VALUE, this.handbookPanX, this.handbookPanY);
+                if (pos != null) {
+                    this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1));
+                    if (button == 1 && (!this.isBlueprintMode || this.cachedBlueprintSnapshot != null)) {
+                        var anchor = this.previewBlockCenter(pos);
+                        this.structureGuiPreview.open(this, this.previewScene.template(), pos, anchor.x, anchor.y);
+                    }
+                }
+            }
+            this.previewDragButton = -1;
+            return true;
+        }
         if (button == 0 && this.pressedModeButton != null) {
             ModeButton pressed = this.pressedModeButton;
             this.pressedModeButton = null;
@@ -697,9 +710,13 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (this.structureGuiPreview.mouseClicked(mouseX, mouseY, button)) {
+            return true;
+        }
         if (button == 0) this.cancelModeButtonPress();
-        if (this.isMouseInPreviewWindow(mouseX, mouseY)) {
-            this.isPreviewDragging = true;
+        if ((button == 0 || button == 1) && this.previewDragButton == -1 && this.isMouseInPreviewWindow(mouseX, mouseY)) {
+            this.previewDragButton = button;
+            this.previewDragged = false;
             this.lastMouseX = (int) mouseX;
             this.lastMouseY = (int) mouseY;
             return true;
@@ -719,21 +736,27 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        if (this.isPreviewDragging) {
-            // 计算鼠标移动距离
+        if (this.structureGuiPreview.mouseDragged(mouseX, mouseY, button)) {
+            return true;
+        }
+        if (button == this.previewDragButton && this.previewDragButton != -1) {
             int currentMouseX = (int) mouseX;
             int currentMouseY = (int) mouseY;
+            if (!this.previewDragged && Math.abs(currentMouseX - this.lastMouseX) + Math.abs(currentMouseY - this.lastMouseY) < 3) {
+                return true;
+            }
+            this.previewDragged = true;
             float deltaX = currentMouseX - this.lastMouseX;
             float deltaY = currentMouseY - this.lastMouseY;
-
-            // 更新旋转角度
-            // 水平移动 -> Y轴旋转（无限制）
-            this.previewRotationY += deltaX * AnvilCraft.CLIENT_CONFIG.controls.previewRotationSensitivity;
-
-            // 垂直移动 -> X轴旋转（有限制，反转方向）
-            this.previewRotationX -= deltaY * AnvilCraft.CLIENT_CONFIG.controls.previewRotationSensitivity;
-            this.previewRotationX = Math.clamp(this.previewRotationX, MIN_ROTATION_X, MAX_ROTATION_X);
-
+            if (button == 1) {
+                this.previewPanX += deltaX;
+                this.previewPanY += deltaY;
+            } else {
+                this.previewCamera.setRotationY(this.previewCamera.getRotationY()
+                    + deltaX * (float) AnvilCraft.CLIENT_CONFIG.controls.previewRotationSensitivity);
+                this.previewCamera.setRotationX(Mth.clamp(this.previewCamera.getRotationX()
+                    + deltaY * (float) AnvilCraft.CLIENT_CONFIG.controls.previewRotationSensitivity, -89.9f, 89.9f));
+            }
             this.lastMouseX = currentMouseX;
             this.lastMouseY = currentMouseY;
             return true;
@@ -769,11 +792,9 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
     @Override
     public void removed() {
+        this.structureGuiPreview.clear();
+        this.previewScene = null;
         this.cancelModeButtonPress();
-        if (this.previewFbo != null) {
-            this.previewFbo.destroyBuffers();
-            this.previewFbo = null;
-        }
         this.cachedPreviewLevelLike = null;
         super.removed();
     }
@@ -782,7 +803,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
-        guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.imageWidth, this.imageHeight);
+        guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
 
         // 蓝图模式下渲染额外贴图（128×128）
         if (this.isBlueprintMode) {
@@ -873,7 +894,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         // 只渲染标题（方块名称），不渲染“物品栏”文字
-        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
+        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
     }
 
     /**
@@ -882,35 +903,20 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private void renderMaskedItem(GuiGraphics g, ItemStack stack, int x, int y) {
         final int maskColor = 0x99777777;  // 调整透明度，数值越大越透明
         g.renderItem(stack, x, y, 0);
-        g.fill(RenderType.guiOverlay(), x, y, x + 16, y + 16, maskColor);
+        g.fill(x, y, x + 16, y + 16, maskColor);
     }
 
     @SuppressWarnings("deprecation")
-    private void renderDisplayedBlock(
-        GuiGraphics guiGraphics,
-        Either<ItemStack, BlockState> displayedBlock,
-        int x,
-        int y
-    ) {
-        displayedBlock
-            .ifLeft(stack -> guiGraphics.renderFakeItem(stack, x, y))
-            .ifRight(state -> {
-                guiGraphics.pose().pushPose();
-                guiGraphics.pose().translate(x + 8.0F, y + 12.0F, 100.0F);
-                guiGraphics.pose().scale(10.0F, -10.0F, 10.0F);
-                guiGraphics.pose().mulPose(Axis.XP.rotationDegrees(30.0F));
-                guiGraphics.pose().mulPose(Axis.YP.rotationDegrees(45.0F));
-                guiGraphics.pose().translate(-0.5F, -0.5F, -0.5F);
-                Minecraft.getInstance().getBlockRenderer().renderSingleBlock(
-                    state,
-                    guiGraphics.pose(),
-                    guiGraphics.bufferSource(),
-                    LightTexture.FULL_BRIGHT,
-                    OverlayTexture.NO_OVERLAY
-                );
-                guiGraphics.flush();
-                guiGraphics.pose().popPose();
-            });
+    private void renderDisplayedBlock(GuiGraphics graphics, Either<ItemStack, BlockState> displayedBlock, int x, int y) {
+        displayedBlock.ifLeft(stack -> graphics.renderItem(stack, x, y)).ifRight(state -> {
+            PoseStack pose = new PoseStack();
+            pose.mulPose(Axis.XP.rotationDegrees(30));
+            pose.mulPose(Axis.YP.rotationDegrees(45));
+            LevelLike icon = new LevelLike(Minecraft.getInstance().level);
+            icon.setBlockState(BlockPos.ZERO, state);
+            StructurePreviewScene.of(icon).submit(graphics, new Matrix4f(pose.last().pose()),
+                x, y, x + 16, y + 16, 10, net.minecraft.world.phys.shapes.Shapes.empty(), 0);
+        });
     }
 
     @Override
@@ -969,6 +975,14 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        this.structureGuiPreview.beginFrame();
+        if (this.structureGuiPreview.contains(mouseX, mouseY)) {
+            mouseX = -100000;
+            mouseY = -100000;
+        }
+        for (var child : this.children()) {
+            if (child instanceof ModeButton button && (!button.active || !button.visible)) button.pressState.cancel();
+        }
         // 检测蓝图模式变化(containerTick已经处理,这里作为备用)
         SmartBlockPlacerBlockEntity blockEntity = this.menu.getBlockEntity();
         if (blockEntity != null) {
@@ -1003,7 +1017,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                     this.font,
                     this.getTooltipFromContainerItem(this.hoveredSlot.getItem()),
                     mouseX,
-                    mouseY
+                    mouseY,
+                    this.hoveredSlot.getItem()
                 ));
             }
         }
@@ -1014,7 +1029,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                 this.font,
                 List.of(Component.translatable("screen.anvilcraft.smart_block_placer.disk_slot")),
                 mouseX,
-                mouseY
+                mouseY,
+                blockEntity == null ? ItemStack.EMPTY : blockEntity.getBlueprintItemHandler().getStackInSlot(0)
             ));
         }
 
@@ -1060,144 +1076,37 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         // 统一渲染所有tooltip，使用高Z轴确保在最上层
         for (TooltipRenderInfo tooltipInfo : tooltipsToRender) {
             guiGraphics.pose().pushPose();
-            guiGraphics.pose().translate(0, 0, 2000);  // 使用更高的Z轴层级
-            guiGraphics.renderTooltip(tooltipInfo.font, tooltipInfo.tooltip, Optional.empty(), tooltipInfo.x, tooltipInfo.y);
+            guiGraphics.renderTooltip(tooltipInfo.font, tooltipInfo.tooltip, Optional.empty(),
+                tooltipInfo.stack, tooltipInfo.x, tooltipInfo.y);
             guiGraphics.pose().popPose();
         }
+        BlockPos anchor = this.structureGuiPreview.blockFor(this);
+        if (anchor != null) {
+            var point = this.previewBlockCenter(anchor);
+            this.structureGuiPreview.anchor(point.x, point.y, this.isMouseInPreviewWindow(point.x, point.y));
+        }
+        this.structureGuiPreview.render(guiGraphics);
     }
 
     /**
      * 构建并渲染3D预览（含扫描仪后处理）
      */
-    private void renderPreview(GuiGraphics guiGraphics) {
+    private void renderPreview(GuiGraphics graphics) {
         SmartBlockPlacerBlockEntity blockEntity = this.menu.getBlockEntity();
-        Minecraft minecraft = this.minecraft;
-        if (blockEntity == null || minecraft == null) {
-            return;
+        Minecraft client = this.minecraft;
+        if (blockEntity == null || client == null || client.level == null) return;
+        LevelLike preview = this.getOrCreateCachedPreviewLevelLike(blockEntity, client.level);
+        this.renderPreviewAutoScaled(preview, graphics);
+        if (!this.isBlueprintMode && hasNoSelectedPositions(this.layerPositions)) {
+            Component empty = Component.translatable("screen.anvilcraft.smart_block_placer.preview.empty");
+            graphics.pose().pushPose();
+            graphics.pose().scale(0.8F, 0.8F, 1);
+            int x = this.previewWindowX + (this.previewWindowWidth - (int) (this.font.width(empty) * 0.8F)) / 2;
+            int y = this.previewWindowY + (this.previewWindowHeight - (int) (this.font.lineHeight * 0.8F)) / 2;
+            graphics.drawString(this.font, empty, (int) (x / 0.8F), (int) (y / 0.8F), 0xFFFFFFFF, true);
+            graphics.pose().popPose();
         }
-        ClientLevel level = minecraft.level;
-        if (level == null) {
-            return;
-        }
-
-        LevelLike previewLevelLike = this.getOrCreateCachedPreviewLevelLike(blockEntity, level);
-
-        // 阶段1: 正常渲染 3D 预览到主帧缓冲
-        final double guiScaleD = minecraft.getWindow().getGuiScale();
-        RenderSystem.enableScissor(
-            (int) (this.previewWindowX * guiScaleD),
-            (int) ((minecraft.getWindow().getGuiScaledHeight() - this.previewWindowY - this.previewWindowHeight) * guiScaleD),
-            (int) (this.previewWindowWidth * guiScaleD),
-            (int) (this.previewWindowHeight * guiScaleD)
-        );
-
-        VoxelShape rangeShape = this.createPlacementRangeShape();
-        AABB previewBounds = this.getPreviewBounds(rangeShape);
-        float yaw = this.renderPreviewAutoScaled(
-            previewLevelLike,
-            guiGraphics,
-            previewBounds,
-            this.previewWindowX + this.previewWindowWidth / 2,
-            this.previewWindowY + this.previewWindowHeight / 2
-        );
-
-        this.renderPlacementRangeBox(guiGraphics, minecraft, previewBounds, rangeShape, yaw);
-
-        RenderSystem.disableScissor();
-
-        // 阶段2&3: 扫描着色器后处理（仅在配置启用时）
-        if (RenderState.isScanPreviewEffectEnabled()) {
-            int guiScale = (int) minecraft.getWindow().getGuiScale();
-            int fbWidth = this.previewWindowWidth * guiScale;
-            int fbHeight = this.previewWindowHeight * guiScale;
-
-            RenderTarget previewFbo = this.previewFbo;
-            if (previewFbo == null) {
-                previewFbo = new TextureTarget(fbWidth, fbHeight, true, Minecraft.ON_OSX);
-                this.previewFbo = previewFbo;
-            } else if (previewFbo.width != fbWidth || previewFbo.height != fbHeight) {
-                previewFbo.resize(fbWidth, fbHeight, Minecraft.ON_OSX);
-            }
-
-            final RenderTarget mainTarget = minecraft.getMainRenderTarget();
-            int srcX = (int) (this.previewWindowX * guiScaleD);
-            int srcY = (int) (
-                (
-                    minecraft.getWindow().getGuiScaledHeight() - this.previewWindowY - this.previewWindowHeight
-                ) * guiScaleD
-            );
-
-            GlStateManager._glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, mainTarget.frameBufferId);
-            GlStateManager._glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, previewFbo.frameBufferId);
-            GL30.glBlitFramebuffer(
-                srcX,
-                srcY,
-                srcX + fbWidth,
-                srcY + fbHeight,
-                0,
-                0,
-                fbWidth,
-                fbHeight,
-                GL11.GL_COLOR_BUFFER_BIT,
-                GL11.GL_NEAREST
-            );
-            GlStateManager._glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, 0);
-            GlStateManager._glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, 0);
-
-            mainTarget.bindWrite(false);
-
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
-            RenderSystem.viewport(0, 0, minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight());
-
-            ShaderInstance shader = ModShaders.getScanPreviewShader();
-            float fbW = previewFbo.width;
-            float fbH = previewFbo.height;
-            shader.setSampler("DiffuseSampler", previewFbo);
-            shader.safeGetUniform("ProjMat").set(ModShaders.getOrthoMatrix());
-            shader.safeGetUniform("InSize").set(fbW, fbH);
-            float screenX = this.previewWindowX * guiScale;
-            float screenY = (minecraft.getWindow().getGuiScaledHeight() - this.previewWindowY - this.previewWindowHeight) * guiScale;
-            shader.safeGetUniform("OutPos").set(screenX, screenY);
-            shader.safeGetUniform("OutSize").set(fbW, fbH);
-            shader.safeGetUniform("GameTime").set((float) (System.currentTimeMillis() % 100000) / 1000.0f);
-
-            RenderSystem.depthFunc(GL11.GL_ALWAYS);
-            shader.apply();
-
-            BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-            bufferbuilder.addVertex(0.0F, 0.0F, 0.0F);
-            bufferbuilder.addVertex(fbW, 0.0F, 0.0F);
-            bufferbuilder.addVertex(fbW, fbH, 0.0F);
-            bufferbuilder.addVertex(0.0F, fbH, 0.0F);
-            BufferUploader.draw(bufferbuilder.buildOrThrow());
-
-            RenderSystem.depthFunc(GL11.GL_LEQUAL);
-            ProgramManager.glUseProgram(0);
-            RenderSystem.disableBlend();
-
-            previewFbo.unbindRead();
-        }
-
-        // 如果没有配置选区位置且不在蓝图模式下，显示提示文本（在裁剪区域外渲染，确保在最上层）
-        if (!this.isBlueprintMode && hasNoSelectedPositions(blockEntity.getLayerPositions())) {
-            // 禁用深度测试，确保文本在最上层渲染
-            RenderSystem.disableDepthTest();
-            guiGraphics.pose().pushPose();
-            // 将Z轴向前移动，确保文本在最前面
-            guiGraphics.pose().translate(0, 0, 1000);
-            guiGraphics.pose().scale(0.8f, 0.8f, 0.8f);
-            Component emptyText = Component.translatable("screen.anvilcraft.smart_block_placer.preview.empty");
-            int textWidth = (int) (this.font.width(emptyText) * 0.8f);
-            int textX = this.previewWindowX + (this.previewWindowWidth - textWidth) / 2;
-            int textY = this.previewWindowY + (this.previewWindowHeight - (int) (this.font.lineHeight * 0.8f)) / 2;
-            guiGraphics.drawString(this.font, emptyText, (int) (textX / 0.8f), (int) (textY / 0.8f), 0xFFFFFF, true);
-            guiGraphics.pose().popPose();
-            // 恢复深度测试
-            RenderSystem.enableDepthTest();
-        }
-
-        this.renderStructureInfo(guiGraphics, blockEntity, minecraft);
+        this.renderStructureInfo(graphics, blockEntity, client);
     }
 
     private void renderStructureInfo(
@@ -1220,20 +1129,19 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         Minecraft minecraft,
         String structureName
     ) {
-        RenderSystem.disableDepthTest();
         guiGraphics.pose().pushPose();
         try {
-            guiGraphics.pose().translate(0, 0, 1000);
+            guiGraphics.pose().translate(0, 0, 0);
             int textX = this.structureInfoBaseX;
             int textY = this.structureInfoBaseY;
             Component loadedText = Component.translatable("screen.anvilcraft.smart_block_placer.structure.loaded");
-            guiGraphics.drawString(this.font, loadedText, textX, textY, 0x00AA00, false);
+            guiGraphics.drawString(this.font, loadedText, textX, textY, 0xFF00AA00, false);
             this.renderStructureName(guiGraphics, minecraft, structureName, textX, textY + 10);
 
             Either<ItemStack, BlockState> missingBlock = blockEntity.getMissingBlock();
             if (missingBlock != null) {
                 Component missingText = Component.translatable("screen.anvilcraft.smart_block_placer.missing.block");
-                guiGraphics.drawString(this.font, missingText, textX, textY + 20, 0xFF5555, false);
+                guiGraphics.drawString(this.font, missingText, textX, textY + 20, 0xFFFF5555, false);
                 this.renderDisplayedBlock(
                     guiGraphics,
                     missingBlock,
@@ -1243,7 +1151,6 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             }
         } finally {
             guiGraphics.pose().popPose();
-            RenderSystem.enableDepthTest();
         }
     }
 
@@ -1256,7 +1163,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     ) {
         int textWidth = this.font.width(structureName);
         if (textWidth <= STRUCTURE_INFO_MAX_WIDTH) {
-            guiGraphics.drawString(this.font, structureName, textX, textY, 0x5555FF, false);
+            guiGraphics.drawString(this.font, structureName, textX, textY, 0xFF5555FF, false);
             return;
         }
 
@@ -1281,23 +1188,22 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
         guiGraphics.enableScissor(textX, textY - 1, textX + STRUCTURE_INFO_MAX_WIDTH, textY + 10);
         try {
-            guiGraphics.drawString(this.font, structureName, drawX, textY, 0x5555FF, false);
+            guiGraphics.drawString(this.font, structureName, drawX, textY, 0xFF5555FF, false);
         } finally {
             guiGraphics.disableScissor();
         }
     }
 
     private void renderInvalidStructureInfo(GuiGraphics guiGraphics) {
-        RenderSystem.disableDepthTest();
         guiGraphics.pose().pushPose();
         try {
-            guiGraphics.pose().translate(0, 0, 1000);
+            guiGraphics.pose().translate(0, 0, 0);
             int textX = this.structureInfoBaseX;
             int textY = this.structureInfoBaseY;
             Component invalidText = Component.translatable("screen.anvilcraft.smart_block_placer.no_structure_record");
             int textWidth = this.font.width(invalidText);
             if (textWidth <= STRUCTURE_INFO_MAX_WIDTH) {
-                guiGraphics.drawString(this.font, invalidText, textX, textY, 0xFF5555, false);
+                guiGraphics.drawString(this.font, invalidText, textX, textY, 0xFFFF5555, false);
                 return;
             }
 
@@ -1308,56 +1214,75 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             double scrollOffset = progress * totalScrollDistance - STRUCTURE_INFO_MAX_WIDTH;
             guiGraphics.enableScissor(textX, textY - 1, textX + STRUCTURE_INFO_MAX_WIDTH, textY + 10);
             try {
-                guiGraphics.drawString(this.font, invalidText, textX - (int) scrollOffset, textY, 0xFF5555, false);
+                guiGraphics.drawString(this.font, invalidText, textX - (int) scrollOffset, textY, 0xFFFF5555, false);
             } finally {
                 guiGraphics.disableScissor();
             }
         } finally {
             guiGraphics.pose().popPose();
-            RenderSystem.enableDepthTest();
         }
     }
 
-    /**
-     * 使用自适应尺寸渲染预览：按内容包围盒缩放，行为与结构扫描仪一致。
-     */
-    private float renderPreviewAutoScaled(
-        LevelLike level,
-        GuiGraphics guiGraphics,
-        AABB bounds,
-        int posX,
-        int posY
-    ) {
-        float yaw = this.previewRotationY + PREVIEW_YAW_OFFSET;
-        RenderSupport.renderLevelLikeAutoScaled(
-            level,
-            guiGraphics,
-            posX,
-            posY,
-            this.previewRotationX,
-            yaw,
-            bounds,
-            this.previewWindowWidth,
-            this.previewWindowHeight,
-            PREVIEW_PADDING
-        );
-        return yaw;
+    private void renderPreviewAutoScaled(LevelLike level, GuiGraphics graphics) {
+        VoxelShape rangeShape = this.createPlacementRangeShape();
+        AABB bounds = this.getPreviewBounds(rangeShape);
+        StructurePreviewScene scene = StructurePreviewScene.of(level);
+        if (this.previewScene != null && !this.previewScene.offset().equals(scene.offset())) {
+            this.structureGuiPreview.clear();
+        }
+        this.previewScene = scene;
+        Quaternionf rotation = new Quaternionf().rotateX(Mth.DEG_TO_RAD * this.previewCamera.getRotationX())
+            .rotateY(Mth.DEG_TO_RAD * this.previewCamera.getRotationY());
+        float scale = this.previewZoom * RenderSupport.autoScale(rotation, bounds,
+            this.previewWindowWidth, this.previewWindowHeight, PREVIEW_PADDING);
+        this.previewCamera.setZoom(scale / 10);
+        Vector3f center = new Matrix3f().rotation(rotation).transform(new Vector3f(
+            (float) bounds.getCenter().x + scene.offset().getX(), (float) bounds.getCenter().y + scene.offset().getY(),
+            (float) bounds.getCenter().z + scene.offset().getZ()));
+        this.handbookPanX = this.previewPanX - center.x * scale;
+        this.handbookPanY = -this.previewPanY - center.y * scale;
+        graphics.enableScissor(this.previewWindowX, this.previewWindowY,
+            this.previewWindowX + this.previewWindowWidth, this.previewWindowY + this.previewWindowHeight);
+        graphics.pose().pushPose();
+        graphics.pose().translate(this.previewWindowX, this.previewWindowY, 0);
+        StructurePreviewScene.render(scene.level(), this.previewCamera, graphics, this.previewWindowWidth, this.previewWindowHeight,
+            this.handbookPanX, this.handbookPanY, rangeShape.move(scene.offset().getX(), scene.offset().getY(), scene.offset().getZ()),
+            AnvilCraftClient.CONFIG.effects.renderScanPreviewExtraEffect ? 0.75f : 0);
+        graphics.pose().popPose();
+        graphics.disableScissor();
     }
 
-    /**
-     * 预览内容与放置范围框共同的包围盒：放置范围并入放置器所在格，使内容与范围框都完整可见。
-     */
+    private org.joml.Vector2f previewBlockCenter(BlockPos pos) {
+        return StructurePreviewScene.projectCenter(pos, this.previewCamera,
+            this.previewWindowWidth, this.previewWindowHeight, this.handbookPanX, this.handbookPanY)
+            .add(this.previewWindowX, this.previewWindowY);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (this.structureGuiPreview.contains(mouseX, mouseY)) {
+            return true;
+        }
+        if (this.isMouseInPreviewWindow(mouseX, mouseY) && scrollY != 0) {
+            this.previewZoom = Mth.clamp(this.previewZoom * (float) Math.pow(1.15, scrollY), 0.25f, 8);
+            return true;
+        }
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+    }
+
+    @Override
+    protected void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
+        if (!this.structureGuiPreview.contains(mouseX, mouseY)) {
+            super.renderTooltip(graphics, mouseX, mouseY);
+        }
+    }
+
     private AABB getPreviewBounds(VoxelShape rangeShape) {
-        boolean upsideDown = this.isUpsideDownPreview();
-        int placerY = upsideDown ? PLACER_PREVIEW_Y_UPSIDE_DOWN : PLACER_PREVIEW_Y;
+        int placerY = this.isUpsideDownPreview() ? PLACER_PREVIEW_Y_UPSIDE_DOWN : PLACER_PREVIEW_Y;
         return rangeShape.bounds()
             .minmax(new AABB(new BlockPos(PLACER_PREVIEW_X, placerY, PLACER_PREVIEW_Z)));
     }
 
-    /**
-     * 预览用的放置范围形状：蓝图模式收缩到蓝图实际占用的范围，点位模式为固定的 5×5×5 网格。<br>
-     * 预览中放置器始终朝北，故按朝北方向计算范围，再平移到预览坐标系。
-     */
     private VoxelShape createPlacementRangeShape() {
         SmartBlockPlacerBlockEntity blockEntity = this.menu.getBlockEntity();
         if (!this.isBlueprintMode || blockEntity == null) {
@@ -1365,63 +1290,19 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         }
         boolean upsideDown = this.isUpsideDownPreview();
         BlockPos placerPos = blockEntity.getBlockPos();
-        return Shapes.create(blockEntity
-            .getPlacementRangeBounds(Direction.NORTH, upsideDown)
-            .move(
-                PLACER_PREVIEW_X - placerPos.getX(),
-                (upsideDown ? PLACER_PREVIEW_Y_UPSIDE_DOWN : PLACER_PREVIEW_Y) - placerPos.getY(),
-                PLACER_PREVIEW_Z - placerPos.getZ()
-            ));
+        return Shapes.create(blockEntity.getPlacementRangeBounds(Direction.NORTH, upsideDown).move(
+            PLACER_PREVIEW_X - placerPos.getX(),
+            (upsideDown ? PLACER_PREVIEW_Y_UPSIDE_DOWN : PLACER_PREVIEW_Y) - placerPos.getY(),
+            PLACER_PREVIEW_Z - placerPos.getZ()
+        ));
     }
 
     private boolean isUpsideDownPreview() {
-        ClientLevel level = this.minecraft == null ? null : this.minecraft.level;
+        ClientLevel level = this.minecraft.level;
         SmartBlockPlacerBlockEntity blockEntity = this.menu.getBlockEntity();
-        if (level == null || blockEntity == null) {
-            return false;
-        }
+        if (level == null || blockEntity == null) return false;
         BlockState state = level.getBlockState(blockEntity.getBlockPos());
-        return state.getBlock() instanceof SmartBlockPlacerBlock
-            && state.getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
-    }
-
-    /**
-     * 渲染3D放置范围框，变换与预览保持一致。
-     */
-    private void renderPlacementRangeBox(GuiGraphics guiGraphics, Minecraft minecraft, AABB bounds, VoxelShape rangeShape, float yaw) {
-        MultiBufferSource.BufferSource buffers = minecraft.renderBuffers().bufferSource();
-        final VertexConsumer consumer = buffers.getBuffer(RenderType.lines());
-
-        Quaternionf rotation = Axis.XP.rotationDegrees(this.previewRotationX)
-            .mul(Axis.YP.rotationDegrees(yaw));
-        float scale = RenderSupport.autoScale(
-            rotation,
-            bounds,
-            this.previewWindowWidth,
-            this.previewWindowHeight,
-            PREVIEW_PADDING
-        );
-
-        PoseStack poseStack = guiGraphics.pose();
-        poseStack.pushPose();
-        poseStack.translate(
-            this.previewWindowX + (float) this.previewWindowWidth / 2,
-            this.previewWindowY + (float) this.previewWindowHeight / 2,
-            100
-        );
-        poseStack.scale(-scale, -scale, -scale);
-        poseStack.mulPose(rotation);
-        poseStack.translate(
-            -(bounds.minX + bounds.maxX) / 2,
-            -(bounds.minY + bounds.maxY) / 2,
-            -(bounds.minZ + bounds.maxZ) / 2
-        );
-
-        TooltipRenderHelper.renderOutline(
-            poseStack, consumer, 0, 0, 0, BlockPos.ZERO, rangeShape, 0xFF00FFCC);
-
-        buffers.endBatch(RenderType.lines());
-        poseStack.popPose();
+        return state.getBlock() instanceof SmartBlockPlacerBlock && state.getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
     }
 
     /**
@@ -1443,7 +1324,9 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         LevelLike cachedLevel = this.cachedPreviewLevelLike;
         BlockState placerState = level.getBlockState(blockEntity.getBlockPos());
         ItemStack blueprintItem = blockEntity.getBlueprintItemHandler().getStackInSlot(0);
-        if (cachedLevel != null
+        var data = this.isBlueprintMode ? StructureLoadUtil.loadStructureFromDiskForPreview(level, blueprintItem) : null;
+        var snapshot = data == null ? null : data.snapshot;
+        if (cachedLevel != null && this.cachedBlueprintSnapshot == snapshot
             && ItemStack.isSameItemSameComponents(this.cachedBlueprintItem, blueprintItem)
             && this.cachedPlacerState == placerState
             && Arrays.equals(this.cachedLayerPositions, this.layerPositions)
@@ -1451,12 +1334,17 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             && this.cachedShowAllLayers == this.showAllLayers
             && this.cachedPickupMode == this.isPickupMode
             && this.cachedBlueprintMode == this.isBlueprintMode
-            && blueprint.extent().equals(this.cachedBlueprintExtent)
             && Arrays.equals(this.cachedBlueprintStates, currentBlueprintStates)
+            && blueprint.extent().equals(this.cachedBlueprintExtent)
             && this.cachedGameTimeBlockType == currentBlockTypeTime) {
             return cachedLevel;
         }
 
+        if (!ItemStack.isSameItemSameComponents(this.cachedBlueprintItem, blueprintItem)
+            || this.cachedViewLayer != this.currentViewLayer || this.cachedShowAllLayers != this.showAllLayers) {
+            this.structureGuiPreview.clear();
+        }
+        this.cachedBlueprintSnapshot = snapshot;
         LevelLike rebuiltLevel = this.buildPreviewLevelLike(blockEntity, level);
         this.cachedPreviewLevelLike = rebuiltLevel;
         this.cachedLayerPositions = this.layerPositions.clone();
@@ -1492,11 +1380,11 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             overload = placerState.getValue(SmartBlockPlacerBlock.OVERLOAD);
         }
 
-        // 放置器位置：X居中，Z=6（放置区域后方）；倒挂时Y=4（顶部），正常时Y=0（底部）
+        // 放置器位置：X居中，Z=6（放置区域后方）
+        // 倒挂时Y=4（顶部），正常时Y=0（底部）
         int placerX = PLACER_PREVIEW_X;
         int placerZ = PLACER_PREVIEW_Z;
         int placerY = upsideDown ? PLACER_PREVIEW_Y_UPSIDE_DOWN : PLACER_PREVIEW_Y;
-
         if (!this.showAllLayers) {
             int visibleLayer = this.currentViewLayer;
             if (this.isBlueprintMode) {
@@ -1521,6 +1409,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
         // 蓝图模式：渲染磁盘中的结构
         if (this.isBlueprintMode) {
+            Map<Integer, CompoundTag> blockData = this.blueprintBlockData(blockEntity, upsideDown, new BlockPos(placerX, placerY, placerZ));
             BlockState[] blueprintStates = blockEntity.getBlueprint().states();
             for (int layer = 0; layer < SmartBlockPlacerBlockEntity.POSITION_GRID_SIZE; layer++) {
                 for (int position = 0; position < SmartBlockPlacerBlockEntity.POSITIONS_PER_LAYER; position++) {
@@ -1535,7 +1424,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                     );
                     BlockPos previewPos = blockEntity.getBlueprintPosition(index, Direction.NORTH, upsideDown)
                         .subtract(blockEntity.getBlockPos()).offset(placerX, placerY, placerZ);
-                    previewLevelLike.setBlockState(previewPos, blueprintState);
+                    previewLevelLike.setBlockState(previewPos, blueprintState, blockData.get(index));
                 }
             }
             return previewLevelLike;
@@ -1569,6 +1458,58 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         return previewLevelLike;
     }
 
+    private Map<Integer, CompoundTag> blueprintBlockData(SmartBlockPlacerBlockEntity blockEntity, boolean upsideDown, BlockPos placerPos) {
+        var snapshot = this.cachedBlueprintSnapshot;
+        var disk = blockEntity.getBlueprintItemHandler().getStackInSlot(0).get(ModComponents.STRUCTURE_DISK_DATA);
+        if (snapshot == null || disk == null) {
+            return Map.of();
+        }
+        var frame = new BlueprintPlacement(BlockPos.ZERO,
+            BlueprintPlacement.facingPlayer(disk.direction(), Direction.SOUTH), Mirror.NONE);
+        var bounds = frame.bounds(snapshot.size());
+        int gridSize = SmartBlockPlacerBlockEntity.POSITION_GRID_SIZE;
+        int half = gridSize / 2;
+        int centerIndex = half * gridSize + half;
+        BlockPos center = blockEntity.getBlueprintPosition(centerIndex, Direction.NORTH, upsideDown);
+        BlockPos columnStep = blockEntity.getBlueprintPosition(centerIndex + 1, Direction.NORTH, upsideDown).subtract(center);
+        BlockPos rowStep = blockEntity.getBlueprintPosition(centerIndex + gridSize, Direction.NORTH, upsideDown).subtract(center);
+        BlockPos gridOrigin = this.blueprintGridPos(BlockPos.ZERO, frame, bounds);
+        BlockPos origin = center.subtract(blockEntity.getBlockPos()).offset(placerPos)
+            .offset(columnStep.multiply(gridOrigin.getX() - half)).offset(rowStep.multiply(gridOrigin.getZ() - half));
+        BlockPos gridStep = this.blueprintGridPos(new BlockPos(1, 0, 0), frame, bounds).subtract(gridOrigin);
+        BlockPos delta = columnStep.multiply(gridStep.getX()).offset(rowStep.multiply(gridStep.getZ()));
+        Rotation rotation = delta.getX() == 1 ? Rotation.NONE : delta.getX() == -1 ? Rotation.CLOCKWISE_180
+            : delta.getZ() == 1 ? Rotation.CLOCKWISE_90 : Rotation.COUNTERCLOCKWISE_90;
+        var placement = new BlueprintPlacement(origin, rotation, Mirror.NONE);
+        BlockPos sourceOrigin = BlueprintBlockConfiguration.sourceOrigin(snapshot);
+        Map<Integer, CompoundTag> result = new HashMap<>();
+        for (var entry : snapshot.blocks()) {
+            if (entry.nbt().isEmpty()) {
+                continue;
+            }
+            BlockPos grid = this.blueprintGridPos(entry.pos(), frame, bounds);
+            int size = SmartBlockPlacerBlockEntity.POSITION_GRID_SIZE;
+            if (grid.getX() < 0 || grid.getX() >= size || grid.getY() < 0 || grid.getY() >= size
+                || grid.getZ() < 0 || grid.getZ() >= size) {
+                continue;
+            }
+            int index = grid.getY() * size * size + grid.getZ() * size + grid.getX();
+            CompoundTag tag = entry.nbt().orElseThrow().copy();
+            BlueprintBlockConfiguration.transform(tag, placement, sourceOrigin);
+            result.put(index, tag);
+        }
+        return result;
+    }
+
+    private BlockPos blueprintGridPos(BlockPos pos, BlueprintPlacement frame, BoundingBox bounds) {
+        BlockPos local = frame.localOf(pos).offset(-bounds.minX(), -bounds.minY(), -bounds.minZ());
+        int width = bounds.getXSpan();
+        int depth = bounds.getZSpan();
+        int column = (5 - width) / 2 + width - local.getX() - 1;
+        int row = (5 - depth) / 2 + depth - local.getZ() - 1;
+        return new BlockPos(column, local.getY(), row);
+    }
+
     private static boolean hasNoSelectedPositions(boolean[] layerPositions) {
         for (boolean selected : layerPositions) {
             if (selected) {
@@ -1582,8 +1523,11 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
      * Tooltip渲染信息记录类
      */
     private record TooltipRenderInfo(
-        Font font, List<Component> tooltip, int x, int y
+        Font font, List<Component> tooltip, int x, int y, ItemStack stack
     ) {
+        TooltipRenderInfo(Font font, List<Component> tooltip, int x, int y) {
+            this(font, tooltip, x, y, ItemStack.EMPTY);
+        }
     }
 
 }

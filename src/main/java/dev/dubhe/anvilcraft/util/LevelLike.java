@@ -18,6 +18,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.ColorResolver;
@@ -32,7 +33,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.client.model.data.ModelData;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,6 +42,9 @@ import java.util.List;
 import java.util.Set;
 
 public class LevelLike implements BlockAndTintGetter {
+    @Getter
+    private long revision;
+    private final java.util.Map<BlockPos, CompoundTag> blockEntityData = new java.util.HashMap<>();
     private final ListMultimap<BlockPos, BlockStateAndEntity> blocks = MultimapBuilder.hashKeys().arrayListValues().build();
     private final Set<BlockPos> alwaysRenderBlocks = new HashSet<>();  // 始终渲染的方块
     private final ClientLevel parent;
@@ -59,6 +63,7 @@ public class LevelLike implements BlockAndTintGetter {
     }
 
     public void addBlueprint(StructureSnapshot snapshot, BlueprintPlacement placement) {
+        this.revision++;
         BlockPos sourceOrigin = BlueprintBlockConfiguration.sourceOrigin(snapshot);
         for (var block : BlueprintMultiblocks.expand(snapshot, placement, -1)) {
             var data = block.nbt().map(tag -> {
@@ -66,6 +71,7 @@ public class LevelLike implements BlockAndTintGetter {
                 BlueprintBlockConfiguration.transform(transformed, placement, sourceOrigin);
                 return transformed;
             }).orElse(null);
+            this.storeBlockEntityData(block.pos(), data);
             BlockEntity entity = BlueprintBlockEntities.create(this.parent, block.pos(), block.state(), data);
             this.blocks.removeAll(block.pos());
             this.blocks.put(block.pos(), new BlockStateAndEntity(block.state(), entity));
@@ -74,6 +80,11 @@ public class LevelLike implements BlockAndTintGetter {
             EntityBuildAdapters.create(BuildingEntityTransform.transform(entry, placement), this.parent)
                 .filter(entity -> !EntityBuildAdapters.isTransient(entity)).ifPresent(this.entities::add);
         }
+    }
+
+    /** 候选方块每秒轮换，预览缓存需要随显示帧刷新。 */
+    public long getAnimationFrame() {
+        return this.blocks.size() > this.blocks.keySet().size() ? System.currentTimeMillis() / 1000 : 0;
     }
 
     public List<Entity> getEntities() {
@@ -132,17 +143,44 @@ public class LevelLike implements BlockAndTintGetter {
         this.setBlockStateWithAlpha(pos, state);
     }
 
+    public void setBlockState(BlockPos pos, BlockState state, @Nullable CompoundTag data) {
+        this.setBlockState(pos, state);
+        if (data != null) {
+            this.storeBlockEntityData(pos, data);
+            this.blocks.removeAll(pos);
+            this.blocks.put(pos, new BlockStateAndEntity(state, BlueprintBlockEntities.create(this.parent, pos, state, data.copy())));
+        }
+    }
+
+    public @Nullable CompoundTag getBlockEntityData(BlockPos pos) {
+        CompoundTag data = this.blockEntityData.get(pos);
+        return data == null ? null : data.copy();
+    }
+
+    private void storeBlockEntityData(BlockPos pos, @Nullable CompoundTag data) {
+        this.blockEntityData.remove(pos);
+        if (data != null) {
+            CompoundTag copy = data.copy();
+            copy.putInt("x", pos.getX());
+            copy.putInt("y", pos.getY());
+            copy.putInt("z", pos.getZ());
+            this.blockEntityData.put(pos.immutable(), copy);
+        }
+    }
+
     public void setBlockStateAlwaysRender(BlockPos pos, BlockStatePredicate predicate) {
         this.setBlockStateWithAlpha(pos, predicate);
         this.alwaysRenderBlocks.add(pos);
     }
-    
+
     public void setBlockStateAlwaysRender(BlockPos pos, BlockState state) {
         this.setBlockStateWithAlpha(pos, state);
         this.alwaysRenderBlocks.add(pos);
     }
 
     public void setBlockStateWithAlpha(BlockPos pos, BlockStatePredicate predicate) {
+        this.revision++;
+        this.blockEntityData.remove(pos);
         this.blocks.removeAll(pos);
         List<BlockStateAndEntity> blocks = new ArrayList<>();
         for (BlockState state : collectRenderStates(predicate)) {
@@ -166,8 +204,10 @@ public class LevelLike implements BlockAndTintGetter {
         }
         this.blocks.putAll(pos, blocks);
     }
-    
+
     public void setBlockStateWithAlpha(BlockPos pos, BlockState state) {
+        this.revision++;
+        this.blockEntityData.remove(pos);
         this.blocks.removeAll(pos);
         // BlockEntities stored in LevelLike is only for render
         // If any block entity don't have its own renderer we don't need to store an instance for it
@@ -197,7 +237,7 @@ public class LevelLike implements BlockAndTintGetter {
         if (!states.isEmpty()) return states;
         return List.of(MultiblockUtil.getDefaultState(predicate));
     }
-    
+
     public Set<BlockPos> getAlwaysRenderBlocks() {
         return Collections.unmodifiableSet(this.alwaysRenderBlocks);
     }

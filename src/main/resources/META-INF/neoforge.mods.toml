@@ -135,3 +135,10 @@ file="META-INF/accesstransformer.cfg"
 [mc-publish]
 loaders = ["neoforge"]
 
+
+[[dependencies."${mod_id}"]]
+modId="ageratum"
+type="optional"
+versionRange="[${ageratum_version},)"
+ordering="AFTER"
+side="BOTH"

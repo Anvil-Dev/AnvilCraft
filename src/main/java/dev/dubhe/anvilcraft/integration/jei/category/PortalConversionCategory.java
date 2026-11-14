@@ -10,8 +10,7 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
-import dev.anvilcraft.resource.ageratum.client.constants.AgeratumConstants;
-import dev.anvilcraft.resource.ageratum.client.feat.markdown.component.MDImageComponent;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
@@ -44,8 +43,8 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -144,8 +143,8 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
 
         Minecraft minecraft = Minecraft.getInstance();
         ResourceLocation location = PortalConversionCategory.computePortalTexture(recipe.getPortalType().getId());
-        MDImageComponent.Size size = PortalConversionCategory.resolveSize(minecraft, location);
-        MDImageComponent.Size renderSize = PortalConversionCategory.computeRenderSize(size);
+        ImageSize size = PortalConversionCategory.resolveSize(minecraft, location);
+        ImageSize renderSize = PortalConversionCategory.computeRenderSize(size);
         if (renderSize.width() > 0 && renderSize.height() > 0) {
             PoseStack pose = guiGraphics.pose();
             pose.pushPose();
@@ -247,14 +246,14 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
         return JeiTextureConstants.texture("portal/" + typeId.toShortLanguageKey().replace(':', '_'));
     }
 
-    protected static MDImageComponent.Size computeRenderSize(MDImageComponent.Size source) {
+    protected static ImageSize computeRenderSize(ImageSize source) {
         float scale = PortalConversionCategory.computeScale(source);
         int width = Math.max(1, Math.round(source.width() * scale));
         int height = Math.max(1, Math.round(source.height() * scale));
-        return new MDImageComponent.Size(width, height, scale);
+        return new ImageSize(width, height, scale);
     }
 
-    protected static float computeScale(MDImageComponent.Size source) {
+    protected static float computeScale(ImageSize source) {
         float scale = Math.min(
             (float) PortalConversionCategory.PORTAL_WIDTH / source.width(),
             (float) PortalConversionCategory.PORTAL_HEIGHT / source.height()
@@ -263,29 +262,33 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
         return scale;
     }
 
-    public static final Map<ResourceLocation, MDImageComponent.Size> IMAGE_SIZE_CACHE = new HashMap<>();
+    protected record ImageSize(int width, int height, float scale) {
+    }
+
+    public static final Map<ResourceLocation, ImageSize> IMAGE_SIZE_CACHE = new HashMap<>();
 
     /**
      * 获取图片原始尺寸，缺失时使用缓存或回退默认值。
      */
-    protected static MDImageComponent.Size resolveSize(Minecraft minecraft, ResourceLocation location) {
-        MDImageComponent.Size cachedSize = IMAGE_SIZE_CACHE.get(location);
+    protected static ImageSize resolveSize(Minecraft minecraft, ResourceLocation location) {
+        ImageSize cachedSize = IMAGE_SIZE_CACHE.get(location);
         if (cachedSize != null) {
             return cachedSize;
         }
-        MDImageComponent.Size size = new MDImageComponent.Size(
-            AgeratumConstants.Image.DEFAULT_PLACEHOLDER_WIDTH,
-            AgeratumConstants.Image.DEFAULT_PLACEHOLDER_HEIGHT,
+        ImageSize size = new ImageSize(
+            16,
+            16,
             1.0f
         );
         try {
             Resource resource = minecraft.getResourceManager().getResource(location).orElse(null);
             if (resource != null) {
                 try (NativeImage image = NativeImage.read(resource.open())) {
-                    size = new MDImageComponent.Size(Math.max(1, image.getWidth()), Math.max(1, image.getHeight()), 1.0f);
+                    size = new ImageSize(Math.max(1, image.getWidth()), Math.max(1, image.getHeight()), 1.0f);
                 }
             }
-        } catch (IOException ignored) {
+        } catch (IOException exception) {
+            AnvilCraft.LOGGER.warn("Cannot read portal preview texture {}", location, exception);
             // Missing or invalid textures fall back to a tiny placeholder size.
         }
         IMAGE_SIZE_CACHE.put(location, size);

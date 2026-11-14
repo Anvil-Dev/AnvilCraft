@@ -226,7 +226,6 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.tesla_tower.filter.is_baby_friendly", "Baby Friendly Entity Filter");
         provider.add("screen.anvilcraft.tesla_tower.filter.has_custom_name", "Custom Named Entity Filter");
 
-
         provider.add("screen.anvilcraft.frost_metal_upgrade_smithing_template", "Frost Metal Upgrade");
         provider.add(
             "screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.additions_slot_description",
@@ -332,6 +331,11 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.structure_scanner.import_file", "Import file");
         provider.add("screen.anvilcraft.structure_scanner.export_file", "Export file");
         provider.add("screen.anvilcraft.structure_scanner.import", "Import structure");
+        provider.add("screen.anvilcraft.structure_scanner.undo_replace", "Undo the last replacement");
+        provider.add("screen.anvilcraft.structure_scanner.replace", "Replace the selected block");
+        provider.add("screen.anvilcraft.structure_scanner.replace_all", "Replace all blocks with exactly the same block state");
+        provider.add("screen.anvilcraft.structure_scanner.replacement", "Replacement block (drag from JEI; right-click to clear)");
+        provider.add("screen.anvilcraft.structure_scanner.replacement_facing", "Facing: %s (left-click to cycle)");
         provider.add("screen.anvilcraft.structure_scanner.export", "Export structure");
         provider.add("screen.anvilcraft.structure_scanner.open_folder", "Open structure folder");
         provider.add("screen.anvilcraft.structure_scanner.name", "Structure name");

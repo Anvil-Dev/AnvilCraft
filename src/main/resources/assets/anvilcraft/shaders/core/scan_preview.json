@@ -1,7 +1,7 @@
 {
   "blend": {
     "func": "add",
-    "srcrgb": "srcalpha",
+    "srcrgb": "one",
     "dstrgb": "1-srcalpha"
   },
   "vertex": "anvilcraft:scan_preview",
@@ -19,31 +19,67 @@
       "name": "ProjMat",
       "type": "matrix4x4",
       "count": 16,
-      "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+      "values": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
     },
     {
       "name": "InSize",
       "type": "float",
       "count": 2,
-      "values": [1.0, 1.0]
+      "values": [
+        1.0,
+        1.0
+      ]
     },
     {
       "name": "OutPos",
       "type": "float",
       "count": 2,
-      "values": [0.0, 0.0]
+      "values": [
+        0.0,
+        0.0
+      ]
     },
     {
       "name": "OutSize",
       "type": "float",
       "count": 2,
-      "values": [1.0, 1.0]
+      "values": [
+        1.0,
+        1.0
+      ]
     },
     {
       "name": "GameTime",
       "type": "float",
       "count": 1,
-      "values": [0.0]
+      "values": [
+        0.0
+      ]
+    },
+    {
+      "name": "ScanOpacity",
+      "type": "float",
+      "count": 1,
+      "values": [
+        0.75
+      ]
     }
   ]
 }

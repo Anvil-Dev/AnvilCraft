@@ -7,8 +7,8 @@ dependencies {
     jarJar(libs.anvillib)
 
     // Ageratum 藿香
-    api(libs.ageratum)
-    jarJar(libs.ageratum)
+    compileClasspath(libs.ageratum) { transitive = false }
+    runtimeClasspath(libs.ageratum)
 
     // JEI
     compileClasspath(libs.jei.common.api) { transitive = false }

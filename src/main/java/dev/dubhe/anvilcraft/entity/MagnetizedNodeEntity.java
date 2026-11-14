@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.entity;
 import dev.dubhe.anvilcraft.api.injection.entity.IItemEntityExtension;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
@@ -16,6 +17,7 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.piston.PistonMovingBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.AABB;
@@ -57,9 +59,15 @@ public class MagnetizedNodeEntity extends Entity {
         super.tick();
         if (!this.level().isClientSide && !this.level().getBlockState(this.blockPos).is(this.blockState.getBlock())) {
             BlockState currentState = this.level().getBlockState(this.blockPos);
+            if (currentState.is(Blocks.MOVING_PISTON)
+                && this.level().getBlockEntity(this.blockPos) instanceof PistonMovingBlockEntity piston
+                && !piston.isSourcePiston()) {
+                currentState = piston.getMovedState();
+            }
             if (!currentState.is(this.blockState.getBlock())
                 && (!currentState.is(BlockTags.CAULDRONS) || !this.blockState.is(BlockTags.CAULDRONS))) {
                 this.kill();
+                return;
             }
         }
         AABB aabb = new AABB(this.blockPos.getX() - 0.01,
@@ -75,6 +83,12 @@ public class MagnetizedNodeEntity extends Entity {
                 entity.teleportTo(position().x, position().y, position().z);
                 entity.setDeltaMovement(Vec3.ZERO);
             });
+    }
+
+    /** 保留节点相对附着方块的偏移，并同步活塞移动后的附着位置。 */
+    public void moveWithPiston(Direction direction) {
+        this.setSupport(this.blockPos.relative(direction), this.blockState);
+        this.setPos(this.position().relative(direction, 1));
     }
 
     @Override

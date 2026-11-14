@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.api.itemhandler.unlimited.TypeLimitItemStacksResourc
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
 import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
+import dev.dubhe.anvilcraft.building.StoragePreviewSnapshot;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.gui.component.SwitchableButton;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
@@ -28,6 +29,7 @@ import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.integration.jei.StorageJeiBridge;
 import dev.dubhe.anvilcraft.rpc.StorageInput;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
+import dev.dubhe.anvilcraft.saved.setting.PlayerSetting;
 import dev.dubhe.anvilcraft.saved.setting.StorageSetting;
 import dev.dubhe.anvilcraft.saved.setting.mode.NbtDisplayMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.OrderMode;
@@ -89,6 +91,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import org.joml.Vector2i;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -100,9 +103,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import javax.annotation.Nullable;
 
 public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
+    private final @Nullable StoragePreviewSnapshot preview;
+    private final @Nullable PlayerSetting previewSettings;
     private static final ResourceLocation CAPACITY = StorageScreen.texture("capacity");
     private static final ResourceLocation SEARCH_CLEAR = StorageScreen.texture("search_clear");
     private static final ResourceLocation PUT = StorageScreen.texture("put");
@@ -273,7 +277,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     /** 流体伪槽位的逻辑编号起点 */
     private static final int FLUID_SLOT_BASE = StoragePortManager.FLUID_SLOT_BASE;
     private double fullness;
-    private @Nullable StorageServerStub.Capacity capacity;
+    private StorageServerStub.@Nullable Capacity capacity;
     private long version = -1;
     private long orderVersion = -1;
     private int scrollRow;
@@ -441,20 +445,56 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     public StorageScreen(BlockPos sourcePos, Component title) {
-        super(
-            StorageMenu.create(Objects.requireNonNull(Minecraft.getInstance().player), sourcePos),
-            Objects.requireNonNull(Minecraft.getInstance().player).getInventory(),
-            title
-        );
-        this.imageWidth = StorageScreen.BG_WIDTH;
-        this.imageHeight = StorageScreen.BG_HEIGHT;
+        this(Objects.requireNonNull(Minecraft.getInstance().player), sourcePos, title, null);
+    }
+
+    /** 预览只使用传入的隔离玩家和库存快照。 */
+    public StorageScreen(Player player, BlockPos sourcePos, Component title, @Nullable StoragePreviewSnapshot preview) {
+        super(StorageMenu.create(player, sourcePos), player.getInventory(), title);
+        this.imageWidth = BG_WIDTH;
+        this.imageHeight = BG_HEIGHT;
         this.minecraft = Minecraft.getInstance();
         this.sourcePos = sourcePos;
-        this.player = Objects.requireNonNull(Minecraft.getInstance().player);
+        this.player = player;
+        this.preview = preview;
+        this.previewSettings = preview == null ? null : new PlayerSetting(player.registryAccess());
         this.serverSlots.defaultReturnValue(-1);
         this.craftingPopTicks.defaultReturnValue(Long.MIN_VALUE);
-        this.tracksOpenState = Objects.requireNonNull(Minecraft.getInstance().level).getBlockState(sourcePos)
-            .getBlock() instanceof ShulkerContainerBlock;
+        this.tracksOpenState = preview == null && player.level().getBlockState(sourcePos).getBlock() instanceof ShulkerContainerBlock;
+    }
+
+    private PlayerSetting viewSettings() {
+        return this.previewSettings == null ? SettingClientStub.setting() : this.previewSettings;
+    }
+
+    private void loadPreview() {
+        final StoragePreviewSnapshot snapshot = Objects.requireNonNull(this.preview);
+        this.contents.clear();
+        this.counts.clear();
+        this.order.clear();
+        int index = 0;
+        for (var entry : snapshot.items()) {
+            this.contents.put(index, new UnlimitedItemStack(entry.icon(), 1));
+            this.counts.put(index, entry.count());
+            this.order.add(index++);
+        }
+        this.fluids = snapshot.fluids();
+        for (int fluid = 0; fluid < this.fluids.size(); fluid++) {
+            this.order.add(FLUID_SLOT_BASE + fluid);
+        }
+        this.displayOrder = new IntArrayList(this.order);
+        this.orderLoaded = true;
+        this.capacity = snapshot.capacity();
+        this.fullness = snapshot.fullness();
+        this.craftingAvailable = snapshot.craftingUnlocked();
+        this.craftingLoaded = true;
+        this.setMode(snapshot.craftingUnlocked() && snapshot.crafting().lastOpened() ? ScreenMode.CRAFTING : ScreenMode.NORMAL);
+        this.applyCrafting(snapshot.crafting(), true);
+        this.children().forEach(child -> {
+            if (child instanceof AbstractWidget widget) {
+                widget.active = false;
+            }
+        });
     }
 
     public static void openScreen(BlockPos sourcePos) {
@@ -482,7 +522,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.leftPos = (this.width - StorageScreen.BG_WIDTH) / 2;
         this.topPos = (this.height - StorageScreen.BG_HEIGHT) / 2;
         // 已缓存的设置立即可用；首次加载时随后由异步回调再同步一次
-        this.flipped = SettingClientStub.setting().storage().isFlipped();
+        this.flipped = this.viewSettings().storage().isFlipped();
         this.menu.updateSlotPositions(this::fx);
         this.remapTitleLabel();
 
@@ -494,9 +534,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             9,
             Component.translatable("screen.anvilcraft.storage.search.edit")
         ));
-        this.search.setValue(SettingClientStub.setting().storage().getSearchContent());
+        this.search.setValue(this.viewSettings().storage().getSearchContent());
         this.search.setBordered(false);
         this.search.setResponder(content -> {
+            if (this.preview != null) {
+                return;
+            }
             SettingClientStub.update(content);
             this.reorder(false);
         });
@@ -586,7 +629,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             this.leftPos + 7,
             this.topPos + 49,
             info,
-            SettingClientStub.setting(),
+            this.viewSettings(),
             button -> SettingClientStub.update(SettingClientStub.listed().stream().toList())
                 .thenRunAsync(this::reorder, this.screenExecutor),
             button -> this.minecraft.setScreen(new CategorySettingsScreen(this.sourcePos, this.title))
@@ -739,6 +782,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         // 统一镜像所有控件的横向位置，避免逐个手写镜像数字
         this.mirrorWidgets();
 
+        if (this.preview != null) {
+            this.loadPreview();
+            return;
+        }
         SettingClientStub.load().thenAcceptAsync(
             setting -> {
                 if (this.categories != null) {
@@ -937,7 +984,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     case NORMAL -> CategoryList.ButtonInfo.normal();
                     case CRAFTING -> CategoryList.ButtonInfo.small();
                 },
-                SettingClientStub.setting()
+                this.viewSettings()
             );
         }
         boolean craftingMode = mode == ScreenMode.CRAFTING;
@@ -957,6 +1004,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
      * 重载切石机候选配方；仅数量变化时不重载配方面板。
      */
     public void loadCrafting(boolean refreshRecipes) {
+        if (this.preview != null) {
+            return;
+        }
         int request = ++this.craftingRequest;
         StorageClientStub.craftingGet(this.sourcePos).whenCompleteAsync((data, error) -> {
             if (error == null && request == this.craftingRequest) this.applyCrafting(data, refreshRecipes);
@@ -1007,6 +1057,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     protected void containerTick() {
+        if (this.preview != null) {
+            return;
+        }
         if (!this.craftingPrediction.isPending() && this.takePrediction == null) this.carried = this.player.inventoryMenu.getCarried();
         this.flushQuickMoves();
         this.refreshTitle();
@@ -1686,7 +1739,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 this.font,
                 Component.translatable(
                     "screen.anvilcraft.storage.search",
-                    SettingClientStub.setting().storage().getSearch().getModeName()
+                    this.viewSettings().storage().getSearch().getModeName()
                 ),
                 mouseX,
                 mouseY
@@ -1696,7 +1749,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 this.font,
                 Component.translatable(
                     "screen.anvilcraft.storage.sort",
-                    SettingClientStub.setting().storage().getSort().getModeName()
+                    this.viewSettings().storage().getSort().getModeName()
                 ),
                 mouseX,
                 mouseY
@@ -1706,7 +1759,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 this.font,
                 Component.translatable(
                     "screen.anvilcraft.storage.order",
-                    SettingClientStub.setting().storage().getOrder().getModeName()
+                    this.viewSettings().storage().getOrder().getModeName()
                 ),
                 mouseX,
                 mouseY
@@ -1716,7 +1769,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 this.font,
                 Component.translatable(
                     "screen.anvilcraft.storage.nbt",
-                    SettingClientStub.setting().storage().getNbtDisplay().getModeName()
+                    this.viewSettings().storage().getNbtDisplay().getModeName()
                 ),
                 mouseX,
                 mouseY
@@ -1880,6 +1933,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (this.preview != null) {
+            return false;
+        }
         if (this.takePrediction != null) {
             Integer slot = this.getStorageSlot(mouseX, mouseY);
             if (slot != null && (button == 0 || button == 1) && hasShiftDown()) this.takeStorageItem(slot, button, true);
@@ -2209,6 +2265,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if (this.preview != null) {
+            return false;
+        }
         if (this.craftingPrediction.isPending() || this.takePrediction != null) return true;
         if (this.draggingSlider) {
             if (button == 0) {
@@ -2299,6 +2358,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (this.preview != null) {
+            return false;
+        }
         if (this.craftingPrediction.isPending() || this.takePrediction != null) return true;
         this.dispatchMouseReleased(mouseX, mouseY, button);
         if (this.draggingSlider) {
@@ -3284,6 +3346,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (this.preview != null) {
+            return false;
+        }
         if (this.takePrediction != null) return true;
         if (scrollY == 0) {
             return this.dispatchMouseScrolled(mouseX, mouseY, scrollX, scrollY);
@@ -3329,6 +3394,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (this.preview != null) {
+            return false;
+        }
         if (
             this.isOrderPreserveKey(keyCode)
             && (this.search == null || !this.search.isFocused())
@@ -3439,6 +3507,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+        if (this.preview != null) {
+            return false;
+        }
         if (keyCode == InputConstants.KEY_SPACE) {
             this.spacePressed = false;
         }
@@ -3498,6 +3569,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
      */
     @Override
     public void added() {
+        if (this.preview != null) {
+            return;
+        }
         this.closed = false;
         this.interactionPending = this.craftingPrediction.isPending() || this.takePrediction != null;
         this.interactionSyncPending = false;
@@ -3520,6 +3594,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     public void removed() {
+        if (this.preview != null) {
+            return;
+        }
         this.metadataRequest++;
         this.takePrediction = null;
         this.takeResponses = CompletableFuture.completedFuture(null);
@@ -3540,7 +3617,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
         // 关闭界面时让服务端把指针物品放回背包
         this.returnCarriedToInventory();
-        if (SettingClientStub.setting().storage().getSearch() == SearchMode.CLEAR) {
+        if (this.viewSettings().storage().getSearch() == SearchMode.CLEAR) {
             SettingClientStub.update("");
         }
         super.removed();
@@ -3822,6 +3899,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     private void reorder(boolean resetScroll) {
+        if (this.preview != null) {
+            return;
+        }
         if (this.takePrediction != null && this.takePrediction.isPending()) return;
         int request = ++this.reorderRequest;
         if (resetScroll) {
@@ -3843,7 +3923,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     private void syncReordered(IntList reordered, int requestedScrollRow, int reorderRequest) {
-        boolean foldNbt = SettingClientStub.setting().storage().getNbtDisplay() == NbtDisplayMode.FOLD;
+        boolean foldNbt = this.viewSettings().storage().getNbtDisplay() == NbtDisplayMode.FOLD;
         int reorderedScrollRow = foldNbt
                                  ? requestedScrollRow
                                  : Mth.clamp(requestedScrollRow, 0, this.getMaxScrollRow(reordered));
@@ -3875,6 +3955,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     private void syncVisible() {
+        if (this.preview != null) {
+            return;
+        }
         if (this.takePrediction != null && this.takePrediction.isPending()) return;
         if (this.preservingOrder) {
             this.syncPreservedOrder();
@@ -4190,7 +4273,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
      * 由客户端完成：非 @/# 前缀的搜索词同时匹配物品的本地化显示名与 id path。
      */
     private IntList applySearchFilter(IntList order) {
-        String search = SettingClientStub.setting().storage().getSearchContent().strip().toLowerCase(Locale.ROOT);
+        String search = this.viewSettings().storage().getSearchContent().strip().toLowerCase(Locale.ROOT);
         if (search.isEmpty() || search.charAt(0) == '@' || search.charAt(0) == '#') {
             return order;
         }
@@ -4226,7 +4309,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private void rebuildFoldedGroups(boolean preserveRepresentatives) {
         List<IntList> groups = new ArrayList<>();
         Map<Item, IntList> groupsByItem = new HashMap<>();
-        String search = SettingClientStub.setting().storage().getSearchContent().strip().toLowerCase(Locale.ROOT);
+        String search = this.viewSettings().storage().getSearchContent().strip().toLowerCase(Locale.ROOT);
         boolean filterBySearch = !search.isEmpty() && search.charAt(0) != '@' && search.charAt(0) != '#';
         for (int slot : this.order) {
             UnlimitedItemStack stack = this.contents.getOrDefault(slot, UnlimitedItemStack.EMPTY);
@@ -4299,7 +4382,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
      * @param slot 逻辑槽位号
      * @return 对应流体，越界时为空
      */
-    private @Nullable StorageServerStub.FluidEntry getFluidSlot(int slot) {
+    private StorageServerStub.@Nullable FluidEntry getFluidSlot(int slot) {
         int index = slot - StorageScreen.FLUID_SLOT_BASE;
         return index >= 0 && index < this.fluids.size() ? this.fluids.get(index) : null;
     }
@@ -4367,6 +4450,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     private void refreshMetadata() {
+        if (this.preview != null) {
+            return;
+        }
         if (this.metadataPending || this.takePrediction != null) {
             return;
         }
@@ -4409,6 +4495,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
      * 一次性返回会超出网络包上限，故逐页请求直到某页不满为止。</p>
      */
     private void refreshUnfilteredContents() {
+        if (this.preview != null) {
+            return;
+        }
         if (!this.isTransferContextActive() || this.unfilteredPending || this.unfilteredVersion == this.version) {
             return;
         }
@@ -4437,6 +4526,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
      * 客户端主线程执行：配方界面覆盖本界面时 {@link #screenExecutor} 会丢弃任务。</p>
      */
     private void refreshUnfilteredFluids() {
+        if (this.preview != null) {
+            return;
+        }
         if (!this.isTransferContextActive() || this.unfilteredFluidPending || this.unfilteredFluidVersion == this.version) {
             return;
         }
@@ -4595,7 +4687,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         graphics.drawString(font, text, -width, 0, color, true);
         pose.popPose();
     }
-    
+
     public static ResourceLocation texture(String path) {
         return SharedTextures.textureGui("misc/storage_station/" + path);
     }

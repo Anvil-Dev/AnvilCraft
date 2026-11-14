@@ -12,13 +12,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.annotation.Nullable;
 
 public final class BlueprintCapture {
     private BlueprintCapture() {
@@ -52,7 +52,7 @@ public final class BlueprintCapture {
                 }
                 var entity = level.getBlockEntity(part);
                 blocks.put(part, new StructureSnapshot.BlockEntry(part.subtract(origin), index,
-                    Optional.ofNullable(entity).map(value -> value.saveWithFullMetadata(level.registryAccess()))));
+                    Optional.ofNullable(entity).map(StoragePreviewSnapshot::captureBlockEntity)));
             });
         }
         List<StructureSnapshot.EntityEntry> entities = new ArrayList<>();

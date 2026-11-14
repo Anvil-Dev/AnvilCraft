@@ -2,7 +2,10 @@ package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
+import dev.dubhe.anvilcraft.entity.MagnetizedNodeEntity;
 import dev.dubhe.anvilcraft.util.PistonMoveGuard;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -11,10 +14,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.piston.PistonBaseBlock;
+import net.minecraft.world.level.block.piston.PistonStructureResolver;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.phys.AABB;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+
+import java.util.List;
 
 @SuppressWarnings("AddedMixinMembersNamePattern")
 @Mixin(PistonBaseBlock.class)
@@ -32,6 +40,36 @@ abstract class PistonBaseBlockMixin implements IHammerChangeable {
         try (PistonMoveGuard.Scope ignored = PistonMoveGuard.begin(level)) {
             return original.call(level, pistonPos, direction, extending);
         }
+    }
+
+    @WrapOperation(
+        method = "moveBlocks",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/level/block/piston/PistonStructureResolver;getToPush()Ljava/util/List;"
+        )
+    )
+    private List<BlockPos> moveMagnetizedNodes(
+        PistonStructureResolver resolver,
+        Operation<List<BlockPos>> original,
+        @Local(argsOnly = true) Level level
+    ) {
+        List<BlockPos> positions = original.call(resolver);
+        if (level.isClientSide() || positions.isEmpty()) {
+            return positions;
+        }
+        AABB area = new AABB(positions.getFirst());
+        for (BlockPos pos : positions) {
+            area = area.minmax(new AABB(pos));
+        }
+        // 先收集全部节点，避免连续方块上的节点迁移后再次被选中。
+        List<MagnetizedNodeEntity> nodes = level.getEntitiesOfClass(
+            MagnetizedNodeEntity.class, area.inflate(1), node -> positions.contains(node.blockPos)
+        );
+        for (MagnetizedNodeEntity node : nodes) {
+            node.moveWithPiston(resolver.getPushDirection());
+        }
+        return positions;
     }
 
     @Override

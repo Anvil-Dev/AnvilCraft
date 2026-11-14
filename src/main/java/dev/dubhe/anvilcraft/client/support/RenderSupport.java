@@ -20,7 +20,6 @@ import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.Util;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -56,7 +55,6 @@ import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.HalfTransparentBlock;
 import net.minecraft.world.level.block.LiquidBlock;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.StainedGlassPaneBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -69,12 +67,12 @@ import net.neoforged.neoforge.client.model.data.ModelData;
 import org.joml.Matrix3f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.jspecify.annotations.Nullable;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import javax.annotation.Nullable;
 
 @SuppressWarnings("deprecation")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -96,7 +94,7 @@ public class RenderSupport {
         ResourceLocation.withDefaultNamespace("spyglass")
     );
     private static @Nullable ClientLevel currentClientLevel = null;
-    private static @Nullable LevelLike.AirLevelLike airLevelLike = null;
+    private static LevelLike.@Nullable AirLevelLike airLevelLike = null;
 
     public static final BlockRenderFunction SINGLE_BLOCK = (blockState, poseStack, buffers) -> {
         if (airLevelLike == null) return;
@@ -345,126 +343,32 @@ public class RenderSupport {
         renderLevelLike(level, guiGraphics, posX, posY, scale, 0.0f);
     }
 
-    public static void renderLevelLike(
-        LevelLike level,
-        GuiGraphics guiGraphics,
-        int posX,
-        int posY,
-        float scaleFactor,
-        float rotationSpeed
-    ) {
-        RenderSystem.enableBlend();
-        Minecraft minecraft = Minecraft.getInstance();
-        ClientLevel clientLevel = minecraft.level;
-        if (clientLevel == null) return;
-        DeltaTracker tracker = minecraft.getTimer();
-        PoseStack pose = guiGraphics.pose();
-        int sizeX = level.horizontalSize();
-        int sizeY = level.verticalSize();
-
-        pose.pushPose();
-        pose.translate(posX, posY, 100);
-        float scaleX = scaleFactor / (sizeX * Mth.SQRT_OF_TWO);
-        float scaleY = scaleFactor / (float) sizeY;
-        float scale = Math.min(scaleY, scaleX);
-        pose.scale(-scale, -scale, -scale);
-
-        // 奇数尺寸时旋转中心偏移0.5，使 block 居中对齐
-        float centerOffset = ((sizeX + 1) % 2 != 0) ? -0.5f : 0.0f;
-        pose.translate(-(float) sizeX / 2 + centerOffset, -(float) sizeY / 2, 0);
-        pose.mulPose(Axis.XP.rotationDegrees(-30));
-
-        float offsetX = (float) -sizeX / 2 + centerOffset;
-        float offsetZ = (float) -sizeX / 2 + 1 + centerOffset;
-        // getGameTime() 随世界运行不断增大，角度又只以 360 度为周期，因此先用 double 累加再取模：
-        // 若直接以 float 乘大数值，有效位数会不够用，小角度变化被吃掉，动画随之变得一顿一顿
-        double rotationY = Mth.positiveModulo(
-            (double) clientLevel.getGameTime() * rotationSpeed
-                + (double) tracker.getGameTimeDeltaPartialTick(true) * rotationSpeed,
-            360.0
-        );
-
-        pose.translate(-offsetX, 0, -offsetZ);
-        pose.mulPose(Axis.YP.rotationDegrees((float) rotationY + 45));
-
-        pose.translate(offsetX, 0, offsetZ);
-
-        Iterable<BlockPos> iter;
-        if (level.isAllLayersVisible()) {
-            iter = BlockPos.betweenClosed(BlockPos.ZERO, new BlockPos(sizeX - 1, sizeY - 1, sizeX - 1));
-        } else {
-            int visibleLayer = level.getCurrentVisibleLayer();
-            iter = BlockPos.betweenClosed(
-                BlockPos.ZERO.atY(visibleLayer), new BlockPos(sizeX - 1, visibleLayer, sizeX - 1));
-        }
-        pose.pushPose();
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        pose.translate(0, 0, -1);
-        MultiBufferSource.BufferSource buffers = minecraft.renderBuffers().bufferSource();
-        BlockRenderDispatcher blockRenderer = minecraft.getBlockRenderer();
-        for (BlockPos pos : iter) {
-            BlockState state = level.getBlockState(pos);
-            pose.pushPose();
-            pose.translate(pos.getX(), pos.getY(), pos.getZ());
-            FluidState fluid = state.getFluidState();
-            if (!fluid.isEmpty()) {
-                RenderType renderType = ItemBlockRenderTypes.getRenderLayer(fluid);
-                VertexConsumer vertex = buffers.getBuffer(renderType);
-                blockRenderer.renderLiquid(pos, level, new VertexConsumerWithPose(vertex, pose.last(), pos), state, fluid);
-            }
-            if (state.getRenderShape() != RenderShape.INVISIBLE) {
-                BakedModel bakedModel = blockRenderer.getBlockModel(state);
-                for (RenderType type : bakedModel.getRenderTypes(state, RANDOM, ModelData.EMPTY)) {
-                    VertexConsumer vertex = buffers.getBuffer(type);
-                    blockRenderer.renderBatched(state, pos, level, pose, vertex, false, RANDOM, ModelData.EMPTY, type);
-                }
-            }
-
-            Optional.ofNullable(level.getBlockEntity(pos))
-                .ifPresent(blockEntity -> renderBlockEntity(blockEntity, pose, buffers));
-            pose.popPose();
-        }
-        buffers.endBatch();
-        pose.popPose();
-        pose.popPose();
+    public static void renderLevelLike(LevelLike level, GuiGraphics graphics, int posX, int posY, float scaleFactor, float rotationSpeed) {
+        renderLevelLikeAt(level, graphics, posX, posY, scaleFactor, rotationSpeed, (int) Math.ceil(scaleFactor * 2), false);
     }
 
-    /**
-     * 按给定包围盒自动缩放渲染 LevelLike：把包围盒投影到预览窗口内并居中，尺寸随内容自适应。<br>
-     * 与 {@link #renderLevelLikeWithFixedSize} 不同，缩放取决于实际内容而非固定网格大小。
-     */
-    public static void renderLevelLikeAutoScaled(
-        LevelLike level,
-        GuiGraphics guiGraphics,
-        int posX,
-        int posY,
-        float rotationX,
-        float rotationY,
-        AABB bounds,
-        int windowWidth,
-        int windowHeight,
-        float padding
-    ) {
-        Quaternionf rotation = Axis.XP.rotationDegrees(rotationX)
-            .mul(Axis.YP.rotationDegrees(rotationY));
-        final float scale = autoScale(rotation, bounds, windowWidth, windowHeight, padding);
-
-        PoseStack pose = guiGraphics.pose();
-        pose.pushPose();
-        RenderSystem.enableBlend();
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        pose.translate(posX, posY, 100);
-        pose.scale(-scale, -scale, -scale);
-        pose.mulPose(rotation);
-        pose.translate(
-            -(bounds.minX + bounds.maxX) / 2,
-            -(bounds.minY + bounds.maxY) / 2,
-            -(bounds.minZ + bounds.maxZ) / 2
-        );
-        renderLevelLikeBlocks(level, pose, BlockPos.betweenClosed(
-            BlockPos.containing(bounds.minX, bounds.minY, bounds.minZ),
-            BlockPos.containing(bounds.maxX - 1, bounds.maxY - 1, bounds.maxZ - 1)));
-        pose.popPose();
+    /** 保留配方动画的原点和缩放，方块、流体与实体交给砧库绘制。 */
+    public static void renderLevelLikeAt(LevelLike level, GuiGraphics graphics, int posX, int posY,
+                                        float scaleFactor, float rotationSpeed, int previewSize, boolean scanEffect) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.level == null) {
+            return;
+        }
+        int sizeX = Math.max(1, level.horizontalSize());
+        int sizeY = Math.max(1, level.verticalSize());
+        float scale = Math.min(scaleFactor / (sizeX * Mth.SQRT_OF_TWO), scaleFactor / sizeY);
+        float centerOffset = (sizeX + 1) % 2 != 0 ? -0.5f : 0;
+        float offsetX = -sizeX / 2f + centerOffset;
+        float offsetZ = -sizeX / 2f + 1 + centerOffset;
+        double rotationY = Mth.positiveModulo(minecraft.level.getGameTime() * (double) rotationSpeed
+            + minecraft.getTimer().getGameTimeDeltaPartialTick(true) * rotationSpeed, 360);
+        var transform = new org.joml.Matrix4f().scale(-1, 1, -1)
+            .translate(-sizeX / 2f + centerOffset, -sizeY / 2f, 0)
+            .rotateX(-30 * Mth.DEG_TO_RAD).translate(-offsetX, 0, -offsetZ)
+            .rotateY(((float) rotationY + 45) * Mth.DEG_TO_RAD).translate(offsetX, 0, offsetZ - 1);
+        int extent = Math.max(1, previewSize / 2);
+        StructurePreviewScene.of(level).submit(graphics, transform, posX - extent, posY - extent,
+            posX + extent, posY + extent, scale, net.minecraft.world.phys.shapes.Shapes.empty(), scanEffect ? 0.75f : 0);
     }
 
     /**
@@ -489,125 +393,6 @@ public class RenderSupport {
             (windowWidth - padding * 2) / Math.max(projectedWidth, 1.0e-4f),
             (windowHeight - padding * 2) / Math.max(projectedHeight, 1.0e-4f)
         );
-    }
-
-    
-    /**
-     * 渲染LevelLike，支持固定旋转角度和固定尺寸
-     *
-     * @param rotationX X轴旋转角度（度）
-     * @param rotationY Y轴旋转角度（度）
-     * @param fixedSizeX 固定的X尺寸
-     * @param fixedSizeY 固定的Y尺寸
-     */
-    @SuppressWarnings({
-        "checkstyle:VariableDeclarationUsageDistance",
-        "checkstyle:RequireEmptyLineBeforeBlockTagGroup"
-    })
-    public static void renderLevelLikeWithFixedSize(
-        LevelLike level,
-        GuiGraphics guiGraphics,
-        int posX,
-        int posY,
-        float scaleFactor,
-        float rotationX,
-        float rotationY,
-        int fixedSizeX,
-        int fixedSizeY,
-        float centerOffset
-    ) {
-        RenderSystem.enableBlend();
-        PoseStack pose = guiGraphics.pose();
-
-        pose.pushPose();
-        pose.translate(posX, posY, 100);
-        float scaleX = scaleFactor / (fixedSizeX * Mth.SQRT_OF_TWO);
-        float scaleY = scaleFactor / (float) fixedSizeY;
-        float scale = Math.min(scaleY, scaleX);
-        pose.scale(-scale, -scale, -scale);
-
-        // 奇数尺寸时旋转中心偏移0.5，使 block 居中对齐
-        centerOffset += (fixedSizeX % 2 != 0) ? 0.5f : 0.0f;
-        pose.translate(-(float) fixedSizeX / 2 + centerOffset, -(float) fixedSizeY / 2, 0);
-
-        // 先应用X轴旋转（俯视角度）
-        pose.mulPose(Axis.XP.rotationDegrees(rotationX));
-
-        // Y轴旋转中心：固定基于5x5范围计算，忽略放置器
-        float offsetX = (float) -fixedSizeX / 2 + centerOffset;
-        float offsetZ = (float) -fixedSizeX / 2 + 1 + centerOffset;
-        
-        // 再应用Y轴旋转（水平旋转）
-        pose.translate(-offsetX, 0, -offsetZ);
-        pose.mulPose(Axis.YP.rotationDegrees(rotationY + 45));
-        pose.translate(offsetX, 0, offsetZ);
-
-        Iterable<BlockPos> iter;
-        if (level.isAllLayersVisible()) {
-            // 使用LevelLike的实际尺寸，但确保至少包含fixedSize范围
-            int actualSizeX = Math.max(fixedSizeX, level.horizontalSize());
-            int actualSizeY = Math.max(fixedSizeY, level.verticalSize());
-            iter = BlockPos.betweenClosed(BlockPos.ZERO, new BlockPos(actualSizeX - 1, actualSizeY - 1, actualSizeX - 1));
-        } else {
-            int visibleLayer = level.getCurrentVisibleLayer();
-            int actualSizeX = Math.max(fixedSizeX, level.horizontalSize());
-            // 单层模式：遍历可见层 + 始终渲染的方块所在的层
-            int minLayer = Math.min(0, visibleLayer);  // 包含Y=0（放置器）
-            int maxLayer = Math.max(visibleLayer, level.getAlwaysRenderBlocks().stream()
-                .mapToInt(BlockPos::getY)
-                .max()
-                .orElse(visibleLayer));
-            iter = BlockPos.betweenClosed(
-                BlockPos.ZERO.atY(minLayer), new BlockPos(actualSizeX - 1, maxLayer, actualSizeX - 1));
-        }
-        pose.pushPose();
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        pose.translate(0, 0, -1);
-        renderLevelLikeBlocks(level, pose, iter);
-        pose.popPose();
-        pose.popPose();
-    }
-
-    public static void renderLevelLikeBlocks(LevelLike level, PoseStack pose, Iterable<BlockPos> positions) {
-        RenderSystem.enableBlend();
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        Minecraft minecraft = Minecraft.getInstance();
-        MultiBufferSource.BufferSource buffers = minecraft.renderBuffers().bufferSource();
-        BlockRenderDispatcher blockRenderer = minecraft.getBlockRenderer();
-        for (BlockPos pos : positions) {
-            BlockState state = level.getBlockState(pos);
-            
-            pose.pushPose();
-            pose.translate(pos.getX(), pos.getY(), pos.getZ());
-            
-            FluidState fluid = state.getFluidState();
-            if (!fluid.isEmpty()) {
-                RenderType renderType = ItemBlockRenderTypes.getRenderLayer(fluid);
-                VertexConsumer vertex = buffers.getBuffer(renderType);
-                blockRenderer.renderLiquid(pos, level, new VertexConsumerWithPose(vertex, pose.last(), pos), state, fluid);
-            }
-            if (state.getRenderShape() != RenderShape.INVISIBLE) {
-                BakedModel bakedModel = blockRenderer.getBlockModel(state);
-                ModelData modelData = level.getModelData(pos);
-                for (RenderType type : bakedModel.getRenderTypes(state, RANDOM, modelData)) {
-                    VertexConsumer vertex = buffers.getBuffer(type);
-                    blockRenderer.renderBatched(state, pos, level, pose, vertex, false, RANDOM, modelData, type);
-                }
-            }
-
-            Optional.ofNullable(level.getBlockEntity(pos))
-                .ifPresent(blockEntity -> renderBlockEntity(blockEntity, pose, buffers));
-            pose.popPose();
-        }
-        for (var entity : level.getEntities()) {
-            var renderer = minecraft.getEntityRenderDispatcher().getRenderer(entity);
-            var offset = renderer.getRenderOffset(entity, 0);
-            pose.pushPose();
-            pose.translate(entity.getX() + offset.x, entity.getY() + offset.y, entity.getZ() + offset.z);
-            renderer.render(entity, entity.getYRot(), 0, pose, buffers, 0xF000F0);
-            pose.popPose();
-        }
-        buffers.endBatch();
     }
 
     private static Optional<BlockEntity> getCachedBlockEntity(BlockState state) {
@@ -709,7 +494,6 @@ public class RenderSupport {
                 if (flag) {
                     Lighting.setupForFlatItems();
                 }
-
 
                 renderItemStackWithTransparency(
                     Minecraft.getInstance()

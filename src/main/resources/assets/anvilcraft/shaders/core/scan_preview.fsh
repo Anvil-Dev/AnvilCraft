@@ -5,10 +5,13 @@
 uniform sampler2D DiffuseSampler;
 uniform vec2 InSize;
 uniform float GameTime;
+uniform float ScanOpacity;
 
 in vec2 texCoord;
 out vec4 fragColor;
 
 void main() {
     fragColor = anvilcraftScanPreview(DiffuseSampler, texCoord, InSize, GameTime);
+    fragColor.rgb *= ScanOpacity;
+    fragColor.a *= ScanOpacity / 0.85;
 }

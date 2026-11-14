@@ -13,17 +13,13 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexSorting;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.client.init.ModShaders;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.BaseShowItemRenderer;
-import dev.dubhe.anvilcraft.mixin.accessor.RenderSystemAccessor;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
@@ -34,14 +30,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
-import org.lwjgl.opengl.GL30;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import javax.annotation.Nullable;
 
 /** 以独立的高分辨率纹理保留模型细节，再按实际可见轮廓适配标记大小。 */
 public final class FittedItemRenderer {
@@ -63,7 +54,7 @@ public final class FittedItemRenderer {
     }
 
     public static void render(
-        ItemStack stack, float size, PoseStack pose, MultiBufferSource buffer, int light, int overlay, boolean blueprint
+        ItemStack stack, float size, PoseStack pose, MultiBufferSource buffer, int light, int overlay, boolean suppressFoil
     ) {
         if (stack.isEmpty()) return;
         Minecraft minecraft = Minecraft.getInstance();
@@ -88,8 +79,8 @@ public final class FittedItemRenderer {
         float minU = (float) PADDING / (icon.width + PADDING * 2);
         float minV = (float) PADDING / (icon.height + PADDING * 2);
         // 独立纹理使用完整 UV 范围，应采用实体光效比例，避免套用物品图集比例后产生密集交叉纹。
-        RenderType type = blueprint ? icon.blueprintRenderType : icon.renderType;
-        VertexConsumer vertices = ItemRenderer.getFoilBufferDirect(buffer, type, false, !blueprint && stack.hasFoil());
+        RenderType type = icon.renderType;
+        VertexConsumer vertices = ItemRenderer.getFoilBufferDirect(buffer, type, false, !suppressFoil && stack.hasFoil());
         vertex(vertices, pose, -x, y, minU, minV, light, overlay);
         vertex(vertices, pose, -x, -y, minU, 1 - minV, light, overlay);
         vertex(vertices, pose, x, -y, 1 - minU, 1 - minV, light, overlay);
@@ -148,7 +139,7 @@ public final class FittedItemRenderer {
             LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, model);
         float extent = Math.max(bounds.maxX - bounds.minX, bounds.maxY - bounds.minY);
         if (!Float.isFinite(extent) || extent <= 0) extent = 1;
-        try (CaptureState state = new CaptureState()) {
+        try (PreviewRenderState state = new PreviewRenderState()) {
             RenderSystem.disableScissor();
             RenderSystem.depthMask(true);
             RenderSystem.colorMask(true, true, true, true);
@@ -216,10 +207,10 @@ public final class FittedItemRenderer {
         ResourceLocation texture = AnvilCraft.of("dynamic/filter_icon/" + nextTexture++);
         DynamicTexture dynamic = new DynamicTexture(cropped);
         Minecraft.getInstance().getTextureManager().register(texture, dynamic);
-        return new Icon(texture, iconRenderType(texture, false), iconRenderType(texture, true), width, height, model, animated, now);
+        return new Icon(texture, iconRenderType(texture), width, height, model, animated, now);
     }
 
-    private static RenderType iconRenderType(ResourceLocation texture, boolean blueprint) {
+    private static RenderType iconRenderType(ResourceLocation texture) {
         // 保留离屏结果原有的透明度；最近邻采样不在像素边界引入额外的半透明过渡。
         RenderStateShard.TransparencyStateShard transparency = new RenderStateShard.TransparencyStateShard(
             "filter_icon_premultiplied", () -> {
@@ -232,12 +223,7 @@ public final class FittedItemRenderer {
         );
         return RenderType.create("anvilcraft_filter_icon", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS,
             256, false, true, RenderType.CompositeState.builder()
-                .setShaderState(blueprint ? new RenderStateShard.ShaderStateShard(() -> {
-                    ShaderInstance shader = ModShaders.getScanPreviewItemShader();
-                    if (shader == null) return GameRenderer.getRendertypeEntityTranslucentShader();
-                    shader.safeGetUniform("ScanTime").set((float) (System.currentTimeMillis() % 100000) / 1000.0F);
-                    return shader;
-                }) : RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_SHADER)
+                .setShaderState(RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_SHADER)
                 .setTextureState(new RenderStateShard.TextureStateShard(texture, false, false))
                 .setTransparencyState(transparency)
                 .setCullState(RenderStateShard.NO_CULL)
@@ -262,7 +248,7 @@ public final class FittedItemRenderer {
     }
 
     private record Icon(
-        ResourceLocation texture, RenderType renderType, RenderType blueprintRenderType,
+        ResourceLocation texture, RenderType renderType,
         int width, int height, BakedModel model, boolean animated, long createdAt
     ) {
     }
@@ -271,62 +257,6 @@ public final class FittedItemRenderer {
         private static final RenderTarget TARGET = new TextureTarget(RESOLUTION, RESOLUTION, true, Minecraft.ON_OSX);
         // Iris 的世界缓冲区可延迟提交，离屏捕获需要独立缓冲区。
         private static final MultiBufferSource.BufferSource BUFFERS = MultiBufferSource.immediate(new ByteBufferBuilder(786432));
-    }
-
-    private static class CaptureState implements AutoCloseable {
-        private final int drawFramebuffer = GL11.glGetInteger(GL30.GL_DRAW_FRAMEBUFFER_BINDING);
-        private final int readFramebuffer = GL11.glGetInteger(GL30.GL_READ_FRAMEBUFFER_BINDING);
-        private final int[] viewport = new int[4];
-        private final int[] scissorBox = new int[4];
-        private final int[] colorMask = new int[4];
-        private final float[] clearColor = new float[4];
-        private final boolean scissor = GL11.glIsEnabled(GL11.GL_SCISSOR_TEST);
-        private final boolean depth = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
-        private final boolean depthMask = GL11.glGetBoolean(GL11.GL_DEPTH_WRITEMASK);
-        private final int activeTexture = GL11.glGetInteger(GL13.GL_ACTIVE_TEXTURE);
-        private final int boundTexture = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
-        private final Matrix4f projection = new Matrix4f(RenderSystem.getProjectionMatrix());
-        private final VertexSorting sorting = RenderSystem.getVertexSorting();
-        private final float[] color = RenderSystem.getShaderColor().clone();
-        private final float fogStart = RenderSystem.getShaderFogStart();
-        private final @Nullable ShaderInstance shader = RenderSystem.getShader();
-        private final Vector3f light0;
-        private final Vector3f light1;
-
-        private CaptureState() {
-            GL11.glGetIntegerv(GL11.GL_VIEWPORT, this.viewport);
-            GL11.glGetIntegerv(GL11.GL_SCISSOR_BOX, this.scissorBox);
-            GL11.glGetIntegerv(GL11.GL_COLOR_WRITEMASK, this.colorMask);
-            GL11.glGetFloatv(GL11.GL_COLOR_CLEAR_VALUE, this.clearColor);
-            Vector3f[] lights = RenderSystemAccessor.anvilcraft$getShaderLightDirections();
-            this.light0 = new Vector3f(lights[0]);
-            this.light1 = new Vector3f(lights[1]);
-            RenderSystem.getModelViewStack().pushMatrix();
-        }
-
-        @Override
-        public void close() {
-            GlStateManager._glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, this.drawFramebuffer);
-            GlStateManager._glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, this.readFramebuffer);
-            RenderSystem.viewport(this.viewport[0], this.viewport[1], this.viewport[2], this.viewport[3]);
-            if (this.scissor) {
-                RenderSystem.enableScissor(this.scissorBox[0], this.scissorBox[1], this.scissorBox[2], this.scissorBox[3]);
-            } else RenderSystem.disableScissor();
-            if (this.depth) RenderSystem.enableDepthTest();
-            else RenderSystem.disableDepthTest();
-            RenderSystem.depthMask(this.depthMask);
-            RenderSystem.colorMask(this.colorMask[0] != 0, this.colorMask[1] != 0, this.colorMask[2] != 0, this.colorMask[3] != 0);
-            GlStateManager._clearColor(this.clearColor[0], this.clearColor[1], this.clearColor[2], this.clearColor[3]);
-            RenderSystem.setProjectionMatrix(this.projection, this.sorting);
-            RenderSystem.getModelViewStack().popMatrix();
-            RenderSystem.applyModelViewMatrix();
-            RenderSystem.setShaderLights(this.light0, this.light1);
-            RenderSystem.setShaderColor(this.color[0], this.color[1], this.color[2], this.color[3]);
-            RenderSystem.setShaderFogStart(this.fogStart);
-            RenderSystem.setShader(() -> this.shader);
-            GlStateManager._activeTexture(this.activeTexture);
-            GlStateManager._bindTexture(this.boundTexture);
-        }
     }
 
     private static class Bounds implements VertexConsumer {

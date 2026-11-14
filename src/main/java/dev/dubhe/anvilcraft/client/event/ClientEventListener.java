@@ -50,9 +50,9 @@ import net.neoforged.neoforge.client.event.RenderTooltipEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
-import javax.annotation.Nullable;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class ClientEventListener {
@@ -565,6 +565,22 @@ public class ClientEventListener {
             // 过滤内容以"外挂窗口"（裁剪过滤器 GUI 贴图）显示在 tooltip 上方
             event.setY(y + 13);
             FilterContentHoverWindow.render(guiGraphics, itemStack, x, y, event.getFont());
+        } else if (itemStack.is(ModItems.STRUCTURE_DISK.get())) {
+            AmuletSelectorSupport.setCurrentHoveringItemStack(ItemStack.EMPTY);
+            int tooltipWidth = event.getComponents().stream().mapToInt(component -> component.getWidth(event.getFont())).max().orElse(0);
+            int tooltipHeight = event.getComponents().stream().mapToInt(component -> component.getHeight()).sum();
+            if (event.getComponents().size() == 1) {
+                tooltipHeight -= 2;
+            }
+            var position = event.getTooltipPositioner().positionTooltip(event.getScreenWidth(), event.getScreenHeight(),
+                x, y, tooltipWidth, tooltipHeight);
+            guiGraphics.pose().pushPose();
+            try {
+                guiGraphics.pose().translate(0, 0, 400);
+                StructureDiskPreviewSupport.renderPreviewAt(guiGraphics, itemStack, x, y, position.x(), position.y(), tooltipWidth);
+            } finally {
+                guiGraphics.pose().popPose();
+            }
         } else {
             AmuletSelectorSupport.setCurrentHoveringItemStack(ItemStack.EMPTY);
         }
@@ -579,9 +595,7 @@ public class ClientEventListener {
 
     @SubscribeEvent
     public static void onContainerScreenRenderPost(ScreenEvent.Render.Post event) {
-        // 在容器屏幕渲染完成后，渲染结构磁盘的3D预览窗口
-        // 这样可以确保预览窗口在所有物品和UI之上
-        if (!(event.getScreen() instanceof AbstractContainerScreen<?> containerScreen)) {
+        if (!(event.getScreen() instanceof AbstractContainerScreen<?>)) {
             return;
         }
 
@@ -594,27 +608,5 @@ public class ClientEventListener {
             );
         }
 
-        // 获取鼠标悬停的slot
-        Slot slot = containerScreen.getSlotUnderMouse();
-        if (slot == null || !slot.hasItem()) {
-            return;
-        }
-        ItemStack itemStack = slot.getItem();
-        if (!itemStack.is(ModItems.STRUCTURE_DISK.get())) {
-            return;
-        }
-        // 获取真实鼠标位置
-        net.minecraft.client.Minecraft minecraft = net.minecraft.client.Minecraft.getInstance();
-        int mouseX = (int) (
-            minecraft.mouseHandler.xpos() * minecraft.getWindow().getGuiScaledWidth() / minecraft.getWindow().getScreenWidth());
-        int mouseY = (int) (
-            minecraft.mouseHandler.ypos() * minecraft.getWindow().getGuiScaledHeight() / minecraft.getWindow().getScreenHeight());
-        // 渲染预览窗口
-        StructureDiskPreviewSupport.renderPreviewAt(
-            event.getGuiGraphics(),
-            itemStack,
-            mouseX,
-            mouseY
-        );
     }
 }
