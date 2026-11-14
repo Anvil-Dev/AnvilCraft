@@ -159,10 +159,18 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModBlocks.RESIN_BLOCK.asItem(), "Use to capture friendly or weak hostile creatures LivingEntity");
         ItemTooltipManager.NORMAL.put(ModBlocks.CRAB_TRAP.asItem(), "Placing it in the water to help you catch aquatic products");
         ItemTooltipManager.NORMAL.put(ModItems.CRAB_CLAW.get(), "Increase touch length when holding");
-        ItemTooltipManager.NORMAL.put(ModItems.CEMENT_BUCKETS.get(Color.GRAY).get(), "Engineering’s irreplaceable cornerstone");
+        ItemTooltipManager.NORMAL.put(ModItems.CEMENT_BUCKETS.get(Color.GRAY).get(), """
+                    Engineering’s irreplaceable cornerstone
+                    Flows downward along terrain and gradually spreads out
+                    Dries and hardens into the corresponding concrete block"""
+        );
         for (Color color : Color.values()) {
             if (color != Color.GRAY) {
-                ItemTooltipManager.NORMAL.put(ModItems.CEMENT_BUCKETS.get(color).get(), "Produced by dyeing Gray Cement");
+                ItemTooltipManager.NORMAL.put(ModItems.CEMENT_BUCKETS.get(color).get(), """
+                    Engineering’s irreplaceable cornerstone
+                    Produced by dyeing Gray Cement
+                    Flows downward along terrain and gradually spreads out
+                    Dries and hardens into the corresponding concrete block""");
             }
         }
         ItemTooltipManager.NORMAL.put(
@@ -173,8 +181,9 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModBlocks.ROYAL_GRINDSTONE.asItem(), "Removes curses and repair costs, Explosion proof");
         ItemTooltipManager.NORMAL.put(ModBlocks.ROYAL_SMITHING_TABLE.asItem(), "Does not consume Smithing Templates, Explosion proof");
         ItemTooltipManager.NORMAL.put(
-            ModBlocks.TRANSCENDENCE_SMITHING_TABLE.asItem(),
-            "Performs all smithing operations with no templates required\nExplosion, Wither and Ender Dragon proof"
+            ModBlocks.TRANSCENDENCE_SMITHING_TABLE.asItem(), """
+                Performs all smithing operations with no templates required
+                Explosion, Wither and Ender Dragon proof"""
         );
         ItemTooltipManager.NORMAL.put(ModBlocks.HEATER.asItem(), "Heating the block above, consumes 16 kW");
         ItemTooltipManager.NORMAL.put(
