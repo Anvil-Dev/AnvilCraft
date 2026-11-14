@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.fluid;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
@@ -12,6 +13,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.common.SoundActions;
 import net.neoforged.neoforge.fluids.FluidType;
 
 /// 蜂蜜流体——不可放置，仅存在于储罐/管道中。
@@ -19,6 +21,9 @@ public class HoneyFluid extends Fluid {
 
     public static final FluidType TYPE = new FluidType(FluidType.Properties.create()
         .descriptionId("block.anvilcraft.honey")
+        // 蜂蜜只能用瓶装，取放都按瓶的音效，否则储罐界面等地方会静音
+        .sound(SoundActions.BUCKET_FILL, SoundEvents.BOTTLE_FILL)
+        .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BOTTLE_EMPTY)
     );
 
     @Override

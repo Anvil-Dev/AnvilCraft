@@ -229,8 +229,18 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
 
     private static void saveItemTank(ItemStack stack, SingleFluidTankHandler itemTank, HolderLookup.Provider registries) {
         CompoundTag data = getItemData(stack);
-        data.put(TAG_TANK, itemTank.serializeForItem(registries));
-        BlockItem.setBlockEntityData(stack, ModBlockEntities.FLUID_TANK.get(), data);
+        data.remove(TAG_TANK);
+        if (!itemTank.getFluid().isEmpty()) {
+            data.put(TAG_TANK, itemTank.serializeForItem(registries));
+        }
+        data.remove("id");
+        if (data.isEmpty()) {
+            // 储罐物品的默认组件就是 CustomData.EMPTY，写回它才会把补丁还原成空，
+            // 这样倒空的储罐才和合成产物完全一致、能堆叠
+            stack.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY);
+        } else {
+            BlockItem.setBlockEntityData(stack, ModBlockEntities.FLUID_TANK.get(), data);
+        }
     }
 
     private static SingleFluidTankHandler readItemTank(ItemStack stack, HolderLookup.Provider registries) {
