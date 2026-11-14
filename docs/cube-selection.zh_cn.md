@@ -1,6 +1,6 @@
 # 模型选取与描边配置
 
-客户端通过 `assets/anvilcraft/anvillib/cube_selection.json` 设置模型选取与描边；支持此配置的 AnvilLib Cube 与本次接入改动须配套使用。
+客户端通过 `assets/anvilcraft/anvillib/cube_selection.json` 设置模型选取与描边；需要 AnvilLib `2.0.0+snapshot.686` 或更新版本。
 
 - `namespaces` 设置命名空间默认模式，`blocks` 设置单个方块的模式，方块规则优先。
 - `model` 使用模型精确选取和描边，`outline` 保留方块原有选取并绘制模型轮廓，`vanilla` 保留方块原有选取和描边。
