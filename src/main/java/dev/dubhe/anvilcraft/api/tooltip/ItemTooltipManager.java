@@ -995,7 +995,7 @@ public class ItemTooltipManager {
         ItemTooltipManager.SHIFT.put(
             ModBlocks.STRUCTURE_SCANNER.asItem(), """
                                                   Can store structures in Structure Disk and be used in the blueprint mode of Smart Block Placer
-                                                  Maximum can store 15×15×15 structure
+                                                  Maximum can store 16×16×16 structure
                                                   When powered by redstone, it will automatically scans and stores structures"""
         );
         ItemTooltipManager.SHIFT.put(
