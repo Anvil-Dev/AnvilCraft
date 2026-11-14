@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.client;
 
-import dev.anvilcraft.lib.v2.cube.client.CubeSelection;
 import dev.anvilcraft.lib.v2.integration.IntegrationHook;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.event.GuiLayerRegistrationEventListener;
@@ -22,7 +21,6 @@ import dev.dubhe.anvilcraft.client.renderer.item.SmartBlockPlacerItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.decoration.TerminalInsertionDecoration;
 import dev.dubhe.anvilcraft.client.renderer.item.decoration.WeatherproofChestplateDecoration;
 import dev.dubhe.anvilcraft.client.selection.ModelBlockSelection;
-import dev.dubhe.anvilcraft.client.selection.ModelSelectionDenylist;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PillSelectorSupport;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
@@ -65,11 +63,6 @@ public class AnvilCraftClient {
     public static PillSelectorSupport pillSelectorSupport = PillSelectorSupport.INSTANCE;
 
     public AnvilCraftClient(IEventBus modBus, ModContainer container) {
-        CubeSelection.enableNamespace(AnvilCraft.MOD_ID);
-        CubeSelection.registerTargetExclusion(
-            AnvilCraft.of("model_selection_denylist"),
-            state -> ModelSelectionDenylist.usesOriginalPicking(state.getBlock())
-        );
         modEventBus = modBus;
         modContainer = container;
         modBus.addListener(GuiLayerRegistrationEventListener::onRegister);

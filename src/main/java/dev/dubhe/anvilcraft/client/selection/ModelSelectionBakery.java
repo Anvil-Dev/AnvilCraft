@@ -73,9 +73,7 @@ final class ModelSelectionBakery {
                     }
                     boolean rendered = state.getRenderShape() == RenderShape.MODEL;
                     states.put(state, rendered ? selection : EMPTY);
-                    if (rendered
-                        && !(block instanceof AbstractMultiPartBlock<?>)
-                        && !ModelSelectionDenylist.usesOriginalOutline(block)) {
+                    if (rendered && !(block instanceof AbstractMultiPartBlock<?>)) {
                         List<SelectionPart> own = ModelSelectionBakery.collect(selection, state.getSeed(BlockPos.ZERO));
                         if (!own.isEmpty()) outlines.put(state, own);
                     }
