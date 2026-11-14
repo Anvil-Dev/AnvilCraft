@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.dubhe.anvilcraft.integration.iris.IrisState;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -34,7 +35,7 @@ public class FullyBufferedBufferSource extends MultiBufferSource.BufferSource im
     public VertexConsumer getBuffer(RenderType renderType) {
         return this.bufferBuilders.computeIfAbsent(
             renderType,
-            it -> new BufferBuilder(this.getByteBuffer(it), it.mode, it.format)
+            it -> IrisState.createUnextendedBufferBuilder(this.getByteBuffer(it), it.mode, it.format)
         );
     }
 
