@@ -264,9 +264,9 @@ public final class ModelBlockSelection {
         BlockState state = level.getBlockState(pos);
         Block block = state.getBlock();
         if (!AnvilCraft.MOD_ID.equals(BuiltInRegistries.BLOCK.getKey(block).getNamespace())) return;
-        if (ModelSelectionDenylist.usesOriginalOutline(block)) return;
-        boolean originalPicking = ModelSelectionDenylist.usesOriginalPicking(block);
-        if (!originalPicking && !CubeSelection.isEnabled(block)) return;
+        if (!CubeSelection.isEnabled(block) || CubeSelection.isTargetExcluded(state)) {
+            return;
+        }
         List<SelectionPart> whole = snapshot.outlines().get(state);
         boolean multipartOutline = whole != null && block instanceof AbstractMultiPartBlock<?>;
         float tick = event.getDeltaTracker().getGameTimeDeltaPartialTick(
