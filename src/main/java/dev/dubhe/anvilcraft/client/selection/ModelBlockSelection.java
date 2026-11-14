@@ -286,8 +286,9 @@ public final class ModelBlockSelection {
         Minecraft minecraft = Minecraft.getInstance();
         Block block = state.getBlock();
         if (minecraft.options.hideGui || !AnvilCraft.MOD_ID.equals(BuiltInRegistries.BLOCK.getKey(block).getNamespace())) return false;
-        if (ModelSelectionDenylist.usesOriginalOutline(block)) return false;
-        if (!ModelSelectionDenylist.usesOriginalPicking(block) && !CubeSelection.isEnabled(block)) return false;
+        if (!CubeSelection.isEnabled(block) || CubeSelection.isTargetExcluded(state)) {
+            return false;
+        }
         ClientLevel level = event.getLevel();
         BlockPos pos = event.getBlockPos().immutable();
         float partialTick = event.getCamera().getCameraEntityPartialTicks(minecraft.getDeltaTracker());
