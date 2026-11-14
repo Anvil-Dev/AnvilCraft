@@ -18,40 +18,27 @@ import java.util.Set;
 
 public final class ModelSelectionDenylist {
     public static final Identifier LOCATION = AnvilCraft.of("model_selection_denylist.json");
-    private static final Rules EMPTY = new Rules(Set.of(), Set.of(), Set.of());
-    private static Rules rules = EMPTY;
+    private static Set<Block> blocks = Set.of();
 
     private ModelSelectionDenylist() {
     }
 
     public static void reload(ResourceManager resources) {
-        Rules loaded = EMPTY;
+        Set<Block> loaded = Set.of();
         for (Resource resource : resources.getResourceStack(LOCATION)) {
             try (Reader reader = resource.openAsReader()) {
                 JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
-                loaded = new Rules(
-                    readBlocks(json, "disable_precise_picking"),
-                    readBlocks(json, "disable_model_outline"),
-                    readBlocks(json, "disable_ber_selection")
-                );
+                loaded = readBlocks(json, "disable_ber_selection");
             } catch (IOException | RuntimeException exception) {
                 AnvilCraft.LOGGER.warn("Unable to load {} from {}; keeping lower-priority denylist", LOCATION,
                     resource.sourcePackId(), exception);
             }
         }
-        rules = loaded;
-    }
-
-    public static boolean usesOriginalPicking(Block block) {
-        return rules.picking().contains(block) || rules.outline().contains(block);
-    }
-
-    public static boolean usesOriginalOutline(Block block) {
-        return rules.outline().contains(block);
+        blocks = loaded;
     }
 
     public static boolean excludesBlockEntity(Block block) {
-        return rules.blockEntity().contains(block);
+        return blocks.contains(block);
     }
 
     private static Set<Block> readBlocks(JsonObject json, String name) {
@@ -66,8 +53,5 @@ public final class ModelSelectionDenylist {
                 .orElseThrow(() -> new IllegalArgumentException("Unknown block in model selection denylist: " + id)));
         }
         return Set.copyOf(blocks);
-    }
-
-    private record Rules(Set<Block> picking, Set<Block> outline, Set<Block> blockEntity) {
     }
 }
