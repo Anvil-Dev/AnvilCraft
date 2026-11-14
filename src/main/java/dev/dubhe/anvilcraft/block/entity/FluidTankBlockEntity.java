@@ -230,12 +230,20 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidResourceH
     }
 
     private static void saveItemTank(ItemStack stack, SingleFluidTankHandler itemTank, HolderLookup.Provider registries) {
-        TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
-        itemTank.serializeForItem(output);
         TypedEntityData<?> existing = stack.get(DataComponents.BLOCK_ENTITY_DATA);
         CompoundTag data = existing == null ? new CompoundTag() : existing.copyTagWithoutId();
-        data.put("Tank", output.buildResult());
-        stack.set(DataComponents.BLOCK_ENTITY_DATA, TypedEntityData.of(ModBlockEntities.FLUID_TANK.get(), data));
+        data.remove("Tank");
+        if (itemTank.getFluidAmount() > 0) {
+            TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
+            itemTank.serializeForItem(output);
+            data.put("Tank", output.buildResult());
+        }
+        if (data.isEmpty()) {
+            // 倒空的储罐要退回合成产物的状态，否则残留的方块实体数据会让它堆不上正常储罐
+            stack.remove(DataComponents.BLOCK_ENTITY_DATA);
+        } else {
+            stack.set(DataComponents.BLOCK_ENTITY_DATA, TypedEntityData.of(ModBlockEntities.FLUID_TANK.get(), data));
+        }
     }
 
     private static SingleFluidTankHandler readItemTank(ItemStack stack, HolderLookup.Provider registries) {
