@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.api.tooltip;
 
 import com.google.common.collect.Maps;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity.TargetMode;
 import dev.dubhe.anvilcraft.block.power.converter.PowerConverterBigBlock;
@@ -121,15 +122,30 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModBlocks.RESIN_BLOCK.asItem(), "Use to capture friendly or weak hostile creatures LivingEntity");
         ItemTooltipManager.NORMAL.put(ModBlocks.CRAB_TRAP.asItem(), "Placing it in the water to help you catch aquatic products");
         ItemTooltipManager.NORMAL.put(ModItems.CRAB_CLAW.get(), "Increase touch length when holding");
+        ItemTooltipManager.NORMAL.put(ModItems.CEMENT_BUCKETS.get(Color.GRAY).get(), """
+                    Engineering’s irreplaceable cornerstone
+                    Flows downward along terrain and gradually spreads out
+                    Dries and hardens into the corresponding concrete block"""
+        );
+        for (Color color : Color.values()) {
+            if (color != Color.GRAY) {
+                ItemTooltipManager.NORMAL.put(ModItems.CEMENT_BUCKETS.get(color).get(), """
+                    Engineering’s irreplaceable cornerstone
+                    Produced by dyeing Gray Cement
+                    Flows downward along terrain and gradually spreads out
+                    Dries and hardens into the corresponding concrete block"""
+                );
+            }
+        }
         ItemTooltipManager.NORMAL.put(
             ModBlocks.ROYAL_ANVIL.asItem(), """
                 Never triggers Too Expensive
                 Explosion proof, does not degrade from falling""");
-        ItemTooltipManager.NORMAL.put(ModBlocks.ROYAL_GRINDSTONE.asItem(), "Removes curses and enchantment penalties, Explosion proof");
+        ItemTooltipManager.NORMAL.put(ModBlocks.ROYAL_GRINDSTONE.asItem(), "Removes curses and repair costs, Explosion proof");
         ItemTooltipManager.NORMAL.put(ModBlocks.ROYAL_SMITHING_TABLE.asItem(), "Does not consume Smithing Templates, Explosion proof");
         ItemTooltipManager.NORMAL.put(
             ModBlocks.TRANSCENDENCE_SMITHING_TABLE.asItem(),
-            "Performs all smithing operations without physical templates\nExplosion, Wither and Ender Dragon proof"
+            "Performs all smithing operations with no templates required\nExplosion, Wither and Ender Dragon proof"
         );
         ItemTooltipManager.NORMAL.put(ModBlocks.HEATER.asItem(), "Heating the block above, consumes 16 kW");
         ItemTooltipManager.NORMAL.put(
@@ -225,34 +241,36 @@ public class ItemTooltipManager {
             ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.asItem(), """
                 Extreme heat has broken its mass-energy balance; injecting mass will transform it into Transcendium
                 May degrade into Netherite upon cooling""");
+        ItemTooltipManager.NORMAL.put(ModBlocks.EMBER_DECO_BLOCK.asItem(), "Ember Metal decorative block, low content, not explosion proof");
+        ItemTooltipManager.NORMAL.put(ModBlocks.EMBER_DECO_OUTLINE.asItem(), "Ember Metal decorative block, low content, not explosion proof");
         ItemTooltipManager.NORMAL.put(ModItems.EMBER_METAL_INGOT.get(), "A piece of heat-resistant Netherite tempered in fire for eons");
         ItemTooltipManager.NORMAL.put(ModItems.FROST_METAL_INGOT.get(), "A piece of cold-resistant Royal Steel tempered in extreme cold for eons");
-        ItemTooltipManager.NORMAL.put(ModItems.MAGNET_INGOT.get(), "A magnetized iron ingot");
-        ItemTooltipManager.NORMAL.put(ModItems.TUNGSTEN_INGOT.get(), "A heat-resistant and dense metal, material for Ancient Debris");
-        ItemTooltipManager.NORMAL.put(ModBlocks.TUNGSTEN_BLOCK.asItem(), "A large block of heat-resistant, high-density metal that can be heated to extreme temperatures");
-        ItemTooltipManager.NORMAL.put(ModItems.TITANIUM_INGOT.get(), "A strong and lightweight metal");
+        ItemTooltipManager.NORMAL.put(ModItems.MAGNET_INGOT.get(), "A piece of magnetized iron");
+        ItemTooltipManager.NORMAL.put(ModItems.TUNGSTEN_INGOT.get(), "A piece of heat-resistant, dense metal, material for Ancient Debris");
+        ItemTooltipManager.NORMAL.put(ModBlocks.TUNGSTEN_BLOCK.asItem(), "A large block of heat-resistant, dense metal that can be heated to extreme temperatures");
+        ItemTooltipManager.NORMAL.put(ModItems.TITANIUM_INGOT.get(), "A piece of strong, lightweight metal");
         ItemTooltipManager.NORMAL.put(ModBlocks.TITANIUM_BLOCK.asItem(), "A large block of strong, lightweight metal");
-        ItemTooltipManager.NORMAL.put(ModItems.ZINC_INGOT.get(), "A lightweight metal");
+        ItemTooltipManager.NORMAL.put(ModItems.ZINC_INGOT.get(), "A piece of lightweight metal");
         ItemTooltipManager.NORMAL.put(ModBlocks.ZINC_BLOCK.asItem(), "A large block of lightweight metal");
-        ItemTooltipManager.NORMAL.put(ModItems.TIN_INGOT.get(), "A soft and corrosion-resistant metal");
+        ItemTooltipManager.NORMAL.put(ModItems.TIN_INGOT.get(), "A piece of soft, corrosion-resistant metal");
         ItemTooltipManager.NORMAL.put(ModBlocks.TIN_BLOCK.asItem(), "A large block of soft, corrosion-resistant metal");
-        ItemTooltipManager.NORMAL.put(ModItems.LEAD_INGOT.get(), "A dense and heavy metal");
+        ItemTooltipManager.NORMAL.put(ModItems.LEAD_INGOT.get(), "A piece of dense, heavy metal");
         ItemTooltipManager.NORMAL.put(ModBlocks.LEAD_BLOCK.asItem(), "A large block of dense, heavy metal that absorbs radiation");
-        ItemTooltipManager.NORMAL.put(ModItems.SILVER_INGOT.get(), "A highly reflective metal");
+        ItemTooltipManager.NORMAL.put(ModItems.SILVER_INGOT.get(), "A piece of highly reflective metal");
         ItemTooltipManager.NORMAL.put(ModBlocks.SILVER_BLOCK.asItem(), "A large block of highly reflective metal");
-        ItemTooltipManager.NORMAL.put(ModItems.URANIUM_INGOT.get(), "Radioactive - handle with care");
+        ItemTooltipManager.NORMAL.put(ModItems.URANIUM_INGOT.get(), "A piece of radioactive material — handle with care");
         ItemTooltipManager.NORMAL.put(ModBlocks.URANIUM_BLOCK.asItem(), "A large block of radioactive material that continuously releases heat and does not decay");
         ItemTooltipManager.NORMAL.put(
             ModItems.PLUTONIUM_INGOT.get(),
-            "Highly radioactive - cannot be mined naturally, obtained from uranium transmutation"
+            "A piece of highly radioactive material — cannot be mined naturally, obtained from uranium transmutation"
         );
         ItemTooltipManager.NORMAL.put(
             ModBlocks.PLUTONIUM_BLOCK.asItem(),
             "A large block of highly radioactive material obtained only by transmuting uranium; continuously releases heat and melts down when all six sides are free of water"
         );
-        ItemTooltipManager.NORMAL.put(ModItems.BRONZE_INGOT.get(), "A durable copper-tin alloy");
+        ItemTooltipManager.NORMAL.put(ModItems.BRONZE_INGOT.get(), "A piece of durable copper-tin alloy");
         ItemTooltipManager.NORMAL.put(ModBlocks.BRONZE_BLOCK.asItem(), "A large block of durable copper-tin alloy");
-        ItemTooltipManager.NORMAL.put(ModItems.BRASS_INGOT.get(), "A corrosion-resistant copper-zinc alloy");
+        ItemTooltipManager.NORMAL.put(ModItems.BRASS_INGOT.get(), "A piece of corrosion-resistant copper-zinc alloy");
         ItemTooltipManager.NORMAL.put(ModBlocks.BRASS_BLOCK.asItem(), "A large block of corrosion-resistant copper-zinc alloy");
         ItemTooltipManager.NORMAL.put(ModBlocks.CUT_BRONZE_BLOCK.asItem(), "Bronze decorative block");
         ItemTooltipManager.NORMAL.put(ModBlocks.CUT_BRONZE_STAIRS.asItem(), "Bronze decorative block");
@@ -267,14 +285,14 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModItems.ROYAL_STEEL_NUGGET.get(), "A small piece of iron infused with gem magic");
         ItemTooltipManager.NORMAL.put(ModItems.EMBER_METAL_NUGGET.get(), "A small piece of heat-resistant Netherite tempered in fire for eons");
         ItemTooltipManager.NORMAL.put(ModItems.FROST_METAL_NUGGET.get(), "A small piece of cold-resistant Royal Steel tempered in extreme cold for eons");
-        ItemTooltipManager.NORMAL.put(ModItems.TUNGSTEN_NUGGET.get(), "A small piece of heat-resistant, high-density metal");
-        ItemTooltipManager.NORMAL.put(ModItems.TITANIUM_NUGGET.get(), "A small piece of Titanium");
-        ItemTooltipManager.NORMAL.put(ModItems.ZINC_NUGGET.get(), "A small piece of Zinc");
-        ItemTooltipManager.NORMAL.put(ModItems.TIN_NUGGET.get(), "A small piece of Tin");
-        ItemTooltipManager.NORMAL.put(ModItems.LEAD_NUGGET.get(), "A small piece of Lead");
-        ItemTooltipManager.NORMAL.put(ModItems.SILVER_NUGGET.get(), "A small piece of Silver");
-        ItemTooltipManager.NORMAL.put(ModItems.URANIUM_NUGGET.get(), "A small piece of Uranium");
-        ItemTooltipManager.NORMAL.put(ModItems.PLUTONIUM_NUGGET.get(), "A small piece of highly radioactive material obtained only by transmuting uranium");
+        ItemTooltipManager.NORMAL.put(ModItems.TUNGSTEN_NUGGET.get(), "A small piece of heat-resistant, high-density metal, material for Ancient Debris");
+        ItemTooltipManager.NORMAL.put(ModItems.TITANIUM_NUGGET.get(), "A small piece of strong, lightweight metal");
+        ItemTooltipManager.NORMAL.put(ModItems.ZINC_NUGGET.get(), "A small piece of lightweight metal");
+        ItemTooltipManager.NORMAL.put(ModItems.TIN_NUGGET.get(), "A small piece of soft, corrosion-resistant metal");
+        ItemTooltipManager.NORMAL.put(ModItems.LEAD_NUGGET.get(), "A small piece of dense, heavy metal");
+        ItemTooltipManager.NORMAL.put(ModItems.SILVER_NUGGET.get(), "A small piece of highly reflective metal");
+        ItemTooltipManager.NORMAL.put(ModItems.URANIUM_NUGGET.get(), "A small piece of radioactive material — handle with care");
+        ItemTooltipManager.NORMAL.put(ModItems.PLUTONIUM_NUGGET.get(), "A small piece of highly radioactive material, cannot be mined naturally, obtained from uranium transmutation");
         ItemTooltipManager.NORMAL.put(ModItems.BRONZE_NUGGET.get(), "A small piece of durable copper-tin alloy");
         ItemTooltipManager.NORMAL.put(ModItems.BRASS_NUGGET.get(), "A small piece of corrosion-resistant copper-zinc alloy");
         ItemTooltipManager.NORMAL.put(ModItems.TIN_CAN.asItem(), "Tin cans can be combined with any food to obtain canned food");
@@ -353,6 +371,11 @@ public class ItemTooltipManager {
 
         ItemTooltipManager.NORMAL.put(ModBlocks.CREATIVE_LASER.asItem(), "Emits a laser beam");
         ItemTooltipManager.SHIFT.put(ModBlocks.CREATIVE_LASER.asItem(), "Adjustable laser level, lens and gamma mode, can be turned off by redstone");
+        ItemTooltipManager.SHIFT.put(
+            ModBlocks.SINGULARITY_CRYSTAL.asItem(), """
+            Stores extreme celestial data from the Celestial Forging Anvil
+            Right-click it with a bound Hyperdimension Terminal to convert it into an uploader"""
+        );
         ItemTooltipManager.NORMAL.put(ModBlocks.RUBY_LASER.asItem(), "Emits a laser beam when powered");
         ItemTooltipManager.NORMAL.put(ModBlocks.RUBY_PRISM.asItem(), "Deflects or converges laser beams");
         ItemTooltipManager.NORMAL.put(ModBlocks.TRANSPARENT_CRAFTING_TABLE.asItem(), "Aesthetic, connectable Crafting Table");
@@ -424,16 +447,16 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(
             ModBlocks.TRANSCENDENCE_GRINDSTONE.asItem(),
             """
-                Removes curses and enchantment penalties, selectively removes or transfers multiple enchantments
+                Removes curses and repair costs, selectively removes or transfers multiple enchantments
                 Immune to most destruction methods"""
         );
         ItemTooltipManager.NORMAL.put(
             ModBlocks.TRANSCENDENCE_DECO_BLOCK.asItem(),
-            "Transcendium decorative block; its low Transcendium content means it is not indestructible"
+            "Transcendium decorative block – low content, not indestructible"
         );
         ItemTooltipManager.NORMAL.put(
             ModBlocks.TRANSCENDENCE_DECO_OUTLINE.asItem(),
-            "Transcendium decorative block; its low Transcendium content means it is not indestructible"
+            "Transcendium decorative block – low content, not indestructible"
         );
         ItemTooltipManager.NORMAL.put(ModBlocks.FROST_GRINDSTONE.asItem(), "Selectively removes individual enchantments, Explosion proof");
         ItemTooltipManager.NORMAL.put(
@@ -449,6 +472,8 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModBlocks.CUT_FROST_METAL_PILLAR.asItem(), "Frost Metal decorative block, Explosion proof");
         ItemTooltipManager.NORMAL.put(ModBlocks.CUT_FROST_METAL_SLAB.asItem(), "Frost Metal decorative block, Explosion proof");
         ItemTooltipManager.NORMAL.put(ModBlocks.CUT_FROST_METAL_STAIRS.asItem(), "Frost Metal decorative block, Explosion proof");
+        ItemTooltipManager.NORMAL.put(ModBlocks.FROST_DECO_BLOCK.asItem(), "Frost Metal decorative block, low content, not explosion proof");
+        ItemTooltipManager.NORMAL.put(ModBlocks.FROST_DECO_OUTLINE.asItem(), "Frost Metal decorative block, low content, not explosion proof");
         ItemTooltipManager.NORMAL.put(ModBlocks.SPECTRAL_ANVIL.asItem(), "Creates phantom shadows when the upper magnet is demagnetized");
         ItemTooltipManager.NORMAL.put(ModBlocks.BLOCK_PLACER.asItem(), "Places blocks in front when powered by redstone");
         ItemTooltipManager.NORMAL.put(ModItems.STRUCTURE_DISK.get(), "Stores structure data, used in blueprint mode of Smart Block Placer");
@@ -496,23 +521,13 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModBlocks.OVERSEER.asItem(), "Chunk loader that works on suitable base");
         ItemTooltipManager.NORMAL.put(ModBlocks.PUMP.asItem(), "Pumps fluids, consumes 32 kW");
         ItemTooltipManager.NORMAL.put(ModBlocks.CREATIVE_CRATE.asItem(), "Infinite item storage and supply");
+        ItemTooltipManager.NORMAL.put(ModBlocks.CRATE.asItem(), "Stores items");
         ItemTooltipManager.NORMAL.put(ModBlocks.CREATIVE_FLUID_TANK.asItem(), "Infinite fluid storage and supply");
-        ItemTooltipManager.NORMAL.put(
-            ModBlocks.FLUID_TANK.asItem(),
-            """
-                Stores 16B of fluid; Menger Sponges expand it to 12800B and make it infinite when full
-                Can interact with Dispensers for fluid transfer"""
-        );
-        ItemTooltipManager.NORMAL.put(
-            ModBlocks.LARGE_FLUID_TANK.asItem(),
-            """
-                Stores 512B shared by any number of fluids
-                Menger Sponges unlock unlimited total storage
-                Can store multiple fluids, each type of fluid that reaches 12800B will be converted to infinite
-                Can interact with Dispensers for fluid transfer"""
-        );
+        ItemTooltipManager.NORMAL.put(ModBlocks.FLUID_TANK.asItem(), "Stores fluids");
+        ItemTooltipManager.NORMAL.put(ModBlocks.LARGE_FLUID_TANK.asItem(), "Stores multiple fluids");
         ItemTooltipManager.NORMAL.put(ModBlocks.DRAIN.asItem(), "Transfers fluid vertically, outputting downward and drawing from above");
         ItemTooltipManager.NORMAL.put(ModBlocks.REDSTONE_WIRE.asItem(), "Transmit redstone signals more precisely");
+        ItemTooltipManager.NORMAL.put(ModBlocks.AUTO_ENCHANTING_TABLE.asItem(), "Automatically enchant items with experience fluid, primers, or liquid enchantment");
         ItemTooltipManager.NORMAL.put(ModBlocks.TRADING_STATION.asItem(), "Trading platform for players and villagers");
         ItemTooltipManager.NORMAL.put(
             ModBlocks.CORRUPTED_BEACON.asItem(),
@@ -531,7 +546,7 @@ public class ItemTooltipManager {
             ModBlocks.CONFINED_NEUTRONIUM_INGOT_BLOCK.asItem(),
             "A confinement chamber containing a Charged Neutronium Ingot"
         );
-        ItemTooltipManager.NORMAL.put(ModBlocks.NEUTRON_IRRADIATOR.asItem(), "Performs neutron irradiation recipes, absorbs confined anvilons for block procedural process");
+        ItemTooltipManager.NORMAL.put(ModBlocks.NEUTRON_IRRADIATOR.asItem(), "Perform neutron irradiation recipes, absorbs confined anvilons for block procedural process");
         ItemTooltipManager.NORMAL.put(ModBlocks.CAKE_BASE_BLOCK.asItem(), "A block of cake base, use a shovel as a spoon to eat it");
         ItemTooltipManager.NORMAL.put(ModBlocks.CREAM_BLOCK.asItem(), "A block of cream, use a shovel as a spoon to eat it");
         ItemTooltipManager.NORMAL.put(ModBlocks.BERRY_CREAM_BLOCK.asItem(), "A block of berry cream, use a shovel as a spoon to eat it");
@@ -541,6 +556,21 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModBlocks.COOKIE_PILLAR.asItem(), "A hollow cookie block!");
         ItemTooltipManager.NORMAL.put(ModBlocks.BLACK_WHITE_CHOCOLATE_BLOCK.asItem(),
             "Made by mixing white and dark chocolate, step on it to gain Haste and Jump Boost");
+        ItemTooltipManager.NORMAL.put(ModItems.SEEDS_PACK.get(), "Open to obtain a random seed or crop");
+        ItemTooltipManager.NORMAL.put(ModItems.EXP_GEM.get(), "Right-click to extract the EXP contained inside");
+        ItemTooltipManager.NORMAL.put(ModBlocks.CONTROLLABLE_SAND.asItem(), "Sand that can be controlled by redstone to rise or fall");
+        ItemTooltipManager.NORMAL.put(ModBlocks.PLYWOOD_BLOCK.asItem(), "Solid wood? Not a chance");
+        ItemTooltipManager.NORMAL.put(ModBlocks.PLYWOOD_STAIRS.asItem(), "Solid wood? Not a chance");
+        ItemTooltipManager.NORMAL.put(ModBlocks.PLYWOOD_SLAB.asItem(), "Solid wood? Not a chance");
+        ItemTooltipManager.NORMAL.put(ModBlocks.ANCIENT_SEA_REEF.asItem(), "A chunk of sea reef – looks like it's hiding some treasure");
+        ItemTooltipManager.NORMAL.put(ModBlocks.VOID_MATTER_BLOCK.asItem(), "A chunk of void...");
+        ItemTooltipManager.NORMAL.put(ModBlocks.EXCITED_STATE_VOID_MATTER_BLOCK.asItem(), "A chunk of void... exciting void... comes from a Black Hole");
+        ItemTooltipManager.NORMAL.put(ModBlocks.CREATIVE_GENERATOR.asItem(), "Provide up to 65536 kW of power, can also be used as a load");
+        ItemTooltipManager.NORMAL.put(ModItems.COCOA_BUTTER.asItem(), "One hundred percent natural pure cocoa butter!");
+        ItemTooltipManager.SHIFT.put(ModBlocks.STAMPING_PLATFORM.asItem(), "Can be converted to the corresponding mode using a Grindstone, Scaffolding, Iron Trapdoor, or Anvil Hammer");
+        ItemTooltipManager.SHIFT.put(ModBlocks.CRUSHING_TABLE.asItem(), "Can be converted to the corresponding mode using a Grindstone, Scaffolding, Iron Trapdoor, or Anvil Hammer");
+        ItemTooltipManager.SHIFT.put(ModBlocks.SIFTING_TABLE.asItem(), "Can be converted to the corresponding mode using a Grindstone, Scaffolding, Iron Trapdoor, or Anvil Hammer");
+        ItemTooltipManager.SHIFT.put(ModBlocks.UNPACKING_TABLE.asItem(), "Can be converted to the corresponding mode using a Grindstone, Scaffolding, Iron Trapdoor, or Anvil Hammer");
         ItemTooltipManager.NORMAL.put(ModBlocks.CHOCOLATE_CREAM_BLOCK.asItem(), "A block of chocolate cream, use a shovel as a spoon to eat it");
         ItemTooltipManager.NORMAL.put(ModBlocks.HONEY_CREAM_BLOCK.asItem(), "A block of honey cream, use a shovel as a spoon to eat it");
         ItemTooltipManager.NORMAL.put(ModBlocks.CAKE_BLOCK.asItem(), "A block of cream cake, use a shovel as a spoon to eat it");
@@ -549,11 +579,11 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModBlocks.HONEY_CAKE_BLOCK.asItem(), "A block of honey cake, use a shovel as a spoon to eat it");
         ItemTooltipManager.NORMAL.put(ModBlocks.CONTROL_VALVE.asItem(), "Controls the type and flow rate of passing fluids and can be locked by redstone");
         ItemTooltipManager.NORMAL.put(ModBlocks.SPACETIME_SUPERCOMPUTER.asItem(), "Consumes power to run certain time commands");
-        ItemTooltipManager.NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_AMPLIFIER.asItem(), "Amplifies the Celestial Forging Anvil to support larger megastructures");
-        ItemTooltipManager.NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE.asItem(), "Item I/O interface for the Celestial Forging Anvil");
-        ItemTooltipManager.NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE.asItem(), "Fluid I/O interface for the Celestial Forging Anvil");
-        ItemTooltipManager.NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE.asItem(), "Laser I/O interface for the Celestial Forging Anvil");
-        ItemTooltipManager.NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_INTERFACE_PLACEHOLDER.asItem(), "Placeholder block for Celestial Forging Anvil structure");
+        ItemTooltipManager.NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_AMPLIFIER.asItem(), "Amplifies the Celestial Forging Anvil so it can support larger celestial bodies and megastructures");
+        ItemTooltipManager.NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE.asItem(), "Stores multiple item types, one stack each; switch modes with an Anvil Hammer to output items actively");
+        ItemTooltipManager.NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE.asItem(), "Stores multiple fluids, 80 B each; switch modes with an Anvil Hammer to output fluids actively");
+        ItemTooltipManager.NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE.asItem(), "Receives lasers; switch modes with an Anvil Hammer to emit lasers actively");
+        ItemTooltipManager.NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_INTERFACE_PLACEHOLDER.asItem(), "A decorative, nonfunctional Celestial Forging Anvil interface; right-click it with any of the three functional interfaces to replace it");
         ItemTooltipManager.NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.asItem(), "Teleports players and entities between two portals");
         ItemTooltipManager.NORMAL.put(ModBlocks.LENS.asItem(), "Use special glass to enchant lasers");
         ItemTooltipManager.NORMAL.put(ModItems.CHECK_VALVE.get(), "Allows fluid to flow in only one direction");
@@ -610,11 +640,12 @@ public class ItemTooltipManager {
             It cushions fall damage, but landing on it will make you nauseous for 30 seconds
             Can also be smelted into Netherrack"""
         );
-        ItemTooltipManager.NORMAL.put(ModBlocks.SINGULARITY_CRYSTAL.asItem(), "Data disk for storing extreme celestial data from the Celestial Forging Anvil");
+        ItemTooltipManager.NORMAL.put(ModBlocks.SINGULARITY_CRYSTAL.asItem(), "A crystal formed of a micro black hole and a micro white hole");
         ItemTooltipManager.NORMAL.put(ModItems.LASER_GUN.get(), "Hold right-click to consume power and fire a laser that grows increasingly powerful");
         ItemTooltipManager.NORMAL.put(ModItems.CORRUPTED_BEACON_ACTIVATOR.get(), "Hold right-click to consume power and fire a corruption beam");
         ItemTooltipManager.NORMAL.put(ModItems.TESLA_GUN.get(), "Hold right-click to consume power and fire chain lightning that bounces between mobs");
         ItemTooltipManager.NORMAL.put(ModItems.ANVIL_RAILGUN.get(), "Hold right-click to consumes power to charge up and launch a high-speed anvil");
+        ItemTooltipManager.NORMAL.put(ModItems.SPECTRAL_WEAPON_LAUNCHER.get(), "Hold right-click to consume power and fires spectral weapons");
         ItemTooltipManager.NORMAL.put(ModItems.SPECTRAL_SLINGSHOT.get(), "Hold right-click to consume power and fires spectral weapons");
         ItemTooltipManager.NORMAL.put(ModItems.ENERGY_WEAPON_PLATFORM.get(), "640 MFE stored, but will only inherit the result of Energy Weapon Making");
         ItemTooltipManager.NORMAL.put(
@@ -659,6 +690,12 @@ public class ItemTooltipManager {
                 Creative players left-click to clear the configuration
                 Survival players left-click to take out items"""
         );
+        ItemTooltipManager.SHIFT.put(
+            ModBlocks.CRATE.asItem(), """
+            Can contain 2048 unit of items
+            Breaking it drops the contents
+            When it holds more than 1000 items, hold Shift to break it"""
+        );
         ItemTooltipManager.NORMAL.put(
             ModBlocks.STORAGE_PORT_CONSOLIDATOR.asItem(), """
                 Exposes the contents of connected Storage Ports and Fluid Ports to external logistics
@@ -679,6 +716,30 @@ public class ItemTooltipManager {
                 The port can hold one stack of marked items internally
                 Hold right-click with an Anvil Hammer and move the cursor to clear the mark""");
         ItemTooltipManager.NORMAL.put(ModBlocks.ITEM_SPLITTER.asItem(), "Evenly splits the stored items among the containers in front");
+        ItemTooltipManager.NORMAL.put(ModBlocks.EXP_COLLECTOR.asItem(), "Collect nearby EXP orbs and convert them into EXP Fluid");
+        ItemTooltipManager.NORMAL.put(ModBlocks.GIANT_ANVIL.asItem(), "An extremely huge anvil");
+        ItemTooltipManager.NORMAL.put(ModBlocks.LARGE_CAULDRON.asItem(), "An extremely huge cauldron");
+        ItemTooltipManager.NORMAL.put(ModBlocks.STAMPING_PLATFORM.asItem(), "Perform stamping recipes");
+        ItemTooltipManager.NORMAL.put(ModBlocks.CRUSHING_TABLE.asItem(), "Perform crushing recipes");
+        ItemTooltipManager.NORMAL.put(ModBlocks.SIFTING_TABLE.asItem(), "Perform sifting recipes");
+        ItemTooltipManager.NORMAL.put(ModBlocks.UNPACKING_TABLE.asItem(), "Perform unpacking recipes");
+        ItemTooltipManager.NORMAL.put(
+            ModBlocks.JEWEL_CRAFTING_TABLE.asItem(), """
+            A crafting station for rare items
+            Amulets, Smithing Templates, Music Discs, Trial Keys, Totems, and more"""
+        );
+        ItemTooltipManager.NORMAL.put(ModFoodItems.CHOCOLATE.get(), "Tasty chocolate made with real cocoa butter, eat a bite to gain Speed");
+        ItemTooltipManager.NORMAL.put(ModFoodItems.BLACK_CHOCOLATE.get(), "Tasty dark chocolate made with real cocoa butter, eat a bite to gain Haste");
+        ItemTooltipManager.NORMAL.put(ModFoodItems.WHITE_CHOCOLATE.get(), "Tasty white chocolate made with real cocoa butter, eat a bite to gain Jump Boost");
+        ItemTooltipManager.NORMAL.put(ModBlocks.CHOCOLATE_BLOCK.asItem(), "Made by real cocoa butter, step on it to gain Speed");
+        ItemTooltipManager.NORMAL.put(ModBlocks.CHOCOLATE_SLAB.asItem(), "Made by real cocoa butter, step on it to gain Speed");
+        ItemTooltipManager.NORMAL.put(ModBlocks.CHOCOLATE_STAIRS.asItem(), "Made by real cocoa butter, step on them to gain Speed");
+        ItemTooltipManager.NORMAL.put(ModBlocks.BLACK_CHOCOLATE_BLOCK.asItem(), "Made by real cocoa butter, step on it to gain Haste");
+        ItemTooltipManager.NORMAL.put(ModBlocks.BLACK_CHOCOLATE_SLAB.asItem(), "Made by real cocoa butter, step on it to gain Haste");
+        ItemTooltipManager.NORMAL.put(ModBlocks.BLACK_CHOCOLATE_STAIRS.asItem(), "Made by real cocoa butter, step on it to gain Haste");
+        ItemTooltipManager.NORMAL.put(ModBlocks.WHITE_CHOCOLATE_BLOCK.asItem(), "Made by real cocoa butter, step on it to gain Jump Boost");
+        ItemTooltipManager.NORMAL.put(ModBlocks.WHITE_CHOCOLATE_SLAB.asItem(), "Made by real cocoa butter, step on it to gain Jump Boost");
+        ItemTooltipManager.NORMAL.put(ModBlocks.WHITE_CHOCOLATE_STAIRS.asItem(), "Made by real cocoa butter, step on them to gain Jump Boost");
         ItemTooltipManager.SHIFT.put(
             ModBlocks.ITEM_SPLITTER.asItem(), """
                 Holds 16 slots of items
@@ -686,6 +747,31 @@ public class ItemTooltipManager {
                 With no container in front, let a falling anvil strike it
                 The fall height decides how many shares are made, thrown past obstacles up to 16 blocks ahead
                 Always divides strictly, the remainder stays inside"""
+        );
+        ItemTooltipManager.SHIFT.put(
+            ModBlocks.GIANT_ANVIL.asItem(), """
+            Can be used for Multiblock Crafting and Multiblock Conversion
+            Works with ground blocks to trigger Ground Shaking
+            Can also perform crafting actions with a Giant Cauldron"""
+        );
+        ItemTooltipManager.SHIFT.put(
+            ModBlocks.LARGE_CAULDRON.asItem(), """
+            Can perform all cauldron crafting recipes
+            Compatible with multiple processing types via different base blocks
+            Can store multiple fluids"""
+        );
+        ItemTooltipManager.SHIFT.put(
+            ModBlocks.FLUID_TANK.asItem(), """
+            Stores 16B of fluids
+            Menger Sponges expand it to 12800B and make it infinite when full
+            Can interact with Dispensers for fluid transfer"""
+        );
+        ItemTooltipManager.SHIFT.put(
+            ModBlocks.LARGE_FLUID_TANK.asItem(), """
+            Stores 512B shared by any number of fluids
+            Menger Sponges unlock unlimited total storage
+            Can store multiple fluids, each type of fluid that reaches 12800B will be converted to infinite
+            Can interact with Dispensers for fluid transfer"""
         );
 
         ItemTooltipManager.SHIFT.put(
@@ -714,10 +800,15 @@ public class ItemTooltipManager {
                 Enchanting the Anvil Railgun can boost damage, reduce charge time, or change its firing behavior"""
         );
         ItemTooltipManager.SHIFT.put(
+            ModItems.SPECTRAL_WEAPON_LAUNCHER.get(), """
+            Hold right-click to load your offhand weapon into the Spectral Weapon Launcher
+            Once loaded, right-click again to fire a spectral copy of that weapon, dealing damage
+            Each shot has a cooldown, which can be reduced by enchanting the launcher"""
+        );
+        ItemTooltipManager.SHIFT.put(
             ModItems.SPECTRAL_SLINGSHOT.get(), """
                 Hold right-click to load your offhand weapon into the Spectral Slingshot
-                Once loaded, right-click again to fire a spectral copy of that weapon, dealing damage
-                Each shot has a cooldown, which can be reduced by enchanting the launcher"""
+                Once loaded, right-click again to fire a spectral copy of that weapon, dealing damage"""
         );
         ItemTooltipManager.SHIFT.put(
             ModItems.ENERGY_WEAPON_PLATFORM.get(), """
@@ -739,9 +830,9 @@ public class ItemTooltipManager {
                 Unlocking the celestial body will destroy the megastructure
                 Different megastructures serve different purposes — check the megastructure button for details""");
         ItemTooltipManager.SHIFT.put(
-            ModBlocks.SPECTRAL_ANVIL.asItem(),
-            "When the upper magnet is demagnetized, a phantom shadow is created and falls downward, "
-            + "it can pass through transparent blocks, and no matter the actual height, the impact is always treated as a 2‑block fall"
+            ModBlocks.SPECTRAL_ANVIL.asItem(), """
+                When the upper magnet is demagnetized, a phantom shadow is created and falls downward
+                It can pass through transparent blocks, and no matter the actual height, the impact is always treated as a 2‑block fall"""
         );
         ItemTooltipManager.SHIFT.put(
             ModBlocks.BLOCK_PLACER.asItem(), """
@@ -759,7 +850,7 @@ public class ItemTooltipManager {
         ItemTooltipManager.SHIFT.put(
             ModBlocks.STRUCTURE_SCANNER.asItem(), """
                 Can store structures in Structure Disk and be used in the blueprint mode of Smart Block Placer
-                Maximum can store 16×16×16 structure
+                Maximum can store 166×16×16 structure
                 When powered by redstone, it will automatically scans and stores structures"""
         );
         ItemTooltipManager.SHIFT.put(
@@ -821,7 +912,7 @@ public class ItemTooltipManager {
         ItemTooltipManager.SHIFT.put(
             ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.asItem(), """
                 Teleports players and entities between two portals
-                Requires a Celestial Forging Anvil with an established wormhole connection"""
+                Connected Celestial Forging Anvil wormholes can link two portals facing the same direction"""
         );
         ItemTooltipManager.SHIFT.put(
             ModBlocks.DRAIN.asItem(), """
@@ -834,7 +925,16 @@ public class ItemTooltipManager {
                 It can be attached to any full face of a block,
                 only inputs and outputs redstone signals at its breaks (ends)
                 The redstone signal level does not decay within the wire,
-                and the wire will not output the signal received from redstone dust back to redstone dust"""
+                and the wire will not output the signal received from redstone dust back to redstone dust
+                Right-click an existing wire to change its direction"""
+        );
+        ItemTooltipManager.SHIFT.put(
+            ModBlocks.AUTO_ENCHANTING_TABLE.asItem(), """
+            Automatically enchants items with power from the grid
+            Random mode: consumes experience fluid, enchants based on nearby bookshelf level (16 kW)
+            Primer mode: uses a primer to list selectable enchantments, consumes experience fluid (64 kW)
+            Liquid enchantment mode: consumes enchanted liquid enchantment to apply a chosen enchantment up to level 15 (64 kW plus 64 kW per existing enchantment)
+            Redstone signal pauses the machine"""
         );
         ItemTooltipManager.SHIFT.put(
             ModBlocks.TRADING_STATION.asItem(), """
@@ -845,7 +945,7 @@ public class ItemTooltipManager {
         ItemTooltipManager.SHIFT.put(
             ModBlocks.CHUTE.asItem(), """
                 Can set item filter
-                Shift and left-click a slot to disable it
+                Shift and left‑click a slot to disable it
                 Use scroll wheel to set slot stack limit
                 Multiple Chutes connected turn into a Simple Chute
                 Simple Chute has only one slot and cannot be locked by redstone"""
@@ -854,7 +954,7 @@ public class ItemTooltipManager {
             ModBlocks.MAGNETIC_CHUTE.asItem(), """
                 The output items will be launched with speed
                 Can set item filter
-                Shift and left-click a slot to disable it
+                Shift and left‑click a slot to disable it
                 Use scroll wheel to set slot stack limit
                 Multiple Magnetic Chutes connected turn into a Simple Magnetic Chute
                 Simple Magnetic Chute has only one slot and cannot be locked by redstone"""
