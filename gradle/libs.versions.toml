@@ -2,7 +2,7 @@
 minecraft = "1.21.1"
 neoForge = "21.1.238"
 
-anvillib = "2.0.0+snapshot.676"
+anvillib = "2.0.0+snapshot.682"
 ageratum = "0.0.1+build.146"
 
 jei = "19.50.0.414"
