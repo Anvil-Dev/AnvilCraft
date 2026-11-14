@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.gui.tooltip;
 
+import com.mojang.serialization.Codec;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
 import dev.dubhe.anvilcraft.inventory.tooltip.FluidTankTooltip;
@@ -20,6 +21,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ClientFluidTankTooltip implements ClientTooltipComponent {
+    private static final String TAG_FLUID = "Fluid";
+    private static final String TAG_FLUIDS = "Fluids";
+    private static final String TAG_ENHANCED = "Enhanced";
+    private static final String TAG_INFINITE = "Infinite";
+
     private final FluidTankTooltip tooltip;
     private final List<Line> lines = new ArrayList<>();
     private final int remaining;
@@ -28,30 +34,41 @@ public class ClientFluidTankTooltip implements ClientTooltipComponent {
         this.tooltip = tooltip;
         CompoundTag tank = tooltip.tankTag();
         int remaining = 0;
+        boolean enhanced = tank.getBooleanOr(ClientFluidTankTooltip.TAG_ENHANCED, false);
         if (tooltip.multi()) {
-            var entries = tank.getListOrEmpty("Fluids");
+            var entries = tank.getListOrEmpty(ClientFluidTankTooltip.TAG_FLUIDS);
+            // 无限标记在物品 NBT 里是独立的下标数组，旧格式则写在各条目内
+            List<Boolean> flags = tank.read(ClientFluidTankTooltip.TAG_INFINITE, Codec.BOOL.listOf()).orElse(List.of());
             for (int index = 0; index < entries.size(); index++) {
-                var entry = entries.getCompoundOrEmpty(index);
-                FluidStack fluid = read(entry);
+                CompoundTag entry = entries.getCompoundOrEmpty(index);
+                FluidStack fluid = ClientFluidTankTooltip.read(entry);
                 if (fluid.isEmpty()) continue;
                 if (this.lines.size() < AnvilCraft.CLIENT_CONFIG.ui.fluidTankTooltipMaxVisibleFluids) {
-                    this.lines.add(new Line(fluid, tank.getBooleanOr("Enhanced", false) && entry.getBooleanOr("Infinite", false)));
+                    this.lines.add(new Line(fluid, enhanced && entry.getBooleanOr(
+                        ClientFluidTankTooltip.TAG_INFINITE,
+                        index < flags.size() && flags.get(index)
+                    )));
                 } else {
                     remaining++;
                 }
             }
         } else {
-            FluidStack fluid = read(tank);
+            FluidStack fluid = ClientFluidTankTooltip.read(tank);
             if (!fluid.isEmpty()) this.lines.add(new Line(fluid, tooltip.infiniteCapacity()));
         }
         this.remaining = remaining;
     }
 
-    private static FluidStack read(CompoundTag tank) {
+    private static FluidStack read(CompoundTag tag) {
         var registries = ClientStoragePortTooltip.registries();
         if (registries == null) return FluidStack.EMPTY;
-        return FluidStack.OPTIONAL_CODEC.parse(registries.createSerializationContext(NbtOps.INSTANCE),
-            tank.getCompoundOrEmpty("Fluid")).result().orElse(FluidStack.EMPTY);
+        // 物品 NBT 把流体直接写在条目里，旧格式则多包一层 Fluid 子标签
+        CompoundTag fluidTag = tag.contains(ClientFluidTankTooltip.TAG_FLUID)
+            ? tag.getCompoundOrEmpty(ClientFluidTankTooltip.TAG_FLUID)
+            : tag;
+        return FluidStack.OPTIONAL_CODEC.parse(registries.createSerializationContext(NbtOps.INSTANCE), fluidTag)
+            .result()
+            .orElse(FluidStack.EMPTY);
     }
 
     private record Line(FluidStack fluid, boolean infinite) {

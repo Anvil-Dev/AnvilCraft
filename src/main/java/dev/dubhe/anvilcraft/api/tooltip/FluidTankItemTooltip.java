@@ -50,41 +50,21 @@ public final class FluidTankItemTooltip {
         FluidTankItemTooltip.append(tooltip, fluids, FluidTankItemTooltip.totalAmount(fluids), capacity, false);
     }
 
-    /// 可被门格海绵扩容的单流体储罐
-    public static void appendExpandableTank(
-        ItemStack stack,
-        Item.TooltipContext context,
-        Consumer<Component> tooltip,
-        int baseCapacity,
-        int enhancedCapacity
+    /// 可被门格海绵扩容的单流体储罐的 tooltip 数据（携带 Tank NBT，客户端渲染为 图标+文字）
+    public static Optional<TooltipComponent> singleFluidTooltipImage(
+        ItemStack stack, int baseCapacity, int enhancedCapacity
     ) {
-        CompoundTag tankTag = FluidTankItemTooltip.getTankTag(stack);
-        boolean enhanced = tankTag.getBooleanOr(FluidTankItemTooltip.TAG_ENHANCED, false);
-        boolean infinite = enhanced && tankTag.getBooleanOr(FluidTankItemTooltip.TAG_INFINITE, false);
-        int capacity = enhanced ? enhancedCapacity : baseCapacity;
-        List<TooltipFluid> fluids = FluidTankItemTooltip.readSingleFluid(tankTag, context.registries(), Integer.MAX_VALUE);
-        if (infinite && !fluids.isEmpty()) {
-            fluids.set(0, new TooltipFluid(fluids.getFirst().fluid(), true));
-        }
-        FluidTankItemTooltip.append(tooltip, fluids, FluidTankItemTooltip.totalAmount(fluids), capacity, infinite);
+        CompoundTag tank = getTankTag(stack);
+        boolean enhanced = tank.getBooleanOr(TAG_ENHANCED, false);
+        return Optional.of(new FluidTankTooltip(tank, false, enhanced ? enhancedCapacity : baseCapacity,
+            enhanced && tank.getBooleanOr(TAG_INFINITE, false)));
     }
 
-    /// 可同时存放多种流体的大型储罐
-    public static void appendMultiTank(
-        ItemStack stack,
-        Item.TooltipContext context,
-        Consumer<Component> tooltip,
-        int capacity
-    ) {
-        CompoundTag tankTag = FluidTankItemTooltip.getTankTag(stack);
-        List<TooltipFluid> fluids = FluidTankItemTooltip.readMultipleFluids(tankTag, context.registries());
-        FluidTankItemTooltip.append(
-            tooltip,
-            fluids,
-            FluidTankItemTooltip.totalAmount(fluids),
-            capacity,
-            tankTag.getBooleanOr(FluidTankItemTooltip.TAG_ENHANCED, false)
-        );
+    /// 可同时存放多种流体的大型储罐的 tooltip 数据（携带 Tank NBT，客户端渲染为 图标+文字）
+    public static Optional<TooltipComponent> multiFluidTooltipImage(ItemStack stack, int baseCapacity) {
+        CompoundTag tank = getTankTag(stack);
+        boolean enhanced = tank.getBooleanOr(TAG_ENHANCED, false);
+        return Optional.of(new FluidTankTooltip(tank, true, baseCapacity, enhanced));
     }
 
     /// 读出单罐物品中的流体与是否已扩容，供物品渲染复用
@@ -101,13 +81,6 @@ public final class FluidTankItemTooltip {
         FluidStack fluid = FluidStack.OPTIONAL_CODEC.parse(registries.createSerializationContext(NbtOps.INSTANCE),
             tank.getCompoundOrEmpty(TAG_FLUID)).result().orElse(FluidStack.EMPTY);
         return fluid.isEmpty() ? null : new SingleTankData(fluid, tank.getBooleanOr(TAG_ENHANCED, false));
-    }
-
-    public static Optional<TooltipComponent> singleFluidTooltipImage(ItemStack stack, int baseCapacity, int enhancedCapacity) {
-        CompoundTag tank = getTankTag(stack);
-        boolean enhanced = tank.getBooleanOr(TAG_ENHANCED, false);
-        return Optional.of(new FluidTankTooltip(tank, false, enhanced ? enhancedCapacity : baseCapacity,
-            enhanced && tank.getBooleanOr(TAG_INFINITE, false)));
     }
 
     /// 读出大型储罐物品中的所有流体，供物品渲染复用

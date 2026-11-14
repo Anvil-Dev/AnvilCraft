@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.util.LiquidEnchantmentUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
@@ -14,6 +15,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.common.SoundActions;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 
@@ -21,6 +23,9 @@ import net.neoforged.neoforge.fluids.FluidType;
 public class LiquidEnchantmentFluid extends Fluid {
     public static final FluidType TYPE = new FluidType(FluidType.Properties.create()
         .descriptionId("block.anvilcraft.liquid_enchantment")
+        // 液态魔咒没有桶，只能借容器取放，按水桶的音效，否则容器界面会静音
+        .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+        .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
     ) {
         @Override
         public Component getDescription(FluidStack stack) {
