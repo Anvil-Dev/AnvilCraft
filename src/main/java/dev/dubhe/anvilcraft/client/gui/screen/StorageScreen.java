@@ -72,6 +72,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -379,6 +380,13 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private final IntSet storageQuickMoveSlots = new IntOpenHashSet();
     private final Int2ObjectMap<IntList> quickMoveMovedBySlot = new Int2ObjectOpenHashMap<>();
     private @Nullable List<Component> renderingTooltips;
+    /**
+     * 与 {@link #renderingTooltips} 配套的图像型 tooltip 组件。
+     *
+     * <p>储罐等物品把内容物渲染成图标＋文本，而 {@code getTooltipLines} 只返回纯文本行，
+     * 流体信息全在这个组件里。丢了它，界面里就只剩物品名，看不到罐内流体。</p>
+     */
+    private Optional<TooltipComponent> renderingTooltipImage = Optional.empty();
     @Getter
     private boolean craftingAvailable;
     private boolean craftingLoaded;
@@ -1069,6 +1077,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     @SuppressWarnings("UnstableApiUsage")
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         this.renderingTooltips = null;
+        this.renderingTooltipImage = Optional.empty();
         this.renderBackground(graphics, mouseX, mouseY, partialTick);
         NeoForge.EVENT_BUS.post(new ContainerScreenEvent.Render.Background(this, graphics, mouseX, mouseY));
         graphics.blit(
@@ -1139,6 +1148,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                                 FluidAmountUtil.formatExactAmount(entry.amount())
                             )
                         );
+                        this.renderingTooltipImage = Optional.empty();
                     }
                 }
                 continue;
@@ -1161,7 +1171,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 AbstractContainerScreen.renderSlotHighlight(graphics, x, y, 0);
             }
             if (hovered && this.carried.isEmpty() && !stack.isEmpty()) {
-                List<Component> tooltipLines = new ArrayList<>(stack.toStack().getTooltipLines(
+                ItemStack hoveredStack = stack.toStack();
+                List<Component> tooltipLines = new ArrayList<>(hoveredStack.getTooltipLines(
                     Item.TooltipContext.of(this.minecraft.level),
                     this.player,
                     this.minecraft.options.advancedItemTooltips
@@ -1180,6 +1191,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     tooltipLines.add(Component.translatable("screen.anvilcraft.storage.count", displayedCount));
                 }
                 this.renderingTooltips = tooltipLines;
+                // 储罐、仓储端口等物品把流体画在图像组件里，纯文本行里没有内容物信息
+                this.renderingTooltipImage = hoveredStack.getTooltipImage();
             }
         }
     }
@@ -1330,6 +1343,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     ? TooltipFlag.Default.ADVANCED
                     : TooltipFlag.Default.NORMAL
                 );
+                this.renderingTooltipImage = Optional.empty();
             }
         }
         // 配方区右侧滚动条（可滚动时显示）
@@ -1405,6 +1419,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 ? TooltipFlag.Default.ADVANCED
                 : TooltipFlag.Default.NORMAL
             );
+            this.renderingTooltipImage = stack.getTooltipImage();
         }
     }
 
@@ -1647,12 +1662,13 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 ? TooltipFlag.Default.ADVANCED
                 : TooltipFlag.Default.NORMAL
             );
+            this.renderingTooltipImage = stack.getTooltipImage();
         }
     }
 
     private void renderStorageTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
         if (this.renderingTooltips != null) {
-            graphics.renderTooltip(this.font, this.renderingTooltips, Optional.empty(), mouseX, mouseY);
+            graphics.renderTooltip(this.font, this.renderingTooltips, this.renderingTooltipImage, mouseX, mouseY);
         } else if (this.isOverFlipButton(mouseX, mouseY)) {
             graphics.renderTooltip(
                 this.font,
