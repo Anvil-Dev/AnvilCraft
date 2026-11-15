@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.data;
 import dev.anvilcraft.lib.v2.integration.IntegrationHook;
 import dev.anvilcraft.lib.v2.multiblock.init.LibRegistries;
 import dev.anvilcraft.lib.v2.registrum.providers.ProviderType;
+import dev.anvilcraft.lib.v2.registrum.providers.RegistrumBlockstateProvider;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.advancement.AdvancementHandler;
@@ -25,6 +26,7 @@ import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.init.storage.ModCategories;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -85,8 +87,30 @@ public class AnvilCraftDatagen {
         REGISTRUM.addDataGenerator(ProviderType.DAMAGE_TYPE_TAGS, TagsHandler::initDamageType);
         REGISTRUM.addDataGenerator(ProviderType.ENTITY_TAGS, TagsHandler::initEntityType);
         REGISTRUM.addDataGenerator(ProviderType.LANG, LangHandler::init);
+        REGISTRUM.addDataGenerator(ProviderType.BLOCKSTATE, AnvilCraftDatagen::generateLargeCauldronFire);
         REGISTRUM.addDataGenerator(ProviderType.RECIPE, RecipeHandler::init);
         REGISTRUM.addDataGenerator(ProviderType.ADVANCEMENT, AdvancementHandler::init);
+    }
+
+    private static void generateLargeCauldronFire(RegistrumBlockstateProvider provider) {
+        var model = provider.models().withExistingParent("large_cauldron_fire", AnvilCraft.of("block/fire_cauldron_fire4"))
+            .texture("0", AnvilCraft.of("block/large_cauldron_fire_0"))
+            .texture("1", AnvilCraft.of("block/large_cauldron_fire_1"))
+            .texture("particle", AnvilCraft.of("block/large_cauldron_fire_0"));
+        model.element()
+            .from(8, 15, 0.8F).to(8, 31, 15.2F)
+            .shade(false)
+            .rotation().origin(8, 22, 8).axis(Direction.Axis.Y).angle(45).rescale(true).end()
+            .face(Direction.EAST).uvs(0, 0, 16, 16).texture("#0").end()
+            .face(Direction.WEST).uvs(0, 0, 16, 16).texture("#0").end()
+            .end();
+        model.element()
+            .from(0.8F, 15, 8).to(15.2F, 31, 8)
+            .shade(false)
+            .rotation().origin(8, 22, 8).axis(Direction.Axis.Y).angle(45).rescale(true).end()
+            .face(Direction.NORTH).uvs(0, 0, 16, 16).texture("#1").end()
+            .face(Direction.SOUTH).uvs(0, 0, 16, 16).texture("#1").end()
+            .end();
     }
 
     public static Criterion<InventoryChangeTrigger.TriggerInstance> has(ItemLike itemLike) {
