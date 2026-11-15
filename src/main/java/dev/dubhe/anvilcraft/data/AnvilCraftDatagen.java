@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.data;
 import dev.anvilcraft.lib.v2.integration.IntegrationHook;
 import dev.anvilcraft.lib.v2.multiblock.init.LibRegistries;
 import dev.anvilcraft.lib.v2.registrum.providers.ProviderType;
+import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumBlockModelGenerator;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.advancement.ModAdvancementsHandler;
@@ -27,6 +28,8 @@ import dev.dubhe.anvilcraft.init.storage.ModCategories;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.criterion.InventoryChangeTrigger;
 import net.minecraft.advancements.criterion.ItemPredicate;
+import net.minecraft.client.data.models.model.TextureSlot;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -96,12 +99,37 @@ public class AnvilCraftDatagen {
         REGISTRUM.addDataGenerator(ProviderType.DAMAGE_TYPE_TAGS, TagsHandler::initDamageType);
         REGISTRUM.addDataGenerator(ProviderType.ENTITY_TAGS, TagsHandler::initEntityType);
         REGISTRUM.addDataGenerator(ProviderType.LANG, LangHandler::init);
+        REGISTRUM.addDataGenerator(ProviderType.BLOCKSTATE, AnvilCraftDatagen::generateLargeCauldronFire);
         REGISTRUM.addDataGenerator(ProviderType.RECIPE, RecipeHandler::init);
         REGISTRUM.addDataGenerator(ProviderType.ADVANCEMENT, ModAdvancementsHandler::init);
         REGISTRUM.addDataGenerator(
             ProviderType.registerDynamicTag("tags/point_of_interest_type", "poi_type", Registries.POINT_OF_INTEREST_TYPE),
             TagsHandler::initPoiType
         );
+    }
+
+    private static void generateLargeCauldronFire(RegistrumBlockModelGenerator provider) {
+        TextureSlot fire0 = TextureSlot.create("0");
+        TextureSlot fire1 = TextureSlot.create("1");
+        provider.getBuilder()
+            .parent(AnvilCraft.of("block/fire_cauldron_fire4"))
+            .texture(fire0, AnvilCraft.of("block/large_cauldron_fire_0"))
+            .texture(fire1, AnvilCraft.of("block/large_cauldron_fire_1"))
+            .texture(TextureSlot.PARTICLE, AnvilCraft.of("block/large_cauldron_fire_0"))
+            .transformTemplate(template -> template
+                .element(element -> element
+                    .from(8, 15, 0.8F).to(8, 31, 15.2F)
+                    .shade(false)
+                    .rotation(rotation -> rotation.origin(8, 22, 8).singleAxis(Direction.Axis.Y, 45).rescale(true))
+                    .face(Direction.EAST, face -> face.uvs(0, 0, 16, 16).texture(fire0))
+                    .face(Direction.WEST, face -> face.uvs(0, 0, 16, 16).texture(fire0)))
+                .element(element -> element
+                    .from(0.8F, 15, 8).to(15.2F, 31, 8)
+                    .shade(false)
+                    .rotation(rotation -> rotation.origin(8, 22, 8).singleAxis(Direction.Axis.Y, 45).rescale(true))
+                    .face(Direction.NORTH, face -> face.uvs(0, 0, 16, 16).texture(fire1))
+                    .face(Direction.SOUTH, face -> face.uvs(0, 0, 16, 16).texture(fire1))))
+            .build(AnvilCraft.of("block/large_cauldron_fire"));
     }
 
     public static Criterion<InventoryChangeTrigger.TriggerInstance> has(HolderGetter<Item> lookup, ItemLike itemLike) {
