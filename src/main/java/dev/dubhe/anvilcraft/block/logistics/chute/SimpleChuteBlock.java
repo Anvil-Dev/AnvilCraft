@@ -224,8 +224,7 @@ public class SimpleChuteBlock
             default -> oldFacing.getClockWise();
         };
         BlockState facingState = level.getBlockState(pos.relative(newFacing));
-        if (ChuteBlock.isChuteBlock(facingState)
-            && ChuteBlock.outputsToward(facingState, newFacing.getOpposite())) {
+        if (ChuteBlock.outputsToward(facingState, newFacing.getOpposite())) {
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
             level.levelEvent(2001, pos, Block.getId(oldState));
             Block.dropResources(oldState, level, pos);
@@ -257,11 +256,12 @@ public class SimpleChuteBlock
         boolean tall = false;
         BlockState result = level.getBlockState(pos);
 
-        // 遍历六个方向 获取指向自己的溜槽
+        // 相邻输出口决定溜槽是否采用连接形态。
         for (Direction dir : Direction.values()) {
             BlockPos neighborPos = pos.relative(dir);
             BlockState neighborState = level.getBlockState(neighborPos);
-            if (ChuteBlock.isChuteBlock(neighborState)) {
+            if (ChuteBlock.isChuteBlock(neighborState)
+                || neighborState.is(ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE)) {
                 if (ChuteBlock.outputsToward(neighborState, dir.getOpposite())) {
                     success = true;
                     if (dir == Direction.UP) {

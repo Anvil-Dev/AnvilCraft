@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
+import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock;
 import dev.dubhe.anvilcraft.block.entity.BaseChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.OverflowChuteBlockEntity;
@@ -133,6 +134,10 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
     }
 
     public static boolean outputsToward(BlockState state, Direction direction) {
+        if (state.is(ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE)) {
+            return state.getValue(CelestialForgingAnvilInterfaceBlock.ACTIVE)
+                && state.getValue(CelestialForgingAnvilInterfaceBlock.FACING) == direction;
+        }
         if (!ChuteBlock.isChuteBlock(state)) return false;
         return ChuteBlock.getFacing(state) == direction || OverflowChuteBlock.hasOverflowPort(state, direction);
     }
@@ -217,7 +222,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
             default -> oldFacing.getClockWise();
         };
         BlockState facingState = level.getBlockState(pos.relative(newFacing));
-        if (ChuteBlock.isChuteBlock(facingState) && ChuteBlock.outputsToward(facingState, newFacing.getOpposite())) {
+        if (ChuteBlock.outputsToward(facingState, newFacing.getOpposite())) {
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
             level.levelEvent(2001, pos, Block.getId(oldState));
             Block.dropResources(oldState, level, pos);
@@ -260,7 +265,8 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
     ) {
         if (level.isClientSide()) return state;
         Block neighborBlock = neighbourState.getBlock();
-        if (ChuteBlock.isChuteBlock(neighborBlock)) {
+        if (ChuteBlock.isChuteBlock(neighborBlock)
+            || neighbourState.is(ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE)) {
             BlockState newState = this.getState(level, pos, state.getValue(ChuteBlock.FACING));
             if (newState != null && newState != state) state = newState;
         }
@@ -404,11 +410,12 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         BlockState result = this.defaultBlockState()
             .setValue(ChuteBlock.FACING, facing)
             .setValue(ChuteBlock.ENABLED, !level.hasNeighborSignal(pos));
-        // 遍历六个方向 获取指向自己的溜槽
+        // 相邻输出口决定溜槽是否采用连接形态。
         for (Direction dir : Direction.values()) {
             BlockPos neighborPos = pos.relative(dir);
             BlockState neighborState = level.getBlockState(neighborPos);
-            if (ChuteBlock.isChuteBlock(neighborState)) {
+            if (ChuteBlock.isChuteBlock(neighborState)
+                || neighborState.is(ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE)) {
                 if (ChuteBlock.outputsToward(neighborState, dir.getOpposite())) {
                     success = true;
                     if (dir == Direction.UP) {
@@ -422,7 +429,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
                             facing = facing.getOpposite();
                         }
                         BlockState backState = level.getBlockState(pos.relative(facing));
-                        if (ChuteBlock.isChuteBlock(backState) && ChuteBlock.outputsToward(backState, facing.getOpposite())) {
+                        if (ChuteBlock.outputsToward(backState, facing.getOpposite())) {
                             return null;
                         }
 
