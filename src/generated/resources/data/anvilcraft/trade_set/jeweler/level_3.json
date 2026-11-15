@@ -4,6 +4,7 @@
   "trades": [
     "anvilcraft:jeweler/topaz_block_for_emerald",
     "anvilcraft:jeweler/sapphire_block_for_emerald",
-    "anvilcraft:jeweler/ruby_block_for_emerald"
+    "anvilcraft:jeweler/ruby_block_for_emerald",
+    "anvilcraft:jeweler/emerald_for_royal_steel_template"
   ]
 }

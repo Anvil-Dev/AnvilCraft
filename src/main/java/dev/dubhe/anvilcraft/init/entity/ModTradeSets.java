@@ -36,17 +36,19 @@ public class ModTradeSets {
             context.lookup(Registries.VILLAGER_TRADE).getOrThrow(ModVillagerTrades.AMBER_FOR_EMERALD)
         ));
 
-        // Level 3: one random gem trade and the guaranteed template trade
+        // 固定模板交易也写入集合，供配方查看器枚举。
         ModTradeSets.register(context, ModTradeSets.JEWELER_LEVEL_3, 1, HolderSet.direct(
             context.lookup(Registries.VILLAGER_TRADE).getOrThrow(ModVillagerTrades.TOPAZ_BLOCK_FOR_EMERALD),
             context.lookup(Registries.VILLAGER_TRADE).getOrThrow(ModVillagerTrades.SAPPHIRE_BLOCK_FOR_EMERALD),
-            context.lookup(Registries.VILLAGER_TRADE).getOrThrow(ModVillagerTrades.RUBY_BLOCK_FOR_EMERALD)
+            context.lookup(Registries.VILLAGER_TRADE).getOrThrow(ModVillagerTrades.RUBY_BLOCK_FOR_EMERALD),
+            context.lookup(Registries.VILLAGER_TRADE).getOrThrow(ModVillagerTrades.EMERALD_FOR_ROYAL_STEEL_TEMPLATE)
         ));
 
-        // Level 4: one random amber trade and the guaranteed nautilus-shell trade
+        // 固定鹦鹉螺壳交易也写入集合，供配方查看器枚举。
         ModTradeSets.register(context, ModTradeSets.JEWELER_LEVEL_4, 1, HolderSet.direct(
             context.lookup(Registries.VILLAGER_TRADE).getOrThrow(ModVillagerTrades.MOB_AMBER_FOR_EMERALD),
-            context.lookup(Registries.VILLAGER_TRADE).getOrThrow(ModVillagerTrades.RESENTFUL_AMBER_FOR_EMERALD)
+            context.lookup(Registries.VILLAGER_TRADE).getOrThrow(ModVillagerTrades.RESENTFUL_AMBER_FOR_EMERALD),
+            context.lookup(Registries.VILLAGER_TRADE).getOrThrow(ModVillagerTrades.NAUTILUS_SHELL_FOR_EMERALD)
         ));
 
         // Level 5: 2 trades
