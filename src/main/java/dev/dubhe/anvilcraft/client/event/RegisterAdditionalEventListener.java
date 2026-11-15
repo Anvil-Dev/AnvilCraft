@@ -55,6 +55,7 @@ import net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent;
 import net.neoforged.neoforge.client.model.standalone.SimpleUnbakedStandaloneModel;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
@@ -237,6 +238,10 @@ public class RegisterAdditionalEventListener {
         event.register(CFARenderer.BODY_PLANET_ERROR,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_body/planet_error")));
         RegisterAdditionalEventListener.registerCelestialBodyModels(event);
+        for (String name : List.of("large_cake", "giant_anvil")) {
+            Identifier location = AnvilCraft.of("block/" + name);
+            event.register(CFARenderer.getSpecialBodyModel(location), SimpleUnbakedStandaloneModel.blockStateModel(location));
+        }
         event.register(
             FishTankRenderer.FIRE,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/fire_cauldron_fire4"))

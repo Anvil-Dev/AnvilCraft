@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyMatcher;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyNames;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
@@ -387,8 +388,8 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             }
             case DONE -> {
                 if (body != null) {
-                    if (body instanceof SpecialCelestialBodyData special && special.isPlayerHead()) {
-                        this.renderPlayerHeadPreview(graphics, special, guiLeft, guiTop);
+                    if (body instanceof SpecialCelestialBodyData special && special.isEasterEgg()) {
+                        this.renderEasterEggPreview(graphics, special, guiLeft, guiTop);
                     } else {
                         this.renderBodyPreview(graphics, body, guiLeft, guiTop);
                         this.renderBodyInfoAbsolute(graphics, body, guiLeft, guiTop);
@@ -821,17 +822,17 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         );
     }
 
-    private void renderPlayerHeadPreview(
+    private void renderEasterEggPreview(
         GuiGraphicsExtractor graphics,
         SpecialCelestialBodyData special,
         int guiLeft,
         int guiTop
     ) {
         String playerName = CelestialBodyPreviewRenderer.playerName(special);
-        if (playerName != null) {
-            int nameX = guiLeft + PV_X + (PV_W - this.font.width(playerName)) / 2;
-            graphics.text(this.font, playerName, nameX, guiTop + PV_Y + 4, 0xFFFFFFFF, true);
-        }
+        Component name = special.isBlockEasterEgg() ? Component.translatable(CelestialBodyNames.key(special))
+            : playerName == null ? Component.empty() : Component.literal(playerName);
+        int nameX = guiLeft + PV_X + (PV_W - this.font.width(name)) / 2;
+        graphics.text(this.font, name, nameX, guiTop + PV_Y + 4, 0xFFFFFFFF, true);
         CelestialBodyPreviewRenderer.render(
             graphics,
             special,

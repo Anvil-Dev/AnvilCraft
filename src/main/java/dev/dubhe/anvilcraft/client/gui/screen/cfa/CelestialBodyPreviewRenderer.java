@@ -37,7 +37,7 @@ public final class CelestialBodyPreviewRenderer {
         int width,
         int height
     ) {
-        float scale = body instanceof SpecialCelestialBodyData special && special.isPlayerHead()
+        float scale = body instanceof SpecialCelestialBodyData special && special.isEasterEgg()
             ? width * 0.45f
             : (Math.min(width, height) - 16) / 2.0f;
         graphics.submitPictureInPictureRenderState(CfaPreviewPipRenderer.State.body(

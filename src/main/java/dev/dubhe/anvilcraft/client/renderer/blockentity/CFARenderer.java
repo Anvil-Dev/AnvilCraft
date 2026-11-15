@@ -27,6 +27,7 @@ import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyTextureBakery;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialModelGeometry;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.PlanetAtmosphereRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.StellarEmissionRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.StellarEnvelopeRenderer;
@@ -177,11 +178,11 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
     private static final float SUPERNOVA_MAX_RADIUS = 8.0f;
     private static final int SUPERNOVA_RAY_COUNT = 24;
     private static final float SUPERNOVA_RAY_LENGTH = 12.0f;
-    private static final float PLAYER_HEAD_SCALE = 16.0f;
+    private static final float EASTER_EGG_SCALE = 16.0f;
     // 资源包自定义天体模型无法预知尺寸，留足余量。
     private static final float SPECIAL_BODY_RADIUS = 1.5f;
-    // 玩家头颅天体的头颅模型外接半径，渲染时再乘 PLAYER_HEAD_SCALE。
-    private static final float PLAYER_HEAD_RADIUS = 0.75f;
+    // 彩蛋模型先归一化到头颅轮廓，渲染和遮挡剔除共用同一倍率。
+    private static final float EASTER_EGG_RADIUS = 0.75f;
 
     /// 遮挡剔除键必须跨帧保持同一实例，否则查询结果无法命中，因此按方块实体缓存。
     ///
@@ -376,7 +377,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         state.setInnerRingModel(FeatureRendererSupport.createTessellation(innerKey, false));
         CelestialBodyData effectiveBodyData = be.getEffectiveBodyDataForRendering();
         boolean hasMechanicalRings = !(effectiveBodyData instanceof SpecialCelestialBodyData special
-            && special.isPlayerHead());
+            && special.isEasterEgg());
         state.setHasOuterRing(hasMechanicalRings);
         state.setHasMiddleRing(hasMechanicalRings);
         state.setHasInnerRing(hasMechanicalRings);
@@ -436,7 +437,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
     ) {
         float cubeRadius = (float) (Math.sqrt(3) / 2);
         if (body instanceof SpecialCelestialBodyData special) {
-            return special.isPlayerHead() ? PLAYER_HEAD_RADIUS : SPECIAL_BODY_RADIUS;
+            return special.isEasterEgg() ? EASTER_EGG_RADIUS : SPECIAL_BODY_RADIUS;
         }
         if (body instanceof StarData star) {
             if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) return 1.414f;
@@ -501,7 +502,9 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
 
     /// 判断指定天体数据下的机械束星环是否可见。
     private static boolean isRingVisible(int ring, @Nullable CelestialBodyData bodyData, boolean isAmplify) {
-        if (bodyData instanceof SpecialCelestialBodyData special && special.isPlayerHead()) return false;
+        if (bodyData instanceof SpecialCelestialBodyData special && special.isEasterEgg()) {
+            return false;
+        }
         if (isAmplify) {
             return switch (ring) {
                 case 4 -> bodyData == null || !bodyData.usesLargeStellarRings();
@@ -657,8 +660,8 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
             case SpecialCelestialBodyData special when special.needsCustomModel() -> state.setComplexBodyModel(
                 FeatureRendererSupport.createTessellation(
                     getSpecialBodyModel(special.getModelLocation()),
-                    false,
-                    true
+                    special.isWhiteHole(),
+                    !special.isWhiteHole() && !special.isBlockEasterEgg()
                 ));
             case StarData star -> {
                 boolean translucent = star.bodyClass() == CelestialBodyClass.BLACK_HOLE;
@@ -1099,8 +1102,8 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
 
         float baseScale = state.getBodyScaleMultiplier();
         if (bodyData instanceof SpecialCelestialBodyData special) {
-            if (special.isPlayerHead()) {
-                baseScale *= PLAYER_HEAD_SCALE;
+            if (special.isEasterEgg()) {
+                baseScale *= EASTER_EGG_SCALE;
             } else if (special.isErrorPlanet()) {
                 baseScale *= 0.25f;
             }
@@ -1112,7 +1115,9 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         pose.translate(0.5, centerY, 0.5);
         pose.scale(scale, scale, scale);
         pose.mulPose(Axis.XP.rotationDegrees(bodyData.axialTilt()));
-        pose.mulPose(Axis.YP.rotationDegrees(bodyRot * CelestialBodyData.getVisualRotationSpeed(bodyData.rotationSpeed())));
+        int visualRotation = bodyData instanceof SpecialCelestialBodyData special && special.isWhiteHole()
+            ? 1 : bodyData.rotationSpeed();
+        pose.mulPose(Axis.YP.rotationDegrees(bodyRot * CelestialBodyData.getVisualRotationSpeed(visualRotation)));
         pose.translate(-0.5, -0.5, -0.5);
 
         long seed = state.blockPos.asLong();
@@ -1121,6 +1126,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
                 this.submitPlayerHead(state, pose, collector);
             } else {
                 if (state.getComplexBodyModel() != null) {
+                    this.fitEasterEggModel(special, state, pose);
                     this.tessellateModel(state.getComplexBodyModel(), pose, collector);
                 }
                 if (special.atmosphereColor() != null) {
@@ -1156,6 +1162,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
             if (special.isPlayerHead()) {
                 this.submitPlayerHead(state, pose, collector);
             } else if (state.getComplexBodyModel() != null) {
+                this.fitEasterEggModel(special, state, pose);
                 this.tessellateModel(state.getComplexBodyModel(), pose, collector);
             }
         } else if (body instanceof StarData star) {
@@ -1164,6 +1171,14 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
             this.submitPlanet(state, body, pose, collector, seed);
         }
         pose.popPose();
+    }
+
+    private void fitEasterEggModel(SpecialCelestialBodyData special, CFARenderState state, PoseStack pose) {
+        if (!special.isBlockEasterEgg() || state.getComplexBodyModel() == null) {
+            return;
+        }
+        var model = Minecraft.getInstance().getModelManager().getStandaloneModel(state.getComplexBodyModel().key());
+        CelestialModelGeometry.fitToHead(pose, CelestialModelGeometry.modelBounds(model));
     }
 
     private void submitPlayerHead(CFARenderState state, PoseStack pose, SubmitNodeCollector collector) {
@@ -1782,7 +1797,9 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
                 );
             }
         }
-        if (body instanceof SpecialCelestialBodyData special && special.isPlayerHead()) bodyReach *= PLAYER_HEAD_SCALE;
+        if (body instanceof SpecialCelestialBodyData special && special.isEasterEgg()) {
+            bodyReach *= EASTER_EGG_SCALE;
+        }
         float ringReach = visual == null ? CelestialBodyData.ringSystemScale(body, be.isAmplify())
             : CelestialBodyData.ringSystemScaleForVisualBodyScale(be.getStellarStructuralBodyScale(1));
         float reach = Math.max(Math.max(bodyReach, ringReach), be.getSmoothRingScale());
@@ -1824,7 +1841,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         boolean small = body != null && !body.usesLargeStellarRings();
         float progress = be.getAnimationProgress(partialTicks);
         float radius = 0;
-        if (!(effective instanceof SpecialCelestialBodyData special && special.isPlayerHead())) {
+        if (!(effective instanceof SpecialCelestialBodyData special && special.isEasterEgg())) {
             for (int layer = 1; layer <= 3; layer++) {
                 boolean present = amplified ? switch (layer) {
                     case 1 -> !smallDyson && !penrose && !coil && !decompressor;
@@ -1887,8 +1904,8 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
             float scale = be.getSmoothBodyScale() * progress;
             float bodyScale = scale;
             if (body instanceof SpecialCelestialBodyData special) {
-                if (special.isPlayerHead()) {
-                    bodyScale *= PLAYER_HEAD_SCALE;
+                if (special.isEasterEgg()) {
+                    bodyScale *= EASTER_EGG_SCALE;
                 } else {
                     if (special.isErrorPlanet()) {
                         bodyScale *= 0.25f;

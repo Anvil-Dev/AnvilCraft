@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.gui.screen.cfa;
 
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyNames;
 import dev.dubhe.anvilcraft.block.entity.celestial.GiantPlanetData;
 import dev.dubhe.anvilcraft.block.entity.celestial.LiquidCoverage;
 import dev.dubhe.anvilcraft.block.entity.celestial.RockyPlanetData;
@@ -40,7 +41,7 @@ public final class CelestialBodyInfoFormatter {
 
         lines.add(Component.translatable(
             CelestialBodyInfoFormatter.PREFIX + "type",
-            Component.translatable(CelestialBodyInfoFormatter.typeKey(body))
+            Component.translatable(CelestialBodyNames.key(body))
         ));
         lines.add(CelestialBodyInfoFormatter.measurement(
             "age", isError ? "???" : CelestialForgingAnvilMenu.formatAgeOffset(ageAnvilCount, offsetAge)
@@ -65,15 +66,8 @@ public final class CelestialBodyInfoFormatter {
         return Component.translatable(CelestialBodyInfoFormatter.PREFIX + name, Component.literal(value));
     }
 
-    private static String typeKey(CelestialBodyData body) {
-        if (body instanceof RockyPlanetData rocky) return CelestialBodyInfoFormatter.rockyTypeKey(rocky);
-        if (body instanceof SpecialCelestialBodyData special) return CelestialBodyInfoFormatter.PREFIX + "class.special." + special.name();
-        if (body instanceof StarData star && star.specialRedDwarf()) return CelestialBodyInfoFormatter.PREFIX + "class.mutated_red_dwarf";
-        return CelestialBodyInfoFormatter.PREFIX + "class." + body.bodyClass().name().toLowerCase(Locale.ROOT);
-    }
-
     private static void addSpecialBodyLines(List<Component> lines, SpecialCelestialBodyData body) {
-        if (body.isErrorPlanet() || body.isPlayerHead()) {
+        if (body.isErrorPlanet() || body.isEasterEgg()) {
             for (String name : List.of("temp", "atmos", "liquid", "mag", "spin", "tilt")) {
                 lines.add(CelestialBodyInfoFormatter.measurement(name, "???"));
             }
@@ -85,7 +79,7 @@ public final class CelestialBodyInfoFormatter {
             body.hasAtmosphere(),
             body.liquidCoverage(),
             body.magneticFieldStrength(),
-            body.rotationSpeed(),
+            body.isWhiteHole() ? -1 : body.rotationSpeed(),
             body.axialTilt()
         );
     }
@@ -177,6 +171,7 @@ public final class CelestialBodyInfoFormatter {
 
     private static Component rotationText(int level) {
         String key = switch (level) {
+            case -1 -> CelestialBodyInfoFormatter.PREFIX + "spin.stationary";
             case 0 -> CelestialBodyInfoFormatter.PREFIX + "spin.very_slow";
             case 1 -> CelestialBodyInfoFormatter.PREFIX + "spin.slow";
             case 2 -> CelestialBodyInfoFormatter.PREFIX + "spin.medium";
@@ -190,41 +185,6 @@ public final class CelestialBodyInfoFormatter {
     private static Component axialTiltText(float tilt) {
         return Component.translatable(
             CelestialBodyInfoFormatter.PREFIX + "tilt", CelestialBodyInfoFormatter.formatThreeSignificantFigures(tilt) + "°");
-    }
-
-    private static String rockyTypeKey(RockyPlanetData body) {
-        Temperature temperature = body.temperature();
-        LiquidCoverage liquid = body.liquidCoverage();
-        boolean hasAtmosphere = body.hasAtmosphere();
-        boolean hasLiquid = liquid != LiquidCoverage.NONE;
-
-        if (temperature == Temperature.FREEZING) {
-            if (!hasLiquid && !hasAtmosphere) return CelestialBodyInfoFormatter.PREFIX + "class.freezing_no_liquid_no_atmos";
-            if (!hasLiquid) return CelestialBodyInfoFormatter.PREFIX + "class.freezing_no_liquid_atmos";
-            return CelestialBodyInfoFormatter.PREFIX + "class.freezing_liquid";
-        }
-        if (temperature == Temperature.SCORCHED) {
-            if (!hasLiquid && !hasAtmosphere) return CelestialBodyInfoFormatter.PREFIX + "class.scorched_no_liquid_no_atmos";
-            if (!hasLiquid) return CelestialBodyInfoFormatter.PREFIX + "class.scorched_no_liquid_atmos";
-            return CelestialBodyInfoFormatter.PREFIX + "class.scorched_liquid";
-        }
-        if (!hasAtmosphere) return CelestialBodyInfoFormatter.PREFIX + "class.deathly_planet";
-        if (!hasLiquid) return CelestialBodyInfoFormatter.PREFIX + "class.desert_planet";
-        return switch (liquid) {
-            case LOW -> CelestialBodyInfoFormatter.temperatureTypeKey(temperature, "riverbank");
-            case MEDIUM -> CelestialBodyInfoFormatter.temperatureTypeKey(temperature, "land_ocean");
-            case HIGH -> CelestialBodyInfoFormatter.temperatureTypeKey(temperature, "ocean");
-            default -> CelestialBodyInfoFormatter.PREFIX + "class.deathly_planet";
-        };
-    }
-
-    private static String temperatureTypeKey(Temperature temperature, String suffix) {
-        String prefix = switch (temperature) {
-            case COLD -> "cold";
-            case HOT -> "hot";
-            default -> "mild";
-        };
-        return CelestialBodyInfoFormatter.PREFIX + "class." + prefix + "_" + suffix;
     }
 
     @SuppressWarnings("MalformedFormatString")

@@ -77,7 +77,8 @@ final class CfaGravityController {
             double scaleRatio = targetBodyRadius / unscaledBodyRadius;
             targetStrength *= scaleRatio * scaleRatio;
         }
-        return targetStrength;
+        return body instanceof SpecialCelestialBodyData special && special.isWhiteHole()
+            ? -targetStrength : targetStrength;
     }
 
     private static int calculateGravityRadius(CelestialBodyData body, boolean amplified, int redstoneSignal) {

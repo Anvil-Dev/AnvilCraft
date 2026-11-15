@@ -6,11 +6,12 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.rendering.BlockStateModelRenderer;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilBlockItem;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyPresets;
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialModelGeometry;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.CFARenderState;
 import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -18,16 +19,13 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.api.distmarker.Dist;
@@ -35,6 +33,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.event.RecipesReceivedEvent;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.jspecify.annotations.Nullable;
@@ -46,10 +45,7 @@ import java.util.function.Consumer;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public final class CelestialForgingAnvilItemRenderer implements SpecialModelRenderer<CelestialForgingAnvilItemRenderer.Argument> {
-    private static final Cache<Object, Preview> PREVIEWS = CacheBuilder.newBuilder().maximumSize(16).build();
-    private static final Cache<BlockStateModel, AABB> BOUNDS = CacheBuilder.newBuilder().maximumSize(64).build();
-    private static final AABB UNIT = new AABB(0, 0, 0, 1, 1, 1);
-    private static final AABB HEAD = new AABB(0.234375, 0.234375, 0.234375, 0.765625, 0.765625, 0.765625);
+    private static final Cache<Object, Preview> PREVIEWS = CacheBuilder.newBuilder().maximumSize(32).build();
     private static @Nullable ClientLevel previewLevel;
     private final boolean head;
 
@@ -67,9 +63,14 @@ public final class CelestialForgingAnvilItemRenderer implements SpecialModelRend
         clear();
     }
 
+    @SubscribeEvent
+    public static void recipesReceived(RecipesReceivedEvent event) {
+        clear();
+    }
+
     private static void clear() {
         PREVIEWS.invalidateAll();
-        BOUNDS.invalidateAll();
+        CelestialModelGeometry.clear();
         previewLevel = null;
     }
 
@@ -89,6 +90,13 @@ public final class CelestialForgingAnvilItemRenderer implements SpecialModelRend
                 BlockPos.ZERO, ModBlocks.CELESTIAL_FORGING_ANVIL.getDefaultState());
             if (data != null) {
                 var tag = data.copyTagWithoutId();
+                String preset = tag.getString(CelestialBodyPresets.TAG).orElse(null);
+                if (preset != null) {
+                    var previewTag = CelestialBodyPresets.preview(preset, client.level);
+                    if (previewTag != null) {
+                        tag.merge(previewTag);
+                    }
+                }
                 tag.merge(tag.getCompoundOrEmpty(CelestialForgingAnvilBlockItem.ITEM_RENDER_DATA));
                 entity.loadWithComponents(TagValueInput.create(ProblemReporter.DISCARDING, client.level.registryAccess(), tag));
             }
@@ -105,32 +113,15 @@ public final class CelestialForgingAnvilItemRenderer implements SpecialModelRend
     }
 
     private static AABB bounds(CFARenderState state) {
-        if (state.getEffectiveBodyData() instanceof SpecialCelestialBodyData special && special.isPlayerHead()) return HEAD;
+        if (state.getEffectiveBodyData() instanceof SpecialCelestialBodyData special && special.isEasterEgg()) {
+            return CelestialModelGeometry.HEAD;
+        }
         var tessellation = state.getComplexBodyModel() == null ? state.getBodyModel() : state.getComplexBodyModel();
-        if (tessellation == null) return UNIT;
+        if (tessellation == null) {
+            return CelestialModelGeometry.UNIT;
+        }
         var model = Minecraft.getInstance().getModelManager().getStandaloneModel(tessellation.key());
-        return modelBounds(model);
-    }
-
-    public static AABB modelBounds(@Nullable BlockStateModel model) {
-        if (model == null) return UNIT;
-        var cached = BOUNDS.getIfPresent(model);
-        if (cached != null) return cached;
-        double[] min = {Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY};
-        double[] max = {Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY};
-        BlockStateModelRenderer.INSTANCE.getTessellatorNoLighting().tesselateBlock((x, y, z, quad, instance) -> {
-            for (int vertex = 0; vertex < 4; vertex++) {
-                var point = quad.position(vertex);
-                for (int axis = 0; axis < 3; axis++) {
-                    min[axis] = Math.min(min[axis], point.get(axis));
-                    max[axis] = Math.max(max[axis], point.get(axis));
-                }
-            }
-        }, 0, 0, 0, BlockAndTintGetter.EMPTY, BlockPos.ZERO, Blocks.AIR.defaultBlockState(), model, 42);
-        var result = Double.isFinite(min[0]) && Math.max(max[0] - min[0], Math.max(max[1] - min[1], max[2] - min[2])) > 0.0001
-            ? new AABB(min[0], min[1], min[2], max[0], max[1], max[2]) : UNIT;
-        BOUNDS.put(model, result);
-        return result;
+        return CelestialModelGeometry.modelBounds(model);
     }
 
     @Override

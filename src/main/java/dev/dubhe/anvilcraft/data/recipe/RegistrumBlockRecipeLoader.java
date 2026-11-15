@@ -256,8 +256,9 @@ public class RegistrumBlockRecipeLoader {
         ItemInjectRecipe.builder()
             .requires(ModBlocks.SPACETIME_SUPERCOMPUTER)
             .inputBlock(ModBlocks.GIANT_ANVIL)
+            .resultBlock(Blocks.AIR)
             .result(ctx.get(), 4)
-            .save(provider);
+            .save(provider, ctx.getId().withPrefix("item_inject/"));
     }
 
     public static <T extends Block> void celestialForgingAnvilPortal(
