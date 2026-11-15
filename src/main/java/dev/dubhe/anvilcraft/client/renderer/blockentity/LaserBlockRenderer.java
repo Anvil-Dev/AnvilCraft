@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
+import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import dev.dubhe.anvilcraft.client.renderer.laser.LaserCompiler;
 import dev.dubhe.anvilcraft.client.renderer.laser.LaserState;
@@ -10,6 +11,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.world.phys.AABB;
 
 public class LaserBlockRenderer implements BlockEntityRenderer<BaseLaserBlockEntity> {
@@ -25,17 +27,18 @@ public class LaserBlockRenderer implements BlockEntityRenderer<BaseLaserBlockEnt
         int packedLight,
         int packedOverlay
     ) {
-        if (RenderState.isEnhancedRenderingAvailable()) return;
+        if (RenderState.isEnhancedRenderingAvailable()) {
+            return;
+        }
         poseStack.pushPose();
         LaserState laserState = LaserState.create(baseLaserBlockEntity, poseStack);
         if (laserState != null) {
             LaserCompiler.compile(
                 laserState,
-                buffer::getBuffer
+                renderType -> buffer.getBuffer(renderType == ModRenderTypes.LASER
+                    ? RenderType.beaconBeam(TextureAtlas.LOCATION_BLOCKS, true)
+                    : renderType)
             );
-        }
-        if (buffer instanceof MultiBufferSource.BufferSource bs) {
-            bs.endBatch(RenderType.translucent());
         }
         poseStack.popPose();
     }
