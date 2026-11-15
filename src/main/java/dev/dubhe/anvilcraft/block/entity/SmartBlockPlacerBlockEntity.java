@@ -1492,7 +1492,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         this.loadingBlueprintInventory = true;
         try {
             if (tag.contains("blueprintInventory", Tag.TAG_COMPOUND)) {
-                this.blueprintItemHandler.deserializeNBT(registries, tag.getCompound("blueprintInventory"));
+                CompoundTag inventory = tag.getCompound("blueprintInventory");
+                // 蓝图规划合并默认库存后会同时保留两种格式，外来格式必须先于默认空库存读取。
+                if (inventory.contains("stacks", Tag.TAG_LIST)) {
+                    ItemStack item = loadLegacyBlueprintItem(inventory.getList("stacks", Tag.TAG_COMPOUND), registries);
+                    this.blueprintItemHandler.setStackInSlot(0, item);
+                } else {
+                    this.blueprintItemHandler.deserializeNBT(registries, inventory);
+                }
             } else {
                 this.loadLegacyBlueprintItem(tag, registries);
             }
