@@ -3,9 +3,7 @@ package dev.dubhe.anvilcraft.client.support;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
-import dev.anvilcraft.lib.v2.rendering.gui.state.StructurePipRenderingState;
 import dev.dubhe.anvilcraft.block.entity.WipBlockEntity;
-import dev.dubhe.anvilcraft.client.gui.screen.SmartPlacerPreviewRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.WipBlockEntityRenderer;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.AbstractProcessRecipe;
@@ -35,8 +33,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.Shapes;
 import org.joml.Matrix3f;
-import org.joml.Matrix3x2f;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.jspecify.annotations.Nullable;
@@ -62,6 +60,7 @@ public class RenderSupport {
     private static final float WIP_PREVIEW_SCALE = 0.6F;
     private static final LinkedHashMap<BlockState, BlockEntity> BLOCK_ENTITY_CACHE = new LinkedHashMap<>();
     private static final LinkedHashMap<WipPreviewKey, LevelLike> WIP_LEVEL_CACHE = new LinkedHashMap<>();
+    private static final LinkedHashMap<BlockState, StructurePreviewScene> FLUID_PREVIEWS = new LinkedHashMap<>();
     private static final LinkedHashMap<PreviewModelKey, BlockModelRenderState> PREVIEW_MODELS = new LinkedHashMap<>();
     // private static final RandomSource RANDOM = RandomSource.createThreadLocalInstance();
     // public static final Vector3f L1 = new Vector3f(0.4F, 0.0F, 1.0F).normalize();
@@ -103,17 +102,30 @@ public class RenderSupport {
         if (!block.getFluidState().isEmpty()) {
             ClientLevel clientLevel = Minecraft.getInstance().level;
             if (clientLevel == null) return;
-            LevelLike preview = new LevelLike(clientLevel);
-            preview.setBlockState(BlockPos.ZERO, block);
+            if (RenderSupport.currentClientLevel != clientLevel) {
+                RenderSupport.currentClientLevel = clientLevel;
+                RenderSupport.WIP_LEVEL_CACHE.clear();
+                RenderSupport.FLUID_PREVIEWS.clear();
+            }
+            if (!RenderSupport.FLUID_PREVIEWS.containsKey(block) && RenderSupport.FLUID_PREVIEWS.size() >= MAX_CACHE_SIZE) {
+                RenderSupport.FLUID_PREVIEWS.pollFirstEntry();
+            }
+            StructurePreviewScene preview = RenderSupport.FLUID_PREVIEWS.computeIfAbsent(block, state -> {
+                LevelLike source = new LevelLike(clientLevel);
+                source.setBlockState(BlockPos.ZERO, state);
+                return StructurePreviewScene.of(source);
+            });
             float resolution = Math.max(1, Math.max(
                 (float) Math.hypot(graphics.pose().m00(), graphics.pose().m01()),
                 (float) Math.hypot(graphics.pose().m10(), graphics.pose().m11())));
             float extent = scale * 4;
             graphics.pose().pushMatrix();
             graphics.pose().scale(1 / resolution, 1 / resolution);
-            GuiRenderExtras.submitStructure(graphics, preview, BlockPos.ZERO, BlockPos.ZERO,
-                (x - extent) * resolution, (y - extent) * resolution, (x + extent) * resolution, (y + extent) * resolution,
-                scale * resolution, false, false, RenderSupport.previewPose());
+            preview.submit(graphics,
+                new Matrix4f(RenderSupport.previewPose().last().pose()).translate(-0.5f, -0.5f, -0.5f),
+                Math.round((x - extent) * resolution), Math.round((y - extent) * resolution),
+                Math.round((x + extent) * resolution), Math.round((y + extent) * resolution),
+                scale * resolution, Shapes.empty(), 0);
             graphics.pose().popMatrix();
             return;
         }
@@ -221,6 +233,7 @@ public class RenderSupport {
         if (RenderSupport.currentClientLevel != level) {
             RenderSupport.currentClientLevel = level;
             RenderSupport.WIP_LEVEL_CACHE.clear();
+            RenderSupport.FLUID_PREVIEWS.clear();
         }
         WipPreviewKey key = new WipPreviewKey(recipeId, stepCount);
         if (!RenderSupport.WIP_LEVEL_CACHE.containsKey(key) && RenderSupport.WIP_LEVEL_CACHE.size() >= RenderSupport.MAX_CACHE_SIZE) {
@@ -237,20 +250,9 @@ public class RenderSupport {
         });
         PoseStack poseStack = new PoseStack();
         poseStack.last().set(RenderSupport.BLOCK_DISPLAY_POSE);
-        GuiRenderExtras.submitStructure(
-            graphics,
-            preview,
-            BlockPos.ZERO,
-            BlockPos.ZERO,
-            x,
-            y,
-            x + size,
-            y + size,
-            size * RenderSupport.WIP_PREVIEW_SCALE,
-            true,
-            false,
-            poseStack
-        );
+        StructurePreviewScene.of(preview).submit(graphics, new Matrix4f(poseStack.last().pose()).translate(-0.5f, -0.5f, -0.5f),
+            Math.round(x), Math.round(y), Math.round(x + size), Math.round(y + size),
+            size * RenderSupport.WIP_PREVIEW_SCALE, Shapes.empty(), 0);
     }
 
     public static void renderWipBlockAt(
@@ -325,7 +327,7 @@ public class RenderSupport {
     private record PreviewModelKey(BlockStateModel model, BlockState state, boolean translucent) {
     }
 
-    /** Draw a recipe preview using the source animation's anchor, scale and rotation. */
+    /** 保持配方动画的锚点、缩放和旋转，模型由砧库渲染器绘制。 */
     public static void renderLevelLikeAt(
         LevelLike level,
         GuiGraphicsExtractor graphics,
@@ -365,21 +367,10 @@ public class RenderSupport {
         pose.translate(-offsetX, 0, -offsetZ);
         pose.mulPose(Axis.YP.rotationDegrees((float) rotation + 45));
         pose.translate(offsetX, 0, offsetZ);
-        // StructurePipRenderer subtracts half a block before tessellation.
-        pose.translate(0.5F, 0.5F, -0.5F);
-        int extent = Mth.ceil(scaleFactor);
-        var state = new StructurePipRenderingState(level, visibleLayerPos(level, min.get()), visibleLayerPos(level, max.get()),
-            posX - extent, posY - extent, posX + extent, posY + extent, scale, true, false, pose.last().copy(),
-            new Matrix3x2f(graphics.pose()), graphics.peekScissorStack());
-        graphics.submitPictureInPictureRenderState(state);
-        if (scanEffect) {
-            int scanExtent = previewSize / 2;
-            var scanState = new StructurePipRenderingState(level, state.startPos(), state.endPos(),
-                posX - scanExtent, posY - scanExtent, posX + scanExtent, posY + scanExtent, scale, true, true, pose.last().copy(),
-                new Matrix3x2f(graphics.pose()), graphics.peekScissorStack());
-            graphics.nextStratum();
-            graphics.submitPictureInPictureRenderState(new SmartPlacerPreviewRenderer.State(scanState, null, 0xF0100010));
-        }
+        pose.translate(0.5f, 0.5f, -0.5f);
+        int extent = scanEffect ? previewSize / 2 : Mth.ceil(scaleFactor);
+        StructurePreviewScene.of(level).submit(graphics, new Matrix4f(pose.last().pose()).translate(-0.5f, -0.5f, -0.5f),
+            posX - extent, posY - extent, posX + extent, posY + extent, scale, Shapes.empty(), scanEffect ? 0.75f : 0);
     }
 
     public static void renderLevelLike(
@@ -409,20 +400,8 @@ public class RenderSupport {
         poseStack.translate(-(minPos.get().getX() + maxPos.get().getX()) / 2F,
             -(minPos.get().getY() + maxPos.get().getY()) / 2F,
             -(minPos.get().getZ() + maxPos.get().getZ()) / 2F);
-        GuiRenderExtras.submitStructure(
-            graphics,
-            level,
-            visibleLayerPos(level, minPos.get()),
-            visibleLayerPos(level, maxPos.get()),
-            posX,
-            posY,
-            posX + size,
-            posY + size,
-            scale,
-            true,
-            glitched,
-            poseStack
-        );
+        StructurePreviewScene.of(level).submit(graphics, new Matrix4f(poseStack.last().pose()).translate(-0.5f, -0.5f, -0.5f),
+            posX, posY, posX + size, posY + size, scale, Shapes.empty(), glitched ? 0.75f : 0);
     }
 
     public static float autoScale(
@@ -444,10 +423,6 @@ public class RenderSupport {
             (windowWidth - padding * 2) / Math.max(projectedWidth, 1.0e-4f),
             (windowHeight - padding * 2) / Math.max(projectedHeight, 1.0e-4f)
         );
-    }
-
-    private static BlockPos visibleLayerPos(LevelLike level, BlockPos pos) {
-        return level.isAllLayersVisible() ? pos : pos.atY(level.getCurrentVisibleLayer());
     }
 
     private static Optional<BlockEntity> getCachedBlockEntity(BlockState state) {

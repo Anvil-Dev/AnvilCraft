@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.block.workstation.StructureScannerBlock;
 import dev.dubhe.anvilcraft.building.BlueprintCapture;
 import dev.dubhe.anvilcraft.building.BlueprintMultiblocks;
+import dev.dubhe.anvilcraft.building.StoragePreviewSnapshot;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.StructureScannerMenu;
@@ -424,7 +425,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
                         BlockState actual = this.level.getBlockState(partPos);
                         BlockState recorded = actual.isAir() ? generated : actual;
                         var entity = this.level.getBlockEntity(partPos);
-                        CompoundTag nbt = entity == null ? null : entity.saveWithFullMetadata(this.level.registryAccess());
+                        CompoundTag nbt = entity == null ? null : StoragePreviewSnapshot.captureBlockEntity(entity);
                         this.scannedBlocks.add(new CachedBlockData(preview.getX(), preview.getY(), preview.getZ(), recorded, nbt));
                     });
                 }

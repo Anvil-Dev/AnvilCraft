@@ -50,9 +50,9 @@ public class ModRenderPipelines {
         .withLocation(AnvilCraft.of("pipeline/glass_pipe_fluid"))
         .build();
 
-    public static final RenderPipeline SMART_PLACER_RANGE = RenderPipeline.builder(RenderPipelines.GUI_SNIPPET)
+    public static final RenderPipeline STRUCTURE_PREVIEW_RANGE = RenderPipeline.builder(RenderPipelines.GUI_SNIPPET)
         .withCull(false)
-        .withLocation(AnvilCraft.of("pipeline/smart_placer_range"))
+        .withLocation(AnvilCraft.of("pipeline/structure_preview_range"))
         .build();
 
     public static final RenderPipeline EQUIPMENT_CHARGE = RenderPipeline.builder(RenderPipelines.GUI_TEXTURED_SNIPPET)
@@ -68,16 +68,6 @@ public class ModRenderPipelines {
         .withShaderDefine("ALPHA_CUTOUT", 0.001F)
         .withCull(false)
         .withLocation(AnvilCraft.of("pipeline/fitted_item"))
-        .build();
-
-    public static final RenderPipeline SCAN_PREVIEW_ITEM = RenderPipeline.builder(RenderPipelines.ENTITY_SNIPPET)
-        .withSampler("Sampler1")
-        .withColorTargetState(new ColorTargetState(new BlendFunction(
-            SourceFactor.ONE, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ONE, DestFactor.ONE_MINUS_SRC_ALPHA)))
-        .withDepthStencilState(DepthStencilState.DEFAULT)
-        .withCull(false)
-        .withFragmentShader(AnvilCraft.of("core/scan_preview_item"))
-        .withLocation(AnvilCraft.of("pipeline/scan_preview_item"))
         .build();
 
     public static final RenderPipeline BUILDING_ROD_GHOST = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
@@ -339,10 +329,9 @@ public class ModRenderPipelines {
         event.registerPipeline(ModRenderPipelines.GEODE_HIGHLIGHT);
         event.registerPipeline(ModRenderPipelines.HYPERCUBE);
         event.registerPipeline(ModRenderPipelines.GLASS_PIPE_FLUID);
-        event.registerPipeline(ModRenderPipelines.SMART_PLACER_RANGE);
+        event.registerPipeline(ModRenderPipelines.STRUCTURE_PREVIEW_RANGE);
         event.registerPipeline(ModRenderPipelines.EQUIPMENT_CHARGE);
         event.registerPipeline(ModRenderPipelines.FITTED_ITEM);
-        event.registerPipeline(ModRenderPipelines.SCAN_PREVIEW_ITEM);
         event.registerPipeline(ModRenderPipelines.PLACEMENT_GHOST);
         event.registerPipeline(ModRenderPipelines.OVERWORLD_LIKE_SKY_RING);
         event.registerPipeline(ModRenderPipelines.BUILDING_ROD_GHOST);

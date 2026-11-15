@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.util.AccelerateManager;
 import dev.dubhe.anvilcraft.util.AtmosphereManager;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
@@ -23,6 +24,7 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.level.BlockCollisions;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -39,8 +41,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import java.util.Optional;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin implements IEntityExtension {
@@ -91,6 +91,8 @@ public abstract class EntityMixin implements IEntityExtension {
 
     @Unique
     private Vec3 anvil$beforeBoundingMovement = Vec3.ZERO;
+    @Unique
+    private @Nullable BlockPos anvilcraft$collisionPos;
 
     @Shadow
     private Level level;
@@ -126,13 +128,7 @@ public abstract class EntityMixin implements IEntityExtension {
     protected abstract AABB makeBoundingBox();
 
     @Shadow
-    public boolean horizontalCollision;
-
-    @Shadow
     public abstract Pose getPose();
-
-    @Shadow
-    private Vec3 position;
 
     @Shadow
     public @Nullable PortalProcessor portalProcess;
@@ -267,28 +263,51 @@ public abstract class EntityMixin implements IEntityExtension {
         CallbackInfo ci
     ) {
         this.anvil$isMovementFixed = false;
+        this.anvilcraft$collisionPos = null;
         this.anvil$beforeBoundingMovement = this.getDeltaMovement();
     }
 
+    @WrapOperation(
+        method = "move",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/Entity;collide("
+                + "Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/Vec3;"
+        )
+    )
+    private Vec3 anvilcraft$findCollisionBlock(Entity entity, Vec3 movement, Operation<Vec3> original) {
+        Vec3 resolved = original.call(entity, movement);
+        if (resolved.equals(movement) || this.level.isClientSide() || !(entity instanceof FallingBlockEntity)
+            || entity instanceof IAnvilCraftEntityExtension extension && !extension.anvilcraft$canCollisionCraft()) {
+            return resolved;
+        }
+        AABB box = entity.getBoundingBox();
+        // 按原版逐轴移动的顺序定位接触面，后续沿墙滑动不能改变已经撞到的方块。
+        for (Direction.Axis axis : Direction.axisStepOrder(movement)) {
+            box = box.move(Vec3.ZERO.with(axis, resolved.get(axis)));
+            if (movement.get(axis) == resolved.get(axis)) {
+                continue;
+            }
+            Vec3 offset = Vec3.ZERO.with(axis, Math.copySign(1.0E-5, movement.get(axis)));
+            var collisions = new BlockCollisions<>(this.level, entity, box.deflate(1.0E-7).move(offset), false,
+                (pos, shape) -> pos.immutable());
+            if (collisions.hasNext()) {
+                this.anvilcraft$collisionPos = collisions.next();
+                break;
+            }
+        }
+        return resolved;
+    }
+
     @Inject(method = "move", at = @At("RETURN"))
-    public void anvil$collisionCraft(
-        MoverType type,
-        Vec3 pos,
-        CallbackInfo ci
-    ) {
-        Optional<FallingBlockEntity> entityOp = Util.castSafely(this, FallingBlockEntity.class);
-        if (entityOp.isEmpty() || !this.horizontalCollision) return;
-        FallingBlockEntity self = entityOp.get();
-        if (self instanceof IAnvilCraftEntityExtension extension
-            && !extension.anvilcraft$canCollisionCraft()) {
+    public void anvil$collisionCraft(MoverType type, Vec3 movement, CallbackInfo ci) {
+        if (!((Object) this instanceof FallingBlockEntity thiz) || thiz.isRemoved()
+            || this.anvil$isMovementFixed || this.anvilcraft$collisionPos == null) {
             return;
         }
-        BlockPos blockPos = BlockPos.containing(this.position.add(this.anvil$beforeBoundingMovement
-            .scale(0.55 / this.anvil$beforeBoundingMovement.length())
-            .multiply(1, 0, 1)));
-        NeoForge.EVENT_BUS.post(
-            new AnvilEvent.CollisionBlock(this.level, blockPos, self, this.anvil$beforeBoundingMovement.length())
-        );
+        NeoForge.EVENT_BUS.post(new AnvilEvent.CollisionBlock(
+            this.level, this.anvilcraft$collisionPos, thiz, this.anvil$beforeBoundingMovement.length()
+        ));
     }
 
     @WrapOperation(

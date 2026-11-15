@@ -8,22 +8,22 @@ import net.minecraft.world.level.SignalGetter;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-/** 让顶面红石元件从水平输入面读取绕过上边缘的墙面导线信号。 */
+/** 让红石元件从输入面读取绕过支撑方块边缘的导线信号。 */
 @Mixin(SignalGetter.class)
 public interface SignalGetterMixin {
     @ModifyReturnValue(method = "getSignal", at = @At("RETURN"))
-    private int anvilcraft$includeUpwardWireSignal(int original, BlockPos pos, Direction direction) {
+    private int anvilcraft$includeCornerWireSignal(int original, BlockPos pos, Direction direction) {
         if (original >= 15) {
             return original;
         }
-        return Math.max(original, RedstoneWireBlock.getUpwardSignal((SignalGetter) this, pos, direction));
+        return Math.max(original, RedstoneWireBlock.getCornerSignal((SignalGetter) this, pos, direction));
     }
 
     @ModifyReturnValue(method = "getControlInputSignal", at = @At("RETURN"))
-    private int anvilcraft$includeUpwardControlSignal(int original, BlockPos pos, Direction direction, boolean onlyDiodes) {
+    private int anvilcraft$includeCornerControlSignal(int original, BlockPos pos, Direction direction, boolean onlyDiodes) {
         if (onlyDiodes || original >= 15) {
             return original;
         }
-        return Math.max(original, RedstoneWireBlock.getUpwardSignal((SignalGetter) this, pos, direction));
+        return Math.max(original, RedstoneWireBlock.getCornerSignal((SignalGetter) this, pos, direction));
     }
 }

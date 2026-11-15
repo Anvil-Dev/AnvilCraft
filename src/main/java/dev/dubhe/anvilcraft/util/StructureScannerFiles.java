@@ -2,8 +2,10 @@ package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.building.BlueprintNormalizer;
+import dev.dubhe.anvilcraft.building.BlueprintPlacement;
 import dev.dubhe.anvilcraft.building.ConstructionBlueprintException;
 import dev.dubhe.anvilcraft.building.LitematicaImporter;
+import dev.dubhe.anvilcraft.building.StructureBlueprintEdit;
 import dev.dubhe.anvilcraft.building.StructureSnapshot;
 import dev.dubhe.anvilcraft.building.StructureSnapshotCodec;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
@@ -11,10 +13,14 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.StructureScannerMenu;
 import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
+import dev.dubhe.anvilcraft.network.StructureScannerEditPacket;
 import dev.dubhe.anvilcraft.network.StructureScannerFilePacket;
 import dev.dubhe.anvilcraft.network.StructureScannerFileResultPacket;
 import dev.dubhe.anvilcraft.saved.BlueprintAdministrators;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -26,7 +32,10 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.datafix.DataFixTypes;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.io.ByteArrayInputStream;
@@ -96,6 +105,108 @@ public final class StructureScannerFiles {
             PacketDistributor.sendToPlayer(player, new StructureScannerFileResultPacket(packet.id(),
                 message.substring(0, Math.min(message.length(), 512)), 0, 0, new byte[0]));
         }
+    }
+
+    public static void edit(ServerPlayer player, StructureScannerMenu menu, StructureScannerEditPacket packet) {
+        try {
+            sendFile(player, packet.id(), editBlueprint(menu, packet));
+        } catch (IOException | IllegalArgumentException exception) {
+            AnvilCraft.LOGGER.warn("Structure scanner blueprint edit failed: {} at {}", packet.action(), packet.pos(), exception);
+            String message = exception.getMessage() == null ? "Blueprint edit failed" : exception.getMessage();
+            PacketDistributor.sendToPlayer(player, new StructureScannerFileResultPacket(packet.id(),
+                message.substring(0, Math.min(message.length(), 512)), 0, 0, new byte[0]));
+        }
+    }
+
+    /** 修改菜单中的蓝图并返回客户端需要的完整快照，校验失败时保留原蓝图与撤回记录。 */
+    public static byte[] editBlueprint(StructureScannerMenu menu, StructureScannerEditPacket packet) throws IOException {
+        var scanner = menu.getBlockEntity();
+        var imported = menu.getImportedStructure();
+        if (scanner.isScanning() || imported == null && !scanner.isScanComplete()) {
+            throw new IllegalArgumentException("No completed blueprint to edit");
+        }
+        var captured = imported == null ? StructureSaveUtil.buildCachedSnapshot(scanner, scanner.getScannedBlocks()) : null;
+        StructureSnapshot snapshot = captured == null ? imported.snapshot() : captured.snapshot();
+        BlockPos previewOffset = imported == null ? BlockPos.ZERO : imported.previewOffset();
+        Vec3i previewSize = imported == null
+            ? new Vec3i(scanner.getRangeX().get(), scanner.getRangeY().get(), scanner.getRangeZ().get()) : imported.previewSize();
+        String name = imported == null ? "structure" : imported.name();
+        var undo = menu.getReplacementUndo();
+        if (packet.action() == StructureScannerEditPacket.Action.UNDO) {
+            if (undo == null) {
+                throw new IllegalArgumentException("No blueprint replacement to undo");
+            }
+            snapshot = undo.snapshot();
+            previewOffset = undo.previewOffset();
+            previewSize = undo.previewSize();
+            undo = null;
+        } else if (packet.action() == StructureScannerEditPacket.Action.RESIZE) {
+            if (imported == null) {
+                throw new IllegalArgumentException("Only staged blueprints can be resized");
+            }
+            snapshot = StructureBlueprintEdit.resize(snapshot, previewSize, packet.pos(), previewOffset, scanner.isScannerUpsideDown());
+            if (undo != null) {
+                var resizedUndo = StructureBlueprintEdit.resize(undo.snapshot(), undo.previewSize(), packet.pos(),
+                    undo.previewOffset(), scanner.isScannerUpsideDown());
+                undo = new StructureScannerMenu.ImportedStructure(undo.name(), resizedUndo, BlockPos.ZERO, packet.pos());
+            }
+            previewOffset = BlockPos.ZERO;
+            previewSize = packet.pos();
+        } else {
+            if (!(packet.replacement().getItem() instanceof BlockItem blockItem)) {
+                throw new IllegalArgumentException("Replacement must be a block item");
+            }
+            var state = blockItem.getBlock().defaultBlockState();
+            var properties = packet.replacement().get(DataComponents.BLOCK_STATE);
+            if (properties != null) {
+                state = properties.apply(state);
+            }
+            Rotation rotation = imported == null ? switch (scanner.getDirection()) {
+                case SOUTH -> Rotation.CLOCKWISE_180;
+                case WEST -> Rotation.CLOCKWISE_90;
+                case EAST -> Rotation.COUNTERCLOCKWISE_90;
+                default -> Rotation.NONE;
+            } : Rotation.NONE;
+            Rotation inverse = switch (rotation) {
+                case CLOCKWISE_90 -> Rotation.COUNTERCLOCKWISE_90;
+                case COUNTERCLOCKWISE_90 -> Rotation.CLOCKWISE_90;
+                default -> rotation;
+            };
+            var previousSnapshot = snapshot;
+            snapshot = StructureBlueprintEdit.replace(snapshot, packet.pos(), state.rotate(inverse),
+                packet.action() == StructureScannerEditPacket.Action.REPLACE_ALL);
+            boolean changed = snapshot != previousSnapshot;
+            if (captured != null) {
+                BlueprintPlacement transform = new BlueprintPlacement(BlockPos.ZERO, rotation, Mirror.NONE);
+                var bounds = transform.bounds(snapshot.size());
+                BlockPos anchor = switch (scanner.getDirection()) {
+                    case SOUTH -> new BlockPos(previewSize.getX() - 1, 0, previewSize.getZ() - 1);
+                    case WEST -> new BlockPos(previewSize.getX() - 1, 0, 0);
+                    case EAST -> new BlockPos(0, 0, previewSize.getZ() - 1);
+                    default -> BlockPos.ZERO;
+                };
+                previewOffset = anchor.subtract(transform.localOf(captured.offset()))
+                    .offset(bounds.minX(), bounds.minY(), bounds.minZ());
+                snapshot = StructureBlueprintEdit.rotate(snapshot, rotation);
+                previousSnapshot = StructureBlueprintEdit.rotate(previousSnapshot, rotation);
+            }
+            if (changed) {
+                undo = new StructureScannerMenu.ImportedStructure(name, previousSnapshot, previewOffset, previewSize);
+            }
+        }
+        CompoundTag tag = StructureSnapshotCodec.write(snapshot);
+        tag.putString("anvilcraft:edit_name", name);
+        tag.putBoolean("anvilcraft:can_undo_replacement", undo != null);
+        tag.store("anvilcraft:preview_offset", BlockPos.CODEC, previewOffset);
+        tag.store("anvilcraft:preview_size", BlockPos.CODEC, new BlockPos(previewSize));
+        final byte[] bytes = compress(tag);
+        menu.setImportedStructure(name, snapshot, previewOffset, previewSize);
+        menu.setReplacementUndo(undo);
+        if (imported == null) {
+            scanner.clearScan();
+        }
+        menu.broadcastChanges();
+        return bytes;
     }
 
     private static void sendFile(ServerPlayer player, UUID id, byte[] bytes) {

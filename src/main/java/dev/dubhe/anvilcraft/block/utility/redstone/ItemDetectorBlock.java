@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.utility.redstone;
 
 import com.mojang.serialization.MapCodec;
+import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
@@ -21,7 +22,6 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
@@ -43,7 +43,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.EnumSet;
 
-public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBlock, HammerRotateBehavior, IHammerRemovable {
+public class ItemDetectorBlock extends BetterBaseEntityBlock implements IMoveableEntityBlock, HammerRotateBehavior, IHammerRemovable {
     public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final MapCodec<ItemDetectorBlock> CODEC = BlockBehaviour.simpleCodec(ItemDetectorBlock::new);
@@ -183,6 +183,13 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBl
         return BaseEntityBlock.createTickerHelper(type, ModBlockEntities.ITEM_DETECTOR.get(),
                                                   (level1, blockPos, blockState, blockEntity) ->
                 blockEntity.tick());
+    }
+
+    @Override
+    public void notifyMoved(Level level, BlockPos pos, BlockState state, BlockEntity blockEntity) {
+        if (blockEntity instanceof ItemDetectorBlockEntity detector) {
+            detector.recalcDetectionRange();
+        }
     }
 
     @Override

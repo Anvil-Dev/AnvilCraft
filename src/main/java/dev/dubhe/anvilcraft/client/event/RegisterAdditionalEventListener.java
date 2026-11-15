@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.client.gui.screen.SmartPlacerPreviewRenderer;
 import dev.dubhe.anvilcraft.client.gui.screen.cfa.CfaPreviewPipRenderer;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorRenderer;
@@ -409,7 +408,6 @@ public class RegisterAdditionalEventListener {
     @SubscribeEvent
     public static void registerPictureInPictureRenderers(RegisterPictureInPictureRenderersEvent event) {
         event.register(CfaPreviewPipRenderer.State.class, CfaPreviewPipRenderer::new);
-        event.register(SmartPlacerPreviewRenderer.State.class, SmartPlacerPreviewRenderer::new);
         event.register(ProcessOverlayRenderer.State.class,
             ProcessOverlayRenderer::new);
         event.register(TransparentItemRenderer.State.class,

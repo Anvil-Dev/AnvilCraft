@@ -9,6 +9,8 @@ import dev.dubhe.anvilcraft.network.StructureScannerFilePacket;
 import dev.dubhe.anvilcraft.saved.BlueprintAdministrators;
 import dev.dubhe.anvilcraft.util.StructureFileTransfer;
 import lombok.Getter;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
@@ -32,6 +34,8 @@ public class StructureScannerMenu extends AbstractContainerMenu {
     private final StructureScannerBlockEntity blockEntity;
     private final Level level;
     @Nullable private ImportedStructure importedStructure;
+    @Getter
+    @Nullable private ImportedStructure replacementUndo;
     private @Nullable StructureFileTransfer upload;
     private boolean canUpload;
 
@@ -53,7 +57,8 @@ public class StructureScannerMenu extends AbstractContainerMenu {
         }
     }
 
-    public record ImportedStructure(String name, StructureSnapshot snapshot) {
+    /** 扫描结果扩出选区时，保留快照相对原扫描范围的位置。 */
+    public record ImportedStructure(String name, StructureSnapshot snapshot, BlockPos previewOffset, Vec3i previewSize) {
     }
 
     public @Nullable ImportedStructure getImportedStructure() {
@@ -61,11 +66,21 @@ public class StructureScannerMenu extends AbstractContainerMenu {
     }
 
     public void setImportedStructure(String name, StructureSnapshot snapshot) {
-        this.importedStructure = new ImportedStructure(name, snapshot);
+        this.setImportedStructure(name, snapshot, BlockPos.ZERO, snapshot.size());
+    }
+
+    public void setImportedStructure(String name, StructureSnapshot snapshot, BlockPos previewOffset, Vec3i previewSize) {
+        this.importedStructure = new ImportedStructure(name, snapshot, previewOffset, previewSize);
+        this.replacementUndo = null;
+    }
+
+    public void setReplacementUndo(@Nullable ImportedStructure replacementUndo) {
+        this.replacementUndo = replacementUndo;
     }
 
     public void clearImportedStructure() {
         this.importedStructure = null;
+        this.replacementUndo = null;
     }
 
     @Override

@@ -14,6 +14,7 @@ import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.TypeLimitItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
 import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
+import dev.dubhe.anvilcraft.building.StoragePreviewSnapshot;
 import dev.dubhe.anvilcraft.client.gui.component.SwitchableButton;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.client.gui.component.category.CategoryList;
@@ -29,6 +30,7 @@ import dev.dubhe.anvilcraft.integration.StorageRecipeTransferPlan;
 import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import dev.dubhe.anvilcraft.rpc.StorageInput;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
+import dev.dubhe.anvilcraft.saved.setting.PlayerSetting;
 import dev.dubhe.anvilcraft.saved.setting.StorageSetting;
 import dev.dubhe.anvilcraft.saved.setting.mode.NbtDisplayMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.OrderMode;
@@ -198,6 +200,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private static final FlyoutRenderer FLYOUT_RENDERER = StorageScreen.createFlyoutRenderer();
     private final BlockPos sourcePos;
     private final Player player;
+    private final @Nullable StoragePreviewSnapshot preview;
+    private final @Nullable PlayerSetting previewSettings;
     private final boolean tracksOpenState;
 
     private @Nullable EditBox search;
@@ -271,14 +275,23 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     public StorageScreen(BlockPos sourcePos, Component title) {
-        super(new StorageMenu(Objects.requireNonNull(Minecraft.getInstance().player), sourcePos),
-            Minecraft.getInstance().player.getInventory(), title, BG_WIDTH, BG_HEIGHT);
+        this(Objects.requireNonNull(Minecraft.getInstance().player), sourcePos, title, null);
+    }
+
+    /** 预览界面使用隔离玩家与快照，不连接服务端存储或真实背包。 */
+    public StorageScreen(Player player, BlockPos sourcePos, Component title, @Nullable StoragePreviewSnapshot preview) {
+        super(new StorageMenu(player, sourcePos), player.getInventory(), title, BG_WIDTH, BG_HEIGHT);
         this.displayTitle = title;
         this.sourcePos = sourcePos;
-        this.player = Objects.requireNonNull(Minecraft.getInstance().player);
+        this.player = player;
+        this.preview = preview;
+        this.previewSettings = preview == null ? null : new PlayerSetting(player.registryAccess());
         this.serverSlots.defaultReturnValue(-1);
-        this.tracksOpenState = Minecraft.getInstance().level.getBlockState(sourcePos).getBlock()
-            instanceof ShulkerContainerBlock;
+        this.tracksOpenState = preview == null && player.level().getBlockState(sourcePos).getBlock() instanceof ShulkerContainerBlock;
+    }
+
+    private PlayerSetting viewSettings() {
+        return this.previewSettings == null ? SettingClientStub.setting() : this.previewSettings;
     }
 
     public static void openScreen(BlockPos sourcePos) {
@@ -295,7 +308,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         if (this.tracksOpenState) {
             StorageClientStub.setOpen(this.sourcePos, true);
         }
-        this.flipped = SettingClientStub.storage().isFlipped();
+        this.flipped = this.viewSettings().storage().isFlipped();
         this.menu.setFlipped(this.flipped);
         this.left = (this.width - StorageScreen.BG_WIDTH) / 2;
         this.top = (this.height - StorageScreen.BG_HEIGHT) / 2;
@@ -311,9 +324,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             9,
             Component.translatable("screen.anvilcraft.storage.search.edit")
         ));
-        this.search.setValue(SettingClientStub.setting().storage().getSearchContent());
+        this.search.setValue(this.viewSettings().storage().getSearchContent());
         this.search.setBordered(false);
         this.search.setResponder(content -> {
+            if (this.preview != null) {
+                return;
+            }
             SettingClientStub.update(content);
             this.reorder(false);
         });
@@ -398,7 +414,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.categories = this.addRenderableWidget(new CategoryList(
             this.sx(7),
             this.top + 49,
-            SettingClientStub.setting(),
+            this.viewSettings(),
             _ -> SettingClientStub.update(SettingClientStub.listed().stream().toList())
                 .thenRunAsync(this::reorder, this.screenExecutor),
             _ -> this.minecraft.setScreenAndShow(new CategorySettingsScreen(this.sourcePos, this.displayTitle))
@@ -433,32 +449,34 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             )
         ));
 
-        SettingClientStub.load().thenAcceptAsync(
-            setting -> {
-                if (this.categories != null) {
-                    this.categories.rebuild(setting);
-                }
-                StorageSetting storage = setting.storage();
-                if (this.flipped != storage.isFlipped()) {
-                    this.rebuildWidgets();
-                    return;
-                }
-                Objects.requireNonNull(this.search).setValue(storage.getSearchContent());
-                searchMode.setCurrent(storage.getSearch().ordinal());
-                sortMode.setCurrent(storage.getSort().ordinal());
-                orderMode.setCurrent(storage.getOrder().ordinal());
-                nbtMode.setCurrent(storage.getNbtDisplay().ordinal());
-                if (storage.getOrder() == OrderMode.SEQUENTIAL) {
-                    sortTextures.set(0, StorageScreen.SORT_COUNT);
-                    sortTextures.set(2, StorageScreen.SORT_NAME);
-                } else {
-                    sortTextures.set(0, StorageScreen.SORT_COUNT_REVERSED);
-                    sortTextures.set(2, StorageScreen.SORT_NAME_REVERSED);
-                }
-                this.reorder();
-            },
-            this.screenExecutor
-        );
+        if (this.preview == null) {
+            SettingClientStub.load().thenAcceptAsync(
+                setting -> {
+                    if (this.categories != null) {
+                        this.categories.rebuild(setting);
+                    }
+                    StorageSetting storage = setting.storage();
+                    if (this.flipped != storage.isFlipped()) {
+                        this.rebuildWidgets();
+                        return;
+                    }
+                    Objects.requireNonNull(this.search).setValue(storage.getSearchContent());
+                    searchMode.setCurrent(storage.getSearch().ordinal());
+                    sortMode.setCurrent(storage.getSort().ordinal());
+                    orderMode.setCurrent(storage.getOrder().ordinal());
+                    nbtMode.setCurrent(storage.getNbtDisplay().ordinal());
+                    if (storage.getOrder() == OrderMode.SEQUENTIAL) {
+                        sortTextures.set(0, StorageScreen.SORT_COUNT);
+                        sortTextures.set(2, StorageScreen.SORT_NAME);
+                    } else {
+                        sortTextures.set(0, StorageScreen.SORT_COUNT_REVERSED);
+                        sortTextures.set(2, StorageScreen.SORT_NAME_REVERSED);
+                    }
+                    this.reorder();
+                },
+                this.screenExecutor
+            );
+        }
         this.initCraftingPanel();
         this.flipButton = this.addRenderableWidget(new TexturedButton(this.sx(280), this.top + 2, 11, 8,
             craftingTexture("flip"), 8, 11, 16, button -> {
@@ -466,11 +484,44 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 SettingClientStub.updateFlipped(!this.flipped);
                 this.rebuildWidgets();
             }));
-        this.refreshMetadata();
+        if (this.preview != null) {
+            this.loadPreview();
+        } else {
+            this.refreshMetadata();
+        }
+    }
+
+    private void loadPreview() {
+        final StoragePreviewSnapshot snapshot = Objects.requireNonNull(this.preview);
+        this.contents.clear();
+        this.counts.clear();
+        this.order.clear();
+        int index = 0;
+        for (var entry : snapshot.items()) {
+            this.contents.put(index, new UnlimitedItemStack(ItemResource.of(entry.icon()), 1));
+            this.counts.put(index, entry.count());
+            this.order.add(index++);
+        }
+        this.fluids = snapshot.fluids();
+        for (int fluid = 0; fluid < this.fluids.size(); fluid++) {
+            this.order.add(FLUID_SLOT_BASE + fluid);
+        }
+        this.displayOrder = new IntArrayList(this.order);
+        this.orderLoaded = true;
+        this.capacity = snapshot.capacity();
+        this.fullness = snapshot.fullness();
+        this.children().forEach(child -> {
+            if (child instanceof net.minecraft.client.gui.components.AbstractWidget widget) {
+                widget.active = false;
+            }
+        });
     }
 
     @Override
     protected void containerTick() {
+        if (this.preview != null) {
+            return;
+        }
         this.refreshTitle();
         this.flushQuickMoves();
         this.flushCraftingPickup();
@@ -543,6 +594,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             }
         });
         this.setCraftingMode(this.craftingMode);
+        if (this.preview != null) {
+            this.craftingAvailable = this.preview.craftingUnlocked();
+            this.applyCrafting(this.preview.crafting(), ++this.craftingRequest);
+            this.setCraftingMode(this.craftingAvailable && this.preview.crafting().lastOpened());
+            return;
+        }
         final int request = ++this.craftingRequest;
         StorageClientStub.craftingAvailable(this.sourcePos).thenCombine(StorageClientStub.craftingGet(this.sourcePos),
             Map::entry).thenAcceptAsync(response -> {
@@ -569,7 +626,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     public boolean canTransferRecipe() {
         // Opening JEI removes this screen and invalidates its UI loading state before recipe transfer.
-        return this.isCraftingUnlocked() && this.isTransferContextActive()
+        return this.preview == null && this.isCraftingUnlocked() && this.isTransferContextActive()
             && (StorageJeiBridge.isRecipeParent(this) || this.orderLoaded && this.craftingLoaded)
             && !this.interactionPending && !this.recipeTransferPending;
     }
@@ -703,7 +760,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     private void setCraftingMode(boolean enabled) {
         this.craftingMode = enabled;
-        if (this.categories != null) this.categories.setCompact(enabled, SettingClientStub.setting());
+        if (this.categories != null) this.categories.setCompact(enabled, this.viewSettings());
         this.craftingAutoFill.visible = enabled;
         this.craftingToStorage.visible = enabled;
         this.craftingClear.visible = enabled;
@@ -764,6 +821,15 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             return CompletableFuture.completedFuture(null);
         }
         this.stonecutterRecipes = List.of();
+        if (this.preview != null) {
+            if (RecipesRecord.CLIENTSIDE != null) {
+                var input = new SingleRecipeInput(data.stonecutterInput());
+                this.stonecutterRecipes = RecipesRecord.CLIENTSIDE.byType(RecipeType.STONECUTTING).stream()
+                    .filter(recipe -> recipe.value().matches(input, this.player.level()))
+                    .map(recipe -> recipe.value().assemble(input)).toList();
+            }
+            return CompletableFuture.completedFuture(null);
+        }
         return StorageClientStub.craftingStonecutterRecipes(this.sourcePos).thenAcceptAsync(recipes -> {
             if (request != this.craftingRequest) return;
             this.stonecutterRecipes = recipes;
@@ -1262,7 +1328,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             graphics.setTooltipForNextFrame(
                 Component.translatable(
                     "screen.anvilcraft.storage.search",
-                    SettingClientStub.setting().storage().getSearch().getModeName()
+                    this.viewSettings().storage().getSearch().getModeName()
                 ),
                 mouseX,
                 mouseY
@@ -1271,7 +1337,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             graphics.setTooltipForNextFrame(
                 Component.translatable(
                     "screen.anvilcraft.storage.sort",
-                    SettingClientStub.setting().storage().getSort().getModeName()
+                    this.viewSettings().storage().getSort().getModeName()
                 ),
                 mouseX,
                 mouseY
@@ -1280,7 +1346,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             graphics.setTooltipForNextFrame(
                 Component.translatable(
                     "screen.anvilcraft.storage.order",
-                    SettingClientStub.setting().storage().getOrder().getModeName()
+                    this.viewSettings().storage().getOrder().getModeName()
                 ),
                 mouseX,
                 mouseY
@@ -1289,7 +1355,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             graphics.setTooltipForNextFrame(
                 Component.translatable(
                     "screen.anvilcraft.storage.nbt",
-                    SettingClientStub.setting().storage().getNbtDisplay().getModeName()
+                    this.viewSettings().storage().getNbtDisplay().getModeName()
                 ),
                 mouseX,
                 mouseY
@@ -1384,6 +1450,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (this.preview != null) {
+            return false;
+        }
         if (this.takePrediction != null) {
             Integer slot = this.getStorageSlot(event.x(), event.y());
             if (slot != null && (event.button() == 0 || event.button() == 1) && event.hasShiftDown()) {
@@ -1564,6 +1633,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        if (this.preview != null) {
+            return false;
+        }
         if (this.draggingStorageSlider) {
             if (event.button() == 0) {
                 this.dragStorageSlider(event.y());
@@ -1606,6 +1678,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     public boolean mouseReleased(MouseButtonEvent event) {
+        if (this.preview != null) {
+            return false;
+        }
         if (event.button() == 0 && this.draggingStorageSlider) {
             this.draggingStorageSlider = false;
             return true;
@@ -1794,6 +1869,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     public void onClose() {
+        if (this.preview != null) {
+            return;
+        }
         if (this.takePrediction == null && !this.craftingPrediction.isPending()
             && (this.interactionPending || this.queuedCraftingPickup >= -1)) {
             this.craftingCloseRequested = true;
@@ -1971,6 +2049,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (this.preview != null) {
+            return false;
+        }
         if (this.takePrediction != null) return true;
         if (this.craftingMode && MathUtil.isInRange(mouseX, mouseY, this.sx(39), this.top + 120, this.sx(101), this.top + 156)) {
             int rows = Math.max(0, (this.stonecutterRecipes.size() + 2) / 3 - 2);
@@ -2008,6 +2089,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     public boolean keyPressed(KeyEvent event) {
+        if (this.preview != null) {
+            return false;
+        }
         if (
             this.isOrderPreserveKey(event.key())
             && (this.search == null || !this.search.isFocused())
@@ -2115,6 +2199,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     public boolean keyReleased(KeyEvent event) {
+        if (this.preview != null) {
+            return false;
+        }
         if (event.key() == InputConstants.KEY_SPACE) {
             this.spacePressed = false;
         }
@@ -2178,6 +2265,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     public void removed() {
+        if (this.preview != null) {
+            return;
+        }
         this.draggingStorageSlider = false;
         this.takePrediction = null;
         this.takeResponses = CompletableFuture.completedFuture(null);
@@ -2201,7 +2291,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
         if (this.minecraft.player == this.player) StorageClientStub.returnCarriedToInventory(this.sourcePos);
         this.carried = ItemStack.EMPTY;
-        if (SettingClientStub.setting().storage().getSearch() == SearchMode.CLEAR) {
+        if (this.viewSettings().storage().getSearch() == SearchMode.CLEAR) {
             SettingClientStub.update("");
         }
         super.removed();
@@ -2388,7 +2478,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     private IntList applySearchFilter(IntList order) {
-        String search = SettingClientStub.setting().storage().getSearchContent().strip().toLowerCase(Locale.ROOT);
+        String search = this.viewSettings().storage().getSearchContent().strip().toLowerCase(Locale.ROOT);
         if (search.isEmpty() || search.charAt(0) == '@' || search.charAt(0) == '#') {
             return order;
         }
@@ -2605,7 +2695,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     private void syncReordered(IntList reordered, int requestedScrollRow, int reorderRequest) {
-        boolean foldNbt = SettingClientStub.setting().storage().getNbtDisplay() == NbtDisplayMode.FOLD;
+        boolean foldNbt = this.viewSettings().storage().getNbtDisplay() == NbtDisplayMode.FOLD;
         int reorderedScrollRow = foldNbt
                                  ? requestedScrollRow
                                  : Mth.clamp(requestedScrollRow, 0, this.getMaxScrollRow(reordered));
@@ -2981,6 +3071,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     private void refreshMetadata() {
+        if (this.preview != null) {
+            return;
+        }
         if (this.metadataPending || this.takePrediction != null) {
             return;
         }

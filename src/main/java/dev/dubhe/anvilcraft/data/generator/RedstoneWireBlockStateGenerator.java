@@ -55,7 +55,6 @@ public class RedstoneWireBlockStateGenerator {
                     BlockModelGenerators.plainVariant(side)
                 );
                 if (attachment.getAxis().isHorizontal()) {
-                    // 只有墙面导线绕支撑块边缘时需要向模型边界外延伸；地面和天花板没有这种显示形态。
                     Identifier sideCorner = RedstoneWireBlockStateGenerator.sideCornerModel(provider, attachment, index)
                         .build(RedstoneWireBlockStateGenerator.modelLocation(provider, attachment, "side_corner_" + index));
                     multipart.with(
@@ -64,17 +63,15 @@ public class RedstoneWireBlockStateGenerator {
                             .term(property, ConnectionType.CORNER),
                         BlockModelGenerators.plainVariant(sideCorner)
                     );
-                    if (RedstoneWireBlock.getLocalDirection(attachment, index) == Direction.UP) {
-                        Identifier sideCornerSp = RedstoneWireBlockStateGenerator.sideCornerSpModel(provider, attachment, index)
-                            .build(RedstoneWireBlockStateGenerator.modelLocation(provider, attachment, "side_corner_sp_" + index));
-                        multipart.with(
-                            BlockModelGenerators.condition()
-                                .term(RedstoneWireBlock.ATTACHMENT, attachment)
-                                .term(property, ConnectionType.CORNER_SP),
-                            BlockModelGenerators.plainVariant(sideCornerSp)
-                        );
-                    }
                 }
+                Identifier sideCornerSp = RedstoneWireBlockStateGenerator.sideCornerSpModel(provider, attachment, index)
+                    .build(RedstoneWireBlockStateGenerator.modelLocation(provider, attachment, "side_corner_sp_" + index));
+                multipart.with(
+                    BlockModelGenerators.condition()
+                        .term(RedstoneWireBlock.ATTACHMENT, attachment)
+                        .term(property, ConnectionType.CORNER_SP),
+                    BlockModelGenerators.plainVariant(sideCornerSp)
+                );
                 multipart.with(
                     BlockModelGenerators.condition()
                         .term(RedstoneWireBlock.ATTACHMENT, attachment)
@@ -142,7 +139,7 @@ public class RedstoneWireBlockStateGenerator {
         return model;
     }
 
-    /** 生成墙面导线绕支撑方块边缘连接时使用的加长线段。 */
+    /** 生成导线绕支撑方块边缘连接时使用的加长线段。 */
     private static RegistrumLegacyBlockModelBuilder sideCornerModel(
         RegistrumBlockModelGenerator provider, Direction attachment, int index
     ) {
@@ -168,7 +165,7 @@ public class RedstoneWireBlockStateGenerator {
         return model;
     }
 
-    /** 生成墙面向上断口连接支撑方块顶面红石粉时使用的专用短拐角。 */
+    /** 生成连接外部红石元件时使用的短拐角，保留伸出支撑面的背面贴图。 */
     private static RegistrumLegacyBlockModelBuilder sideCornerSpModel(
         RegistrumBlockModelGenerator provider, Direction attachment, int index
     ) {

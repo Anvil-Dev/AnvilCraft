@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.building.BlueprintNormalizer;
 import dev.dubhe.anvilcraft.building.BlueprintPlacement;
 import dev.dubhe.anvilcraft.building.ConstructionBlueprintException;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
+import dev.dubhe.anvilcraft.client.gui.tooltip.StructurePreviewPlacement;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.util.LevelLike;
@@ -84,6 +85,11 @@ public class StructureDiskPreviewSupport {
      * 在指定位置渲染预览
      */
     public static void renderPreviewAt(GuiGraphicsExtractor graphics, ItemStack diskStack, int mouseX, int mouseY) {
+        renderPreviewAt(graphics, diskStack, mouseX, mouseY, mouseX + 12, mouseY - 12, 0);
+    }
+
+    public static void renderPreviewAt(GuiGraphicsExtractor graphics, ItemStack diskStack, int mouseX, int mouseY,
+                                       int tooltipX, int tooltipY, int tooltipWidth) {
         for (PreviewHandler handler : PREVIEW_HANDLERS) {
             if (handler.render(graphics, diskStack, mouseX, mouseY)) return;
         }
@@ -93,35 +99,28 @@ public class StructureDiskPreviewSupport {
         PreviewCache cache = StructureDiskPreviewSupport.getOrCreateCache(diskStack, minecraft.level);
         if (cache == null || cache.structureData.isEmpty()) return;
 
-        int previewX = mouseX - StructureDiskPreviewSupport.PREVIEW_SIZE / 2;
-        int previewY = mouseY - StructureDiskPreviewSupport.PREVIEW_SIZE - 16;
-
-        int screenWidth = minecraft.getWindow().getGuiScaledWidth();
-
-        if (previewY < 0) {
-            previewY = mouseY + 30;
+        var placement = StructurePreviewPlacement.opposite(minecraft.getWindow().getGuiScaledWidth(),
+            minecraft.getWindow().getGuiScaledHeight(), mouseX, tooltipX, tooltipY, tooltipWidth, PREVIEW_SIZE);
+        if (placement == null) {
+            return;
         }
-
-        if (previewX + StructureDiskPreviewSupport.PREVIEW_SIZE > screenWidth) {
-            previewX = screenWidth - StructureDiskPreviewSupport.PREVIEW_SIZE - 5;
-        }
-        if (previewX < 0) {
-            previewX = 5;
-        }
+        int previewX = placement.x();
+        int previewY = placement.y();
+        int previewSize = placement.size();
 
         graphics.fill(
-            previewX - 2, previewY - 2, previewX + StructureDiskPreviewSupport.PREVIEW_SIZE + 2,
-            previewY + StructureDiskPreviewSupport.PREVIEW_SIZE + 2, 0xF0100010
+            previewX - 2, previewY - 2, previewX + previewSize + 2,
+            previewY + previewSize + 2, 0xF0100010
         );
 
-        graphics.fill(previewX - 2, previewY - 2, previewX + PREVIEW_SIZE + 2, previewY - 1, 0x505000ff);
-        graphics.fill(previewX - 2, previewY + PREVIEW_SIZE + 1, previewX + PREVIEW_SIZE + 2, previewY + PREVIEW_SIZE + 2, 0x505000ff);
-        graphics.fill(previewX - 2, previewY - 1, previewX - 1, previewY + PREVIEW_SIZE + 1, 0x505000ff);
-        graphics.fill(previewX + PREVIEW_SIZE + 1, previewY - 1, previewX + PREVIEW_SIZE + 2, previewY + PREVIEW_SIZE + 1, 0x505000ff);
+        graphics.fill(previewX - 2, previewY - 2, previewX + previewSize + 2, previewY - 1, 0x505000ff);
+        graphics.fill(previewX - 2, previewY + previewSize + 1, previewX + previewSize + 2, previewY + previewSize + 2, 0x505000ff);
+        graphics.fill(previewX - 2, previewY - 1, previewX - 1, previewY + previewSize + 1, 0x505000ff);
+        graphics.fill(previewX + previewSize + 1, previewY - 1, previewX + previewSize + 2, previewY + previewSize + 1, 0x505000ff);
 
         RenderSupport.renderLevelLikeAt(cache.levelLike, graphics,
-            previewX + PREVIEW_SIZE / 2, previewY + PREVIEW_SIZE / 2, 60,
-            2, PREVIEW_SIZE, AnvilCraftClient.CONFIG.effects.renderScanPreviewExtraEffect);
+            previewX + previewSize / 2, previewY + previewSize / 2, 60f * previewSize / PREVIEW_SIZE,
+            2, previewSize, AnvilCraftClient.CONFIG.effects.renderScanPreviewExtraEffect);
     }
 
     /**

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.util;
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
 import dev.dubhe.anvilcraft.building.BlueprintCapture;
 import dev.dubhe.anvilcraft.building.BlueprintNormalizer;
+import dev.dubhe.anvilcraft.building.BlueprintTicks;
 import dev.dubhe.anvilcraft.building.ScannerDiskNormalizer;
 import dev.dubhe.anvilcraft.building.StructureSnapshot;
 import dev.dubhe.anvilcraft.building.StructureSnapshotCodec;
@@ -13,12 +14,14 @@ import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +31,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -155,6 +159,13 @@ public class StructureSaveUtil {
         if (blockEntity.getLevel() instanceof ServerLevel serverLevel) {
             return BlueprintCapture.capture(serverLevel, blockEntity.getScanBounds());
         }
+        return buildCachedSnapshot(blockEntity, scannedBlocks);
+    }
+
+    /** 蓝图编辑必须使用扫描缓存，避免原世界的后续变化进入编辑结果。 */
+    public static BlueprintNormalizer.Result buildCachedSnapshot(
+        StructureScannerBlockEntity blockEntity, List<StructureScannerBlockEntity.CachedBlockData> scannedBlocks
+    ) {
         List<BlockState> palette = new ArrayList<>();
         List<StructureSnapshot.BlockEntry> blocks = new ArrayList<>();
         for (var data : scannedBlocks) {
@@ -166,8 +177,27 @@ public class StructureSaveUtil {
             new StructureSnapshot.EntityEntry(entity.pos(), entity.blockPos(), entity.nbt())).toList();
         Vec3i size = new Vec3i(blockEntity.getRangeX().get(), blockEntity.getRangeY().get(), blockEntity.getRangeZ().get());
         StructureSnapshot raw = new StructureSnapshot(size, palette, blocks, entities);
-        return BlueprintNormalizer.normalize(ScannerDiskNormalizer.normalize(raw,
+        var result = BlueprintNormalizer.normalize(ScannerDiskNormalizer.normalize(raw,
             blockEntity.getDirection(), blockEntity.isScannerUpsideDown()));
+        if (!(blockEntity.getLevel() instanceof ServerLevel serverLevel)) {
+            return result;
+        }
+        var area = blockEntity.getScanBounds();
+        BlockPos origin = BlockPos.containing(area.minX, area.minY, area.minZ);
+        var bounds = BoundingBox.fromCorners(origin,
+            BlockPos.containing(area.maxX - 1, area.maxY - 1, area.maxZ - 1));
+        var snapshot = result.snapshot();
+        var states = new HashMap<BlockPos, BlockState>();
+        snapshot.blocks().forEach(entry -> states.put(entry.pos(), snapshot.stateOf(entry)));
+        var ticks = BlueprintTicks.capture(serverLevel, bounds).stream()
+            .map(tick -> tick.at(tick.pos().subtract(origin).offset(result.offset())))
+            .filter(tick -> {
+                var state = states.get(tick.pos());
+                return state != null && tick.type().equals(tick.fluid()
+                    ? BuiltInRegistries.FLUID.getKey(state.getFluidState().getType()) : BuiltInRegistries.BLOCK.getKey(state.getBlock()));
+            }).toList();
+        return new BlueprintNormalizer.Result(new StructureSnapshot(snapshot.size(), snapshot.palette(), snapshot.blocks(),
+            snapshot.entities(), ticks, serverLevel.getGameTime()), result.offset(), result.added(), result.removed());
     }
 
     /**
