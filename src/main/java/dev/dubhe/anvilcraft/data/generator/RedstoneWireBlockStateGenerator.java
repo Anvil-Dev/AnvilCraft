@@ -10,9 +10,9 @@ import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import javax.annotation.Nullable;
 
 /**
  * 生成红石导线六种附着方向及四向连接组合使用的 multipart 方块状态和部件模型。
@@ -36,7 +36,7 @@ public class RedstoneWireBlockStateGenerator {
 
             for (int index = 0; index < 4; index++) {
                 ModelFile side = sideModel(provider, attachment, index);
-                ModelFile up = upModel(provider, attachment, index);
+                final ModelFile up = upModel(provider, attachment, index);
                 var property = RedstoneWireBlock.CONNECTION_PROPERTIES.get(index);
                 multipart.part().modelFile(side).addModel()
                     .condition(RedstoneWireBlock.ATTACHMENT, attachment)
@@ -44,20 +44,18 @@ public class RedstoneWireBlockStateGenerator {
                     .condition(property, ConnectionType.SIDE, ConnectionType.UP)
                     .end();
                 if (attachment.getAxis().isHorizontal()) {
-                    // 只有墙面导线绕支撑块边缘时需要向模型边界外延伸；地面和天花板没有这种显示形态。
+                    // 墙面之间的导线连接使用延伸线段。
                     ModelFile sideCorner = sideCornerModel(provider, attachment, index);
                     multipart.part().modelFile(sideCorner).addModel()
                         .condition(RedstoneWireBlock.ATTACHMENT, attachment)
                         .condition(property, ConnectionType.CORNER)
                         .end();
-                    if (RedstoneWireBlock.getLocalDirection(attachment, index) == Direction.UP) {
-                        ModelFile sideCornerSp = sideCornerSpModel(provider, attachment, index);
-                        multipart.part().modelFile(sideCornerSp).addModel()
-                            .condition(RedstoneWireBlock.ATTACHMENT, attachment)
-                            .condition(property, ConnectionType.CORNER_SP)
-                            .end();
-                    }
                 }
+                ModelFile sideCornerSp = sideCornerSpModel(provider, attachment, index);
+                multipart.part().modelFile(sideCornerSp).addModel()
+                    .condition(RedstoneWireBlock.ATTACHMENT, attachment)
+                    .condition(property, ConnectionType.CORNER_SP)
+                    .end();
                 multipart.part().modelFile(up).addModel()
                     .condition(RedstoneWireBlock.ATTACHMENT, attachment)
                     .condition(property, ConnectionType.UP)
@@ -148,7 +146,7 @@ public class RedstoneWireBlockStateGenerator {
         return model;
     }
 
-    /** 生成墙面向上断口连接支撑方块顶面红石粉时使用的专用短拐角。 */
+    /** 生成连接支撑方块相邻表面元件的短拐角。 */
     private static BlockModelBuilder sideCornerSpModel(
         RegistrumBlockstateProvider provider, Direction attachment, int index
     ) {

@@ -3603,4 +3603,10 @@
   "tooltip.anvilcraft.item.empty_capacitor": "可以储存 8 MFE 能量",
   "tooltip.anvilcraft.item.empty_supercapacitor": "可以储存 160 MFE 能量",
   "tooltip.anvilcraft.item.white_chocolate": "可口的巧克力，纯可可脂的，吃下获得跳跃提升效果"
+,
+  "screen.anvilcraft.structure_scanner.undo_replace": "撤回上一次替换",
+  "screen.anvilcraft.structure_scanner.replace": "替换选中的方块",
+  "screen.anvilcraft.structure_scanner.replace_all": "替换全部方块状态完全相同的方块",
+  "screen.anvilcraft.structure_scanner.replacement": "替换方块（支持从 JEI 拖入，右键清空）",
+  "screen.anvilcraft.structure_scanner.replacement_facing": "朝向：%s（左键轮换）"
 }

@@ -19,8 +19,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.player.Player;
@@ -44,7 +44,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.event.EventHooks;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -232,7 +232,6 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
         if (level.isClientSide || optional.isEmpty()) return;
         AdvancedComparatorBlockEntity blockEntity = optional.get();
         blockEntity.updateInputtingSignal(level, pos, state);
-        this.updateBlockAndNeighbours(level, pos, state, blockEntity);
         this.update(level, pos, state);
         level.scheduleTick(pos, this, getDelay());
     }

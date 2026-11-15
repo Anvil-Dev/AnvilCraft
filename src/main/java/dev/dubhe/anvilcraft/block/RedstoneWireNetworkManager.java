@@ -28,13 +28,13 @@ import net.minecraft.world.level.block.RedStoneWireBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
 
 /**
  * 按维度维护无衰减红石导线的连通网络、连接拓扑和信号缓存。
@@ -224,8 +224,7 @@ public final class RedstoneWireNetworkManager {
     }
 
     /** 获取已缓存的四向连接；客户端、溢出网络或尚未建网时返回 {@code null}。 */
-    @Nullable
-    static RedstoneWireBlock.Connection[] getConnections(BlockGetter level, BlockPos pos) {
+    static RedstoneWireBlock.Connection @Nullable [] getConnections(BlockGetter level, BlockPos pos) {
         if (!(level instanceof ServerLevel serverLevel)) {
             return null;
         }
@@ -514,7 +513,7 @@ public final class RedstoneWireNetworkManager {
 
         /** 将一条几何连接另一端的端口同步隐藏或恢复。 */
         private boolean setNeighborPortsHidden(
-            BlockPos pos, @Nullable RedstoneWireBlock.Connection geometric, boolean hidden
+            BlockPos pos, RedstoneWireBlock.@Nullable Connection geometric, boolean hidden
         ) {
             if (geometric == null) {
                 return false;
@@ -1143,7 +1142,7 @@ public final class RedstoneWireNetworkManager {
                 BlockPos pos = BlockPos.of(iterator.nextLong());
                 BlockState state = this.level.getBlockState(pos);
                 this.level.updateNeighborsAt(pos, state.getBlock());
-                RedstoneWireBlock.notifyAboveSupport(this.level, pos, state);
+                RedstoneWireBlock.notifyCornerTargets(this.level, pos, state);
             }
         }
 

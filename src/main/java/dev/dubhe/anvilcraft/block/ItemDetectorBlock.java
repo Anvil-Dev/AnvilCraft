@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import com.mojang.serialization.MapCodec;
+import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
@@ -19,7 +20,6 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
@@ -36,11 +36,11 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.event.EventHooks;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.EnumSet;
 
-public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBlock, HammerRotateBehavior, IHammerRemovable {
+public class ItemDetectorBlock extends BetterBaseEntityBlock implements IMoveableEntityBlock, HammerRotateBehavior, IHammerRemovable {
 
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
@@ -179,6 +179,13 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBl
         return createTickerHelper(type, ModBlockEntities.ITEM_DETECTOR.get(),
             (level1, blockPos, blockState, blockEntity) ->
                 blockEntity.tick());
+    }
+
+    @Override
+    public void notifyMoved(Level level, BlockPos pos, BlockState state, BlockEntity blockEntity) {
+        if (blockEntity instanceof ItemDetectorBlockEntity detector) {
+            detector.recalcDetectionRange();
+        }
     }
 
     @Override

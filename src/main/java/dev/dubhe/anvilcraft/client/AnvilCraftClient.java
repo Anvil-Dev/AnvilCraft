@@ -51,9 +51,9 @@ import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
-import javax.annotation.Nullable;
 
 @Mod(value = AnvilCraft.MOD_ID, dist = Dist.CLIENT)
 public class AnvilCraftClient {
@@ -78,11 +78,14 @@ public class AnvilCraftClient {
         modBus.addListener(OverworldLikeOrbitalSkyRenderer::cacheModels);
         modBus.addListener(AnvilCraftClient::clientSetup);
         modBus.addListener(ModelBlockSelection::reload);
-        AnvilCraftRecipeComponentFactories.RECIPE_COMPONENT_FACTORIES.register(modEventBus);
+        if (net.neoforged.fml.ModList.get().isLoaded("ageratum")) {
+            AnvilCraftRecipeComponentFactories.RECIPE_COMPONENT_FACTORIES.register(modEventBus);
+        }
         InspectionSupport.initializeClient();
     }
 
     public static void clientSetup(FMLClientSetupEvent event) {
+        event.enqueueWork(dev.dubhe.anvilcraft.client.support.StorageStructurePreview::register);
         event.enqueueWork(() -> ItemProperties.register(
             ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE.get(), AnvilCraft.of("charged"),
             (stack, level, entity, seed) -> WeatherproofChestplateItem.getEnergyStored(stack) > 0 ? 1 : 0));
@@ -158,9 +161,8 @@ public class AnvilCraftClient {
     }
 
     public static class EnergyWeaponExtensionImpl implements IClientItemExtensions {
-        @Nullable
         @Override
-        public HumanoidModel.ArmPose getArmPose(LivingEntity entity, InteractionHand hand, ItemStack stack) {
+        public HumanoidModel.@Nullable ArmPose getArmPose(LivingEntity entity, InteractionHand hand, ItemStack stack) {
             if (!entity.isUsingItem() || entity.getUseItem().getItem() != stack.getItem()) {
                 return IClientItemExtensions.super.getArmPose(entity, hand, stack);
             }

@@ -1,18 +1,11 @@
 package dev.dubhe.anvilcraft.client.support;
 
-import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.pipeline.TextureTarget;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.shaders.ProgramManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.building.BlueprintNormalizer;
 import dev.dubhe.anvilcraft.building.BlueprintPlacement;
-import dev.dubhe.anvilcraft.client.init.ModShaders;
-import dev.dubhe.anvilcraft.client.renderer.RenderState;
+import dev.dubhe.anvilcraft.building.ConstructionBlueprintException;
+import dev.dubhe.anvilcraft.client.AnvilCraftClient;
+import dev.dubhe.anvilcraft.client.gui.tooltip.StructurePreviewPlacement;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.util.LevelLike;
@@ -20,15 +13,13 @@ import dev.dubhe.anvilcraft.util.StructureLoadUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import org.jetbrains.annotations.Nullable;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -39,14 +30,21 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 结构磁盘预览支持类
- * 管理结构磁盘的缓存和3D预览渲染
+ * 管理结构磁盘的缓存和3D预览渲染。
+ *
+ * <p>缓存策略（会话级）：</p>
+ * <ul>
+ *   <li>完整缓存 {@link #PREVIEW_CACHE} — 解析完毕的 LevelLike，本次游戏内永不过期，
+ *       仅在超过 {@link #MAX_CACHE_SIZE} 时淘汰最旧条目</li>
+ *   <li>待处理缓存 {@link #PENDING_PREVIEW_DATA} — 服务端返回的原始 NBT，
+ *       等待 tooltip 渲染时获取磁盘上下文后完成解析</li>
+ *   <li>完整结构文件请求与缺失状态由 {@link StructureLoadUtil} 统一缓存和节流</li>
+ * </ul>
  */
 public class StructureDiskPreviewSupport {
     private static final List<PreviewHandler> PREVIEW_HANDLERS = new CopyOnWriteArrayList<>();
 
-    /**
-     * 返回 {@code true} 表示已接管预览，跳过原版结构渲染。仅客户端调用。
-     */
+    /** 返回 true 表示接管预览，仅客户端调用。 */
     public static void registerPreviewHandler(PreviewHandler handler) {
         PREVIEW_HANDLERS.add(handler);
     }
@@ -56,194 +54,81 @@ public class StructureDiskPreviewSupport {
         boolean render(GuiGraphics graphics, ItemStack stack, int mouseX, int mouseY);
     }
 
-    /**
-     * 预览缓存：使用StructureUUID作为key
-     */
-    private static final Map<String, PreviewCache> PREVIEW_CACHE = new HashMap<>();
+    private static final int PREVIEW_SIZE = 80;
 
     /**
-     * 缓存过期时间（毫秒）
+     * 完整预览缓存（UUID → LevelLike），会话级，永不超时
      */
-    private static final long CACHE_EXPIRY_MS = 5000;
+    private static final Map<UUID, PreviewCache> PREVIEW_CACHE = new HashMap<>();
 
     /**
-     * 最大缓存条目数
+     * 最大缓存条目数（防止内存泄漏）
      */
-    private static final int MAX_CACHE_SIZE = 50;
+    private static final int MAX_CACHE_SIZE = 100;
 
     /**
-     * 上次清理时间
+     * 服务端返回的原始NBT预览数据（等待构建LevelLike）
      */
-    private static long lastCleanupTime = 0;
+    private static final Map<UUID, CompoundTag> PENDING_PREVIEW_DATA = new HashMap<>();
 
-    /**
-     * 清理间隔（毫秒）
-     */
-    private static final long CLEANUP_INTERVAL_MS = 10000;
-
-    /**
-     * 离屏帧缓冲 — 用于扫描预览后处理
-     */
-    @Nullable
-    private static RenderTarget previewFbo;
-    /**
-     * 上次帧缓冲的 guiScale，用于检测变化
-     */
-    private static int lastFboGuiScale = 0;
-
-    /**
-     * 预览缓存数据
-     */
-    private static class PreviewCache {
-        final StructureLoadUtil.StructureData structureData;
-        final LevelLike levelLike;
-        final long timestamp;
-
+    private record PreviewCache(
+        StructureLoadUtil.StructureData structureData,
+        LevelLike levelLike,
+        long creationTime
+    ) {
         PreviewCache(StructureLoadUtil.StructureData structureData, LevelLike levelLike) {
-            this.structureData = structureData;
-            this.levelLike = levelLike;
-            this.timestamp = System.currentTimeMillis();
-        }
-
-        boolean isExpired() {
-            return System.currentTimeMillis() - this.timestamp > CACHE_EXPIRY_MS;
+            this(structureData, levelLike, System.currentTimeMillis());
         }
     }
 
     /**
-     * 在指定位置渲染预览（公共方法，供事件监听器调用）
+     * 在指定位置渲染预览
      */
-    public static void renderPreviewAt(GuiGraphics guiGraphics, ItemStack diskStack, int mouseX, int mouseY) {
+    public static void renderPreviewAt(GuiGraphics graphics, ItemStack diskStack, int mouseX, int mouseY) {
+        renderPreviewAt(graphics, diskStack, mouseX, mouseY, mouseX + 12, mouseY - 12, 0);
+    }
+
+    public static void renderPreviewAt(GuiGraphics graphics, ItemStack diskStack, int mouseX, int mouseY,
+                                       int tooltipX, int tooltipY, int tooltipWidth) {
         for (PreviewHandler handler : PREVIEW_HANDLERS) {
-            if (handler.render(guiGraphics, diskStack, mouseX, mouseY)) {
-                return;
-            }
+            if (handler.render(graphics, diskStack, mouseX, mouseY)) return;
         }
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.level == null) {
+        if (minecraft.level == null) return;
+
+        PreviewCache cache = StructureDiskPreviewSupport.getOrCreateCache(diskStack, minecraft.level);
+        if (cache == null || cache.structureData.isEmpty()) return;
+
+        var placement = StructurePreviewPlacement.opposite(minecraft.getWindow().getGuiScaledWidth(),
+            minecraft.getWindow().getGuiScaledHeight(), mouseX, tooltipX, tooltipY, tooltipWidth, PREVIEW_SIZE);
+        if (placement == null) {
             return;
         }
+        int previewX = placement.x();
+        int previewY = placement.y();
+        int previewSize = placement.size();
 
-        // 从缓存加载结构数据
-        PreviewCache cache = getOrCreateCache(diskStack, minecraft.level);
-        if (cache == null || cache.structureData.isEmpty()) {
-            return;
-        }
-
-        // 计算预览窗口位置（固定在鼠标上方）
-        int previewSize = 80;
-        int previewX = mouseX - previewSize / 2;  // 水平居中对齐鼠标
-        int previewY = mouseY - previewSize - 16;  // 显示在鼠标上方，间距15像素
-
-        // 如果预览窗口超出屏幕顶部，则显示在鼠标下方
-        int screenWidth = minecraft.getWindow().getGuiScaledWidth();
-
-        if (previewY < 0) {
-            previewY = mouseY + 30;  // 显示在鼠标下方
-        }
-
-        // 确保不超出屏幕左右边界
-        if (previewX + previewSize > screenWidth) {
-            previewX = screenWidth - previewSize - 5;
-        }
-        if (previewX < 0) {
-            previewX = 5;
-        }
-
-        // 启用混合和深度测试
-        RenderSystem.enableBlend();
-        RenderSystem.enableDepthTest();
-
-        // 提高Z轴层级，确保在所有UI元素之上（使用极高优先级，避免被物品遮挡）
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(0, 0, 5000);
-
-        // 渲染背景（轻微透明）- 现在在高Z轴层级
-        guiGraphics.fill(previewX - 2, previewY - 2, previewX + previewSize + 2, previewY + previewSize + 2, 0xF0100010);
-        guiGraphics.renderOutline(previewX - 2, previewY - 2, previewSize + 4, previewSize + 4, 0x505000ff);
-
-        // 渲染3D预览
-        RenderSupport.renderLevelLike(
-            cache.levelLike, guiGraphics, previewX + previewSize / 2, previewY + previewSize / 2, 60.0f,  // 缩放因子
-            2.0f
+        graphics.fill(
+            previewX - 2, previewY - 2, previewX + previewSize + 2,
+            previewY + previewSize + 2, 0xF0100010
         );
 
-        // 恢复Z轴层级
-        guiGraphics.pose().popPose();
+        graphics.fill(previewX - 2, previewY - 2, previewX + previewSize + 2, previewY - 1, 0x505000ff);
+        graphics.fill(previewX - 2, previewY + previewSize + 1, previewX + previewSize + 2, previewY + previewSize + 2, 0x505000ff);
+        graphics.fill(previewX - 2, previewY - 1, previewX - 1, previewY + previewSize + 1, 0x505000ff);
+        graphics.fill(previewX + previewSize + 1, previewY - 1, previewX + previewSize + 2, previewY + previewSize + 1, 0x505000ff);
 
-        // 扫描预览后处理: 复制预览区域 → 着色器回写（仅在配置启用时）
-        if (RenderState.isScanPreviewEffectEnabled()) {
-            int guiScale = (int) minecraft.getWindow().getGuiScale();
-            int fbWidth = previewSize * guiScale;
-            int fbHeight = previewSize * guiScale;
+        RenderSupport.renderLevelLikeAt(cache.levelLike, graphics,
+            previewX + previewSize / 2, previewY + previewSize / 2, 60f * previewSize / PREVIEW_SIZE,
+            2, previewSize, AnvilCraftClient.CONFIG.effects.renderScanPreviewExtraEffect);
+    }
 
-            if (lastFboGuiScale != guiScale) {
-                if (previewFbo != null) previewFbo.destroyBuffers();
-                previewFbo = null;
-                lastFboGuiScale = guiScale;
-            }
-            if (previewFbo == null) {
-                previewFbo = new TextureTarget(fbWidth, fbHeight, true, Minecraft.ON_OSX);
-            }
-
-            final RenderTarget mainTarget = minecraft.getMainRenderTarget();
-            int srcX = previewX * guiScale;
-            int srcY = (minecraft.getWindow().getGuiScaledHeight() - previewY - previewSize) * guiScale;
-
-            GlStateManager._glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, mainTarget.frameBufferId);
-            GlStateManager._glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, previewFbo.frameBufferId);
-            GL30.glBlitFramebuffer(
-                srcX,
-                srcY,
-                srcX + fbWidth,
-                srcY + fbHeight,
-                0,
-                0,
-                fbWidth,
-                fbHeight,
-                GL11.GL_COLOR_BUFFER_BIT,
-                GL11.GL_NEAREST
-            );
-            GlStateManager._glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, 0);
-            GlStateManager._glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, 0);
-
-            mainTarget.bindWrite(false);
-
-            ShaderInstance shader = ModShaders.getScanPreviewShader();
-            final float fbW = previewFbo.width;
-            final float fbH = previewFbo.height;
-            final float screenX = previewX * guiScale;
-            final float screenY = (minecraft.getWindow().getGuiScaledHeight() - previewY - previewSize) * guiScale;
-
-            RenderSystem.defaultBlendFunc();
-            RenderSystem.viewport(0, 0, minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight());
-
-            shader.setSampler("DiffuseSampler", previewFbo);
-            shader.safeGetUniform("ProjMat").set(ModShaders.getOrthoMatrix());
-            shader.safeGetUniform("InSize").set(fbW, fbH);
-            shader.safeGetUniform("OutPos").set(screenX, screenY);
-            shader.safeGetUniform("OutSize").set(fbW, fbH);
-            shader.safeGetUniform("GameTime").set((float) (System.currentTimeMillis() % 100000) / 1000.0f);
-
-            RenderSystem.depthFunc(GL11.GL_ALWAYS);
-            shader.apply();
-
-            BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-            bufferbuilder.addVertex(0.0F, 0.0F, 0.0F);
-            bufferbuilder.addVertex(fbW, 0.0F, 0.0F);
-            bufferbuilder.addVertex(fbW, fbH, 0.0F);
-            bufferbuilder.addVertex(0.0F, fbH, 0.0F);
-            BufferUploader.draw(bufferbuilder.buildOrThrow());
-
-            RenderSystem.depthFunc(GL11.GL_LEQUAL);
-            ProgramManager.glUseProgram(0);
-
-            previewFbo.unbindRead();
-        }
-
-        // 禁用深度测试
-        RenderSystem.disableDepthTest();
-        RenderSystem.disableBlend();
+    /**
+     * 接收服务端返回的结构预览NBT数据（由 StructurePreviewResponsePacket 调用）
+     * 存储原始数据，待 tooltip 渲染时再解析为 LevelLike。
+     */
+    public static void receiveStructureData(UUID structureUuid, CompoundTag structureData) {
+        StructureDiskPreviewSupport.PENDING_PREVIEW_DATA.put(structureUuid, structureData);
     }
 
     /**
@@ -251,60 +136,81 @@ public class StructureDiskPreviewSupport {
      */
     @Nullable
     private static PreviewCache getOrCreateCache(ItemStack diskStack, ClientLevel level) {
-        // 尝试从ItemStack获取StructureUUID作为缓存key
-        UUID uuid = StructureDiskPreviewSupport.getStructureUuidFromDisk(diskStack);
-        String cacheKey = uuid == null ? null : uuid.toString();
-        if (cacheKey == null) {
-            // 如果没有UUID，回退到使用components hashCode
-            cacheKey = "hash_" + diskStack.getComponents().hashCode();
-        }
+        StructureDiskData diskData = diskStack.get(ModComponents.STRUCTURE_DISK_DATA);
+        if (diskData == null) return null;
 
-        // 定期清理过期缓存
-        cleanupExpiredCache();
+        UUID uuid = diskData.uuid();
 
-        // 检查缓存
-        PreviewCache cache = PREVIEW_CACHE.get(cacheKey);
-        if (cache != null && !cache.isExpired()) {
+        // 1. 命中完整缓存 — 直接返回，永不过期
+        PreviewCache cache = StructureDiskPreviewSupport.PREVIEW_CACHE.get(uuid);
+        if (cache != null) {
             return cache;
         }
 
-        // 从磁盘加载结构数据（预览模式，不过滤多方块方块）
-        StructureLoadUtil.StructureData data = StructureLoadUtil.loadStructureFromDiskForPreview(level, diskStack);
-        if (data == null || data.isEmpty()) {
-            PREVIEW_CACHE.remove(cacheKey);
+        // 2. 检查是否有服务端返回的 NBT 待处理数据
+        CompoundTag pendingData = StructureDiskPreviewSupport.PENDING_PREVIEW_DATA.get(uuid);
+        if (pendingData != null) {
+            StructureLoadUtil.StructureData data = StructureDiskPreviewSupport.parsePreviewNbt(
+                pendingData, diskData, level.registryAccess());
+            if (data != null && !data.isEmpty()) {
+                LevelLike levelLike = StructureDiskPreviewSupport.buildLevelLike(data);
+                if (levelLike != null) {
+                    cache = new PreviewCache(data, levelLike);
+                    StructureDiskPreviewSupport.PREVIEW_CACHE.put(uuid, cache);
+                    StructureDiskPreviewSupport.PENDING_PREVIEW_DATA.remove(uuid);
+                    StructureDiskPreviewSupport.evictIfNeeded();
+                    return cache;
+                }
+            }
+            // 解析失败，清理待处理数据，后续会重新请求
+            StructureDiskPreviewSupport.PENDING_PREVIEW_DATA.remove(uuid);
             return null;
         }
 
-        // 使用实际的UUID更新cacheKey（如果之前用的是hash）
-        cacheKey = data.diskData.uuid().toString();
-
-        // 构建LevelLike
-        LevelLike levelLike = buildLevelLike(data);
-        if (levelLike == null) {
-            PREVIEW_CACHE.remove(cacheKey);
-            return null;
+        // 3. 读取服务端同步的完整结构；首次访问由共享缓存发起请求。
+        StructureLoadUtil.StructureData localData = StructureLoadUtil.loadStructureFromDiskForPreview(level, diskStack);
+        if (localData != null && !localData.isEmpty()) {
+            LevelLike levelLike = StructureDiskPreviewSupport.buildLevelLike(localData);
+            if (levelLike != null) {
+                cache = new PreviewCache(localData, levelLike);
+                StructureDiskPreviewSupport.PREVIEW_CACHE.put(uuid, cache);
+                StructureDiskPreviewSupport.evictIfNeeded();
+                return cache;
+            }
         }
 
-        // 更新缓存
-        cache = new PreviewCache(data, levelLike);
-        PREVIEW_CACHE.put(cacheKey, cache);
+        return null;
+    }
 
-        return cache;
+    public static void clearCache() {
+        PREVIEW_CACHE.clear();
+        PENDING_PREVIEW_DATA.clear();
+        StructureLoadUtil.clearClientStructureCache();
     }
 
     /**
-     * 构建LevelLike用于渲染
+     * 从NBT数据解析为 StructureData
      */
+    private static StructureLoadUtil.@Nullable StructureData parsePreviewNbt(
+        CompoundTag tag,
+        StructureDiskData diskData,
+        HolderLookup.Provider registry
+    ) {
+        try {
+            var snapshot = BlueprintNormalizer.load(tag, registry, diskData.direction(), diskData.upsideDown());
+            return StructureLoadUtil.StructureData.fromSnapshot(diskData, snapshot);
+        } catch (ConstructionBlueprintException | IllegalArgumentException exception) {
+            AnvilCraft.LOGGER.warn("无法解析结构磁盘预览 {}", diskData.file(), exception);
+            return null;
+        }
+    }
+
     @Nullable
     private static LevelLike buildLevelLike(StructureLoadUtil.StructureData data) {
-        if (data.isEmpty()) {
-            return null;
-        }
+        if (data.isEmpty()) return null;
 
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.level == null) {
-            return null;
-        }
+        if (minecraft.level == null) return null;
 
         LevelLike levelLike = new LevelLike(minecraft.level);
         if (data.snapshot != null) {
@@ -312,75 +218,30 @@ public class StructureDiskPreviewSupport {
             return levelLike;
         }
 
-
-        // 计算旋转（基于scannerFacing）
-        // 磁盘预览固定朝北显示，需要根据scannerFacing旋转方块朝向
-        Direction scannerFacingValue = data.diskData.direction();
-
-        // 根据Scanner朝向计算旋转步数
-        int rotationSteps = switch (scannerFacingValue) {
-            case Direction.NORTH -> 0;  // Scanner北 → 0度
-            case Direction.SOUTH -> 2;  // Scanner南 → 180度
-            case Direction.WEST -> 1;  // Scanner西 → 90度
-            case Direction.EAST -> 3;  // Scanner东 → 270度
-            default -> 0;
-        };
-
-        // 转换为Minecraft原生Rotation
-        Rotation rotation = switch (rotationSteps) {
-            case 1 -> Rotation.CLOCKWISE_90;
-            case 2 -> Rotation.CLOCKWISE_180;
-            case 3 -> Rotation.COUNTERCLOCKWISE_90;
+        Rotation rotation = switch (data.diskData.direction()) {
+            case SOUTH -> Rotation.CLOCKWISE_180;
+            case WEST -> Rotation.CLOCKWISE_90;
+            case EAST -> Rotation.COUNTERCLOCKWISE_90;
             default -> Rotation.NONE;
         };
-
-        // 设置旋转后的方块
-        for (StructureLoadUtil.BlockPosition blockPos : data.blocks) {
-            int y = data.diskData.upsideDown() ? data.diskData.sizeY() - 1 - blockPos.y() : blockPos.y();
-            BlockPos pos = new BlockPos(blockPos.x(), y, blockPos.z());
-            levelLike.setBlockState(pos, blockPos.state().rotate(rotation));
+        for (StructureLoadUtil.BlockPosition block : data.blocks) {
+            int y = data.diskData.upsideDown() ? data.diskData.sizeY() - 1 - block.y() : block.y();
+            levelLike.setBlockState(new BlockPos(block.x(), y, block.z()), block.state().rotate(rotation));
         }
 
         return levelLike;
     }
 
     /**
-     * 从磁盘ItemStack中提取StructureUUID
+     * 缓存超过上限时淘汰最旧条目
      */
-    @Nullable
-    private static UUID getStructureUuidFromDisk(ItemStack diskStack) {
-        StructureDiskData structureDiskData = diskStack.get(ModComponents.STRUCTURE_DISK_DATA);
-        if (structureDiskData == null) {
-            return null;
-        }
+    private static void evictIfNeeded() {
+        if (StructureDiskPreviewSupport.PREVIEW_CACHE.size() <= StructureDiskPreviewSupport.MAX_CACHE_SIZE) return;
 
-        return structureDiskData.uuid();
-    }
-
-    /**
-     * 清理过期缓存条目
-     */
-    private static void cleanupExpiredCache() {
-        long currentTime = System.currentTimeMillis();
-
-        // 如果距离上次清理时间不足间隔，则跳过
-        if (currentTime - lastCleanupTime < CLEANUP_INTERVAL_MS) {
-            return;
-        }
-
-        lastCleanupTime = currentTime;
-
-        // 移除过期条目
-        PREVIEW_CACHE.entrySet().removeIf(entry -> entry.getValue().isExpired());
-
-        // 如果缓存仍然过大，移除最老的条目
-        if (PREVIEW_CACHE.size() > MAX_CACHE_SIZE) {
-            // 按时间戳排序,移除最老的
-            PREVIEW_CACHE.entrySet()
-                .stream()
-                .sorted(Comparator.comparingLong(entry -> entry.getValue().timestamp))
-                .limit(PREVIEW_CACHE.size() - MAX_CACHE_SIZE)
-                .forEach(entry -> PREVIEW_CACHE.remove(entry.getKey()));
-        }
+        StructureDiskPreviewSupport.PREVIEW_CACHE.entrySet()
+            .stream()
+            .sorted(Comparator.comparingLong(e -> e.getValue().creationTime))
+            .limit(StructureDiskPreviewSupport.PREVIEW_CACHE.size() - StructureDiskPreviewSupport.MAX_CACHE_SIZE)
+            .forEach(e -> StructureDiskPreviewSupport.PREVIEW_CACHE.remove(e.getKey()));
     }
 }

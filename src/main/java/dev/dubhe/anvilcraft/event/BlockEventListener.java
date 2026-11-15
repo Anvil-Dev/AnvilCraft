@@ -30,7 +30,6 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -40,16 +39,16 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.Supplier;
-import javax.annotation.Nullable;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class BlockEventListener {
     @SubscribeEvent
-    public static void updateWallWires(BlockEvent.NeighborNotifyEvent event) {
+    public static void updateCornerWires(BlockEvent.NeighborNotifyEvent event) {
         if (event.getLevel() instanceof Level level && !level.isClientSide()) {
-            RedstoneWireBlock.neighborChangedAboveSupport(level, event.getPos(), event.getState().getBlock());
+            RedstoneWireBlock.neighborChangedAroundSupport(level, event.getPos(), event.getState().getBlock());
         }
     }
 
