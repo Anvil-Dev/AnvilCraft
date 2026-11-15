@@ -1422,7 +1422,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         try {
             if ((tag.get("blueprintInventory") instanceof CompoundTag)) {
                 CompoundTag inventory = tag.getCompoundOrEmpty("blueprintInventory");
-                if (inventory.contains("stacks")) {
+                // 蓝图规划合并默认库存后会同时保留两种格式，外来格式必须先于默认空库存读取。
+                if (inventory.contains("stacks") && !(inventory.get("Items") instanceof ListTag)) {
                     this.blueprintItemHandler.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, registries, inventory));
                 } else {
                     ItemStack item = loadLegacyBlueprintItem(inventory.getListOrEmpty("Items"), registries);
