@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
+import dev.dubhe.anvilcraft.client.init.ModShaders;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CelestialForgingAnvilBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.support.OverworldLikeClientState;
 import dev.dubhe.anvilcraft.saved.OverworldLikeWorldState;
@@ -24,6 +25,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.material.FogType;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import org.joml.Matrix4f;
 
 import javax.annotation.Nullable;
 
@@ -118,6 +120,8 @@ public final class OverworldLikeOrbitalSkyRenderer {
         poseStack.mulPose(Axis.ZP.rotationDegrees((float) inner.innerRotation()));
         renderModel(renderer, poseStack, consumer, ring4, brightness * 0.86F);
         poseStack.popPose();
+        ModShaders.getOverworldLikeSkyRingShader().safeGetUniform("SkyRotation")
+            .set(new Matrix4f(event.getModelViewMatrix()).invert());
         ModRenderTypes.OVERWORLD_LIKE_SKY_RING.draw(consumer.buildOrThrow());
     }
 
