@@ -104,19 +104,20 @@ public class SimpleMagneticChuteBlock
     }
 
     /**
-     * 判断指定位置是否被任意相邻溜槽的输出口指向。
-     * 即存在某个方向 dir 上的溜槽，其输出朝向正好是 dir 的反方向（指向本格）。
+     * 判断指定位置是否被磁性溜槽、溢流溜槽或主动物流接口的输出口指向。
+     * 相邻输出口指向本格时使用连接形态。
      *
      * @param level 维度
      * @param pos   被检测的位置
-     * @return 若有任意溜槽指向该位置，返回 {@code true}
+     * @return 若有相邻输出口指向该位置，返回 {@code true}
      */
     public static boolean isPointedByChute(BlockGetter level, BlockPos pos) {
         for (Direction dir : Direction.values()) {
             BlockState neighborState = level.getBlockState(pos.relative(dir));
             if ((neighborState.is(ModBlocks.MAGNETIC_CHUTE.get())
                  || neighborState.is(ModBlocks.SIMPLE_MAGNETIC_CHUTE.get())
-                 || neighborState.is(ModBlocks.OVERFLOW_CHUTE.get()))
+                 || neighborState.is(ModBlocks.OVERFLOW_CHUTE.get())
+                 || neighborState.is(ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE))
                 && ChuteBlock.outputsToward(neighborState, dir.getOpposite())) {
                 return true;
             }
