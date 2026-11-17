@@ -3,8 +3,10 @@ package dev.dubhe.anvilcraft.worldgen;
 import dev.dubhe.anvilcraft.worldgen.MunSkyMath.Rotation;
 import dev.dubhe.anvilcraft.worldgen.MunSkyMath.Vector;
 
-/** 从 Mun 的地月相对位置反推主世界天体，太阳仍与原版昼夜一致。 */
-public record OverworldSkyState(Vector sun, Vector moon, Rotation frame, double illuminatedFraction) {
+/** 为天空渲染和登陆窗口提供天体位置，模型样式不参与轨道计算。 */
+public record OverworldSkyState(
+    Vector sun, Vector moon, Rotation frame, double illuminatedFraction, Vector moonLight, int moonPhase
+) {
     private static final Vector NORTH = new Vector(0, 0, 1);
     private static final Rotation MODEL_ROTATION = new Rotation(new Vector(1, 0, 0), Math.PI / 2);
     /** 与原版午夜前后 1000 tick 接近的天顶角容差。 */
@@ -14,7 +16,17 @@ public record OverworldSkyState(Vector sun, Vector moon, Rotation frame, double 
         Rotation frame = new Rotation(NORTH, timeOfDay * Math.PI * 2 - MunSkyMath.solarAngle(dayTime, partialTick));
         Vector sun = frame.apply(oppositeView(MunSkyMath.referenceSun(dayTime, partialTick)));
         Vector moon = frame.apply(oppositeView(MunSkyMath.earthCenter(dayTime, partialTick).scale(-1)));
-        return new OverworldSkyState(sun, moon, frame, Math.clamp((1 - sun.dot(moon)) / 2, 0, 1));
+        int phase = Math.floorMod((int) Math.round(MunSkyMath.solarAngle(dayTime, partialTick) * 4 / Math.PI), 8);
+        return new OverworldSkyState(sun, moon, frame, Math.clamp((1 - sun.dot(moon)) / 2, 0, 1), sun, phase);
+    }
+
+    /** 原版轨道保持日月相对位置，月相光照独立于原版固定的日月夹角。 */
+    public static OverworldSkyState vanilla(double sunAngle, double moonAngle, int moonPhase) {
+        Rotation frame = new Rotation(NORTH, moonAngle);
+        Vector sun = new Rotation(NORTH, sunAngle).apply(MunSkyMath.UP);
+        Vector moon = frame.apply(MunSkyMath.UP.scale(-1));
+        Vector light = new Rotation(NORTH, moonAngle + moonPhase * Math.PI / 4).apply(MunSkyMath.UP);
+        return new OverworldSkyState(sun, moon, frame, (1 - light.dot(moon)) / 2, light, moonPhase);
     }
 
     public boolean isMoonOverhead() {

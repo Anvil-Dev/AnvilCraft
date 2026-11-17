@@ -5,6 +5,7 @@ import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.GraphicsSettings.OverworldCelestialStyle;
 import dev.dubhe.anvilcraft.config.AnvilCraftServerConfig.OverworldSkyMode;
 import dev.dubhe.anvilcraft.worldgen.MunSkyMath.Vector;
 import dev.dubhe.anvilcraft.worldgen.OverworldSkyState;
@@ -30,6 +31,8 @@ import javax.annotation.Nullable;
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public final class OverworldSkyRenderer {
     private static final ResourceLocation MOON_TEXTURE = AnvilCraft.of("textures/block/celestial_body/planet_atmosphereless.png");
+    private static final ResourceLocation VANILLA_SUN = ResourceLocation.withDefaultNamespace("textures/environment/sun.png");
+    private static final ResourceLocation VANILLA_MOON = ResourceLocation.withDefaultNamespace("textures/environment/moon_phases.png");
     private static final ResourceLocation SUN_TEXTURE = AnvilCraft.of("block/celestial_body/star");
     private static @Nullable ShaderInstance shader;
     private static int atmosphereTexture = -1;
@@ -62,7 +65,8 @@ public final class OverworldSkyRenderer {
     public static boolean enabled() {
         ClientLevel level = Minecraft.getInstance().level;
         return level != null && Level.OVERWORLD.equals(level.dimension()) && shader != null
-            && AnvilCraft.CONFIG.overworldSkyMode == OverworldSkyMode.SPECIAL;
+            && (AnvilCraft.CONFIG.overworldSkyMode == OverworldSkyMode.SPECIAL
+                || AnvilCraft.CLIENT_CONFIG.graphics.overworldCelestialStyle == OverworldCelestialStyle.SPECIAL);
     }
 
     /** 保存原版天空与晨昏渐变；纹理复用，只在窗口尺寸变化时重新分配。 */
@@ -95,12 +99,18 @@ public final class OverworldSkyRenderer {
         ClientLevel level = minecraft.level;
         ShaderInstance skyShader = shader;
         if (level == null || skyShader == null) return;
-        OverworldSkyState state = OverworldSkyState.at(level.getDayTime(), MunClientSky.partialDayTime(level, partialTick),
-            level.getTimeOfDay(partialTick));
+        final boolean vanillaStyle = AnvilCraft.CLIENT_CONFIG.graphics.overworldCelestialStyle == OverworldCelestialStyle.VANILLA;
+        double angle = level.getTimeOfDay(partialTick) * Math.PI * 2;
+        OverworldSkyState state = AnvilCraft.CONFIG.overworldSkyMode == OverworldSkyMode.SPECIAL
+            ? OverworldSkyState.at(level.getDayTime(), MunClientSky.partialDayTime(level, partialTick),
+                level.getTimeOfDay(partialTick))
+            : OverworldSkyState.vanilla(angle, angle, level.getMoonPhase());
         skyShader.safeGetUniform("InverseProjection").set(new Matrix4f(projection).invert());
         skyShader.safeGetUniform("InverseView").set(new Matrix4f(view).invert());
         setVector(skyShader, "SunDirection", state.sun());
         setVector(skyShader, "MoonCenter", state.moon());
+        setVector(skyShader, "MoonLight", state.moonLight());
+        skyShader.safeGetUniform("VanillaStyle").set(vanillaStyle ? 1f : 0f);
         Vector x = state.moonNormal(new Vector(1, 0, 0));
         Vector y = state.moonNormal(new Vector(0, 1, 0));
         Vector z = state.moonNormal(new Vector(0, 0, 1));
@@ -109,12 +119,20 @@ public final class OverworldSkyRenderer {
             (float) y.x(), (float) y.y(), (float) y.z(), 0,
             (float) z.x(), (float) z.y(), (float) z.z(), 0, 0, 0, 0, 1
         ));
-        TextureAtlasSprite sun = minecraft.getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(SUN_TEXTURE);
-        skyShader.safeGetUniform("SunUvBounds").set(sun.getU0(), sun.getV0(), sun.getU1(), sun.getV1());
+        if (vanillaStyle) {
+            skyShader.safeGetUniform("SunUvBounds").set(0f, 0f, 1f, 1f);
+            int phase = state.moonPhase();
+            skyShader.safeGetUniform("MoonUvBounds").set(
+                (phase % 4 + 1) / 4f, (phase / 4 + 1) / 2f, (phase % 4) / 4f, (phase / 4) / 2f
+            );
+        } else {
+            TextureAtlasSprite sun = minecraft.getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(SUN_TEXTURE);
+            skyShader.safeGetUniform("SunUvBounds").set(sun.getU0(), sun.getV0(), sun.getU1(), sun.getV1());
+        }
         skyShader.safeGetUniform("Visibility").set(1 - level.getRainLevel(partialTick));
         try (MunRenderScope ignored = MunRenderScope.celestialSky()) {
-            RenderSystem.setShaderTexture(0, MOON_TEXTURE);
-            RenderSystem.setShaderTexture(1, TextureAtlas.LOCATION_BLOCKS);
+            RenderSystem.setShaderTexture(0, vanillaStyle ? VANILLA_MOON : MOON_TEXTURE);
+            RenderSystem.setShaderTexture(1, vanillaStyle ? VANILLA_SUN : TextureAtlas.LOCATION_BLOCKS);
             RenderSystem.setShaderTexture(2, atmosphereTexture);
             RenderSystem.setShader(() -> skyShader);
             RenderSystem.enableBlend();
