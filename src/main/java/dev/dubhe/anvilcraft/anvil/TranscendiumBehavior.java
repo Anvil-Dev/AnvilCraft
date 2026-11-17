@@ -77,7 +77,9 @@ public class TranscendiumBehavior implements IAnvilBehavior {
 
     private void spawnItemEntity(Level level, BlockPos pos, ItemStack itemStack) {
         if (!itemStack.isEmpty()) {
-            ItemEntity itemEntity = new ItemEntity(level, pos.getX(), pos.getY(), pos.getZ(), itemStack);
+            ItemEntity itemEntity = new ItemEntity(
+                level, pos.getX() + 0.5, pos.getY() - 0.25, pos.getZ() + 0.5, itemStack, 0, 0, 0
+            );
             level.addFreshEntity(itemEntity);
         }
     }
