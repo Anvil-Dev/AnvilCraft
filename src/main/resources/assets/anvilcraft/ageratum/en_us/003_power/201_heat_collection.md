@@ -16,7 +16,7 @@ items:
 
 Collects heat energy from *heat-collectible blocks* to generate power
 
-- Maximum generation power: 4096kW
+- Maximum generation power: 8192kW
 - Working range: 5x5x5 centered on itself
 - The *heat-collectible blocks* within range determine the generation power
 

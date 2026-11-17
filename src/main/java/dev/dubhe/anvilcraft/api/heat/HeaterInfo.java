@@ -19,9 +19,35 @@ import java.util.function.ToIntFunction;
 public record HeaterInfo<T>(
     BiFunction<Level, BlockPos, Optional<T>> getter,
     Function<T, Set<BlockPos>> posesGetter,
+    BiFunction<T, BlockPos, Integer> tierOffsetGetter,
     HeatTierLine line,
     ToIntFunction<T> countGetter
 ) {
+    /**
+     * 默认不衰减：目标方块始终取到线路给出的完整温度等级
+     */
+    private static <T> BiFunction<T, BlockPos, Integer> noTierOffset() {
+        return (producer, pos) -> 0;
+    }
+
+    public static <T extends BlockEntity> HeaterInfo<T> blockEntity(
+        Supplier<BlockEntityType<T>> type,
+        Function<T, Set<BlockPos>> posesGetter,
+        BiFunction<T, BlockPos, Integer> tierOffsetGetter,
+        HeatTierLine line
+    ) {
+        return new HeaterInfo<>(
+            (level, pos) -> {
+                if (!level.isLoaded(pos)) return Optional.empty();
+                return level.getBlockEntity(pos, type.get());
+            },
+            posesGetter,
+            tierOffsetGetter,
+            line,
+            o -> 1
+        );
+    }
+
     public static <T extends BlockEntity> HeaterInfo<T> blockEntity(
         Supplier<BlockEntityType<T>> type,
         Function<T, Set<BlockPos>> posesGetter,
@@ -34,6 +60,7 @@ public record HeaterInfo<T>(
                 return level.getBlockEntity(pos, type.get());
             },
             posesGetter,
+            noTierOffset(),
             line,
             countGetter
         );
@@ -45,7 +72,7 @@ public record HeaterInfo<T>(
         HeatTierLine line,
         ToIntFunction<T> countGetter
     ) {
-        return new HeaterInfo<>(getter, posesGetter, line, countGetter);
+        return new HeaterInfo<>(getter, posesGetter, noTierOffset(), line, countGetter);
     }
 
     public static <T extends BlockEntity> HeaterInfo<T> blockEntity(
@@ -59,6 +86,7 @@ public record HeaterInfo<T>(
                 return level.getBlockEntity(pos, type.get());
             },
             posesGetter,
+            noTierOffset(),
             line,
             o -> 1
         );
@@ -69,7 +97,7 @@ public record HeaterInfo<T>(
         Function<T, Set<BlockPos>> posesGetter,
         HeatTierLine line
     ) {
-        return new HeaterInfo<>(getter, posesGetter, line, o -> 1);
+        return new HeaterInfo<>(getter, posesGetter, noTierOffset(), line, o -> 1);
     }
 
     public static <T extends Block, P extends Comparable<P>> HeaterInfo<BlockInfo> blockState(
@@ -88,6 +116,7 @@ public record HeaterInfo<T>(
                 return Optional.of(new BlockInfo(pos, state));
             },
             posesGetter,
+            noTierOffset(),
             line,
             countGetter
         );
@@ -109,6 +138,7 @@ public record HeaterInfo<T>(
                 return Optional.of(new BlockInfo(pos, state));
             },
             posesGetter,
+            noTierOffset(),
             line,
             countGetter
         );
@@ -120,7 +150,7 @@ public record HeaterInfo<T>(
         HeatTierLine line,
         ToIntFunction<BlockInfo> countGetter
     ) {
-        return new HeaterInfo<>(getter, posesGetter, line, countGetter);
+        return new HeaterInfo<>(getter, posesGetter, noTierOffset(), line, countGetter);
     }
 
     public static <T extends Block, P extends Comparable<P>> HeaterInfo<BlockInfo> blockState(
@@ -138,6 +168,7 @@ public record HeaterInfo<T>(
                 return Optional.of(new BlockInfo(pos, state));
             },
             posesGetter,
+            noTierOffset(),
             line,
             o -> 1
         );
@@ -158,6 +189,7 @@ public record HeaterInfo<T>(
                 return Optional.of(new BlockInfo(pos, state));
             },
             posesGetter,
+            noTierOffset(),
             line,
             o -> 1
         );
@@ -168,6 +200,6 @@ public record HeaterInfo<T>(
         Function<BlockInfo, Set<BlockPos>> posesGetter,
         HeatTierLine line
     ) {
-        return new HeaterInfo<>(getter, posesGetter, line, o -> 1);
+        return new HeaterInfo<>(getter, posesGetter, noTierOffset(), line, o -> 1);
     }
 }

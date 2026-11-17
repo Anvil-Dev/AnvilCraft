@@ -74,6 +74,16 @@ public class HeatTierLine {
             return new Point(Comparators.max(this.tier, other.tier), this.duration + other.duration);
         }
 
+        /**
+         * 取得温度等级降低若干级后的加热点
+         *
+         * @param steps 降低的级数，非正数表示不变
+         * @return 降低后的加热点；低于最低等级时为空，表示不提供热量
+         */
+        public Optional<Point> lower(int steps) {
+            return this.tier.lower(steps).map(tier -> new Point(tier, this.duration));
+        }
+
         public Point merge(Point... others) {
             HeatTier tier = this.tier;
             int duration = this.duration;

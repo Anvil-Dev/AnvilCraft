@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class HeatCollectorBlockEntity extends BlockEntity implements IPowerProducer, IHasAffectRange, IHeatCollector {
     /** 数据生成使用的默认输出上限；运行时上限由配置决定。 */
-    public static final int MAX_OUTPUT_POWER = 4096;
+    public static final int MAX_OUTPUT_POWER = 8192;
     @Getter
     private int time = 0;
     @Getter

@@ -4,12 +4,12 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Multimaps;
-import com.mojang.datafixers.util.Pair;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -103,21 +103,34 @@ public class HeaterManager {
         List<BlockPos> removals
     ) {
         Collection<BlockPos> producerPoses = this.producers.get(info);
-        Object2IntMap<BlockPos> heatablePosesAndProducerCount = new Object2IntArrayMap<>();
+        // 同一个方块可能同时落在不同生产者的不同衰减距离上，因此按（方块, 衰减级数）分别累计生产者数量
+        Map<BlockPos, Object2IntMap<Integer>> heatablePosesAndTierOffsets = new Object2ObjectArrayMap<>();
         for (BlockPos producerPos : producerPoses) {
-            info.getter().apply(this.level, producerPos)
-                .map(producer -> new Pair<>(info.posesGetter().apply(producer), info.countGetter().applyAsInt(producer)))
-                .ifPresentOrElse(
-                    pair -> pair.getFirst().forEach(
-                        heatablePos -> heatablePosesAndProducerCount.mergeInt(heatablePos, pair.getSecond(), Integer::sum)
-                    ),
-                    () -> removals.add(producerPos)
-            );
+            Optional<T> producerOp = info.getter().apply(this.level, producerPos);
+            if (producerOp.isEmpty()) {
+                removals.add(producerPos);
+                continue;
+            }
+            T producer = producerOp.get();
+            int count = info.countGetter().applyAsInt(producer);
+            for (BlockPos heatablePos : info.posesGetter().apply(producer)) {
+                int tierOffset = info.tierOffsetGetter().apply(producer, heatablePos);
+                heatablePosesAndTierOffsets
+                    .computeIfAbsent(heatablePos, pos -> new Object2IntArrayMap<>())
+                    .mergeInt(tierOffset, count, Integer::sum);
+            }
         }
-        for (BlockPos heatablePos : heatablePosesAndProducerCount.keySet()) {
-            Optional<HeatTierLine.Point> pointOp = info.line().getPoint(heatablePosesAndProducerCount.getInt(heatablePos));
-            if (pointOp.isEmpty()) continue;
-            heatableBlocks.merge(heatablePos, pointOp.get(), HeatTierLine.Point::merge);
+        for (Map.Entry<BlockPos, Object2IntMap<Integer>> entry : heatablePosesAndTierOffsets.entrySet()) {
+            HeatTierLine.Point point = null;
+            for (Object2IntMap.Entry<Integer> tierOffsetAndCount : entry.getValue().object2IntEntrySet()) {
+                Optional<HeatTierLine.Point> pointOp = info.line().getPoint(tierOffsetAndCount.getIntValue());
+                if (pointOp.isEmpty()) continue;
+                Optional<HeatTierLine.Point> loweredOp = pointOp.get().lower(tierOffsetAndCount.getKey());
+                if (loweredOp.isEmpty()) continue;
+                point = point == null ? loweredOp.get() : point.merge(loweredOp.get());
+            }
+            if (point == null) continue;
+            heatableBlocks.merge(entry.getKey(), point, HeatTierLine.Point::merge);
         }
     }
 
