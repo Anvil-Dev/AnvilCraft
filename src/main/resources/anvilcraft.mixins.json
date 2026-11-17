@@ -194,6 +194,7 @@
     "MunLightmapMixin",
     "MunLightmapStateMixin",
     "MunLightmapExtractionMixin",
+    "MunNightVisionMixin",
     "MunClockRateMixin",
     "OverworldLikeLightmapMixin",
     "BuildingRodArmedStateMixin",
