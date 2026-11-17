@@ -214,13 +214,23 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private static final int BMT_WRAP_W = BMT_TEXT_W - BMT_TEXT_PAD * 2; /// 68px，去边距后的可用换行宽度
     private static final int BMT_TEXT_SPACING = 12; /// 文本行内的行间距（使间隔接近均匀：3,3,2像素）
 
+    private static final float TITLE_EASTER_EGG_CHANCE = 0.05f;
+    private static final String[] TITLE_EASTER_EGG_KEYS = {
+        "screen.anvilcraft.cfa.title.conformal_field_anchor",
+        "screen.anvilcraft.cfa.title.cosmic_fidelity_array",
+        "screen.anvilcraft.cfa.title.causal_flux_amplifier"
+    };
+
     /// 指南触发：当砧子数量变化时显示星图
     private final int[] previousAnvilCounts = new int[4];
     private @Nullable Boolean guideTriggered;
     private final AbstractWidget mapsGuide;
 
+    private final Component displayTitle;
+
     public CelestialForgingAnvilScreen(CelestialForgingAnvilMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
+        this.displayTitle = rollTitle(title);
         this.imageWidth = 344;
         this.imageHeight = 207;
         this.mapsGuide = new CelestialMapsGuideWidget(new AbstractIntList() {
@@ -236,12 +246,18 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         });
     }
 
+    private static Component rollTitle(Component title) {
+        RandomSource random = RandomSource.create();
+        if (random.nextFloat() >= TITLE_EASTER_EGG_CHANCE) return title;
+        return Component.translatable(TITLE_EASTER_EGG_KEYS[random.nextInt(TITLE_EASTER_EGG_KEYS.length)]);
+    }
+
     @Override
     protected void init() {
         super.init();
         CelestialBodyMatcher.warmup();
         int titleAreaCenter = (3 + 342) / 2 - 1;
-        this.titleLabelX = titleAreaCenter - this.font.width(this.title) / 2;
+        this.titleLabelX = titleAreaCenter - this.font.width(this.displayTitle) / 2;
         this.titleLabelY = 2;
 
         /// 从持久化数据恢复状态
@@ -601,7 +617,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
+        guiGraphics.drawString(this.font, this.displayTitle, this.titleLabelX, this.titleLabelY, 0x404040, false);
 
         Component paramsLabel = Component.translatable("screen.anvilcraft.cfa.celestial_params");
         int paramsX = 7 + (72 - this.font.width(paramsLabel)) / 2;
