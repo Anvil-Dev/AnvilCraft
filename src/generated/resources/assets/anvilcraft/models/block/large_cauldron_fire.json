@@ -1,0 +1,96 @@
+{
+  "parent": "anvilcraft:block/fire_cauldron_fire4",
+  "elements": [
+    {
+      "faces": {
+        "east": {
+          "texture": "#0",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        },
+        "west": {
+          "texture": "#0",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        }
+      },
+      "from": [
+        8,
+        15,
+        0.8
+      ],
+      "rotation": {
+        "angle": 45.0,
+        "axis": "y",
+        "origin": [
+          8,
+          22,
+          8
+        ],
+        "rescale": true
+      },
+      "shade": false,
+      "to": [
+        8,
+        31,
+        15.2
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "texture": "#1",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        },
+        "south": {
+          "texture": "#1",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        }
+      },
+      "from": [
+        0.8,
+        15,
+        8
+      ],
+      "rotation": {
+        "angle": 45.0,
+        "axis": "y",
+        "origin": [
+          8,
+          22,
+          8
+        ],
+        "rescale": true
+      },
+      "shade": false,
+      "to": [
+        15.2,
+        31,
+        8
+      ]
+    }
+  ],
+  "textures": {
+    "0": "anvilcraft:block/large_cauldron_fire_0",
+    "1": "anvilcraft:block/large_cauldron_fire_1",
+    "particle": "anvilcraft:block/large_cauldron_fire_0"
+  }
+}

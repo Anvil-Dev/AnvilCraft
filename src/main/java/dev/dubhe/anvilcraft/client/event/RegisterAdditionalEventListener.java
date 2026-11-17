@@ -248,7 +248,7 @@ public class RegisterAdditionalEventListener {
         );
         event.register(
             LargeCauldronBlockEntityRenderer.FIRE,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/fire_cauldron_fire4"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/large_cauldron_fire"))
         );
         event.register(StampingPlatformBlockEntityRenderer.DOOR_LEFT,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/processing_table_door_left")));

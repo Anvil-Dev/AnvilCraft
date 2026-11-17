@@ -254,6 +254,7 @@ import dev.dubhe.anvilcraft.client.renderer.item.RuinsBlockItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SmartBlockPlacerItemModel;
 import dev.dubhe.anvilcraft.client.renderer.item.StorageFluidPortItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.StoragePortItemRenderer;
+import dev.dubhe.anvilcraft.data.generator.LargeCauldronBlockStateGenerator;
 import dev.dubhe.anvilcraft.data.generator.RedstoneWireBlockStateGenerator;
 import dev.dubhe.anvilcraft.data.recipe.RegistrumBlockRecipeLoader;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
@@ -687,7 +688,7 @@ public class ModBlocks {
         .transform(PropertiesProviderUtil::blockItem)
         .properties(properties -> properties.stacksTo(16))
         .build()
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(() -> LargeCauldronBlockStateGenerator::generate)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.CAULDRONS)
         .register();
 
