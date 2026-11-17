@@ -142,6 +142,19 @@ public final class StorageClientStub {
             sourcePos.asLong(), stonecutter, maxTransfer, inputs, stonecutterResult, requestedCounts);
     }
 
+    public static CompletableFuture<StorageServerStub.InteractionResult> craftingExecuteRecipe(
+        BlockPos sourcePos,
+        StorageServerStub.RecipeCraftRequest request
+    ) {
+        return RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::craftingExecuteRecipe,
+            StorageClientStub.playerId(),
+            sourcePos.asLong(),
+            request
+        );
+    }
+
     public static CompletableFuture<Boolean> craftingAvailable(BlockPos sourcePos) {
         return RPC.invoke(RpcTarget.server(), StorageServerStub::craftingAvailable, StorageClientStub.playerId(), sourcePos.asLong());
     }
