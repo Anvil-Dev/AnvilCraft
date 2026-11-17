@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implements IMoveableEntityBlock, IHammerRemovable {
+    private static final int UPDATE_OUTPUT_EVENT = 0;
     public static final MapCodec<AdvancedComparatorBlock> CODEC = BlockBehaviour.simpleCodec(AdvancedComparatorBlock::new);
 
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
@@ -160,7 +161,7 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
         level.updateNeighborsAtExceptFromFacing(front, this, facing, orientation);
     }
 
-    public void update(Level level, BlockPos pos, BlockState state) {
+    public void update(Level level, BlockPos pos) {
         if (level.isClientSide()) return;
         BlockEntity blockentity = level.getBlockEntity(pos);
         if (!(blockentity instanceof AdvancedComparatorBlockEntity comparator)) return;
@@ -187,7 +188,8 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
             default -> throw new IllegalStateException("Unexpected value: " + comparator.getState());
         }
         comparator.setChanged();
-        this.updateBlockAndNeighbours(level, pos, state, comparator);
+        // 等本刻所有比较器完成输入采样后再发布输出，避免链路传播依赖计划刻顺序。
+        level.blockEvent(pos, this, UPDATE_OUTPUT_EVENT, 0);
     }
 
     public static int getInputSignal(Level level, BlockPos pos, BlockState state) {
@@ -243,8 +245,20 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
         if (level.isClientSide() || optional.isEmpty()) return;
         AdvancedComparatorBlockEntity blockEntity = optional.get();
         blockEntity.updateInputtingSignal(level, pos, state);
-        this.update(level, pos, state);
+        this.update(level, pos);
         level.scheduleTick(pos, this, AdvancedComparatorBlock.getDelay());
+    }
+
+    @Override
+    protected boolean triggerEvent(BlockState state, Level level, BlockPos pos, int id, int param) {
+        if (id != UPDATE_OUTPUT_EVENT) {
+            return super.triggerEvent(state, level, pos, id, param);
+        }
+        if (!level.isClientSide() && level.getBlockEntity(pos) instanceof AdvancedComparatorBlockEntity comparator) {
+            this.updateBlockAndNeighbours(level, pos, state, comparator);
+        }
+        // 输出已通过方块状态同步，内部结算事件无需再发送客户端事件包。
+        return false;
     }
 
     protected void updateBlockAndNeighbours(Level level, BlockPos pos, BlockState state, AdvancedComparatorBlockEntity blockEntity) {
