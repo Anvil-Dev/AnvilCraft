@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.IStoragePort;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
+import dev.dubhe.anvilcraft.api.item.ICannotFitInStationItem;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
@@ -88,6 +89,11 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
     private int fluidTargetCachePorts = -1;
     /** 直连仓储核心时的输入缓存；未直连时不使用 */
     private final ItemStacksResourceHandler buffer = new ItemStacksResourceHandler(BUFFER_SLOTS) {
+        @Override
+        public boolean isValid(int slot, ItemResource resource) {
+            return !(resource.getItem() instanceof ICannotFitInStationItem);
+        }
+
         @Override
         protected void onContentsChanged(int slot, ItemStack previousContents) {
             StoragePortConsolidatorBlockEntity.this.setChanged();

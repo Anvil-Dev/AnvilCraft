@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.IStoragePort;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
+import dev.dubhe.anvilcraft.api.item.ICannotFitInStationItem;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
@@ -77,7 +78,8 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
         @Override
         public boolean isValid(int slot, ItemResource resource) {
             ItemStack marked = StoragePortBlockEntity.this.markedItem;
-            return marked.isEmpty() || ItemResource.of(marked).equals(resource);
+            return !(resource.getItem() instanceof ICannotFitInStationItem)
+                && (marked.isEmpty() || ItemResource.of(marked).equals(resource));
         }
 
         @Override
