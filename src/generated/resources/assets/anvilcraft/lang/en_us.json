@@ -401,7 +401,7 @@
   "anvilcraft.configuration.machines.fluid_tank_infinity_threshold": "Fluid Tank Infinity Threshold",
   "anvilcraft.configuration.machines.fluid_tank_infinity_threshold.tooltip": "Controls the amount at which a Fluid Tank counts as infinite (in mB)",
   "anvilcraft.configuration.machines.heat_collector_max_output_power": "Heat Collector Max Output Power",
-  "anvilcraft.configuration.machines.heat_collector_max_output_power.tooltip": "Controls the maximum heat the Heat Collector can accumulate (in kW)\nThe super_heat advancement requires reaching 4096",
+  "anvilcraft.configuration.machines.heat_collector_max_output_power.tooltip": "Controls the maximum heat the Heat Collector can accumulate (in kW)\nThe super_heat advancement requires reaching 8192",
   "anvilcraft.configuration.machines.heliostats_detection_interval": "Heliostats Detection Interval",
   "anvilcraft.configuration.machines.heliostats_detection_interval.tooltip": "Controls the interval between Heliostats detections (in ticks)",
   "anvilcraft.configuration.machines.heliostats_max_irradiation_distance": "Heliostats Max Irradiation Distance",

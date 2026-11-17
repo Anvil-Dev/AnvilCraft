@@ -26,8 +26,12 @@ public class ModHeaterInfos {
         HeaterInfo.blockEntity(
             ModBlockEntities.HELIOSTATS,
             heliostats -> Optional.ofNullable(heliostats.getIrritatePos())
-                .map(pos -> Set.of(pos, pos.above()))
+                // 照射方块本身与上下各一格温度相同，再各往外一格的温度低一级
+                .map(pos -> Set.of(pos, pos.above(), pos.below(), pos.above(2), pos.below(2)))
                 .orElse(Set.of()),
+            (heliostats, heatablePos) -> Optional.ofNullable(heliostats.getIrritatePos())
+                .map(pos -> Math.abs(heatablePos.getY() - pos.getY()) > 1 ? 1 : 0)
+                .orElse(0),
             HeatTierLine.builder()
                 .addPoint(4, HeatTier.NORMAL)
                 .addPoint(12, HeatTier.HEATED, 4)

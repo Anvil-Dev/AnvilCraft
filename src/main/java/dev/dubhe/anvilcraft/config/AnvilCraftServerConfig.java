@@ -571,10 +571,10 @@ public class AnvilCraftServerConfig {
         @Comment(
             """
             Controls the maximum heat the Heat Collector can accumulate (in kW)
-            The super_heat advancement requires reaching 4096"""
+            The super_heat advancement requires reaching 8192"""
         )
         @BoundedDiscrete(min = 1, max = 1048576)
-        public int heatCollectorMaxOutputPower = 4096;
+        public int heatCollectorMaxOutputPower = 8192;
 
         @Comment(
             """

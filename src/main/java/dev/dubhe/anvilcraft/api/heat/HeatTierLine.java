@@ -83,5 +83,9 @@ public class HeatTierLine {
             }
             return new Point(tier, duration);
         }
+
+        public Optional<Point> lower(int steps) {
+            return this.tier.lower(steps).map(tier -> new Point(tier, this.duration));
+        }
     }
 }
