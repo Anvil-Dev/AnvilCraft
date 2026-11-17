@@ -1,23 +1,21 @@
-package dev.dubhe.anvilcraft.data;
+package dev.dubhe.anvilcraft.data.generator;
 
-import dev.anvilcraft.lib.v2.registrum.providers.ProviderType;
+import dev.anvilcraft.lib.v2.registrum.providers.DataGenContext;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumBlockModelGenerator;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Block;
 
 /**
- * 在物理客户端初始化模型数据生成，避免专用服务器加载客户端模型类型。
+ * 生成大炼药锅渲染器使用的双贴图火焰模型。
  */
-public class AnvilCraftClientDatagen {
+public class LargeCauldronBlockStateGenerator {
     /**
-     * 在数据生成器构造前注册客户端模型回调。
+     * 保留主方块的现有模型与方块状态，仅生成独立火焰模型。
      */
-    public static void init() {
-        AnvilCraft.REGISTRUM.addDataGenerator(ProviderType.BLOCKSTATE, AnvilCraftClientDatagen::generateLargeCauldronFire);
-    }
-
-    private static void generateLargeCauldronFire(RegistrumBlockModelGenerator provider) {
+    public static void generate(DataGenContext<Block, LargeCauldronBlock> context, RegistrumBlockModelGenerator provider) {
         TextureSlot fire0 = TextureSlot.create("0");
         TextureSlot fire1 = TextureSlot.create("1");
         provider.getBuilder()

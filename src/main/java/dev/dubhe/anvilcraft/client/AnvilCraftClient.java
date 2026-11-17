@@ -23,7 +23,6 @@ import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PillSelectorSupport;
 import dev.dubhe.anvilcraft.client.support.StorageStructurePreview;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
-import dev.dubhe.anvilcraft.data.AnvilCraftClientDatagen;
 import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -77,7 +76,6 @@ public class AnvilCraftClient {
         AnvilCraftClient.modEventBus = modBus;
         AnvilCraftClient.modContainer = container;
         InspectionSupport.initializeClient();
-        AnvilCraftClientDatagen.init();
 
         IntegrationHook.setModEventBus(modBus);
         IntegrationHook.setModContainer(container);
