@@ -30,6 +30,14 @@ public class BlockLang {
             "The Spacetime Supercomputer requested a Tick Sprint:"
         );
         provider.add("block.anvilcraft.spacetime_supercomputer.tick_sprint_allow", "✓ Allow");
+        provider.add(
+            "block.anvilcraft.spacetime_supercomputer.tick_sprint_allow_20_minutes",
+            "✓ Allow for 20 minutes"
+        );
+        provider.add(
+            "block.anvilcraft.spacetime_supercomputer.tick_sprint_allowed_20_minutes",
+            "Tick Sprint requests will be allowed for 20 minutes"
+        );
         provider.add("block.anvilcraft.spacetime_supercomputer.tick_sprint_allowed", "This command execution was allowed");
         provider.add("block.anvilcraft.spacetime_supercomputer.tick_sprint_cancelled", "Tick Sprint command execution cancelled");
         provider.add("block.anvilcraft.spacetime_supercomputer.tick_sprint_reject", "✗ Reject");
