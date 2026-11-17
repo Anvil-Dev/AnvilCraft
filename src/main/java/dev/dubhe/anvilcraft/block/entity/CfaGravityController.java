@@ -150,7 +150,7 @@ final class CfaGravityController {
             double scaleRatio = bodyRadius / unscaledRadius;
             strength *= scaleRatio * scaleRatio;
         }
-        return strength;
+        return body instanceof SpecialCelestialBodyData special && special.isWhiteHole() ? -strength : strength;
     }
 
     private static Vec3 computeCenter(

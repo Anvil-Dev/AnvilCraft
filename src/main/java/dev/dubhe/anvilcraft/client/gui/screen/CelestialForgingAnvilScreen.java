@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyMatcher;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyNames;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorRegistry;
 import dev.dubhe.anvilcraft.block.entity.celestial.GiantPlanetData;
@@ -26,6 +27,7 @@ import dev.dubhe.anvilcraft.client.gui.component.CelestialMapsGuideWidget;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyTextureBakery;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialModelGeometry;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -670,8 +672,8 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             case DONE -> {
                 CelestialBodyData cur = getMenu().getBlockEntity().getCelestialBodyData();
                 if (cur != null) {
-                    if (cur instanceof SpecialCelestialBodyData s && s.isPlayerHead()) {
-                        this.renderPlayerHeadFullPreview(guiGraphics, s);
+                    if (cur instanceof SpecialCelestialBodyData s && s.isEasterEgg()) {
+                        this.renderEasterEggFullPreview(guiGraphics, s);
                     } else {
                         this.renderBodyPreview(guiGraphics, cur);
                         this.renderBodyInfo(guiGraphics, cur);
@@ -703,8 +705,8 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
 
     private void renderBodyPreview(GuiGraphics guiGraphics, CelestialBodyData body) {
         /// 玩家头颅天体
-        if (body instanceof SpecialCelestialBodyData s && s.isPlayerHead()) {
-            this.renderPlayerHeadFullPreview(guiGraphics, s);
+        if (body instanceof SpecialCelestialBodyData s && s.isEasterEgg()) {
+            this.renderEasterEggFullPreview(guiGraphics, s);
             return;
         }
         /// 复杂自定义模型（粉碎、空洞、血肉、智能、错误天体）
@@ -909,6 +911,31 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         buf.endBatch();
 
         guiGraphics.pose().popPose();
+    }
+
+    private void renderEasterEggFullPreview(GuiGraphics graphics, SpecialCelestialBodyData special) {
+        if (!special.isBlockEasterEgg()) {
+            this.renderPlayerHeadFullPreview(graphics, special);
+            return;
+        }
+        if (this.minecraft == null) {
+            return;
+        }
+        Component name = Component.translatable(CelestialBodyNames.key(special));
+        graphics.drawString(this.font, name, PV_X + (PV_W - this.font.width(name)) / 2, PV_Y + 4, 0xFFFFFF, true);
+        float scale = PV_W * 0.45f;
+        graphics.pose().pushPose();
+        graphics.pose().translate(PV_X + PV_W / 2, PV_Y + PV_H / 2 - 12, 100);
+        graphics.pose().scale(scale, -scale, scale);
+        graphics.pose().mulPose(Axis.XP.rotationDegrees(UI_AXIAL_TILT));
+        graphics.pose().mulPose(Axis.YP.rotationDegrees(
+            this.previewRotTick * CelestialBodyData.getVisualRotationSpeed(special.rotationSpeed())));
+        graphics.pose().translate(-0.5, -0.5, -0.5);
+        BakedModel model = this.minecraft.getModelManager().getModel(ModelResourceLocation.standalone(special.getModelLocation()));
+        CelestialModelGeometry.fitToHead(graphics.pose(), CelestialModelGeometry.modelBounds(model));
+        CelestialBodyRenderer.renderCustomModel(graphics.pose().last(), graphics.bufferSource(), model, OverlayTexture.NO_OVERLAY);
+        graphics.bufferSource().endBatch();
+        graphics.pose().popPose();
     }
 
     /// 在全部预览区域居中放大渲染玩家头颅天体，显示玩家名，无信息栏和资源栏。
@@ -1350,17 +1377,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         List<Component> lines = new ArrayList<>();
         boolean isError = body instanceof SpecialCelestialBodyData special && special.isErrorPlanet();
         /// 类型名称
-        String typeKey;
-        if (body instanceof RockyPlanetData rp) {
-            typeKey = rockyTypeKey(rp);
-        } else if (body instanceof SpecialCelestialBodyData s) {
-            typeKey = "screen.anvilcraft.cfa.class.special." + s.name();
-        } else if (body instanceof StarData star && star.specialRedDwarf()) {
-            /// 由褐矮星转化而来的红矮星单独命名
-            typeKey = "screen.anvilcraft.cfa.class.mutated_red_dwarf";
-        } else {
-            typeKey = "screen.anvilcraft.cfa.class." + body.bodyClass().name().toLowerCase();
-        }
+        String typeKey = CelestialBodyNames.key(body);
         lines.add(Component.translatable("screen.anvilcraft.cfa.type", Component.translatable(typeKey)));
         /// 年龄（错误星球显示 "???"）
         if (isError) {
@@ -1391,7 +1408,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         }
         switch (body) {
             case SpecialCelestialBodyData s -> {
-                if (s.isErrorPlanet() || s.isPlayerHead()) {
+                if (s.isErrorPlanet() || s.isEasterEgg()) {
                     lines.add(Component.translatable("screen.anvilcraft.cfa.temp", Component.literal("???")));
                     lines.add(Component.translatable("screen.anvilcraft.cfa.atmos", Component.literal("???")));
                     lines.add(Component.translatable("screen.anvilcraft.cfa.liquid", Component.literal("???")));
@@ -1416,7 +1433,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                             + (lc != null ? lc.getSerializedName() : LiquidCoverage.NONE.getSerializedName()))
                     ));
                     lines.add(this.magText(s.magneticFieldStrength()));
-                    lines.add(this.spinText(s.rotationSpeed()));
+                    lines.add(this.spinText(s.isWhiteHole() ? -1 : s.rotationSpeed()));
                     lines.add(this.tiltText(s.axialTilt()));
                 }
             }
@@ -1466,62 +1483,6 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         return lines;
     }
 
-    /// 根据温度、液体覆盖和大气计算岩石行星的类型显示键，
-    /// 而非仅依据天体类别。
-    private static String rockyTypeKey(RockyPlanetData rp) {
-        Temperature t = rp.temperature();
-        LiquidCoverage l = rp.liquidCoverage();
-        boolean a = rp.hasAtmosphere();
-        boolean hasL = l != LiquidCoverage.NONE;
-
-        if (t == Temperature.FREEZING) {
-            if (!hasL && !a) return "screen.anvilcraft.cfa.class.freezing_no_liquid_no_atmos";
-            if (!hasL) return "screen.anvilcraft.cfa.class.freezing_no_liquid_atmos";
-            return "screen.anvilcraft.cfa.class.freezing_liquid";
-        }
-        if (t == Temperature.SCORCHED) {
-            if (!hasL && !a) return "screen.anvilcraft.cfa.class.scorched_no_liquid_no_atmos";
-            if (!hasL) return "screen.anvilcraft.cfa.class.scorched_no_liquid_atmos";
-            return "screen.anvilcraft.cfa.class.scorched_liquid";
-        }
-        /// 寒冷、温和、炎热三类
-        if (!a) return "screen.anvilcraft.cfa.class.deathly_planet";
-        if (!hasL) return "screen.anvilcraft.cfa.class.desert_planet";
-        return switch (l) {
-            case LOW -> tempRiverbankKey(t);
-            case MEDIUM -> tempLandOceanKey(t);
-            case HIGH -> tempOceanKey(t);
-            default -> "screen.anvilcraft.cfa.class.deathly_planet";
-        };
-    }
-
-    private static String tempRiverbankKey(Temperature t) {
-        return switch (t) {
-            case COLD -> "screen.anvilcraft.cfa.class.cold_riverbank";
-            case MILD -> "screen.anvilcraft.cfa.class.mild_riverbank";
-            case HOT -> "screen.anvilcraft.cfa.class.hot_riverbank";
-            default -> "screen.anvilcraft.cfa.class.mild_riverbank";
-        };
-    }
-
-    private static String tempLandOceanKey(Temperature t) {
-        return switch (t) {
-            case COLD -> "screen.anvilcraft.cfa.class.cold_land_ocean";
-            case MILD -> "screen.anvilcraft.cfa.class.mild_land_ocean";
-            case HOT -> "screen.anvilcraft.cfa.class.hot_land_ocean";
-            default -> "screen.anvilcraft.cfa.class.mild_land_ocean";
-        };
-    }
-
-    private static String tempOceanKey(Temperature t) {
-        return switch (t) {
-            case COLD -> "screen.anvilcraft.cfa.class.cold_ocean";
-            case MILD -> "screen.anvilcraft.cfa.class.mild_ocean";
-            case HOT -> "screen.anvilcraft.cfa.class.hot_ocean";
-            default -> "screen.anvilcraft.cfa.class.mild_ocean";
-        };
-    }
-
     private Component magText(int level) {
         String key = switch (level) {
             case 0 -> "screen.anvilcraft.cfa.none";
@@ -1537,6 +1498,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
 
     private Component spinText(int level) {
         String key = switch (level) {
+            case -1 -> "screen.anvilcraft.cfa.spin.stationary";
             case 0 -> "screen.anvilcraft.cfa.spin.very_slow";
             case 1 -> "screen.anvilcraft.cfa.spin.slow";
             case 2 -> "screen.anvilcraft.cfa.spin.medium";

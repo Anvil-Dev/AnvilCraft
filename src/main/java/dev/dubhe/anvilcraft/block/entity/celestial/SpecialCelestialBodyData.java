@@ -147,9 +147,37 @@ public record SpecialCelestialBodyData(
         );
     }
 
-    /// 此天体是否为玩家头颅动态天体。
+    static SpecialCelestialBodyData fromBlockEasterEgg(String name, int space) {
+        return new SpecialCelestialBodyData(
+            AnvilCraft.of("easter_egg/" + name).toString(), name, space,
+            0f, 2, 0, Temperature.MILD, null, LiquidCoverage.NONE,
+            false, true, false, AnvilCraft.of("block/" + name).toString(), null, null
+        );
+    }
+
+    /** 方块彩蛋共用头星的大小、旋转和界面布局。 */
+    public boolean isBlockEasterEgg() {
+        return this.recipeId.equals("anvilcraft:easter_egg/large_cake")
+            || this.recipeId.equals("anvilcraft:easter_egg/giant_anvil");
+    }
+
+    /** 彩蛋只展示自身模型与标题，隐藏束星环和常规属性面板。 */
+    public boolean isEasterEgg() {
+        return this.isPlayerHead() || this.isBlockEasterEgg();
+    }
+
     public boolean hasAtmosphere() {
         return this.atmosphereColor != null;
+    }
+
+    /** 白洞使用独立特殊天体配方，渲染尺寸与黑洞保持一致。 */
+    public boolean isWhiteHole() {
+        return this.recipeId.equals("anvilcraft:special_celestial_body/white_hole");
+    }
+
+    @Override
+    public float bodyScale() {
+        return this.isWhiteHole() ? 1.5f : CelestialBodyData.super.bodyScale();
     }
 
     public boolean isPlayerHead() {
