@@ -3027,7 +3027,6 @@ public final class StorageServerStub {
                 );
             }
         }
-        List<FluidEntry> portFluids = StoragePortManager.collect(view.primary().getId());
         Map<UnlimitedItemStacksResourceHandler.ResourceKey, Integer> containerDeficits = new HashMap<>();
         for (Map.Entry<UnlimitedItemStacksResourceHandler.ResourceKey, Integer> entry : required.entrySet()) {
             long have = availableItems.getOrDefault(entry.getKey(), 0L);
@@ -3041,7 +3040,6 @@ public final class StorageServerStub {
         if (containerDeficits.isEmpty()) {
             return true;
         }
-        UUID storageId = view.primary().getId();
         List<FluidDrainNeed> fluidNeeds = new ArrayList<>();
         for (Map.Entry<UnlimitedItemStacksResourceHandler.ResourceKey, Integer> entry : containerDeficits.entrySet()) {
             ItemStack wanted = entry.getKey().stack();
@@ -3064,6 +3062,8 @@ public final class StorageServerStub {
             }
             StorageServerStub.mergeFluidNeed(fluidNeeds, content, totalMbLong);
         }
+        UUID storageId = view.primary().getId();
+        List<FluidEntry> portFluids = StoragePortManager.collect(storageId);
         for (FluidDrainNeed need : fluidNeeds) {
             if (need.totalMb() > Integer.MAX_VALUE) {
                 return false;
