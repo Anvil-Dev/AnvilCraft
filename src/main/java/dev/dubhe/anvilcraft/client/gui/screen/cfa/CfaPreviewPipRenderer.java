@@ -5,6 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import dev.dubhe.anvilcraft.api.rendering.BlockStateModelTessellateState;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.GiantPlanetData;
@@ -19,6 +20,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyR
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyTextureBakery;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialModelGeometry;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialShellRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.StellarEmissionRenderer;
 import dev.dubhe.anvilcraft.client.support.GatewayGuiProjection;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -207,6 +209,10 @@ public final class CfaPreviewPipRenderer extends PictureInPictureRenderer<CfaPre
             return;
         }
 
+        var model = new BlockStateModelTessellateState(CFARenderer.BODY_STAR, PreviewLayers.CUTOUT, false, false);
+        if (StellarEmissionRenderer.submit(star, model, poseStack, collector, null, 0)) {
+            return;
+        }
         this.submitStandalone(CFARenderer.BODY_STAR, false, seed, poseStack, collector, true);
         final float[] color = CelestialBodyTextureBakery.starColor(star);
         poseStack.pushPose();
