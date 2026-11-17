@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.block.entity.celestial;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.util.RandomSource;
 import org.jspecify.annotations.Nullable;
 
@@ -8,7 +10,9 @@ import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import javax.imageio.ImageIO;
 
 /**
@@ -105,7 +109,7 @@ public final class CelestialBodyMatcher {
 
     // === 全部合法组合预计算 ===
 
-    private static void ensurePrecomputed() {
+    private static synchronized void ensurePrecomputed() {
         if (CelestialBodyMatcher.precomputed) return;
         CelestialBodyMatcher.ensureLoaded();
         CelestialBodyMatcher.precomputed = true;
@@ -150,6 +154,100 @@ public final class CelestialBodyMatcher {
     /** 提前触发预计算，避免界面首次查询有效范围时卡顿。 */
     public static void warmup() {
         CelestialBodyMatcher.ensurePrecomputed();
+    }
+
+    private static final int ATMOSPHERE_BIT = 1 << 24;
+    private static @Nullable Map<String, IntList> presetParameters;
+    private static final Map<Integer, IntList> stellarParameters = new LinkedHashMap<>();
+
+    /** 返回星图中实际存在的全部天体名称，同名属性组合归入同一预设。 */
+    public static List<String> presetNames() {
+        return List.copyOf(presetParameters().keySet());
+    }
+
+    /** 在指定名称对应的合法星图组合中随机选择参数。 */
+    public static @Nullable Preset samplePreset(String name, RandomSource random) {
+        IntList parameters = presetParameters().get(name);
+        if (parameters == null || parameters.isEmpty()) {
+            return null;
+        }
+        return decodePreset(parameters.getInt(random.nextInt(parameters.size())), random);
+    }
+
+    /** 为恒星残骸选择同质量档位的合法前身参数。 */
+    public static @Nullable Preset sampleStellarMass(int mass, RandomSource random) {
+        presetParameters();
+        IntList parameters = stellarParameters.get(mass);
+        if (parameters == null || parameters.isEmpty()) {
+            return null;
+        }
+        return decodePreset(parameters.getInt(random.nextInt(parameters.size())), random);
+    }
+
+    private static synchronized Map<String, IntList> presetParameters() {
+        if (presetParameters != null) {
+            return presetParameters;
+        }
+        ensurePrecomputed();
+        Map<String, IntList> result = new LinkedHashMap<>();
+        String[][][] names = new String[CelestialBodyClass.values().length][64][2];
+        RandomSource previewRandom = RandomSource.create(0);
+        for (CelestialBodyClass bodyClass : CelestialBodyClass.values()) {
+            for (int energy = 1; energy <= 64; energy++) {
+                CelestialBodyData body = generateBodyData(bodyClass, 1, 1, 1, energy, previewRandom);
+                for (int atmosphere = 0; atmosphere < 2; atmosphere++) {
+                    String name = CelestialBodyNames.key(withAtmosphere(body, atmosphere == 1));
+                    names[bodyClass.ordinal()][energy - 1][atmosphere] = name;
+                    result.computeIfAbsent(name, ignored -> new IntArrayList());
+                }
+            }
+        }
+        if (validAmplified != null) {
+            for (int index = validAmplified.nextSetBit(0); index >= 0; index = validAmplified.nextSetBit(index + 1)) {
+                int space = (index >> 12 & 63) + 1;
+                int mass = (index >> 6 & 63) + 1;
+                int energy = index & 63;
+                CelestialBodyClass bodyClass = lookupClass(massRadiusImage, toX(mass), toY(space));
+                if (bodyClass == null) {
+                    continue;
+                }
+                result.get(names[bodyClass.ordinal()][energy][0]).add(index);
+                if (bodyClass.isRockyPlanet()) {
+                    result.get(names[bodyClass.ordinal()][energy][1]).add(index | ATMOSPHERE_BIT);
+                }
+                if (bodyClass.isStellar() && !bodyClass.isRemnant()) {
+                    stellarParameters.computeIfAbsent(mass, ignored -> new IntArrayList()).add(index);
+                }
+            }
+        }
+        result.values().removeIf(IntList::isEmpty);
+        presetParameters = result;
+        return result;
+    }
+
+    private static Preset decodePreset(int index, RandomSource random) {
+        int time = (index >> 18 & 63) + 1;
+        int space = (index >> 12 & 63) + 1;
+        int mass = (index >> 6 & 63) + 1;
+        int energy = (index & 63) + 1;
+        CelestialBodyData body = match(time, space, mass, energy, true, random);
+        if (body == null) {
+            throw new IllegalStateException("Invalid celestial preset parameters: " + index);
+        }
+        return new Preset(withAtmosphere(body, (index & ATMOSPHERE_BIT) != 0), time, mass, energy);
+    }
+
+    private static CelestialBodyData withAtmosphere(CelestialBodyData body, boolean atmosphere) {
+        if (body instanceof RockyPlanetData rocky && rocky.bodyClass().isRockyPlanet()) {
+            return new RockyPlanetData(rocky.bodyClass(), atmosphere, rocky.liquidCoverage(), rocky.temperature(),
+                rocky.ringType(), rocky.size(), rocky.paletteBaseRow(), rocky.paletteOverlayRow(),
+                rocky.axialTilt(), rocky.rotationSpeed(), rocky.magneticFieldStrength());
+        }
+        return body;
+    }
+
+    /** 保存生成天体及资源生成所需的原始砧子参数。 */
+    public record Preset(CelestialBodyData body, int time, int mass, int energy) {
     }
 
     // === 界面提示范围查询 ===

@@ -3,18 +3,19 @@ package dev.dubhe.anvilcraft.block.entity;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyMatcher;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyPresets;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialSeedMatcher;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialSnapshotCodec;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetResourceGenerator;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
 
@@ -106,12 +107,21 @@ final class CfaSearchController {
             return;
         }
 
-        if (this.capturedSeedItem == Items.PLAYER_HEAD) {
-            SpecialCelestialBodyData playerHead = CelestialSeedMatcher.fromPlayerHead(
-                owner.getAnvilInventory().getItem(SEED_SLOT), space
-            );
-            if (playerHead != null) {
-                applyResult(owner, playerHead, new PlanetaryResourceSet());
+        if (level instanceof ServerLevel serverLevel) {
+            String preset = this.capturedSeedItem == ModBlocks.BLACK_HOLE.asItem() ? CelestialBodyPresets.BLACK_HOLE
+                : this.capturedSeedItem == ModBlocks.WHITE_HOLE.asItem() ? CelestialBodyPresets.WHITE_HOLE : null;
+            if (preset != null && CelestialBodyPresets.apply(preset, owner, serverLevel)) {
+                consumeSeed(owner);
+                sync(owner);
+                return;
+            }
+        }
+
+        ItemStack seedStack = owner.getAnvilInventory().getItem(SEED_SLOT);
+        if (this.capturedSeedItem != null && seedStack.is(this.capturedSeedItem)) {
+            SpecialCelestialBodyData easterEgg = CelestialSeedMatcher.fromEasterEgg(seedStack, space);
+            if (easterEgg != null) {
+                applyResult(owner, easterEgg, new PlanetaryResourceSet());
                 consumeSeed(owner);
                 sync(owner);
                 return;

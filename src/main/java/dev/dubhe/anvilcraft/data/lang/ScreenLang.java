@@ -310,6 +310,11 @@ public class ScreenLang {
 
         // Celestial Forging Anvil (所有冒号后面都要带空格)
         provider.add("screen.anvilcraft.celestial_forging_anvil", "Celestial Forging Anvil"); // 锻星砧
+        provider.add("screen.anvilcraft.cfa.class.special.white_hole", "White Hole");
+        provider.add("screen.anvilcraft.cfa.class.special.player_head", "Head Planet");
+        provider.add("screen.anvilcraft.cfa.class.special.large_cake", "The Lie");
+        provider.add("screen.anvilcraft.cfa.class.special.giant_anvil", "AnvilCraft");
+        provider.add("screen.anvilcraft.cfa.spin.stationary", "Stationary");
         provider.add("screen.anvilcraft.cfa.celestial_params", "Parameter"); // 天体参数
         provider.add("screen.anvilcraft.cfa.lock", "Click to lock"); // 点击锁定
         provider.add("screen.anvilcraft.cfa.locked_tooltip", "Operation requires unlocking first."); // 需要先解锁才可操作，如果你不是锻星砧拥有者，请询问拥有者后操作

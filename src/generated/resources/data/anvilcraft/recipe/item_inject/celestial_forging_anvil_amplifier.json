@@ -3,6 +3,9 @@
   "block_ingredient": {
     "blocks": "anvilcraft:giant_anvil"
   },
+  "block_result": {
+    "block": "minecraft:air"
+  },
   "ingredients": [
     {
       "items": "anvilcraft:spacetime_supercomputer"

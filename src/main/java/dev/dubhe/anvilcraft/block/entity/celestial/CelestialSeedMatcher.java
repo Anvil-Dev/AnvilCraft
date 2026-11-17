@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.celestial;
 
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.celestial.SpecialCelestialBodyRecipe;
 import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
@@ -21,6 +22,17 @@ import java.util.Collection;
  */
 public final class CelestialSeedMatcher {
     private CelestialSeedMatcher() {
+    }
+
+    /** 彩蛋种子不匹配砧子数量，空间数量仅沿用头星的大小规则。 */
+    public static @Nullable SpecialCelestialBodyData fromEasterEgg(ItemStack stack, int space) {
+        if (stack.is(ModBlocks.LARGE_CAKE.asItem())) {
+            return SpecialCelestialBodyData.fromBlockEasterEgg("large_cake", space);
+        }
+        if (stack.is(ModBlocks.GIANT_ANVIL.asItem())) {
+            return SpecialCelestialBodyData.fromBlockEasterEgg("giant_anvil", space);
+        }
+        return fromPlayerHead(stack, space);
     }
 
     public static @Nullable SpecialCelestialBodyData fromPlayerHead(ItemStack stack, int space) {

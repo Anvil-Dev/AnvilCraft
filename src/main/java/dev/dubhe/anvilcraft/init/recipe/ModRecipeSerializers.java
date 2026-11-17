@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.init.recipe;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.recipe.CanningFoodRecipe;
+import dev.dubhe.anvilcraft.recipe.CelestialAnvilRecipe;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.EnergyWeaponMakeRecipe;
 import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
@@ -182,6 +183,9 @@ public class ModRecipeSerializers {
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<JewelCraftingRecipe>> JEWEL_CRAFTING = DF.register(
         "jewel_crafting",
         () -> JewelCraftingRecipe.SERIALIZER
+    );
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<CelestialAnvilRecipe>> CELESTIAL_ANVIL = DF.register(
+        "celestial_anvil", () -> CelestialAnvilRecipe.SERIALIZER
     );
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<CanningFoodRecipe>> CANNING_FOOD = DF.register(
         "canning_food",

@@ -17,8 +17,8 @@ import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyTextureBakery;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialModelGeometry;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialShellRenderer;
-import dev.dubhe.anvilcraft.client.renderer.item.CelestialForgingAnvilItemRenderer;
 import dev.dubhe.anvilcraft.client.support.GatewayGuiProjection;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -146,6 +146,10 @@ public final class CfaPreviewPipRenderer extends PictureInPictureRenderer<CfaPre
         Vector3f atmosphereView
     ) {
         StandaloneModelKey<BlockStateModel> model = CelestialBodyPreviewRenderer.resolveSpecialModel(special);
+        if (special.isBlockEasterEgg()) {
+            BlockStateModel baked = Minecraft.getInstance().getModelManager().getStandaloneModel(model);
+            CelestialModelGeometry.fitToHead(poseStack, CelestialModelGeometry.modelBounds(baked));
+        }
         this.submitStandalone(model, false, seed, poseStack, collector, true);
         if (special.atmosphereColor() != null) {
             this.submitAtmosphere(CelestialBodyRenderer.getAtmosphereColor(special.atmosphereColor()),
@@ -464,7 +468,7 @@ public final class CfaPreviewPipRenderer extends PictureInPictureRenderer<CfaPre
             int padX = 0;
             int padY = 0;
             if (body instanceof StarData star && star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
-                var bounds = CelestialForgingAnvilItemRenderer.modelBounds(
+                var bounds = CelestialModelGeometry.modelBounds(
                     Minecraft.getInstance().getModelManager().getStandaloneModel(CFARenderer.BODY_BLACK_HOLE));
                 var transform = new Matrix4f().rotateX((float) Math.toRadians(UI_AXIAL_TILT))
                     .rotateY((float) Math.toRadians(animationTick * CelestialBodyData.getVisualRotationSpeed(body.rotationSpeed())))
