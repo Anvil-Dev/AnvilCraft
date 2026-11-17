@@ -54,8 +54,7 @@ import java.util.regex.Pattern;
  */
 public class StructureLoadUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(StructureLoadUtil.class);
-    // Whitelist pattern for structure file names: only allow alphanumeric, underscore, hyphen, and dot (for .nbt extension)
-    private static final Pattern VALID_STRUCTURE_FILE = Pattern.compile("^[a-zA-Z0-9_\\-]+_[a-f0-9\\-]+\\.nbt$");
+    private static final Pattern VALID_STRUCTURE_FILE = Pattern.compile("^[\\p{L}\\p{N}_\\-]+_[a-f0-9\\-]+\\.nbt$");
     private static final int MAX_STRUCTURE_FILE_LENGTH = 128;
     private static final int MAX_PREVIEW_BLOCKS = 4096;
     private static final long REQUEST_COOLDOWN_MS = 2000;
