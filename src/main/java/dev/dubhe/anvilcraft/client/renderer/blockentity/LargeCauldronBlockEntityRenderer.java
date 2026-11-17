@@ -28,7 +28,7 @@ import java.util.List;
 
 public class LargeCauldronBlockEntityRenderer implements BlockEntityRenderer<LargeCauldronBlockEntity> {
     private static final ModelResourceLocation FIRE =
-        ModelResourceLocation.standalone(AnvilCraft.of("block/fire_cauldron_fire4"));
+        ModelResourceLocation.standalone(AnvilCraft.of("block/large_cauldron_fire"));
     private static final float WALL = 0.25F + 0.001F;
     private static final float MIN_XZ = -1.0F + WALL;
     private static final float MAX_XZ = 2.0F - WALL;

@@ -90,6 +90,7 @@ public class RegisterAdditionalEventListener {
         event.register(standaloneBlock("celestial_forging_anvil_ring_4_penrose_sphere_laser_off"));
 
         event.register(standaloneBlock("fire_cauldron_fire4"));
+        event.register(standaloneBlock("large_cauldron_fire"));
         event.register(standaloneBlock("smart_block_placer_base"));
         event.register(standaloneBlock("smart_block_placer_upperarm"));
         event.register(standaloneBlock("smart_block_placer_forearm"));
