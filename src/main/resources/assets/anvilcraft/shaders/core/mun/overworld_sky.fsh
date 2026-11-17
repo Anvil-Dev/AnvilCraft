@@ -34,7 +34,7 @@ bool moon(vec3 ray, out vec3 color) {
     }
     // 保留模型的立方体轮廓和六面 UV，用径向受光形成连续移动的月相明暗交界。
     vec3 normal = mat3(MoonRotation) * normalize(point);
-    float light = dot(normal, SunDirection);
+    float light = dot(normal, MoonLight);
     float terminator = smoothstep(-0.025, 0.025, light);
     vec3 albedo = texture(Sampler0, (tile + clamp(uv, 0.001, 0.999)) / 4.0).rgb;
     color = mix(albedo, vec3(1.0), 0.22) * terminator * sqrt(max(light, 0.0));
@@ -85,9 +85,25 @@ vec3 solarHalo(vec3 ray, float altitude, float radius) {
     return (vec3(1.0) - exp(-vec3(1.0, 0.985, 0.94) * 4.0)) * profile;
 }
 
+vec4 celestialSprite(sampler2D atlas, vec4 bounds, vec3 center, float halfSize, vec3 ray) {
+    float depth = dot(ray, center);
+    if (depth <= 0.0) return vec4(0.0);
+    vec3 horizontal = normalize(vec3(0.0, 0.0, 1.0) - center * center.z);
+    vec3 vertical = cross(horizontal, center);
+    vec2 uv = vec2(dot(ray, horizontal), dot(ray, vertical)) / (depth * halfSize) * 0.5 + 0.5;
+    if (min(uv.x, uv.y) < 0.0 || max(uv.x, uv.y) > 1.0) return vec4(0.0);
+    return texture(atlas, mix(bounds.xy, bounds.zw, uv));
+}
+
 void main() {
     vec3 ray = normalize(localRay);
     if (Visibility <= 0.0) discard;
+    if (VanillaStyle > 0.5) {
+        vec4 sun = celestialSprite(Sampler1, SunUvBounds, SunDirection, 0.3, ray);
+        vec4 moon = celestialSprite(Sampler0, MoonUvBounds, MoonCenter, 0.2, ray);
+        fragColor = vec4((sun.rgb * sun.a + moon.rgb * moon.a) * Visibility, 0.0);
+        return;
+    }
     vec3 tangent = vec3(SunDirection.y, -SunDirection.x, 0.0);
     vec3 sunRay = vec3(dot(ray, tangent), dot(ray, SunDirection), ray.z);
     float solarAltitude = max(SunDirection.y, 0.0);
