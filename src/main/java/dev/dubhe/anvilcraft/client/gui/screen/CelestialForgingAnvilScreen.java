@@ -28,6 +28,7 @@ import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyTextureBakery;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialModelGeometry;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.StellarEmissionRenderer;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -42,11 +43,9 @@ import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
-import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -56,14 +55,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ColorRGBA;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.block.Blocks;
-import net.neoforged.neoforge.client.model.data.ModelData;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -811,60 +808,21 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         guiGraphics.pose().popPose();
     }
 
-    /// 在UI中渲染恒星：动画基础模型 + 颜色叠加 + 光晕。
-    @SuppressWarnings(
-        {
-            "checkstyle:VariableDeclarationUsageDistance",
-            "checkstyle:Indentation"
-        }
-    )
+    /// 预览与世界共用恒星发光路径，避免低温恒星被乘法叠色压暗。
     private void renderStarPreview(GuiGraphics guiGraphics, StarData star) {
-        if (minecraft == null) return;
-        BakedModel model = minecraft.getModelManager().getModel(getUiStarModel(star));
-        if (model == minecraft.getModelManager().getMissingModel()) return;
-
-        var buf = guiGraphics.bufferSource();
-        /// 动画灰度恒星模型
-        minecraft.getBlockRenderer().getModelRenderer()
-            .renderModel(guiGraphics.pose().last(),
-                buf.getBuffer(RenderType.cutout()),
-                null,
-                model,
-                1.0f,
-                1.0f,
-                1.0f,
-                LightTexture.FULL_BRIGHT,
-                0
-            );
-
-        /// 颜色叠加 —— 乘法混合
-        float[] rgb = CelestialBodyTextureBakery.starColor(star);
-        long seed = getMenu().getBlockEntity().getBlockPos().asLong();
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(0.5, 0.5, 0.5);
-        guiGraphics.pose().scale(1.005f, 1.005f, 1.005f);
-        guiGraphics.pose().translate(-0.5, -0.5, -0.5);
-        this.renderStarColorOverlay(guiGraphics, rgb[0], rgb[1], rgb[2]);
-        guiGraphics.pose().popPose();
-
-        /// 光晕
-        CelestialBodyRenderer.renderStarHalo(guiGraphics.pose(), buf, star, LightTexture.FULL_BRIGHT, 0, seed);
-        buf.endBatch();
-    }
-
-    /// 渲染恒星预览的乘法混合颜色叠加层。
-    private void renderStarColorOverlay(GuiGraphics guiGraphics, float r, float g, float b) {
-        BakedModel cubeModel = minecraft.getBlockRenderer().getBlockModel(Blocks.WHITE_CONCRETE.defaultBlockState());
-        VertexConsumer consumer = guiGraphics.bufferSource().getBuffer(ModRenderTypes.STAR_COLOR_OVERLAY);
-        RandomSource random = RandomSource.create(42L);
-        for (Direction dir : Direction.values()) {
-            for (BakedQuad quad : cubeModel.getQuads(null, dir, random, ModelData.EMPTY, null)) {
-                consumer.putBulkData(guiGraphics.pose().last(), quad, r, g, b, 1.0f, LightTexture.FULL_BRIGHT, 0);
-            }
+        if (this.minecraft == null) {
+            return;
         }
-        for (BakedQuad quad : cubeModel.getQuads(null, null, random, ModelData.EMPTY, null)) {
-            consumer.putBulkData(guiGraphics.pose().last(), quad, r, g, b, 1.0f, LightTexture.FULL_BRIGHT, 0);
+        BakedModel model = this.minecraft.getModelManager().getModel(getUiStarModel(star));
+        if (model == this.minecraft.getModelManager().getMissingModel()) {
+            return;
         }
+        var buffers = guiGraphics.bufferSource();
+        StellarEmissionRenderer.render(
+            star, model, guiGraphics.pose(), buffers, OverlayTexture.NO_OVERLAY,
+            this.getMenu().getBlockEntity().getStellarVisualState(0), null, 0
+        );
+        buffers.endBatch();
     }
 
     /// 通过方块模型渲染复杂模型天体（粉碎、空洞、错误天体等）。
