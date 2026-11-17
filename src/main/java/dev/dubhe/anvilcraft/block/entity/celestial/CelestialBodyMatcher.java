@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.block.entity.celestial;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import javax.imageio.ImageIO;
 import net.minecraft.util.RandomSource;
 import org.jspecify.annotations.Nullable;
 
@@ -14,6 +13,7 @@ import java.util.BitSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import javax.imageio.ImageIO;
 
 /**
  * 基于 PNG 星图的三步天体匹配引擎。
