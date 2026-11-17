@@ -77,11 +77,8 @@ public class SilencerButton extends Button {
         if (this.isHovered()) {
             Component soundIdText = highlighted(
                 soundId.toString(), searchText.replaceFirst("#", ""), ChatFormatting.GRAY, ChatFormatting.YELLOW);
-            guiGraphics.renderTooltip(
-                Minecraft.getInstance().font,
-                List.of(message.getVisualOrderText(), soundIdText.getVisualOrderText()),
-                mouseX,
-                mouseY
+            this.parent.setTooltipForNextRenderPass(
+                List.of(message.getVisualOrderText(), soundIdText.getVisualOrderText())
             );
         }
     }

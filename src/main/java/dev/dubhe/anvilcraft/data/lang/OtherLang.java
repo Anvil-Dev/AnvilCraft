@@ -10,6 +10,10 @@ public class OtherLang {
         provider.add("map.anvilcraft.overseer.random_tick", "Random ticks");
         provider.add("map.anvilcraft.overseer.no_random_tick", "No random ticks");
 
+        provider.add("sound.anvilcraft.music.mun.above_the_moon_dust", "Above the Moon Dust");
+        provider.add("sound.anvilcraft.music.mun.far_side_glow", "Far Side Glow");
+        provider.add("sound.anvilcraft.music.mun.munlight", "Munlight");
+
         provider.add("component_content.anvilcraft.mod_name.unknown", "Unknown <%s>");
         provider.add("component_content.anvilcraft.mod_name.minecraft", "Minecraft");
         provider.add("component_content.anvilcraft.mod_name.ageratum", "Ageratum");
