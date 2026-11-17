@@ -32,6 +32,7 @@ import net.minecraft.network.protocol.game.ServerboundContainerButtonClickPacket
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
@@ -187,13 +188,25 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private Component refactorErrorMsg = null;
     private int unlockWarningTick = 0;
 
+    // 标题彩蛋：每次打开界面有 5% 概率把标题换成其中一个别称
+    private static final float TITLE_EASTER_EGG_CHANCE = 0.05f;
+    private static final String[] TITLE_EASTER_EGG_KEYS = {
+        "screen.anvilcraft.cfa.title.conformal_field_anchor",
+        "screen.anvilcraft.cfa.title.cosmic_fidelity_array",
+        "screen.anvilcraft.cfa.title.causal_flux_amplifier"
+    };
+
     // 砧子数量变化时触发星图引导。
     private final int[] previousAnvilCounts = new int[4];
     private @Nullable Boolean guideTriggered;
     private final CelestialMapsGuideWidget mapsGuide;
 
+    // 本次打开界面实际绘制的标题
+    private final Component displayTitle;
+
     public CelestialForgingAnvilScreen(CelestialForgingAnvilMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, 344, 207);
+        this.displayTitle = rollTitle(title);
         this.mapsGuide = new CelestialMapsGuideWidget(new AbstractIntList() {
             @Override
             public int getInt(int index) {
@@ -207,12 +220,19 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         });
     }
 
+    // 掷一次标题彩蛋：命中时返回随机别称，未命中返回原标题
+    private static Component rollTitle(Component title) {
+        RandomSource random = RandomSource.create();
+        if (random.nextFloat() >= TITLE_EASTER_EGG_CHANCE) return title;
+        return Component.translatable(TITLE_EASTER_EGG_KEYS[random.nextInt(TITLE_EASTER_EGG_KEYS.length)]);
+    }
+
     @Override
     protected void init() {
         super.init();
         CelestialBodyMatcher.warmup();
         int titleAreaCenter = (3 + 342) / 2 - 1;
-        this.titleLabelX = titleAreaCenter - this.font.width(this.title) / 2;
+        this.titleLabelX = titleAreaCenter - this.font.width(this.displayTitle) / 2;
         this.titleLabelY = 2;
 
         var be = getMenu().getBlockEntity();
@@ -404,7 +424,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
 
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
+        graphics.text(this.font, this.displayTitle, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
 
         Component paramsLabel = Component.translatable("screen.anvilcraft.cfa.celestial_params");
         int paramsX = 7 + (72 - this.font.width(paramsLabel)) / 2;
@@ -632,7 +652,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.metallicity",
                 String.format(Locale.ROOT, "%.3g", evolution.metallicityZ())));
         }
-        /// 剩余时间（使用客户端本地倒计时，每tick递减）
+        // 剩余时间（使用客户端本地倒计时，每tick递减）
         int displayTicks = this.localAcceleratorTicksRemaining > 0
             ? this.localAcceleratorTicksRemaining : be.getAcceleratorTicksRemaining();
         int secondsRemaining = displayTicks / 20;
@@ -641,7 +661,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         lines.add(Component.translatable(
             "screen.anvilcraft.cfa.evolution.terminal_outcome." + be.getStellarTerminalOutcomeId()
         ));
-        /// 无限能量指示器 —— 仅在戴森球提供无限能量时显示
+        // 无限能量指示器 —— 仅在戴森球提供无限能量时显示
         if (be.isInfinitePower()) {
             lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.infinite_power"));
         }
