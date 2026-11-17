@@ -371,6 +371,11 @@ public class ScreenLang {
 
         /// Celestial Forging Anvil 锻星砧
         provider.add("screen.anvilcraft.celestial_forging_anvil", "Celestial Forging Anvil"); // 锻星砧
+        provider.add("screen.anvilcraft.cfa.class.special.white_hole", "White Hole");
+        provider.add("screen.anvilcraft.cfa.class.special.player_head", "Head Planet");
+        provider.add("screen.anvilcraft.cfa.class.special.large_cake", "The Lie");
+        provider.add("screen.anvilcraft.cfa.class.special.giant_anvil", "AnvilCraft");
+        provider.add("screen.anvilcraft.cfa.spin.stationary", "Stationary");
         provider.add("screen.anvilcraft.cfa.celestial_params", "Parameter"); // 天体参数
 
         provider.add("screen.anvilcraft.cfa.lock", "Click to lock"); // 点击锁定

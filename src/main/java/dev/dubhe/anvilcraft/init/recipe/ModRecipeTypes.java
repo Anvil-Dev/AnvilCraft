@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.PlanetResourceRecipe;
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyRecipe;
 import dev.dubhe.anvilcraft.block.entity.celestial.TempleDemandRecipe;
 import dev.dubhe.anvilcraft.recipe.CanningFoodRecipe;
+import dev.dubhe.anvilcraft.recipe.CelestialAnvilRecipe;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.EnergyWeaponMakeRecipe;
 import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
@@ -215,6 +216,9 @@ public class ModRecipeTypes {
     public static final DeferredHolder<RecipeType<?>, RecipeType<JewelCraftingRecipe>> JEWEL_CRAFTING_TYPE = registerType("jewel_crafting");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<JewelCraftingRecipe>> JEWEL_CRAFTING_SERIALIZER =
         RECIPE_SERIALIZERS.register("jewel_crafting", JewelCraftingRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<CelestialAnvilRecipe>> CELESTIAL_ANVIL_SERIALIZER =
+        RECIPE_SERIALIZERS.register("celestial_anvil", () -> CelestialAnvilRecipe.SERIALIZER);
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<CanningFoodRecipe>> CANNING_FOOD_SERIALIZER =
         RECIPE_SERIALIZERS.register("canning_food", () -> new SimpleCraftingRecipeSerializer<>(CanningFoodRecipe::new));

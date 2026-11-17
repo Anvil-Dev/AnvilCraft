@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -24,6 +22,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.Temperature;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyTextureBakery;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialModelGeometry;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.PlanetAtmosphereRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.StellarEmissionRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.StellarRadiance;
@@ -138,14 +137,11 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         "anvilcraft",
         "block/celestial_body/black_hole"
     ));
-    private static final float PLAYER_HEAD_SCALE = 16.0f;
+    private static final float EASTER_EGG_SCALE = 16.0f;
     private static final float PLAYER_HEAD_HALF_HEIGHT = 0.25f;
 
     private final BlockRenderDispatcher blockRenderer;
     private final BlockState whiteConcrete = Blocks.WHITE_CONCRETE.defaultBlockState();
-    private final Cache<BakedModel, AABB> itemBodyBounds = CacheBuilder.newBuilder().weakKeys().maximumSize(64).build();
-    private static final AABB UNIT_BODY_BOUNDS = new AABB(0, 0, 0, 1, 1, 1);
-    private static final AABB HEAD_BODY_BOUNDS = new AABB(0.234375, 0.234375, 0.234375, 0.765625, 0.765625, 0.765625);
     private static final float ITEM_BODY_SIZE = 0.75f;
     private static final float ITEM_BODY_CENTER_Y = 29.0f / 16.0f;
 
@@ -187,8 +183,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         float bodyScaleMultiplier,
         float animationProgress
     ) {
-        float initialHeadScale = bodyScale(playerHead) * PLAYER_HEAD_SCALE;
-        float currentHeadScale = bodyScaleMultiplier * PLAYER_HEAD_SCALE;
+        float initialHeadScale = bodyScale(playerHead) * EASTER_EGG_SCALE;
+        float currentHeadScale = bodyScaleMultiplier * EASTER_EGG_SCALE;
         float baseCenterY = isAmplify ? 6.5f : 4.5f;
         return baseCenterY + (currentHeadScale - initialHeadScale) * animationProgress * PLAYER_HEAD_HALF_HEIGHT;
     }
@@ -233,7 +229,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         } else if (body instanceof SpecialCelestialBodyData special && special.needsCustomModel() && !special.isPlayerHead()) {
             model = Minecraft.getInstance().getModelManager().getModel(ModelResourceLocation.standalone(special.getModelLocation()));
         }
-        AABB bounds = isPlayerHead(body) ? HEAD_BODY_BOUNDS : model == null ? UNIT_BODY_BOUNDS : this.getItemBodyBounds(model);
+        AABB bounds = isEasterEgg(body) ? CelestialModelGeometry.HEAD : CelestialModelGeometry.modelBounds(model);
         float scale = ITEM_BODY_SIZE / (float) Math.max(bounds.getXsize(), Math.max(bounds.getYsize(), bounds.getZsize()));
         Vec3 center = bounds.getCenter();
         poseStack.pushPose();
@@ -258,44 +254,6 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             this.renderPlanetBody(body, poseStack, buffer, packedOverlay, blockEntity.getBodySeed());
         }
         poseStack.popPose();
-    }
-
-    private AABB getItemBodyBounds(BakedModel model) {
-        AABB cached = this.itemBodyBounds.getIfPresent(model);
-        if (cached != null) return cached;
-        double minX = Double.POSITIVE_INFINITY;
-        double minY = Double.POSITIVE_INFINITY;
-        double minZ = Double.POSITIVE_INFINITY;
-        double maxX = Double.NEGATIVE_INFINITY;
-        double maxY = Double.NEGATIVE_INFINITY;
-        double maxZ = Double.NEGATIVE_INFINITY;
-        RandomSource random = RandomSource.create(42);
-        Direction[] directions = Direction.values();
-        for (int face = 0; face <= directions.length; face++) {
-            @Nullable Direction direction = face == directions.length ? null : directions[face];
-            random.setSeed(42);
-            for (BakedQuad quad : model.getQuads(null, direction, random, ModelData.EMPTY, null)) {
-                int[] vertices = quad.getVertices();
-                int stride = vertices.length / 4;
-                for (int vertex = 0; vertex < 4; vertex++) {
-                    int offset = vertex * stride;
-                    float x = Float.intBitsToFloat(vertices[offset]);
-                    float y = Float.intBitsToFloat(vertices[offset + 1]);
-                    float z = Float.intBitsToFloat(vertices[offset + 2]);
-                    minX = Math.min(minX, x);
-                    minY = Math.min(minY, y);
-                    minZ = Math.min(minZ, z);
-                    maxX = Math.max(maxX, x);
-                    maxY = Math.max(maxY, y);
-                    maxZ = Math.max(maxZ, z);
-                }
-            }
-        }
-        AABB bounds = Double.isFinite(minX + minY + minZ + maxX + maxY + maxZ)
-            && Math.max(maxX - minX, Math.max(maxY - minY, maxZ - minZ)) > 0.0001
-            ? new AABB(minX, minY, minZ, maxX, maxY, maxZ) : UNIT_BODY_BOUNDS;
-        this.itemBodyBounds.put(model, bounds);
-        return bounds;
     }
 
     private void renderContents(
@@ -652,7 +610,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             renderTractorBeam(beamHeight, animProgress, poseStack, multiBufferSource);
             float eventProgress = blockEntity.getStellarEventProgress(partialTick);
             float bodyCenterY = centerY;
-            if (effectiveBodyData instanceof SpecialCelestialBodyData special && special.isPlayerHead()) {
+            if (effectiveBodyData instanceof SpecialCelestialBodyData special && special.isEasterEgg()) {
                 bodyCenterY = playerHeadCenterY(special, isAmplify, bodyScaleMultiplier, animProgress);
             }
             this.renderCelestialBody(
@@ -1015,7 +973,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
 
     /// 判断机械圆环对给定天体数据是否应可见。
     private static boolean isRingVisible(int ring, @Nullable CelestialBodyData bodyData, boolean isAmplify) {
-        if (isPlayerHead(bodyData)) return false;
+        if (isEasterEgg(bodyData)) return false;
         if (isAmplify) {
             return switch (ring) {
                 case 4 -> bodyData == null || !bodyData.usesLargeStellarRings();
@@ -1034,8 +992,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         }
     }
 
-    private static boolean isPlayerHead(@Nullable CelestialBodyData bodyData) {
-        return bodyData instanceof SpecialCelestialBodyData special && special.isPlayerHead();
+    private static boolean isEasterEgg(@Nullable CelestialBodyData bodyData) {
+        return bodyData instanceof SpecialCelestialBodyData special && special.isEasterEgg();
     }
 
     /// 渲染机械圆环，当前后天体切换可见性变化时带有淡入淡出过渡。
@@ -1052,7 +1010,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         int packedOverlay,
         ModelBlockRenderer modelRenderer
     ) {
-        if (isPlayerHead(currBody) || (currBody == null && isPlayerHead(prevBody))) return;
+        if (isEasterEgg(currBody) || (currBody == null && isEasterEgg(prevBody))) return;
         /// 第 1-3 环：非增幅模式，第 4-6 环：增幅模式
         boolean isAmplify = ringIndex >= 4;
         boolean visibleNow = isRingVisible(ringIndex, currBody, isAmplify);
@@ -1184,8 +1142,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.translate(0.5, centerY, 0.5);
         float baseScale = bodyScale;
         if (bodyData instanceof SpecialCelestialBodyData s) {
-            if (s.isPlayerHead()) {
-                baseScale *= PLAYER_HEAD_SCALE;
+            if (s.isEasterEgg()) {
+                baseScale *= EASTER_EGG_SCALE;
             } else if (s.isErrorPlanet()) {
                 baseScale *= 0.25f;
             }
@@ -1198,7 +1156,9 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
 
         poseStack.scale(scale, scale, scale);
         poseStack.mulPose(Axis.XP.rotationDegrees(bodyData.axialTilt()));
-        poseStack.mulPose(Axis.YP.rotationDegrees(bodyRotation * CelestialBodyData.getVisualRotationSpeed(bodyData.rotationSpeed())));
+        int visualRotation = bodyData instanceof SpecialCelestialBodyData special && special.isWhiteHole()
+            ? 1 : bodyData.rotationSpeed();
+        poseStack.mulPose(Axis.YP.rotationDegrees(bodyRotation * CelestialBodyData.getVisualRotationSpeed(visualRotation)));
         poseStack.translate(-0.5, -0.5, -0.5);
 
         /// 复杂自定义模型（破碎、空心、血肉、智慧、错误）和玩家头颅天体
@@ -1252,7 +1212,12 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             .getModel(ModelResourceLocation.standalone(special.getModelLocation()));
         if (model == Minecraft.getInstance().getModelManager().getMissingModel()) return;
 
+        poseStack.pushPose();
+        if (special.isBlockEasterEgg()) {
+            CelestialModelGeometry.fitToHead(poseStack, CelestialModelGeometry.modelBounds(model));
+        }
         CelestialBodyRenderer.renderCustomModel(poseStack.last(), bufferSource, model, packedOverlay);
+        poseStack.popPose();
     }
 
     /// 使用玩家皮肤纹理渲染玩家头颅天体。
@@ -1853,8 +1818,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 bs = Math.max(bs, fullBodyScale * Math.max(1.0f, eventReach));
             }
         }
-        if (body instanceof SpecialCelestialBodyData special && special.isPlayerHead()) {
-            bs *= PLAYER_HEAD_SCALE;
+        if (body instanceof SpecialCelestialBodyData special && special.isEasterEgg()) {
+            bs *= EASTER_EGG_SCALE;
             centerY = playerHeadCenterY(special, blockEntity.isAmplify(), fullBodyScale, 1.0f);
         }
         // The mechanical rings can extend beyond the body, especially for small planets.

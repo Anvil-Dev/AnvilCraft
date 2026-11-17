@@ -27,6 +27,7 @@ public class SpecialCelestialBodyRecipeLoader {
         createIntelligentPlanet(provider);
         createHollowPlanet(provider);
         createErrorPlanet(provider);
+        createWhiteHole(provider);
     }
 
     private static void saveRecipe(RecipeOutput output, String name, SpecialCelestialBodyRecipe recipe) {
@@ -276,6 +277,15 @@ public class SpecialCelestialBodyRecipeLoader {
                 Optional.empty()
             )
         );
+    }
+
+    private static void createWhiteHole(RegistrumRecipeProvider provider) {
+        saveRecipe(provider, "white_hole", new SpecialCelestialBodyRecipe(
+            "white_hole", "white_hole", true, false,
+            3, 1, 54, 64, Optional.empty(), Optional.of(LiquidCoverage.NONE),
+            6, 0, 0f, List.of(anvil("white_hole")),
+            List.of(), List.of(), List.of(), List.of(), List.of(), List.of(), List.of(), Optional.empty()
+        ));
     }
 
     private static void createErrorPlanet(RegistrumRecipeProvider provider) {

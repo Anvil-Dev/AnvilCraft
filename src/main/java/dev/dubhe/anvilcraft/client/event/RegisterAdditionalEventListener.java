@@ -112,6 +112,8 @@ public class RegisterAdditionalEventListener {
         event.register(standaloneBlock("celestial_body/neutron_star"));
         event.register(standaloneBlock("celestial_body/neutron_star_jet"));
         event.register(standaloneBlock("celestial_body/black_hole"));
+        event.register(standaloneBlock("large_cake"));
+        event.register(standaloneBlock("giant_anvil"));
         registerCelestialBodyModels(event);
 
         // WIP models

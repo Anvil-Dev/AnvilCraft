@@ -5,11 +5,14 @@ import com.google.common.cache.CacheBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilBlockItem;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyPresets;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CelestialForgingAnvilBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialModelGeometry;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.integration.iris.IrisState;
@@ -33,11 +36,18 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.event.RecipesUpdatedEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.model.data.ModelData;
 
 import javax.annotation.Nullable;
 
+@EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class CelestialForgingAnvilItemRenderer extends BlockEntityWithoutLevelRenderer {
     /// 第一人称托举时，手掌相对物品落点的偏移。左右与前后沿用原有数值，
     /// 只把高度抬起，使掌心从下方托住物品（原值 -0.125f 偏低，手垂在物品下方）。
@@ -47,13 +57,34 @@ public class CelestialForgingAnvilItemRenderer extends BlockEntityWithoutLevelRe
     /// 绕手臂自身长轴（模型 Y 轴）的滚转角，使掌心朝向从朝右翻到朝左。
     private static final float CRADLE_HAND_ROLL = 180.0f;
 
-    private final Cache<CustomData, CelestialForgingAnvilBlockEntity> previews = CacheBuilder.newBuilder()
-        .maximumSize(16)
+    private static final Cache<CustomData, CelestialForgingAnvilBlockEntity> PREVIEWS = CacheBuilder.newBuilder()
+        .maximumSize(32)
         .build();
-    private @Nullable ClientLevel previewLevel;
+    private static @Nullable ClientLevel previewLevel;
 
     private CelestialForgingAnvilItemRenderer() {
         super(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
+    }
+
+    @SubscribeEvent
+    public static void logout(ClientPlayerNetworkEvent.LoggingOut event) {
+        clear();
+    }
+
+    @SubscribeEvent
+    public static void modelsBaked(ModelEvent.BakingCompleted event) {
+        clear();
+    }
+
+    @SubscribeEvent
+    public static void recipesUpdated(RecipesUpdatedEvent event) {
+        clear();
+    }
+
+    private static void clear() {
+        PREVIEWS.invalidateAll();
+        CelestialModelGeometry.clear();
+        previewLevel = null;
     }
 
     @Override
@@ -93,23 +124,30 @@ public class CelestialForgingAnvilItemRenderer extends BlockEntityWithoutLevelRe
             poseStack.popPose();
             return;
         }
-        if (this.previewLevel != minecraft.level) {
-            this.previews.invalidateAll();
-            this.previewLevel = minecraft.level;
+        if (previewLevel != minecraft.level) {
+            clear();
+            previewLevel = minecraft.level;
         }
         CustomData data = stack.getOrDefault(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY);
-        CelestialForgingAnvilBlockEntity preview = this.previews.getIfPresent(data);
+        CelestialForgingAnvilBlockEntity preview = PREVIEWS.getIfPresent(data);
         if (preview == null) {
             preview = new CelestialForgingAnvilBlockEntity(
                 ModBlockEntities.CELESTIAL_FORGING_ANVIL.get(), BlockPos.ZERO,
                 ModBlocks.CELESTIAL_FORGING_ANVIL.getDefaultState()
             );
             CompoundTag tag = data.copyTag();
+            String preset = CelestialBodyPresets.preset(stack);
+            if (preset != null) {
+                CompoundTag previewTag = CelestialBodyPresets.preview(preset, minecraft.level);
+                if (previewTag != null) {
+                    tag.merge(previewTag);
+                }
+            }
             tag.merge(tag.getCompound(CelestialForgingAnvilBlockItem.ITEM_RENDER_DATA));
             // Load before attaching the level so a stored body does not trigger the discovery animation.
             preview.loadWithComponents(tag, minecraft.level.registryAccess());
             preview.setLevel(minecraft.level);
-            this.previews.put(data, preview);
+            PREVIEWS.put(data, preview);
         }
         var renderer = minecraft.getBlockEntityRenderDispatcher().getRenderer(preview);
         if (renderer instanceof CelestialForgingAnvilBlockEntityRenderer celestialRenderer) {

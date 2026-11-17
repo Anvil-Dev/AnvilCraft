@@ -1,11 +1,18 @@
 package dev.dubhe.anvilcraft.block.cfa.item;
 
+import dev.anvilcraft.lib.v2.registrum.util.CreativeVariantPickerItem;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyPresets;
 import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
+import dev.dubhe.anvilcraft.client.init.ModCreativeVariantGroups;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -18,9 +25,17 @@ import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLLoader;
+import org.jspecify.annotations.Nullable;
 
-public class CelestialForgingAnvilBlockItem extends SimpleMultiPartBlockItem<Cube323PartHalf> implements Equipable {
+import java.util.List;
+
+public class CelestialForgingAnvilBlockItem extends SimpleMultiPartBlockItem<Cube323PartHalf>
+    implements Equipable, CreativeVariantPickerItem {
     public static final String ITEM_RENDER_DATA = "itemRenderData";
     private final ItemAttributeModifiers armorModifiers;
 
@@ -40,6 +55,37 @@ public class CelestialForgingAnvilBlockItem extends SimpleMultiPartBlockItem<Cub
                 new AttributeModifier(modifierId, 0.1, AttributeModifier.Operation.ADD_VALUE),
                 EquipmentSlotGroup.HEAD)
             .build();
+    }
+
+    @Override
+    public List<ItemStack> createCreativePickerVariants(ItemStack source) {
+        if (FMLLoader.getDist() != Dist.CLIENT) {
+            return List.of();
+        }
+        return ModCreativeVariantGroups.celestialPresets();
+    }
+
+    @Override
+    protected boolean placeBlock(BlockPlaceContext context, BlockState state) {
+        String preset = CelestialBodyPresets.preset(context.getItemInHand());
+        if (preset != null && CelestialBodyPresets.preview(preset, context.getLevel()) == null) {
+            return false;
+        }
+        return super.placeBlock(context, state);
+    }
+
+    @Override
+    protected boolean updateCustomBlockEntityTag(
+        BlockPos pos, Level level, @Nullable Player player, ItemStack stack, BlockState state
+    ) {
+        boolean updated = super.updateCustomBlockEntityTag(pos, level, player, stack, state);
+        String preset = CelestialBodyPresets.preset(stack);
+        BlockPos mainPos = ModBlocks.CELESTIAL_FORGING_ANVIL.get().getMainPartPos(pos, state);
+        if (preset != null && level instanceof ServerLevel serverLevel
+            && level.getBlockEntity(mainPos) instanceof CelestialForgingAnvilBlockEntity anvil) {
+            return CelestialBodyPresets.apply(preset, anvil, serverLevel);
+        }
+        return updated;
     }
 
     @Override
