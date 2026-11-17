@@ -43,6 +43,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -59,7 +60,6 @@ public class LargeCauldronBlock
     extends SimpleMultiPartBlock<Cube3x3PartHalf>
     implements MultiPartBlockEntity<Cube3x3PartHalf, LargeCauldronBlock>, IHammerRemovable, ICauldron, ICauldronGeometry {
     public static final EnumProperty<Cube3x3PartHalf> HALF = EnumProperty.create("half", Cube3x3PartHalf.class);
-    private static final double WALL_THICKNESS = 0.25;
     private static final double BOTTOM_WALL_MIN_Y = 0.5;
     private static final double CLIMBING_EPSILON = 1.0E-5;
     private static final Map<Cube3x3PartHalf, VoxelShape> SHAPES = createShapes();
@@ -193,19 +193,21 @@ public class LargeCauldronBlock
 
     private static boolean touchesWall(BlockState state, BlockPos pos, AABB box) {
         Cube3x3PartHalf part = state.getValue(HALF);
-        double wallMinY = pos.getY() + (part.getOffsetY() == 0 ? BOTTOM_WALL_MIN_Y : 0.0);
-        double wallMaxY = pos.getY() + 1.0;
-        if (!overlaps(box.minY, box.maxY, wallMinY, wallMaxY)) return false;
-
-        if (part.getOffsetX() != 0 && overlaps(box.minZ, box.maxZ, pos.getZ(), pos.getZ() + 1.0)) {
-            double wallMinX = pos.getX() + (part.getOffsetX() < 0 ? 0.0 : 1.0 - WALL_THICKNESS);
-            double wallMaxX = wallMinX + WALL_THICKNESS;
-            if (touches(box.minX, box.maxX, wallMinX, wallMaxX)) return true;
-        }
-        if (part.getOffsetZ() != 0 && overlaps(box.minX, box.maxX, pos.getX(), pos.getX() + 1.0)) {
-            double wallMinZ = pos.getZ() + (part.getOffsetZ() < 0 ? 0.0 : 1.0 - WALL_THICKNESS);
-            double wallMaxZ = wallMinZ + WALL_THICKNESS;
-            return touches(box.minZ, box.maxZ, wallMinZ, wallMaxZ);
+        double minY = part.getOffsetY() == 0 ? BOTTOM_WALL_MIN_Y : 0;
+        for (AABB shape : SHAPES.get(part).toAabbs()) {
+            AABB wall = shape.move(pos);
+            double wallMinY = Math.max(wall.minY, pos.getY() + minY);
+            if (wall.maxY <= wallMinY || !overlaps(box.minY, box.maxY, wallMinY, wall.maxY)) {
+                continue;
+            }
+            if (overlaps(box.minZ, box.maxZ, wall.minZ, wall.maxZ)
+                && touches(box.minX, box.maxX, wall.minX, wall.maxX)) {
+                return true;
+            }
+            if (overlaps(box.minX, box.maxX, wall.minX, wall.maxX)
+                && touches(box.minZ, box.maxZ, wall.minZ, wall.maxZ)) {
+                return true;
+            }
         }
         return false;
     }
@@ -356,7 +358,7 @@ public class LargeCauldronBlock
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
         if (!level.isClientSide() && entity instanceof ItemEntity item) {
             LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(level, pos, state);
-            if (cauldron != null) {
+            if (cauldron != null && this.getCauldronInnerArea(pos, state).intersects(item.getBoundingBox())) {
                 cauldron.absorbItem(item, LargeCauldronBlockEntity.inputSlotForPart(state.getValue(HALF)));
             }
         }
@@ -368,7 +370,7 @@ public class LargeCauldronBlock
         NeoForge.EVENT_BUS.post(new LargeCauldronEvent.EntityInside(level, pos, state, entity));
         if (level.isClientSide() || !(entity instanceof ItemEntity item)) return;
         LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(level, pos, state);
-        if (cauldron != null) {
+        if (cauldron != null && this.getCauldronInnerArea(pos, state).intersects(item.getBoundingBox())) {
             cauldron.absorbItem(item, LargeCauldronBlockEntity.inputSlotForPart(state.getValue(HALF)));
         }
     }
@@ -383,17 +385,40 @@ public class LargeCauldronBlock
     }
 
     private static Map<Cube3x3PartHalf, VoxelShape> createShapes() {
+        // 模型的反向内壁表示空腔，必须先扣除内腔，再按部件切分以保留每格的交互含义。
+        VoxelShape walls = Shapes.join(
+            Block.box(-14, -8, -14, 30, 28, 30),
+            Block.box(-12, -8, -12, 28, 28, 28),
+            BooleanOp.ONLY_FIRST
+        );
+        VoxelShape model = Shapes.or(
+            walls,
+            Block.box(-16, -16, -16, -12, -12, -8),
+            Block.box(-12, -16, -16, -8, -12, -12),
+            Block.box(24, -16, -16, 32, -12, -12),
+            Block.box(28, -16, -12, 32, -12, -8),
+            Block.box(28, -16, 24, 32, -12, 32),
+            Block.box(24, -16, 28, 28, -12, 32),
+            Block.box(-16, -16, 28, -8, -12, 32),
+            Block.box(-16, -16, 24, -12, -12, 28),
+            Block.box(-16, -12, -16, 32, -8, 32),
+            Block.box(-16, 28, -16, -12, 32, 28),
+            Block.box(-12, 28, -16, 32, 32, -12),
+            Block.box(28, 28, -12, 32, 32, 32),
+            Block.box(-16, 28, 28, 28, 32, 32),
+            Block.box(-16, -6, -16, -12, 26, -1),
+            Block.box(-12, -6, -16, -1, 26, -12),
+            Block.box(-16, -6, 17, -12, 26, 28),
+            Block.box(-16, -6, 28, -1, 26, 32),
+            Block.box(17, -6, 28, 28, 26, 32),
+            Block.box(28, -6, 17, 32, 26, 32),
+            Block.box(28, -6, -12, 32, 26, -1),
+            Block.box(17, -6, -16, 32, 26, -12)
+        );
         Map<Cube3x3PartHalf, VoxelShape> result = new EnumMap<>(Cube3x3PartHalf.class);
         for (Cube3x3PartHalf part : Cube3x3PartHalf.values()) {
-            VoxelShape shape = part.getOffsetY() == 0
-                ? Block.box(0, 0, 0, 16, 8, 16)
-                : Shapes.empty();
-            double minY = part.getOffsetY() == 0 ? 8 : 0;
-            if (part.getOffsetX() == -1) shape = Shapes.or(shape, Block.box(0, minY, 0, 4, 16, 16));
-            if (part.getOffsetX() == 1) shape = Shapes.or(shape, Block.box(12, minY, 0, 16, 16, 16));
-            if (part.getOffsetZ() == -1) shape = Shapes.or(shape, Block.box(0, minY, 0, 16, 16, 4));
-            if (part.getOffsetZ() == 1) shape = Shapes.or(shape, Block.box(0, minY, 12, 16, 16, 16));
-            result.put(part, shape);
+            VoxelShape local = model.move(-part.getOffsetX(), 1 - part.getOffsetY(), -part.getOffsetZ());
+            result.put(part, Shapes.join(local, Shapes.block(), BooleanOp.AND));
         }
         return result;
     }
