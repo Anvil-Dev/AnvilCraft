@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.client.gui.component.SimpleIconButton;
 import dev.dubhe.anvilcraft.client.gui.component.StructureScannerButtonState;
 import dev.dubhe.anvilcraft.client.gui.component.TextWidget;
 import dev.dubhe.anvilcraft.client.support.DiskDisplaySupport;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.client.support.StructurePreviewScene;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
@@ -625,13 +626,13 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         }
     }
 
-    /**
-     * 渲染半透明的物品虚影
-     */
-    private void renderMaskedItem(GuiGraphics g, ItemStack stack, int x, int y) {
-        final int maskColor = 0x99777777;  // 调整透明度，数值越大越透明
-        g.renderItem(stack, x, y, 0);
-        g.fill(x, y, x + 16, y + 16, maskColor);
+    private void renderMaskedItem(GuiGraphics graphics, ItemStack stack, int x, int y) {
+        graphics.flush();
+        graphics.pose().pushPose();
+        // 虚影属于界面背景，深度必须低于结构方块的悬浮界面。
+        graphics.pose().translate(0, 0, -100);
+        RenderSupport.renderItemWithTransparency(stack, graphics.pose(), x, y, 0.4f);
+        graphics.pose().popPose();
     }
 
     @Override
