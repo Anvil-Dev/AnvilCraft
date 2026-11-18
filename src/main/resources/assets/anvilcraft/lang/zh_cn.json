@@ -3350,7 +3350,7 @@
   "anvilcraft.configuration.machines.fluid_tank_infinity_threshold": "流体储罐无限阈值",
   "anvilcraft.configuration.machines.fluid_tank_infinity_threshold.tooltip": "控制流体储罐视作无限的流体量（单位：毫桶）",
   "anvilcraft.configuration.machines.heat_collector_max_output_power": "集热器最大输出功率",
-  "anvilcraft.configuration.machines.heat_collector_max_output_power.tooltip": "控制集热器可输出的最大热能（单位：千瓦）\n「强热」进度需要达到 4096",
+  "anvilcraft.configuration.machines.heat_collector_max_output_power.tooltip": "控制集热器可输出的最大热能（单位：千瓦）\n「强热」进度需要达到 8192",
   "anvilcraft.configuration.machines.heliostats_detection_interval": "定日镜检测间隔",
   "anvilcraft.configuration.machines.heliostats_detection_interval.tooltip": "控制两次定日镜检测之间的间隔（单位：刻）",
   "anvilcraft.configuration.machines.heliostats_max_irradiation_distance": "定日镜最大照射距离",

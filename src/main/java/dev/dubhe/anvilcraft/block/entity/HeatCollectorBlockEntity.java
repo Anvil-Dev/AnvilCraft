@@ -22,8 +22,8 @@ import org.jspecify.annotations.Nullable;
 
 @Getter
 public class HeatCollectorBlockEntity extends BlockEntity implements IPowerProducer, IHasAffectRange, IHeatCollector {
-    /** 数据生成使用的默认输出上限；运行时上限由配置决定。 */
-    public static final int MAX_OUTPUT_POWER = 4096;
+    /** 「强热」进度所需的集热器输出功率。 */
+    public static final int SUPER_HEAT_OUTPUT_POWER = 4096;
     private int time = 0;
     @Setter
     private @Nullable PowerGrid grid = null;

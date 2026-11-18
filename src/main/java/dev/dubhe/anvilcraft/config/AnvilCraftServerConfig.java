@@ -574,7 +574,7 @@ public class AnvilCraftServerConfig {
             The super_heat advancement requires reaching 4096"""
         )
         @BoundedDiscrete(min = 1, max = 1048576)
-        public int heatCollectorMaxOutputPower = 4096;
+        public int heatCollectorMaxOutputPower = 8192;
 
         @Comment(
             """
