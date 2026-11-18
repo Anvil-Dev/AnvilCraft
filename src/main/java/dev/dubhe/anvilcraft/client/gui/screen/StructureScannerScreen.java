@@ -132,7 +132,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     private int fileOffset;
     private static final int FILE_ROWS = 6;
     private static final int FILE_ROW_HEIGHT = 12;
-    private static final float STRUCTURE_PREVIEW_Z = 300;
+    private static final float STRUCTURE_PREVIEW_Z = 250;
 
     private static ResourceLocation scannerTexture(String name) {
         return SharedTextures.textureGui("machine/structure_scanner/" + name);

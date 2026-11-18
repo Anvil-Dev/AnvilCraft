@@ -142,7 +142,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private static final int PLACER_PREVIEW_Y = 0;
     private static final int PLACER_PREVIEW_Y_UPSIDE_DOWN = 4;
     private static final int PLACER_PREVIEW_Z = 6;
-    private static final float STRUCTURE_PREVIEW_Z = 300;
+    private static final float STRUCTURE_PREVIEW_Z = 250;
 
     // LevelLike 缓存
     private @Nullable LevelLike cachedPreviewLevelLike;
