@@ -181,6 +181,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     }
 
     private void onAllSoundButtonClick(int selectedIndex) {
+        if (ScreenEditing.isReadOnly()) return;
         int actualIndex = selectedIndex;
         actualIndex += this.leftScrollOff;
         if (this.filteredSounds.isEmpty() || actualIndex >= this.filteredSounds.size()) return;
@@ -191,6 +192,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     }
 
     private void onMutedSoundButtonClick(int selectedIndex) {
+        if (ScreenEditing.isReadOnly()) return;
         int actualIndex = selectedIndex;
         actualIndex += this.rightScrollOff;
         if (this.mutedSounds.isEmpty() || actualIndex >= this.mutedSounds.size()) return;

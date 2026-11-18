@@ -72,6 +72,7 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
             leftPos + 75,
             topPos + 54,
             b -> {
+                if (ScreenEditing.isReadOnly()) return;
                 if (!(b instanceof CycleFilterModeButton button)) return;
                 PacketDistributor.sendToServer(new MachineCycleFilterModePacket(button.cycle()));
                 this.menu.setFilterMode(button.cycle());
@@ -115,6 +116,7 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
             TEXTURES_PREFIX + "minus",
             (ignore) -> Component.literal("Reduce Detection Range"),
             (b) -> {
+                if (ScreenEditing.isReadOnly()) return;
                 this.menu.getBlockEntity().decreaseRange();
                 PacketDistributor.sendToServer(
                     new ItemDetectorChangeRangePacket(this.menu.getBlockEntity().getRange())
@@ -127,6 +129,7 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
             TEXTURES_PREFIX + "add",
             (ignore) -> Component.literal("Add Detection Range"),
             (b) -> {
+                if (ScreenEditing.isReadOnly()) return;
                 this.menu.getBlockEntity().increaseRange();
                 PacketDistributor.sendToServer(
                     new ItemDetectorChangeRangePacket(this.menu.getBlockEntity().getRange())
@@ -189,6 +192,7 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
     @Override
     protected void slotClicked(Slot slot, int slotId, int button, ClickType type) {
         if (slot instanceof FilterOnlySlot filterSlot) {
+            if (ScreenEditing.isReadOnly()) return;
             ItemStack filterStack = this.menu.getCarried();
             if (filterStack.isEmpty() && !Screen.hasShiftDown()) return;
             int id = slot.getContainerSlot();
@@ -212,6 +216,7 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         Slot slot = this.hoveredSlot;
         if (slot instanceof FilterOnlySlot filterSlot && scrollY != 0) {
+            if (ScreenEditing.isReadOnly()) return true;
             ItemStack item = filterSlot.getItem();
             int countBefore = item.getCount();
             int countAfter = countBefore + this.getScrollSpeed() * (scrollY > 0 ? 1 : -1);

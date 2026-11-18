@@ -65,6 +65,7 @@ public class ExpCollectorScreen extends AbstractContainerScreen<ExpCollectorMenu
                 TEXTURES_PREFIX + "minus",
                 (ignore) -> Component.literal("Reduce Item Collect Range"),
                 (btn) -> {
+                    if (ScreenEditing.isReadOnly()) return;
                     this.menu.getBlockEntity().getRangeRadius().previous();
                     this.menu.getBlockEntity().getRangeRadius().notifyServer();
                 }
@@ -77,6 +78,7 @@ public class ExpCollectorScreen extends AbstractContainerScreen<ExpCollectorMenu
                 TEXTURES_PREFIX + "add",
                 (ignore) -> Component.literal("Add Item Collect Range"),
                 (btn) -> {
+                    if (ScreenEditing.isReadOnly()) return;
                     this.menu.getBlockEntity().getRangeRadius().next();
                     this.menu.getBlockEntity().getRangeRadius().notifyServer();
                 }
@@ -90,6 +92,7 @@ public class ExpCollectorScreen extends AbstractContainerScreen<ExpCollectorMenu
                 TEXTURES_PREFIX + "minus",
                 (ignore) -> Component.literal("Reduce Item Collect Cooldown"),
                 (btn) -> {
+                    if (ScreenEditing.isReadOnly()) return;
                     this.menu.getBlockEntity().getCooldown().previous();
                     this.menu.getBlockEntity().getCooldown().notifyServer();
                 }
@@ -102,6 +105,7 @@ public class ExpCollectorScreen extends AbstractContainerScreen<ExpCollectorMenu
                 TEXTURES_PREFIX + "add",
                 (ignore) -> Component.literal("Add Item Collect Cooldown"),
                 (btn) -> {
+                    if (ScreenEditing.isReadOnly()) return;
                     this.menu.getBlockEntity().getCooldown().next();
                     this.menu.getBlockEntity().getCooldown().notifyServer();
                 }
