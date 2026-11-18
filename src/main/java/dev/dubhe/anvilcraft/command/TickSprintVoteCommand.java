@@ -23,11 +23,13 @@ public class TickSprintVoteCommand {
             .then(Commands.argument("dimension", DimensionArgument.dimension())
                 .then(Commands.argument("pos", BlockPosArgument.blockPos())
                     .then(Commands.argument("voteId", UuidArgument.uuid())
-                        .then(Commands.literal("accept").executes(context -> TickSprintVoteCommand.submitVote(context, true)))
-                        .then(Commands.literal("reject").executes(context -> TickSprintVoteCommand.submitVote(context, false)))))));
+                        .then(Commands.literal("accept").executes(context -> TickSprintVoteCommand.submitVote(context, true, false)))
+                        .then(Commands.literal("accept_20_minutes")
+                            .executes(context -> TickSprintVoteCommand.submitVote(context, true, true)))
+                        .then(Commands.literal("reject").executes(context -> TickSprintVoteCommand.submitVote(context, false, false)))))));
     }
 
-    private static int submitVote(CommandContext<CommandSourceStack> context, boolean accepted)
+    private static int submitVote(CommandContext<CommandSourceStack> context, boolean accepted, boolean allowForTwentyMinutes)
         throws CommandSyntaxException {
         ServerPlayer player = context.getSource().getPlayerOrException();
         ServerLevel level = DimensionArgument.getDimension(context, "dimension");
@@ -35,7 +37,7 @@ public class TickSprintVoteCommand {
         UUID voteId = UuidArgument.getUuid(context, "voteId");
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof SpacetimeSupercomputerBlockEntity supercomputer
-            && supercomputer.submitTickSprintVote(player, voteId, accepted)) {
+            && supercomputer.submitTickSprintVote(player, voteId, accepted, allowForTwentyMinutes)) {
             return 1;
         }
         return 0;

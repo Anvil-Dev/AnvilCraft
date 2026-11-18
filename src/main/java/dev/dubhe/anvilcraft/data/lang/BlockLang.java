@@ -28,6 +28,14 @@ public class BlockLang {
         );
         provider.add("block.anvilcraft.spacetime_supercomputer.tick_sprint_allow", "✓ Allow");
         provider.add(
+            "block.anvilcraft.spacetime_supercomputer.tick_sprint_allow_20_minutes",
+            "✓ Allow for 20 minutes"
+        );
+        provider.add(
+            "block.anvilcraft.spacetime_supercomputer.tick_sprint_allowed_20_minutes",
+            "Tick Sprint requests will be allowed for 20 minutes"
+        );
+        provider.add(
             "block.anvilcraft.spacetime_supercomputer.tick_sprint_allowed",
             "This command execution was allowed"
         );

@@ -49,9 +49,12 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.WeakHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IPowerConsumer {
@@ -59,6 +62,9 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
     private static final int TICK_SPRINT_COUNTDOWN_TICKS = SpacetimeSupercomputerBlockEntity.TICK_SPRINT_COUNTDOWN_SECONDS * 20;
     private static final String TICK_SPRINT_VOTE_SEPARATOR = "------------";
     private static final Set<SpacetimeSupercomputerBlockEntity> PENDING_TICK_SPRINTS = new HashSet<>();
+
+    // 授权跟随当前玩家实例，断线后的新会话需要重新确认。
+    private static final Map<ServerPlayer, Long> TICK_SPRINT_ALLOW_UNTIL = new WeakHashMap<>();
 
     @Getter
     @Setter
@@ -402,7 +408,14 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
     private void initializeTickSprintVoters(MinecraftServer server) {
         for (ServerPlayer serverPlayer : server.getPlayerList().getPlayers()) {
             this.pendingTickSprintVoters.add(serverPlayer.getUUID());
-            this.sendTickSprintVoteMessage(serverPlayer);
+            long now = System.nanoTime();
+            Long allowUntil = TICK_SPRINT_ALLOW_UNTIL.get(serverPlayer);
+            if (allowUntil != null && now - allowUntil < 0) {
+                this.confirmedTickSprintVoters.add(serverPlayer.getUUID());
+            } else {
+                TICK_SPRINT_ALLOW_UNTIL.remove(serverPlayer);
+                this.sendTickSprintVoteMessage(serverPlayer);
+            }
         }
     }
 
@@ -424,15 +437,17 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
             .append(Component.literal("\n"))
             .append(Component.translatable("block.anvilcraft.spacetime_supercomputer.tick_sprint_confirmation"))
             .append(Component.literal("\n"))
-            .append(this.createTickSprintVoteOption(true))
+            .append(this.createTickSprintVoteOption(true, false))
             .append(Component.literal("    "))
-            .append(this.createTickSprintVoteOption(false))
+            .append(this.createTickSprintVoteOption(true, true))
+            .append(Component.literal("    "))
+            .append(this.createTickSprintVoteOption(false, false))
             .append(Component.literal("\n"))
             .append(Component.literal(SpacetimeSupercomputerBlockEntity.TICK_SPRINT_VOTE_SEPARATOR).withStyle(ChatFormatting.DARK_GRAY));
         player.sendSystemMessage(message);
     }
 
-    private Component createTickSprintVoteOption(boolean accepted) {
+    private Component createTickSprintVoteOption(boolean accepted, boolean allowForTwentyMinutes) {
         UUID voteId = Objects.requireNonNull(this.pendingTickSprintVoteId);
         ServerLevel serverLevel = (ServerLevel) Objects.requireNonNull(this.level);
         BlockPos pos = this.getBlockPos();
@@ -442,9 +457,11 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
             pos.getY(),
             pos.getZ(),
             voteId,
-            accepted ? "accept" : "reject"
+            allowForTwentyMinutes ? "accept_20_minutes" : accepted ? "accept" : "reject"
         );
-        String translationKey = accepted
+        String translationKey = allowForTwentyMinutes
+            ? "block.anvilcraft.spacetime_supercomputer.tick_sprint_allow_20_minutes"
+            : accepted
             ? "block.anvilcraft.spacetime_supercomputer.tick_sprint_allow"
             : "block.anvilcraft.spacetime_supercomputer.tick_sprint_reject";
         ChatFormatting color = accepted ? ChatFormatting.GREEN : ChatFormatting.RED;
@@ -453,7 +470,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
             .withClickEvent(new ClickEvent.RunCommand(command)));
     }
 
-    public boolean submitTickSprintVote(ServerPlayer player, UUID voteId, boolean accepted) {
+    public boolean submitTickSprintVote(ServerPlayer player, UUID voteId, boolean accepted, boolean allowForTwentyMinutes) {
         if (!voteId.equals(this.pendingTickSprintVoteId)
             || !this.pendingTickSprintVoters.contains(player.getUUID())) {
             return false;
@@ -464,8 +481,15 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
             this.cancelTickSprintCountdown();
             return false;
         }
-        if (accepted && !this.confirmedTickSprintVoters.add(player.getUUID())) return false;
-        String feedbackKey = accepted
+        if (accepted && !this.confirmedTickSprintVoters.add(player.getUUID())) {
+            return false;
+        }
+        if (accepted && allowForTwentyMinutes) {
+            TICK_SPRINT_ALLOW_UNTIL.put(player, System.nanoTime() + TimeUnit.MINUTES.toNanos(20));
+        }
+        String feedbackKey = allowForTwentyMinutes && accepted
+            ? "block.anvilcraft.spacetime_supercomputer.tick_sprint_allowed_20_minutes"
+            : accepted
             ? "block.anvilcraft.spacetime_supercomputer.tick_sprint_allowed"
             : "block.anvilcraft.spacetime_supercomputer.tick_sprint_rejected";
         ChatFormatting feedbackColor = accepted ? ChatFormatting.GREEN : ChatFormatting.RED;
