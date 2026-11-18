@@ -32,5 +32,7 @@ public class FluidTagLoader {
         ModFluids.FLOWING_CEMENTS.forEach((color, cement) -> appender.add(findResourceKey(cement.get())));
         provider.addTag(ModFluidTags.IGNITABLE)
             .add(findResourceKey(ModFluids.OIL.get()));
+        // 默认留空，由整合包或附属模组把不允许无限化的流体加入本标签
+        provider.addTag(ModFluidTags.CANNOT_BE_INFINITE);
     }
 }

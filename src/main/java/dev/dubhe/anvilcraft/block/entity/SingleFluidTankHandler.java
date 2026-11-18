@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.fluid.InfiniteFluidSource;
+import dev.dubhe.anvilcraft.init.block.ModFluidTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -30,12 +31,12 @@ final class SingleFluidTankHandler extends FluidTank implements InfiniteFluidSou
 
     @Override
     public FluidStack getFluidInTank(int tank) {
-        return this.infinite ? this.fluid.copyWithAmount(Integer.MAX_VALUE) : super.getFluidInTank(tank);
+        return this.isInfinitelySupplying() ? this.fluid.copyWithAmount(Integer.MAX_VALUE) : super.getFluidInTank(tank);
     }
 
     @Override
     public int getTankCapacity(int tank) {
-        return this.infinite ? Integer.MAX_VALUE : super.getTankCapacity(tank);
+        return this.isInfinitelySupplying() ? Integer.MAX_VALUE : super.getTankCapacity(tank);
     }
 
     @Override
@@ -43,9 +44,17 @@ final class SingleFluidTankHandler extends FluidTank implements InfiniteFluidSou
         this.changeListener.run();
     }
 
+    private static boolean mayBeInfinite(FluidStack stack) {
+        return stack.isEmpty() || !stack.is(ModFluidTags.CANNOT_BE_INFINITE);
+    }
+
+    private boolean isInfinitelySupplying() {
+        return this.infinite && mayBeInfinite(this.fluid);
+    }
+
     @Override
     public int fill(FluidStack resource, IFluidHandler.FluidAction action) {
-        if (this.infinite) {
+        if (this.isInfinitelySupplying()) {
             if (resource.isEmpty()
                 || !this.isFluidValid(resource)
                 || !FluidStack.isSameFluidSameComponents(this.fluid, resource)) {
@@ -60,7 +69,10 @@ final class SingleFluidTankHandler extends FluidTank implements InfiniteFluidSou
             // 异种流体无法并入单槽储罐：这不是溢出，拒绝以免被当作可销毁而白白吞掉
             if (!this.fluid.isEmpty() && !FluidStack.isSameFluidSameComponents(this.fluid, resource)) return 0;
             super.fill(resource, action);
-            if (this.enhanced && action.execute() && this.getFluidAmount() >= this.infinityThreshold) {
+            if (this.enhanced
+                && action.execute()
+                && this.getFluidAmount() >= this.infinityThreshold
+                && mayBeInfinite(this.fluid)) {
                 this.infinite = true;
                 this.changeListener.run();
             }
@@ -69,10 +81,11 @@ final class SingleFluidTankHandler extends FluidTank implements InfiniteFluidSou
         if (!this.enhanced && this.getSpace() == 0) return 0;
 
         boolean reachesInfinity = this.enhanced
-            && !resource.isEmpty()
-            && this.isFluidValid(resource)
-            && (this.fluid.isEmpty() || FluidStack.isSameFluidSameComponents(this.fluid, resource))
-            && resource.getAmount() >= this.getSpace();
+                                  && !resource.isEmpty()
+                                  && this.isFluidValid(resource)
+                                  && (this.fluid.isEmpty() || FluidStack.isSameFluidSameComponents(this.fluid, resource))
+                                  && resource.getAmount() >= this.getSpace()
+                                  && mayBeInfinite(resource);
         if (reachesInfinity && action.simulate()) return resource.getAmount();
 
         int filled = super.fill(resource, action);
@@ -86,7 +99,7 @@ final class SingleFluidTankHandler extends FluidTank implements InfiniteFluidSou
 
     @Override
     public FluidStack drain(int maxDrain, IFluidHandler.FluidAction action) {
-        if (!this.infinite) return super.drain(maxDrain, action);
+        if (!this.isInfinitelySupplying()) return super.drain(maxDrain, action);
         return maxDrain <= 0 || this.fluid.isEmpty()
             ? FluidStack.EMPTY
             : this.fluid.copyWithAmount(maxDrain);
@@ -95,18 +108,20 @@ final class SingleFluidTankHandler extends FluidTank implements InfiniteFluidSou
     void setEnhanced(boolean enhanced) {
         if (this.enhanced == enhanced) return;
         this.enhanced = enhanced;
-        this.infinite = enhanced && this.getFluidAmount() >= this.infinityThreshold;
+        this.infinite = enhanced
+                        && this.getFluidAmount() >= this.infinityThreshold
+                        && mayBeInfinite(this.fluid);
         super.setCapacity(enhanced ? this.infinityThreshold : this.baseCapacity);
         this.changeListener.run();
     }
 
     boolean isInfinite() {
-        return this.infinite;
+        return this.isInfinitelySupplying();
     }
 
     @Override
     public List<FluidStack> getInfiniteFluids() {
-        return this.infinite ? List.of(this.fluid.copy()) : List.of();
+        return this.isInfinitelySupplying() ? List.of(this.fluid.copy()) : List.of();
     }
 
     boolean isEnhanced() {
@@ -127,8 +142,9 @@ final class SingleFluidTankHandler extends FluidTank implements InfiniteFluidSou
         super.setCapacity(this.enhanced ? this.infinityThreshold : this.baseCapacity);
         super.readFromNBT(provider, tag);
         this.infinite = this.enhanced
-            && tag.getBoolean(TAG_INFINITE)
-            && this.getFluidAmount() == this.infinityThreshold;
+                        && tag.getBoolean(TAG_INFINITE)
+                        && this.getFluidAmount() == this.infinityThreshold
+                        && mayBeInfinite(this.fluid);
         this.changeListener.run();
         return this;
     }
