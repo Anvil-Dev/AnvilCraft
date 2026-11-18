@@ -193,7 +193,9 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
         }
         int inputScale = giantAnvil || containerUpgrade ? 8 : JeiBlockIngredientUtil.getRenderablePreviewScale(renderedState, 12);
         int inputY = giantAnvil || containerUpgrade ? 44 : 40;
-        RenderSupport.renderBlock(guiGraphics, renderedState, 81, inputY, 10, inputScale, RenderSupport.SINGLE_BLOCK);
+        RenderSupport.renderBlock(
+            guiGraphics, renderedState, 81, inputY, containerUpgrade ? 50 : 10, inputScale, RenderSupport.SINGLE_BLOCK
+        );
 
         this.arrowIn.draw(guiGraphics, 54, 30);
         this.arrowOut.draw(guiGraphics, 92, 29);
@@ -231,7 +233,7 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
                 resultState,
                 133,
                 resultY,
-                0,
+                containerUpgrade ? 50 : 0,
                 resultScale,
                 RenderSupport.SINGLE_BLOCK
             );
