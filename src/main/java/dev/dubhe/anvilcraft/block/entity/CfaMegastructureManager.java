@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorRegistry;
 import dev.dubhe.anvilcraft.block.entity.celestial.Megastructure;
+import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.megastructure.AcceleratorHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.IMegastructureHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.WormholeStabilizerHandler;
@@ -95,7 +96,17 @@ public class CfaMegastructureManager {
         );
     }
 
+    private boolean isLandingMode(CelestialForgingAnvilBlockEntity be) {
+        return be.isAmplifierPresent()
+            && be.getCelestialBodyData() instanceof SpecialCelestialBodyData special
+            && special.landing() != null;
+    }
+
     public void serverTick(CelestialForgingAnvilBlockEntity be) {
+        if (this.isLandingMode(be)) {
+            this.clearAllLaserRequirements(be);
+            return;
+        }
         if (this.hasActiveMegastructure()) {
             IMegastructureHandler active = this.getActiveHandler(be);
             if (active != null) {
@@ -114,7 +125,7 @@ public class CfaMegastructureManager {
 
     public void syncLaserRequirements(CelestialForgingAnvilBlockEntity be) {
         IMegastructureHandler active = this.getActiveHandler(be);
-        if (active == null) {
+        if (active == null || this.isLandingMode(be)) {
             this.clearAllLaserRequirements(be);
             return;
         }
@@ -374,11 +385,17 @@ public class CfaMegastructureManager {
     }
 
     public int getInputPower(CelestialForgingAnvilBlockEntity be) {
+        if (this.isLandingMode(be)) {
+            return 0;
+        }
         IMegastructureHandler handler = this.getActiveHandler(be);
         return handler != null ? handler.getInputPower(be) : 0;
     }
 
     public int getOutputPower(CelestialForgingAnvilBlockEntity be) {
+        if (this.isLandingMode(be)) {
+            return 0;
+        }
         IMegastructureHandler handler = this.getActiveHandler(be);
         return handler != null ? handler.getOutputPower(be) : 0;
     }
@@ -400,6 +417,9 @@ public class CfaMegastructureManager {
     }
 
     public void gridTick(CelestialForgingAnvilBlockEntity be) {
+        if (this.isLandingMode(be)) {
+            return;
+        }
         IMegastructureHandler handler = this.getActiveHandler(be);
         if (handler != null) handler.gridTick(be);
         for (Megastructure megastructure : ModRegistries.MEGASTRUCTURE) {
