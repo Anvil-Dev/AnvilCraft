@@ -378,7 +378,7 @@ public class AnvilCraftAdvancement {
 
         gemLine.next()
             .goal(ModBlocks.HEAT_COLLECTOR, "super_heat")
-            .heatCollectorOutput("super_heat", MinMaxBounds.Ints.atLeast(HeatCollectorBlockEntity.MAX_OUTPUT_POWER))
+            .heatCollectorOutput("super_heat", MinMaxBounds.Ints.atLeast(HeatCollectorBlockEntity.SUPER_HEAT_OUTPUT_POWER))
             .save("super_heat");
 
         industrialLine.next()

@@ -4,7 +4,7 @@
     "super_heat": {
       "conditions": {
         "output": {
-          "min": 8192
+          "min": 4096
         }
       },
       "trigger": "anvilcraft:heat_collector_collect"
