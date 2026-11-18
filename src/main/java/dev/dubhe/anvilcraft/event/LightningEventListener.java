@@ -7,8 +7,10 @@ import dev.dubhe.anvilcraft.api.event.TeslaStrikeEvent;
 import dev.dubhe.anvilcraft.block.storage.MagnetBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LightningRodBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -25,6 +27,9 @@ public class LightningEventListener {
     @SubscribeEvent
     public static void onTeslaStrike(TeslaStrikeEvent.TargetBlock event) {
         LightningEventListener.strikeOnLightningRod(event.getLevel(), event.getTargetPos(), event.getTargetState());
+        if (event.getTargetState().getBlock() instanceof LightningRodBlock) {
+            LightningBolt.clearCopperOnLightningStrike(event.getLevel(), event.getTargetPos());
+        }
     }
 
     private static void strikeOnLightningRod(Level level, BlockPos targetPos, BlockState targetState) {
