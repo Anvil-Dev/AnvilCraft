@@ -1,28 +1,48 @@
 package dev.dubhe.anvilcraft.integration.emi;
 
+import dev.dubhe.anvilcraft.client.gui.screen.StorageMenu;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
+import dev.dubhe.anvilcraft.integration.StorageJeiBridge;
+import dev.emi.emi.api.EmiApi;
 import dev.emi.emi.api.EmiEntrypoint;
 import dev.emi.emi.api.EmiPlugin;
 import dev.emi.emi.api.EmiRegistry;
+import dev.emi.emi.api.neoforge.NeoForgeEmiStack;
+import dev.emi.emi.api.recipe.VanillaEmiRecipeCategories;
+import dev.emi.emi.api.stack.EmiStack;
+import dev.emi.emi.api.stack.EmiStackInteraction;
 import dev.emi.emi.api.widget.Bounds;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 
-/**
- * EMI 对仓储界面的适配（见 #4720）。
- *
- * <p>EMI 对 {@code HandledScreen} 的兜底布局使用容器的
- * {@code leftPos/topPos/背景宽高} 推断界面边界；仓储界面（300x222）在屏幕居中绘制，
- * leftPos 很大，导致 EMI 把侧栏/面板按这个偏大的矩形布局到屏幕中部而非屏幕边缘。
- * 这里通过 EMI 官方 API 为 {@link StorageScreen} 注册全屏边界，使面板按整个屏幕布局。</p>
- *
- * <p>类标注 EMI 的 {@link EmiEntrypoint}（EMI 加载后扫描并调用 {@link #register}）。</p>
- */
 @EmiEntrypoint
 public class AnvilCraftEmiPlugin implements EmiPlugin {
     @Override
     public void register(EmiRegistry registry) {
-        // noinspection UnstableApiUsage
-        registry.addScreenBoundsProvider(StorageScreen.class, screen ->
-            new Bounds(0, 0, screen.width, screen.height)
+        StorageJeiBridge.setEmiRecipeParent(
+            screen -> Minecraft.getInstance().screen != screen && EmiApi.getHandledScreen() == screen
         );
+        StorageJeiBridge.setEmiRecipeOpener(stonecutter -> EmiApi.displayRecipeCategory(
+            stonecutter ? VanillaEmiRecipeCategories.STONECUTTING : VanillaEmiRecipeCategories.CRAFTING
+        ));
+        registry.addScreenBoundsProvider(
+            StorageScreen.class,
+            screen -> screen.width > 0 && screen.height > 0
+                ? new Bounds(screen.getLeftPos(), screen.getTopPos(), screen.getImageWidth(), screen.getImageHeight())
+                : Bounds.EMPTY
+        );
+        registry.addStackProvider(StorageScreen.class, (screen, x, y) -> {
+            ItemStack item = screen.getItemUnderMouse(x, y);
+            if (item != null && !item.isEmpty()) {
+                return new EmiStackInteraction(EmiStack.of(item.copyWithCount(1)), null, false);
+            }
+            FluidStack fluid = screen.getFluidUnderMouse(x, y);
+            if (fluid != null && !fluid.isEmpty()) {
+                return new EmiStackInteraction(NeoForgeEmiStack.of(fluid), null, false);
+            }
+            return EmiStackInteraction.EMPTY;
+        });
+        registry.addRecipeHandler(StorageMenu.TYPE, new StorageRecipeHandler());
     }
 }

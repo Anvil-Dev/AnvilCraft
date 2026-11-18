@@ -620,12 +620,16 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         // Extensions must not send a second inventory click alongside this screen's own handling.
     }
 
+    public boolean isPreview() {
+        return this.preview != null;
+    }
+
     public boolean isCraftingUnlocked() {
         return this.craftingAvailable;
     }
 
     public boolean canTransferRecipe() {
-        // Opening JEI removes this screen and invalidates its UI loading state before recipe transfer.
+        // 打开配方查看器会切换当前屏幕，父屏幕状态仍允许发起配方请求。
         return this.preview == null && this.isCraftingUnlocked() && this.isTransferContextActive()
             && (StorageJeiBridge.isRecipeParent(this) || this.orderLoaded && this.craftingLoaded)
             && !this.interactionPending && !this.recipeTransferPending;
@@ -633,6 +637,16 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     public Map<ItemResource, Long> getTransferMaterials() {
         Map<ItemResource, Long> materials = new HashMap<>();
+        if (this.preview != null) {
+            for (var entry : this.contents.int2ObjectEntrySet()) {
+                if (this.emptySlots.contains(entry.getIntKey()) || entry.getValue().isEmpty()) {
+                    continue;
+                }
+                long count = this.counts.getOrDefault(entry.getIntKey(), entry.getValue().getCount());
+                materials.merge(ItemResource.of(entry.getValue().toStack()), count, LongMath::saturatedAdd);
+            }
+            return materials;
+        }
         this.refreshTransferSnapshot();
         if (this.hasUnfilteredContents()) {
             materials.putAll(this.unfilteredContents);
@@ -656,6 +670,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     public List<StorageServerStub.FluidEntry> getTransferFluids() {
+        if (this.preview != null) {
+            return this.fluids;
+        }
         this.refreshTransferSnapshot();
         if (this.hasUnfilteredContents()) return this.unfilteredFluids;
         return Objects.equals(this.requestedStorageId, this.storageId) && this.requestedContentsVersion == this.version
@@ -671,7 +688,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     private void refreshTransferSnapshot() {
-        if (!this.isTransferContextActive() || this.contentsMetadataPending
+        if (this.preview != null || !this.isTransferContextActive() || this.contentsMetadataPending
             || System.currentTimeMillis() < this.nextContentsMetadata) return;
         this.contentsMetadataPending = true;
         final long request = ++this.contentsMetadataRequest;
@@ -746,9 +763,66 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     return;
                 }
                 if (!Boolean.TRUE.equals(changed)) return;
+                this.nextContentsMetadata = 0;
+                this.refreshTransferSnapshot();
                 this.recipeTransferCompleted = true;
                 if (this.minecraft.screen == this) this.showCraftingAfterTransfer();
             }, this.minecraft);
+    }
+
+    public boolean executeRecipe(
+        StorageServerStub.CraftDestination destination,
+        int maxBatches,
+        boolean stonecutter,
+        StorageRecipeTransferPlan.Result plan,
+        ItemStack result
+    ) {
+        if (!this.canTransferRecipe() || !plan.missing().isEmpty() || maxBatches <= 0) {
+            return false;
+        }
+        this.recipeTransferPending = true;
+        StorageServerStub.RecipeCraftRequest request = new StorageServerStub.RecipeCraftRequest(
+            stonecutter,
+            destination,
+            maxBatches,
+            plan.inputs(),
+            result,
+            plan.counts(),
+            this.player.inventoryMenu.getCarried().copy()
+        );
+        StorageClientStub.craftingExecuteRecipe(this.sourcePos, request).whenCompleteAsync((response, error) -> {
+            this.recipeTransferPending = false;
+            if (error != null) {
+                AnvilCraft.LOGGER.error("Storage recipe execution failed", error);
+                return;
+            }
+            if (this.minecraft.player != this.player) {
+                return;
+            }
+            this.carried = response.carried();
+            this.player.inventoryMenu.setCarried(this.carried);
+            response.crafting().ifPresent(data -> this.applyCrafting(data, ++this.craftingRequest));
+            this.nextContentsMetadata = 0;
+            this.refreshTransferSnapshot();
+            if (destination == StorageServerStub.CraftDestination.GRID) {
+                if (response.changed()) {
+                    this.recipeTransferCompleted = true;
+                    if (this.minecraft.screen == this) {
+                        this.showCraftingAfterTransfer();
+                    }
+                }
+                return;
+            }
+            if (response.changed()) {
+                if (stonecutter) {
+                    this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_STONECUTTER_TAKE_RESULT, 1));
+                }
+                if (this.minecraft.screen == this) {
+                    this.reorder(false);
+                }
+            }
+        }, this.minecraft);
+        return true;
     }
 
     private void showCraftingAfterTransfer() {
@@ -2362,6 +2436,15 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         return itemArea == null ? null : new Rect2i(itemArea.x(), itemArea.y(), 16, 16);
     }
 
+    public @Nullable FluidStack getFluidUnderMouse(double mouseX, double mouseY) {
+        Integer slot = this.getFluidSlotAt(mouseX, mouseY);
+        if (slot == null) {
+            return null;
+        }
+        StorageServerStub.FluidEntry entry = this.getFluidSlot(slot);
+        return entry == null || entry.icon().isEmpty() ? null : entry.icon().copyWithAmount(FluidType.BUCKET_VOLUME);
+    }
+
     private @Nullable ItemArea getItemAreaData(double mouseX, double mouseY) {
         if (this.craftingMode) {
             int slot = this.craftingSlotAt(mouseX, mouseY);
@@ -2377,6 +2460,14 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 ItemStack stack = result == 1 ? this.craftingResult
                     : selected >= 0 && selected < this.stonecutterRecipes.size() ? this.stonecutterRecipes.get(selected) : ItemStack.EMPTY;
                 return stack.isEmpty() ? null : new ItemArea(stack, this.sx(83), this.top + (result == 0 ? 162 : 198));
+            }
+            for (int i = 0; i < 6 && i + this.recipeHead < this.stonecutterRecipes.size(); i++) {
+                int x = this.sx(39) + i % 3 * 18;
+                int y = this.top + 120 + i / 3 * 18;
+                if (MathUtil.isInRange(mouseX, mouseY, x, y, x + 18, y + 18)) {
+                    ItemStack stack = this.stonecutterRecipes.get(i + this.recipeHead);
+                    return stack.isEmpty() ? null : new ItemArea(stack, x + 1, y);
+                }
             }
         }
         int firstOrderIndex = this.scrollRow * StorageScreen.STORAGE_COLUMNS;
