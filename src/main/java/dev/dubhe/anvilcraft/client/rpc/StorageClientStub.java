@@ -518,6 +518,19 @@ public final class StorageClientStub {
         );
     }
 
+    public static CompletableFuture<StorageServerStub.InteractionResult> craftingExecuteRecipe(
+        BlockPos sourcePos,
+        StorageServerStub.RecipeCraftRequest request
+    ) {
+        return RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::craftingExecuteRecipe,
+            StorageClientStub.playerId(),
+            sourcePos.asLong(),
+            request
+        );
+    }
+
     private static UUID playerId() {
         Player player = Minecraft.getInstance().player;
         if (player == null) {

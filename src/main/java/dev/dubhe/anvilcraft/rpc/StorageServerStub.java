@@ -72,6 +72,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
@@ -92,6 +93,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
+import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.SoundAction;
 import net.neoforged.neoforge.common.SoundActions;
 import net.neoforged.neoforge.event.EventHooks;
@@ -112,6 +114,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
@@ -154,6 +157,7 @@ public final class StorageServerStub {
      * 避免几百次合成一次性阻塞服务端线程（分帧/进度由客户端循环天然实现）。
      */
     private static final int CRAFTING_TAKE_ALL_CHUNK = 64;
+    private static final int MAX_RECIPE_CRAFT_BATCHES = Inventory.INVENTORY_SIZE * Item.ABSOLUTE_MAX_STACK_SIZE;
     /**
      * 按住批量操作键左击仓储格时一次取出的数量：物品格为组数（按物品自身堆叠上限折算），
      * 流体格为桶数。与批量连续合成同一倍率，实际取出量仍受仓储存量与背包空间限制。
@@ -2544,6 +2548,824 @@ public final class StorageServerStub {
             target.write(crafting.withCraftingInput(grid));
         }
         return changed;
+    }
+
+    public enum CraftDestination {
+        GRID,
+        CURSOR,
+        INVENTORY;
+
+        public static final StreamCodec<ByteBuf, CraftDestination> STREAM_CODEC =
+            StreamCodecUtil.enumStreamCodec(CraftDestination.class);
+    }
+
+    public record RecipeCraftRequest(
+        boolean stonecutter,
+        CraftDestination destination,
+        int maxBatches,
+        List<ItemStack> inputs,
+        ItemStack stonecutterResult,
+        IntList requestedCounts,
+        ItemStack clientCarried
+    ) {
+        public static final StreamCodec<RegistryFriendlyByteBuf, RecipeCraftRequest> STREAM_CODEC = StreamCodec.of(
+            (buffer, value) -> {
+                ByteBufCodecs.BOOL.encode(buffer, value.stonecutter);
+                CraftDestination.STREAM_CODEC.encode(buffer, value.destination);
+                ByteBufCodecs.VAR_INT.encode(buffer, value.maxBatches);
+                ITEM_STACK_LIST_STREAM_CODEC.encode(buffer, value.inputs);
+                ItemStack.OPTIONAL_STREAM_CODEC.encode(buffer, value.stonecutterResult);
+                ORDER_STREAM_CODEC.encode(buffer, value.requestedCounts);
+                ItemStack.OPTIONAL_STREAM_CODEC.encode(buffer, value.clientCarried);
+            },
+            buffer -> new RecipeCraftRequest(
+                ByteBufCodecs.BOOL.decode(buffer),
+                CraftDestination.STREAM_CODEC.decode(buffer),
+                ByteBufCodecs.VAR_INT.decode(buffer),
+                ITEM_STACK_LIST_STREAM_CODEC.decode(buffer),
+                ItemStack.OPTIONAL_STREAM_CODEC.decode(buffer),
+                ORDER_STREAM_CODEC.decode(buffer),
+                ItemStack.OPTIONAL_STREAM_CODEC.decode(buffer)
+            )
+        );
+    }
+
+    private record RoundCraftPreview(
+        ResourceLocation recipeId,
+        RecipeHolder<?> recipe,
+        ItemStack result,
+        CraftingStorage next,
+        List<ItemStack> remainders,
+        List<ItemStack> inputs,
+        boolean consumed
+    ) {
+    }
+
+    private record SlotBackup(int slot, ItemStack previous) {
+    }
+
+    private record FluidDrainNeed(FluidStack content, long totalMb) {
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult craftingExecuteRecipe(UUID playerId, long sourcePos, RecipeCraftRequest request) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        ItemStack currentCarried = player.containerMenu.getCarried();
+        if (
+            target.terminal() != null && currentCarried == target.terminal()
+            || target.view() == null
+            || target.view().primary().getRecipeBases() == null
+            || request.maxBatches() <= 0
+        ) {
+            return new InteractionResult(currentCarried.copy(), false).withCrafting(target.read());
+        }
+        List<ItemStack> inputs = request.inputs();
+        IntList counts = request.requestedCounts();
+        if (
+            inputs.isEmpty()
+            || inputs.size() > CraftingStorage.CRAFTING_GRID_SIZE
+            || counts.size() > CraftingStorage.CRAFTING_GRID_SIZE
+        ) {
+            return new InteractionResult(currentCarried.copy(), false).withCrafting(target.read());
+        }
+        int maxGridRounds;
+        int selected = 0;
+        if (request.stonecutter()) {
+            ItemStack wanted = inputs.getFirst();
+            if (wanted.isEmpty()) {
+                return new InteractionResult(currentCarried.copy(), false).withCrafting(target.read());
+            }
+            List<RecipeHolder<StonecutterRecipe>> recipes = player.level().getRecipeManager()
+                .getRecipesFor(RecipeType.STONECUTTING, new SingleRecipeInput(wanted), player.level());
+            if (recipes.isEmpty()) {
+                return new InteractionResult(currentCarried.copy(), false).withCrafting(target.read());
+            }
+            int matched = -1;
+            for (int i = 0; i < recipes.size(); i++) {
+                ItemStack candidate = recipes.get(i).value().getResultItem(player.level().registryAccess());
+                if (ItemStack.isSameItemSameComponents(candidate, request.stonecutterResult())) {
+                    matched = i;
+                    break;
+                }
+            }
+            if (matched < 0 && (!request.stonecutterResult().isEmpty() || request.destination() != CraftDestination.GRID)) {
+                return new InteractionResult(currentCarried.copy(), false).withCrafting(target.read());
+            }
+            selected = Math.max(0, matched);
+            maxGridRounds = Math.min(request.maxBatches(), wanted.getMaxStackSize());
+        } else {
+            maxGridRounds = request.maxBatches();
+            boolean hasInput = false;
+            for (int i = 0; i < counts.size(); i++) {
+                int count = counts.getInt(i);
+                ItemStack wanted = i < inputs.size() ? inputs.get(i) : ItemStack.EMPTY;
+                if (count < 0 || count > (wanted.isEmpty() ? 0 : wanted.getMaxStackSize())) {
+                    return new InteractionResult(currentCarried.copy(), false).withCrafting(target.read());
+                }
+                if (count > 0) {
+                    hasInput = true;
+                    maxGridRounds = Math.min(maxGridRounds, wanted.getMaxStackSize() / count);
+                }
+            }
+            if (!hasInput || maxGridRounds <= 0) {
+                return new InteractionResult(currentCarried.copy(), false).withCrafting(target.read());
+            }
+        }
+        StorageServerStub.unlockTakeAllRecipe(playerId, sourcePos);
+        CraftingStorage before = target.read();
+        boolean hadGridItems = !before.stonecutterInput().isEmpty()
+            || before.craftingInput().stream().anyMatch(stack -> !stack.isEmpty());
+        if (request.destination() == CraftDestination.GRID) {
+            CraftingStorage current = StorageServerStub.clearCrafting(target, before);
+            if (request.stonecutter()) {
+                current = current.withStonecutterSelected(selected);
+            }
+            boolean placed = false;
+            for (int round = 0; round < maxGridRounds; round++) {
+                if (!StorageServerStub.canSupplyRound(target, current, request.stonecutter(), inputs, counts, CraftingStorage.EMPTY)) {
+                    break;
+                }
+                CraftingStorage next = StorageServerStub.extractAndPlaceRound(
+                    target,
+                    current,
+                    request.stonecutter(),
+                    inputs,
+                    counts,
+                    CraftDestination.GRID,
+                    ItemStack.EMPTY,
+                    ItemStack.EMPTY
+                );
+                if (next == null) {
+                    break;
+                }
+                current = next;
+                placed = true;
+            }
+            target.write(current);
+            if (hadGridItems || placed) {
+                player.getInventory().setChanged();
+                player.containerMenu.broadcastChanges();
+            }
+            return new InteractionResult(player.containerMenu.getCarried().copy(), hadGridItems || placed).withCrafting(target.read());
+        }
+        CraftingStorage emptyState = before.withStonecutterInput(ItemStack.EMPTY)
+            .withCraftingInput(Collections.nCopies(CraftingStorage.CRAFTING_GRID_SIZE, ItemStack.EMPTY));
+        if (request.stonecutter()) {
+            emptyState = emptyState.withStonecutterSelected(selected);
+        }
+        CraftingStorage roundTemplate = StorageServerStub.buildTemplateState(emptyState, request.stonecutter(), inputs, counts);
+        if (roundTemplate == null) {
+            return new InteractionResult(currentCarried.copy(), false).withCrafting(target.read());
+        }
+        boolean toCursor = request.destination() == CraftDestination.CURSOR;
+        if (
+            toCursor
+            && player.hasInfiniteMaterials()
+            && target.terminal() != null
+            && ItemStack.isSameItemSameComponents(request.clientCarried(), target.terminal())
+        ) {
+            return new InteractionResult(currentCarried.copy(), false).withCrafting(target.read());
+        }
+        int limit = toCursor ? 1 : Math.min(request.maxBatches(), StorageServerStub.MAX_RECIPE_CRAFT_BATCHES);
+        ResourceLocation lockedId = null;
+        boolean cleared = false;
+        boolean crafted = false;
+        for (int performed = 0; performed < limit; performed++) {
+            RoundCraftPreview preview = StorageServerStub.previewRoundCraft(player, roundTemplate, request.stonecutter(), lockedId);
+            if (preview == null || preview.result().isEmpty()) {
+                break;
+            }
+            ItemStack effectiveCarried = performed == 0 && toCursor && player.hasInfiniteMaterials()
+                ? request.clientCarried()
+                : player.containerMenu.getCarried();
+            if (toCursor) {
+                if (
+                    !effectiveCarried.isEmpty()
+                    && (
+                        !ItemStack.isSameItemSameComponents(effectiveCarried, preview.result())
+                        || effectiveCarried.getCount() + preview.result().getCount() > preview.result().getMaxStackSize()
+                    )
+                ) {
+                    break;
+                }
+            }
+            if (!StorageServerStub.canSupplyRound(target, emptyState, request.stonecutter(), inputs, counts, CraftingStorage.EMPTY)) {
+                if (
+                    !cleared
+                    && hadGridItems
+                    && StorageServerStub.canSupplyRound(target, emptyState, request.stonecutter(), inputs, counts, before)
+                    && (
+                        toCursor
+                        || StorageServerStub.canFitAfterClearingGrid(
+                            player.getInventory(),
+                            target,
+                            before,
+                            request.stonecutter(),
+                            inputs,
+                            counts,
+                            preview.result()
+                        )
+                    )
+                ) {
+                    // 网格内的材料已被客户端计入可用池，确认退回网格后能完成本轮合成时再清空网格。
+                    emptyState = StorageServerStub.clearCrafting(target, before);
+                    if (request.stonecutter()) {
+                        emptyState = emptyState.withStonecutterSelected(selected);
+                    }
+                    target.write(emptyState);
+                    cleared = true;
+                }
+                if (!StorageServerStub.canSupplyRound(target, emptyState, request.stonecutter(), inputs, counts, CraftingStorage.EMPTY)) {
+                    break;
+                }
+            }
+            CraftingStorage supplied = StorageServerStub.extractAndPlaceRound(
+                target,
+                emptyState,
+                request.stonecutter(),
+                inputs,
+                counts,
+                request.destination(),
+                preview.result(),
+                effectiveCarried
+            );
+            if (supplied == null) {
+                break;
+            }
+            if (lockedId == null) {
+                lockedId = preview.recipeId();
+                if (!toCursor && request.maxBatches() == Integer.MAX_VALUE) {
+                    limit = Math.min(
+                        StorageServerStub.MAX_RECIPE_CRAFT_BATCHES,
+                        StorageServerStub.craftBudget(preview.result(), 1)
+                    );
+                }
+            }
+            preview.result().onCraftedBy(player.level(), player, preview.result().getCount());
+            if (!request.stonecutter()) {
+                EventHooks.firePlayerCraftingEvent(
+                    player,
+                    preview.result(),
+                    new SimpleContainer(preview.inputs().toArray(ItemStack[]::new))
+                );
+            }
+            player.triggerRecipeCrafted(preview.recipe(), preview.inputs());
+            if (!preview.recipe().value().isSpecial()) {
+                player.awardRecipes(List.of(preview.recipe()));
+            }
+            StorageServerStub.returnItems(player, target.view(), preview.next().stonecutterInput(), false);
+            for (ItemStack slotRemainder : preview.next().craftingInput()) {
+                StorageServerStub.returnItems(player, target.view(), slotRemainder, false);
+            }
+            for (ItemStack remainder : preview.remainders()) {
+                StorageServerStub.returnItems(player, target.view(), remainder, false);
+            }
+            crafted = true;
+            if (!preview.consumed()) {
+                break;
+            }
+        }
+        if (cleared || crafted) {
+            player.getInventory().setChanged();
+            player.containerMenu.broadcastChanges();
+        }
+        return new InteractionResult(player.containerMenu.getCarried().copy(), cleared || crafted).withCrafting(target.read());
+    }
+
+    private static @Nullable CraftingStorage buildTemplateState(
+        CraftingStorage emptyState,
+        boolean stonecutter,
+        List<ItemStack> inputs,
+        IntList counts
+    ) {
+        CraftingStorage next = emptyState;
+        for (int i = 0; i < (stonecutter ? 1 : inputs.size()); i++) {
+            ItemStack wanted = inputs.get(i);
+            int requested = stonecutter ? 1 : i < counts.size() ? counts.getInt(i) : 0;
+            if (wanted.isEmpty() || requested == 0) {
+                continue;
+            }
+            if (requested > wanted.getMaxStackSize()) {
+                return null;
+            }
+            ItemStack placed = wanted.copyWithCount(requested);
+            next = stonecutter ? next.withStonecutterInput(placed) : next.withCraftingSlot(i, placed);
+        }
+        return next == emptyState ? null : next;
+    }
+
+    private static @Nullable RoundCraftPreview previewRoundCraft(
+        ServerPlayer player,
+        CraftingStorage state,
+        boolean stonecutter,
+        @Nullable ResourceLocation lockedId
+    ) {
+        if (stonecutter) {
+            ItemStack input = state.stonecutterInput();
+            RecipeHolder<StonecutterRecipe> recipe = StorageServerStub.selectedStonecutterRecipe(player, state);
+            if (recipe == null || lockedId != null && !lockedId.equals(recipe.id())) {
+                return null;
+            }
+            ItemStack result = recipe.value().assemble(new SingleRecipeInput(input), player.level().registryAccess());
+            if (result.isEmpty()) {
+                return null;
+            }
+            ItemStack rest = input.copyWithCount(input.getCount() - 1);
+            return new RoundCraftPreview(
+                recipe.id(),
+                recipe,
+                result,
+                state.withStonecutterInput(rest.isEmpty() ? ItemStack.EMPTY : rest),
+                List.of(),
+                List.of(input.copy()),
+                true
+            );
+        }
+        CraftingInput.Positioned positioned = CraftingInput.ofPositioned(
+            StorageServerStub.CRAFTING_GRID_EDGE,
+            StorageServerStub.CRAFTING_GRID_EDGE,
+            state.craftingInput()
+        );
+        CraftingInput input = positioned.input();
+        if (input.isEmpty()) {
+            return null;
+        }
+        RecipeHolder<CraftingRecipe> holder;
+        if (lockedId == null) {
+            List<RecipeHolder<CraftingRecipe>> matches = player.level().getRecipeManager()
+                .getRecipesFor(RecipeType.CRAFTING, input, player.level());
+            holder = matches.isEmpty() ? null : matches.getFirst();
+        } else {
+            holder = StorageServerStub.findTakeAllLockedRecipe(player, lockedId);
+            if (holder != null && !holder.value().matches(input, player.level())) {
+                holder = null;
+            }
+        }
+        if (holder == null) {
+            return null;
+        }
+        ItemStack result;
+        List<ItemStack> remaining;
+        Player previousPlayer = CommonHooks.getCraftingPlayer();
+        CommonHooks.setCraftingPlayer(player);
+        try {
+            result = holder.value().assemble(input, player.level().registryAccess());
+            remaining = holder.value().getRemainingItems(input);
+        } finally {
+            CommonHooks.setCraftingPlayer(previousPlayer);
+        }
+        if (result.isEmpty()) {
+            return null;
+        }
+        List<ItemStack> grid = new ArrayList<>(state.craftingInput());
+        List<ItemStack> overflow = new ArrayList<>();
+        boolean consumed = false;
+        for (int row = 0; row < input.height(); row++) {
+            for (int column = 0; column < input.width(); column++) {
+                int slot = column + positioned.left() + (row + positioned.top()) * StorageServerStub.CRAFTING_GRID_EDGE;
+                ItemStack current = grid.get(slot);
+                if (current.isEmpty()) {
+                    continue;
+                }
+                ItemStack next = current.copyWithCount(current.getCount() - 1);
+                int index = column + row * input.width();
+                ItemStack remainder = index < remaining.size() ? remaining.get(index).copy() : ItemStack.EMPTY;
+                if (!remainder.isEmpty()) {
+                    if (next.isEmpty()) {
+                        next = remainder;
+                    } else if (ItemStack.isSameItemSameComponents(next, remainder)) {
+                        next.grow(remainder.getCount());
+                    } else {
+                        overflow.add(remainder);
+                    }
+                }
+                grid.set(slot, next.isEmpty() ? ItemStack.EMPTY : next);
+                if (!ItemStack.isSameItemSameComponents(current, next) || current.getCount() != next.getCount()) {
+                    consumed = true;
+                }
+            }
+        }
+        List<ItemStack> copiedInputs = state.craftingInput().stream().map(ItemStack::copy).toList();
+        return new RoundCraftPreview(
+            holder.id(),
+            holder,
+            result,
+            state.withCraftingInput(grid),
+            overflow,
+            copiedInputs,
+            consumed
+        );
+    }
+
+    private static boolean canSupplyRound(
+        CraftingTarget target,
+        CraftingStorage current,
+        boolean stonecutter,
+        List<ItemStack> inputs,
+        IntList counts,
+        CraftingStorage extraGrid
+    ) {
+        StorageView view = target.view();
+        if (view == null) {
+            return false;
+        }
+        Map<UnlimitedItemStacksResourceHandler.ResourceKey, Integer> required = new HashMap<>();
+        for (int i = 0; i < (stonecutter ? 1 : inputs.size()); i++) {
+            ItemStack wanted = inputs.get(i);
+            int requested = stonecutter ? 1 : i < counts.size() ? counts.getInt(i) : 0;
+            if (wanted.isEmpty() || requested == 0) {
+                continue;
+            }
+            ItemStack present = stonecutter ? current.stonecutterInput() : current.craftingInput().get(i);
+            if (
+                !present.isEmpty() && !ItemStack.isSameItemSameComponents(present, wanted)
+                || requested > wanted.getMaxStackSize() - present.getCount()
+            ) {
+                return false;
+            }
+            required.merge(UnlimitedItemStacksResourceHandler.ResourceKey.of(wanted), requested, Integer::sum);
+        }
+        if (required.isEmpty()) {
+            return false;
+        }
+        Inventory inventory = target.player().getInventory();
+        Map<UnlimitedItemStacksResourceHandler.ResourceKey, Long> availableItems = new HashMap<>();
+        for (int slot = 0; slot < Inventory.INVENTORY_SIZE; slot++) {
+            ItemStack stack = inventory.getItem(slot);
+            if (stack.isEmpty() || target.terminal() != null && stack == target.terminal()) {
+                continue;
+            }
+            availableItems.merge(
+                UnlimitedItemStacksResourceHandler.ResourceKey.of(stack),
+                (long) stack.getCount(),
+                Long::sum
+            );
+        }
+        for (int index = 0; index < view.size(); index++) {
+            if (view.amount(index) > 0) {
+                availableItems.merge(
+                    UnlimitedItemStacksResourceHandler.ResourceKey.of(view.resource(index)),
+                    view.amount(index),
+                    Long::sum
+                );
+            }
+        }
+        if (!extraGrid.stonecutterInput().isEmpty()) {
+            availableItems.merge(
+                UnlimitedItemStacksResourceHandler.ResourceKey.of(extraGrid.stonecutterInput()),
+                (long) extraGrid.stonecutterInput().getCount(),
+                Long::sum
+            );
+        }
+        for (ItemStack gridStack : extraGrid.craftingInput()) {
+            if (!gridStack.isEmpty()) {
+                availableItems.merge(
+                    UnlimitedItemStacksResourceHandler.ResourceKey.of(gridStack),
+                    (long) gridStack.getCount(),
+                    Long::sum
+                );
+            }
+        }
+        Map<UnlimitedItemStacksResourceHandler.ResourceKey, Integer> containerDeficits = new HashMap<>();
+        for (Map.Entry<UnlimitedItemStacksResourceHandler.ResourceKey, Integer> entry : required.entrySet()) {
+            long have = availableItems.getOrDefault(entry.getKey(), 0L);
+            long direct = Math.min(have, entry.getValue());
+            availableItems.put(entry.getKey(), have - direct);
+            int deficit = (int) (entry.getValue() - direct);
+            if (deficit > 0) {
+                containerDeficits.put(entry.getKey(), deficit);
+            }
+        }
+        if (containerDeficits.isEmpty()) {
+            return true;
+        }
+        List<FluidDrainNeed> fluidNeeds = new ArrayList<>();
+        for (Map.Entry<UnlimitedItemStacksResourceHandler.ResourceKey, Integer> entry : containerDeficits.entrySet()) {
+            ItemStack wanted = entry.getKey().stack();
+            int deficit = entry.getValue();
+            FluidStack content = StorageServerStub.fluidContentOf(wanted);
+            ItemStack empty = StorageServerStub.fillableEmptyContainerOf(wanted, content);
+            if (content.isEmpty() || empty.isEmpty()) {
+                return false;
+            }
+            UnlimitedItemStacksResourceHandler.ResourceKey emptyKey =
+                UnlimitedItemStacksResourceHandler.ResourceKey.of(empty);
+            long emptyHave = availableItems.getOrDefault(emptyKey, 0L);
+            if (emptyHave < deficit) {
+                return false;
+            }
+            availableItems.put(emptyKey, emptyHave - deficit);
+            long totalMbLong = (long) deficit * content.getAmount();
+            if (totalMbLong > Integer.MAX_VALUE) {
+                return false;
+            }
+            StorageServerStub.mergeFluidNeed(fluidNeeds, content, totalMbLong);
+        }
+        UUID storageId = view.primary().getId();
+        List<FluidEntry> portFluids = StoragePortManager.collect(storageId);
+        for (FluidDrainNeed need : fluidNeeds) {
+            if (need.totalMb() > Integer.MAX_VALUE) {
+                return false;
+            }
+            int requiredMb = (int) need.totalMb();
+            int availableMb = 0;
+            for (FluidEntry entry : portFluids) {
+                if (entry.amount() > 0 && FluidStack.isSameFluidSameComponents(entry.icon(), need.content())) {
+                    availableMb = entry.amount();
+                    break;
+                }
+            }
+            if (
+                availableMb < requiredMb
+                || StoragePortManager.drain(storageId, need.content(), requiredMb, true) < requiredMb
+            ) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean canFitAfterClearingGrid(
+        Inventory inventory,
+        CraftingTarget target,
+        CraftingStorage before,
+        boolean stonecutter,
+        List<ItemStack> inputs,
+        IntList counts,
+        ItemStack result
+    ) {
+        if (StorageServerStub.canFitInMainInventory(inventory, result)) {
+            return true;
+        }
+        // 主背包当前已满时，仅当所有原网格物品都能先回到存储，或本轮将从主背包扣完某格腾出空位时才可能放下。
+        StorageView view = target.view();
+        if (view == null) {
+            return false;
+        }
+        Map<UnlimitedItemStacksResourceHandler.ResourceKey, Integer> required = new HashMap<>();
+        for (int i = 0; i < (stonecutter ? 1 : inputs.size()); i++) {
+            ItemStack wanted = inputs.get(i);
+            int requested = stonecutter ? 1 : i < counts.size() ? counts.getInt(i) : 0;
+            if (!wanted.isEmpty() && requested > 0) {
+                required.merge(UnlimitedItemStacksResourceHandler.ResourceKey.of(wanted), requested, Integer::sum);
+            }
+        }
+        for (int slot = 0; slot < Inventory.INVENTORY_SIZE; slot++) {
+            ItemStack stack = inventory.getItem(slot);
+            if (stack.isEmpty() || target.terminal() != null && stack == target.terminal()) {
+                continue;
+            }
+            int needed = required.getOrDefault(UnlimitedItemStacksResourceHandler.ResourceKey.of(stack), 0);
+            if (needed >= stack.getCount()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static @Nullable CraftingStorage extractAndPlaceRound(
+        CraftingTarget target,
+        CraftingStorage current,
+        boolean stonecutter,
+        List<ItemStack> inputs,
+        IntList counts,
+        CraftDestination destination,
+        ItemStack result,
+        ItemStack cursorBase
+    ) {
+        StorageView view = target.view();
+        if (view == null) {
+            return null;
+        }
+        Inventory inventory = target.player().getInventory();
+        CraftingStorage next = current;
+        Map<UnlimitedItemStacksResourceHandler.ResourceKey, Integer> required = new HashMap<>();
+        for (int i = 0; i < (stonecutter ? 1 : inputs.size()); i++) {
+            ItemStack wanted = inputs.get(i);
+            int requested = stonecutter ? 1 : i < counts.size() ? counts.getInt(i) : 0;
+            if (wanted.isEmpty() || requested == 0) {
+                continue;
+            }
+            ItemStack present = stonecutter ? current.stonecutterInput() : current.craftingInput().get(i);
+            if (
+                !present.isEmpty() && !ItemStack.isSameItemSameComponents(present, wanted)
+                || requested > wanted.getMaxStackSize() - present.getCount()
+            ) {
+                return null;
+            }
+            required.merge(UnlimitedItemStacksResourceHandler.ResourceKey.of(wanted), requested, Integer::sum);
+            ItemStack placed = wanted.copyWithCount(present.getCount() + requested);
+            next = stonecutter ? next.withStonecutterInput(placed) : next.withCraftingSlot(i, placed);
+        }
+        if (next == current) {
+            return null;
+        }
+        Map<UnlimitedItemStacksResourceHandler.ResourceKey, Integer> itemNeeds = new HashMap<>();
+        List<FluidDrainNeed> fluidNeeds = new ArrayList<>();
+        for (Map.Entry<UnlimitedItemStacksResourceHandler.ResourceKey, Integer> entry : required.entrySet()) {
+            ItemStack wanted = entry.getKey().stack();
+            int needed = entry.getValue();
+            long directAvailable = StorageServerStub.countInMainInventory(inventory, target.terminal(), wanted)
+                + StorageServerStub.countInView(view, wanted);
+            int directUse = (int) Math.min(directAvailable, needed);
+            if (directUse > 0) {
+                itemNeeds.merge(entry.getKey(), directUse, Integer::sum);
+            }
+            int deficit = needed - directUse;
+            if (deficit > 0) {
+                FluidStack content = StorageServerStub.fluidContentOf(wanted);
+                ItemStack empty = StorageServerStub.fillableEmptyContainerOf(wanted, content);
+                long addMb = (long) deficit * content.getAmount();
+                if (content.isEmpty() || empty.isEmpty() || addMb > Integer.MAX_VALUE) {
+                    return null;
+                }
+                itemNeeds.merge(UnlimitedItemStacksResourceHandler.ResourceKey.of(empty), deficit, Integer::sum);
+                StorageServerStub.mergeFluidNeed(fluidNeeds, content, addMb);
+            }
+        }
+        for (FluidDrainNeed need : fluidNeeds) {
+            if (need.totalMb() > Integer.MAX_VALUE) {
+                return null;
+            }
+        }
+        List<SlotBackup> invBackups = new ArrayList<>();
+        for (Map.Entry<UnlimitedItemStacksResourceHandler.ResourceKey, Integer> entry : itemNeeds.entrySet()) {
+            ItemStack wanted = entry.getKey().stack();
+            int remaining = entry.getValue();
+            for (int slot = 0; slot < Inventory.INVENTORY_SIZE && remaining > 0; slot++) {
+                ItemStack stack = inventory.getItem(slot);
+                if (stack.isEmpty() || target.terminal() != null && stack == target.terminal()) {
+                    continue;
+                }
+                if (!ItemStack.isSameItemSameComponents(stack, wanted)) {
+                    continue;
+                }
+                invBackups.add(new SlotBackup(slot, stack.copy()));
+                int take = Math.min(stack.getCount(), remaining);
+                ItemStack rest = stack.copyWithCount(stack.getCount() - take);
+                inventory.setItem(slot, rest.isEmpty() ? ItemStack.EMPTY : rest);
+                remaining -= take;
+            }
+            entry.setValue(remaining);
+        }
+        if (destination == CraftDestination.INVENTORY && !StorageServerStub.canFitInMainInventory(inventory, result)) {
+            StorageServerStub.restoreInventoryBackups(inventory, invBackups);
+            return null;
+        }
+        List<ItemStack> storageBackups = new ArrayList<>();
+        for (Map.Entry<UnlimitedItemStacksResourceHandler.ResourceKey, Integer> entry : itemNeeds.entrySet()) {
+            int remaining = entry.getValue();
+            if (remaining <= 0) {
+                continue;
+            }
+            ItemStack wanted = entry.getKey().stack();
+            int takenFromStorage = 0;
+            for (int index = 0; index < view.size() && remaining > 0; index++) {
+                if (view.amount(index) <= 0 || !ItemStack.isSameItemSameComponents(view.resource(index), wanted)) {
+                    continue;
+                }
+                int extracted = view.extract(index, (int) Math.min(remaining, view.amount(index)));
+                if (extracted > 0) {
+                    takenFromStorage += extracted;
+                    remaining -= extracted;
+                }
+            }
+            if (takenFromStorage > 0) {
+                storageBackups.add(wanted.copyWithCount(takenFromStorage));
+            }
+            if (remaining > 0) {
+                StorageServerStub.rollbackRound(target.player(), inventory, view, invBackups, storageBackups, List.of());
+                return null;
+            }
+        }
+        UUID storageId = view.primary().getId();
+        List<FluidStack> fluidBackups = new ArrayList<>();
+        for (FluidDrainNeed need : fluidNeeds) {
+            int requiredMb = (int) need.totalMb();
+            int drained = StoragePortManager.drain(storageId, need.content(), requiredMb);
+            if (drained > 0) {
+                fluidBackups.add(need.content().copyWithAmount(drained));
+            }
+            if (drained < requiredMb) {
+                StorageServerStub.rollbackRound(target.player(), inventory, view, invBackups, storageBackups, fluidBackups);
+                return null;
+            }
+        }
+        if (destination == CraftDestination.CURSOR) {
+            int nextCount = cursorBase.isEmpty() ? result.getCount() : cursorBase.getCount() + result.getCount();
+            target.player().containerMenu.setCarried(result.copyWithCount(nextCount));
+        } else if (destination == CraftDestination.INVENTORY) {
+            StorageServerStub.insertIntoMainInventory(inventory, result.copy());
+        }
+        return next;
+    }
+
+    private static void mergeFluidNeed(List<FluidDrainNeed> needs, FluidStack content, long addMb) {
+        for (int i = 0; i < needs.size(); i++) {
+            FluidDrainNeed existing = needs.get(i);
+            if (FluidStack.isSameFluidSameComponents(existing.content(), content)) {
+                needs.set(i, new FluidDrainNeed(existing.content(), existing.totalMb() + addMb));
+                return;
+            }
+        }
+        needs.add(new FluidDrainNeed(content.copy(), addMb));
+    }
+
+    private static ItemStack fillableEmptyContainerOf(ItemStack wanted, FluidStack content) {
+        if (content.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        ItemStack empty = StorageServerStub.emptyContainerOf(wanted);
+        if (empty.isEmpty() || ItemStack.isSameItemSameComponents(empty, wanted)) {
+            return ItemStack.EMPTY;
+        }
+        IFluidHandlerItem filler = FluidUtil.getFluidHandler(empty.copyWithCount(1)).orElse(null);
+        if (
+            filler == null
+            || filler.fill(content.copy(), IFluidHandler.FluidAction.EXECUTE) != content.getAmount()
+            || !ItemStack.isSameItemSameComponents(filler.getContainer(), wanted)
+        ) {
+            return ItemStack.EMPTY;
+        }
+        return empty;
+    }
+
+    private static long countInMainInventory(
+        Inventory inventory,
+        @Nullable ItemStack excludedTerminal,
+        ItemStack wanted
+    ) {
+        long total = 0;
+        for (int slot = 0; slot < Inventory.INVENTORY_SIZE; slot++) {
+            ItemStack stack = inventory.getItem(slot);
+            if (stack.isEmpty() || excludedTerminal != null && stack == excludedTerminal) {
+                continue;
+            }
+            if (ItemStack.isSameItemSameComponents(stack, wanted)) {
+                total += stack.getCount();
+            }
+        }
+        return total;
+    }
+
+    private static boolean canFitInMainInventory(Inventory inventory, ItemStack result) {
+        int remaining = result.getCount();
+        for (int slot = 0; slot < Inventory.INVENTORY_SIZE && remaining > 0; slot++) {
+            ItemStack existing = inventory.getItem(slot);
+            if (existing.isEmpty()) {
+                remaining -= result.getMaxStackSize();
+            } else if (
+                ItemStack.isSameItemSameComponents(existing, result)
+                && existing.getCount() < existing.getMaxStackSize()
+            ) {
+                remaining -= existing.getMaxStackSize() - existing.getCount();
+            }
+        }
+        return remaining <= 0;
+    }
+
+    private static void insertIntoMainInventory(Inventory inventory, ItemStack stack) {
+        for (int slot = 0; slot < Inventory.INVENTORY_SIZE && !stack.isEmpty(); slot++) {
+            ItemStack existing = inventory.getItem(slot);
+            if (ItemStack.isSameItemSameComponents(existing, stack) && existing.getCount() < existing.getMaxStackSize()) {
+                int add = Math.min(stack.getCount(), existing.getMaxStackSize() - existing.getCount());
+                existing.grow(add);
+                stack.shrink(add);
+            }
+        }
+        for (int slot = 0; slot < Inventory.INVENTORY_SIZE && !stack.isEmpty(); slot++) {
+            if (inventory.getItem(slot).isEmpty()) {
+                int put = Math.min(stack.getCount(), stack.getMaxStackSize());
+                inventory.setItem(slot, stack.copyWithCount(put));
+                stack.shrink(put);
+            }
+        }
+    }
+
+    private static void restoreInventoryBackups(Inventory inventory, List<SlotBackup> backups) {
+        for (int i = backups.size() - 1; i >= 0; i--) {
+            SlotBackup backup = backups.get(i);
+            inventory.setItem(backup.slot(), backup.previous());
+        }
+    }
+
+    private static void rollbackRound(
+        ServerPlayer player,
+        Inventory inventory,
+        StorageView view,
+        List<SlotBackup> invBackups,
+        List<ItemStack> storageBackups,
+        List<FluidStack> fluidBackups
+    ) {
+        StorageServerStub.restoreInventoryBackups(inventory, invBackups);
+        for (ItemStack stack : storageBackups) {
+            StorageServerStub.returnItems(player, view, stack, true);
+        }
+        UUID storageId = view.primary().getId();
+        for (FluidStack fluid : fluidBackups) {
+            StorageServerStub.refillFluid(storageId, fluid, fluid.getAmount());
+        }
     }
 
     /**

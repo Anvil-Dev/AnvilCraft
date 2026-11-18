@@ -13,9 +13,9 @@ import net.neoforged.neoforge.fluids.FluidType;
 
 @Config(name = AnvilCraft.MOD_ID, type = ModConfig.Type.SERVER)
 public class AnvilCraftServerConfig {
-    @SerializedName("Overworld Celestial Bodies")
-    @Comment("Server-wide Overworld sky and lunar travel mode. Vanilla keeps the original sky and midnight travel window. "
-        + "Special uses modeled celestial bodies and permits travel when the Moon is overhead. Applies to every player.")
+    @SerializedName("Overworld Celestial Motion")
+    @Comment("Controls Overworld celestial motion and lunar travel. Vanilla keeps the original orbits and midnight travel window. "
+        + "Special uses realistic orbits and permits travel when the Moon is overhead. Rendering style is selected by each client.")
     public OverworldSkyMode overworldSkyMode = OverworldSkyMode.VANILLA;
 
     public enum OverworldSkyMode implements TranslatableEnum {

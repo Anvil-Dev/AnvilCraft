@@ -54,7 +54,12 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
 
     @Override
     public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-        if (stack.isEmpty()) return ItemStack.EMPTY;
+        if (stack.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        if (!this.isItemValid(slot, stack)) {
+            return stack;
+        }
         // 单种物品的容量上限只与整箱空间有关，两个分支都要用，故算一次
         long capacity = TypeLimitItemStacksResourceHandler.computeCount(stack, this.spaceSize);
         if (slot >= this.stacks.size()) {

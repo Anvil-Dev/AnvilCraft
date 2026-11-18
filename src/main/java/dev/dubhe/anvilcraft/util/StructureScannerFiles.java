@@ -265,13 +265,14 @@ public final class StructureScannerFiles {
         StructureSnapshot snapshot = imported.snapshot();
         CompoundTag canonical = StructureSnapshotCodec.write(snapshot);
         UUID id = UUID.randomUUID();
-        String storedFile = "import_" + id + ".nbt";
+        String displayName = name.isBlank() ? imported.name() : name;
+        String storedFile = StructureSaveUtil.createFileName(displayName, id);
         Path root = player.server.getWorldPath(LevelResource.ROOT).resolve("anvilcraft/structures");
         Files.createDirectories(root);
         NbtIo.writeCompressed(canonical, root.resolve(storedFile));
         ItemStack output = input.copyWithCount(1);
         output.set(ModComponents.STRUCTURE_DISK_DATA, new StructureDiskData(storedFile,
-            name.isBlank() ? imported.name() : name, id, Direction.NORTH,
+            displayName, id, Direction.NORTH,
             snapshot.size().getX(), snapshot.size().getY(), snapshot.size().getZ(), false, autoRotate));
         if (marker.isEmpty()) output.remove(ModComponents.DISPLAY_ITEM);
         else output.set(ModComponents.DISPLAY_ITEM, new StoredItem(marker.copyWithCount(1)));

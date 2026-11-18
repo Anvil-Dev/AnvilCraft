@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
 import dev.dubhe.anvilcraft.client.init.ModRenderTargets;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
 import dev.dubhe.anvilcraft.client.renderer.mun.MunSurfaceRenderer;
@@ -23,6 +24,9 @@ abstract class GameRendererMixin {
 
     @ModifyReturnValue(method = "getNightVisionScale", at = @At("RETURN"))
     private static float anvilcraft$steadyHelmetNightVision(float original, LivingEntity entity, float partialTick) {
+        if (entity.level().dimension().equals(CelestialTravelManager.MUN_LEVEL)) {
+            return 0;
+        }
         return EquipmentAbilities.hasNightVision(entity) ? 1 : original;
     }
 

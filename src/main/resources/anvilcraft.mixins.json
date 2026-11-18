@@ -178,6 +178,7 @@
     "compat.SodiumItemRendererMixin",
     "compat.SophisticatedJeiRecipeTransferMixin",
     "mun.MunEntityShadowMixin",
+    "mun.MunLightTextureMixin",
     "mun.MunModelDataMixin",
     "mun.MunShadowChunkMixin",
     "mun.MunTerrainShadeMixin",
