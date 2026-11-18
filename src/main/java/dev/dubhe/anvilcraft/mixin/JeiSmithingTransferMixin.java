@@ -13,22 +13,23 @@ import java.util.List;
 
 @Mixin(BasicRecipeTransferHandlerServer.class)
 public abstract class JeiSmithingTransferMixin {
-    @WrapMethod(method = "setItems")
-    private static void anvilcraft$transferSmithingInputs(
+    @WrapMethod(method = "setItemsWithResult")
+    private static boolean anvilcraft$transferSmithingInputs(
         Player player,
         List<TransferOperation> operations,
         List<Slot> craftingSlots,
         List<Slot> inventorySlots,
         boolean maxTransfer,
         boolean requireCompleteSets,
-        Operation<Void> original
+        Operation<Boolean> original
     ) {
         if (player.containerMenu instanceof AdjacentSmithingMenu menu) {
-            menu.runRecipeTransfer(() -> original.call(
+            boolean[] result = new boolean[1];
+            menu.runRecipeTransfer(() -> result[0] = original.call(
                 player, operations, craftingSlots, inventorySlots, maxTransfer, requireCompleteSets
             ));
-        } else {
-            original.call(player, operations, craftingSlots, inventorySlots, maxTransfer, requireCompleteSets);
+            return result[0];
         }
+        return original.call(player, operations, craftingSlots, inventorySlots, maxTransfer, requireCompleteSets);
     }
 }

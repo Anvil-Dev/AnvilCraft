@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.client.rpc.TerminalJeiStorageCache;
 import dev.dubhe.anvilcraft.integration.jei.transfer.TerminalJeiTransferSupport;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IStackHelper;
+import mezz.jei.api.recipe.transfer.IRecipeTransferContext;
 import mezz.jei.api.recipe.transfer.IRecipeTransferError;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
 import mezz.jei.api.recipe.transfer.IRecipeTransferInfo;
@@ -11,6 +12,7 @@ import mezz.jei.library.transfer.BasicRecipeTransferHandler;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,20 +22,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 import java.util.UUID;
-import javax.annotation.Nullable;
 
-/**
- * 把终端的 JEI 转移补全逻辑注入 JEI 的 {@link BasicRecipeTransferHandler#transferRecipe}。
- * 具体补全逻辑在 {@link TerminalJeiTransferSupport}，本 mixin 只做适配：
- * <ul>
- *   <li>检查阶段（doTransfer=false）：结合存储计算精确缺口，可补足时返回成功（"+" 可用），
- *       不足时返回只高亮真正缺失槽的错误；</li>
- *   <li>传输阶段（doTransfer=true）：补足背包缺口后重试原传输逻辑，重试后退回多余材料。</li>
- * </ul>
- * 其它模组 Handler 的 mixin 可复用 {@link TerminalJeiTransferSupport}（仅需适配
- * 各自的 transferRecipe 签名与 transferInfo 获取方式）。
- */
-@Mixin(BasicRecipeTransferHandler.class)
+/** 在 JEI 完成菜单校验后，为标准处理器的两种调用入口补齐仓储材料。 */
+@Mixin(value = BasicRecipeTransferHandler.class, remap = false)
 public abstract class JeiBasicRecipeTransferHandlerMixin<C extends AbstractContainerMenu, R> {
     @Shadow
     public abstract @Nullable IRecipeTransferError transferRecipe(
@@ -44,6 +35,9 @@ public abstract class JeiBasicRecipeTransferHandlerMixin<C extends AbstractConta
         boolean maxTransfer,
         boolean doTransfer
     );
+
+    @Shadow
+    public abstract @Nullable IRecipeTransferError transferRecipe(IRecipeTransferContext<R, C> context, boolean doTransfer);
 
     @Final
     @Shadow
@@ -57,7 +51,10 @@ public abstract class JeiBasicRecipeTransferHandlerMixin<C extends AbstractConta
     @Shadow
     private IStackHelper stackHelper;
 
-    @Inject(method = "transferRecipe", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "transferRecipeInternal", at = @At(value = "INVOKE",
+        target = "Lmezz/jei/common/transfer/RecipeTransferUtil;getRecipeTransferOperations("
+            + "Lmezz/jei/api/helpers/IStackHelper;Ljava/util/Map;Ljava/util/List;Ljava/util/List;)"
+            + "Lmezz/jei/common/transfer/RecipeTransferOperationsResult;"), cancellable = true)
     private void anvilcraft$restockOrAllow(
         C container,
         R recipe,
@@ -65,6 +62,7 @@ public abstract class JeiBasicRecipeTransferHandlerMixin<C extends AbstractConta
         Player player,
         boolean maxTransfer,
         boolean doTransfer,
+        @Nullable IRecipeTransferContext<R, C> context,
         CallbackInfoReturnable<IRecipeTransferError> cir
     ) {
         if (!player.level().isClientSide() || TerminalJeiStorageCache.isRestocking()) {
@@ -75,8 +73,7 @@ public abstract class JeiBasicRecipeTransferHandlerMixin<C extends AbstractConta
             return;
         }
         if (!doTransfer) {
-            // 检查阶段：null 表示存储可补足（"+" 可用，必须拦截返回成功，否则走原方法
-            // 会用空背包判断导致"全部缺失"）；非 null 为精确缺失错误（只高亮真正缺的槽）
+            // 可由仓储补齐时允许填充，否则只高亮实际缺失的槽位。
             IRecipeTransferError error = TerminalJeiTransferSupport.checkSatisfies(
                 container,
                 recipeSlotsView,
@@ -97,10 +94,11 @@ public abstract class JeiBasicRecipeTransferHandlerMixin<C extends AbstractConta
             player,
             this.stackHelper,
             maxTransfer,
-            () -> this.transferRecipe(container, recipe, recipeSlotsView, player, maxTransfer, true)
+            () -> context == null ? this.transferRecipe(container, recipe, recipeSlotsView, player, maxTransfer, true)
+                : this.transferRecipe(context, true)
         );
         if (restocked) {
-            // 补库已开始（异步），拦截原传输并返回成功；补库完成后回调会重试原逻辑
+            // 异步补齐后复用当前上下文重试，保留 JEI 的传输完成通知。
             cir.setReturnValue(null);
         }
     }
