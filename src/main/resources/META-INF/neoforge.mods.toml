@@ -87,14 +87,14 @@ file="META-INF/accesstransformer.cfg"
 [[dependencies."${mod_id}"]]
     modId="anvillib_registrum"
     type="required"
-    versionRange="[2.0.0+snapshot.529,)"
+    versionRange="[${anvillib_version},)"
     ordering="AFTER"
     side="BOTH"
 
 [[dependencies."${mod_id}"]]
     modId="anvillib_math"
     type="required"
-    versionRange="[2.0.0+snapshot.533,)"
+    versionRange="[${anvillib_version},)"
     ordering="AFTER"
     side="BOTH"
 
