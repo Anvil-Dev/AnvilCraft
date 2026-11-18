@@ -28,6 +28,10 @@ If 64 <ref item="anvilcraft:heliostats"/> are used, the heat generated can be co
 |:-----:|:-----------------------------------:|:-----------------------------------:|:-----------------------------------:|:-----------------------------------:|
 | Level | <color=#661111>Hot</color> | <color=#aa2222>Red-hot</color> | <color=#cc5533>Blazing</color> | <color=#ee7744>Incandescent</color> |
 
+<info>
+Enable "Heliostats Beam" in the client graphics settings to render the beams
+</info>
+
 ---
 
 ## Related

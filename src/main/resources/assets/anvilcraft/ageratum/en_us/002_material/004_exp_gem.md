@@ -18,17 +18,23 @@ items:
 
 ## Cauldron Interaction
 
-- Pour Bottle o' Enchanting into a cauldron; 50% chance to gain one layer of experience fluid (yes, you lose some)
-- Use an empty bottle on an experience cauldron to obtain a Bottle o' Enchanting
+- Pour a Bottle o' Enchanting into a [cauldron](../001_feature/000_cauldron.md); 50% chance to gain one layer of experience fluid (yes, you lose some)
+- Use an empty bottle on a [cauldron](../001_feature/000_cauldron.md) to obtain a Bottle o' Enchanting
 
 ## Player Absorption
 
-- Players can touch and absorb a full experience cauldron to gain 50 experience points
+- While inside a cauldron, the player absorbs 1B of liquid experience at a time, gaining 50 experience points
 - Players can touch and absorb a source block of the fluid in the world to gain 50 experience points
 
 ## Sculk Extraction
 
-- There is a 10% chance to add one layer of experience fluid to a cauldron when a Sculk Block is crushed on it
+- When a <ref item="minecraft:sculk"/> above a [cauldron](../001_feature/000_cauldron.md) is crushed, there is a 10% chance to add one layer of experience fluid
+- If upgraded to a <ref item="anvilcraft:frost_anvil"/>, the chance increases to 40%
+
+## Item Repair
+
+- Experience fluid inside a [cauldron](../001_feature/000_cauldron.md) repairs items enchanted with Mending
+- A vanilla <ref item="minecraft:cauldron"/> consumes its entire contents per repair, which easily wastes fluid
 
 # <ref item="anvilcraft:exp_gem"/>
 
@@ -39,14 +45,11 @@ items:
 <recipe id="anvilcraft:solid_liquid/exp_fluid_cauldron"/>
 </row>
 
-- A full cauldron of experience fluid hit by an anvil consumes all the fluid to produce one Experience Gem
-- An Experience Gem crushed in a water-filled cauldron consumes the gem and produces a cauldron of experience fluid
-
 ## Special Functions
 
-- Right-click to consume an Experience Gem and gain 50 experience points; shift-right-click to consume all Experience Gems in hand at once
-- Use on a villager to give them 20 trading experience points
-- Use on a baby villager to reduce growth time by 2 minutes
+- Right-click with an <ref item="anvilcraft:exp_gem"/> to gain 50 experience points; Shift-right-click to use all <ref item="anvilcraft:exp_gem"/>s in hand
+- Use an <ref item="anvilcraft:exp_gem"/> on a villager to give it 20 trading experience points
+- Use an <ref item="anvilcraft:exp_gem"/> on a baby villager to reduce its growth time by 2 minutes
 
 ## Storage Block
 

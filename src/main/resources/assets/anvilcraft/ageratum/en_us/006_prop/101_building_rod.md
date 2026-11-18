@@ -38,7 +38,7 @@ When placing infinite fluids such as water, at most two buckets of water are con
 
 ### Placement Behavior
 
-- Automatically uses items from the player's inventory
+- Automatically uses items and fluids from the player's inventory and carried containers
 - Cancels placement when materials are insufficient instead of placing only part of the selection
 - Places at most 4,096 blocks at a time
 
