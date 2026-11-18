@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
 import dev.dubhe.anvilcraft.network.SilencerAddMutedPacket;
 import dev.dubhe.anvilcraft.network.SilencerRemoveMutedPacket;
+import dev.dubhe.anvilcraft.util.FormattingUtil;
 import it.unimi.dsi.fastutil.Pair;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
@@ -168,7 +169,11 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     private Component getSoundName(ResourceLocation sound) {
         WeighedSoundEvents event = Minecraft.getInstance().getSoundManager().getSoundEvent(sound);
         Component subtitle = event == null ? null : event.getSubtitle();
-        return subtitle == null ? Component.literal(sound.toString()) : subtitle;
+        if (subtitle != null) {
+            return subtitle;
+        }
+        String name = FormattingUtil.toEnglishName(sound.getPath().replace('.', '_').replace('/', '_'));
+        return Component.translatableWithFallback("sound." + sound.getNamespace() + "." + sound.getPath(), name);
     }
 
     private void refreshSoundList() {
