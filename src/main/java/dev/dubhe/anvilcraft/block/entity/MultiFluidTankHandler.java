@@ -51,14 +51,14 @@ final class MultiFluidTankHandler implements IFluidHandler, INBTSerializable<Com
             return FluidStack.EMPTY;
         }
         StoredFluid stored = this.fluids.get(tank);
-        return stored.infinite() ? stored.fluid().copyWithAmount(Integer.MAX_VALUE) : stored.fluid();
+        return stored.suppliesInfinitely() ? stored.fluid().copyWithAmount(Integer.MAX_VALUE) : stored.fluid();
     }
 
     @Override
     public int getTankCapacity(int tank) {
         if (tank < 0 || tank >= this.getTanks()) return 0;
         if (this.enhanced) {
-            return tank < this.fluids.size() && this.fluids.get(tank).infinite()
+            return tank < this.fluids.size() && this.fluids.get(tank).suppliesInfinitely()
                 ? Integer.MAX_VALUE : this.infinityThreshold;
         }
         if (this.fluids.isEmpty()) return this.baseCapacity;
@@ -78,10 +78,10 @@ final class MultiFluidTankHandler implements IFluidHandler, INBTSerializable<Com
         if (resource.isEmpty() || resource.getAmount() <= 0) return 0;
         int index = this.findFluid(resource);
         if (this.enhanced) {
-            if (action.execute()) {
-                this.fillEnhanced(resource, index);
-            }
-            return resource.getAmount();
+            int accepted = this.getEnhancedAccepted(resource, index);
+            if (accepted <= 0) return 0;
+            if (action.execute()) this.fillEnhanced(resource, index, accepted);
+            return accepted;
         }
 
         int accepted = Math.min(resource.getAmount(), this.getRemainingCapacity());
@@ -98,32 +98,48 @@ final class MultiFluidTankHandler implements IFluidHandler, INBTSerializable<Com
         return accepted;
     }
 
-    private void fillEnhanced(FluidStack resource, int index) {
+    /**
+     * 计算增强态下本次可接收的量。
+     *
+     * <p>本次输入若能把该流体推到阈值，且该流体未被 {@link ModFluidTags#CANNOT_BE_INFINITE} 排除，
+     * 就会转为无限供给，从而能全部接收；否则存量在阈值处封顶，
+     * 必须按实际剩余空间返回接收量，否则管道会误以为这些流体已经入罐而多抽走。
+     */
+    private int getEnhancedAccepted(FluidStack resource, int index) {
+        if (index >= 0 && this.fluids.get(index).suppliesInfinitely()) return resource.getAmount();
+        int stored = index < 0 ? 0 : this.fluids.get(index).fluid().getAmount();
+        long space = (long) this.infinityThreshold - stored;
+        if (space <= 0) return 0;
+        if (mayBeInfinite(resource) && resource.getAmount() >= space) return resource.getAmount();
+        return (int) Math.min(resource.getAmount(), space);
+    }
+
+    private void fillEnhanced(FluidStack resource, int index, int accepted) {
         if (index < 0) {
-            int amount = Math.min(resource.getAmount(), this.infinityThreshold);
-            boolean infinite = amount == this.infinityThreshold && cannotBeInfinite(resource);
-            this.fluids.add(new StoredFluid(resource.copyWithAmount(amount), infinite));
+            boolean infinite = accepted >= this.infinityThreshold && mayBeInfinite(resource);
+            int stored = Math.min(accepted, this.infinityThreshold);
+            this.fluids.add(new StoredFluid(resource.copyWithAmount(stored), infinite));
             this.changeListener.run();
             return;
         }
 
         StoredFluid stored = this.fluids.get(index);
-        if (stored.infinite()) return;
-        long result = (long) stored.fluid().getAmount() + resource.getAmount();
+        if (stored.suppliesInfinitely()) return;
+        long result = (long) stored.fluid().getAmount() + accepted;
         stored.fluid().setAmount((int) Math.min(result, this.infinityThreshold));
-        if (result >= this.infinityThreshold && cannotBeInfinite(stored.fluid())) {
+        if (result >= this.infinityThreshold && mayBeInfinite(stored.fluid())) {
             stored.infinite(true);
         }
         this.changeListener.run();
     }
 
     /**
-     * 判断该流体是否被标记为无法进入无限状态
+     * 判断该流体是否允许进入无限状态
      *
      * @param stack 待判断的流体
-     * @return 该流体在 {@link ModFluidTags#CANNOT_BE_INFINITE} 中时为 true
+     * @return 该流体不在 {@link ModFluidTags#CANNOT_BE_INFINITE} 中时为 true；空流体按允许处理
      */
-    private static boolean cannotBeInfinite(FluidStack stack) {
+    private static boolean mayBeInfinite(FluidStack stack) {
         return stack.isEmpty() || !stack.is(ModFluidTags.CANNOT_BE_INFINITE);
     }
 
@@ -142,9 +158,9 @@ final class MultiFluidTankHandler implements IFluidHandler, INBTSerializable<Com
 
     private FluidStack drain(int index, int maxDrain, FluidAction action) {
         StoredFluid stored = this.fluids.get(index);
-        int drained = stored.infinite() ? maxDrain : Math.min(maxDrain, stored.fluid().getAmount());
+        int drained = stored.suppliesInfinitely() ? maxDrain : Math.min(maxDrain, stored.fluid().getAmount());
         FluidStack result = stored.fluid().copyWithAmount(drained);
-        if (action.execute() && !stored.infinite()) {
+        if (action.execute() && !stored.suppliesInfinitely()) {
             stored.fluid().shrink(drained);
             if (stored.fluid().isEmpty()) {
                 this.fluids.remove(index);
@@ -158,7 +174,7 @@ final class MultiFluidTankHandler implements IFluidHandler, INBTSerializable<Com
     public List<FluidStack> getInfiniteFluids() {
         List<FluidStack> result = new ArrayList<>();
         for (StoredFluid stored : this.fluids) {
-            if (stored.infinite()) {
+            if (stored.suppliesInfinitely()) {
                 result.add(stored.fluid().copy());
             }
         }
@@ -204,7 +220,7 @@ final class MultiFluidTankHandler implements IFluidHandler, INBTSerializable<Com
 
     boolean isInfinite(FluidStack fluid) {
         int index = this.findFluid(fluid);
-        return index >= 0 && this.fluids.get(index).infinite();
+        return index >= 0 && this.fluids.get(index).suppliesInfinitely();
     }
 
     void setEnhanced(boolean enhanced) {
@@ -213,7 +229,7 @@ final class MultiFluidTankHandler implements IFluidHandler, INBTSerializable<Com
         for (StoredFluid stored : this.fluids) {
             stored.infinite(enhanced
                             && stored.fluid().getAmount() >= this.infinityThreshold
-                            && cannotBeInfinite(stored.fluid()));
+                            && mayBeInfinite(stored.fluid()));
         }
         this.changeListener.run();
     }
@@ -257,7 +273,7 @@ final class MultiFluidTankHandler implements IFluidHandler, INBTSerializable<Com
             boolean infinite = this.enhanced
                                && fluidTag.getBoolean(TAG_INFINITE)
                                && amount == this.infinityThreshold
-                               && cannotBeInfinite(fluid);
+                               && mayBeInfinite(fluid);
             this.fluids.add(new StoredFluid(fluid.copyWithAmount(amount), infinite));
         }
         this.changeListener.run();
@@ -298,5 +314,16 @@ final class MultiFluidTankHandler implements IFluidHandler, INBTSerializable<Com
         private final FluidStack fluid;
         @Setter(AccessLevel.PRIVATE)
         private boolean infinite;
+
+        /**
+         * 无限供给是否生效。
+         *
+         * <p>每次按当前流体标签重新判定，而不是只信任缓存的 {@link #infinite} 标记：
+         * 数据包重载把该流体加入 {@link ModFluidTags#CANNOT_BE_INFINITE} 后，
+         * 已加载的储罐必须立刻恢复普通行为，无需重新加载存档。
+         */
+        private boolean suppliesInfinitely() {
+            return this.infinite && mayBeInfinite(this.fluid);
+        }
     }
 }
