@@ -25,11 +25,13 @@ public class TickSprintVoteCommand {
             .then(argument("dimension", DimensionArgument.dimension())
                 .then(argument("pos", BlockPosArgument.blockPos())
                     .then(argument("voteId", UuidArgument.uuid())
-                        .then(literal("accept").executes(context -> submitVote(context, true)))
-                        .then(literal("reject").executes(context -> submitVote(context, false)))))));
+                        .then(literal("accept").executes(context -> submitVote(context, true, false)))
+                        .then(literal("accept_20_minutes")
+                            .executes(context -> submitVote(context, true, true)))
+                        .then(literal("reject").executes(context -> submitVote(context, false, false)))))));
     }
 
-    private static int submitVote(CommandContext<CommandSourceStack> context, boolean accepted)
+    private static int submitVote(CommandContext<CommandSourceStack> context, boolean accepted, boolean allowForTwentyMinutes)
         throws CommandSyntaxException {
         ServerPlayer player = context.getSource().getPlayerOrException();
         ServerLevel level = DimensionArgument.getDimension(context, "dimension");
@@ -37,7 +39,7 @@ public class TickSprintVoteCommand {
         UUID voteId = UuidArgument.getUuid(context, "voteId");
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof SpacetimeSupercomputerBlockEntity supercomputer
-            && supercomputer.submitTickSprintVote(player, voteId, accepted)) {
+            && supercomputer.submitTickSprintVote(player, voteId, accepted, allowForTwentyMinutes)) {
             return 1;
         }
         return 0;
