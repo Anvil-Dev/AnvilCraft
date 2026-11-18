@@ -64,6 +64,7 @@ import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.model.pipeline.VertexConsumerWrapper;
 import org.joml.Matrix3f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -600,9 +601,18 @@ public class RenderSupport {
                     }
                 }
             } else {
+                MultiBufferSource transparentBuffers = type -> new VertexConsumerWrapper(
+                    bufferSource.getBuffer(useTranslucentIfPossible(type))
+                ) {
+                    @Override
+                    public VertexConsumer setColor(int red, int green, int blue, int opacity) {
+                        this.parent.setColor(red, green, blue, (int) (opacity * alpha));
+                        return this;
+                    }
+                };
                 IClientItemExtensions.of(itemStack)
                     .getCustomRenderer()
-                    .renderByItem(itemStack, displayContext, poseStack, bufferSource, combinedLight, combinedOverlay);
+                    .renderByItem(itemStack, displayContext, poseStack, transparentBuffers, combinedLight, combinedOverlay);
             }
 
             poseStack.popPose();
