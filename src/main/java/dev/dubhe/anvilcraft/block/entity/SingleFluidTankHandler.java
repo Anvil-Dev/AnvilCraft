@@ -51,7 +51,7 @@ final class SingleFluidTankHandler extends FluidTank implements InfiniteFluidSou
      * @return 该流体在 {@link ModFluidTags#CANNOT_BE_INFINITE} 中时为 true
      */
     private static boolean cannotBeInfinite(FluidStack stack) {
-        return !stack.isEmpty() && stack.is(ModFluidTags.CANNOT_BE_INFINITE);
+        return stack.isEmpty() || !stack.is(ModFluidTags.CANNOT_BE_INFINITE);
     }
 
     @Override
@@ -74,7 +74,7 @@ final class SingleFluidTankHandler extends FluidTank implements InfiniteFluidSou
             if (this.enhanced
                 && action.execute()
                 && this.getFluidAmount() >= this.infinityThreshold
-                && !cannotBeInfinite(this.fluid)) {
+                && cannotBeInfinite(this.fluid)) {
                 this.infinite = true;
                 this.changeListener.run();
             }
@@ -83,11 +83,11 @@ final class SingleFluidTankHandler extends FluidTank implements InfiniteFluidSou
         if (!this.enhanced && this.getSpace() == 0) return 0;
 
         boolean reachesInfinity = this.enhanced
-            && !resource.isEmpty()
-            && this.isFluidValid(resource)
-            && (this.fluid.isEmpty() || FluidStack.isSameFluidSameComponents(this.fluid, resource))
-            && resource.getAmount() >= this.getSpace()
-            && !cannotBeInfinite(resource);
+                                  && !resource.isEmpty()
+                                  && this.isFluidValid(resource)
+                                  && (this.fluid.isEmpty() || FluidStack.isSameFluidSameComponents(this.fluid, resource))
+                                  && resource.getAmount() >= this.getSpace()
+                                  && cannotBeInfinite(resource);
         if (reachesInfinity && action.simulate()) return resource.getAmount();
 
         int filled = super.fill(resource, action);
@@ -111,8 +111,8 @@ final class SingleFluidTankHandler extends FluidTank implements InfiniteFluidSou
         if (this.enhanced == enhanced) return;
         this.enhanced = enhanced;
         this.infinite = enhanced
-            && this.getFluidAmount() >= this.infinityThreshold
-            && !cannotBeInfinite(this.fluid);
+                        && this.getFluidAmount() >= this.infinityThreshold
+                        && cannotBeInfinite(this.fluid);
         super.setCapacity(enhanced ? this.infinityThreshold : this.baseCapacity);
         this.changeListener.run();
     }
@@ -144,9 +144,9 @@ final class SingleFluidTankHandler extends FluidTank implements InfiniteFluidSou
         super.setCapacity(this.enhanced ? this.infinityThreshold : this.baseCapacity);
         super.readFromNBT(provider, tag);
         this.infinite = this.enhanced
-            && tag.getBoolean(TAG_INFINITE)
-            && this.getFluidAmount() == this.infinityThreshold
-            && !cannotBeInfinite(this.fluid);
+                        && tag.getBoolean(TAG_INFINITE)
+                        && this.getFluidAmount() == this.infinityThreshold
+                        && cannotBeInfinite(this.fluid);
         this.changeListener.run();
         return this;
     }
