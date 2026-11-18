@@ -1026,6 +1026,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         int rows = Math.min(FILE_ROWS, this.filteredFiles.size());
         graphics.pose().pushPose();
         graphics.flush();
+        graphics.pose().translate(0, 0, 50);
         int x = this.leftPos + 6;
         int y = this.topPos + 35;
         graphics.fill(x, y, x + 106, y + Math.max(1, rows) * FILE_ROW_HEIGHT, 0xFF101010);
