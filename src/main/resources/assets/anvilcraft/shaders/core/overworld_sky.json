@@ -120,6 +120,35 @@
       "values": [
         1
       ]
+    },
+    {
+      "name": "MoonLight",
+      "type": "float",
+      "count": 3,
+      "values": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "name": "MoonUvBounds",
+      "type": "float",
+      "count": 4,
+      "values": [
+        0,
+        0,
+        1,
+        1
+      ]
+    },
+    {
+      "name": "VanillaStyle",
+      "type": "float",
+      "count": 1,
+      "values": [
+        0
+      ]
     }
   ]
 }

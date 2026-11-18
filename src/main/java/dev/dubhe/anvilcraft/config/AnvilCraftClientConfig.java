@@ -17,6 +17,18 @@ public class AnvilCraftClientConfig {
     public GraphicsSettings graphics = new GraphicsSettings();
 
     public static class GraphicsSettings {
+        @SerializedName("Overworld Celestial Rendering")
+        @Comment("Controls the appearance of Overworld celestial bodies. Vanilla uses the original sun and moon textures; "
+            + "Special uses modeled bodies. Celestial motion and lunar travel are controlled by the server.")
+        public OverworldCelestialStyle overworldCelestialStyle = OverworldCelestialStyle.VANILLA;
+
+        public enum OverworldCelestialStyle implements TranslatableEnum {
+            @SerializedName("Vanilla")
+            VANILLA,
+            @SerializedName("Special")
+            SPECIAL
+        }
+
         @Comment("Controls the maximum render distance of the Heliostats' BER (in blocks)")
         @BoundedDiscrete(min = 32, max = 512)
         public int heliostatsRenderDistance = 128;
