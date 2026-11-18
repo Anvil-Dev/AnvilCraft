@@ -605,7 +605,7 @@ public class ModAdvancementsHandler {
                 Component.translatable("advancements.anvilcraft.super_heat.description"),
                 AdvancementType.GOAL
             )
-            .heatCollectorOutput("super_heat", MinMaxBounds.Ints.atLeast(HeatCollectorBlockEntity.MAX_OUTPUT_POWER))
+            .heatCollectorOutput("super_heat", MinMaxBounds.Ints.atLeast(HeatCollectorBlockEntity.SUPER_HEAT_OUTPUT_POWER))
             .save(provider, "super_heat");
 
         AdvancementLineHelper oreLine = mainLine.createBranch();
