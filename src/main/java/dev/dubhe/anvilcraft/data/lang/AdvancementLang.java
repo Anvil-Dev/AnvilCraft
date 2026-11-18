@@ -216,7 +216,7 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.isotope_decay_battery.description", "Using heat collector to collect uranium or plutonium blocks' heat");
 
         provider.add("advancements.anvilcraft.super_heat.title", "Super heat");
-        provider.add("advancements.anvilcraft.super_heat.description", "Making a heat collector reach the max efficiency");
+        provider.add("advancements.anvilcraft.super_heat.description", "Making a heat collector reach an output of 4096 kW");
         // endregion
 
         // region block comparator line

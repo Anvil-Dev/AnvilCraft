@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainHeat;
 import dev.dubhe.anvilcraft.util.BlockInfo;
+import net.minecraft.core.BlockPos;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +23,23 @@ public class ModHeaterInfos {
     public static final HeaterInfo<HeliostatsBlockEntity> HELIOSTATS = HeatRecorder.registerProducerInfo(
         HeaterInfo.blockEntity(
             ModBlockEntities.HELIOSTATS,
-            heliostats -> Set.of(heliostats.getIrritatePos(), heliostats.getIrritatePos().above()),
+            heliostats -> {
+                BlockPos irritatePos = heliostats.getIrritatePos();
+                if (irritatePos == null) return Set.of();
+                // 照射方块本身与上下各一格温度相同，再各往外一格的温度低一级
+                return Set.of(
+                    irritatePos,
+                    irritatePos.above(),
+                    irritatePos.below(),
+                    irritatePos.above(2),
+                    irritatePos.below(2)
+                );
+            },
+            (heliostats, heatablePos) -> {
+                BlockPos irritatePos = heliostats.getIrritatePos();
+                if (irritatePos == null) return 0;
+                return Math.abs(heatablePos.getY() - irritatePos.getY()) > 1 ? 1 : 0;
+            },
             HeatTierLine.builder()
                 .addPoint(4, HeatTier.NORMAL)
                 .addPoint(12, HeatTier.HEATED, 4)
