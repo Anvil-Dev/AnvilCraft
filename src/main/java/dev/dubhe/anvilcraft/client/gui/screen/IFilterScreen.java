@@ -131,6 +131,7 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
             i + x,
             j + y,
             button -> {
+                if (ScreenEditing.isReadOnly()) return;
                 if (button instanceof EnableFilterButton enableFilterButton) {
                     MachineEnableFilterPacket packet = new MachineEnableFilterPacket(enableFilterButton.next());
                     PacketDistributor.sendToServer(packet);
@@ -245,13 +246,13 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
 
     @Override
     default Collection<Integer> getGhostSlots() {
-        if (!this.getFilterMenu().isFilterEnabled()) return List.of();
+        if (ScreenEditing.isReadOnly() || !this.getFilterMenu().isFilterEnabled()) return List.of();
         return IGhostIngredientScreen.range(36, 45, 1);
     }
 
     @Override
     default void acceptGhost(Slot slot, ItemStack ingredient) {
-        if (!this.getFilterMenu().isFilterEnabled()) return;
+        if (ScreenEditing.isReadOnly() || !this.getFilterMenu().isFilterEnabled()) return;
         int slotIndex = slot.getSlotIndex();
         PacketDistributor.sendToServer(new SlotDisableChangePacket(slotIndex, false));
         PacketDistributor.sendToServer(new SlotFilterChangePacket(slotIndex, ingredient.copyWithCount(1)));

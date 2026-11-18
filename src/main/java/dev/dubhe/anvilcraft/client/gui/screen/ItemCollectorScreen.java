@@ -95,6 +95,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
                 TEXTURES_PREFIX + "minus",
                 (ignore) -> Component.literal("Reduce Item Collect Range"),
                 (btn) -> {
+                    if (ScreenEditing.isReadOnly()) return;
                     this.menu.getBlockEntity().getRangeRadius().previous();
                     this.menu.getBlockEntity().getRangeRadius().notifyServer();
                 }
@@ -107,6 +108,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
                 TEXTURES_PREFIX + "add",
                 (ignore) -> Component.literal("Add Item Collect Range"),
                 (btn) -> {
+                    if (ScreenEditing.isReadOnly()) return;
                     this.menu.getBlockEntity().getRangeRadius().next();
                     this.menu.getBlockEntity().getRangeRadius().notifyServer();
                 }
@@ -120,6 +122,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
                  TEXTURES_PREFIX + "minus",
                 (ignore) -> Component.literal("Reduce Item Collect Cooldown"),
                 (btn) -> {
+                    if (ScreenEditing.isReadOnly()) return;
                     this.menu.getBlockEntity().getCooldown().previous();
                     this.menu.getBlockEntity().getCooldown().notifyServer();
                 }
@@ -132,6 +135,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
                  TEXTURES_PREFIX + "add",
                 (ignore) -> Component.literal("Add Item Collect Cooldown"),
                 (btn) -> {
+                    if (ScreenEditing.isReadOnly()) return;
                     this.menu.getBlockEntity().getCooldown().next();
                     this.menu.getBlockEntity().getCooldown().notifyServer();
                 }
@@ -212,6 +216,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
     }
 
     protected void slotClicked(Slot slot, int slotId, int mouseButton, ClickType type) {
+        if (ScreenEditing.isReadOnly()) return;
         if (slot instanceof SlotItemHandlerWithFilter) {
             int realSlotId = slot.getContainerSlot();
             ItemStack carriedItem = this.menu.getCarried().copy();
@@ -258,6 +263,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
     
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (ScreenEditing.isReadOnly()) return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
         Slot slot = this.hoveredSlot;
         if (slot instanceof SlotItemHandlerWithFilter filterSlot && filterSlot.isFilter() && scrollY != 0) {
             int slotIndex = slot.getContainerSlot();

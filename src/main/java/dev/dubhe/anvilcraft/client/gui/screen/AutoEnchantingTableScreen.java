@@ -527,7 +527,7 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
                 return true;
             }
             // 液态魔咒模式下自选附魔区被液态附魔书占用，点击不应切换引物附魔
-            if (!this.isLiquidEnchantmentMode()) {
+            if (!ScreenEditing.isReadOnly() && !this.isLiquidEnchantmentMode()) {
                 int visible = Math.min(this.filteredIndexes.size() - this.head, 10);
                 for (int j = 0; j < visible; j++) {
                     int index = this.head + j;
@@ -607,7 +607,7 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
             int maxLevel = this.getLiquidMaxLevel();
             int delta = scrollY > 0 ? 1 : -1;
             int target = Math.clamp(current + delta, 0, maxLevel);
-            if (target != current) {
+            if (!ScreenEditing.isReadOnly() && target != current) {
                 this.menu.setLiquidLevel(target);
                 PacketDistributor.sendToServer(new AutoEnchantingTableLevelPacket(target));
             }
