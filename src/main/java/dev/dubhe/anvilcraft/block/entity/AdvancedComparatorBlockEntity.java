@@ -121,7 +121,7 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
         this.readDataNbt(input.read("Data", CompoundTag.CODEC).orElse(new CompoundTag()));
         if (this.getLevel() == null) return;
         Util.castSafely(this.getBlockState().getBlock(), AdvancedComparatorBlock.class)
-            .ifPresent(block -> block.update(this.getLevel(), this.getBlockPos(), this.getBlockState()));
+            .ifPresent(block -> block.update(this.getLevel(), this.getBlockPos()));
     }
 
     public boolean isOutputting() {
