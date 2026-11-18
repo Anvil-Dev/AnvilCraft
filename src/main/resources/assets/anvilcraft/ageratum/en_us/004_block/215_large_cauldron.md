@@ -76,9 +76,14 @@ In other words, you **cannot** output only *produced fluids* by pumping fluid ou
 
 </info>
 
+<tip>
+A player inside the <ref item="anvilcraft:large_cauldron"/> absorbs [experience fluid](../002_material/004_exp_gem.md) 9 times faster
+</tip>
+
 # Complex Fluid Reactions
 
 Thanks to its large capacity, <ref item="anvilcraft:large_cauldron"/> can perform *complex fluid reactions*:
+
 - Requires 2 or more types of input fluids
 - Requires more than 1000mB of input fluid
 

@@ -61,9 +61,14 @@ items:
 
 </info>
 
+<tip>
+玩家在<ref item="anvilcraft:large_cauldron"/>内可以以 9 倍速度吸收[经验流体](../002_material/004_exp_gem.md)
+</tip>
+
 # 复杂流体反应
 
 得益于超大容量，<ref item="anvilcraft:large_cauldron"/>可以完成*复杂流体反应*：
+
 - 输入流体种类大于等于 2 种
 - 输入流体需求大于 1000mB
 

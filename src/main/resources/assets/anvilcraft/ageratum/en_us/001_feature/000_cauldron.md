@@ -1,25 +1,41 @@
 ---
 navigation:
-  title: "Cauldron Enhancements"
+  title: "Cauldron"
   icon: "minecraft:cauldron"
 ---
 
-# Cauldron Enhancements
+# Cauldron Concept
 
-<row halign="center">
-<item id="minecraft:cauldron"/>
-</row>
+- The cauldron concept originates from vanilla's <ref item="minecraft:cauldron"/>
+- Can interact with <ref item="minecraft:glass_bottle"/> and <ref item="minecraft:bucket"/> to insert and extract fluids
+- In this mod, it is commonly used with an anvil to [process](../007_struct/000_anvil_processing.md) items, fluids, and blocks
 
-## Layer Completion
+# <ref item="minecraft:cauldron"/>
 
-<structure id="../../structures/lava_cauldron.snbt"/>
+- The most basic cauldron
+- Items are stored inside as dropped items
+- Stores fluids in discrete layers, so fluids cannot be inserted or extracted at 1mB precision like most modded fluid containers; each transfer must be a whole number of layers
+- (Added by this mod) Right-clicking the side with an <ref item="anvilcraft:anvil_hammer"/> creates an output port that automatically exports products
 
-Completes the missing vanilla <ref item="minecraft:cauldron"/> layers.
+<info>
+The vanilla lava cauldron layer is 1B; this mod changes it to 250mB
+</info>
 
-## Cauldron Outlet
+<info>
+## Layers
+Using the modified lava cauldron as an example, the cauldron can contain 250mB, 500mB, 750mB, or 1B of lava, but never 1mB of lava
+</info>
 
-<entity id="anvilcraft:cauldron_outlet" />
+# <ref item="anvilcraft:fish_tank"/>
 
-- Using <ref item="minecraft:cauldron"/> for [processing](../007_struct/000_anvil_processing.md) will generate items inside the <ref item="minecraft:cauldron"/>
-- To facilitate extraction, use <ref item="anvilcraft:anvil_hammer"/> to right-click on <ref item="minecraft:cauldron"/> to create a cauldron outlet
-- The cauldron outlet can automatically export the products
+- An easier-to-use cauldron
+- Stores items permanently like a chest
+- Stores fluids at 1mB precision, but can still hold only one type of fluid
+- Right-clicking the side with an <ref item="anvilcraft:anvil_hammer"/> creates an output port that automatically exports products
+
+# <ref item="anvilcraft:large_cauldron"/>
+
+- A very large cauldron
+- Stores items permanently like a chest
+- Stores fluids at 1mB precision and can hold multiple types of fluids
+- Has no output port and follows complex input and output rules
