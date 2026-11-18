@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity;
 import com.mojang.serialization.Codec;
 import dev.dubhe.anvilcraft.api.fluid.GasDisplayFillProvider;
 import dev.dubhe.anvilcraft.api.fluid.InfiniteFluidSource;
+import dev.dubhe.anvilcraft.init.block.ModFluidTags;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
@@ -101,12 +102,13 @@ final class MultiFluidTankHandler implements
         this.snapshotJournal.updateSnapshots(transaction);
         if (index < 0) {
             int stored = Math.min(amount, this.infinityThreshold);
-            this.fluids.add(new StoredFluid(resource.toStack(stored), amount >= this.infinityThreshold));
+            boolean infinite = amount >= this.infinityThreshold && cannotBeInfinite(resource.toStack(amount));
+            this.fluids.add(new StoredFluid(resource.toStack(stored), infinite));
         } else {
             StoredFluid stored = this.fluids.get(index);
             long total = (long) stored.fluid().getAmount() + amount;
             stored.fluid().setAmount((int) Math.min(total, this.infinityThreshold));
-            if (total >= this.infinityThreshold) stored.setInfinite(true);
+            if (total >= this.infinityThreshold && cannotBeInfinite(stored.fluid())) stored.setInfinite(true);
         }
         return amount;
     }
@@ -176,11 +178,18 @@ final class MultiFluidTankHandler implements
         return index >= 0 && this.fluids.get(index).infinite();
     }
 
+    // 判断该流体是否被标记为无法进入无限状态
+    private static boolean cannotBeInfinite(FluidStack stack) {
+        return stack.isEmpty() || !stack.is(ModFluidTags.CANNOT_BE_INFINITE);
+    }
+
     void setEnhanced(boolean enhanced) {
         if (this.enhanced == enhanced) return;
         this.enhanced = enhanced;
         for (StoredFluid stored : this.fluids) {
-            stored.setInfinite(enhanced && stored.fluid().getAmount() >= this.infinityThreshold);
+            stored.setInfinite(enhanced
+                               && stored.fluid().getAmount() >= this.infinityThreshold
+                               && cannotBeInfinite(stored.fluid()));
         }
         this.changeListener.run();
     }
@@ -203,9 +212,10 @@ final class MultiFluidTankHandler implements
             if (fluid.isEmpty()) continue;
             int amount = Math.min(fluid.getAmount(), this.infinityThreshold);
             boolean isInfinite = this.enhanced
-                && index < infinite.size()
-                && infinite.get(index)
-                && amount == this.infinityThreshold;
+                                 && index < infinite.size()
+                                 && infinite.get(index)
+                                 && amount == this.infinityThreshold
+                                 && cannotBeInfinite(fluid);
             this.fluids.add(new StoredFluid(fluid.copyWithAmount(amount), isInfinite));
         }
         if (!this.enhanced) this.clearInfinite();

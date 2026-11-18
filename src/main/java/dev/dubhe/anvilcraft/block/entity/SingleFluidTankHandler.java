@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.fluid.InfiniteFluidSource;
+import dev.dubhe.anvilcraft.init.block.ModFluidTags;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
@@ -62,6 +63,11 @@ final class SingleFluidTankHandler implements ResourceHandler<FluidResource>, Va
         return !resource.isEmpty() && (this.fluid.isEmpty() || FluidResource.of(this.fluid).equals(resource));
     }
 
+    // 判断该流体是否被标记为无法进入无限状态
+    private static boolean cannotBeInfinite(FluidStack stack) {
+        return stack.isEmpty() || !stack.is(ModFluidTags.CANNOT_BE_INFINITE);
+    }
+
     @Override
     public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
         Objects.checkIndex(index, 1);
@@ -73,7 +79,7 @@ final class SingleFluidTankHandler implements ResourceHandler<FluidResource>, Va
         int capacity = this.enhanced ? this.infinityThreshold : this.baseCapacity;
         int space = capacity - stored;
         if (space <= 0) {
-            if (this.enhanced && amount > 0) {
+            if (this.enhanced && amount > 0 && cannotBeInfinite(resource.toStack(amount))) {
                 this.snapshotJournal.updateSnapshots(transaction);
                 this.infinite = true;
                 return amount;
@@ -81,7 +87,7 @@ final class SingleFluidTankHandler implements ResourceHandler<FluidResource>, Va
             return this.dispose ? amount : 0;
         }
         this.snapshotJournal.updateSnapshots(transaction);
-        if (this.enhanced && amount >= space) {
+        if (this.enhanced && amount >= space && cannotBeInfinite(resource.toStack(amount))) {
             this.fluid = resource.toStack(this.infinityThreshold);
             this.infinite = true;
             return amount;
@@ -115,7 +121,9 @@ final class SingleFluidTankHandler implements ResourceHandler<FluidResource>, Va
         if (this.enhanced == enhanced) return;
         this.enhanced = enhanced;
         // 缩容时只调整容量上限，不截断已存流体，避免修改容量导致存量凭空减少
-        this.infinite = enhanced && this.fluid.getAmount() >= this.infinityThreshold;
+        this.infinite = enhanced
+                        && this.fluid.getAmount() >= this.infinityThreshold
+                        && cannotBeInfinite(this.fluid);
         this.changeListener.run();
     }
 
@@ -156,8 +164,9 @@ final class SingleFluidTankHandler implements ResourceHandler<FluidResource>, Va
         this.enhanced = input.getBooleanOr("Enhanced", false);
         this.fluid = input.read("Fluid", FluidStack.OPTIONAL_CODEC).orElse(FluidStack.EMPTY);
         this.infinite = this.enhanced
-            && input.getBooleanOr("Infinite", false)
-            && this.fluid.getAmount() == this.infinityThreshold;
+                        && input.getBooleanOr("Infinite", false)
+                        && this.fluid.getAmount() == this.infinityThreshold
+                        && cannotBeInfinite(this.fluid);
         this.changeListener.run();
     }
 

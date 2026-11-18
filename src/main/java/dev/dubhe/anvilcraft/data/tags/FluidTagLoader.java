@@ -41,5 +41,7 @@ public class FluidTagLoader {
         ModFluids.FLOWING_CEMENTS.forEach((_, cement) -> builder.addElement(cement.getId()));
         provider.rawBuilder(ModFluidTags.IGNITABLE)
             .addElement(ModFluids.OIL.getId());
+        // 默认留空，由整合包或附属模组把不允许无限化的流体加入本标签
+        provider.rawBuilder(ModFluidTags.CANNOT_BE_INFINITE);
     }
 }
