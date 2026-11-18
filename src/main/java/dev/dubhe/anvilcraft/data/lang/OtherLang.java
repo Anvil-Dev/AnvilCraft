@@ -81,6 +81,8 @@ public class OtherLang {
         provider.add("death.attack.anvilcraft.black_hole_contact",
             "%1$s thought they could outrun light");
         provider.add("death.attack.anvilcraft.laser", "%1$s was pierced by laser");
+        provider.add("death.attack.anvilcraft.gamma_laser", "%1$s want to be Hulk, but he's not Bruce Banner.");
+        provider.add("death.attack.anvilcraft.gamma_laser.player", "%1$s was driven into a gamma laser by %2$s");
         provider.add("death.attack.anvilcraft.lost_in_time", "%1$s was lost in the river of time");
         provider.add("death.attack.anvilcraft.heater_burn", "%1$s was well done by the heater");
         provider.add("death.attack.anvilcraft.redhot_block", "%1$s was scorched by a scorching-hot block");
