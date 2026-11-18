@@ -45,13 +45,13 @@ final class SingleFluidTankHandler implements ResourceHandler<FluidResource>, Va
     @Override
     public long getAmountAsLong(int index) {
         Objects.checkIndex(index, 1);
-        return this.infinite ? Integer.MAX_VALUE : this.fluid.getAmount();
+        return this.isInfinitelySupplying() ? Integer.MAX_VALUE : this.fluid.getAmount();
     }
 
     @Override
     public long getCapacityAsLong(int index, FluidResource resource) {
         Objects.checkIndex(index, 1);
-        if (this.infinite) {
+        if (this.isInfinitelySupplying()) {
             return Integer.MAX_VALUE;
         }
         return this.enhanced ? this.infinityThreshold : this.baseCapacity;
@@ -63,9 +63,12 @@ final class SingleFluidTankHandler implements ResourceHandler<FluidResource>, Va
         return !resource.isEmpty() && (this.fluid.isEmpty() || FluidResource.of(this.fluid).equals(resource));
     }
 
-    // 判断该流体是否被标记为无法进入无限状态
-    private static boolean cannotBeInfinite(FluidStack stack) {
+    private static boolean mayBeInfinite(FluidStack stack) {
         return stack.isEmpty() || !stack.is(ModFluidTags.CANNOT_BE_INFINITE);
+    }
+
+    private boolean isInfinitelySupplying() {
+        return this.infinite && mayBeInfinite(this.fluid);
     }
 
     @Override
@@ -73,13 +76,13 @@ final class SingleFluidTankHandler implements ResourceHandler<FluidResource>, Va
         Objects.checkIndex(index, 1);
         TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
         if (!this.isValid(index, resource)) return 0;
-        if (this.infinite) return amount;
+        if (this.isInfinitelySupplying()) return amount;
 
         int stored = this.fluid.getAmount();
         int capacity = this.enhanced ? this.infinityThreshold : this.baseCapacity;
         int space = capacity - stored;
         if (space <= 0) {
-            if (this.enhanced && amount > 0 && cannotBeInfinite(resource.toStack(amount))) {
+            if (this.enhanced && amount > 0 && mayBeInfinite(resource.toStack(amount))) {
                 this.snapshotJournal.updateSnapshots(transaction);
                 this.infinite = true;
                 return amount;
@@ -87,7 +90,7 @@ final class SingleFluidTankHandler implements ResourceHandler<FluidResource>, Va
             return this.dispose ? amount : 0;
         }
         this.snapshotJournal.updateSnapshots(transaction);
-        if (this.enhanced && amount >= space && cannotBeInfinite(resource.toStack(amount))) {
+        if (this.enhanced && amount >= space && mayBeInfinite(resource.toStack(amount))) {
             this.fluid = resource.toStack(this.infinityThreshold);
             this.infinite = true;
             return amount;
@@ -103,7 +106,7 @@ final class SingleFluidTankHandler implements ResourceHandler<FluidResource>, Va
         Objects.checkIndex(index, 1);
         TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
         if (!FluidResource.of(this.fluid).equals(resource)) return 0;
-        if (this.infinite) return amount;
+        if (this.isInfinitelySupplying()) return amount;
 
         int extracted = Math.min(amount, this.fluid.getAmount());
         if (extracted <= 0) return 0;
@@ -123,17 +126,17 @@ final class SingleFluidTankHandler implements ResourceHandler<FluidResource>, Va
         // 缩容时只调整容量上限，不截断已存流体，避免修改容量导致存量凭空减少
         this.infinite = enhanced
                         && this.fluid.getAmount() >= this.infinityThreshold
-                        && cannotBeInfinite(this.fluid);
+                        && mayBeInfinite(this.fluid);
         this.changeListener.run();
     }
 
     boolean isInfinite() {
-        return this.infinite;
+        return this.isInfinitelySupplying();
     }
 
     @Override
     public List<FluidStack> getInfiniteFluids() {
-        return this.infinite ? List.of(this.fluid.copy()) : List.of();
+        return this.isInfinitelySupplying() ? List.of(this.fluid.copy()) : List.of();
     }
 
     boolean isEnhanced() {
@@ -166,7 +169,7 @@ final class SingleFluidTankHandler implements ResourceHandler<FluidResource>, Va
         this.infinite = this.enhanced
                         && input.getBooleanOr("Infinite", false)
                         && this.fluid.getAmount() == this.infinityThreshold
-                        && cannotBeInfinite(this.fluid);
+                        && mayBeInfinite(this.fluid);
         this.changeListener.run();
     }
 
