@@ -3,14 +3,16 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.ContainerSynchronizer;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.IntUnaryOperator;
-import javax.annotation.Nullable;
 
 /**
  * 仓储界面的纯客户端容器菜单。
@@ -25,6 +27,11 @@ import javax.annotation.Nullable;
  * 仓储内容与指针的同步全部由 RPC 管控。
  */
 public class StorageMenu extends AbstractContainerMenu {
+    public static final MenuType<StorageMenu> TYPE = new MenuType<>(
+        (containerId, inventory) -> StorageMenu.create(inventory.player, BlockPos.ZERO),
+        FeatureFlags.VANILLA_SET
+    );
+
     /**
      * 玩家物品栏在仓储界面中的渲染偏移（与 StorageScreen 一致）。
      * 隐藏槽（合成结果 / 合成格 / 盔甲 / 副手）用负坐标，不渲染。
@@ -40,7 +47,7 @@ public class StorageMenu extends AbstractContainerMenu {
     private final BlockPos sourcePos;
 
     private StorageMenu(AbstractContainerMenu inventoryMenu, BlockPos sourcePos) {
-        super(null, 0);
+        super(StorageMenu.TYPE, 0);
         this.inventoryMenu = inventoryMenu;
         this.sourcePos = sourcePos;
         // 复用原菜单的槽位映射，确保盔甲和附加口袋的同步索引保持一致。
@@ -65,7 +72,8 @@ public class StorageMenu extends AbstractContainerMenu {
     }
 
     public void updateSlotPositions(IntUnaryOperator transformX) {
-        for (int index = 9; index < 45; index++) {
+        int limit = Math.min(45, this.slots.size());
+        for (int index = 9; index < limit; index++) {
             this.getSlot(index).x = transformX.applyAsInt(PLAYER_INVENTORY_X + 18 * ((index - 9) % 9));
         }
     }
