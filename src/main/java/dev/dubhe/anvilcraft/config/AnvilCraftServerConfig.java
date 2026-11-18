@@ -19,9 +19,9 @@ public class AnvilCraftServerConfig {
     public WorldSettings world = new WorldSettings();
 
     public static class WorldSettings {
-        @SerializedName("Overworld Celestial Bodies")
-        @Comment("Server-wide Overworld sky and lunar travel mode. Vanilla keeps the original sky and midnight travel window. "
-            + "Special uses modeled celestial bodies and permits travel when the Moon is overhead. Applies to every player.")
+        @SerializedName("Overworld Celestial Motion")
+        @Comment("Controls Overworld celestial motion and lunar travel. Vanilla keeps the original orbits and midnight travel window. "
+            + "Special uses realistic orbits and permits travel when the Moon is overhead. Rendering style is selected by each client.")
         public OverworldSkyMode overworldSkyMode = OverworldSkyMode.VANILLA;
 
         public enum OverworldSkyMode implements TranslatableEnum {

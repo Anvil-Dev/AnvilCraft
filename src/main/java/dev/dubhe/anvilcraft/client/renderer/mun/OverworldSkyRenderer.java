@@ -14,14 +14,17 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.GraphicsSettings.OverworldCelestialStyle;
 import dev.dubhe.anvilcraft.config.AnvilCraftServerConfig.WorldSettings.OverworldSkyMode;
 import dev.dubhe.anvilcraft.worldgen.MunSkyMath.Vector;
 import dev.dubhe.anvilcraft.worldgen.OverworldSkyState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.resources.model.sprite.SpriteId;
+import net.minecraft.data.AtlasIds;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.MoonPhase;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -70,14 +73,20 @@ public final class OverworldSkyRenderer {
     @SubscribeEvent
     public static void extract(ExtractLevelRenderStateEvent event) {
         frame = null;
-        if (AnvilCraft.CONFIG.world.overworldSkyMode != OverworldSkyMode.SPECIAL
-            || !Level.OVERWORLD.equals(event.getLevel().dimension()) || event.getRenderState().customSkyboxRenderer != null) return;
+        boolean vanillaStyle = AnvilCraft.CLIENT_CONFIG.graphics.overworldCelestialStyle == OverworldCelestialStyle.VANILLA;
+        if ((AnvilCraft.CONFIG.world.overworldSkyMode != OverworldSkyMode.SPECIAL && vanillaStyle)
+            || !Level.OVERWORLD.equals(event.getLevel().dimension()) || event.getRenderState().customSkyboxRenderer != null) {
+            return;
+        }
         var client = Minecraft.getInstance();
         float partialTick = event.getDeltaTracker().getGameTimeDeltaPartialTick(client.isPaused());
         var sky = event.getRenderState().skyRenderState;
-        var state = OverworldSkyState.at(event.getLevel().getOverworldClockTime(),
-            MunClientSky.partialDayTime(event.getLevel(), partialTick), sky.sunAngle / (Math.PI * 2));
-        frame = new Frame(state, new Matrix4f(event.getRenderState().cameraRenderState.projectionMatrix), sky.rainBrightness);
+        var state = AnvilCraft.CONFIG.world.overworldSkyMode == OverworldSkyMode.SPECIAL
+            ? OverworldSkyState.at(event.getLevel().getOverworldClockTime(),
+                MunClientSky.partialDayTime(event.getLevel(), partialTick), sky.sunAngle / (Math.PI * 2))
+            : OverworldSkyState.vanilla(sky.sunAngle, sky.moonAngle - Math.PI, sky.moonPhase.index());
+        frame = new Frame(state, new Matrix4f(event.getRenderState().cameraRenderState.projectionMatrix),
+            sky.rainBrightness, vanillaStyle);
     }
 
     public static boolean isActive() {
@@ -116,15 +125,17 @@ public final class OverworldSkyRenderer {
             var device = RenderSystem.getDevice();
             if (uniforms == null) {
                 uniforms = device.createBuffer(() -> "Overworld sky uniforms",
-                    GpuBuffer.USAGE_COPY_DST | GpuBuffer.USAGE_UNIFORM, 240);
+                    GpuBuffer.USAGE_COPY_DST | GpuBuffer.USAGE_UNIFORM, 272);
             }
             if (vertices == null) {
                 vertices = device.createBuffer(() -> "Overworld sky vertices",
                     GpuBuffer.USAGE_COPY_DST | GpuBuffer.USAGE_VERTEX, 48);
             }
             var client = Minecraft.getInstance();
-            final var sun = client.getAtlasManager().get(new SpriteId(Sheets.BLOCKS_MAPPER.sheet(), SUN));
-            var data = stack.malloc(240);
+            var celestials = client.getAtlasManager().getAtlasOrThrow(AtlasIds.CELESTIALS);
+            final var sun = frame.vanillaStyle ? celestials.getSprite(Identifier.withDefaultNamespace("sun"))
+                : client.getAtlasManager().get(new SpriteId(Sheets.BLOCKS_MAPPER.sheet(), SUN));
+            var data = stack.malloc(272);
             new Matrix4f(frame.projection).invert().get(0, data);
             new Matrix4f(RenderSystem.getModelViewMatrix()).invert().get(64, data);
             var state = frame.state;
@@ -139,6 +150,12 @@ public final class OverworldSkyRenderer {
             data.putFloat(208, (float) state.sun().x()).putFloat(212, (float) state.sun().y())
                 .putFloat(216, (float) state.sun().z()).putFloat(220, 0);
             data.putFloat(224, sun.getU0()).putFloat(228, sun.getV0()).putFloat(232, sun.getU1()).putFloat(236, sun.getV1());
+            data.putFloat(240, (float) state.moonLight().x()).putFloat(244, (float) state.moonLight().y())
+                .putFloat(248, (float) state.moonLight().z()).putFloat(252, frame.vanillaStyle ? 1f : 0f);
+            var phase = MoonPhase.values()[state.moonPhase()];
+            var moonSprite = celestials.getSprite(Identifier.withDefaultNamespace("moon/" + phase.getSerializedName()));
+            data.putFloat(256, moonSprite.getU1()).putFloat(260, moonSprite.getV1())
+                .putFloat(264, moonSprite.getU0()).putFloat(268, moonSprite.getV0());
             var encoder = device.createCommandEncoder();
             encoder.writeToBuffer(uniforms.slice(), data);
             var quad = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
@@ -150,8 +167,8 @@ public final class OverworldSkyRenderer {
                 encoder.writeToBuffer(vertices.slice(), mesh.vertexBuffer());
                 var target = RenderSystem.outputColorTextureOverride != null ? RenderSystem.outputColorTextureOverride
                     : Objects.requireNonNull(client.getMainRenderTarget().getColorTextureView());
-                var moon = client.getTextureManager().getTexture(MOON);
-                var atlas = client.getTextureManager().getTexture(Sheets.BLOCKS_MAPPER.sheet());
+                var moon = frame.vanillaStyle ? celestials : client.getTextureManager().getTexture(MOON);
+                var atlas = frame.vanillaStyle ? celestials : client.getTextureManager().getTexture(Sheets.BLOCKS_MAPPER.sheet());
                 var indices = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
                 var indexBuffer = indices.getBuffer(6);
                 try (var pass = encoder.createRenderPass(() -> "Overworld celestial sky", target, OptionalInt.empty())) {
@@ -204,6 +221,6 @@ public final class OverworldSkyRenderer {
         close();
     }
 
-    private record Frame(OverworldSkyState state, Matrix4f projection, float visibility) {
+    private record Frame(OverworldSkyState state, Matrix4f projection, float visibility, boolean vanillaStyle) {
     }
 }
