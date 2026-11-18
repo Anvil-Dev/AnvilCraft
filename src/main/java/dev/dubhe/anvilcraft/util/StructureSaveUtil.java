@@ -22,7 +22,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 /**
  * 结构文件保存工具
@@ -43,8 +41,6 @@ import java.util.regex.Pattern;
  */
 public class StructureSaveUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(StructureSaveUtil.class);
-    // Whitelist pattern for structure names: only allow alphanumeric, underscore, hyphen, and spaces
-    private static final Pattern VALID_STRUCTURE_NAME = Pattern.compile("^[a-zA-Z0-9_\\-\\s]+$");
     private static final int MAX_STRUCTURE_NAME_LENGTH = 64;
 
     /**
@@ -85,18 +81,8 @@ public class StructureSaveUtil {
                 return;
             }
 
-            // Sanitize and validate structure name to prevent path traversal
-            String sanitizedName = sanitizeStructureName(structureName);
-
-            // Handle null case: use a safe default name if sanitization fails
-            if (sanitizedName == null || sanitizedName.trim().isEmpty()) {
-                LOGGER.warn("Invalid structure name '{}', using default name 'unnamed_structure'", structureName);
-                sanitizedName = "unnamed_structure";
-            }
-
-            // 生成唯一UUID作为文件名
             UUID uuid = UUID.randomUUID();
-            String fileName = "%s_%s.nbt".formatted(sanitizedName, uuid);
+            String fileName = createFileName(structureName, uuid);
 
             // 保存文件
             Path baseDir = getStructureDirectory(level);
@@ -222,34 +208,22 @@ public class StructureSaveUtil {
         return StructureDataPaths.structures(server);
     }
 
-    /**
-     * Sanitize structure name to prevent path traversal attacks
-     * Only allows alphanumeric characters, underscores, hyphens, and spaces
-     * Spaces will be replaced with underscores in the final filename to match load-side validation
-     */
-    private static @Nullable String sanitizeStructureName(String name) {
-        if (name.trim().isEmpty()) {
-            return null;
+    static String createFileName(String name, UUID id) {
+        StringBuilder sanitized = new StringBuilder();
+        for (int offset = 0; offset < name.length();) {
+            int character = name.codePointAt(offset);
+            offset += Character.charCount(character);
+            int safeCharacter = Character.isLetterOrDigit(character) || character == '_' || character == '-'
+                ? character : '_';
+            if (sanitized.length() + Character.charCount(safeCharacter) > MAX_STRUCTURE_NAME_LENGTH) {
+                break;
+            }
+            sanitized.appendCodePoint(safeCharacter);
         }
-
-        // Check length
-        if (name.length() > MAX_STRUCTURE_NAME_LENGTH) {
-            return null;
+        if (sanitized.isEmpty() || sanitized.toString().chars().allMatch(character -> character == '_')) {
+            sanitized = new StringBuilder("unnamed_structure");
         }
-
-        // Validate against allowlist pattern
-        if (!VALID_STRUCTURE_NAME.matcher(name).matches()) {
-            return null;
-        }
-
-        // Additional safety: remove any potential path separators
-        String sanitized = name.replace('/', '_').replace('\\', '_');
-        sanitized = sanitized.replace("..", "_");
-
-        // Replace spaces with underscores to match StructureLoadUtil filename validation
-        sanitized = sanitized.replace(' ', '_');
-
-        return sanitized.trim();
+        return sanitized + "_" + id + ".nbt";
     }
 
     /**
