@@ -36,6 +36,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import java.util.Collections;
 import java.util.List;
@@ -919,6 +920,20 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModBlocks.CREATIVE_GENERATOR.asItem(), "Provide up to 65536 kW of power, can also be used as a load");
         ItemTooltipManager.NORMAL.put(ModFoodItems.COCOA_BUTTER.asItem(), "One hundred percent natural pure cocoa butter!");
 
+        ItemTooltipManager.NORMAL.put(
+            Items.HEAVY_WEIGHTED_PRESSURE_PLATE,
+            "Output a redstone signal based on the number of entities, also an iron plate"
+        );
+        ItemTooltipManager.NORMAL.put(
+            Items.LIGHT_WEIGHTED_PRESSURE_PLATE,
+            "Output a redstone signal based on the number of entities, also a gold plate"
+        );
+        ItemTooltipManager.NORMAL.put(Items.CAMPFIRE, "Heating the cauldron above, perform fast cooking recipe");
+        ItemTooltipManager.NORMAL.put(Items.STONECUTTER, "Breaks the blocks above it when the anvil slams down");
+        ItemTooltipManager.NORMAL.put(Items.GRINDSTONE, "When facing down, perform block polishing recipes upon being struck by an anvil");
+        ItemTooltipManager.NORMAL.put(Items.IRON_TRAPDOOR, "Perform unpacking recipes");
+        ItemTooltipManager.NORMAL.put(Items.SCAFFOLDING, "Perform sifting recipes");
+
         ItemTooltipManager.SHIFT.put(
             ModBlocks.STAMPING_PLATFORM.asItem(), """
                                                   Can be converted to the corresponding mode using a Grindstone, Scaffolding, Iron Trapdoor, or Anvil Hammer"""
@@ -1098,13 +1113,12 @@ public class ItemTooltipManager {
                                                 Otherwise, links to the nearest Shulker Container within 64 blocks"""
         );
         ItemTooltipManager.SHIFT.put(
-            ModBlocks.STORAGE_PORT.asItem(),
-            """
-                Right-click with an item to mark the port
-                When linked, items go directly into or out of the storage
-                Stored items are used before the port's internal items
-                The port can hold one stack of marked items internally
-                Hold right-click with an Anvil Hammer and move the cursor to clear the mark"""
+            ModBlocks.STORAGE_PORT.asItem(), """
+                                             Right-click with an item to mark the port
+                                             When linked, items go directly into or out of the storage
+                                             Stored items are used before the port's internal items
+                                             The port can hold one stack of marked items internally
+                                             Hold right-click with an Anvil Hammer and move the cursor to clear the mark"""
         );
         ItemTooltipManager.SHIFT.put(
             ModBlocks.STORAGE_PORT_CONSOLIDATOR.asItem(), """
