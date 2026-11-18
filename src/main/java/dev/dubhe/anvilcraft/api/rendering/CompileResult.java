@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.api.rendering;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import dev.dubhe.anvilcraft.integration.iris.IrisState;
 import lombok.EqualsAndHashCode;
 import net.minecraft.client.renderer.RenderType;
 import org.lwjgl.opengl.GL15;
@@ -37,11 +38,8 @@ final class CompileResult {
         if (this.freed) return;
         final VertexFormat.Mode mode = this.renderType.mode;
         vertexBuffer.bind();
-        if (vertexBuffer.format != null) {
-            vertexBuffer.format.clearBufferState();
-        }
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertexBuffer.vertexBufferId);
-        this.renderType.format.setupBufferState();
+        IrisState.setupUnextendedBufferState(vertexBuffer.format, this.renderType.format);
         vertexBuffer.format = this.renderType.format;
         GL15C.nglBufferData(GL15.GL_ARRAY_BUFFER, (long) this.vertexCount * this.vertexSize, this.vertexBufferPtr, GL15.GL_STATIC_DRAW);
         RenderSystem.AutoStorageIndexBuffer indexBuffer = RenderSystem.getSequentialBuffer(mode);

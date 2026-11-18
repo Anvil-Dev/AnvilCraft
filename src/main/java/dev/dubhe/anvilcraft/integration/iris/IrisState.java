@@ -8,6 +8,7 @@ import net.irisshaders.iris.api.v0.IrisApi;
 import net.irisshaders.iris.pathways.HandRenderer;
 import net.irisshaders.iris.vertices.ImmediateState;
 import net.minecraft.client.renderer.MultiBufferSource;
+import org.jspecify.annotations.Nullable;
 
 public class IrisState {
     public static boolean isShaderEnabled() {
@@ -41,6 +42,25 @@ public class IrisState {
         } finally {
             ImmediateState.skipExtension.set(previous);
         }
+    }
+
+    public static void setupUnextendedBufferState(@Nullable VertexFormat previous, VertexFormat current) {
+        if (!RenderState.isIrisPresent()) {
+            setupBufferState(previous, current);
+            return;
+        }
+        boolean extended = ImmediateState.renderWithExtendedVertexFormat;
+        ImmediateState.renderWithExtendedVertexFormat = false;
+        try {
+            setupBufferState(previous, current);
+        } finally {
+            ImmediateState.renderWithExtendedVertexFormat = extended;
+        }
+    }
+
+    private static void setupBufferState(@Nullable VertexFormat previous, VertexFormat current) {
+        if (previous != null) previous.clearBufferState();
+        current.setupBufferState();
     }
 
     public static MultiBufferSource getHandBufferSource(MultiBufferSource fallback) {
