@@ -28,6 +28,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 
 import java.util.Collections;
@@ -402,8 +403,13 @@ public class ItemTooltipManager {
             + "\nWalk on still fluid surfaces; sneak to submerge, hold sneak to descend faster");
         ItemTooltipManager.NORMAL.put(ModItems.BREATHING_HELMET.get(), "Supplies oxygen underwater and in vacuum\nRemoves underwater mining penalties");
         ItemTooltipManager.NORMAL.put(ModItems.WEATHERPROOF_SPACESUIT_HELMET.get(),
-            "Supplies oxygen underwater and in vacuum\nRemoves underwater mining penalties\n"
-                + "Clear vision in all fluids\nEndermen remain calm when stared at\n%s");
+            """
+                Supplies oxygen underwater and in vacuum
+                Removes underwater mining penalties
+                Clear vision in all fluids
+                Endermen remain calm when stared at
+                %s"""
+        );
         ItemTooltipManager.NORMAL_ARGUMENTS.put(ModItems.WEATHERPROOF_SPACESUIT_HELMET.get(),
             new Object[]{Component.translatable("effect.minecraft.night_vision")});
         final String fullSuit = "\nFull suit: immune to environmental damage except the void; prevents falling into the void";
@@ -661,6 +667,14 @@ public class ItemTooltipManager {
             ModBlocks.OVERFLOW_CHUTE.asItem(),
             "An advanced Magnetic Chute, throws items out of the overflow port when the output is blocked"
         );
+        ItemTooltipManager.NORMAL.put(Items.HEAVY_WEIGHTED_PRESSURE_PLATE, "Output a redstone signal based on the number of entities, also an iron plate");
+        ItemTooltipManager.NORMAL.put(Items.LIGHT_WEIGHTED_PRESSURE_PLATE, "Output a redstone signal based on the number of entities, also a gold plate");
+        ItemTooltipManager.NORMAL.put(Items.CAMPFIRE, "Heating the cauldron above, perform fast cooking recipe");
+        ItemTooltipManager.NORMAL.put(Items.STONECUTTER, "Breaks the blocks above it when the anvil slams down");
+        ItemTooltipManager.NORMAL.put(Items.GRINDSTONE, "When facing down, perform block polishing recipes upon being struck by an anvil");
+        ItemTooltipManager.NORMAL.put(Items.IRON_TRAPDOOR, "Perform unpacking recipes");
+        ItemTooltipManager.NORMAL.put(Items.SCAFFOLDING, "Perform sifting recipes");
+
         ItemTooltipManager.SHIFT.put(
             ModBlocks.OVERFLOW_CHUTE.asItem(), """
                 The output items will be launched with speed
