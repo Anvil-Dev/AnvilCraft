@@ -81,6 +81,7 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
             this.leftPos + 75,
             this.topPos + 54,
             b -> {
+                if (ScreenEditing.isReadOnly()) return;
                 if (!(b instanceof CycleFilterModeButton button)) return;
                 ClientPacketDistributor.sendToServer(new MachineCycleFilterModePacket(button.cycle()));
                 this.menu.setFilterMode(button.cycle());
@@ -122,6 +123,7 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
             this.topPos + 23,
             "minus",
             _ -> {
+                if (ScreenEditing.isReadOnly()) return;
                 this.menu.getBlockEntity().decreaseRange();
                 ClientPacketDistributor.sendToServer(
                     new ItemDetectorChangeRangePacket(this.menu.getBlockEntity().getRange())
@@ -133,6 +135,7 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
             this.topPos + 23,
             "add",
             _ -> {
+                if (ScreenEditing.isReadOnly()) return;
                 this.menu.getBlockEntity().increaseRange();
                 ClientPacketDistributor.sendToServer(
                     new ItemDetectorChangeRangePacket(this.menu.getBlockEntity().getRange())
@@ -196,6 +199,7 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
     @Override
     protected void slotClicked(Slot slot, int slotId, int buttonNum, ContainerInput containerInput) {
         if (slot instanceof FilterOnlySlot filterSlot) {
+            if (ScreenEditing.isReadOnly()) return;
             ItemStack filterStack = this.menu.getCarried();
             if (filterStack.isEmpty() && !this.minecraft.hasShiftDown()) return;
             int id = slot.getContainerSlot();
@@ -219,6 +223,7 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         Slot slot = this.hoveredSlot;
         if (slot instanceof FilterOnlySlot filterSlot && scrollY != 0) {
+            if (ScreenEditing.isReadOnly()) return true;
             ItemStack item = filterSlot.getItem();
             int countBefore = item.getCount();
             int countAfter = countBefore + this.getScrollSpeed() * (scrollY > 0 ? 1 : -1);

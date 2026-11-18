@@ -87,6 +87,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
             this.topPos + 23,
             "minus",
             _ -> {
+                if (ScreenEditing.isReadOnly()) return;
                 this.menu.getBlockEntity().getRangeRadius().previous();
                 this.menu.getBlockEntity().getRangeRadius().notifyServer();
             }
@@ -96,6 +97,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
             this.topPos + 23,
             "add",
             _ -> {
+                if (ScreenEditing.isReadOnly()) return;
                 this.menu.getBlockEntity().getRangeRadius().next();
                 this.menu.getBlockEntity().getRangeRadius().notifyServer();
             }
@@ -106,6 +108,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
             this.topPos + 37,
             "minus",
             _ -> {
+                if (ScreenEditing.isReadOnly()) return;
                 this.menu.getBlockEntity().getCooldown().previous();
                 this.menu.getBlockEntity().getCooldown().notifyServer();
             }
@@ -115,6 +118,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
             this.topPos + 37,
             "add",
             _ -> {
+                if (ScreenEditing.isReadOnly()) return;
                 this.menu.getBlockEntity().getCooldown().next();
                 this.menu.getBlockEntity().getCooldown().notifyServer();
             }
@@ -191,6 +195,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
 
     @Override
     protected void slotClicked(Slot slot, int slotId, int buttonNum, ContainerInput containerInput) {
+        if (ScreenEditing.isReadOnly()) return;
         if (slot instanceof SlotItemHandlerWithFilter) {
             int realSlotId = slot.getContainerSlot();
             ItemStack carriedItem = this.menu.getCarried().copy();
@@ -230,6 +235,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (ScreenEditing.isReadOnly()) return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
         Slot slot = this.hoveredSlot;
         if (slot instanceof SlotItemHandlerWithFilter filterSlot && filterSlot.isFilter() && scrollY != 0) {
             int slotIndex = slot.getContainerSlot();

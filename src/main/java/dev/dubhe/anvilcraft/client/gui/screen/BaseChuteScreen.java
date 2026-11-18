@@ -127,6 +127,7 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
 
     @Override
     protected void slotClicked(Slot slot, int slotId, int buttonNum, ContainerInput containerInput) {
+        if (ScreenEditing.isReadOnly()) return;
         if (slot instanceof SlotItemHandlerWithFilter) {
             int realSlotId = slot.getContainerSlot();
             ItemStack carriedItem = this.menu.getCarried().copy();
@@ -165,6 +166,7 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
     
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (ScreenEditing.isReadOnly()) return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
         Slot slot = this.hoveredSlot;
         if (slot instanceof SlotItemHandlerWithFilter filterSlot && filterSlot.isFilter() && scrollY != 0) {
             int slotIndex = slot.getContainerSlot();
