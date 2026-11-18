@@ -142,6 +142,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private static final int PLACER_PREVIEW_Y = 0;
     private static final int PLACER_PREVIEW_Y_UPSIDE_DOWN = 4;
     private static final int PLACER_PREVIEW_Z = 6;
+    private static final float STRUCTURE_PREVIEW_Z = 300;
 
     // LevelLike 缓存
     private @Nullable LevelLike cachedPreviewLevelLike;
@@ -219,7 +220,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                 16,
                 LAYER_DEFAULT[i],
                 16,
-                48,
+                16,
                 (btn) -> this.onLayerButtonClick(index),
                 List.of(Component.translatable("screen.anvilcraft.smart_block_placer.layer." + (i + 1)))
             );
@@ -548,7 +549,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             16,
             POSITION_SELECT,
             16,
-            48,
+            16,
             (btn) -> this.onPositionButtonClick((TriStateButton) btn, positionIndex, tooltipSelected, tooltipUnselected),
             selected ? tooltipSelected : tooltipUnselected
         );
@@ -897,13 +898,13 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
     }
 
-    /**
-     * 渲染半透明的物品虚影
-     */
-    private void renderMaskedItem(GuiGraphics g, ItemStack stack, int x, int y) {
-        final int maskColor = 0x99777777;  // 调整透明度，数值越大越透明
-        g.renderItem(stack, x, y, 0);
-        g.fill(x, y, x + 16, y + 16, maskColor);
+    private void renderMaskedItem(GuiGraphics graphics, ItemStack stack, int x, int y) {
+        graphics.flush();
+        graphics.pose().pushPose();
+        // 虚影属于界面背景，深度必须低于结构方块的悬浮界面。
+        graphics.pose().translate(0, 0, -100);
+        RenderSupport.renderItemWithTransparency(stack, graphics.pose(), x, y, 0.4f);
+        graphics.pose().popPose();
     }
 
     @SuppressWarnings("deprecation")
@@ -1085,7 +1086,14 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             var point = this.previewBlockCenter(anchor);
             this.structureGuiPreview.anchor(point.x, point.y, this.isMouseInPreviewWindow(point.x, point.y));
         }
+        // 悬浮界面内部按 z=100 绘制，低于原版物品的 150 与 tooltip 的 400，会被槽位物品盖住。
+        // 这里整体抬高到两者之间，既压住槽位物品，又不会盖住 tooltip。
+        guiGraphics.flush();
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0, 0, STRUCTURE_PREVIEW_Z);
         this.structureGuiPreview.render(guiGraphics);
+        guiGraphics.flush();
+        guiGraphics.pose().popPose();
     }
 
     /**
