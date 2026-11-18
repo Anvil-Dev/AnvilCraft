@@ -316,6 +316,11 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.class.special.giant_anvil", "AnvilCraft");
         provider.add("screen.anvilcraft.cfa.spin.stationary", "Stationary");
         provider.add("screen.anvilcraft.cfa.celestial_params", "Parameter"); // 天体参数
+
+        // 标题彩蛋：5% 概率替换锻星砧标题
+        provider.add("screen.anvilcraft.cfa.title.conformal_field_anchor", "Conformal Field Anchor"); // 共形场锚点
+        provider.add("screen.anvilcraft.cfa.title.cosmic_fidelity_array", "Cosmic Fidelity Array"); // 宇宙保真阵列
+        provider.add("screen.anvilcraft.cfa.title.causal_flux_amplifier", "Causal Flux Amplifier"); // 因果通量增幅器
         provider.add("screen.anvilcraft.cfa.lock", "Click to lock"); // 点击锁定
         provider.add("screen.anvilcraft.cfa.locked_tooltip", "Operation requires unlocking first."); // 需要先解锁才可操作，如果你不是锻星砧拥有者，请询问拥有者后操作
         provider.add("screen.anvilcraft.cfa.missing_amplifier.line1", "Amplifier missing,"); // 滚木
