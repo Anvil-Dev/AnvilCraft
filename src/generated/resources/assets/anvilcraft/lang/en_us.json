@@ -2970,7 +2970,7 @@
   "tooltip.anvilcraft.working_progress.title": "Working progress:",
   "tooltip.minecraft.item.campfire": "Heating the cauldron above, perform fast cooking recipe",
   "tooltip.minecraft.item.grindstone": "When facing down, perform block polishing recipes upon being struck by an anvil",
-  "tooltip.minecraft.item.heavy_weighted_pressure_plate": "Output a redstone signal based on the number of entities, also a iron plate",
+  "tooltip.minecraft.item.heavy_weighted_pressure_plate": "Output a redstone signal based on the number of entities, also an iron plate",
   "tooltip.minecraft.item.iron_trapdoor": "Perform unpacking recipes",
   "tooltip.minecraft.item.light_weighted_pressure_plate": "Output a redstone signal based on the number of entities, also a gold plate",
   "tooltip.minecraft.item.scaffolding": "Perform sifting recipes",
