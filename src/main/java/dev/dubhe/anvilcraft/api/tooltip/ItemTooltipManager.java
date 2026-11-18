@@ -922,11 +922,11 @@ public class ItemTooltipManager {
 
         ItemTooltipManager.NORMAL.put(
             Items.HEAVY_WEIGHTED_PRESSURE_PLATE,
-            "Output a restone signal based on the number of entities, also a iron plate"
+            "Output a redstone signal based on the number of entities, also an iron plate"
         );
         ItemTooltipManager.NORMAL.put(
             Items.LIGHT_WEIGHTED_PRESSURE_PLATE,
-            "Output a restone signal based on the number of entities, also a gold plate"
+            "Output a redstone signal based on the number of entities, also a gold plate"
         );
         ItemTooltipManager.NORMAL.put(Items.CAMPFIRE, "Heating the cauldron above, perform fast cooking recipe");
         ItemTooltipManager.NORMAL.put(Items.STONECUTTER, "Breaks the blocks above it when the anvil slams down");
