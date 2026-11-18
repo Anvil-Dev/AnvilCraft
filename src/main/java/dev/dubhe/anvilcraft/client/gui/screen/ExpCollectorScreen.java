@@ -60,6 +60,7 @@ public class ExpCollectorScreen extends AbstractContainerScreen<ExpCollectorMenu
             this.topPos + 23,
             "minus",
             ignored -> {
+                if (ScreenEditing.isReadOnly()) return;
                 this.menu.getBlockEntity().getRangeRadius().previous();
                 this.menu.getBlockEntity().getRangeRadius().notifyServer();
             }
@@ -69,6 +70,7 @@ public class ExpCollectorScreen extends AbstractContainerScreen<ExpCollectorMenu
             this.topPos + 23,
             "add",
             ignored -> {
+                if (ScreenEditing.isReadOnly()) return;
                 this.menu.getBlockEntity().getRangeRadius().next();
                 this.menu.getBlockEntity().getRangeRadius().notifyServer();
             }
@@ -78,6 +80,7 @@ public class ExpCollectorScreen extends AbstractContainerScreen<ExpCollectorMenu
             this.topPos + 37,
             "minus",
             ignored -> {
+                if (ScreenEditing.isReadOnly()) return;
                 this.menu.getBlockEntity().getCooldown().previous();
                 this.menu.getBlockEntity().getCooldown().notifyServer();
             }
@@ -87,6 +90,7 @@ public class ExpCollectorScreen extends AbstractContainerScreen<ExpCollectorMenu
             this.topPos + 37,
             "add",
             ignored -> {
+                if (ScreenEditing.isReadOnly()) return;
                 this.menu.getBlockEntity().getCooldown().next();
                 this.menu.getBlockEntity().getCooldown().notifyServer();
             }

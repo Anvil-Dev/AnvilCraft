@@ -302,6 +302,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     }
 
     private void stepRange(WatchableCyclingValue<Integer> range, int step) {
+        if (ScreenEditing.isReadOnly()) return;
         if (BlueprintClientFiles.isBusy()) {
             return;
         }
@@ -1637,6 +1638,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
      * 模式切换按钮点击事件
      */
     private void onModeToggleClick() {
+        if (ScreenEditing.isReadOnly()) return;
         var blockEntity = this.menu.getBlockEntity();
         if (blockEntity == null) {
             return;
