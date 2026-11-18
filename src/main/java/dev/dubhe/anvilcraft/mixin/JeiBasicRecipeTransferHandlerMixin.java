@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.client.rpc.TerminalJeiStorageCache;
 import dev.dubhe.anvilcraft.integration.jei.transfer.TerminalJeiTransferSupport;
+import mezz.jei.api.gui.ingredient.IRecipeSlotView;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IStackHelper;
 import mezz.jei.api.recipe.transfer.IRecipeTransferContext;
@@ -51,6 +52,16 @@ public abstract class JeiBasicRecipeTransferHandlerMixin<C extends AbstractConta
     @Shadow
     private IStackHelper stackHelper;
 
+    private @Nullable IRecipeSlotsView anvilcraft$resolveRecipeSlotsView(Object raw) {
+        if (raw instanceof IRecipeSlotsView view) return view;
+        if (raw instanceof List<?> list) {
+            @SuppressWarnings("unchecked")
+            List<IRecipeSlotView> slotViews = (List<IRecipeSlotView>) list;
+            return this.handlerHelper.createRecipeSlotsView(slotViews);
+        }
+        return null;
+    }
+
     @Inject(method = "transferRecipeInternal", at = @At(value = "INVOKE",
         target = "Lmezz/jei/common/transfer/RecipeTransferUtil;getRecipeTransferOperations("
             + "Lmezz/jei/api/helpers/IStackHelper;Ljava/util/Map;Ljava/util/List;Ljava/util/List;)"
@@ -72,11 +83,17 @@ public abstract class JeiBasicRecipeTransferHandlerMixin<C extends AbstractConta
         if (storageIds.isEmpty()) {
             return;
         }
+        // 形参声明的类型是视图，但 JEI 在该槽位里改存了输入槽列表，先取成 Object 再按实际类型还原
+        Object rawSlots = recipeSlotsView;
+        IRecipeSlotsView slots = this.anvilcraft$resolveRecipeSlotsView(rawSlots);
+        if (slots == null) {
+            return;
+        }
         if (!doTransfer) {
             // 可由仓储补齐时允许填充，否则只高亮实际缺失的槽位。
             IRecipeTransferError error = TerminalJeiTransferSupport.checkSatisfies(
                 container,
-                recipeSlotsView,
+                slots,
                 player,
                 this.stackHelper,
                 this.handlerHelper
@@ -90,11 +107,11 @@ public abstract class JeiBasicRecipeTransferHandlerMixin<C extends AbstractConta
             container,
             craftingSlots,
             inventorySlots,
-            recipeSlotsView,
+            slots,
             player,
             this.stackHelper,
             maxTransfer,
-            () -> context == null ? this.transferRecipe(container, recipe, recipeSlotsView, player, maxTransfer, true)
+            () -> context == null ? this.transferRecipe(container, recipe, slots, player, maxTransfer, true)
                 : this.transferRecipe(context, true)
         );
         if (restocked) {
