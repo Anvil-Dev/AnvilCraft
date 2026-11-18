@@ -132,6 +132,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     private int fileOffset;
     private static final int FILE_ROWS = 6;
     private static final int FILE_ROW_HEIGHT = 12;
+    private static final float STRUCTURE_PREVIEW_Z = 250;
 
     private static ResourceLocation scannerTexture(String name) {
         return SharedTextures.textureGui("machine/structure_scanner/" + name);
@@ -667,7 +668,14 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             var point = this.previewBlockCenter(anchor);
             this.structureGuiPreview.anchor(point.x, point.y, this.isMouseInPreviewWindow(point.x, point.y));
         }
+        // 悬浮界面内部按 z=100 绘制，低于原版物品的 150 与 tooltip 的 400，会被槽位物品盖住。
+        // 这里整体抬高到两者之间，既压住槽位物品，又不会盖住 tooltip。
+        graphics.flush();
+        graphics.pose().pushPose();
+        graphics.pose().translate(0, 0, STRUCTURE_PREVIEW_Z);
         this.structureGuiPreview.render(graphics);
+        graphics.flush();
+        graphics.pose().popPose();
     }
 
     @Override
