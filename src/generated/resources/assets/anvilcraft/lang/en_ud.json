@@ -547,6 +547,8 @@
   "anvilcraft.configuration.ui.storage_flyout_fade_out_ticks.tooltip": "(sʞɔᴉʇ uᴉ) ʇnoʎꞁɟ s,uǝǝɹɔS ǝᵷɐɹoʇS ǝɥʇ ɟo ǝɯᴉʇ ʇno-ǝpɐɟ ǝɥʇ sꞁoɹʇuoƆ",
   "anvilcraft.configuration.ui.storage_flyout_hold_ticks": "sʞɔᴉ⟘ pꞁoH ʇnoʎꞁℲ ǝᵷɐɹoʇS",
   "anvilcraft.configuration.ui.storage_flyout_hold_ticks.tooltip": "(sʞɔᴉʇ uᴉ) ǝꞁqᴉsᴉʌ sʎɐʇs ʇnoʎꞁɟ ɥɔuǝqʞɹoʍ ᵷuᴉssᴉɯ s,uǝǝɹɔS ǝᵷɐɹoʇS ǝɥʇ ǝɯᴉʇ ǝɥʇ sꞁoɹʇuoƆ",
+  "anvilcraft.configuration.ui.storage_jei_incomplete_fill": "ꞁꞁᴉℲ ǝʇǝꞁdɯoɔuI ᴉǝՐ ǝᵷɐɹoʇS",
+  "anvilcraft.configuration.ui.storage_jei_incomplete_fill.tooltip": "pǝᴉɟsᴉʇɐs ʎꞁꞁnɟ ǝq ʇouuɐɔ ǝdᴉɔǝɹ ǝɥʇ uǝɥʍ ǝꞁqɐꞁᴉɐʌɐ ʎꞁꞁɐnʇɔɐ ǝɹɐ ʇɐɥʇ sꞁɐᴉɹǝʇɐɯ ǝɥʇ ɥʇᴉʍ pᴉɹᵷ ᵷuᴉʇɟɐɹɔ ǝɥʇ sꞁꞁᴉɟ ɹǝɟsuɐɹʇ ᵷuᴉʇɟɐɹɔ IƎՐ s,uǝǝɹɔS ǝᵷɐɹoʇS ǝɥʇ ɹǝɥʇǝɥʍ sꞁoɹʇuoƆ",
   "anvilcraft.configuration.ui.storage_tooltip_max_visible_types": "sǝdʎ⟘ ǝꞁqᴉsᴉɅ xɐW dᴉʇꞁoo⟘ ǝᵷɐɹoʇS",
   "anvilcraft.configuration.ui.storage_tooltip_max_visible_types.tooltip": "ǝɔuo ʇɐ sʍoɥs dᴉʇꞁooʇ s,ǝᵷɐɹoʇs ɐ sǝdʎʇ ɯǝʇᴉ ɟo ɹǝqɯnu ǝɥʇ sꞁoɹʇuoƆ",
   "anvilcraft.configuration.ui.thought_max_seconds": "spuoɔǝS xɐW ʇɥᵷnoɥ⟘",
@@ -1661,6 +1663,7 @@
   "itemGroup.anvilcraft.tools_and_utilities": "sǝᴉʇᴉꞁᴉʇ∩ puɐ sꞁoo⟘ :ʇɟɐɹƆꞁᴉʌuⱯ",
   "jei.anvilcraft.tooltip.not_consumed": "pǝɯnsuoƆ ʇoN",
   "jei.anvilcraft.tooltip.stamping.templates": "sǝʇɐꞁdɯǝʇ ᵷuᴉɥʇᴉɯs ʇuǝɹǝɟɟᴉp %s sǝɹᴉnbǝᴚ",
+  "jei.anvilcraft.tooltip.storage.incomplete": "pǝɹouᵷᴉ ǝq ꞁꞁᴉʍ sꞁɐᴉɹǝʇɐɯ ᵷuᴉssᴉW",
   "key.anvilcraft.building_rod_adjust": "(ꞁꞁoɹɔs ɥʇᴉʍ) ꞁooʇ ʇsnɾpⱯ :poᴚ ᵷuᴉpꞁᴉnᗺ",
   "key.anvilcraft.building_rod_back": "pɹɐʍʞɔɐq ǝʌoW :poᴚ ᵷuᴉpꞁᴉnᗺ",
   "key.anvilcraft.building_rod_clockwise": "ǝsᴉʍʞɔoꞁɔ ǝʇɐʇoᴚ :poᴚ ᵷuᴉpꞁᴉnᗺ",
@@ -3001,9 +3004,9 @@
   "tooltip.anvilcraft.working_progress.title": ":ssǝɹᵷoɹd ᵷuᴉʞɹoM",
   "tooltip.minecraft.item.campfire": "ǝdᴉɔǝɹ ᵷuᴉʞooɔ ʇsɐɟ ɯɹoɟɹǝd 'ǝʌoqɐ uoɹpꞁnɐɔ ǝɥʇ ᵷuᴉʇɐǝH",
   "tooltip.minecraft.item.grindstone": "ꞁᴉʌuɐ uɐ ʎq ʞɔnɹʇs ᵷuᴉǝq uodn sǝdᴉɔǝɹ ᵷuᴉɥsᴉꞁod ʞɔoꞁq ɯɹoɟɹǝd 'uʍop ᵷuᴉɔɐɟ uǝɥM",
-  "tooltip.minecraft.item.heavy_weighted_pressure_plate": "ǝʇɐꞁd uoɹᴉ uɐ osꞁɐ 'sǝᴉʇᴉʇuǝ ɟo ɹǝqɯnu ǝɥʇ uo pǝsɐq ꞁɐuᵷᴉs ǝuoʇsǝɹ ɐ ʇndʇnO",
+  "tooltip.minecraft.item.heavy_weighted_pressure_plate": "ǝʇɐꞁd uoɹᴉ uɐ osꞁɐ 'sǝᴉʇᴉʇuǝ ɟo ɹǝqɯnu ǝɥʇ uo pǝsɐq ꞁɐuᵷᴉs ǝuoʇspǝɹ ɐ ʇndʇnO",
   "tooltip.minecraft.item.iron_trapdoor": "sǝdᴉɔǝɹ ᵷuᴉʞɔɐdun ɯɹoɟɹǝԀ",
-  "tooltip.minecraft.item.light_weighted_pressure_plate": "ǝʇɐꞁd pꞁoᵷ ɐ osꞁɐ 'sǝᴉʇᴉʇuǝ ɟo ɹǝqɯnu ǝɥʇ uo pǝsɐq ꞁɐuᵷᴉs ǝuoʇsǝɹ ɐ ʇndʇnO",
+  "tooltip.minecraft.item.light_weighted_pressure_plate": "ǝʇɐꞁd pꞁoᵷ ɐ osꞁɐ 'sǝᴉʇᴉʇuǝ ɟo ɹǝqɯnu ǝɥʇ uo pǝsɐq ꞁɐuᵷᴉs ǝuoʇspǝɹ ɐ ʇndʇnO",
   "tooltip.minecraft.item.scaffolding": "sǝdᴉɔǝɹ ᵷuᴉʇɟᴉs ɯɹoɟɹǝԀ",
   "tooltip.minecraft.item.stonecutter": "uʍop sɯɐꞁs ꞁᴉʌuɐ ǝɥʇ uǝɥʍ ʇᴉ ǝʌoqɐ sʞɔoꞁq ǝɥʇ sʞɐǝɹᗺ"
 }

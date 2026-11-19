@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.saved.storage.CraftingStorage;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import mezz.jei.api.constants.RecipeTypes;
+import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.ingredient.IRecipeSlotView;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IStackHelper;
@@ -24,7 +25,9 @@ import mezz.jei.api.runtime.IRecipesGui;
 import mezz.jei.common.transfer.RecipeTransferOperationsResult;
 import mezz.jei.common.transfer.RecipeTransferUtil;
 import mezz.jei.common.transfer.TransferOperation;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.SimpleContainer;
@@ -113,9 +116,10 @@ public final class StorageJeiSupport {
      * 的变体（该变体总可用数量 > 已分配给前面槽的数量），跨槽贪心分配——
      * 同种物品足够多时各槽都选同种（可堆叠），同种不足时自动换下一个变体
      * （标签配方如 AAA 且 A 为标签时，存储中标签内不同物品各 1 个也能凑齐）。
-     * 所有变体都无余量时退回当前显示的变体。
+     * 所有变体都无余量时退回当前显示的变体；{@code partial} 为 {@code true}
+     * 时退回 EMPTY，让该槽保持空位而不是塞入取不到的材料。
      */
-    private static List<ItemStack> collectInputs(IRecipeSlotsView recipeSlots, Player player) {
+    private static List<ItemStack> collectInputs(IRecipeSlotsView recipeSlots, Player player, boolean partial) {
         StorageScreen screen = StorageJeiSupport.storageScreen();
         List<ItemStack> inputs = new ArrayList<>();
         List<ItemStack> allocatedKeys = new ArrayList<>();
@@ -135,7 +139,21 @@ public final class StorageJeiSupport {
                     break;
                 }
             }
+            if (chosen == null && partial) {
+                // 桶装流体：仓储里有空容器与对应流体时可现场盛装，
+                // 与 {@link #missingInputs} 的判定保持一致，避免这类槽位被误判为空
+                for (ItemStack variant : variants) {
+                    if (StorageJeiSupport.producibleFromFluid(player, screen, allocatedKeys, allocatedCounts, variant)) {
+                        chosen = variant;
+                        break;
+                    }
+                }
+            }
             if (chosen == null) {
+                if (partial) {
+                    inputs.add(ItemStack.EMPTY);
+                    continue;
+                }
                 chosen = slotView.getDisplayedItemStack()
                     .orElse(variants.getFirst());
             }
@@ -143,6 +161,26 @@ public final class StorageJeiSupport {
             inputs.add(chosen.copy());
         }
         return inputs;
+    }
+
+    /**
+     * 是否启用不完全填充：配方材料不足时仍把取得到的部分放入 ② 合成格。
+     * 切石机为单槽语义，不受影响。
+     */
+    private static boolean incompleteFillEnabled() {
+        return AnvilCraft.CLIENT_CONFIG.ui.storageJeiIncompleteFill;
+    }
+
+    /**
+     * 不完全填充用的每格份数：能取到的槽位放 1 份，取不到的槽位为 0。
+     * 合成配方每格只需 1 个物品，故份数即「该槽是否被填充」。
+     */
+    private static IntList partialCounts(List<ItemStack> inputs) {
+        IntList counts = new IntArrayList(inputs.size());
+        for (ItemStack input : inputs) {
+            counts.add(input.isEmpty() ? 0 : 1);
+        }
+        return counts;
     }
 
     /**
@@ -157,6 +195,21 @@ public final class StorageJeiSupport {
         IRecipeSlotsView recipeSlots,
         Player player
     ) {
+        List<IRecipeSlotView> missing = StorageJeiSupport.missingInputs(recipeSlots, player);
+        if (missing.isEmpty()) {
+            return null;
+        }
+        Component message = Component.translatable("jei.tooltip.error.recipe.transfer.missing");
+        return helper.createUserErrorForMissingSlots(message, missing);
+    }
+
+    /**
+     * 收集当前取不到材料的配方输入槽，供检查阶段高亮。
+     *
+     * <p>按变体余量跨槽贪心分配，与 {@link #collectInputs} 判定一致；桶装流体可由
+     * 「空容器 + 仓储流体」现场盛装时不算缺失。</p>
+     */
+    private static List<IRecipeSlotView> missingInputs(IRecipeSlotsView recipeSlots, Player player) {
         StorageScreen screen = StorageJeiSupport.storageScreen();
         List<IRecipeSlotView> inputViews = recipeSlots.getSlotViews(RecipeIngredientRole.INPUT);
         List<IRecipeSlotView> missing = new ArrayList<>();
@@ -187,11 +240,24 @@ public final class StorageJeiSupport {
                 missing.add(slotView);
             }
         }
-        if (missing.isEmpty()) {
-            return null;
+        return missing;
+    }
+
+    /**
+     * 一个材料都取不到时返回 {@code true}：此时没有可转移的内容，
+     * 应按 JEI 默认行为红色高亮并禁用转移按钮，而不是给出黄色的「部分填充」提示。
+     *
+     * <p>分母取「有物品候选的配方槽位」数：槽位视图中可能含空槽，它们既不进
+     * {@link #missingInputs} 的结果也不会被填充，计入总数会判不出全缺。</p>
+     */
+    private static boolean nothingAvailable(IRecipeSlotsView recipeSlots, List<IRecipeSlotView> missing) {
+        int required = 0;
+        for (IRecipeSlotView slotView : recipeSlots.getSlotViews(RecipeIngredientRole.INPUT)) {
+            if (slotView.getItemStacks().findFirst().isPresent()) {
+                required++;
+            }
         }
-        Component message = Component.translatable("jei.tooltip.error.recipe.transfer.missing");
-        return helper.createUserErrorForMissingSlots(message, missing);
+        return required > 0 && missing.size() == required;
     }
 
     /**
@@ -634,7 +700,7 @@ public final class StorageJeiSupport {
                 return this.helper.createInternalError();
             }
             if (doTransfer) {
-                List<ItemStack> inputs = StorageJeiSupport.collectInputs(recipeSlots, player);
+                List<ItemStack> inputs = StorageJeiSupport.collectInputs(recipeSlots, player, false);
                 ItemStack result = recipe.value().getResultItem(player.level().registryAccess());
                 // ① 单槽转移：默认放 1 个，Shift（maxTransfer）放满，份数由服务端计算，客户端无需提供
                 StorageJeiSupport.transferIntoStorage(container, true, maxTransfer, inputs, result, new IntArrayList(0));
@@ -683,22 +749,86 @@ public final class StorageJeiSupport {
                 // StorageMenu 仅在仓储界面作为父容器，防御性兜底
                 return this.helper.createInternalError();
             }
+            boolean partial = StorageJeiSupport.incompleteFillEnabled();
+            List<IRecipeSlotView> missing = StorageJeiSupport.missingInputs(recipeSlots, player);
+            boolean nothing = StorageJeiSupport.nothingAvailable(recipeSlots, missing);
             if (doTransfer) {
-                List<ItemStack> inputs = StorageJeiSupport.collectInputs(recipeSlots, player);
+                List<ItemStack> inputs = StorageJeiSupport.collectInputs(recipeSlots, player, partial);
                 IntList requestedCounts = StorageJeiSupport.computeRequestedCounts(container, recipeSlots);
                 if (requestedCounts == null) {
-                    // 材料不足：与 JEI 默认一致，高亮缺失槽并禁用转移按钮
-                    return this.helper.createUserErrorForMissingSlots(
-                        Component.translatable("jei.tooltip.error.recipe.transfer.missing"),
-                        recipeSlots.getSlotViews(RecipeIngredientRole.INPUT)
-                    );
+                    if (!partial || nothing) {
+                        return this.helper.createUserErrorForMissingSlots(
+                            Component.translatable("jei.tooltip.error.recipe.transfer.missing"),
+                            missing
+                        );
+                    }
+                    requestedCounts = StorageJeiSupport.partialCounts(inputs);
+                    if (requestedCounts.intStream().noneMatch(count -> count > 0)) {
+                        return this.helper.createUserErrorForMissingSlots(
+                            Component.translatable("jei.tooltip.error.recipe.transfer.missing"),
+                            missing
+                        );
+                    }
                 }
                 StorageJeiSupport.transferIntoStorage(container, false, maxTransfer, inputs, ItemStack.EMPTY, requestedCounts);
             } else {
-                // 检查阶段：背包缺材料时高亮缺失槽并禁用转移按钮
-                return StorageJeiSupport.checkMissingInputs(this.helper, recipeSlots, player);
+                if (!partial || nothing) {
+                    return StorageJeiSupport.checkMissingInputs(this.helper, recipeSlots, player);
+                }
+                if (!missing.isEmpty()) {
+                    return new IncompleteTransferError(
+                        Component.translatable("jei.anvilcraft.tooltip.storage.incomplete"),
+                        missing
+                    );
+                }
             }
             return null;
+        }
+    }
+
+    private static final class IncompleteTransferError implements IRecipeTransferError {
+        private final Component message;
+        private final List<IRecipeSlotView> missingSlots;
+
+        private IncompleteTransferError(Component message, List<IRecipeSlotView> missingSlots) {
+            this.message = message;
+            this.missingSlots = missingSlots;
+        }
+
+        @Override
+        public Type getType() {
+            return Type.COSMETIC;
+        }
+
+        @Override
+        public void getTooltip(ITooltipBuilder tooltip) {
+            tooltip.add(Component.translatable("jei.tooltip.transfer"));
+            tooltip.add(this.message.copy().withStyle(ChatFormatting.RED));
+        }
+
+        @Override
+        public void showError(
+            GuiGraphics guiGraphics,
+            int mouseX,
+            int mouseY,
+            IRecipeSlotsView recipeSlotsView,
+            int recipeX,
+            int recipeY
+        ) {
+            guiGraphics.pose().pushPose();
+            try {
+                guiGraphics.pose().translate(recipeX, recipeY, 0);
+                for (IRecipeSlotView slot : this.missingSlots) {
+                    slot.drawHighlight(guiGraphics, 0x80FFA500);
+                }
+            } finally {
+                guiGraphics.pose().popPose();
+            }
+        }
+
+        @Override
+        public int getMissingCountHint() {
+            return this.missingSlots.size();
         }
     }
 
