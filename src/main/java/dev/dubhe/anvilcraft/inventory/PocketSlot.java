@@ -19,10 +19,24 @@ public class PocketSlot extends Slot {
 
     public void updatePosition() {
         int capacity = PocketInventory.capacity(this.owner);
-        int perSide = capacity == 12 ? 6 : 3;
-        int width = capacity == 12 ? 44 : 26;
+        if (this.pocketIndex >= capacity) {
+            this.setPosition(-10000, 0);
+            return;
+        }
+        int perSide = (capacity + 1) / 2;
         int side = this.pocketIndex / perSide;
-        ((SlotPositionAccessor) this).anvilcraft$setX((side == 0 ? -width - 2 : 178) + 5 + (this.pocketIndex % perSide / 3) * 18);
+        int local = this.pocketIndex % perSide;
+        PocketLayout layout = PocketLayout.of(capacity, side, 176, 70);
+        if (local >= layout.slots()) {
+            this.setPosition(-10000, 0);
+            return;
+        }
+        this.setPosition(layout.slotItemX(local), layout.slotItemY(local));
+    }
+
+    private void setPosition(int x, int y) {
+        ((SlotPositionAccessor) this).anvilcraft$setX(x);
+        ((SlotPositionAccessor) this).anvilcraft$setY(y);
     }
 
     @Override
@@ -38,7 +52,7 @@ public class PocketSlot extends Slot {
 
     @Override
     public boolean mayPickup(Player player) {
-        return player == this.owner && this.isActive();
+        return this.isActive();
     }
 
     private record Access(Player owner) implements Container {

@@ -2,14 +2,14 @@ package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import dev.anvilcraft.lib.v2.registrum.util.CreativeVariantPickerRegistry;
-import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.gui.component.PocketRenderer;
 import dev.dubhe.anvilcraft.inventory.PocketInventory;
+import dev.dubhe.anvilcraft.inventory.PocketLayout;
 import dev.dubhe.anvilcraft.inventory.PocketSlot;
 import dev.dubhe.anvilcraft.mixin.accessor.AbstractContainerMenuSlotsAccessor;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -73,6 +73,7 @@ abstract class CreativePocketScreenMixin extends AbstractContainerScreen<Creativ
             + "<init>(Lnet/minecraft/world/inventory/Slot;III)V"))
     private void anvilcraft$positionPockets(Args args) {
         if (args.get(0) instanceof PocketSlot pocket) {
+            pocket.updatePosition();
             args.set(2, pocket.x < 0 ? pocket.x : pocket.x + 19);
             args.set(3, pocket.y - 30);
         }
@@ -103,26 +104,33 @@ abstract class CreativePocketScreenMixin extends AbstractContainerScreen<Creativ
 
     @Inject(method = "extractBackground", at = @At("TAIL"))
     private void anvilcraft$drawPockets(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
-        if (selectedTab.getType() != CreativeModeTab.Type.INVENTORY || this.minecraft == null || this.minecraft.player == null) return;
-        int capacity = PocketInventory.capacity(this.minecraft.player);
-        if (capacity == 0) return;
-        int width = capacity == 12 ? 44 : 26;
-        String texture = capacity == 12 ? "weatherproof_spacesuit_leggings" : "pockets_leggings";
-        for (int side = 0; side < 2; side++) {
-            int posX = this.leftPos + (side == 0 ? -width - 2 : this.imageWidth + 2);
-            graphics.blit(RenderPipelines.GUI_TEXTURED, AnvilCraft.of("textures/gui/misc/equipment/" + texture + ".png"),
-                posX, this.topPos + 40, 0, 0, width, 73, width, 73);
+        if (selectedTab.getType() != CreativeModeTab.Type.INVENTORY || this.minecraft == null || this.minecraft.player == null) {
+            return;
         }
+        int capacity = PocketInventory.capacity(this.minecraft.player);
+        if (capacity == 0) {
+            return;
+        }
+        PocketRenderer.render(graphics, PocketLayout.of(capacity, 0, this.imageWidth, 40), this.leftPos, this.topPos);
+        PocketRenderer.render(graphics, PocketLayout.of(capacity, 1, this.imageWidth, 40), this.leftPos, this.topPos);
     }
 
     @ModifyReturnValue(method = "hasClickedOutside", at = @At("RETURN"))
     private boolean anvilcraft$includePockets(boolean original, double mouseX, double mouseY, int left, int top) {
         if (!original || selectedTab.getType() != CreativeModeTab.Type.INVENTORY
-            || this.minecraft == null || this.minecraft.player == null) return original;
+            || this.minecraft == null || this.minecraft.player == null) {
+            return original;
+        }
         int capacity = PocketInventory.capacity(this.minecraft.player);
-        if (capacity == 0 || mouseY < top + 40 || mouseY >= top + 113) return original;
-        int width = capacity == 12 ? 44 : 26;
-        return !(mouseX >= left - width - 2 && mouseX < left - 2
-            || mouseX >= left + this.imageWidth + 2 && mouseX < left + this.imageWidth + width + 2);
+        if (capacity == 0) {
+            return original;
+        }
+        double localX = mouseX - left;
+        double localY = mouseY - top;
+        if (PocketLayout.of(capacity, 0, this.imageWidth, 40).contains(localX, localY)
+            || PocketLayout.of(capacity, 1, this.imageWidth, 40).contains(localX, localY)) {
+            return false;
+        }
+        return original;
     }
 }

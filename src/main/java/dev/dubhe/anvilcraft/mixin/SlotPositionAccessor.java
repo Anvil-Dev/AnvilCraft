@@ -10,4 +10,8 @@ public interface SlotPositionAccessor {
     @Mutable
     @Accessor("x")
     void anvilcraft$setX(int x);
+
+    @Mutable
+    @Accessor("y")
+    void anvilcraft$setY(int y);
 }

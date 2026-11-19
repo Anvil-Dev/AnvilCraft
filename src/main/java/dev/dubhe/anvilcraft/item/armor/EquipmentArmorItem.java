@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.item.armor;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.init.ModAttributes;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -28,30 +29,41 @@ public class EquipmentArmorItem extends Item {
     private final Identifier texture;
 
     public EquipmentArmorItem(Properties properties, ArmorType type, boolean weatherproof, String texture) {
-        super(properties(properties, type, weatherproof, texture));
+        this(properties, type, weatherproof, texture, 0);
+    }
+
+    public EquipmentArmorItem(Properties properties, ArmorType type, boolean weatherproof, String texture, int pocketCount) {
+        super(properties(properties, type, weatherproof, texture, pocketCount));
         this.armorType = type;
         this.texture = AnvilCraft.of("textures/entity/equipment/" + texture + ".png");
     }
 
-    private static Properties properties(Properties properties, ArmorType type, boolean weatherproof, String texture) {
+    private static Properties properties(Properties properties, ArmorType type, boolean weatherproof, String texture, int pocketCount) {
         var material = weatherproof ? ArmorMaterials.NETHERITE : ArmorMaterials.IRON;
         properties.humanoidArmor(material, type)
             .durability(type.getDurability(weatherproof ? 74 : 15))
             .repairable(weatherproof ? ModItemTags.WEATHERPROOF_REPAIR_MATERIALS : Tags.Items.INGOTS_IRON)
             .component(DataComponents.EQUIPPABLE, Equippable.builder(type.getSlot()).setEquipSound(material.equipSound())
                 .setAsset(ResourceKey.create(EquipmentAssets.ROOT_ID, AnvilCraft.of(texture))).build());
+        ItemAttributeModifiers.Builder attributes = ItemAttributeModifiers.builder();
         if (weatherproof) {
             properties.repairable(ModItemTags.WEATHERPROOF_REPAIR_MATERIALS);
             Identifier id = Identifier.withDefaultNamespace("armor." + type.getName());
             EquipmentSlotGroup slot = EquipmentSlotGroup.bySlot(type.getSlot());
             int defense = material.defense().get(type) + (type == ArmorType.HELMET || type == ArmorType.BOOTS ? 2 : 3);
             float toughness = material.toughness() + (type == ArmorType.CHESTPLATE ? 2 : 1);
-            properties.attributes(ItemAttributeModifiers.builder()
-                .add(Attributes.ARMOR, new AttributeModifier(id, defense, AttributeModifier.Operation.ADD_VALUE), slot)
+            attributes.add(Attributes.ARMOR, new AttributeModifier(id, defense, AttributeModifier.Operation.ADD_VALUE), slot)
                 .add(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(id, toughness, AttributeModifier.Operation.ADD_VALUE), slot)
-                .add(Attributes.KNOCKBACK_RESISTANCE, new AttributeModifier(id, 0.1, AttributeModifier.Operation.ADD_VALUE), slot)
-                .build());
+                .add(Attributes.KNOCKBACK_RESISTANCE, new AttributeModifier(id, 0.1, AttributeModifier.Operation.ADD_VALUE), slot);
         }
+        if (pocketCount > 0) {
+            attributes.add(
+                ModAttributes.POCKET_COUNT,
+                new AttributeModifier(AnvilCraft.of("pocket_count"), pocketCount, AttributeModifier.Operation.ADD_VALUE),
+                EquipmentSlotGroup.LEGS
+            );
+        }
+        properties.attributes(attributes.build());
         if (!weatherproof) properties.repairable(Items.IRON_INGOT);
         return properties;
     }
