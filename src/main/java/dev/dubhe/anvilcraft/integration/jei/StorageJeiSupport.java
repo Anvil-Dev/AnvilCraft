@@ -493,17 +493,15 @@ public final class StorageJeiSupport {
         return result;
     }
 
-    /**
-     * 把物品加入 JEI 可用池：数量超过 ItemStack 上限时按 maxStackSize 拆成多个虚拟槽，
-     * 避免 JEI 分配出超过合成格上限的份数，同时正确反映可填满多轮的总量。
-     */
+    private static final int MAX_VIRTUAL_STACKS_PER_TYPE = 9;
+
     private static void addAvailable(ItemStack item, Map<Slot, ItemStack> availableItemStacks) {
         if (item.isEmpty()) {
             return;
         }
         int maxStack = item.getMaxStackSize();
         int remaining = item.getCount();
-        while (remaining > 0) {
+        for (int chunks = 0; chunks < StorageJeiSupport.MAX_VIRTUAL_STACKS_PER_TYPE && remaining > 0; chunks++) {
             int chunk = Math.min(remaining, maxStack);
             ItemStack virtual = item.copyWithCount(chunk);
             availableItemStacks.put(new VirtualSlot(1000 + availableItemStacks.size(), virtual), virtual.copy());
@@ -511,13 +509,6 @@ public final class StorageJeiSupport {
         }
     }
 
-    /**
-     * 把「空容器 + 仓储流体」可现场盛装出的桶装流体加入 JEI 可用池。
-     *
-     * <p>不加这一步，JEI 的分配算法（{@link RecipeTransferUtil#getRecipeTransferOperations}）
-     * 会因池中没有成品桶而把该槽判为缺料，转移直接失败——检查阶段放行也没用。
-     * 每个能盛装的输入槽补一份，并同步占住对应的空容器，避免同一批空桶被重复认领。</p>
-     */
     private static void addProducibleFluidContainers(
         StorageScreen screen,
         IRecipeSlotsView recipeSlots,
@@ -550,13 +541,6 @@ public final class StorageJeiSupport {
         }
     }
 
-    /**
-     * JEI 判定用的仓储流体列表：优先未过滤快照，不可用时（尚未拉取到或版本已过期）
-     * 退回界面缓存并触发一次拉取，使下一次判定改用快照。
-     *
-     * <p>界面缓存 {@code screen.getFluids()} 只随 sync 更新，而配方界面覆盖本界面时
-     * sync 既不发起、回调也会被丢弃，刚打开界面就进 JEI 会一直读到空列表。</p>
-     */
     private static List<StorageServerStub.FluidEntry> storageFluids(StorageScreen screen) {
         if (screen.hasUnfilteredFluids()) {
             return screen.getUnfilteredFluids();
@@ -565,19 +549,6 @@ public final class StorageJeiSupport {
         return screen.getFluids();
     }
 
-    /**
-     * 该物品是否为装有流体的容器，<b>且仓储中没有足量</b>（不足一桶）的同种流体，
-     * 即需要现场用「空容器 + 仓储流体」盛装。
-     *
-     * <p>返回 {@code true} 的三种情形：</p>
-     * <ul>
-     *   <li>不是装有流体的容器（无法盛装）</li>
-     *   <li>是流体容器，但仓储中该流体不足量（需要补盛装）</li>
-     *   <li>是流体容器，但仓储中根本没有该流体</li>
-     * </ul>
-     *
-     * <p>仅当仓储中已有足量同种流体（可直接取用）时返回 {@code false}。</p>
-     */
     private static boolean lacksFluidFor(List<StorageServerStub.FluidEntry> fluids, ItemStack variant) {
         FluidStack content = StorageJeiSupport.contentOf(variant);
         if (content.isEmpty()) {
@@ -592,7 +563,6 @@ public final class StorageJeiSupport {
         return true;
     }
 
-    /** 装有流体的容器对应的内容物；非流体容器或空容器返回空。 */
     private static FluidStack contentOf(ItemStack variant) {
         if (variant.isEmpty()) {
             return FluidStack.EMPTY;
@@ -601,7 +571,6 @@ public final class StorageJeiSupport {
         return handler == null ? FluidStack.EMPTY : handler.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.SIMULATE);
     }
 
-    /** 装有流体的容器对应的空容器（模拟倒空后剩下的物品）；无法推导时返回空。 */
     private static ItemStack emptyContainerOf(ItemStack variant) {
         if (variant.isEmpty()) {
             return ItemStack.EMPTY;
@@ -614,7 +583,6 @@ public final class StorageJeiSupport {
         return handler.getContainer();
     }
 
-    /** JEI 可用池中与 target 同种同组件的总数量。 */
     private static long countInPool(Map<Slot, ItemStack> availableItemStacks, ItemStack target) {
         long count = 0;
         for (ItemStack stack : availableItemStacks.values()) {
