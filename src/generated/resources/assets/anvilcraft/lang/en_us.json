@@ -547,6 +547,8 @@
   "anvilcraft.configuration.ui.storage_flyout_fade_out_ticks.tooltip": "Controls the fade-out time of the Storage Screen's flyout (in ticks)",
   "anvilcraft.configuration.ui.storage_flyout_hold_ticks": "Storage Flyout Hold Ticks",
   "anvilcraft.configuration.ui.storage_flyout_hold_ticks.tooltip": "Controls the time the Storage Screen's missing workbench flyout stays visible (in ticks)",
+  "anvilcraft.configuration.ui.storage_jei_incomplete_fill": "Storage Jei Incomplete Fill",
+  "anvilcraft.configuration.ui.storage_jei_incomplete_fill.tooltip": "Controls whether the Storage Screen's JEI crafting transfer fills the crafting grid with the materials that are actually available when the recipe cannot be fully satisfied",
   "anvilcraft.configuration.ui.storage_tooltip_max_visible_types": "Storage Tooltip Max Visible Types",
   "anvilcraft.configuration.ui.storage_tooltip_max_visible_types.tooltip": "Controls the number of item types a storage's tooltip shows at once",
   "anvilcraft.configuration.ui.thought_max_seconds": "Thought Max Seconds",
@@ -1661,6 +1663,7 @@
   "itemGroup.anvilcraft.tools_and_utilities": "AnvilCraft: Tools and Utilities",
   "jei.anvilcraft.tooltip.not_consumed": "Not Consumed",
   "jei.anvilcraft.tooltip.stamping.templates": "Requires %s different smithing templates",
+  "jei.anvilcraft.tooltip.storage.incomplete": "Missing materials will be ignored",
   "key.anvilcraft.building_rod_adjust": "Building Rod: Adjust tool (with scroll)",
   "key.anvilcraft.building_rod_back": "Building Rod: Move backward",
   "key.anvilcraft.building_rod_clockwise": "Building Rod: Rotate clockwise",
@@ -3001,9 +3004,9 @@
   "tooltip.anvilcraft.working_progress.title": "Working progress:",
   "tooltip.minecraft.item.campfire": "Heating the cauldron above, perform fast cooking recipe",
   "tooltip.minecraft.item.grindstone": "When facing down, perform block polishing recipes upon being struck by an anvil",
-  "tooltip.minecraft.item.heavy_weighted_pressure_plate": "Output a restone signal based on the number of entities, also an iron plate",
+  "tooltip.minecraft.item.heavy_weighted_pressure_plate": "Output a redstone signal based on the number of entities, also an iron plate",
   "tooltip.minecraft.item.iron_trapdoor": "Perform unpacking recipes",
-  "tooltip.minecraft.item.light_weighted_pressure_plate": "Output a restone signal based on the number of entities, also a gold plate",
+  "tooltip.minecraft.item.light_weighted_pressure_plate": "Output a redstone signal based on the number of entities, also a gold plate",
   "tooltip.minecraft.item.scaffolding": "Perform sifting recipes",
   "tooltip.minecraft.item.stonecutter": "Breaks the blocks above it when the anvil slams down"
 }

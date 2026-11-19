@@ -121,6 +121,10 @@ public class JeiLang {
             "jei.anvilcraft.tooltip.stamping.templates",
             "Requires %s different smithing templates"
         );
+        provider.add(
+            "jei.anvilcraft.tooltip.storage.incomplete",
+            "Missing materials will be ignored"
+        );
 
         provider.add("gui.anvilcraft.category.anvil_collision", "Anvil Collision");
         provider.add("gui.anvilcraft.category.anvil_collision.maxcount", "Max Count: %s");

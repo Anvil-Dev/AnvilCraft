@@ -363,6 +363,12 @@ public class AnvilCraftClientConfig {
         @BoundedDiscrete(min = 1, max = 64)
         public int storageTooltipMaxVisibleTypes = 9;
 
+        @Comment(
+            "Controls whether the Storage Screen's JEI crafting transfer fills the crafting grid with the materials that "
+            + "are actually available when the recipe cannot be fully satisfied"
+        )
+        public boolean storageJeiIncompleteFill = true;
+
         @Comment("Controls the number of fluids the Fluid Tank tooltip shows at once")
         @BoundedDiscrete(min = 1, max = 64)
         public int fluidTankTooltipMaxVisibleFluids = 5;
