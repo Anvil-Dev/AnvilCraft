@@ -1,10 +1,13 @@
 package dev.dubhe.anvilcraft.integration.jei;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageMenu;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.integration.StorageJeiBridge;
 import dev.dubhe.anvilcraft.integration.StorageRecipeTransferPlan;
 import mezz.jei.api.constants.RecipeTypes;
+import mezz.jei.api.gui.builder.ITooltipBuilder;
+import mezz.jei.api.gui.ingredient.IRecipeSlotView;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.transfer.IRecipeTransferError;
@@ -13,7 +16,9 @@ import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
 import mezz.jei.api.recipe.types.IRecipeType;
 import mezz.jei.api.registration.IRecipeTransferRegistration;
 import mezz.jei.api.runtime.IJeiRuntime;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
@@ -104,12 +109,76 @@ public final class StorageJeiSupport {
             if (slots.isEmpty() || slots.size() > (this.stonecutter ? 1 : 9)) return this.helper.createInternalError();
             var variants = slots.stream().map(slot -> slot.getItemStacks().toList()).toList();
             var plan = StorageRecipeTransferPlan.create(variants, screen.getTransferMaterials(), screen.getTransferFluids());
-            if (!plan.missing().isEmpty()) {
+            boolean incomplete = !this.stonecutter && StorageJeiSupport.incompleteFillEnabled();
+            if (StorageJeiSupport.nothingAvailable(variants, plan)) {
+                return this.helper.createUserErrorForMissingSlots(
+                    Component.translatable("jei.tooltip.error.recipe.transfer.missing"),
+                    plan.missing().intStream().mapToObj(slots::get).toList());
+            }
+            if (!plan.missing().isEmpty() && !incomplete) {
                 return this.helper.createUserErrorForMissingSlots(Component.translatable("jei.tooltip.error.recipe.transfer.missing"),
                     plan.missing().intStream().mapToObj(slots::get).toList());
             }
-            if (doTransfer) screen.transferRecipe(this.stonecutter, maxTransfer, plan, this.result.apply(recipe));
+            if (doTransfer) {
+                screen.transferRecipe(this.stonecutter, maxTransfer, plan, this.result.apply(recipe), incomplete);
+            } else if (incomplete && !plan.missing().isEmpty()) {
+                return new IncompleteTransferError(
+                    Component.translatable("jei.anvilcraft.tooltip.storage.incomplete"),
+                    plan.missing().intStream().mapToObj(slots::get).toList()
+                );
+            }
             return null;
         }
+    }
+
+    private static final class IncompleteTransferError implements IRecipeTransferError {
+        private final Component message;
+        private final List<IRecipeSlotView> missingSlots;
+
+        private IncompleteTransferError(Component message, List<IRecipeSlotView> missingSlots) {
+            this.message = message;
+            this.missingSlots = missingSlots;
+        }
+
+        @Override
+        public Type getType() {
+            return Type.COSMETIC;
+        }
+
+        @Override
+        public void getTooltip(ITooltipBuilder tooltip) {
+            tooltip.add(Component.translatable("jei.tooltip.transfer"));
+            tooltip.add(this.message.copy().withStyle(ChatFormatting.RED));
+        }
+
+        @Override
+        public void showError(
+            GuiGraphicsExtractor graphics, int mouseX, int mouseY, IRecipeSlotsView recipeSlotsView, int recipeX, int recipeY
+        ) {
+            var pose = graphics.pose();
+            pose.pushMatrix();
+            try {
+                pose.translate(recipeX, recipeY);
+                for (IRecipeSlotView slot : this.missingSlots) {
+                    slot.drawHighlight(graphics, IRecipeTransferError.DEFAULT_BUTTON_HIGHLIGHT_COLOR);
+                }
+            } finally {
+                pose.popMatrix();
+            }
+        }
+
+        @Override
+        public int getMissingCountHint() {
+            return this.missingSlots.size();
+        }
+    }
+
+    private static boolean incompleteFillEnabled() {
+        return AnvilCraft.CLIENT_CONFIG.ui.storageJeiIncompleteFill;
+    }
+
+    private static boolean nothingAvailable(List<List<ItemStack>> variants, StorageRecipeTransferPlan.Result plan) {
+        long required = variants.stream().filter(options -> options.stream().anyMatch(stack -> !stack.isEmpty())).count();
+        return required > 0 && plan.missing().size() == required;
     }
 }

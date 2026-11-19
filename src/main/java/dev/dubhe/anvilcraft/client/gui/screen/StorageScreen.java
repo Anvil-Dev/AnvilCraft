@@ -753,7 +753,17 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     public void transferRecipe(boolean stonecutter, boolean maximum, StorageRecipeTransferPlan.Result plan, ItemStack result) {
-        if (!this.canTransferRecipe() || !plan.missing().isEmpty()) return;
+        this.transferRecipe(stonecutter, maximum, plan, result, false);
+    }
+
+    public void transferRecipe(
+        boolean stonecutter,
+        boolean maximum,
+        StorageRecipeTransferPlan.Result plan,
+        ItemStack result,
+        boolean incomplete
+    ) {
+        if (!this.canTransferRecipe() || !incomplete && !plan.missing().isEmpty()) return;
         this.recipeTransferPending = true;
         StorageClientStub.craftingTransfer(this.sourcePos, stonecutter, maximum, plan.inputs(), result, plan.counts())
             .whenCompleteAsync((changed, error) -> {
