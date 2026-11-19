@@ -1,13 +1,15 @@
 package dev.dubhe.anvilcraft.inventory;
 
 import com.mojang.serialization.Codec;
+import dev.dubhe.anvilcraft.init.ModAttributes;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
-import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.Mth;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -16,7 +18,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 public class PocketInventory extends SimpleContainer {
-    public static final int MAX_SIZE = 12;
+    public static final int MAX_SIZE = 40;
     public static final Codec<PocketInventory> CODEC = ItemStack.OPTIONAL_CODEC.listOf()
         .xmap(PocketInventory::new, PocketInventory::snapshot);
     public static final StreamCodec<RegistryFriendlyByteBuf, PocketInventory> STREAM_CODEC = ItemStack.OPTIONAL_STREAM_CODEC
@@ -38,9 +40,11 @@ public class PocketInventory extends SimpleContainer {
     }
 
     public static int capacity(Player player) {
-        ItemStack legs = player.getItemBySlot(EquipmentSlot.LEGS);
-        if (legs.is(ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS)) return 12;
-        return legs.is(ModItems.POCKETS_LEGGINGS) ? 6 : 0;
+        AttributeInstance instance = player.getAttribute(ModAttributes.POCKET_COUNT);
+        if (instance == null) {
+            return 0;
+        }
+        return Mth.clamp(Mth.floor(instance.getValue()), 0, MAX_SIZE);
     }
 
     public static boolean isLocked(Player player) {

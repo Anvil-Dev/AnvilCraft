@@ -36,6 +36,7 @@ public class OtherLang {
         provider.add("item.anvilcraft.spectral_slingshot.unload_vanish", "Vanishes when Unloaded");
 
         provider.add("entity.minecraft.villager.anvilcraft.jeweler", "Jeweler");
+        provider.add("attribute.name.anvilcraft.pocket_count", "Pocket Count");
 
         provider.add("pack.anvilcraft.builtin_pack", "AnvilCraft Builtin ResourcePack");
         provider.add("pack.anvilcraft.transparent_cauldron.description", "Transparent Cauldron");
