@@ -41,22 +41,30 @@ public class CreativeCrateBlock extends BaseEntityBlock implements IHammerRemova
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
-        if (stack.isEmpty()) {
-            return ItemInteractionResult.SUCCESS;
-        }
         BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof CreativeCrateBlockEntity creativeCrateBlockEntity) {
-            InfinityItemStackHandler itemStackHandler = creativeCrateBlockEntity.getItemStackHandler();
-            if (!itemStackHandler.getStackInSlot(0).isEmpty()) {
-                if (!player.addItem(itemStackHandler.getStackInSlot(0).copyWithCount(1))) {
-                    popResource(level, BlockPos.containing(player.position()), itemStackHandler.getStackInSlot(0).copyWithCount(1));
-                }
+        if (!(blockEntity instanceof CreativeCrateBlockEntity creativeCrateBlockEntity)) {
+            return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+        }
+        InfinityItemStackHandler itemStackHandler = creativeCrateBlockEntity.getItemStackHandler();
+        if (stack.isEmpty()) {
+            ItemStack stored = itemStackHandler.getStackInSlot(0);
+            if (stored.isEmpty() || !player.isCreative()) {
+                return ItemInteractionResult.SUCCESS;
             }
-            itemStackHandler.setStackInSlot(0, stack.copyWithCount(stack.getMaxStackSize()));
-            stack.shrink(1);
+            if (!level.isClientSide()) {
+                player.getInventory().placeItemBackInInventory(stored.copyWithCount(1));
+                itemStackHandler.setStackInSlot(0, ItemStack.EMPTY);
+            }
             return ItemInteractionResult.sidedSuccess(level.isClientSide());
         }
-        return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+        if (!itemStackHandler.getStackInSlot(0).isEmpty()) {
+            if (!player.addItem(itemStackHandler.getStackInSlot(0).copyWithCount(1))) {
+                popResource(level, BlockPos.containing(player.position()), itemStackHandler.getStackInSlot(0).copyWithCount(1));
+            }
+        }
+        itemStackHandler.setStackInSlot(0, stack.copyWithCount(stack.getMaxStackSize()));
+        stack.shrink(1);
+        return ItemInteractionResult.sidedSuccess(level.isClientSide());
     }
 
     @Override
