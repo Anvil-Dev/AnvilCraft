@@ -969,14 +969,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             }
         }
         this.craftingChoices = List.copyOf(choices);
-        this.craftingSelected = index;
-        if (index >= 0) {
-            this.craftingResult = choices.get(index).result();
-        } else if (selected != null && selected.value() instanceof CraftingRecipe recipe) {
-            this.craftingResult = recipe.assemble(input);
-        } else {
-            this.craftingResult = choices.getFirst().result();
-        }
+        // 选择可能来自别的界面且与当前网格不匹配，服务端此时同样回落到首个候选
+        this.craftingSelected = index < 0 ? 0 : index;
+        this.craftingResult = choices.get(this.craftingSelected).result();
     }
 
     private void refreshRecipeGrid() {
