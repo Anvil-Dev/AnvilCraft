@@ -1611,6 +1611,7 @@ public final class StorageServerStub {
         int limit = stack ? Integer.MAX_VALUE : 1;
         CraftingStorage template = CraftingStorage.EMPTY;
         RecipeHolder<CraftingRecipe> locked = null;
+        // locked 为 null 既表示「还没问过」也表示「没有冲突配方」，故另设 resolved
         boolean resolved = false;
         while (performed < limit) {
             CraftingStorage crafting = target.read();
@@ -1948,12 +1949,7 @@ public final class StorageServerStub {
         return recipes.get(selected);
     }
 
-    /**
-     * 按 Polymorph 中玩家的选择解析 ② 的合成配方；未安装 Polymorph 或玩家尚未选择时返回 null。
-     *
-     * <p>服务端所有「未显式指定配方」的解析都走这里：预览、连续合成、统计上报取到同一个
-     * 配方，玩家在仓储界面切换冲突配方的结果才会真正生效。</p>
-     */
+    /** Polymorph 中玩家的选择；未安装或尚未选择时返回 null。 */
     @Nullable
     private static RecipeHolder<CraftingRecipe> selectedCraftingRecipe(
         ServerPlayer player,
@@ -2010,7 +2006,7 @@ public final class StorageServerStub {
         if (recipes.isEmpty()) {
             return null;
         }
-        // 只有一个匹配配方时不存在冲突，无需向 Polymorph 询问
+        // 只有一个匹配配方时不存在冲突
         RecipeHolder<CraftingRecipe> selected = recipes.size() > 1
             ? StorageServerStub.selectedCraftingRecipe(player, input)
             : null;
@@ -2804,11 +2800,6 @@ public final class StorageServerStub {
             RoundCraftPreview preview = StorageServerStub.previewRoundCraft(player, roundTemplate, request.stonecutter(), lockedId);
             if (preview == null || preview.result().isEmpty()) {
                 break;
-            }
-            // 首轮解析出的配方在整批合成内锁定：避免每轮都向 Polymorph 取一次选择，
-            // 也避免冲突配方在批次中途被换成别的产物
-            if (lockedId == null) {
-                lockedId = preview.recipe().id();
             }
             ItemStack effectiveCarried = performed == 0 && toCursor && player.hasInfiniteMaterials()
                 ? request.clientCarried()

@@ -57,10 +57,10 @@ public final class StoragePolymorphBridge {
             }
             return optional.get() instanceof RecipeHolder<?> holder ? holder : null;
         } catch (InvocationTargetException error) {
-            StoragePolymorphBridge.disable("resolve the player crafting recipe", error.getCause());
+            StoragePolymorphBridge.warn("resolve the player crafting recipe", error.getCause());
             return null;
         } catch (IllegalAccessException error) {
-            StoragePolymorphBridge.disable("resolve the player crafting recipe", error);
+            StoragePolymorphBridge.warn("resolve the player crafting recipe", error);
             return null;
         }
     }
@@ -82,10 +82,10 @@ public final class StoragePolymorphBridge {
             api.selectRecipeC2S().invoke(network, recipeId);
             return true;
         } catch (InvocationTargetException error) {
-            StoragePolymorphBridge.disable("select the storage crafting recipe", error.getCause());
+            StoragePolymorphBridge.warn("select the storage crafting recipe", error.getCause());
             return false;
         } catch (IllegalAccessException error) {
-            StoragePolymorphBridge.disable("select the storage crafting recipe", error);
+            StoragePolymorphBridge.warn("select the storage crafting recipe", error);
             return false;
         }
     }
@@ -116,7 +116,7 @@ public final class StoragePolymorphBridge {
                 playerDataClass.getMethod("selectRecipe", RecipeHolder.class),
                 networkClass.getMethod("sendPlayerRecipeSelectionC2S", ResourceLocation.class)
             );
-        } catch (ClassNotFoundException | NoSuchMethodException error) {
+        } catch (ClassNotFoundException | NoSuchMethodException | LinkageError error) {
             AnvilCraft.LOGGER.debug(
                 "Polymorph API is unavailable, storage crafting keeps the first matching recipe",
                 error
@@ -126,10 +126,8 @@ public final class StoragePolymorphBridge {
         return StoragePolymorphBridge.api;
     }
 
-    private static void disable(String action, Throwable error) {
-        StoragePolymorphBridge.api = null;
-        StoragePolymorphBridge.resolved = true;
-        AnvilCraft.LOGGER.error("Disabled the Polymorph integration while trying to {}", action, error);
+    private static void warn(String action, Throwable error) {
+        AnvilCraft.LOGGER.warn("Polymorph call failed while trying to {}", action, error);
     }
 
     /** 解析后的反射入口，整体替换即可完成降级，避免逐个字段判空。 */

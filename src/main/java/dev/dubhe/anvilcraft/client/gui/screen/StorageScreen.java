@@ -403,12 +403,15 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private @Nullable SwitchableButton craftingAutoFillButton;
     private @Nullable SwitchableButton craftingToStorageButton;
     private @Nullable TexturedButton craftingClearButton;
+    /** 翻转模式开关；tooltip 命中判定用其实际位置（翻转后会被 mirrorWidgets 换算）。 */
     private @Nullable TexturedButton flipButton;
     private List<ItemStack> stonecutterRecipes = List.of();
     private List<CraftingChoice> craftingChoices = List.of();
     private int craftingSelected;
+    /** ③ 有输入时是切石机候选，否则是 ② 的合成冲突候选。 */
     private List<ItemStack> recipeGridIcons = List.of();
     private boolean recipeGridStonecutter;
+    /** 切石机配方列表当前页首项索引（3 列 × 2 行，超出可滚动）。 */
     private int recipeHead;
     private final Scrollable recipeScrollable = new Scrollable() {
         @Override
@@ -1728,12 +1731,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         return this.craftingLoaded ? this.craftingResult : ItemStack.EMPTY;
     }
 
-    /**
-     * 重算 ② 9 宫格的候选配方、当前产物与选中下标。
-     *
-     * <p>冲突时取 Polymorph 中玩家的选择，与服务端 {@code assembleCraftingResult} 一致，
-     * 避免预览与真正合成的产物不同。</p>
-     */
+    /** 冲突时取 Polymorph 的选择，与服务端 assembleCraftingResult 同源。 */
     private void rebuildCraftingChoices() {
         this.craftingChoices = List.of();
         this.craftingSelected = 0;
@@ -1795,7 +1793,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         } else {
             icons = List.of();
         }
-        boolean changed = !icons.equals(this.recipeGridIcons);
+        boolean changed = stonecutter != this.recipeGridStonecutter
+            || !StorageScreen.sameRecipeGrid(icons, this.recipeGridIcons);
         this.recipeGridStonecutter = stonecutter;
         this.recipeGridIcons = icons;
         if (!changed) {
@@ -1803,6 +1802,19 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
         this.recipeScrollable.calculateScroll(this.recipeHead / StorageScreen.CRAFTING_RECIPE_COLUMNS);
         this.recipeScrollable.scrollTo();
+    }
+
+    /** ItemStack 没有覆写 equals，直接比列表会把内容未变也判成变化，因此按物品与组件比较。 */
+    private static boolean sameRecipeGrid(List<ItemStack> left, List<ItemStack> right) {
+        if (left.size() != right.size()) {
+            return false;
+        }
+        for (int i = 0; i < left.size(); i++) {
+            if (!ItemStack.isSameItemSameComponents(left.get(i), right.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private int recipeGridSelected() {
