@@ -4,7 +4,6 @@ import dev.anvilcraft.lib.v2.rpc.RPC;
 import dev.anvilcraft.lib.v2.rpc.RpcTarget;
 import dev.dubhe.anvilcraft.rpc.StorageInput;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
-import dev.dubhe.anvilcraft.saved.storage.CraftingStorage;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -163,7 +162,7 @@ public final class StorageClientStub {
         return RPC.invoke(RpcTarget.server(), StorageServerStub::craftingUnlock, StorageClientStub.playerId(), sourcePos.asLong());
     }
 
-    public static CompletableFuture<CraftingStorage> craftingGet(BlockPos sourcePos) {
+    public static CompletableFuture<StorageServerStub.CraftingSync> craftingGet(BlockPos sourcePos) {
         return RPC.invoke(RpcTarget.server(), StorageServerStub::craftingGet, StorageClientStub.playerId(), sourcePos.asLong());
     }
 

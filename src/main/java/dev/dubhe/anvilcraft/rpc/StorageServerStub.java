@@ -24,8 +24,10 @@ import dev.dubhe.anvilcraft.block.entity.storage.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.integration.polymorph.StoragePolymorphBridge;
 import dev.dubhe.anvilcraft.item.TerminalItem;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
+import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSetting;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSettings;
 import dev.dubhe.anvilcraft.saved.setting.StorageSetting;
@@ -712,6 +714,32 @@ public final class StorageServerStub {
         return new InteractionResult(player.containerMenu.getCarried(), true, refilled).withCrafting(target.read());
     }
 
+    /**
+     * 按 Polymorph 中玩家的选择解析 ② 的合成配方；未安装 Polymorph 或玩家尚未选择时返回 null。
+     *
+     * <p>服务端所有「未显式指定配方」的解析都走这里，玩家在仓储界面切换冲突配方的结果
+     * 才会真正生效。</p>
+     */
+    @Nullable
+    private static RecipeHolder<CraftingRecipe> selectedCraftingRecipe(
+        ServerPlayer player,
+        CraftingInput input
+    ) {
+        if (input.isEmpty()) {
+            return null;
+        }
+        RecipeHolder<?> selected = StoragePolymorphBridge.playerRecipe(
+            player,
+            player.containerMenu,
+            input,
+            player.level()
+        );
+        if (selected != null && selected.value() instanceof CraftingRecipe recipe) {
+            return new RecipeHolder<>(selected.id(), recipe);
+        }
+        return null;
+    }
+
     private static @Nullable CraftOperation prepareCraftOperation(
         ServerPlayer player, CraftingStorage crafting, boolean stonecutter, @Nullable Identifier lockedId
     ) {
@@ -731,9 +759,19 @@ public final class StorageServerStub {
         }
         var positioned = CraftingInput.ofPositioned(3, 3, crafting.craftingInput());
         var input = positioned.input();
-        RecipeHolder<?> holder = lockedId == null
-            ? player.level().recipeAccess().getRecipeFor(RecipeType.CRAFTING, input, player.level()).orElse(null)
-            : player.level().getServer().getRecipeManager().recipeMap().byKey(ResourceKey.create(Registries.RECIPE, lockedId));
+        RecipeHolder<?> holder;
+        if (lockedId == null) {
+            List<RecipeHolder<CraftingRecipe>> matches = RecipesRecord.getRecipes(player.level())
+                .getRecipesFor(RecipeType.CRAFTING, input, player.level()).toList();
+            // 只有一个匹配配方时不存在冲突，无需向 Polymorph 询问
+            RecipeHolder<CraftingRecipe> selected = matches.size() > 1
+                ? StorageServerStub.selectedCraftingRecipe(player, input)
+                : null;
+            holder = selected != null ? selected : matches.isEmpty() ? null : matches.getFirst();
+        } else {
+            holder = player.level().getServer().getRecipeManager().recipeMap()
+                .byKey(ResourceKey.create(Registries.RECIPE, lockedId));
+        }
         if (holder == null || !(holder.value() instanceof CraftingRecipe recipe)) return null;
         if (lockedId != null && !recipe.matches(input, player.level())) return null;
         ItemStack result;
@@ -1624,9 +1662,23 @@ public final class StorageServerStub {
         return StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos).primary().unlockCrafting();
     }
 
+    public record CraftingSync(CraftingStorage crafting, Optional<Identifier> selectedRecipe) {
+        public static final StreamCodec<RegistryFriendlyByteBuf, CraftingSync> STREAM_CODEC = StreamCodec.composite(
+            CraftingStorage.STREAM_CODEC, CraftingSync::crafting,
+            ByteBufCodecs.optional(Identifier.STREAM_CODEC), CraftingSync::selectedRecipe,
+            CraftingSync::new
+        );
+    }
+
     @RemoteCallable(validator = StorageAccessValidator.class)
-    public static CraftingStorage craftingGet(UUID playerId, long sourcePos) {
-        return resolveCraftingTarget(getServerPlayer(playerId), sourcePos).read();
+    public static CraftingSync craftingGet(UUID playerId, long sourcePos) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        CraftingStorage crafting = StorageServerStub.resolveCraftingTarget(player, sourcePos).read();
+        RecipeHolder<?> selected = StoragePolymorphBridge.selectedRecipe(player);
+        return new CraftingSync(
+            crafting,
+            Optional.ofNullable(selected == null ? null : selected.id().identifier())
+        );
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
