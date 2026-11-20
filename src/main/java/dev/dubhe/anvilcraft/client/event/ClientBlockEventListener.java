@@ -86,7 +86,7 @@ public class ClientBlockEventListener {
         if (property != null) {
             if (!event.getEntity().getAbilities().mayBuild) return false;
             if (!AnvilHammerItem.ableToUseAnvilHammer(event.getLevel(), event.getPos(), event.getEntity())) return false;
-            List<BlockState> possibleStates = StateUtil.findPossibleStatesForProperty(targetBlockState, property);
+            List<BlockState> possibleStates = StateUtil.hammerStates(targetBlockState, property);
             if (!possibleStates.isEmpty()) {
                 Minecraft.getInstance().setScreen(
                     new AnvilHammerScreen(

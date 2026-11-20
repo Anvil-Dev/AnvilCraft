@@ -6,6 +6,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumProvider;
 import dev.anvilcraft.lib.v2.registrum.providers.loot.RegistrumBlockLootTables;
 import dev.anvilcraft.lib.v2.registrum.util.CreativeModeTabModifier;
 import dev.dubhe.anvilcraft.block.AbstractStoragePortBlock;
+import dev.dubhe.anvilcraft.block.MountedRedstone;
 import dev.dubhe.anvilcraft.block.plate.PowerLevelPressurePlateBlock;
 import dev.dubhe.anvilcraft.block.state.StoragePortType;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
@@ -16,6 +17,7 @@ import net.minecraft.advancements.critereon.ItemEnchantmentsPredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.ItemSubPredicates;
 import net.minecraft.advancements.critereon.MinMaxBounds;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -27,6 +29,7 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -38,11 +41,34 @@ import net.minecraft.world.level.storage.loot.predicates.MatchTool;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.common.util.TransformationHelper;
 
 import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DataGenUtil {
+    public static ConfiguredModel[] mountedRedstone(RegistrumBlockstateProvider provider, BlockState state, ResourceLocation modelId) {
+        Direction attachment = state.getValue(MountedRedstone.ATTACHMENT);
+        Direction facing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
+        int yaw = (int) facing.toYRot();
+        int pitch = 0;
+        ModelFile model = provider.models().getExistingFile(modelId);
+        if (attachment == Direction.UP) {
+            pitch = 180;
+            yaw = -yaw;
+        } else if (attachment.getAxis().isHorizontal()) {
+            boolean reverse = facing == Direction.NORTH || facing == Direction.EAST;
+            pitch = reverse ? 90 : 270;
+            yaw = (int) attachment.getOpposite().toYRot() + (reverse ? 180 : 0);
+            if (facing.getAxis() == Direction.Axis.X) {
+                var sideways = provider.models().withExistingParent(modelId.getPath() + "_sideways", modelId);
+                sideways.rootTransforms().origin(TransformationHelper.TransformOrigin.CENTER).rotation(0, -90, 0, true);
+                model = sideways;
+            }
+        }
+        return new ConfiguredModel[]{new ConfiguredModel(model, pitch, Math.floorMod(yaw, 360), false)};
+    }
+
     public static void powerLevelPressurePlate(
         RegistrumBlockstateProvider provider, ResourceLocation id,
         PowerLevelPressurePlateBlock block, ResourceLocation texture

@@ -13,9 +13,11 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
+import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.event.RegisterRenderBuffersEvent;
 
 import java.util.OptionalDouble;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 
@@ -43,6 +45,16 @@ import static net.minecraft.client.renderer.RenderStateShard.TRANSLUCENT_TRANSPA
 import static net.minecraft.client.renderer.RenderStateShard.VIEW_OFFSET_Z_LAYERING;
 
 public class ModRenderTypes {
+    public static final BiFunction<ResourceLocation, Boolean, RenderType> UNLIT_ITEM = Util.memoize((atlas, translucent) ->
+        RenderType.create("anvilcraft_unlit_item", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true, translucent,
+            RenderType.CompositeState.builder()
+                .setShaderState(new RenderStateShard.ShaderStateShard(ClientHooks.ClientEvents::getEntityTranslucentUnlitShader))
+                .setTextureState(new RenderStateShard.TextureStateShard(atlas, false, false))
+                .setTransparencyState(translucent ? TRANSLUCENT_TRANSPARENCY : NO_TRANSPARENCY)
+                .setCullState(CULL).setLightmapState(LIGHTMAP).setOverlayState(OVERLAY)
+                .setOutputState(translucent ? ITEM_ENTITY_TARGET : RenderStateShard.MAIN_TARGET)
+                .createCompositeState(true)));
+
     public static final RenderStateShard.TransparencyStateShard LASER_TRANSPARENCY = new RenderStateShard.TransparencyStateShard(
         "anvilcraft:laser_transparency",
         () -> {

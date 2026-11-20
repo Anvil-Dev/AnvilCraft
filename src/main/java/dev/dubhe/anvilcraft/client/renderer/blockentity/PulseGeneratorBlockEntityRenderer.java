@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.block.PulseGeneratorBlock;
 import dev.dubhe.anvilcraft.block.entity.PulseGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import net.minecraft.client.Minecraft;
@@ -57,9 +56,7 @@ public class PulseGeneratorBlockEntityRenderer
         PulseGeneratorBlockEntity blockEntity, float partialTick, PoseStack poseStack, ModelConsumer consumer
     ) {
         poseStack.pushPose();
-        poseStack.translate(0.5f, 0.0f, 0.5f);
-        poseStack.mulPose(Axis.YP.rotationDegrees(-blockEntity.getBlockState().getValue(PulseGeneratorBlock.FACING).toYRot()));
-        poseStack.translate(-0.5f, 0.0f, -0.5f);
+        MountedRedstonePose.apply(poseStack, blockEntity.getBlockState());
         boolean outputting = blockEntity.getState() == PulseGeneratorBlockEntity.State.OUTPUTTING;
         boolean overspeed = blockEntity.isProcessing() && blockEntity.getWaitingTime() + blockEntity.getSignalDuration() <= 3;
         float phaseProgress = blockEntity.getPhaseProgress(partialTick);

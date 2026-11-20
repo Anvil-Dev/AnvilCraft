@@ -11,6 +11,7 @@ import dev.anvilcraft.lib.v2.wheel.client.gui.component.WheelWidget;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHasHammerEffect;
 import dev.dubhe.anvilcraft.api.input.IMouseHandlerExtension;
+import dev.dubhe.anvilcraft.block.MountedRedstone;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder;
 import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder.ModelRenderTarget;
@@ -76,6 +77,8 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     private final Property<?> property;
     private final List<BlockState> possibleStates;
     private final Camera camera;
+    private final int pageSize;
+    private int pageIndex;
 
     private final BlockAndTintGetter fullBrightLevel = new FullBrightLevelProxy(this.minecraft.level);
     private BlockState currentBlockState;
@@ -100,6 +103,9 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         this.currentBlockState = initialBlockState;
         this.property = property;
         this.possibleStates = possibleStates;
+        this.pageSize = initialBlockState.getBlock() instanceof MountedRedstone
+            ? BlockStateProperties.HORIZONTAL_FACING.getPossibleValues().size() : possibleStates.size();
+        this.pageIndex = possibleStates.indexOf(initialBlockState) / this.pageSize;
         this.camera = Minecraft.getInstance().gameRenderer.getMainCamera();
         this.hand = hand;
         this.hitVec = hitVec;
@@ -111,8 +117,13 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     protected void init() {
         if (this.frostedBackground != null) this.frostedBackground.close();
         this.frostedBackground = new WheelFrostedBackground();
+        this.rebuildPage();
+    }
+
+    private void rebuildPage() {
+        int start = this.pageIndex * this.pageSize;
         List<WheelWidget.RawSection> sections = new ArrayList<>();
-        for (BlockState state : this.possibleStates) {
+        for (BlockState state : this.possibleStates.subList(start, start + this.pageSize)) {
             ModelRenderTarget target = this.getModelRenderTarget(state);
             float scale = state.getBlock() instanceof IMultiPartBlockModelHolder ? 5 : ZOOM;
             sections.add(new WheelWidget.RawSection(propertyName(state, this.property),
@@ -136,10 +147,16 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         };
         this.wheel.setSelectionEffect(WheelSelectionEffect.ANNULAR_SECTOR);
         this.wheel.setFrostedBackground(this.frostedBackground);
-        this.wheel.setCurrentIndex(this.possibleStates.indexOf(this.currentBlockState));
+        this.wheel.setPageState(this.pageIndex > 0, start + this.pageSize < this.possibleStates.size());
+        this.wheel.setCurrentIndex(this.possibleStates.indexOf(this.currentBlockState) - start);
     }
 
     private static <T extends Comparable<T>> Component propertyName(BlockState state, Property<T> property) {
+        if (state.getBlock() instanceof MountedRedstone) {
+            return Component.translatable("screen.anvilcraft.button.direction." + state.getValue(MountedRedstone.ATTACHMENT).getName())
+                .append(" / ")
+                .append(Component.translatable("screen.anvilcraft.button.direction." + MountedRedstone.inputDirection(state).getName()));
+        }
         return Component.literal(property.getName(state.getValue(property)));
     }
 
@@ -163,7 +180,13 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         if (this.wheel == null || this.closingAnimationStarted) return true;
-        this.wheel.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        if (scrollY != 0 && this.possibleStates.size() > this.pageSize) {
+            this.pageIndex = Math.floorMod(this.pageIndex + (scrollY > 0 ? 1 : -1), this.possibleStates.size() / this.pageSize);
+            this.rebuildPage();
+            this.wheel.checkMousePos(mouseX, mouseY);
+        } else {
+            this.wheel.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        }
         this.updateSelection();
         return true;
     }
@@ -171,8 +194,10 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     private void updateSelection() {
         if (this.wheel == null) return;
         int index = this.wheel.getCurrentSectionIndex();
-        if (index >= 0 && index < this.possibleStates.size()) {
-            this.setCurrentBlockState(this.possibleStates.get(index));
+        if (index >= 0 && index < this.pageSize) {
+            this.setCurrentBlockState(this.possibleStates.get(this.pageIndex * this.pageSize + index));
+        } else if (this.initialBlockState.getBlock() instanceof MountedRedstone) {
+            this.setCurrentBlockState(this.initialBlockState);
         }
     }
 
@@ -314,6 +339,12 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         }
         if (this.animationStarted) {
             Level level = Objects.requireNonNull(Minecraft.getInstance().level);
+            if (this.initialBlockState.getBlock() instanceof MountedRedstone
+                && (this.wheel == null || this.wheel.getCurrentSectionIndex() < 0)) {
+                super.removed();
+                return;
+            }
+            this.currentBlockState = StateUtil.hammerTarget(level.getBlockState(this.targetBlockPos), this.currentBlockState);
             if (!(this.currentBlockState.getBlock() instanceof FlexibleMultiPartBlock<?, ?, ?>)
                 && !StateUtil.verifyPossibleStatesForProperty(level.getBlockState(this.targetBlockPos), this.currentBlockState)) {
                 super.removed();

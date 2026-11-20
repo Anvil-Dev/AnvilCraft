@@ -1,0 +1,884 @@
+{
+  "variants": {
+    "attachment=down,facing=east,input=false,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator",
+      "y": 270
+    },
+    "attachment=down,facing=east,input=false,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_out",
+      "y": 270
+    },
+    "attachment=down,facing=east,input=false,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator",
+      "y": 270
+    },
+    "attachment=down,facing=east,input=false,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_out",
+      "y": 270
+    },
+    "attachment=down,facing=east,input=true,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_in",
+      "y": 270
+    },
+    "attachment=down,facing=east,input=true,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_out",
+      "y": 270
+    },
+    "attachment=down,facing=east,input=true,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_in",
+      "y": 270
+    },
+    "attachment=down,facing=east,input=true,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_in_out",
+      "y": 270
+    },
+    "attachment=down,facing=north,input=false,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator",
+      "y": 180
+    },
+    "attachment=down,facing=north,input=false,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_out",
+      "y": 180
+    },
+    "attachment=down,facing=north,input=false,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator",
+      "y": 180
+    },
+    "attachment=down,facing=north,input=false,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_out",
+      "y": 180
+    },
+    "attachment=down,facing=north,input=true,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_in",
+      "y": 180
+    },
+    "attachment=down,facing=north,input=true,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_out",
+      "y": 180
+    },
+    "attachment=down,facing=north,input=true,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_in",
+      "y": 180
+    },
+    "attachment=down,facing=north,input=true,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_in_out",
+      "y": 180
+    },
+    "attachment=down,facing=south,input=false,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator"
+    },
+    "attachment=down,facing=south,input=false,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_out"
+    },
+    "attachment=down,facing=south,input=false,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator"
+    },
+    "attachment=down,facing=south,input=false,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_out"
+    },
+    "attachment=down,facing=south,input=true,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_in"
+    },
+    "attachment=down,facing=south,input=true,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_out"
+    },
+    "attachment=down,facing=south,input=true,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_in"
+    },
+    "attachment=down,facing=south,input=true,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_in_out"
+    },
+    "attachment=down,facing=west,input=false,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator",
+      "y": 90
+    },
+    "attachment=down,facing=west,input=false,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_out",
+      "y": 90
+    },
+    "attachment=down,facing=west,input=false,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator",
+      "y": 90
+    },
+    "attachment=down,facing=west,input=false,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_out",
+      "y": 90
+    },
+    "attachment=down,facing=west,input=true,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_in",
+      "y": 90
+    },
+    "attachment=down,facing=west,input=true,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_out",
+      "y": 90
+    },
+    "attachment=down,facing=west,input=true,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_in",
+      "y": 90
+    },
+    "attachment=down,facing=west,input=true,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_in_out",
+      "y": 90
+    },
+    "attachment=east,facing=east,input=false,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_sideways",
+      "x": 90,
+      "y": 270
+    },
+    "attachment=east,facing=east,input=false,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_out_sideways",
+      "x": 90,
+      "y": 270
+    },
+    "attachment=east,facing=east,input=false,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_sideways",
+      "x": 90,
+      "y": 270
+    },
+    "attachment=east,facing=east,input=false,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_out_sideways",
+      "x": 90,
+      "y": 270
+    },
+    "attachment=east,facing=east,input=true,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_sideways",
+      "x": 90,
+      "y": 270
+    },
+    "attachment=east,facing=east,input=true,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_out_sideways",
+      "x": 90,
+      "y": 270
+    },
+    "attachment=east,facing=east,input=true,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_in_sideways",
+      "x": 90,
+      "y": 270
+    },
+    "attachment=east,facing=east,input=true,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_in_out_sideways",
+      "x": 90,
+      "y": 270
+    },
+    "attachment=east,facing=north,input=false,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator",
+      "x": 90,
+      "y": 270
+    },
+    "attachment=east,facing=north,input=false,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_out",
+      "x": 90,
+      "y": 270
+    },
+    "attachment=east,facing=north,input=false,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator",
+      "x": 90,
+      "y": 270
+    },
+    "attachment=east,facing=north,input=false,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_out",
+      "x": 90,
+      "y": 270
+    },
+    "attachment=east,facing=north,input=true,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_in",
+      "x": 90,
+      "y": 270
+    },
+    "attachment=east,facing=north,input=true,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_out",
+      "x": 90,
+      "y": 270
+    },
+    "attachment=east,facing=north,input=true,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_in",
+      "x": 90,
+      "y": 270
+    },
+    "attachment=east,facing=north,input=true,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_in_out",
+      "x": 90,
+      "y": 270
+    },
+    "attachment=east,facing=south,input=false,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator",
+      "x": 270,
+      "y": 90
+    },
+    "attachment=east,facing=south,input=false,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_out",
+      "x": 270,
+      "y": 90
+    },
+    "attachment=east,facing=south,input=false,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator",
+      "x": 270,
+      "y": 90
+    },
+    "attachment=east,facing=south,input=false,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_out",
+      "x": 270,
+      "y": 90
+    },
+    "attachment=east,facing=south,input=true,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_in",
+      "x": 270,
+      "y": 90
+    },
+    "attachment=east,facing=south,input=true,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_out",
+      "x": 270,
+      "y": 90
+    },
+    "attachment=east,facing=south,input=true,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_in",
+      "x": 270,
+      "y": 90
+    },
+    "attachment=east,facing=south,input=true,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_in_out",
+      "x": 270,
+      "y": 90
+    },
+    "attachment=east,facing=west,input=false,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_sideways",
+      "x": 270,
+      "y": 90
+    },
+    "attachment=east,facing=west,input=false,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_out_sideways",
+      "x": 270,
+      "y": 90
+    },
+    "attachment=east,facing=west,input=false,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_sideways",
+      "x": 270,
+      "y": 90
+    },
+    "attachment=east,facing=west,input=false,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_out_sideways",
+      "x": 270,
+      "y": 90
+    },
+    "attachment=east,facing=west,input=true,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_sideways",
+      "x": 270,
+      "y": 90
+    },
+    "attachment=east,facing=west,input=true,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_out_sideways",
+      "x": 270,
+      "y": 90
+    },
+    "attachment=east,facing=west,input=true,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_in_sideways",
+      "x": 270,
+      "y": 90
+    },
+    "attachment=east,facing=west,input=true,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_in_out_sideways",
+      "x": 270,
+      "y": 90
+    },
+    "attachment=north,facing=east,input=false,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_sideways",
+      "x": 90,
+      "y": 180
+    },
+    "attachment=north,facing=east,input=false,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_out_sideways",
+      "x": 90,
+      "y": 180
+    },
+    "attachment=north,facing=east,input=false,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_sideways",
+      "x": 90,
+      "y": 180
+    },
+    "attachment=north,facing=east,input=false,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_out_sideways",
+      "x": 90,
+      "y": 180
+    },
+    "attachment=north,facing=east,input=true,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_sideways",
+      "x": 90,
+      "y": 180
+    },
+    "attachment=north,facing=east,input=true,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_out_sideways",
+      "x": 90,
+      "y": 180
+    },
+    "attachment=north,facing=east,input=true,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_in_sideways",
+      "x": 90,
+      "y": 180
+    },
+    "attachment=north,facing=east,input=true,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_in_out_sideways",
+      "x": 90,
+      "y": 180
+    },
+    "attachment=north,facing=north,input=false,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator",
+      "x": 90,
+      "y": 180
+    },
+    "attachment=north,facing=north,input=false,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_out",
+      "x": 90,
+      "y": 180
+    },
+    "attachment=north,facing=north,input=false,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator",
+      "x": 90,
+      "y": 180
+    },
+    "attachment=north,facing=north,input=false,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_out",
+      "x": 90,
+      "y": 180
+    },
+    "attachment=north,facing=north,input=true,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_in",
+      "x": 90,
+      "y": 180
+    },
+    "attachment=north,facing=north,input=true,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_out",
+      "x": 90,
+      "y": 180
+    },
+    "attachment=north,facing=north,input=true,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_in",
+      "x": 90,
+      "y": 180
+    },
+    "attachment=north,facing=north,input=true,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_in_out",
+      "x": 90,
+      "y": 180
+    },
+    "attachment=north,facing=south,input=false,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator",
+      "x": 270
+    },
+    "attachment=north,facing=south,input=false,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_out",
+      "x": 270
+    },
+    "attachment=north,facing=south,input=false,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator",
+      "x": 270
+    },
+    "attachment=north,facing=south,input=false,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_out",
+      "x": 270
+    },
+    "attachment=north,facing=south,input=true,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_in",
+      "x": 270
+    },
+    "attachment=north,facing=south,input=true,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_out",
+      "x": 270
+    },
+    "attachment=north,facing=south,input=true,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_in",
+      "x": 270
+    },
+    "attachment=north,facing=south,input=true,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_in_out",
+      "x": 270
+    },
+    "attachment=north,facing=west,input=false,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_sideways",
+      "x": 270
+    },
+    "attachment=north,facing=west,input=false,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_out_sideways",
+      "x": 270
+    },
+    "attachment=north,facing=west,input=false,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_sideways",
+      "x": 270
+    },
+    "attachment=north,facing=west,input=false,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_out_sideways",
+      "x": 270
+    },
+    "attachment=north,facing=west,input=true,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_sideways",
+      "x": 270
+    },
+    "attachment=north,facing=west,input=true,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_out_sideways",
+      "x": 270
+    },
+    "attachment=north,facing=west,input=true,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_in_sideways",
+      "x": 270
+    },
+    "attachment=north,facing=west,input=true,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_in_out_sideways",
+      "x": 270
+    },
+    "attachment=south,facing=east,input=false,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_sideways",
+      "x": 90
+    },
+    "attachment=south,facing=east,input=false,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_out_sideways",
+      "x": 90
+    },
+    "attachment=south,facing=east,input=false,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_sideways",
+      "x": 90
+    },
+    "attachment=south,facing=east,input=false,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_out_sideways",
+      "x": 90
+    },
+    "attachment=south,facing=east,input=true,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_sideways",
+      "x": 90
+    },
+    "attachment=south,facing=east,input=true,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_out_sideways",
+      "x": 90
+    },
+    "attachment=south,facing=east,input=true,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_in_sideways",
+      "x": 90
+    },
+    "attachment=south,facing=east,input=true,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_in_out_sideways",
+      "x": 90
+    },
+    "attachment=south,facing=north,input=false,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator",
+      "x": 90
+    },
+    "attachment=south,facing=north,input=false,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_out",
+      "x": 90
+    },
+    "attachment=south,facing=north,input=false,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator",
+      "x": 90
+    },
+    "attachment=south,facing=north,input=false,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_out",
+      "x": 90
+    },
+    "attachment=south,facing=north,input=true,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_in",
+      "x": 90
+    },
+    "attachment=south,facing=north,input=true,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_out",
+      "x": 90
+    },
+    "attachment=south,facing=north,input=true,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_in",
+      "x": 90
+    },
+    "attachment=south,facing=north,input=true,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_in_out",
+      "x": 90
+    },
+    "attachment=south,facing=south,input=false,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator",
+      "x": 270,
+      "y": 180
+    },
+    "attachment=south,facing=south,input=false,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_out",
+      "x": 270,
+      "y": 180
+    },
+    "attachment=south,facing=south,input=false,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator",
+      "x": 270,
+      "y": 180
+    },
+    "attachment=south,facing=south,input=false,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_out",
+      "x": 270,
+      "y": 180
+    },
+    "attachment=south,facing=south,input=true,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_in",
+      "x": 270,
+      "y": 180
+    },
+    "attachment=south,facing=south,input=true,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_out",
+      "x": 270,
+      "y": 180
+    },
+    "attachment=south,facing=south,input=true,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_in",
+      "x": 270,
+      "y": 180
+    },
+    "attachment=south,facing=south,input=true,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_in_out",
+      "x": 270,
+      "y": 180
+    },
+    "attachment=south,facing=west,input=false,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_sideways",
+      "x": 270,
+      "y": 180
+    },
+    "attachment=south,facing=west,input=false,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_out_sideways",
+      "x": 270,
+      "y": 180
+    },
+    "attachment=south,facing=west,input=false,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_sideways",
+      "x": 270,
+      "y": 180
+    },
+    "attachment=south,facing=west,input=false,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_out_sideways",
+      "x": 270,
+      "y": 180
+    },
+    "attachment=south,facing=west,input=true,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_sideways",
+      "x": 270,
+      "y": 180
+    },
+    "attachment=south,facing=west,input=true,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_out_sideways",
+      "x": 270,
+      "y": 180
+    },
+    "attachment=south,facing=west,input=true,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_in_sideways",
+      "x": 270,
+      "y": 180
+    },
+    "attachment=south,facing=west,input=true,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_in_out_sideways",
+      "x": 270,
+      "y": 180
+    },
+    "attachment=up,facing=east,input=false,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator",
+      "x": 180,
+      "y": 90
+    },
+    "attachment=up,facing=east,input=false,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_out",
+      "x": 180,
+      "y": 90
+    },
+    "attachment=up,facing=east,input=false,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator",
+      "x": 180,
+      "y": 90
+    },
+    "attachment=up,facing=east,input=false,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_out",
+      "x": 180,
+      "y": 90
+    },
+    "attachment=up,facing=east,input=true,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_in",
+      "x": 180,
+      "y": 90
+    },
+    "attachment=up,facing=east,input=true,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_out",
+      "x": 180,
+      "y": 90
+    },
+    "attachment=up,facing=east,input=true,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_in",
+      "x": 180,
+      "y": 90
+    },
+    "attachment=up,facing=east,input=true,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_in_out",
+      "x": 180,
+      "y": 90
+    },
+    "attachment=up,facing=north,input=false,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator",
+      "x": 180,
+      "y": 180
+    },
+    "attachment=up,facing=north,input=false,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_out",
+      "x": 180,
+      "y": 180
+    },
+    "attachment=up,facing=north,input=false,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator",
+      "x": 180,
+      "y": 180
+    },
+    "attachment=up,facing=north,input=false,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_out",
+      "x": 180,
+      "y": 180
+    },
+    "attachment=up,facing=north,input=true,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_in",
+      "x": 180,
+      "y": 180
+    },
+    "attachment=up,facing=north,input=true,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_out",
+      "x": 180,
+      "y": 180
+    },
+    "attachment=up,facing=north,input=true,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_in",
+      "x": 180,
+      "y": 180
+    },
+    "attachment=up,facing=north,input=true,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_in_out",
+      "x": 180,
+      "y": 180
+    },
+    "attachment=up,facing=south,input=false,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator",
+      "x": 180
+    },
+    "attachment=up,facing=south,input=false,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_out",
+      "x": 180
+    },
+    "attachment=up,facing=south,input=false,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator",
+      "x": 180
+    },
+    "attachment=up,facing=south,input=false,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_out",
+      "x": 180
+    },
+    "attachment=up,facing=south,input=true,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_in",
+      "x": 180
+    },
+    "attachment=up,facing=south,input=true,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_out",
+      "x": 180
+    },
+    "attachment=up,facing=south,input=true,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_in",
+      "x": 180
+    },
+    "attachment=up,facing=south,input=true,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_in_out",
+      "x": 180
+    },
+    "attachment=up,facing=west,input=false,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator",
+      "x": 180,
+      "y": 270
+    },
+    "attachment=up,facing=west,input=false,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_out",
+      "x": 180,
+      "y": 270
+    },
+    "attachment=up,facing=west,input=false,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator",
+      "x": 180,
+      "y": 270
+    },
+    "attachment=up,facing=west,input=false,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_out",
+      "x": 180,
+      "y": 270
+    },
+    "attachment=up,facing=west,input=true,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_in",
+      "x": 180,
+      "y": 270
+    },
+    "attachment=up,facing=west,input=true,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_out",
+      "x": 180,
+      "y": 270
+    },
+    "attachment=up,facing=west,input=true,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_in",
+      "x": 180,
+      "y": 270
+    },
+    "attachment=up,facing=west,input=true,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_in_out",
+      "x": 180,
+      "y": 270
+    },
+    "attachment=west,facing=east,input=false,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_sideways",
+      "x": 90,
+      "y": 90
+    },
+    "attachment=west,facing=east,input=false,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_out_sideways",
+      "x": 90,
+      "y": 90
+    },
+    "attachment=west,facing=east,input=false,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_sideways",
+      "x": 90,
+      "y": 90
+    },
+    "attachment=west,facing=east,input=false,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_out_sideways",
+      "x": 90,
+      "y": 90
+    },
+    "attachment=west,facing=east,input=true,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_sideways",
+      "x": 90,
+      "y": 90
+    },
+    "attachment=west,facing=east,input=true,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_out_sideways",
+      "x": 90,
+      "y": 90
+    },
+    "attachment=west,facing=east,input=true,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_in_sideways",
+      "x": 90,
+      "y": 90
+    },
+    "attachment=west,facing=east,input=true,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_in_out_sideways",
+      "x": 90,
+      "y": 90
+    },
+    "attachment=west,facing=north,input=false,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator",
+      "x": 90,
+      "y": 90
+    },
+    "attachment=west,facing=north,input=false,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_out",
+      "x": 90,
+      "y": 90
+    },
+    "attachment=west,facing=north,input=false,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator",
+      "x": 90,
+      "y": 90
+    },
+    "attachment=west,facing=north,input=false,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_out",
+      "x": 90,
+      "y": 90
+    },
+    "attachment=west,facing=north,input=true,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_in",
+      "x": 90,
+      "y": 90
+    },
+    "attachment=west,facing=north,input=true,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_out",
+      "x": 90,
+      "y": 90
+    },
+    "attachment=west,facing=north,input=true,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_in",
+      "x": 90,
+      "y": 90
+    },
+    "attachment=west,facing=north,input=true,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_in_out",
+      "x": 90,
+      "y": 90
+    },
+    "attachment=west,facing=south,input=false,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator",
+      "x": 270,
+      "y": 270
+    },
+    "attachment=west,facing=south,input=false,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_out",
+      "x": 270,
+      "y": 270
+    },
+    "attachment=west,facing=south,input=false,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator",
+      "x": 270,
+      "y": 270
+    },
+    "attachment=west,facing=south,input=false,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_out",
+      "x": 270,
+      "y": 270
+    },
+    "attachment=west,facing=south,input=true,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_in",
+      "x": 270,
+      "y": 270
+    },
+    "attachment=west,facing=south,input=true,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_out",
+      "x": 270,
+      "y": 270
+    },
+    "attachment=west,facing=south,input=true,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_in",
+      "x": 270,
+      "y": 270
+    },
+    "attachment=west,facing=south,input=true,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_in_out",
+      "x": 270,
+      "y": 270
+    },
+    "attachment=west,facing=west,input=false,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_sideways",
+      "x": 270,
+      "y": 270
+    },
+    "attachment=west,facing=west,input=false,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_out_sideways",
+      "x": 270,
+      "y": 270
+    },
+    "attachment=west,facing=west,input=false,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_sideways",
+      "x": 270,
+      "y": 270
+    },
+    "attachment=west,facing=west,input=false,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_out_sideways",
+      "x": 270,
+      "y": 270
+    },
+    "attachment=west,facing=west,input=true,mode=hysteresis,powered=false": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_sideways",
+      "x": 270,
+      "y": 270
+    },
+    "attachment=west,facing=west,input=true,mode=hysteresis,powered=true": {
+      "model": "anvilcraft:block/hysteresis_comparator_in_out_sideways",
+      "x": 270,
+      "y": 270
+    },
+    "attachment=west,facing=west,input=true,mode=window,powered=false": {
+      "model": "anvilcraft:block/window_comparator_in_sideways",
+      "x": 270,
+      "y": 270
+    },
+    "attachment=west,facing=west,input=true,mode=window,powered=true": {
+      "model": "anvilcraft:block/window_comparator_in_out_sideways",
+      "x": 270,
+      "y": 270
+    }
+  }
+}
