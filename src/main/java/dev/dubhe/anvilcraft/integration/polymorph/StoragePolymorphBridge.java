@@ -39,7 +39,6 @@ public final class StoragePolymorphBridge {
         return StoragePolymorphBridge.resolve() != null;
     }
 
-
     public static void suppressWidget(Class<?> screenClass) {
         if (StoragePolymorphBridge.widgetSuppressed) {
             return;
@@ -146,7 +145,6 @@ public final class StoragePolymorphBridge {
             return null;
         }
     }
-
 
     public static boolean select(Level level, Player player, Identifier recipeId) {
         Api api = StoragePolymorphBridge.resolve();
