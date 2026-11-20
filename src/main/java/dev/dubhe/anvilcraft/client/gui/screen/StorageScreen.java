@@ -312,8 +312,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     protected void init() {
-        // 必须在 Polymorph 为本界面创建它自己的切换小部件之前注册空实现，
-        // 否则它会盖在左上角并和界面自己的候选格抢同一份选择
+        // Polymorph 会为本界面挂一个和候选格抢选择的小部件，必须赶在它创建之前屏蔽
         StoragePolymorphBridge.suppressWidget(StorageScreen.class);
         this.draggingStorageSlider = false;
         if (this.tracksOpenState) {
@@ -950,11 +949,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         if (choices.isEmpty()) {
             return;
         }
-        // 只有一个候选时不存在冲突，无需向 Polymorph 询问
         RecipeHolder<?> selected = choices.size() > 1
             ? StoragePolymorphBridge.selectedRecipe(this.player)
             : null;
-        // 客户端读不到 Polymorph 的选择时（如选择是在工作台里做的），用服务端下发的 id
+        // 本机读不到时用服务端下发的 id，例如选择是在工作台里做的
         Identifier selectedId = selected != null
             ? selected.id().identifier()
             : this.syncedSelectedRecipe;
@@ -962,7 +960,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         if (selectedId == null) {
             index = 0;
         } else {
-            // 26.1 的 ResourceKey 依赖 interning、没有重写 equals，必须退到 Identifier 比较
+            // ResourceKey 没有重写 equals，只能比较 Identifier
             for (int i = 0; i < choices.size(); i++) {
                 if (choices.get(i).recipe().id().identifier().equals(selectedId)) {
                     index = i;
