@@ -27,6 +27,7 @@ import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.integration.StorageJeiBridge;
 import dev.dubhe.anvilcraft.integration.StorageRecipeTransferPlan;
+import dev.dubhe.anvilcraft.integration.polymorph.StoragePolymorphBridge;
 import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import dev.dubhe.anvilcraft.rpc.StorageInput;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
@@ -81,6 +82,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.neoforged.neoforge.client.ItemDecoratorHandler;
@@ -108,6 +111,11 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private CraftingStorage crafting = CraftingStorage.EMPTY;
     private List<ItemStack> stonecutterRecipes = List.of();
     private ItemStack craftingResult = ItemStack.EMPTY;
+    private List<CraftingChoice> craftingChoices = List.of();
+    private int craftingSelected;
+    private @Nullable Identifier syncedSelectedRecipe;
+    private List<ItemStack> recipeGridIcons = List.of();
+    private boolean recipeGridStonecutter;
     private boolean craftingMode;
     private boolean craftingLoaded;
     private boolean craftingAvailable;
@@ -304,6 +312,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     protected void init() {
+        // 必须在 Polymorph 为本界面创建它自己的切换小部件之前注册空实现，
+        // 否则它会盖在左上角并和界面自己的候选格抢同一份选择
+        StoragePolymorphBridge.suppressWidget(StorageScreen.class);
         this.draggingStorageSlider = false;
         if (this.tracksOpenState) {
             StorageClientStub.setOpen(this.sourcePos, true);
@@ -605,7 +616,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             Map::entry).thenAcceptAsync(response -> {
                 if (request != this.craftingRequest) return;
                 this.craftingAvailable = response.getKey();
-                var data = response.getValue().withLastOpened(this.craftingAvailable && response.getValue().lastOpened());
+                var sync = response.getValue();
+                this.syncedSelectedRecipe = sync.selectedRecipe().orElse(null);
+                var data = sync.crafting().withLastOpened(this.craftingAvailable && sync.crafting().lastOpened());
                 this.applyCrafting(data, request);
                 if (this.recipeTransferCompleted) {
                     this.showCraftingAfterTransfer();
@@ -875,9 +888,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     private CompletableFuture<Void> refreshCrafting() {
         int request = ++this.craftingRequest;
-        return StorageClientStub.craftingGet(this.sourcePos).thenComposeAsync(data -> {
+        return StorageClientStub.craftingGet(this.sourcePos).thenComposeAsync(sync -> {
             if (request != this.craftingRequest) return CompletableFuture.completedFuture(null);
-            return this.applyCrafting(data, request);
+            this.syncedSelectedRecipe = sync.selectedRecipe().orElse(null);
+            return this.applyCrafting(sync.crafting(), request);
         }, this.screenExecutor);
     }
 
@@ -887,21 +901,15 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.craftingLoaded = true;
         this.craftingAutoFill.setCurrent(data.autoFill() ? 1 : 0);
         this.craftingToStorage.setCurrent(data.toStorage() ? 1 : 0);
-        this.craftingResult = ItemStack.EMPTY;
-        if (RecipesRecord.CLIENTSIDE != null && this.minecraft.level != null) {
-            var input = CraftingInput.of(3, 3, data.craftingInput());
-            if (!input.isEmpty()) {
-                this.craftingResult = RecipesRecord.CLIENTSIDE.byType(RecipeType.CRAFTING).stream()
-                    .filter(recipe -> recipe.value().matches(input, this.minecraft.level))
-                    .findFirst().map(recipe -> recipe.value().assemble(input)).orElse(ItemStack.EMPTY);
-            }
-        }
+        this.rebuildCraftingChoices();
         if (data.stonecutterInput().isEmpty()) {
             this.stonecutterRecipes = List.of();
             this.recipeHead = 0;
+            this.refreshRecipeGrid();
             return CompletableFuture.completedFuture(null);
         }
         if (ItemStack.isSameItemSameComponents(oldInput, data.stonecutterInput()) && !this.stonecutterRecipes.isEmpty()) {
+            this.refreshRecipeGrid();
             return CompletableFuture.completedFuture(null);
         }
         this.stonecutterRecipes = List.of();
@@ -912,13 +920,84 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     .filter(recipe -> recipe.value().matches(input, this.player.level()))
                     .map(recipe -> recipe.value().assemble(input)).toList();
             }
+            this.refreshRecipeGrid();
             return CompletableFuture.completedFuture(null);
         }
         return StorageClientStub.craftingStonecutterRecipes(this.sourcePos).thenAcceptAsync(recipes -> {
             if (request != this.craftingRequest) return;
             this.stonecutterRecipes = recipes;
             this.recipeHead = Math.min(this.recipeHead, Math.max(0, (recipes.size() + 2) / 3 - 2) * 3);
+            this.refreshRecipeGrid();
         }, this.screenExecutor);
+    }
+
+    private void rebuildCraftingChoices() {
+        this.craftingChoices = List.of();
+        this.craftingSelected = -1;
+        this.craftingResult = ItemStack.EMPTY;
+        if (RecipesRecord.CLIENTSIDE == null || this.minecraft.level == null || this.player == null) {
+            return;
+        }
+        var input = CraftingInput.of(3, 3, this.crafting.craftingInput());
+        if (input.isEmpty()) {
+            return;
+        }
+        List<CraftingChoice> choices = RecipesRecord.CLIENTSIDE
+            .getRecipesFor(RecipeType.CRAFTING, input, this.minecraft.level)
+            .map(holder -> new CraftingChoice(holder, holder.value().assemble(input)))
+            .filter(choice -> !choice.result().isEmpty())
+            .toList();
+        if (choices.isEmpty()) {
+            return;
+        }
+        // 只有一个候选时不存在冲突，无需向 Polymorph 询问
+        RecipeHolder<?> selected = choices.size() > 1
+            ? StoragePolymorphBridge.selectedRecipe(this.player)
+            : null;
+        // 客户端读不到 Polymorph 的选择时（如选择是在工作台里做的），用服务端下发的 id
+        Identifier selectedId = selected != null
+            ? selected.id().identifier()
+            : this.syncedSelectedRecipe;
+        int index = -1;
+        if (selectedId == null) {
+            index = 0;
+        } else {
+            // 26.1 的 ResourceKey 依赖 interning、没有重写 equals，必须退到 Identifier 比较
+            for (int i = 0; i < choices.size(); i++) {
+                if (choices.get(i).recipe().id().identifier().equals(selectedId)) {
+                    index = i;
+                    break;
+                }
+            }
+        }
+        this.craftingChoices = List.copyOf(choices);
+        this.craftingSelected = index;
+        if (index >= 0) {
+            this.craftingResult = choices.get(index).result();
+        } else if (selected != null && selected.value() instanceof CraftingRecipe recipe) {
+            this.craftingResult = recipe.assemble(input);
+        } else {
+            this.craftingResult = choices.getFirst().result();
+        }
+    }
+
+    private void refreshRecipeGrid() {
+        boolean stonecutter = !this.stonecutterRecipes.isEmpty();
+        List<ItemStack> icons;
+        if (stonecutter) {
+            icons = this.stonecutterRecipes;
+        } else if (this.craftingChoices.size() > 1 && StoragePolymorphBridge.isLoaded()) {
+            icons = this.craftingChoices.stream().map(CraftingChoice::result).toList();
+        } else {
+            icons = List.of();
+        }
+        this.recipeGridStonecutter = stonecutter;
+        this.recipeGridIcons = icons;
+        this.recipeHead = Math.min(this.recipeHead, Math.max(0, (icons.size() + 2) / 3 - 2) * 3);
+    }
+
+    private int recipeGridSelected() {
+        return this.recipeGridStonecutter ? this.crafting.stonecutterSelected() : this.craftingSelected;
     }
 
     private void takeCraftingResult(boolean stonecutter) {
@@ -1036,7 +1115,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     private void scrollCraftingRecipes(double mouseY) {
-        int rows = Math.max(0, (this.stonecutterRecipes.size() + 2) / 3 - 2);
+        int rows = Math.max(0, (this.recipeGridIcons.size() + 2) / 3 - 2);
         this.recipeHead = Math.round(Mth.clamp((float) (mouseY - this.top - 126) / 24, 0, 1) * rows) * 3;
     }
 
@@ -1047,7 +1126,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             if (MathUtil.isInRange(event.x(), event.y(), this.sx(65), this.top + 200, this.sx(79), this.top + 215)
                 && StorageJeiBridge.openRecipes(false)) return true;
         }
-        if (event.button() == 0 && this.stonecutterRecipes.size() > 6
+        if (event.button() == 0 && this.recipeGridIcons.size() > 6
             && MathUtil.isInRange(event.x(), event.y(), this.sx(95), this.top + 120, this.sx(99), this.top + 156)) {
             this.recipeDragging = true;
             this.scrollCraftingRecipes(event.y());
@@ -1094,20 +1173,40 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             }
             return true;
         }
-        for (int i = 0; i < 6 && i + this.recipeHead < this.stonecutterRecipes.size(); i++) {
+        for (int i = 0; i < 6 && i + this.recipeHead < this.recipeGridIcons.size(); i++) {
             int x = this.sx(39) + i % 3 * 18;
             int y = this.top + 120 + i / 3 * 18;
             if (MathUtil.isInRange(event.x(), event.y(), x, y, x + 18, y + 18)) {
                 if (!this.interactionPending && event.button() == 0) {
-                    int selected = this.recipeHead + i;
-                    this.crafting = this.crafting.withStonecutterSelected(selected);
-                    StorageClientStub.craftingSelect(this.sourcePos, selected);
+                    if (this.recipeGridStonecutter) {
+                        int selected = this.recipeHead + i;
+                        this.crafting = this.crafting.withStonecutterSelected(selected);
+                        StorageClientStub.craftingSelect(this.sourcePos, selected);
+                    } else if (!this.selectCraftingChoice(this.recipeHead + i)) {
+                        return false;
+                    }
                     this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_STONECUTTER_SELECT_RECIPE, 1));
                 }
                 return true;
             }
         }
         return false;
+    }
+
+    private boolean selectCraftingChoice(int index) {
+        if (index < 0 || index >= this.craftingChoices.size()) {
+            return false;
+        }
+        if (!StoragePolymorphBridge.select(
+            this.minecraft.level,
+            this.player,
+            this.craftingChoices.get(index).recipe().id().identifier()
+        )) {
+            return false;
+        }
+        this.rebuildCraftingChoices();
+        this.refreshRecipeGrid();
+        return true;
     }
 
     private void extractCraftingPanel(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
@@ -1121,19 +1220,19 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             ? this.stonecutterRecipes.get(selected) : ItemStack.EMPTY;
         this.extractCraftingSlot(graphics, stoneResult, 83, 162, -1, mouseX, mouseY, partialTick);
         this.extractCraftingSlot(graphics, this.craftingResult, 83, 198, -1, mouseX, mouseY, partialTick);
-        for (int i = 0; i < 6 && i + this.recipeHead < this.stonecutterRecipes.size(); i++) {
+        for (int i = 0; i < 6 && i + this.recipeHead < this.recipeGridIcons.size(); i++) {
             int x = this.sx(39) + i % 3 * 18;
             int y = this.top + 120 + i / 3 * 18;
-            boolean chosen = i + this.recipeHead == selected;
+            boolean chosen = i + this.recipeHead == this.recipeGridSelected();
             boolean hover = MathUtil.isInRange(mouseX, mouseY, x, y, x + 18, y + 18);
             graphics.blit(RenderPipelines.GUI_TEXTURED, SharedTextures.SWITCH_TABLE_BUTTON, x, y,
                 0, chosen ? 18 : hover ? 36 : 0, 18, 18, 18, 54);
-            ItemStack item = this.stonecutterRecipes.get(i + this.recipeHead);
+            ItemStack item = this.recipeGridIcons.get(i + this.recipeHead);
             graphics.item(item, x + 1, y + (chosen ? 1 : 0));
             if (hover && this.carried.isEmpty()) graphics.setTooltipForNextFrame(this.font, item, mouseX, mouseY);
         }
-        if (this.stonecutterRecipes.size() > 6) {
-            int rows = (this.stonecutterRecipes.size() + 2) / 3 - 2;
+        if (this.recipeGridIcons.size() > 6) {
+            int rows = (this.recipeGridIcons.size() + 2) / 3 - 2;
             int y = this.top + 120 + Math.round(24F * (this.recipeHead / 3) / rows);
             graphics.blit(RenderPipelines.GUI_TEXTURED, SharedTextures.SWITCH_TABLE_SLIDER, this.sx(95), y, 0, 0, 4, 12, 8, 12);
         }
@@ -2138,7 +2237,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
         if (this.takePrediction != null) return true;
         if (this.craftingMode && MathUtil.isInRange(mouseX, mouseY, this.sx(39), this.top + 120, this.sx(101), this.top + 156)) {
-            int rows = Math.max(0, (this.stonecutterRecipes.size() + 2) / 3 - 2);
+            int rows = Math.max(0, (this.recipeGridIcons.size() + 2) / 3 - 2);
             this.recipeHead = Mth.clamp(this.recipeHead / 3 - (int) Math.signum(scrollY), 0, rows) * 3;
             return true;
         }
@@ -2471,11 +2570,11 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     : selected >= 0 && selected < this.stonecutterRecipes.size() ? this.stonecutterRecipes.get(selected) : ItemStack.EMPTY;
                 return stack.isEmpty() ? null : new ItemArea(stack, this.sx(83), this.top + (result == 0 ? 162 : 198));
             }
-            for (int i = 0; i < 6 && i + this.recipeHead < this.stonecutterRecipes.size(); i++) {
+            for (int i = 0; i < 6 && i + this.recipeHead < this.recipeGridIcons.size(); i++) {
                 int x = this.sx(39) + i % 3 * 18;
                 int y = this.top + 120 + i / 3 * 18;
                 if (MathUtil.isInRange(mouseX, mouseY, x, y, x + 18, y + 18)) {
-                    ItemStack stack = this.stonecutterRecipes.get(i + this.recipeHead);
+                    ItemStack stack = this.recipeGridIcons.get(i + this.recipeHead);
                     return stack.isEmpty() ? null : new ItemArea(stack, x + 1, y);
                 }
             }
@@ -2512,6 +2611,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     private record ItemArea(ItemStack stack, int x, int y) {
+    }
+
+    /** ② 9 宫格匹配到的一个合成候选配方与其产物。 */
+    private record CraftingChoice(RecipeHolder<CraftingRecipe> recipe, ItemStack result) {
     }
 
     private @Nullable Integer getStorageSlot(double mouseX, double mouseY) {
