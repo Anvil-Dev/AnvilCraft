@@ -29,6 +29,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.storage.ModStorageTypes;
+import dev.dubhe.anvilcraft.integration.polymorph.StoragePolymorphBridge;
 import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.item.TerminalItem;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
@@ -1609,12 +1610,21 @@ public final class StorageServerStub {
         // Ctrl+Q 的次数在首轮读取产物后按「约一组」折算；Q 固定一次
         int limit = stack ? Integer.MAX_VALUE : 1;
         CraftingStorage template = CraftingStorage.EMPTY;
+        RecipeHolder<CraftingRecipe> locked = null;
+        boolean resolved = false;
         while (performed < limit) {
             CraftingStorage crafting = target.read();
             if (template == CraftingStorage.EMPTY) {
                 template = crafting;
             }
-            ItemStack result = StorageServerStub.assembleCraftingResult(player, crafting, stonecutter);
+            if (!resolved) {
+                resolved = true;
+                locked = stonecutter ? null : StorageServerStub.selectedCraftingRecipe(
+                    player,
+                    CraftingInput.of(3, 3, crafting.craftingInput())
+                );
+            }
+            ItemStack result = StorageServerStub.assembleCraftingResult(player, crafting, stonecutter, locked);
             if (result == null || result.isEmpty()) {
                 break;
             }
@@ -1627,7 +1637,9 @@ public final class StorageServerStub {
             player.drop(result.copy(), true);
             any = true;
             performed++;
-            if (!StorageServerStub.consumeCraftingInput(target, crafting, stonecutter, result, null)) {
+            if (!StorageServerStub.consumeCraftingInput(
+                target, crafting, stonecutter, result, locked == null ? null : locked.id()
+            )) {
                 // 不消耗型配方：已丢出一份，继续循环只会无限产出相同产物
                 break;
             }
@@ -1736,7 +1748,12 @@ public final class StorageServerStub {
                         player.containerMenu.broadcastChanges();
                         return new TakeAllResult(player.containerMenu.getCarried(), any, true, refilledAccum);
                     }
-                    locked = recipes.getFirst();
+                    locked = recipes.size() > 1
+                        ? StorageServerStub.selectedCraftingRecipe(player, input)
+                        : null;
+                    if (locked == null) {
+                        locked = recipes.getFirst();
+                    }
                     lockedId = locked.id();
                     // 自动填充时本次点击预算 = 约一组产物 × 倍数，产物去背包或去存储均适用：
                     // 按产物堆叠上限折算，镐子等不可堆叠物品只合成 1 个，16 堆叠物品按 16 折算。
@@ -1931,12 +1948,47 @@ public final class StorageServerStub {
         return recipes.get(selected);
     }
 
-    /** 计算③/④ 当前配方产物（不消耗输入）；配方无效或产物为空返回 null。 */
+    /**
+     * 按 Polymorph 中玩家的选择解析 ② 的合成配方；未安装 Polymorph 或玩家尚未选择时返回 null。
+     *
+     * <p>服务端所有「未显式指定配方」的解析都走这里：预览、连续合成、统计上报取到同一个
+     * 配方，玩家在仓储界面切换冲突配方的结果才会真正生效。</p>
+     */
+    @Nullable
+    private static RecipeHolder<CraftingRecipe> selectedCraftingRecipe(
+        ServerPlayer player,
+        CraftingInput input
+    ) {
+        if (input.isEmpty()) {
+            return null;
+        }
+        RecipeHolder<?> selected = StoragePolymorphBridge.playerRecipe(
+            player,
+            player.containerMenu,
+            input,
+            player.level()
+        );
+        if (selected != null && selected.value() instanceof CraftingRecipe recipe) {
+            return new RecipeHolder<>(selected.id(), recipe);
+        }
+        return null;
+    }
+
     @Nullable
     private static ItemStack assembleCraftingResult(
         ServerPlayer player,
         CraftingStorage crafting,
         boolean stonecutter
+    ) {
+        return StorageServerStub.assembleCraftingResult(player, crafting, stonecutter, null);
+    }
+
+    @Nullable
+    private static ItemStack assembleCraftingResult(
+        ServerPlayer player,
+        CraftingStorage crafting,
+        boolean stonecutter,
+        @Nullable RecipeHolder<CraftingRecipe> locked
     ) {
         if (stonecutter) {
             RecipeHolder<StonecutterRecipe> recipe =
@@ -1950,10 +2002,20 @@ public final class StorageServerStub {
             );
         }
         CraftingInput input = CraftingInput.of(3, 3, crafting.craftingInput());
+        if (locked != null && locked.value().matches(input, player.level())) {
+            return locked.value().assemble(input, player.level().registryAccess());
+        }
         List<RecipeHolder<CraftingRecipe>> recipes = player.level().getRecipeManager()
             .getRecipesFor(RecipeType.CRAFTING, input, player.level());
         if (recipes.isEmpty()) {
             return null;
+        }
+        // 只有一个匹配配方时不存在冲突，无需向 Polymorph 询问
+        RecipeHolder<CraftingRecipe> selected = recipes.size() > 1
+            ? StorageServerStub.selectedCraftingRecipe(player, input)
+            : null;
+        if (selected != null) {
+            return selected.value().assemble(input, player.level().registryAccess());
         }
         return recipes.getFirst().value().assemble(input, player.level().registryAccess());
     }
@@ -2121,9 +2183,16 @@ public final class StorageServerStub {
             inputs = List.of(crafting.stonecutterInput().copy());
         } else {
             CraftingInput input = CraftingInput.of(3, 3, crafting.craftingInput());
-            recipe = recipeId == null ? player.level().getRecipeManager()
-                .getRecipesFor(RecipeType.CRAFTING, input, player.level()).stream().findFirst().orElse(null)
-                : StorageServerStub.findTakeAllLockedRecipe(player, recipeId);
+            if (recipeId != null) {
+                recipe = StorageServerStub.findTakeAllLockedRecipe(player, recipeId);
+            } else {
+                List<RecipeHolder<CraftingRecipe>> matches = player.level().getRecipeManager()
+                    .getRecipesFor(RecipeType.CRAFTING, input, player.level());
+                RecipeHolder<CraftingRecipe> selected = matches.size() > 1
+                    ? StorageServerStub.selectedCraftingRecipe(player, input)
+                    : null;
+                recipe = selected != null ? selected : matches.isEmpty() ? null : matches.getFirst();
+            }
             inputs = crafting.craftingInput().stream().map(ItemStack::copy).toList();
         }
         if (recipe == null) return;
@@ -2736,6 +2805,11 @@ public final class StorageServerStub {
             if (preview == null || preview.result().isEmpty()) {
                 break;
             }
+            // 首轮解析出的配方在整批合成内锁定：避免每轮都向 Polymorph 取一次选择，
+            // 也避免冲突配方在批次中途被换成别的产物
+            if (lockedId == null) {
+                lockedId = preview.recipe().id();
+            }
             ItemStack effectiveCarried = performed == 0 && toCursor && player.hasInfiniteMaterials()
                 ? request.clientCarried()
                 : player.containerMenu.getCarried();
@@ -2895,7 +2969,10 @@ public final class StorageServerStub {
         if (lockedId == null) {
             List<RecipeHolder<CraftingRecipe>> matches = player.level().getRecipeManager()
                 .getRecipesFor(RecipeType.CRAFTING, input, player.level());
-            holder = matches.isEmpty() ? null : matches.getFirst();
+            holder = matches.size() > 1 ? StorageServerStub.selectedCraftingRecipe(player, input) : null;
+            if (holder == null) {
+                holder = matches.isEmpty() ? null : matches.getFirst();
+            }
         } else {
             holder = StorageServerStub.findTakeAllLockedRecipe(player, lockedId);
             if (holder != null && !holder.value().matches(input, player.level())) {
