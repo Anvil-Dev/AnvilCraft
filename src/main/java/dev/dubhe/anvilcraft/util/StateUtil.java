@@ -1,8 +1,11 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.dubhe.anvilcraft.block.utility.redstone.MountedRedstone;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateHolder;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Property;
 
 import java.util.ArrayList;
@@ -12,6 +15,20 @@ import java.util.List;
 import java.util.Set;
 
 public class StateUtil {
+    public static List<BlockState> hammerStates(BlockState initialState, Property<?> property) {
+        if (!(initialState.getBlock() instanceof MountedRedstone)) {
+            return findPossibleStatesForProperty(initialState, property);
+        }
+        List<BlockState> choices = new ArrayList<>();
+        for (Direction attachment : MountedRedstone.ATTACHMENT.getPossibleValues()) {
+            BlockState mounted = initialState.setValue(MountedRedstone.ATTACHMENT, attachment);
+            for (Direction facing : Direction.Plane.HORIZONTAL) {
+                choices.add(mounted.setValue(BlockStateProperties.HORIZONTAL_FACING, facing));
+            }
+        }
+        return choices;
+    }
+
     public static <O, T extends StateHolder<O, T>, E extends Comparable<E>> List<T> findPossibleStatesForProperty(
         T initialState,
         Property<E> property
@@ -50,7 +67,7 @@ public class StateUtil {
     public static boolean verifyPossibleStatesForProperty(BlockState initialState, BlockState targetState) {
         Property<?> property = AnvilHammerItem.findModifyableProperty(initialState);
         if (property == null || !initialState.is(targetState.getBlock())) return false;
-        List<BlockState> stateList = StateUtil.findPossibleStatesForProperty(initialState, property);
+        List<BlockState> stateList = hammerStates(initialState, property);
         for (BlockState state : stateList) {
             if (StateUtil.equalsState(state, targetState)) {
                 return true;

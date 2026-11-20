@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block.utility.redstone;
 
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
-import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireNetworkManager;
@@ -27,32 +26,35 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RedStoneWireBlock;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.ticks.TickPriority;
 import net.neoforged.neoforge.event.EventHooks;
 import org.jspecify.annotations.Nullable;
 
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements IHammerChangeable, IHammerRemovable, IMoveableEntityBlock {
+public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements MountedRedstone, IHammerRemovable, IMoveableEntityBlock {
     private static final int END_OUTPUTTING_EVENT = 0;
     private static final int END_WAITING_EVENT = 1;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
-    protected static final VoxelShape SHAPE = Block.box(0.0, 0.0, 0.0, 16.0, 4.0, 16.0);
+    private static final Map<Direction, VoxelShape> SHAPES = Shapes.rotateAll(Block.box(0, 0, 0, 16, 16, 4));
     public static final MapCodec<PulseGeneratorBlock> CODEC = BlockBehaviour.simpleCodec(PulseGeneratorBlock::new);
 
     public PulseGeneratorBlock(Properties properties) {
@@ -60,6 +62,7 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
         this.registerDefaultState(
             this.stateDefinition.any()
                 .setValue(HorizontalDirectionalBlock.FACING, Direction.NORTH)
+                .setValue(ATTACHMENT, Direction.DOWN)
                 .setValue(PulseGeneratorBlock.POWERED, Boolean.FALSE)
         );
     }
@@ -71,7 +74,17 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return PulseGeneratorBlock.SHAPE;
+        return SHAPES.get(state.getValue(ATTACHMENT));
+    }
+
+    @Override
+    protected BlockState rotate(BlockState state, Rotation rotation) {
+        return MountedRedstone.transform(state, rotation.rotation());
+    }
+
+    @Override
+    protected BlockState mirror(BlockState state, Mirror mirror) {
+        return MountedRedstone.transform(state, mirror.rotation());
     }
 
     @Override
@@ -83,7 +96,7 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
     public boolean canConnectRedstone(BlockState state, BlockGetter level, BlockPos pos, @Nullable Direction direction) {
         if (direction == null) return false;
         if (!(state.getBlock() instanceof PulseGeneratorBlock)) return false;
-        return state.getValue(HorizontalDirectionalBlock.FACING).getAxis().equals(direction.getAxis());
+        return MountedRedstone.inputDirection(state).getAxis() == direction.getAxis();
     }
 
     @Override
@@ -93,7 +106,7 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
 
     @Override
     protected int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
-        return state.getValue(HorizontalDirectionalBlock.FACING) == direction && state.getValue(PulseGeneratorBlock.POWERED) ? 15 : 0;
+        return MountedRedstone.inputDirection(state) == direction && state.getValue(POWERED) ? 15 : 0;
     }
 
     @Override
@@ -115,13 +128,21 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(HorizontalDirectionalBlock.FACING, context.getHorizontalDirection().getOpposite());
+        return MountedRedstone.placementState(this.defaultBlockState(), context, true);
     }
 
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
         super.onPlace(state, level, pos, oldState, isMoving);
-        if (oldState.getBlock() == state.getBlock()) return;
+        if (oldState.is(this)) {
+            if (MountedRedstone.inputDirection(oldState) == MountedRedstone.inputDirection(state)) {
+                return;
+            }
+            if (oldState.getValue(POWERED)) {
+                this.notifyOutput(level, pos, MountedRedstone.inputDirection(oldState));
+                this.notifyOutput(level, pos, MountedRedstone.inputDirection(state));
+            }
+        }
         this.update(level, pos, () -> state);
     }
 
@@ -133,9 +154,14 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
             }
             super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
         }
-        Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
+        this.notifyOutput(level, pos, MountedRedstone.inputDirection(state));
+    }
+
+    private void notifyOutput(Level level, BlockPos pos, Direction facing) {
         BlockPos front = pos.relative(facing.getOpposite());
-        if (EventHooks.onNeighborNotify(level, pos, level.getBlockState(pos), EnumSet.of(facing.getOpposite()), false).isCanceled()) return;
+        if (EventHooks.onNeighborNotify(level, pos, level.getBlockState(pos), EnumSet.of(facing.getOpposite()), false).isCanceled()) {
+            return;
+        }
         level.neighborChanged(front, this, Orientation.random(level.getRandom()));
         level.updateNeighborsAtExceptFromFacing(front, this, facing, Orientation.random(level.getRandom()));
     }
@@ -150,7 +176,7 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
         BlockEntity blockentity = level.getBlockEntity(pos);
         if (!(blockentity instanceof PulseGeneratorBlockEntity generator)) return;
         BlockState state = stateGetter.get();
-        BlockPos inputPos = pos.relative(state.getValue(HorizontalDirectionalBlock.FACING));
+        BlockPos inputPos = pos.relative(MountedRedstone.inputDirection(state));
         if (level.getBlockState(inputPos).getBlock() instanceof RedstoneWireBlock
             && !RedstoneWireNetworkManager.isPowerReady(level, inputPos)) {
             return;
@@ -256,7 +282,7 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
         boolean powered = state.getValue(PulseGeneratorBlock.POWERED);
         boolean shouldPower = generator.isOutputting();
         if (powered == shouldPower) return;
-        Direction direction = state.getValue(HorizontalDirectionalBlock.FACING).getOpposite();
+        Direction direction = MountedRedstone.inputDirection(state).getOpposite();
         BlockPos neighbourPos = pos.relative(direction);
         BlockState newState = state.setValue(PulseGeneratorBlock.POWERED, shouldPower);
         level.setBlockAndUpdate(pos, newState);
@@ -288,19 +314,19 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
         if (state.getValue(PulseGeneratorBlock.POWERED)) {
-            Direction direction = state.getValue(HorizontalDirectionalBlock.FACING).getOpposite();
+            Direction direction = MountedRedstone.inputDirection(state).getOpposite();
             double d0 = (double) pos.getX() + 0.5 + (random.nextDouble() - 0.5) * 0.2;
             double d1 = (double) pos.getY() + 0.5 + (random.nextDouble() - 0.5) * 0.2;
-            double d2 = (double) pos.getZ() + 0.6 + (random.nextDouble() - 0.5) * 0.2;
+            double d2 = (double) pos.getZ() + 0.5 + (random.nextDouble() - 0.5) * 0.2;
             double d3 = 0.375 + (random.nextDouble() - 0.5) * 0.2;
             double d4 = direction.getStepX() * d3;
             double d5 = direction.getStepZ() * d3;
-            level.addParticle(DustParticleOptions.REDSTONE, d0 + d4, d1, d2 + d5, 0.0, 0.0, 0.0);
+            level.addParticle(DustParticleOptions.REDSTONE, d0 + d4, d1 + direction.getStepY() * d3, d2 + d5, 0, 0, 0);
         }
     }
 
     public static int getInputSignal(Level level, BlockPos pos, BlockState state) {
-        Direction direction = state.getValue(HorizontalDirectionalBlock.FACING);
+        Direction direction = MountedRedstone.inputDirection(state);
         BlockPos blockpos = pos.relative(direction);
         int i = level.getSignal(blockpos, direction);
         if (i >= 15) {
@@ -363,17 +389,12 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(HorizontalDirectionalBlock.FACING, PulseGeneratorBlock.POWERED);
+        builder.add(FACING, ATTACHMENT, POWERED);
     }
 
     @Override
     public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
         return level.setBlockAndUpdate(blockPos, level.getBlockState(blockPos).cycle(HorizontalDirectionalBlock.FACING));
-    }
-
-    @Override
-    public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
-        return HorizontalDirectionalBlock.FACING;
     }
 
     @Override
@@ -389,6 +410,7 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
             }
         }
         level.setBlock(pos, state.setValue(PulseGeneratorBlock.POWERED, be.isOutputting()), 3);
+        this.notifyOutput(level, pos, MountedRedstone.inputDirection(state));
 
         this.update(level, pos, () -> state);
 

@@ -86,7 +86,7 @@ public class ClientBlockEventListener {
             event.getPos(),
             hand,
             property,
-            () -> StateUtil.findPossibleStatesForProperty(targetBlockState, property),
+            () -> StateUtil.hammerStates(targetBlockState, property),
             hitVec
         );
     }

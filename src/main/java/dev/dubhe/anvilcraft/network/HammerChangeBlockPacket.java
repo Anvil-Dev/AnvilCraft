@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.api.event.HammerChangeBlockEvent;
 import dev.dubhe.anvilcraft.block.entity.LensBlockEntity;
 import dev.dubhe.anvilcraft.block.logistics.chute.ChuteBlock;
 import dev.dubhe.anvilcraft.block.utility.redstone.BlockComparatorBlock;
+import dev.dubhe.anvilcraft.block.utility.redstone.MountedRedstone;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import dev.dubhe.anvilcraft.util.StateUtil;
@@ -49,7 +50,12 @@ public record HammerChangeBlockPacket(BlockPos pos, BlockState state) implements
             return;
         }
         BlockState blockState = level.getBlockState(this.pos);
-        boolean stateVerified = StateUtil.verifyPossibleStatesForProperty(blockState, this.state);
+        BlockState targetState = this.state;
+        if (blockState.getBlock() instanceof MountedRedstone && targetState.is(blockState.getBlock())) {
+            targetState = blockState.setValue(MountedRedstone.ATTACHMENT, targetState.getValue(MountedRedstone.ATTACHMENT))
+                .setValue(BlockStateProperties.HORIZONTAL_FACING, targetState.getValue(BlockStateProperties.HORIZONTAL_FACING));
+        }
+        boolean stateVerified = StateUtil.verifyPossibleStatesForProperty(blockState, targetState);
         boolean hasHammer = player.getMainHandItem().getItem() instanceof AnvilHammerItem
                             || player.getOffhandItem().getItem() instanceof AnvilHammerItem;
         AttributeInstance attribute = player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE);
@@ -59,7 +65,7 @@ public record HammerChangeBlockPacket(BlockPos pos, BlockState state) implements
             level,
             player,
             this.pos,
-            this.state,
+            targetState,
             blockState,
             hasHammer
             && stateVerified
@@ -70,13 +76,13 @@ public record HammerChangeBlockPacket(BlockPos pos, BlockState state) implements
             return;
         }
         // 嘴对嘴检测：新状态前方有溜槽朝向自己则爆炸，不设状态
-        EnumProperty<Direction> facingProp = this.state.hasProperty(ChuteBlock.FACING)
+        EnumProperty<Direction> facingProp = targetState.hasProperty(ChuteBlock.FACING)
             ? ChuteBlock.FACING : null;
-        if (facingProp == null && this.state.hasProperty(BlockStateProperties.FACING)) {
+        if (facingProp == null && targetState.hasProperty(BlockStateProperties.FACING)) {
             facingProp = BlockStateProperties.FACING;
         }
         if (facingProp != null) {
-            Direction facing = this.state.getValue(facingProp);
+            Direction facing = targetState.getValue(facingProp);
             BlockState frontState = level.getBlockState(this.pos.relative(facing));
             if (ChuteBlock.isChuteBlock(frontState) && ChuteBlock.outputsToward(frontState, facing.getOpposite())) {
                 BlockState oldState = level.getBlockState(this.pos);
@@ -86,11 +92,11 @@ public record HammerChangeBlockPacket(BlockPos pos, BlockState state) implements
                 return;
             }
         }
-        level.setBlock(this.pos, this.state, Block.UPDATE_ALL_IMMEDIATE);
+        level.setBlock(this.pos, targetState, Block.UPDATE_ALL_IMMEDIATE);
         if (level.getBlockEntity(this.pos) instanceof LensBlockEntity lensBlockEntity) {
             lensBlockEntity.resetLaserStateAfterMove();
         }
-        TriggerUtil.anvilHammerChangeBlock(level, this.pos, blockState, this.state);
+        TriggerUtil.anvilHammerChangeBlock(level, this.pos, blockState, targetState);
         level.playSound(
             null,
             this.pos,
@@ -100,9 +106,9 @@ public record HammerChangeBlockPacket(BlockPos pos, BlockState state) implements
             1.0f
         );
         if (blockState.getBlock() instanceof BlockComparatorBlock
-            && this.state.getBlock() instanceof BlockComparatorBlock) {
+            && targetState.getBlock() instanceof BlockComparatorBlock) {
             Direction.Axis oldAxis = blockState.getValue(BlockComparatorBlock.FACING_WITH_AXIS).getAxis();
-            Direction.Axis newAxis = this.state.getValue(BlockComparatorBlock.FACING_WITH_AXIS).getAxis();
+            Direction.Axis newAxis = targetState.getValue(BlockComparatorBlock.FACING_WITH_AXIS).getAxis();
             if (oldAxis == Direction.Axis.Y && newAxis != Direction.Axis.Y) {
                 TriggerUtil.blockComparatorTurnOver(level, this.pos);
             }

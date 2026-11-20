@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
 import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.block.utility.redstone.ItemDetectorBlock;
+import dev.dubhe.anvilcraft.block.utility.redstone.MountedRedstone;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -414,7 +415,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         BlockPos pos = this.getBlockPos();
         BlockState blockState = this.level.getBlockState(this.getBlockPos());
         if (!blockState.is(ModBlocks.ITEM_DETECTOR)) return null;
-        Direction direction = blockState.getValue(ItemDetectorBlock.FACING);
+        Direction direction = MountedRedstone.inputDirection(blockState);
         return AABB.encapsulatingFullBlocks(pos.relative(direction), pos.relative(direction, this.range));
     }
 

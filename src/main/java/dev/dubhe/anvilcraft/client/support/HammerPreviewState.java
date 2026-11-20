@@ -48,9 +48,10 @@ public final class HammerPreviewState implements IHasHammerEffect {
     }
 
     public void select(int index) {
-        if (index >= 0 && index < this.choices.size()) {
-            this.currentState = this.choices.get(index);
-            this.currentModel = this.model(this.currentState);
+        BlockState selected = index >= 0 && index < this.choices.size() ? this.choices.get(index) : this.initial;
+        if (selected != this.currentState) {
+            this.currentState = selected;
+            this.currentModel = selected == this.initial ? this.originalModel : this.model(selected);
         }
     }
 
