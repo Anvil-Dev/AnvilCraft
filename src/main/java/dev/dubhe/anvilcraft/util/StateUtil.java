@@ -1,8 +1,11 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.dubhe.anvilcraft.block.MountedRedstone;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateHolder;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Property;
 
 import java.util.ArrayList;
@@ -12,6 +15,28 @@ import java.util.List;
 import java.util.Set;
 
 public class StateUtil {
+    public static BlockState hammerTarget(BlockState current, BlockState requested) {
+        if (current.getBlock() instanceof MountedRedstone && requested.is(current.getBlock())) {
+            return current.setValue(MountedRedstone.ATTACHMENT, requested.getValue(MountedRedstone.ATTACHMENT))
+                .setValue(BlockStateProperties.HORIZONTAL_FACING, requested.getValue(BlockStateProperties.HORIZONTAL_FACING));
+        }
+        return requested;
+    }
+
+    public static List<BlockState> hammerStates(BlockState initialState, Property<?> property) {
+        if (!(initialState.getBlock() instanceof MountedRedstone)) {
+            return findPossibleStatesForProperty(initialState, property);
+        }
+        List<BlockState> choices = new ArrayList<>();
+        for (Direction attachment : MountedRedstone.ATTACHMENT.getPossibleValues()) {
+            BlockState mounted = initialState.setValue(MountedRedstone.ATTACHMENT, attachment);
+            for (Direction facing : Direction.Plane.HORIZONTAL) {
+                choices.add(mounted.setValue(BlockStateProperties.HORIZONTAL_FACING, facing));
+            }
+        }
+        return choices;
+    }
+
     public static <O, T extends StateHolder<O, T>, E extends Comparable<E>> List<T> findPossibleStatesForProperty(
         T initialState,
         Property<E> property
@@ -26,7 +51,7 @@ public class StateUtil {
         return result;
     }
 
-    public static <O, T extends StateHolder<O, T>, E extends Comparable<E>> boolean equalsState(T state1, T state2) {
+    public static <O, T extends StateHolder<O, T>> boolean equalsState(T state1, T state2) {
         Set<Property<?>> properties = new HashSet<>();
         properties.addAll(state1.getProperties());
         properties.addAll(state2.getProperties());
@@ -50,7 +75,7 @@ public class StateUtil {
     public static boolean verifyPossibleStatesForProperty(BlockState initialState, BlockState targetState) {
         Property<?> property = AnvilHammerItem.findModifyableProperty(initialState);
         if (property == null || !initialState.is(targetState.getBlock())) return false;
-        List<BlockState> stateList = StateUtil.findPossibleStatesForProperty(initialState, property);
+        List<BlockState> stateList = hammerStates(initialState, property);
         for (BlockState state : stateList) {
             if (StateUtil.equalsState(state, targetState)) {
                 return true;

@@ -125,6 +125,7 @@
     "tsmm.SetBlockCommandMixin"
   ],
   "client": [
+    "client.NegativeShapeItemModelMixin",
     "compat.XaeroWorldMapHighlighterRegistryMixin",
     "compat.XaeroWorldMapGuiMixin",
     "compat.XaeroMinimapHighlighterRegistryMixin",

@@ -47,7 +47,8 @@ public record HammerChangeBlockPacket(BlockPos pos, BlockState state) implements
             return;
         }
         BlockState blockState = level.getBlockState(this.pos);
-        boolean stateVerified = StateUtil.verifyPossibleStatesForProperty(blockState, this.state);
+        BlockState targetState = StateUtil.hammerTarget(blockState, this.state);
+        boolean stateVerified = StateUtil.verifyPossibleStatesForProperty(blockState, targetState);
         boolean hasHammer = player.getMainHandItem().getItem() instanceof AnvilHammerItem
                             || player.getOffhandItem().getItem() instanceof AnvilHammerItem;
         AttributeInstance attribute = player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE);
@@ -57,7 +58,7 @@ public record HammerChangeBlockPacket(BlockPos pos, BlockState state) implements
             level,
             player,
             this.pos,
-            this.state,
+            targetState,
             blockState,
             hasHammer
             && stateVerified
@@ -68,8 +69,8 @@ public record HammerChangeBlockPacket(BlockPos pos, BlockState state) implements
             return;
         }
         // 嘴对嘴检测：仅溜槽之间存在该规则，新状态前方有溜槽朝向自己则爆炸，不设状态
-        Direction facing = ChuteBlock.getFacing(this.state);
-        if (ChuteBlock.isChuteBlock(this.state) && facing != null) {
+        Direction facing = ChuteBlock.getFacing(targetState);
+        if (ChuteBlock.isChuteBlock(targetState) && facing != null) {
             BlockState frontState = level.getBlockState(this.pos.relative(facing));
             if (ChuteBlock.isChuteBlock(frontState)
                 && ChuteBlock.outputsToward(frontState, facing.getOpposite())) {
@@ -80,7 +81,7 @@ public record HammerChangeBlockPacket(BlockPos pos, BlockState state) implements
                 return;
             }
         }
-        level.setBlock(this.pos, this.state, Block.UPDATE_ALL_IMMEDIATE);
+        level.setBlock(this.pos, targetState, Block.UPDATE_ALL_IMMEDIATE);
         if (level.getBlockEntity(this.pos) instanceof LensBlockEntity lensBlockEntity) {
             lensBlockEntity.resetLaserStateAfterMove();
         }
@@ -95,9 +96,9 @@ public record HammerChangeBlockPacket(BlockPos pos, BlockState state) implements
         );
         // 咸鱼翻身：将方块比较器从任意方向的 Y 状态翻转到 X 或 Z 状态时触发
         if (blockState.getBlock() instanceof BlockComparatorBlock
-            && this.state.getBlock() instanceof BlockComparatorBlock) {
+            && targetState.getBlock() instanceof BlockComparatorBlock) {
             Direction.Axis oldAxis = blockState.getValue(BlockComparatorBlock.FACING_WITH_AXIS).getAxis();
-            Direction.Axis newAxis = this.state.getValue(BlockComparatorBlock.FACING_WITH_AXIS).getAxis();
+            Direction.Axis newAxis = targetState.getValue(BlockComparatorBlock.FACING_WITH_AXIS).getAxis();
             if (oldAxis == Direction.Axis.Y && newAxis != Direction.Axis.Y) {
                 TriggerUtil.blockComparatorTurnOver(level, this.pos);
             }

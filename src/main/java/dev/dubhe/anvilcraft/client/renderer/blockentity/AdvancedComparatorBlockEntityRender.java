@@ -5,14 +5,12 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.AdvancedComparatorBlock;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
 import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.client.model.data.ModelData;
 
 public class AdvancedComparatorBlockEntityRender
@@ -56,17 +54,9 @@ public class AdvancedComparatorBlockEntityRender
         AdvancedComparatorBlockEntity blockEntity, float partialTick, PoseStack poseStack, ModelConsumer consumer
     ) {
         poseStack.pushPose();
-        poseStack.translate(0, this.getHeight(blockEntity), 0);
+        MountedRedstonePose.apply(poseStack, blockEntity.getBlockState());
+        poseStack.translate(0, blockEntity.getBlockState().getValue(AdvancedComparatorBlock.POWER) / 48f, 0);
         consumer.accept(INDICATOR, poseStack);
         poseStack.popPose();
-    }
-
-    private float getHeight(AdvancedComparatorBlockEntity blockEntity) {
-        Level level = blockEntity.getLevel();
-        int inputtingSignal = 0;
-        if (level != null && level.getBlockState(blockEntity.getBlockPos()).getBlock() == ModBlocks.ADVANCED_COMPARATOR.get()) {
-            inputtingSignal = level.getBlockState(blockEntity.getBlockPos()).getValue(AdvancedComparatorBlock.POWER);
-        }
-        return (inputtingSignal / 3f * .0625f);
     }
 }

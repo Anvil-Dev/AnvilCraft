@@ -38,6 +38,7 @@ items:
 <recipe id="anvilcraft:pulse_generator"/>
 
 - Based on the signal behind it, emits a configured redstone pulse forward
+- The base lies flat when placed. Hold the use button with an Anvil Hammer and scroll through the six mounting surfaces. Point to one of the four input directions on the page and release to apply it. The output is on the opposite end.
 
 ## GUI
 
@@ -53,6 +54,7 @@ In the GUI you can set the **condition**, **delay**, and **duration** of the emi
 <recipe id="anvilcraft:item_detector"/>
 
 - Can detect **dropped items** or items in containers up to 8 blocks behind
+- The detector lies flat when placed. Hold the use button with an Anvil Hammer, scroll to a mounting surface, and choose one of the four detection directions on that page. Redstone is emitted from the opposite end.
 
 ## GUI
 
@@ -67,6 +69,8 @@ In the GUI you can set the range, filters, and reverse output:
 # <ref item="anvilcraft:advanced_comparator"/>
 
 <recipe id="anvilcraft:advanced_comparator"/>
+
+The comparator lies flat when placed. Hold the use button with an Anvil Hammer, scroll to a mounting surface, and choose one of the four main input directions on that page. The two threshold inputs rotate with it.
 
 ## Operating Modes
 

@@ -1510,13 +1510,9 @@ public class ModBlocks {
         .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::itemDetector)
-        .blockstate((ctx, provider) -> {
-            provider.horizontalBlock(
-                ctx.get(),
-                state -> DangerUtil.genModModelFile("block/item_detector" + (state.getValue(ItemDetectorBlock.POWERED) ? "_on" : "")).get(),
-                0
-            );
-        })
+        .blockstate((ctx, provider) -> provider.getVariantBuilder(ctx.get()).forAllStates(state ->
+            DataGenUtil.mountedRedstone(provider, state,
+                ctx.getId().withPrefix("block/").withSuffix(state.getValue(ItemDetectorBlock.POWERED) ? "_on" : ""))))
         .simpleItem()
         .register();
 
@@ -1549,50 +1545,9 @@ public class ModBlocks {
 
     public static final BlockEntry<PulseGeneratorBlock> PULSE_GENERATOR = REGISTRUM.block("pulse_generator", PulseGeneratorBlock::new)
         .properties(properties -> properties.strength(3.0F, 3.5F).sound(SoundType.STONE).noOcclusion())
-        .blockstate((ctx, provider) -> {
-            ModelFile pulseGenerator = new ModelFile.ExistingModelFile(
-                ctx.getId().withPrefix("block/"),
-                provider.models().existingFileHelper
-            );
-            ModelFile pulseGeneratorOn = new ModelFile.ExistingModelFile(
-                ctx.getId().withPrefix("block/").withSuffix("_on"),
-                provider.models().existingFileHelper
-            );
-
-            provider.getVariantBuilder(ctx.get())
-                .partialState()
-                .with(PulseGeneratorBlock.FACING, Direction.SOUTH)
-                .with(PulseGeneratorBlock.POWERED, false)
-                .addModels(new ConfiguredModel(pulseGenerator))
-                .partialState()
-                .with(PulseGeneratorBlock.FACING, Direction.WEST)
-                .with(PulseGeneratorBlock.POWERED, false)
-                .addModels(new ConfiguredModel(pulseGenerator, 0, 90, false))
-                .partialState()
-                .with(PulseGeneratorBlock.FACING, Direction.NORTH)
-                .with(PulseGeneratorBlock.POWERED, false)
-                .addModels(new ConfiguredModel(pulseGenerator, 0, 180, false))
-                .partialState()
-                .with(PulseGeneratorBlock.FACING, Direction.EAST)
-                .with(PulseGeneratorBlock.POWERED, false)
-                .addModels(new ConfiguredModel(pulseGenerator, 0, 270, false))
-                .partialState()
-                .with(PulseGeneratorBlock.FACING, Direction.SOUTH)
-                .with(PulseGeneratorBlock.POWERED, true)
-                .addModels(new ConfiguredModel(pulseGeneratorOn))
-                .partialState()
-                .with(PulseGeneratorBlock.FACING, Direction.WEST)
-                .with(PulseGeneratorBlock.POWERED, true)
-                .addModels(new ConfiguredModel(pulseGeneratorOn, 0, 90, false))
-                .partialState()
-                .with(PulseGeneratorBlock.FACING, Direction.NORTH)
-                .with(PulseGeneratorBlock.POWERED, true)
-                .addModels(new ConfiguredModel(pulseGeneratorOn, 0, 180, false))
-                .partialState()
-                .with(PulseGeneratorBlock.FACING, Direction.EAST)
-                .with(PulseGeneratorBlock.POWERED, true)
-                .addModels(new ConfiguredModel(pulseGeneratorOn, 0, 270, false));
-        })
+        .blockstate((ctx, provider) -> provider.getVariantBuilder(ctx.get()).forAllStates(state ->
+            DataGenUtil.mountedRedstone(provider, state,
+                ctx.getId().withPrefix("block/").withSuffix(state.getValue(PulseGeneratorBlock.POWERED) ? "_on" : ""))))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
         .recipe(RegistrumBlockRecipeLoader::pulseGenerator)
@@ -1603,8 +1558,12 @@ public class ModBlocks {
             AdvancedComparatorBlock::new
         )
         .properties(properties -> properties.strength(3.0F, 3.5F).sound(SoundType.STONE).noOcclusion())
-        .blockstate((ctx, provider) -> {
-        })
+        .blockstate((ctx, provider) -> provider.getVariantBuilder(ctx.get()).forAllStatesExcept(state -> {
+            String model = state.getValue(AdvancedComparatorBlock.MODE).getSerializedName() + "_comparator"
+                + (state.getValue(AdvancedComparatorBlock.INPUT) ? "_in" : "")
+                + (state.getValue(AdvancedComparatorBlock.POWERED) ? "_out" : "");
+            return DataGenUtil.mountedRedstone(provider, state, AnvilCraft.of("block/" + model));
+        }, AdvancedComparatorBlock.POWER))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
         .recipe(RegistrumBlockRecipeLoader::advancedComparator)

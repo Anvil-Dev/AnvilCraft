@@ -260,7 +260,7 @@ public class DeflectionRingBlock extends WaterloggedFlexibleMultiPartBlock<Direc
         BlockPos blockPos = abstractMultiPartBlock.getMainPartPos(pos, blockState);
         if (!(level.getBlockEntity(blockPos) instanceof DeflectionRingBlockEntity blockEntity)) return 0;
         if (blockEntity.getLastEntitySpeed() <= 0) return 0;
-        return Math.max(0, (int) (Math.log(blockEntity.getLastEntitySpeed()) / Math.log(2) * 2) - 1);
+        return Math.max(1, (int) (Math.log(blockEntity.getLastEntitySpeed()) / Math.log(2) * 2) - 1);
     }
 
     @Override

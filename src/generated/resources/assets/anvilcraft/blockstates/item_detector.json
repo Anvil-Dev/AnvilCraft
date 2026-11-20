@@ -1,34 +1,224 @@
 {
   "variants": {
-    "facing=east,powered=false": {
+    "attachment=down,facing=east,powered=false": {
       "model": "anvilcraft:block/item_detector",
       "y": 270
     },
-    "facing=east,powered=true": {
+    "attachment=down,facing=east,powered=true": {
       "model": "anvilcraft:block/item_detector_on",
       "y": 270
     },
-    "facing=north,powered=false": {
+    "attachment=down,facing=north,powered=false": {
       "model": "anvilcraft:block/item_detector",
       "y": 180
     },
-    "facing=north,powered=true": {
+    "attachment=down,facing=north,powered=true": {
       "model": "anvilcraft:block/item_detector_on",
       "y": 180
     },
-    "facing=south,powered=false": {
+    "attachment=down,facing=south,powered=false": {
       "model": "anvilcraft:block/item_detector"
     },
-    "facing=south,powered=true": {
+    "attachment=down,facing=south,powered=true": {
       "model": "anvilcraft:block/item_detector_on"
     },
-    "facing=west,powered=false": {
+    "attachment=down,facing=west,powered=false": {
       "model": "anvilcraft:block/item_detector",
       "y": 90
     },
-    "facing=west,powered=true": {
+    "attachment=down,facing=west,powered=true": {
       "model": "anvilcraft:block/item_detector_on",
       "y": 90
+    },
+    "attachment=east,facing=east,powered=false": {
+      "model": "anvilcraft:block/item_detector_sideways",
+      "x": 90,
+      "y": 270
+    },
+    "attachment=east,facing=east,powered=true": {
+      "model": "anvilcraft:block/item_detector_on_sideways",
+      "x": 90,
+      "y": 270
+    },
+    "attachment=east,facing=north,powered=false": {
+      "model": "anvilcraft:block/item_detector",
+      "x": 90,
+      "y": 270
+    },
+    "attachment=east,facing=north,powered=true": {
+      "model": "anvilcraft:block/item_detector_on",
+      "x": 90,
+      "y": 270
+    },
+    "attachment=east,facing=south,powered=false": {
+      "model": "anvilcraft:block/item_detector",
+      "x": 270,
+      "y": 90
+    },
+    "attachment=east,facing=south,powered=true": {
+      "model": "anvilcraft:block/item_detector_on",
+      "x": 270,
+      "y": 90
+    },
+    "attachment=east,facing=west,powered=false": {
+      "model": "anvilcraft:block/item_detector_sideways",
+      "x": 270,
+      "y": 90
+    },
+    "attachment=east,facing=west,powered=true": {
+      "model": "anvilcraft:block/item_detector_on_sideways",
+      "x": 270,
+      "y": 90
+    },
+    "attachment=north,facing=east,powered=false": {
+      "model": "anvilcraft:block/item_detector_sideways",
+      "x": 90,
+      "y": 180
+    },
+    "attachment=north,facing=east,powered=true": {
+      "model": "anvilcraft:block/item_detector_on_sideways",
+      "x": 90,
+      "y": 180
+    },
+    "attachment=north,facing=north,powered=false": {
+      "model": "anvilcraft:block/item_detector",
+      "x": 90,
+      "y": 180
+    },
+    "attachment=north,facing=north,powered=true": {
+      "model": "anvilcraft:block/item_detector_on",
+      "x": 90,
+      "y": 180
+    },
+    "attachment=north,facing=south,powered=false": {
+      "model": "anvilcraft:block/item_detector",
+      "x": 270
+    },
+    "attachment=north,facing=south,powered=true": {
+      "model": "anvilcraft:block/item_detector_on",
+      "x": 270
+    },
+    "attachment=north,facing=west,powered=false": {
+      "model": "anvilcraft:block/item_detector_sideways",
+      "x": 270
+    },
+    "attachment=north,facing=west,powered=true": {
+      "model": "anvilcraft:block/item_detector_on_sideways",
+      "x": 270
+    },
+    "attachment=south,facing=east,powered=false": {
+      "model": "anvilcraft:block/item_detector_sideways",
+      "x": 90
+    },
+    "attachment=south,facing=east,powered=true": {
+      "model": "anvilcraft:block/item_detector_on_sideways",
+      "x": 90
+    },
+    "attachment=south,facing=north,powered=false": {
+      "model": "anvilcraft:block/item_detector",
+      "x": 90
+    },
+    "attachment=south,facing=north,powered=true": {
+      "model": "anvilcraft:block/item_detector_on",
+      "x": 90
+    },
+    "attachment=south,facing=south,powered=false": {
+      "model": "anvilcraft:block/item_detector",
+      "x": 270,
+      "y": 180
+    },
+    "attachment=south,facing=south,powered=true": {
+      "model": "anvilcraft:block/item_detector_on",
+      "x": 270,
+      "y": 180
+    },
+    "attachment=south,facing=west,powered=false": {
+      "model": "anvilcraft:block/item_detector_sideways",
+      "x": 270,
+      "y": 180
+    },
+    "attachment=south,facing=west,powered=true": {
+      "model": "anvilcraft:block/item_detector_on_sideways",
+      "x": 270,
+      "y": 180
+    },
+    "attachment=up,facing=east,powered=false": {
+      "model": "anvilcraft:block/item_detector",
+      "x": 180,
+      "y": 90
+    },
+    "attachment=up,facing=east,powered=true": {
+      "model": "anvilcraft:block/item_detector_on",
+      "x": 180,
+      "y": 90
+    },
+    "attachment=up,facing=north,powered=false": {
+      "model": "anvilcraft:block/item_detector",
+      "x": 180,
+      "y": 180
+    },
+    "attachment=up,facing=north,powered=true": {
+      "model": "anvilcraft:block/item_detector_on",
+      "x": 180,
+      "y": 180
+    },
+    "attachment=up,facing=south,powered=false": {
+      "model": "anvilcraft:block/item_detector",
+      "x": 180
+    },
+    "attachment=up,facing=south,powered=true": {
+      "model": "anvilcraft:block/item_detector_on",
+      "x": 180
+    },
+    "attachment=up,facing=west,powered=false": {
+      "model": "anvilcraft:block/item_detector",
+      "x": 180,
+      "y": 270
+    },
+    "attachment=up,facing=west,powered=true": {
+      "model": "anvilcraft:block/item_detector_on",
+      "x": 180,
+      "y": 270
+    },
+    "attachment=west,facing=east,powered=false": {
+      "model": "anvilcraft:block/item_detector_sideways",
+      "x": 90,
+      "y": 90
+    },
+    "attachment=west,facing=east,powered=true": {
+      "model": "anvilcraft:block/item_detector_on_sideways",
+      "x": 90,
+      "y": 90
+    },
+    "attachment=west,facing=north,powered=false": {
+      "model": "anvilcraft:block/item_detector",
+      "x": 90,
+      "y": 90
+    },
+    "attachment=west,facing=north,powered=true": {
+      "model": "anvilcraft:block/item_detector_on",
+      "x": 90,
+      "y": 90
+    },
+    "attachment=west,facing=south,powered=false": {
+      "model": "anvilcraft:block/item_detector",
+      "x": 270,
+      "y": 270
+    },
+    "attachment=west,facing=south,powered=true": {
+      "model": "anvilcraft:block/item_detector_on",
+      "x": 270,
+      "y": 270
+    },
+    "attachment=west,facing=west,powered=false": {
+      "model": "anvilcraft:block/item_detector_sideways",
+      "x": 270,
+      "y": 270
+    },
+    "attachment=west,facing=west,powered=true": {
+      "model": "anvilcraft:block/item_detector_on_sideways",
+      "x": 270,
+      "y": 270
     }
   }
 }

@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block;
 
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
-import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.ItemDetectorBlockEntity;
@@ -39,13 +38,15 @@ import net.neoforged.neoforge.event.EventHooks;
 import org.jspecify.annotations.Nullable;
 
 import java.util.EnumSet;
+import java.util.Map;
 
-public class ItemDetectorBlock extends BetterBaseEntityBlock implements IMoveableEntityBlock, HammerRotateBehavior, IHammerRemovable {
+public class ItemDetectorBlock extends BetterBaseEntityBlock implements IMoveableEntityBlock, MountedRedstone, IHammerRemovable {
 
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final MapCodec<ItemDetectorBlock> CODEC = simpleCodec(ItemDetectorBlock::new);
     public static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 4, 16);
+    private static final Map<Direction, VoxelShape> SHAPES = MountedRedstone.shapes(SHAPE);
 
     public ItemDetectorBlock(Properties properties) {
         super(properties);
@@ -53,13 +54,14 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements IMoveabl
             this.stateDefinition
                 .any()
                 .setValue(FACING, Direction.NORTH)
+                .setValue(ATTACHMENT, Direction.DOWN)
                 .setValue(POWERED, false)
         );
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING).add(POWERED);
+        builder.add(FACING, ATTACHMENT).add(POWERED);
     }
 
     @Override
@@ -74,7 +76,7 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements IMoveabl
         BlockPos pos,
         CollisionContext context
     ) {
-        return SHAPE;
+        return SHAPES.get(state.getValue(ATTACHMENT));
     }
 
     @Override
@@ -84,13 +86,14 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements IMoveabl
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        Direction direction = context.getHorizontalDirection().getOpposite();
-        return this.defaultBlockState().setValue(FACING, direction.getOpposite());
+        return MountedRedstone.placementState(this.defaultBlockState(), context, false);
     }
 
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
-        if (level.isClientSide || (oldState.is(this) && state.getValue(FACING) == oldState.getValue(FACING))) return;
+        if (level.isClientSide || oldState.is(this) && MountedRedstone.inputDirection(state) == MountedRedstone.inputDirection(oldState)) {
+            return;
+        }
         if (level.getBlockEntity(pos) instanceof ItemDetectorBlockEntity blockEntity) {
             blockEntity.recalcDetectionRange();
         }
@@ -101,7 +104,7 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements IMoveabl
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
         super.onRemove(state, level, pos, newState, isMoving);
         if (level.isClientSide
-            || (state.is(newState.getBlock()) && state.getValue(FACING) == newState.getValue(FACING))
+            || (state.is(newState.getBlock()) && MountedRedstone.inputDirection(state) == MountedRedstone.inputDirection(newState))
             || !state.getValue(POWERED)) {
             return;
         }
@@ -131,7 +134,7 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements IMoveabl
     }
 
     public void updateNeighborsInFront(Level level, BlockPos pos, BlockState state) {
-        Direction direction = state.getValue(FACING);
+        Direction direction = MountedRedstone.inputDirection(state);
         BlockPos blockpos = pos.relative(direction.getOpposite());
         if (EventHooks.onNeighborNotify(level, pos, level.getBlockState(pos), EnumSet.of(direction.getOpposite()), false).isCanceled()) {
             return;
@@ -142,7 +145,7 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements IMoveabl
 
     @Override
     public boolean canConnectRedstone(BlockState state, BlockGetter level, BlockPos pos, @Nullable Direction direction) {
-        return direction == state.getValue(FACING);
+        return direction == MountedRedstone.inputDirection(state);
     }
 
     @Override
@@ -159,7 +162,7 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements IMoveabl
     protected int getSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
         BlockEntity blockEntity = blockAccess.getBlockEntity(pos);
         if (!(blockEntity instanceof ItemDetectorBlockEntity idbe)) return 0;
-        return blockState.getValue(FACING) == side ? idbe.getOutputSignal() : 0;
+        return MountedRedstone.inputDirection(blockState) == side ? idbe.getOutputSignal() : 0;
     }
 
     @Override
@@ -190,12 +193,12 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements IMoveabl
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rot) {
-        return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
+        return MountedRedstone.transform(state, rot::rotate);
     }
 
     @SuppressWarnings("deprecation")
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.rotate(mirror.getRotation(state.getValue(FACING)));
+        return MountedRedstone.transform(state, mirror::mirror);
     }
 }

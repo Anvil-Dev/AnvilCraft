@@ -1,0 +1,12 @@
+{
+  "parent": "anvilcraft:block/window_comparator_in_out",
+  "transform": {
+    "origin": "center",
+    "rotation": [
+      0.0,
+      -0.70710677,
+      0.0,
+      0.70710677
+    ]
+  }
+}
