@@ -1,12 +1,15 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.OctahedralGroup;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
 import dev.dubhe.anvilcraft.block.utility.redstone.AdvancedComparatorBlock;
+import dev.dubhe.anvilcraft.block.utility.redstone.MountedRedstone;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.AdvancedComparatorRenderState;
 import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.dispatch.BlockModelRotation;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -41,6 +44,7 @@ public class AdvancedComparatorRenderer
         ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     ) {
         BlockEntityRenderer.super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
+        state.setRotation(MountedRedstone.modelRotation(be.getBlockState()));
         state.setSignal(be.getBlockState().getValue(AdvancedComparatorBlock.POWER));
         state.setIndicator(FeatureRendererSupport.initialize(AdvancedComparatorRenderer.INDICATOR, be));
     }
@@ -48,7 +52,7 @@ public class AdvancedComparatorRenderer
     @Override
     public void submit(AdvancedComparatorRenderState state, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
         pose.pushPose();
-        applyIndicatorPose(pose, state.getSignal());
+        applyIndicatorPose(pose, state.getRotation(), state.getSignal());
         state.getIndicator().submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
         pose.popPose();
     }
@@ -56,12 +60,16 @@ public class AdvancedComparatorRenderer
     @Override
     public void collectSelectionModels(AdvancedComparatorBlockEntity be, float partialTick, PoseStack pose, ModelConsumer consumer) {
         pose.pushPose();
-        applyIndicatorPose(pose, be.getBlockState().getValue(AdvancedComparatorBlock.POWER));
+        var state = be.getBlockState();
+        applyIndicatorPose(pose, MountedRedstone.modelRotation(state), state.getValue(AdvancedComparatorBlock.POWER));
         consumer.accept(INDICATOR, pose);
         pose.popPose();
     }
 
-    private static void applyIndicatorPose(PoseStack pose, int signal) {
+    private static void applyIndicatorPose(PoseStack pose, OctahedralGroup rotation, int signal) {
+        pose.translate(0.5f, 0.5f, 0.5f);
+        pose.mulPose(BlockModelRotation.get(rotation).transformation());
+        pose.translate(-0.5f, -0.5f, -0.5f);
         pose.translate(0, signal / 3F * .0625F, 0);
     }
 }

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.util.registrater;
 
+import com.mojang.math.OctahedralGroup;
 import com.mojang.math.Quadrant;
 import com.mojang.math.Transformation;
 import dev.anvilcraft.lib.v2.registrum.providers.DataGenContext;
@@ -13,6 +14,7 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.api.item.property.IIntegerComponent;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.plate.PowerLevelPressurePlateBlock;
+import dev.dubhe.anvilcraft.block.utility.redstone.MountedRedstone;
 import dev.dubhe.anvilcraft.client.renderer.item.CelestialForgingAnvilItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.EnergyWeaponExhaustedProperty;
 import dev.dubhe.anvilcraft.client.renderer.item.EquipmentPoweredProperty;
@@ -34,12 +36,14 @@ import net.minecraft.advancements.criterion.StatePropertiesPredicate;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
+import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.data.models.model.TexturedModel;
+import net.minecraft.client.renderer.block.dispatch.Variant;
 import net.minecraft.client.renderer.block.dispatch.VariantMutator;
 import net.minecraft.client.renderer.item.ClientItem;
 import net.minecraft.client.renderer.item.CompositeModel;
@@ -81,7 +85,9 @@ import net.minecraft.world.level.storage.loot.predicates.MatchTool;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import org.joml.Vector3f;
 
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @SuppressWarnings("Convert2Lambda")
@@ -737,6 +743,34 @@ public class DataGenUtil {
                     BlockModelGenerators.variant(BlockModelGenerators.plainModel(onFalse).withYRot(Quadrant.R270))
                 ).dispatch()));
             }
+        };
+    }
+
+    public static PropertyDispatch<VariantMutator> mountedRotations() {
+        Map<OctahedralGroup, Variant.SimpleModelState> rotations = new EnumMap<>(OctahedralGroup.class);
+        for (Quadrant roll : Quadrant.values()) {
+            for (Quadrant pitch : Quadrant.values()) {
+                for (Quadrant yaw : Quadrant.values()) {
+                    rotations.putIfAbsent(
+                        Quadrant.fromXYZAngles(pitch, yaw, roll), new Variant.SimpleModelState(pitch, yaw, roll, false)
+                    );
+                }
+            }
+        }
+        return PropertyDispatch.modify(MountedRedstone.ATTACHMENT, BlockStateProperties.HORIZONTAL_FACING)
+            .generate((attachment, facing) -> {
+                var rotation = rotations.get(MountedRedstone.modelRotation(attachment, facing));
+                return variant -> variant.withState(rotation);
+            });
+    }
+
+    public static <T extends Block> NonNullBiConsumer<DataGenContext<Block, T>, RegistrumBlockModelGenerator> mountedPoweredBlock() {
+        return (ctx, generator) -> {
+            Identifier model = ctx.getId().withPrefix("block/");
+            generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
+                .with(PropertyDispatch.initial(BlockStateProperties.POWERED)
+                    .generate(powered -> BlockModelGenerators.plainVariant(powered ? model.withSuffix("_on") : model)))
+                .with(mountedRotations()));
         };
     }
 

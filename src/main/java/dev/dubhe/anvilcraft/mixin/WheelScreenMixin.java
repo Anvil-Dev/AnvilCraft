@@ -26,7 +26,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
-/** 将锤子状态选择轮的滚轮事件转交给扇区控件。 */
+/** 锤子轮盘按当前页同步方块预览，单页轮盘保留滚轮选区操作。 */
 @SuppressWarnings("UnresolvedMixinReference")
 @Mixin(value = WheelScreen.class, remap = false)
 public abstract class WheelScreenMixin implements IHasHammerEffect {
@@ -35,6 +35,9 @@ public abstract class WheelScreenMixin implements IHasHammerEffect {
     @Shadow
     @Final
     private WheelMenuModel model;
+
+    @Shadow
+    private int currentPageIndex;
 
     @Shadow
     private @Nullable WheelWidget wheelWidget;
@@ -70,16 +73,47 @@ public abstract class WheelScreenMixin implements IHasHammerEffect {
         double scrollY,
         CallbackInfoReturnable<Boolean> cir
     ) {
-        if (!WheelLifecycleEventListener.isHammerWheelOpen() || this.wheelWidget == null) return;
+        if (this.anvilcraft$hammerPreview == null || this.wheelWidget == null) {
+            return;
+        }
+        if (this.wheelWidget.isClosingAnimationStarted()) {
+            cir.setReturnValue(true);
+            return;
+        }
+        if (this.model.pageCount() > 1) {
+            return;
+        }
         cir.setReturnValue(this.wheelWidget.mouseScrolled(mouseX, mouseY, scrollX, scrollY));
+    }
+
+    @Inject(method = "mouseScrolled(DDDD)Z", at = @At("RETURN"))
+    private void anvilcraft$selectAfterPageTurn(
+        double mouseX, double mouseY, double scrollX, double scrollY, CallbackInfoReturnable<Boolean> cir
+    ) {
+        if (scrollY != 0 && this.anvilcraft$hammerPreview != null && this.wheelWidget != null && this.model.pageCount() > 1) {
+            this.wheelWidget.checkMousePos(mouseX, mouseY);
+        }
+    }
+
+    @Inject(method = "init", at = @At("HEAD"))
+    private void anvilcraft$openCurrentPage(CallbackInfo ci) {
+        if (this.anvilcraft$hammerPreview == null) {
+            this.anvilcraft$hammerPreview = WheelLifecycleEventListener.hammerPreview(this.model);
+        }
+        if (this.anvilcraft$hammerPreview != null) {
+            this.currentPageIndex = this.anvilcraft$hammerPreview.currentIndex() / this.model.slotsPerPage();
+        }
     }
 
     @Inject(method = "init", at = @At("TAIL"))
     private void anvilcraft$beginHammerPreview(CallbackInfo ci) {
-        if (this.anvilcraft$hammerPreview == null) this.anvilcraft$hammerPreview = WheelLifecycleEventListener.hammerPreview(this.model);
-        if (this.anvilcraft$hammerPreview == null) return;
+        if (this.anvilcraft$hammerPreview == null) {
+            return;
+        }
         this.anvilcraft$hammerPreview.begin();
-        if (this.wheelWidget != null) this.wheelWidget.setCurrentIndex(this.anvilcraft$hammerPreview.currentIndex());
+        if (this.wheelWidget != null) {
+            this.wheelWidget.setCurrentIndex(this.anvilcraft$hammerPreview.currentIndex() % this.model.slotsPerPage());
+        }
     }
 
     @Inject(method = "extractRenderState", at = @At("TAIL"))
@@ -90,7 +124,8 @@ public abstract class WheelScreenMixin implements IHasHammerEffect {
                 ((Screen) (Object) this).onClose();
                 return;
             }
-            this.anvilcraft$hammerPreview.select(this.wheelWidget.getCurrentSectionIndex());
+            int slot = this.wheelWidget.getCurrentSectionIndex();
+            this.anvilcraft$hammerPreview.select(slot < 0 ? -1 : this.currentPageIndex * this.model.slotsPerPage() + slot);
         }
     }
 

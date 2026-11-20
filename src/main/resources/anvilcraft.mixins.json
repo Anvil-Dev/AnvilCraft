@@ -181,6 +181,7 @@
     "client.HandbookStonecutterMixin",
     "client.HandbookStructureExportMixin",
     "client.ModFluidBucketModelMixin",
+    "client.NegativeShapeItemModelMixin",
     "client.LaserBloomCaptureMixin",
     "MunSurfacePassMixin",
     "MunGlRenderPassAccessor",

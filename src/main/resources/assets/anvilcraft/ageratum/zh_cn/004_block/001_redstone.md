@@ -38,6 +38,7 @@ items:
 <recipe id="anvilcraft:pulse_generator"/>
 
 - 根据背后的信号，向前发出设定的红石脉冲
+- 普通放置时底座平放。手持铁砧锤长按右键，滚动鼠标滚轮可在六个安装面之间翻页。每页有四个输入方向，指向所需方向后松开右键即可应用，输出端始终在对侧。
 
 ## GUI
 
@@ -53,6 +54,7 @@ items:
 <recipe id="anvilcraft:item_detector"/>
 
 - 可检测身后最多8格的 **掉落物**或容器中的物品
+- 检测器默认平放。手持铁砧锤长按右键，用滚轮翻到所需安装面，再从该页的四个方向中选择探测方向。红石信号从对侧输出。
 
 ## GUI
 
@@ -65,6 +67,8 @@ items:
 # <ref item="anvilcraft:advanced_comparator"/>
 
 <recipe id="anvilcraft:advanced_comparator"/>
+
+比较器默认平放。手持铁砧锤长按右键，用滚轮翻到所需安装面，再从该页的四个方向中选择主输入端。两侧的阈值输入随之旋转。
 
 ## 运行模式
 

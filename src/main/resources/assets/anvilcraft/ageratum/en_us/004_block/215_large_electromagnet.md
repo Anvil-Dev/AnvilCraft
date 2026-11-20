@@ -57,15 +57,9 @@ Using vanilla mechanics like stacked TNT acceleration, water blast protection, a
 ## Speed Control
 
 - <ref item="minecraft:comparator"/> can read the speed (unit: m/tick) of anvils passing through <ref item="anvilcraft:deflection_ring"/> and output a redstone signal
-- Output formula: Redstone Signal = 2*[(log base 2 of speed) - 1] rounded up, final value clamped to 0-15
+- An idle ring reads 0. Any positive speed gives a comparator reading of at least 1. For a speed of v m/tick, round 2 × log₂(v) down, subtract 1, then take the greater of the result and 1.
 
-> 32 < V <= 45.25 : Strength 9
-
-> 64 < V <= 90.51 : Strength 11
-
-> 128 < V <= 181.02 : Strength 13
-
-> V > 256 : Strength 15
+> At 0.8, 32, 64, 128, and 256 m/tick, the comparator reads 1, 9, 11, 13, and 15 respectively.
 
 <warning>
 Anvils will turn into items after moving for 30 seconds; pay attention to the running time

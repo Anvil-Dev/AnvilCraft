@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block.utility.redstone;
 
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
-import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity.Mode;
@@ -30,6 +29,8 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.SignalGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -43,15 +44,17 @@ import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.event.EventHooks;
 import org.jspecify.annotations.Nullable;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implements IMoveableEntityBlock, IHammerRemovable {
+public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implements IMoveableEntityBlock, IHammerRemovable, MountedRedstone {
     private static final int UPDATE_OUTPUT_EVENT = 0;
     public static final MapCodec<AdvancedComparatorBlock> CODEC = BlockBehaviour.simpleCodec(AdvancedComparatorBlock::new);
 
@@ -60,16 +63,17 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
     public static final IntegerProperty POWER = IntegerProperty.create("power", 0, 15);
     public static final EnumProperty<Mode> MODE = EnumProperty.create("mode", Mode.class);
 
-    protected static final VoxelShape SHAPE = ShapeUtil.merge(
-        Block.box(0.0, 0.0, 0.0, 16.0, 4.0, 16.0),
-        Block.box(4.0, 4.0, 4.0, 12.0, 16.0, 12.0)
-    );
+    private static final Map<Direction, VoxelShape> SHAPES = Shapes.rotateAll(Shapes.or(
+        Block.box(0, 0, 0, 16, 16, 4), Block.box(4, 4, 4, 12, 12, 16)
+    ));
+    protected static final VoxelShape SHAPE = SHAPES.get(Direction.DOWN);
 
     public AdvancedComparatorBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
             this.stateDefinition.any()
                 .setValue(HorizontalDirectionalBlock.FACING, Direction.NORTH)
+                .setValue(ATTACHMENT, Direction.DOWN)
                 .setValue(AdvancedComparatorBlock.INPUT, false)
                 .setValue(AdvancedComparatorBlock.POWER, 0)
                 .setValue(AdvancedComparatorBlock.MODE, Mode.HYSTERESIS)
@@ -81,7 +85,7 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(
             HorizontalDirectionalBlock.FACING, AdvancedComparatorBlock.INPUT, AdvancedComparatorBlock.POWER, AdvancedComparatorBlock.MODE,
-            AdvancedComparatorBlock.POWERED
+            AdvancedComparatorBlock.POWERED, ATTACHMENT
         );
     }
 
@@ -92,7 +96,17 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return AdvancedComparatorBlock.SHAPE;
+        return SHAPES.get(state.getValue(ATTACHMENT));
+    }
+
+    @Override
+    protected BlockState rotate(BlockState state, Rotation rotation) {
+        return MountedRedstone.transform(state, rotation.rotation());
+    }
+
+    @Override
+    protected BlockState mirror(BlockState state, Mirror mirror) {
+        return MountedRedstone.transform(state, mirror.rotation());
     }
 
     @Override
@@ -102,7 +116,7 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
 
     @Override
     public boolean canConnectRedstone(BlockState state, BlockGetter level, BlockPos pos, @Nullable Direction direction) {
-        return direction != null && direction != Direction.DOWN && direction != Direction.UP;
+        return direction != null && direction.getAxis() != state.getValue(ATTACHMENT).getAxis();
     }
 
     @Override
@@ -112,7 +126,7 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
 
     @Override
     protected int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
-        return state.getValue(HorizontalDirectionalBlock.FACING) == direction && state.getValue(AdvancedComparatorBlock.POWERED) ? 15 : 0;
+        return MountedRedstone.inputDirection(state) == direction && state.getValue(AdvancedComparatorBlock.POWERED) ? 15 : 0;
     }
 
     @Override
@@ -134,7 +148,7 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(HorizontalDirectionalBlock.FACING, context.getHorizontalDirection().getOpposite());
+        return MountedRedstone.placementState(this.defaultBlockState(), context, true);
     }
 
     @Override
@@ -145,6 +159,11 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
         super.onPlace(state, level, pos, oldState, isMoving);
+        if (oldState.is(this) && oldState.getValue(POWERED)
+            && MountedRedstone.inputDirection(oldState) != MountedRedstone.inputDirection(state)) {
+            this.notifyOutput(level, pos, oldState);
+            this.notifyOutput(level, pos, state);
+        }
         level.scheduleTick(pos, this, AdvancedComparatorBlock.getDelay());
     }
 
@@ -153,9 +172,15 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
         if (!state.is(level.getBlockState(pos).getBlock())) {
             super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
         }
-        Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
+        this.notifyOutput(level, pos, state);
+    }
+
+    private void notifyOutput(Level level, BlockPos pos, BlockState state) {
+        Direction facing = MountedRedstone.inputDirection(state);
         BlockPos front = pos.relative(facing.getOpposite());
-        if (EventHooks.onNeighborNotify(level, pos, level.getBlockState(pos), EnumSet.of(facing.getOpposite()), false).isCanceled()) return;
+        if (EventHooks.onNeighborNotify(level, pos, level.getBlockState(pos), EnumSet.of(facing.getOpposite()), false).isCanceled()) {
+            return;
+        }
         Orientation orientation = ExperimentalRedstoneUtils.initialOrientation(level, facing.getOpposite(), null);
         level.neighborChanged(front, this, orientation);
         level.updateNeighborsAtExceptFromFacing(front, this, facing, orientation);
@@ -193,7 +218,7 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
     }
 
     public static int getInputSignal(Level level, BlockPos pos, BlockState state) {
-        Direction direction = state.getValue(HorizontalDirectionalBlock.FACING);
+        Direction direction = MountedRedstone.inputDirection(state);
         BlockPos blockpos = pos.relative(direction);
         BlockState blockstate = level.getBlockState(blockpos);
         int i = level.getSignal(blockpos, direction);
@@ -232,9 +257,8 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
     }
 
     public static int getAlternateSignal(SignalGetter level, BlockPos pos, BlockState state, boolean isHigh) {
-        Direction direction = state.getValue(HorizontalDirectionalBlock.FACING);
-        Direction right = direction.getClockWise();
-        Direction left = direction.getCounterClockWise();
+        Direction right = MountedRedstone.mountRotation(state.getValue(ATTACHMENT)).rotate(state.getValue(FACING).getClockWise());
+        Direction left = right.getOpposite();
         return isHigh ? Math.max(level.getSignal(pos.relative(right), right), level.getSignal(pos.relative(left), left))
             : Math.min(level.getSignal(pos.relative(right), right), level.getSignal(pos.relative(left), left));
     }
@@ -262,7 +286,7 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
     }
 
     protected void updateBlockAndNeighbours(Level level, BlockPos pos, BlockState state, AdvancedComparatorBlockEntity blockEntity) {
-        Direction direction = state.getValue(AdvancedComparatorBlock.FACING).getOpposite();
+        Direction direction = MountedRedstone.inputDirection(state).getOpposite();
         BlockPos neighbourPos = pos.relative(direction);
         boolean shouldPower = blockEntity.isOutputting();
         int inputtingSignal = Mth.clamp(blockEntity.getInputtingSignal(), 0, 15);

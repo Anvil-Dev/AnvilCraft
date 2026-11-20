@@ -1835,11 +1835,7 @@ public class ModBlocks {
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::itemDetector)
-        .blockstate(() -> DataGenUtil.horizontalFacingBlockInverted(
-            ItemDetectorBlock.POWERED,
-            ctx -> ctx.getId().withPrefix("block/").withSuffix("_on"),
-            ctx -> ctx.getId().withPrefix("block/")
-        ))
+        .blockstate(DataGenUtil::mountedPoweredBlock)
         .item().transform(PropertiesProviderUtil::blockItem).build()
         .register();
 
@@ -1930,9 +1926,9 @@ public class ModBlocks {
         .build()
         .register();
     public static final BlockEntry<? extends Block> CHUTE = REGISTRUM.block("chute", ChuteBlock::new)
-        .initialProperties(() -> Blocks.END_STONE)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(PropertiesProviderUtil::metalSound)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never).explosionResistance(15F))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(ChuteBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
@@ -1944,7 +1940,7 @@ public class ModBlocks {
 
     public static final BlockEntry<MagneticChuteBlock> MAGNETIC_CHUTE = REGISTRUM.block("magnetic_chute", MagneticChuteBlock::new)
         .initialProperties(ModBlocks.CHUTE)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never).explosionResistance(15F))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(ChuteBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
@@ -1954,9 +1950,9 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<SimpleChuteBlock> SIMPLE_CHUTE = REGISTRUM.block("simple_chute", SimpleChuteBlock::new)
-        .initialProperties(() -> Blocks.END_STONE)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(PropertiesProviderUtil::metalSound)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never).explosionResistance(15F))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((tables, block) -> tables.dropOther(block, ModBlocks.CHUTE))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.ENCHANTMENT_POWER_TRANSMITTER)
@@ -1964,9 +1960,9 @@ public class ModBlocks {
 
     public static final BlockEntry<SimpleMagneticChuteBlock> SIMPLE_MAGNETIC_CHUTE = REGISTRUM
         .block("simple_magnetic_chute", SimpleMagneticChuteBlock::new)
-        .initialProperties(() -> Blocks.END_STONE)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(PropertiesProviderUtil::metalSound)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never).explosionResistance(15F))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((tables, block) -> tables.dropOther(block, ModBlocks.MAGNETIC_CHUTE))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.ENCHANTMENT_POWER_TRANSMITTER)
@@ -5162,11 +5158,7 @@ public class ModBlocks {
 
     public static final BlockEntry<PulseGeneratorBlock> PULSE_GENERATOR = REGISTRUM.block("pulse_generator", PulseGeneratorBlock::new)
         .properties(properties -> properties.strength(3.0F, 3.5F).sound(SoundType.STONE).noOcclusion())
-        .blockstate(() -> DataGenUtil.horizontalFacingBlockInverted(
-            PulseGeneratorBlock.POWERED,
-            ctx -> ctx.getId().withPrefix("block/").withSuffix("_on"),
-            ctx -> ctx.getId().withPrefix("block/")
-        ))
+        .blockstate(DataGenUtil::mountedPoweredBlock)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .item().transform(PropertiesProviderUtil::blockItem).build()
         .recipe(RegistrumBlockRecipeLoader::pulseGenerator)
@@ -5177,7 +5169,12 @@ public class ModBlocks {
             AdvancedComparatorBlock::new
         )
         .properties(properties -> properties.strength(3.0F, 3.5F).sound(SoundType.STONE).noOcclusion())
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(() -> (ctx, generator) -> generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
+            .with(PropertyDispatch.initial(AdvancedComparatorBlock.MODE, AdvancedComparatorBlock.INPUT, AdvancedComparatorBlock.POWERED)
+                .generate((mode, input, powered) -> BlockModelGenerators.plainVariant(ctx.getId().withPath(
+                    "block/" + mode.getSerializedName() + "_comparator" + (input ? "_in" : "") + (powered ? "_out" : "")
+                ))))
+            .with(DataGenUtil.mountedRotations())))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .item().transform(PropertiesProviderUtil::blockItem).build()
         .recipe(RegistrumBlockRecipeLoader::advancedComparator)

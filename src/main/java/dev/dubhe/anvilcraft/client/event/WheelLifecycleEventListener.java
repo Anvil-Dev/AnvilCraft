@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder;
 import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder.ModelRenderTarget;
+import dev.dubhe.anvilcraft.block.utility.redstone.MountedRedstone;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.support.HammerPreviewState;
 import dev.dubhe.anvilcraft.client.support.HammerWheelIconRenderer;
@@ -287,7 +288,9 @@ public class WheelLifecycleEventListener {
         Level level = Objects.requireNonNull(Minecraft.getInstance().level);
         BlockState initialState = level.getBlockState(targetPos);
         WheelLifecycleEventListener.hammerPreview = new HammerPreviewState(targetPos, initialState, possibleStates);
-        WheelMenuBuilder builder = WheelMenuBuilder.create().slotsPerPage(possibleStates.size());
+        int slotsPerPage = initialState.getBlock() instanceof MountedRedstone
+            ? BlockStateProperties.HORIZONTAL_FACING.getPossibleValues().size() : possibleStates.size();
+        WheelMenuBuilder builder = WheelMenuBuilder.create().slotsPerPage(slotsPerPage);
         possibleStates
             .forEach(state -> {
                 ModelRenderTarget modelTarget = state.getBlock() instanceof IMultiPartBlockModelHolder holder
@@ -295,9 +298,17 @@ public class WheelLifecycleEventListener {
                                                 : new ModelRenderTarget(targetPos, state);
                 HammerWheelIconRenderer icon = new HammerWheelIconRenderer(Minecraft.getInstance().level, modelTarget);
                 String name = property.getName(Util.cast(state.getValue(property)));
+                Component label = Component.literal(name);
+                if (state.getBlock() instanceof MountedRedstone) {
+                    String face = state.getValue(MountedRedstone.ATTACHMENT).getName();
+                    String direction = MountedRedstone.inputDirection(state).getName();
+                    name = face + "_" + direction;
+                    label = Component.translatable("screen.anvilcraft.button.direction." + face).append(" / ")
+                        .append(Component.translatable("screen.anvilcraft.button.direction." + direction));
+                }
                 builder.action(
                     name,
-                    Component.literal(name),
+                    label,
                     (graphics, _, _, _) -> icon.render(graphics, camera),
                     _ -> WheelLifecycleEventListener.sendHammerChangeBlockPacketToServer(state, targetPos)
                 );
