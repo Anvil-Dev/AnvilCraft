@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity.fluid;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidPipeNetwork;
 import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
@@ -47,13 +48,12 @@ import java.util.List;
 @Getter
 public class ControlValveBlockEntity extends BlockEntity implements MenuProvider {
     public static final int FILTER_SLOT_COUNT = 1;
-    public static final int MAX_RATE = 2000;
     private static final String FILTER_ITEM_NBT_ID = "FilterItem";
 
     private final NonNullList<FluidStack> filters = NonNullList.withSize(ControlValveBlockEntity.FILTER_SLOT_COUNT, FluidStack.EMPTY);
     private ItemStack filterItem = ItemStack.EMPTY;
     private @Nullable FluidFilter cachedFilter;
-    private int maxRate = ControlValveBlockEntity.MAX_RATE;
+    private int maxRate = FluidPipeNetwork.maxSpeed();
     private Direction facing = Direction.NORTH;
 
     public ControlValveBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
@@ -65,8 +65,12 @@ public class ControlValveBlockEntity extends BlockEntity implements MenuProvider
         this.setChanged();
     }
 
+    public int getMaxRate() {
+        return Math.min(this.maxRate, FluidPipeNetwork.maxSpeed());
+    }
+
     public void setMaxRate(int maxRate) {
-        int clamped = Mth.clamp(maxRate, 0, ControlValveBlockEntity.MAX_RATE);
+        int clamped = Mth.clamp(maxRate, 0, FluidPipeNetwork.maxSpeed());
         if (this.maxRate == clamped) return;
         this.maxRate = clamped;
         this.setChanged();
@@ -79,7 +83,7 @@ public class ControlValveBlockEntity extends BlockEntity implements MenuProvider
     }
 
     public int getEffectiveMaxRate() {
-        return this.isLocked() ? 0 : this.maxRate;
+        return this.isLocked() ? 0 : this.getMaxRate();
     }
 
     public void setFilter(int index, FluidStack fluid) {
@@ -218,7 +222,7 @@ public class ControlValveBlockEntity extends BlockEntity implements MenuProvider
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        this.maxRate = Mth.clamp(input.getIntOr("MaxRate", ControlValveBlockEntity.MAX_RATE), 0, ControlValveBlockEntity.MAX_RATE);
+        this.maxRate = Mth.clamp(input.getIntOr("MaxRate", FluidPipeNetwork.maxSpeed()), 0, FluidPipeNetwork.MAX_CONFIGURABLE_FLOW_RATE);
         this.facing = Direction.from3DDataValue(input.getIntOr("Facing", Direction.NORTH.get3DDataValue()));
         this.readFilters(input);
         this.filterItem = input.read(ControlValveBlockEntity.FILTER_ITEM_NBT_ID, ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.building;
 
+import dev.dubhe.anvilcraft.api.fluid.network.FluidPipeNetwork;
 import dev.dubhe.anvilcraft.api.teslatower.TeslaFilter;
 import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
@@ -241,7 +242,7 @@ public final class BlueprintBlockConfiguration {
     }
 
     private static void valve(CompoundTag source, CompoundTag result, HolderLookup.Provider registries) {
-        integer(source, result, "MaxRate", 0, ControlValveBlockEntity.MAX_RATE);
+        integer(source, result, "MaxRate", 0, FluidPipeNetwork.MAX_CONFIGURABLE_FLOW_RATE);
         integer(source, result, "Facing", 0, 5);
         ListTag filters = new ListTag();
         for (Tag value : BlueprintNbt.list(source, "Filters", Tag.TAG_COMPOUND)) {

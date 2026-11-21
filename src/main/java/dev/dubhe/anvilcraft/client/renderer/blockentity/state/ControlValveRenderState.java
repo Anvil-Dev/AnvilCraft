@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity.state;
 
-import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
@@ -15,6 +14,6 @@ public class ControlValveRenderState extends BlockEntityRenderState {
     private @Nullable BlockModelRenderState handwheel;
     private Direction facing = Direction.NORTH;
     private Direction.Axis axis = Direction.Axis.Y;
-    private int maxRate = ControlValveBlockEntity.MAX_RATE;
+    private int maxRate;
     private @Nullable FluidResource filterResource;
 }

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.gui.component;
 
+import dev.dubhe.anvilcraft.api.fluid.network.FluidPipeNetwork;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.util.Callback;
 import lombok.Getter;
@@ -14,9 +15,7 @@ import net.minecraft.resources.Identifier;
 public class FluidRateSlider extends AbstractWidget {
     public static final Identifier SLIDER = SharedTextures.textureGui("misc/slider_like/slider");
 
-    public static final int MAX = 2000;
     public static final int STEP = 50;
-    private static final int TOTAL_STEPS = FluidRateSlider.MAX / FluidRateSlider.STEP;
 
     private final int posX;
     private final int posY;
@@ -39,7 +38,7 @@ public class FluidRateSlider extends AbstractWidget {
     }
 
     public void setExactValue(int value) {
-        this.value = Math.clamp(value, 0, FluidRateSlider.MAX);
+        this.value = Math.clamp(value, 0, FluidPipeNetwork.maxSpeed());
     }
 
     public void setValueWithUpdate(int value) {
@@ -48,20 +47,27 @@ public class FluidRateSlider extends AbstractWidget {
     }
 
     public void step(int direction) {
-        this.setValueWithUpdate(this.value + FluidRateSlider.STEP * direction);
+        if (direction < 0 && this.value == FluidPipeNetwork.maxSpeed() && this.value % STEP != 0) {
+            this.setValueWithUpdate(this.value - this.value % STEP);
+        } else {
+            this.setValueWithUpdate(this.value + STEP * direction);
+        }
     }
 
     private void update() {
         this.callback.onValueChange(this.value);
     }
 
-    private static int clampSnap(int value) {
-        int snapped = Math.round((float) value / FluidRateSlider.STEP) * FluidRateSlider.STEP;
-        return Math.clamp(snapped, 0, FluidRateSlider.MAX);
+    private static int clampSnap(double value) {
+        int max = FluidPipeNetwork.maxSpeed();
+        double clamped = Math.clamp(value, 0d, max);
+        int lower = (int) (clamped / STEP) * STEP;
+        int upper = Math.min(lower + STEP, max);
+        return clamped - lower < upper - clamped ? lower : upper;
     }
 
     private double proportion() {
-        return (double) this.value / FluidRateSlider.MAX;
+        return (double) this.value / FluidPipeNetwork.maxSpeed();
     }
 
     private int knobX() {
@@ -98,8 +104,8 @@ public class FluidRateSlider extends AbstractWidget {
 
     private void applyMouse(double mouseX) {
         double offset = (mouseX - this.posX - 8.0) / (this.length - 16);
-        int step = (int) Math.round(Math.clamp(offset, 0.0, 1.0) * FluidRateSlider.TOTAL_STEPS);
-        this.setValueWithUpdate(step * FluidRateSlider.STEP);
+        this.value = clampSnap(offset * FluidPipeNetwork.maxSpeed());
+        this.update();
     }
 
     @Override

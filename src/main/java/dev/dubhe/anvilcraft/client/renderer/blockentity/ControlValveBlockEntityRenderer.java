@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidPipeNetwork;
 import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
 import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.ControlValveRenderState;
@@ -131,7 +132,7 @@ public class ControlValveBlockEntityRenderer
     }
 
     private static void applyHandwheelPose(PoseStack poseStack, Direction facing, Direction.Axis axis, int maxRate) {
-        float ratio = (ControlValveBlockEntity.MAX_RATE - maxRate) / (float) ControlValveBlockEntity.MAX_RATE;
+        float ratio = 1 - maxRate / (float) FluidPipeNetwork.maxSpeed();
         float spinDeg = ControlValveBlockEntityRenderer.BASE_ANGLE_DEG - 90.0f * ratio;
         if (axis == Direction.Axis.Z || (axis == Direction.Axis.Y && facing.getAxis() == Direction.Axis.Z)) {
             spinDeg += 90.0f;
