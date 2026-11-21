@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
@@ -25,9 +26,10 @@ public class UnpackCategory extends AbstractProgressCategory<UnpackRecipe> {
     public UnpackCategory(IGuiHelper helper) {
         super(
             helper,
-            new DrawableBlockStateIcon(
+            DrawableBlockStateIcon.alternatingDown(
                 Blocks.ANVIL.defaultBlockState(),
-                Blocks.IRON_TRAPDOOR.defaultBlockState().setValue(TrapDoorBlock.HALF, Half.TOP)
+                Blocks.IRON_TRAPDOOR.defaultBlockState().setValue(TrapDoorBlock.HALF, Half.TOP),
+                ModBlocks.UNPACKING_TABLE.getDefaultState()
             ),
             Component.translatable("gui.anvilcraft.category.unpack")
         );
@@ -51,8 +53,16 @@ public class UnpackCategory extends AbstractProgressCategory<UnpackRecipe> {
         this.arrowIn.draw(graphics, 54, 30);
         this.arrowOutFromBelow.draw(graphics, 92, 29);
 
-        RenderSupport.renderBlockAt(graphics,
-            Blocks.IRON_TRAPDOOR.defaultBlockState().setValue(TrapDoorBlock.HALF, Half.TOP), 81, 40, 12);
+        RenderSupport.renderBlockAt(
+            graphics,
+            JeiRenderHelper.alternatingState(
+                Blocks.IRON_TRAPDOOR.defaultBlockState().setValue(TrapDoorBlock.HALF, Half.TOP),
+                ModBlocks.UNPACKING_TABLE.getDefaultState()
+            ),
+            81,
+            40,
+            12
+        );
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
         RenderSupport.renderBlockAt(graphics, Blocks.ANVIL.defaultBlockState(), 81, 22 + anvilYOffset, 12);
 
@@ -72,5 +82,6 @@ public class UnpackCategory extends AbstractProgressCategory<UnpackRecipe> {
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.UNPACK);
         registration.addCraftingStation(AnvilCraftJeiPlugin.UNPACK, Items.IRON_TRAPDOOR);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.UNPACK, ModBlocks.UNPACKING_TABLE);
     }
 }
