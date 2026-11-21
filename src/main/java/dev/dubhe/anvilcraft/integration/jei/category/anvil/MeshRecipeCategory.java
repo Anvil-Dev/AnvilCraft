@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
@@ -42,7 +43,11 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
     public MeshRecipeCategory(IGuiHelper helper) {
         this.slotDefault = JeiRenderHelper.getSlotDefault(helper);
         this.slotProbability = JeiRenderHelper.getSlotProbability(helper);
-        this.icon = new DrawableBlockStateIcon(Blocks.ANVIL.defaultBlockState(), Blocks.SCAFFOLDING.defaultBlockState());
+        this.icon = DrawableBlockStateIcon.alternatingDown(
+            Blocks.ANVIL.defaultBlockState(),
+            Blocks.SCAFFOLDING.defaultBlockState(),
+            ModBlocks.SIFTING_TABLE.getDefaultState()
+        );
         this.title = Component.translatable("gui.anvilcraft.category.mesh");
         this.timer = helper.createTickTimer(30, 60, true);
 
@@ -98,7 +103,16 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
         double mouseY
     ) {
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
-        RenderSupport.renderBlock(graphics, Blocks.SCAFFOLDING.defaultBlockState(), 71, 25, 20);
+        RenderSupport.renderBlock(
+            graphics,
+            JeiRenderHelper.alternatingState(
+                Blocks.SCAFFOLDING.defaultBlockState(),
+                ModBlocks.SIFTING_TABLE.getDefaultState()
+            ),
+            71,
+            25,
+            20
+        );
         RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 71, 7 + anvilYOffset, 20);
 
         this.arrowIn.draw(graphics, 55, 17);
@@ -118,5 +132,6 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.MESH);
         registration.addCraftingStation(AnvilCraftJeiPlugin.MESH, Items.SCAFFOLDING);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.MESH, ModBlocks.SIFTING_TABLE);
     }
 }

@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.category.AbstractLiquidReactionCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.AbstractLiquidReactionCategory.SlotPosition;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiBlockIngredientUtil;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiCauldronUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiFluidUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiItemUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
@@ -25,14 +26,13 @@ import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
-import net.minecraft.advancements.criterion.MinMaxBounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -63,6 +63,7 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
     private final IDrawable ignition;
     private final BlockState largeCauldron;
     private final BlockState giantAnvil;
+    private final ITickTimer containerTimer;
 
     public AbstractLiquidCategory(IGuiHelper helper, IDrawable icon, Component title) {
         this.icon = icon;
@@ -73,6 +74,8 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
         this.arrowOut = JeiRenderHelper.getArrowOutput(helper);
         this.title = title;
         this.ignition = helper.getRecipeFlameFilled();
+        // 炼药锅与鱼缸都能承接这些流体，每秒轮换一次提示两种容器都可用
+        this.containerTimer = helper.createTickTimer(40, 1, false);
         this.largeCauldron = ModBlocks.LARGE_CAULDRON.getDefaultState()
             .setValue(LargeCauldronBlock.HALF, Cube3x3PartHalf.MID_CENTER);
         this.giantAnvil = JeiBlockIngredientUtil.getRenderablePreviewState(ModBlocks.GIANT_ANVIL.getDefaultState());
@@ -172,7 +175,11 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
         float modelScale = large ? 4 : 12;
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer) / (large ? 3.0F : 1.0F);
         RenderSupport.renderBlockAt(graphics, this.getProcessBlock(), 81, 40, 12);
-        RenderSupport.renderBlockAt(graphics, large ? this.largeCauldron : Blocks.CAULDRON.defaultBlockState(),
+        RenderSupport.renderBlockAt(graphics, large ? this.largeCauldron
+                : JeiCauldronUtil.smallContainer(
+                    JeiCauldronUtil.containerFluids(cauldron),
+                    this.containerTimer.getValue() != 0
+                ),
             81, large ? 24 : 30, modelScale);
         RenderSupport.renderBlockAt(graphics, large ? this.giantAnvil : Blocks.ANVIL.defaultBlockState(),
             81, 12 + anvilYOffset, modelScale);
@@ -236,10 +243,8 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
     }
 
     private static boolean useLargeCauldron(HasCauldronSimple cauldron) {
-        int requiredAmount = cauldron.fluid().isNegate() ? cauldron.consume() : Math.max(
-            cauldron.consume(), cauldron.fluid().amount().flatMap(MinMaxBounds.Ints::min).orElse(0)
-        );
-        return requiredAmount > FluidType.BUCKET_VOLUME;
+        List<FluidStack> fluids = JeiCauldronUtil.containerFluids(cauldron);
+        return JeiCauldronUtil.needsLargeCauldron(fluids) || JeiCauldronUtil.exceedsBucket(fluids);
     }
 
     private static boolean useLargeLayout(AbstractProcessRecipe<?> recipe) {

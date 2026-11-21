@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiCauldronUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiItemUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
@@ -19,6 +20,7 @@ import dev.dubhe.anvilcraft.item.property.component.SavedEntity;
 import dev.dubhe.anvilcraft.item.property.predicate.ItemSavedEntityPredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.transform.NumericTagValuePredicate;
+import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
@@ -44,12 +46,20 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressRecipe> {
+    private final ITickTimer containerTimer;
+
     public ItemCompressCategory(IGuiHelper helper) {
         super(
             helper,
-            new DrawableBlockStateIcon(Blocks.ANVIL.defaultBlockState(), Blocks.CAULDRON.defaultBlockState()),
+            DrawableBlockStateIcon.alternatingDown(
+                Blocks.ANVIL.defaultBlockState(),
+                Blocks.CAULDRON.defaultBlockState(),
+                ModBlocks.FISH_TANK.getDefaultState()
+            ),
             Component.translatable("gui.anvilcraft.category.item_compress")
         );
+        // 炼药锅能做的事鱼缸都能做，每秒轮换一次提示两种容器都可用
+        this.containerTimer = helper.createTickTimer(40, 1, false);
     }
 
     @Override
@@ -105,7 +115,13 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
     ) {
         final ItemCompressRecipe recipe = recipeHolder.value();
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
-        RenderSupport.renderBlockAt(guiGraphics, Blocks.CAULDRON.defaultBlockState(), 81, 40, 12);
+        RenderSupport.renderBlockAt(
+            guiGraphics,
+            JeiCauldronUtil.smallContainer(List.of(), this.containerTimer.getValue() != 0),
+            81,
+            40,
+            12
+        );
         RenderSupport.renderBlockAt(guiGraphics, Blocks.ANVIL.defaultBlockState(), 81, 22 + anvilYOffset, 12);
 
         this.arrowIn.draw(guiGraphics, 54, 30);

@@ -30,12 +30,13 @@ public class TimeWarpCategory extends AbstractLiquidCategory<TimeWarpRecipe> {
     public TimeWarpCategory(IGuiHelper helper) {
         super(
             helper,
-            new DrawableBlockStateIcon(
+            DrawableBlockStateIcon.alternatingUp(
                 Blocks.CAULDRON.defaultBlockState(),
                 ModBlocks.CORRUPTED_BEACON
                     .get()
                     .defaultBlockState()
-                    .trySetValue(BlockStateProperties.WATERLOGGED, false)
+                    .trySetValue(BlockStateProperties.WATERLOGGED, false),
+                ModBlocks.FISH_TANK.getDefaultState()
             ),
             Component.translatable("gui.anvilcraft.category.time_warp")
         );

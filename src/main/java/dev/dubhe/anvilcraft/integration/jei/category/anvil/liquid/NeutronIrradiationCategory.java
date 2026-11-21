@@ -32,11 +32,12 @@ public class NeutronIrradiationCategory extends AbstractLiquidCategory<NeutronIr
     public NeutronIrradiationCategory(IGuiHelper helper) {
         super(
             helper,
-            new DrawableBlockStateIcon(
+            DrawableBlockStateIcon.alternatingUp(
                 Blocks.CAULDRON.defaultBlockState(),
                 ModBlocks.NEUTRON_IRRADIATOR
                     .get()
-                    .defaultBlockState()
+                    .defaultBlockState(),
+                ModBlocks.FISH_TANK.getDefaultState()
             ),
             Component.translatable("gui.anvilcraft.category.neutron_irradiation")
         );
