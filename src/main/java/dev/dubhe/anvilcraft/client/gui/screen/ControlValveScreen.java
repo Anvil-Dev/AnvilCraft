@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
+import dev.dubhe.anvilcraft.api.fluid.network.FluidPipeNetwork;
 import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.component.FluidRateSlider;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
@@ -52,7 +53,8 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
     private static final int FILTER_Y = ControlValveMenu.FILTER_Y;
     private static final int FILTER_GHOST_ID = 0;
 
-    private int value = ControlValveBlockEntity.MAX_RATE;
+    private int pipeMaxRate = FluidPipeNetwork.maxSpeed();
+    private int value = this.pipeMaxRate;
     private FluidStack filter = FluidStack.EMPTY;
     private ItemStack filterItem = ItemStack.EMPTY;
     private List<FluidStack> filterFluids = List.of();
@@ -65,6 +67,19 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
     }
 
     @Override
+    protected void containerTick() {
+        super.containerTick();
+        int maxRate = FluidPipeNetwork.maxSpeed();
+        if (this.pipeMaxRate != maxRate) {
+            this.pipeMaxRate = maxRate;
+            ControlValveBlockEntity valve = this.menu.getBlockEntity();
+            if (valve != null) {
+                this.setValue(valve.getMaxRate());
+            }
+        }
+    }
+
+    @Override
     protected void init() {
         super.init();
         this.titleLabelX = (this.getImageWidth() - this.font.width(this.title)) / 2;
@@ -73,12 +88,12 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
         int offsetX = this.leftPos;
         int offsetY = this.topPos;
         this.slider = new FluidRateSlider(offsetX + 8, offsetY + 41, 160, this::onSliderChange);
-        this.valueBox = new EditBox(this.font, offsetX + 51, offsetY + 58, 28, 8, Component.literal("value"));
+        this.valueBox = new EditBox(this.font, offsetX + 51, offsetY + 58, 56, 8, Component.literal("value"));
         this.valueBox.setCanLoseFocus(true);
         this.valueBox.setTextColor(-1);
         this.valueBox.setTextColorUneditable(-1);
         this.valueBox.setBordered(false);
-        this.valueBox.setMaxLength(4);
+        this.valueBox.setMaxLength(Integer.toString(FluidPipeNetwork.MAX_CONFIGURABLE_FLOW_RATE).length());
         this.valueBox.setResponder(this::onValueInput);
 
         this.addRenderableWidget(new TexturedButton(
@@ -124,7 +139,7 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
             16,
             16,
             32,
-            _ -> this.updateSlider(FluidRateSlider.MAX)
+            _ -> this.updateSlider(FluidPipeNetwork.maxSpeed())
         ));
         this.addRenderableWidget(this.valueBox);
         ControlValveBlockEntity blockEntity = this.menu.getBlockEntity();
@@ -137,7 +152,7 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
     }
 
     public void setValue(int value) {
-        this.value = Math.clamp(value, 0, FluidRateSlider.MAX);
+        this.value = Math.clamp(value, 0, FluidPipeNetwork.maxSpeed());
         if (this.slider != null) {
             this.slider.setExactValue(this.value);
             this.value = this.slider.getValue();
