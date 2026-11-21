@@ -7,6 +7,7 @@ import dev.anvilcraft.lib.v2.config.Comment;
 import dev.anvilcraft.lib.v2.config.Config;
 import dev.anvilcraft.lib.v2.config.util.TranslatableEnum;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidPipeNetwork;
 import dev.dubhe.anvilcraft.block.FireCauldronBlock;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.fluids.FluidType;
@@ -550,7 +551,7 @@ public class AnvilCraftServerConfig {
         public int pipeFlowPerHeight = 50;
 
         @Comment("Controls the maximum fluid flow of a Pipe (in mB/tick)")
-        @BoundedDiscrete(min = 1, max = 100000)
+        @BoundedDiscrete(min = 1, max = FluidPipeNetwork.MAX_CONFIGURABLE_FLOW_RATE)
         public int pipeMaxFlowRate = 2000;
 
         @Comment("Controls the range of the Local Terminal (in blocks)")

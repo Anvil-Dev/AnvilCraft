@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity.fluid;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidPipeNetwork;
 import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.inventory.ControlValveMenu;
@@ -50,15 +51,13 @@ import java.util.List;
  * 未设置任何过滤 → 允许所有流体通过。</p>
  *
  * <h3>流速</h3>
- * {@link #maxRate} ∈ [0, {@value #MAX_RATE}] mB/tick，只限制每 tick 流过本阀门的流体上限，
+ * {@link #getMaxRate()} ∈ [0, 管道流速上限] mB/tick，只限制每 tick 流过本阀门的流体上限，
  * 不是最低起送量；白名单只放行已标记的流体，不会用其他液体补足流速。
  */
 @Getter
 public class ControlValveBlockEntity extends BlockEntity implements MenuProvider {
     /** 过滤槽数量 */
     public static final int FILTER_SLOT_COUNT = 1;
-    /** 最大可设流速（mB/tick） */
-    public static final int MAX_RATE = 2000;
     /** 过滤器物品的 NBT 键 */
     private static final String FILTER_ITEM_NBT_ID = "FilterItem";
 
@@ -76,7 +75,7 @@ public class ControlValveBlockEntity extends BlockEntity implements MenuProvider
     private @Nullable FluidFilter cachedFilter;
 
     /** 允许通过的最大流速（mB/tick） */
-    private int maxRate = MAX_RATE;
+    private int maxRate = FluidPipeNetwork.maxSpeed();
 
     /**
      * 手轮朝向的那一面（放置时记录玩家面向的、垂直于轴的方向）。手轮 BER 渲染在此面中心、绕此面法线旋转。
@@ -93,8 +92,12 @@ public class ControlValveBlockEntity extends BlockEntity implements MenuProvider
         this.setChanged();
     }
 
+    public int getMaxRate() {
+        return Math.min(this.maxRate, FluidPipeNetwork.maxSpeed());
+    }
+
     public void setMaxRate(int maxRate) {
-        this.maxRate = Mth.clamp(maxRate, 0, MAX_RATE);
+        this.maxRate = Mth.clamp(maxRate, 0, FluidPipeNetwork.maxSpeed());
         this.setChanged();
     }
 
@@ -106,7 +109,7 @@ public class ControlValveBlockEntity extends BlockEntity implements MenuProvider
 
     /** 供网络分配使用的有效最大流速：被红石锁定时为 0，否则为设定值。 */
     public int getEffectiveMaxRate() {
-        return this.isLocked() ? 0 : this.maxRate;
+        return this.isLocked() ? 0 : this.getMaxRate();
     }
 
     /** 设置某槽的过滤流体（数量归一，仅记录种类）。 */
@@ -271,7 +274,7 @@ public class ControlValveBlockEntity extends BlockEntity implements MenuProvider
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        this.maxRate = Mth.clamp(tag.getInt("MaxRate"), 0, MAX_RATE);
+        this.maxRate = Mth.clamp(tag.getInt("MaxRate"), 0, FluidPipeNetwork.MAX_CONFIGURABLE_FLOW_RATE);
         this.facing = Direction.from3DDataValue(tag.getInt("Facing"));
         this.readFilters(registries, tag.getList("Filters", Tag.TAG_COMPOUND));
         this.filterItem = tag.contains(FILTER_ITEM_NBT_ID)

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.gui.component;
 
+import dev.dubhe.anvilcraft.api.fluid.network.FluidPipeNetwork;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.util.Callback;
 import lombok.Getter;
@@ -10,7 +11,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * 控制阀流速滑条：0 在最左、{@value #MAX} mB/tick 在最右，全程每档 {@value #STEP} mB/tick 线性均匀。
+ * 控制阀流速滑条：0 在最左、配置的管道流速上限在最右，每档 {@value #STEP} mB/tick，末档取流速上限。
  *
  * <p>交互仿创造发电机 {@link Slider}：按住左键可拖动；仅当鼠标悬停在<b>滑块</b>上时才变高亮贴图。
  * 由屏幕在 {@code mouseClicked/mouseDragged/mouseReleased} 中显式转发到本组件。
@@ -18,9 +19,7 @@ import net.minecraft.resources.ResourceLocation;
 public class FluidRateSlider extends AbstractWidget {
     public static final ResourceLocation SLIDER = SharedTextures.textureGui("misc/slider_like/slider");
 
-    public static final int MAX = 2000;
     public static final int STEP = 50;
-    public static final int TOTAL_STEPS = MAX / STEP; // 40
 
     private final int posX;
     private final int posY;
@@ -43,6 +42,10 @@ public class FluidRateSlider extends AbstractWidget {
         this.value = clampSnap(value);
     }
 
+    public void setExactValue(int value) {
+        this.value = Math.clamp(value, 0, FluidPipeNetwork.maxSpeed());
+    }
+
     /** 设置值并回调。 */
     public void setValueWithUpdate(int value) {
         this.value = clampSnap(value);
@@ -51,21 +54,27 @@ public class FluidRateSlider extends AbstractWidget {
 
     /** 在当前值基础上增减一档（±{@value #STEP}）。 */
     public void step(int direction) {
-        this.setValueWithUpdate(this.value + STEP * direction);
+        if (direction < 0 && this.value == FluidPipeNetwork.maxSpeed() && this.value % STEP != 0) {
+            this.setValueWithUpdate(this.value - this.value % STEP);
+        } else {
+            this.setValueWithUpdate(this.value + STEP * direction);
+        }
     }
 
     private void update() {
         this.callback.onValueChange(this.value);
     }
 
-    /** 将任意值吸附到最近的合法档位值（{@value #STEP} 的整数倍，钳制到 [0,{@value #MAX}]）。 */
-    private static int clampSnap(int v) {
-        int snapped = Math.round((float) v / STEP) * STEP;
-        return Math.max(0, Math.min(MAX, snapped));
+    private static int clampSnap(double value) {
+        int max = FluidPipeNetwork.maxSpeed();
+        double clamped = Math.clamp(value, 0d, max);
+        int lower = (int) (clamped / STEP) * STEP;
+        int upper = Math.min(lower + STEP, max);
+        return clamped - lower < upper - clamped ? lower : upper;
     }
 
     private double proportion() {
-        return (double) this.value / MAX;
+        return (double) this.value / FluidPipeNetwork.maxSpeed();
     }
 
     /** 滑块当前左上角 X（滑块宽 16，在 [posX, posX+length-16] 间移动）。 */
@@ -102,8 +111,8 @@ public class FluidRateSlider extends AbstractWidget {
 
     private void applyMouse(double mouseX) {
         double offset = (mouseX - this.posX - 8.0) / (this.length - 16);
-        int step = (int) Math.round(Math.max(0.0, Math.min(1.0, offset)) * TOTAL_STEPS);
-        this.setValueWithUpdate(step * STEP);
+        this.value = clampSnap(offset * FluidPipeNetwork.maxSpeed());
+        this.update();
     }
 
     @Override
