@@ -140,16 +140,27 @@ public final class StellarEmissionRenderer {
         return shader != null ? shader : GameRenderer.getRendertypeEyesShader();
     }
 
+    public static void renderPreview(StarData star, BakedModel model, PoseStack poseStack, MultiBufferSource buffers, int overlay) {
+        render(star, model, poseStack, buffers, overlay, null, null, 0, false);
+    }
+
     public static void render(
         StarData star, BakedModel model, PoseStack poseStack, MultiBufferSource buffers, int overlay,
         @Nullable StellarVisualState visual, @Nullable StellarEventProfile event, float eventProgress
+    ) {
+        render(star, model, poseStack, buffers, overlay, visual, event, eventProgress, true);
+    }
+
+    private static void render(
+        StarData star, BakedModel model, PoseStack poseStack, MultiBufferSource buffers, int overlay,
+        @Nullable StellarVisualState visual, @Nullable StellarEventProfile event, float eventProgress, boolean renderCorona
     ) {
         if (!STATE.standard(AnvilCraft.CLIENT_CONFIG.graphics.stellarRenderMode, IrisState.isShaderEnabled())) {
             VanillaCelestialRenderer.star(star, model, poseStack, buffers, overlay, visual);
             return;
         }
         try {
-            renderStandard(star, model, poseStack, buffers, overlay, visual, event, eventProgress);
+            renderStandard(star, model, poseStack, buffers, overlay, visual, event, eventProgress, renderCorona);
         } catch (RuntimeException exception) {
             if (STATE.fail()) AnvilCraft.LOGGER.warn("Stellar emission failed; using vanilla celestial rendering.", exception);
             VanillaCelestialRenderer.star(star, model, poseStack, buffers, overlay, visual);
@@ -162,7 +173,7 @@ public final class StellarEmissionRenderer {
 
     private static void renderStandard(
         StarData star, BakedModel model, PoseStack poseStack, MultiBufferSource buffers, int overlay,
-        @Nullable StellarVisualState visual, @Nullable StellarEventProfile event, float eventProgress
+        @Nullable StellarVisualState visual, @Nullable StellarEventProfile event, float eventProgress, boolean renderCorona
     ) {
         float temperature = visual == null
             ? StellarVisualState.temperatureForSurfaceClass(star.bodyClass(), star.energy()) : visual.temperature();
@@ -199,6 +210,10 @@ public final class StellarEmissionRenderer {
             };
             float glow = Math.min(0.95f, 0.8f + 0.01f * exposure);
             drawModel(model, poseStack, consumer, red, green, blue, glow, overlay);
+        }
+        // 界面直接绘制到背景上，世界空间的日冕会在模型轮廓外留下亮带。
+        if (!renderCorona) {
+            return;
         }
         poseStack.pushPose();
         try {

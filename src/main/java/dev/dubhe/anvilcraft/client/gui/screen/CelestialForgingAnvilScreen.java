@@ -835,10 +835,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             return;
         }
         var buffers = guiGraphics.bufferSource();
-        StellarEmissionRenderer.render(
-            star, model, guiGraphics.pose(), buffers, OverlayTexture.NO_OVERLAY,
-            this.getMenu().getBlockEntity().getStellarVisualState(0), null, 0
-        );
+        StellarEmissionRenderer.renderPreview(star, model, guiGraphics.pose(), buffers, OverlayTexture.NO_OVERLAY);
         buffers.endBatch();
     }
 
