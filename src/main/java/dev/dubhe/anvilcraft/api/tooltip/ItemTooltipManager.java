@@ -1381,7 +1381,7 @@ public class ItemTooltipManager {
                     "providence",
                     tooltip,
                     0xFFCB62,
-                    Minecraft.getInstance().options.keyShift.getKey().getDisplayName()
+                    Component.translatable("key.keyboard.left.shift")
                 );
             }
         }
