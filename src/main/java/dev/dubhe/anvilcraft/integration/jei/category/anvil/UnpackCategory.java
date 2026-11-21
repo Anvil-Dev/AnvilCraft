@@ -30,8 +30,11 @@ public class UnpackCategory extends AbstractProgressCategory<UnpackRecipe> {
     public UnpackCategory(IGuiHelper helper) {
         super(
             helper,
-            new DrawableBlockStateIcon(Blocks.ANVIL.defaultBlockState(),
-                Blocks.IRON_TRAPDOOR.defaultBlockState().setValue(TrapDoorBlock.HALF, Half.TOP)),
+            DrawableBlockStateIcon.alternatingDown(
+                Blocks.ANVIL.defaultBlockState(),
+                Blocks.IRON_TRAPDOOR.defaultBlockState().setValue(TrapDoorBlock.HALF, Half.TOP),
+                ModBlocks.UNPACKING_TABLE.getDefaultState()
+            ),
             Component.translatable("gui.anvilcraft.category.unpack")
         );
     }
@@ -61,7 +64,10 @@ public class UnpackCategory extends AbstractProgressCategory<UnpackRecipe> {
             RenderSupport.SINGLE_BLOCK);
         RenderSupport.renderBlock(
             guiGraphics,
-            Blocks.IRON_TRAPDOOR.defaultBlockState().setValue(TrapDoorBlock.HALF, Half.TOP),
+            JeiRenderHelper.alternatingState(
+                Blocks.IRON_TRAPDOOR.defaultBlockState().setValue(TrapDoorBlock.HALF, Half.TOP),
+                ModBlocks.UNPACKING_TABLE.getDefaultState()
+            ),
             81,
             40,
             10,

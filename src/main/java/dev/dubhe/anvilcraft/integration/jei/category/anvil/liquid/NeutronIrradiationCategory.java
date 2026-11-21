@@ -18,7 +18,6 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -32,11 +31,12 @@ public class NeutronIrradiationCategory extends AbstractLiquidCategory<NeutronIr
     public NeutronIrradiationCategory(IGuiHelper helper) {
         super(
             helper,
-            new DrawableBlockStateIcon(
+            DrawableBlockStateIcon.alternatingUp(
                 Blocks.CAULDRON.defaultBlockState(),
                 ModBlocks.NEUTRON_IRRADIATOR
                     .get()
-                    .defaultBlockState()
+                    .defaultBlockState(),
+                ModBlocks.FISH_TANK.getDefaultState()
             ),
             Component.translatable("gui.anvilcraft.category.neutron_irradiation")
         );

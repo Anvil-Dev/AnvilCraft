@@ -42,8 +42,11 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
     public MeshRecipeCategory(IGuiHelper helper) {
         this.slotDefault = JeiRenderHelper.getSlotDefault(helper);
         this.slotProbability = JeiRenderHelper.getSlotProbability(helper);
-        this.icon =
-            new DrawableBlockStateIcon(Blocks.ANVIL.defaultBlockState(), Blocks.SCAFFOLDING.defaultBlockState());
+        this.icon = DrawableBlockStateIcon.alternatingDown(
+            Blocks.ANVIL.defaultBlockState(),
+            Blocks.SCAFFOLDING.defaultBlockState(),
+            ModBlocks.SIFTING_TABLE.getDefaultState()
+        );
         this.title = Component.translatable("gui.anvilcraft.category.mesh");
         this.timer = helper.createTickTimer(30, 60, true);
 
@@ -104,7 +107,16 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
             12,
             RenderSupport.SINGLE_BLOCK);
         RenderSupport.renderBlock(
-            guiGraphics, Blocks.SCAFFOLDING.defaultBlockState(), 81, 30, 10, 12, RenderSupport.SINGLE_BLOCK);
+            guiGraphics,
+            JeiRenderHelper.alternatingState(
+                Blocks.SCAFFOLDING.defaultBlockState(),
+                ModBlocks.SIFTING_TABLE.getDefaultState()
+            ),
+            81,
+            30,
+            10,
+            12,
+            RenderSupport.SINGLE_BLOCK);
 
         this.arrowIn.draw(guiGraphics, 55, 17);
         this.slotDefault.draw(guiGraphics, 36, 13);

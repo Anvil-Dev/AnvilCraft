@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
 import dev.dubhe.anvilcraft.integration.jei.recipe.ComplexFluidJeiRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.LiquidEnchantmentJeiRecipeUtil;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiCauldronUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiFluidUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiItemUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
@@ -17,6 +18,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SolidLiquidRecipe;
+import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -33,9 +35,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
-import net.neoforged.neoforge.fluids.CauldronFluidContent;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -43,14 +44,19 @@ import java.util.List;
 import java.util.function.IntFunction;
 
 public class SolidLiquidCategory extends AbstractLiquidReactionCategory {
+    private final ITickTimer containerTimer;
+
     public SolidLiquidCategory(IGuiHelper helper) {
         super(
             helper,
-            new DrawableBlockStateIcon(
+            DrawableBlockStateIcon.alternatingDown(
                 Blocks.ANVIL.defaultBlockState(),
-                Blocks.WATER_CAULDRON.defaultBlockState()
+                Blocks.WATER_CAULDRON.defaultBlockState(),
+                ModBlocks.FISH_TANK.getDefaultState()
             )
         );
+        // 炼药锅与鱼缸都能承接这些流体，每秒轮换一次提示两种容器都可用
+        this.containerTimer = helper.createTickTimer(40, 1, false);
     }
 
     @Override
@@ -98,25 +104,26 @@ public class SolidLiquidCategory extends AbstractLiquidReactionCategory {
     }
 
     /**
-     * 只需要一种流体且输出的流体不超过一种（各不超 1 桶）时使用小炼药锅展示。
+     * 小锅布局：输入只有一组流体、输出不超过一组，且所有流体都不超过 1 桶。
+     * 液态魔咒只能在大型炼药锅里处理，1 桶也一样，固定走大锅布局。
      */
     private static boolean useSmallCauldron(ComplexFluidJeiRecipe recipe) {
+        List<FluidStack> fluids = displayFluids(recipe);
+        if (JeiCauldronUtil.needsLargeCauldron(fluids) || JeiCauldronUtil.exceedsBucket(fluids)) return false;
         List<List<FluidStack>> inputs = recipe.getDisplayFluidInputs();
-        List<List<FluidStack>> results = recipe.getDisplayFluidResults();
-        if (inputs.size() != 1 || results.size() > 1) return false;
-        List<FluidStack> inputFluids = inputs.getFirst();
-        if (inputFluids.isEmpty()
-            || inputFluids.getFirst().getAmount() > FluidType.BUCKET_VOLUME) {
-            return false;
-        }
-        if (inputFluids.stream()
-            .anyMatch(fluid -> CauldronFluidContent.getForFluid(fluid.getFluid()) == null)) {
-            return false;
-        }
-        if (results.isEmpty()) return true;
-        List<FluidStack> resultFluids = results.getFirst();
-        return resultFluids.size() == 1
-               && resultFluids.getFirst().getAmount() <= FluidType.BUCKET_VOLUME;
+        return inputs.size() == 1 && recipe.getDisplayFluidResults().size() <= 1;
+    }
+
+    private static List<FluidStack> displayFluids(ComplexFluidJeiRecipe recipe) {
+        List<FluidStack> fluids = new ArrayList<>();
+        recipe.getDisplayFluidInputs().forEach(fluids::addAll);
+        recipe.getDisplayFluidResults().forEach(fluids::addAll);
+        return fluids;
+    }
+
+    /** 小锅布局的容器方块：可装炼药锅的流体在炼药锅与鱼缸之间轮换，其余只能用鱼缸。 */
+    private BlockState smallContainerState(ComplexFluidJeiRecipe recipe) {
+        return JeiCauldronUtil.smallContainer(SolidLiquidCategory.displayFluids(recipe), this.containerTimer.getValue() != 0);
     }
 
     private static void setSmallCauldronRecipe(IRecipeLayoutBuilder builder, ComplexFluidJeiRecipe recipe) {
@@ -201,7 +208,7 @@ public class SolidLiquidCategory extends AbstractLiquidReactionCategory {
         );
         RenderSupport.renderBlock(
             guiGraphics,
-            Blocks.CAULDRON.defaultBlockState(),
+            this.smallContainerState(recipe),
             81,
             30,
             10,

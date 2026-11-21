@@ -9,6 +9,8 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class JeiRenderHelper {
+    private static final long SWAP_INTERVAL_MS = 1000L;
+
     // Animation
     public static float getAnvilAnimationOffset(ITickTimer timer) {
         return timer.getValue() < 30 ? getAnvilAnimationOffset(timer.getValue()) : -8;
@@ -16,6 +18,10 @@ public class JeiRenderHelper {
 
     public static float getAnvilAnimationOffset(float time) {
         return -(float) Math.sin(time / 30d * 2d * Math.PI + Math.PI / 2) * 8;
+    }
+
+    public static BlockState alternatingState(BlockState first, BlockState second) {
+        return System.currentTimeMillis() / JeiRenderHelper.SWAP_INTERVAL_MS % 2 == 0 ? first : second;
     }
 
     // Arrow
