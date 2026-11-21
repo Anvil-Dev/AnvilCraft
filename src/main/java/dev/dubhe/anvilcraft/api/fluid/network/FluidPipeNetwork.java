@@ -51,6 +51,8 @@ import java.util.TreeMap;
  * <p>等效高度 = 容器 Y + 沿管道路径累计的泵势场偏移（见 {@link FluidNetworkScanner}）。
  */
 public class FluidPipeNetwork {
+    public static final int MAX_CONFIGURABLE_FLOW_RATE = 100_000;
+
     /** 每格高度差提供的流速（mB/tick）。 */
     public static int heightRate() {
         return AnvilCraft.CONFIG.machines.pipeFlowPerHeight;

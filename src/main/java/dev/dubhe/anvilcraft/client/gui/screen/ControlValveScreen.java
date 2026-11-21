@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidPipeNetwork;
 import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.component.FluidRateSlider;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
@@ -39,7 +40,7 @@ import java.util.Optional;
 import static dev.dubhe.anvilcraft.util.FluidUtil.getFilterTooltip;
 
 /**
- * 控制阀 GUI。上方过滤格设置允许通过的流体；下方滑条 + 按钮 + 数字框设置最大流速（0~2000 mB/tick）。
+ * 控制阀 GUI。上方过滤格设置允许通过的流体；下方滑条 + 按钮 + 数字框设置最大流速（单位为 mB/tick）。
  */
 public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu> implements IGhostIngredientScreen {
     public static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "control_valve");
@@ -72,6 +73,7 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
     /** 客户端本地过滤器物品缓存（服务端回传更新） */
     private ItemStack filterItem = ItemStack.EMPTY;
     private List<FluidStack> filterFluids = List.of();
+    private int pipeMaxRate = FluidPipeNetwork.maxSpeed();
     private boolean updatingValueBox;
 
     private FluidRateSlider slider;
@@ -81,6 +83,19 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
         super(menu, inventory, title);
         this.imageWidth = 176;
         this.imageHeight = 166;
+    }
+
+    @Override
+    protected void containerTick() {
+        super.containerTick();
+        int maxRate = FluidPipeNetwork.maxSpeed();
+        if (this.pipeMaxRate != maxRate) {
+            this.pipeMaxRate = maxRate;
+            ControlValveBlockEntity valve = this.menu.getBlockEntity();
+            if (valve != null) {
+                this.setValue(valve.getMaxRate());
+            }
+        }
     }
 
     @Override
@@ -95,12 +110,12 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
         this.slider = new FluidRateSlider(ox + 8, oy + 41, 160, this::onSliderChange);
 
         // 数字输入框（居中，位于滑条与按钮之间的中部按钮区中央）
-        this.valueBox = new EditBox(this.font, ox + 51, oy + 58, 28, 8, Component.literal("value"));
+        this.valueBox = new EditBox(this.font, ox + 51, oy + 58, 56, 8, Component.literal("value"));
         this.valueBox.setCanLoseFocus(true);
         this.valueBox.setTextColor(-1);
         this.valueBox.setTextColorUneditable(-1);
         this.valueBox.setBordered(false);
-        this.valueBox.setMaxLength(4);
+        this.valueBox.setMaxLength(Integer.toString(FluidPipeNetwork.MAX_CONFIGURABLE_FLOW_RATE).length());
         this.valueBox.setResponder(this::onValueInput);
         this.valueBox.setValue("");
 
@@ -112,7 +127,7 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
         TexturedButton add = new TexturedButton(ox + 134, oy + 53, 16, 16, BUTTON_ADD, 16, 16, 32,
             b -> this.slider.step(1));
         TexturedButton max = new TexturedButton(ox + 152, oy + 53, 16, 16, BUTTON_MAX, 16, 16, 32,
-            b -> this.slider.setValueWithUpdate(FluidRateSlider.MAX));
+            b -> this.slider.setValueWithUpdate(FluidPipeNetwork.maxSpeed()));
 
         this.addRenderableWidget(min);
         this.addRenderableWidget(minus);
@@ -130,9 +145,9 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
 
     /** 服务端 init 包设置初值。 */
     public void setValue(int value) {
-        this.slider.setValue(value);
+        this.slider.setExactValue(value);
         this.updatingValueBox = true;
-        this.valueBox.setValue(Integer.toString(value));
+        this.valueBox.setValue(Integer.toString(this.slider.getValue()));
         this.updatingValueBox = false;
     }
 
@@ -169,7 +184,7 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
         if (this.isLocked()) {
             return;
         }
-        this.valueBox.setValue(Integer.toString(value));
+        this.setValue(value);
         PacketDistributor.sendToServer(new ControlValveUpdatePacket(value));
     }
 
@@ -189,8 +204,11 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
             this.valueBox.setValue(Integer.toString(this.slider.getValue()));
             return;
         }
-        v = Math.max(0, Math.min(FluidRateSlider.MAX, v));
-        this.slider.setValue(v);
+        this.slider.setExactValue(v);
+        if (v != this.slider.getValue()) {
+            v = this.slider.getValue();
+            this.setValue(v);
+        }
         PacketDistributor.sendToServer(new ControlValveUpdatePacket(v));
     }
 
