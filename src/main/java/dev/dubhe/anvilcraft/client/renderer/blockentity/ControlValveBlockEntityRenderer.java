@@ -157,9 +157,8 @@ public class ControlValveBlockEntityRenderer
             resource.getFluid()
         );
         var tintSource = model.fluidTintSource();
-        if (tintSource == null) return;
         TextureAtlasSprite sprite = model.stillMaterial().sprite();
-        int tintColor = tintSource.colorAsStack(resource.toStack(1));
+        int tintColor = tintSource == null ? -1 : tintSource.colorAsStack(resource.toStack(1));
 
         float h = ControlValveBlockEntityRenderer.INDICATOR_HALF;
         float y = ControlValveBlockEntityRenderer.INDICATOR_DEPTH;
