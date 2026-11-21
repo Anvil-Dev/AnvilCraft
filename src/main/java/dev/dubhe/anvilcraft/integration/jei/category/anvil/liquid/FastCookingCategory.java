@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil.liquid;
 
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
@@ -21,9 +22,10 @@ public class FastCookingCategory extends AbstractLiquidCategory<FastCookingRecip
     public FastCookingCategory(IGuiHelper helper) {
         super(
             helper,
-            new DrawableBlockStateIcon(
+            DrawableBlockStateIcon.alternatingUp(
                 Blocks.CAULDRON.defaultBlockState(),
-                Blocks.CAMPFIRE.defaultBlockState().setValue(CampfireBlock.LIT, true)
+                Blocks.CAMPFIRE.defaultBlockState().setValue(CampfireBlock.LIT, true),
+                ModBlocks.FISH_TANK.getDefaultState()
             ),
             Component.translatable("gui.anvilcraft.category.fast_cooking")
         );

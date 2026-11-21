@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SuperHeatingRecipe;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -24,9 +25,11 @@ public class SuperHeatingCategory extends AbstractLiquidCategory<SuperHeatingRec
     public SuperHeatingCategory(IGuiHelper helper) {
         super(
             helper,
-            new DrawableBlockStateIcon(
+            DrawableBlockStateIcon.alternatingBoth(
                 Blocks.CAULDRON.defaultBlockState(),
-                ModBlocks.HEATER.getDefaultState().setValue(HeaterBlock.OVERLOAD, false)
+                ModBlocks.HEATER.getDefaultState().setValue(HeaterBlock.OVERLOAD, false),
+                ModBlocks.FISH_TANK.getDefaultState(),
+                ModBlocks.BURNING_HEATER.getDefaultState()
             ),
             Component.translatable("gui.anvilcraft.category.super_heating")
         );
@@ -37,9 +40,13 @@ public class SuperHeatingCategory extends AbstractLiquidCategory<SuperHeatingRec
         return AnvilCraftJeiPlugin.SUPER_HEATING;
     }
 
+    /** 电加热器与燃烧加热器都能完成超加热，因此轮换展示。 */
     @Override
     protected BlockState getProcessBlock() {
-        return ModBlocks.HEATER.getDefaultState().setValue(HeaterBlock.OVERLOAD, false);
+        return JeiRenderHelper.alternatingState(
+            ModBlocks.HEATER.getDefaultState().setValue(HeaterBlock.OVERLOAD, false),
+            ModBlocks.BURNING_HEATER.getDefaultState()
+        );
     }
 
     @Override
@@ -52,7 +59,7 @@ public class SuperHeatingCategory extends AbstractLiquidCategory<SuperHeatingRec
     ) {
         super.getTooltip(tooltip, recipeHolder, recipeSlotsView, mouseX, mouseY);
         if (this.isProcessBlockHovered(recipeHolder.value(), mouseX, mouseY)) {
-            tooltip.add(ModBlocks.HEATER.get().getName());
+            tooltip.add(this.getProcessBlock().getBlock().getName());
             tooltip.add(Component.translatable("gui.anvilcraft.category.super_heating.need_activated")
                 .withStyle(ChatFormatting.RED));
         }
