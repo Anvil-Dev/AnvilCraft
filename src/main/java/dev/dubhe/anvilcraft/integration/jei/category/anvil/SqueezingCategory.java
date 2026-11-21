@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiBlockIngredientUtil;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiCauldronUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiFluidUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
@@ -56,6 +57,7 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
     private final IDrawable arrowDefault;
     private final IDrawable icon;
     private final ITickTimer timer;
+    private final ITickTimer containerTimer;
     private final Component title;
 
     public SqueezingCategory(IGuiHelper helper) {
@@ -65,6 +67,8 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
         this.icon = helper.createDrawableItemStack(new ItemStack(Items.ANVIL));
         this.title = Component.translatable("gui.anvilcraft.category.squeezing");
         this.timer = helper.createTickTimer(30, 60, true);
+        // 炼药锅与鱼缸都能承接这些流体，每秒轮换一次提示两种容器都可用
+        this.containerTimer = helper.createTickTimer(40, 1, false);
     }
 
     @Override
@@ -165,8 +169,6 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
         double mouseY
     ) {
         SqueezingRecipe recipe = recipeHolder.value();
-        
-        RenderSupport.renderBlock(graphics, Blocks.CAULDRON.defaultBlockState(), 40, 35, 20);
 
         List<BlockState> input = new ArrayList<>();
         for (BlockStatePredicate predicate : recipe.getInputBlocks()) {
@@ -175,7 +177,16 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
         if (input.isEmpty()) return;
         BlockState renderedState = JeiBlockIngredientUtil.getDisplayedState(recipeSlotsView, SqueezingCategory.INPUT_BLOCK, input)
             .orElse(input.getFirst());
-        RenderSupport.renderBlockAt(graphics, Blocks.CAULDRON.defaultBlockState(), 50, 40, 12);
+        RenderSupport.renderBlockAt(
+            graphics,
+            JeiCauldronUtil.smallContainer(
+                JeiCauldronUtil.containerFluids(recipe.getHasCauldron()),
+                this.containerTimer.getValue() != 0
+            ),
+            50,
+            40,
+            12
+        );
         RenderSupport.renderBlockAt(graphics, renderedState, 50, 30, 12);
         
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);

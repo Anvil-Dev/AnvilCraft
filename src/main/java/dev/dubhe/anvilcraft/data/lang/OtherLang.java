@@ -37,6 +37,12 @@ public class OtherLang {
         provider.add("pack.anvilcraft.transparent_cauldron.description", "Transparent Cauldron");
         provider.add("pack.anvilcraft.first_ancient_debris.description", "First Ancient Debris");
 
+        // 原版没有维度名的翻译键，这里补齐矿物涌泉等界面需要展示的维度
+        provider.add("dimension.anvilcraft.mun", "Mun");
+        provider.add("dimension.minecraft.overworld", "Overworld");
+        provider.add("dimension.minecraft.the_nether", "The Nether");
+        provider.add("dimension.minecraft.the_end", "The End");
+
         provider.add("message.anvilcraft.copied_to_clipboard", "Copied to clipboard");
         provider.add("message.anvilcraft.code_gen_filed", "Code generation failed");
         provider.add(
