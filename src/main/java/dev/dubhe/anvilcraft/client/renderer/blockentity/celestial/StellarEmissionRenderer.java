@@ -140,15 +140,15 @@ public final class StellarEmissionRenderer {
         return shader != null ? shader : GameRenderer.getRendertypeEyesShader();
     }
 
+    public static void renderPreview(StarData star, BakedModel model, PoseStack poseStack, MultiBufferSource buffers, int overlay) {
+        render(star, model, poseStack, buffers, overlay, null, null, 0, false);
+    }
+
     public static void render(
         StarData star, BakedModel model, PoseStack poseStack, MultiBufferSource buffers, int overlay,
         @Nullable StellarVisualState visual, @Nullable StellarEventProfile event, float eventProgress
     ) {
         render(star, model, poseStack, buffers, overlay, visual, event, eventProgress, true);
-    }
-
-    public static void renderPreview(StarData star, BakedModel model, PoseStack poseStack, MultiBufferSource buffers, int overlay) {
-        render(star, model, poseStack, buffers, overlay, null, null, 0, false);
     }
 
     private static void render(
