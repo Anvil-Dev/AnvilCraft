@@ -370,9 +370,8 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
             resource.getFluid()
         );
         var tintSource = model.fluidTintSource();
-        if (tintSource == null) return;
         TextureAtlasSprite sprite = model.stillMaterial().sprite();
-        int tint = tintSource.colorAsStack(resource.toStack(1));
+        int tint = tintSource == null ? -1 : tintSource.colorAsStack(resource.toStack(1));
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, x, y, size, size, tint);
     }
 }
