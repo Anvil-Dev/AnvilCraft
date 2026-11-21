@@ -106,7 +106,10 @@ public class MDAnvilCollisionCraftRecipeComponent extends MDRecipeComponent {
 
         AgeratumUtil.renderText(
             guiGraphics,
-            Component.translatable("gui.anvilcraft.category.anvil_collision.consume", this.recipe.consume()),
+            Component.translatable(
+                "gui.anvilcraft.category.anvil_collision.consume",
+                Component.translatable(this.recipe.consume() ? "gui.yes" : "gui.no")
+            ),
             INFO_X, INFO_Y
         );
 

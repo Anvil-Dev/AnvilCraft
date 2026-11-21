@@ -338,7 +338,10 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
         pose.scale(0.8f, 0.8f, 1.0f);
         guiGraphics.drawString(
             Minecraft.getInstance().font,
-            Component.translatable("gui.anvilcraft.category.anvil_collision.consume", recipe.consume()),
+            Component.translatable(
+                "gui.anvilcraft.category.anvil_collision.consume",
+                Component.translatable(recipe.consume() ? "gui.yes" : "gui.no")
+            ),
             0, 65, 0xFF000000, false
         );
         guiGraphics.drawString(

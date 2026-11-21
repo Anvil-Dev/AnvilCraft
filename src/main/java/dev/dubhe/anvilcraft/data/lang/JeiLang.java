@@ -128,7 +128,7 @@ public class JeiLang {
 
         provider.add("gui.anvilcraft.category.anvil_collision", "Anvil Collision");
         provider.add("gui.anvilcraft.category.anvil_collision.maxcount", "Max Count: %s");
-        provider.add("gui.anvilcraft.category.anvil_collision.consume", "Consume Anvil: %d");
+        provider.add("gui.anvilcraft.category.anvil_collision.consume", "Consume Anvil: %s");
         provider.add("gui.anvilcraft.category.anvil_collision.speed", "Need Speed: %s");
 
         provider.add("gui.anvilcraft.category.procedural_process", "Block Sequence Processing");
