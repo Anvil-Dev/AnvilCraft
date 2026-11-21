@@ -171,8 +171,6 @@
     "accessor.AbstractContainerMenuSlotsAccessor",
     "ItemFrameRendererMixin",
     "client.HandbookRecipeMixin",
-    "client.HandbookDirectoryMixin",
-    "client.HandbookLinkMixin",
     "client.HandbookSmithingMixin",
     "client.HandbookFontMixin",
     "client.HandbookLabelAccessor",
