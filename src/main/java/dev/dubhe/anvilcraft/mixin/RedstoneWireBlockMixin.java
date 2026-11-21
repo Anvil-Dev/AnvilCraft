@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -23,7 +24,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,10 +88,14 @@ public abstract class RedstoneWireBlockMixin implements ITooltipProviderExtensio
         }
     }
 
-    @Inject(method = "calculateTargetStrength", at = @At("RETURN"), cancellable = true)
-    private void anvilcraft$includeUpwardWireSignal(
-        Level level, BlockPos pos, CallbackInfoReturnable<Integer> callback
+    @ModifyExpressionValue(
+        method = "updatePowerStrength",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/RedStoneWireBlock;"
+            + "calculateTargetStrength(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)I")
+    )
+    private int anvilcraft$includeUpwardWireSignal(
+        int original, @Local(argsOnly = true) Level level, @Local(argsOnly = true) BlockPos pos
     ) {
-        callback.setReturnValue(Math.max(callback.getReturnValue(), RedstoneWireBlock.getUpwardDustSignal(level, pos)));
+        return Math.max(original, RedstoneWireBlock.getUpwardDustSignal(level, pos));
     }
 }
