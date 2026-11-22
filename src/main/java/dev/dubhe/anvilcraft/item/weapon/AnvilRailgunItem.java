@@ -3,14 +3,9 @@ package dev.dubhe.anvilcraft.item.weapon;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.entity.RailgunAnvilEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.network.WeaponChargeProgressPacket;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -21,26 +16,23 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
-import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class AnvilRailgunItem extends EnergyWeaponItem {
     private static final float MIN_FIRE_CHARGE_PROGRESS = 0.2F;
+    /** 满蓄力所需 tick，快速装填在此基础上每级再乘 0.9。 */
+    private static final int BASE_CHARGE_TICKS = 25;
+    private static final double QUICK_CHARGE_MULTIPLIER = 0.9;
 
     public AnvilRailgunItem(Properties properties) {
-        super(properties.component(ModComponents.RAILGUN_AMMO, ChargedProjectiles.EMPTY));
+        super(properties);
     }
 
     @Override
@@ -52,9 +44,7 @@ public class AnvilRailgunItem extends EnergyWeaponItem {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack weapon = player.getItemInHand(hand);
         if (!canStartUsing(player, weapon, this.minimumEnergy())) return InteractionResultHolder.fail(weapon);
-        if (ammo(weapon).isEmpty() && !isValidAnvil(otherHand(player, hand)) && findNormalAnvil(player) < 0) {
-            return InteractionResultHolder.fail(weapon);
-        }
+        if (findAmmo(player).isEmpty()) return InteractionResultHolder.fail(weapon);
         player.startUsingItem(hand);
         return InteractionResultHolder.consume(weapon);
     }
@@ -63,77 +53,43 @@ public class AnvilRailgunItem extends EnergyWeaponItem {
     public void onUseTick(Level level, LivingEntity user, ItemStack weapon, int remaining) {
         if (!(user instanceof Player usingPlayer) || !canContinueUsing(usingPlayer, weapon)) return;
         if (!(user instanceof ServerPlayer player)) return;
-        if (isLoading(player, weapon, player.getUsedItemHand())) {
-            WeaponChargeProgressPacket.sync(player, weapon, 0, 0, false);
-            return;
-        }
         int elapsed = this.getUseDuration(weapon, user) - remaining;
-        int fullTicks = fullChargeTicks(level, weapon);
-        WeaponChargeProgressPacket.sync(player, weapon, elapsed, fullTicks, true);
-        if (elapsed > 0 && elapsed % fullTicks == 0) {
-            this.fire((ServerLevel) level, player, weapon, 1.0F);
-            if (ammo(weapon).isEmpty()) player.releaseUsingItem();
-        }
+        WeaponChargeProgressPacket.sync(player, weapon, elapsed, fullChargeTicks(level, weapon), false);
     }
 
     @Override
     public void releaseUsing(ItemStack weapon, Level level, LivingEntity user, int remaining) {
         if (!(user instanceof ServerPlayer player) || !(level instanceof ServerLevel serverLevel)) return;
         int elapsed = this.getUseDuration(weapon, user) - remaining;
-        InteractionHand hand = player.getUsedItemHand();
-        if (isLoading(player, weapon, hand)) {
-            if (elapsed >= loadTicks(level, weapon)) load(player, weapon, hand);
-            return;
-        }
         float progress = chargeProgress(level, weapon, elapsed, 0.0F);
-        if (progress >= MIN_FIRE_CHARGE_PROGRESS) this.fire(serverLevel, player, weapon, progress);
+        if (progress < MIN_FIRE_CHARGE_PROGRESS) return;
+        this.fire(serverLevel, player, weapon, progress);
     }
 
-    public static boolean isLoading(Player player, ItemStack weapon, InteractionHand hand) {
-        List<ItemStack> ammo = ammo(weapon);
-        if (ammo.size() >= AnvilCraft.CONFIG.equipment.anvilRailgunMaxAmmo) return false;
-        ItemStack supplied = otherHand(player, hand);
-        if (ammo.isEmpty()) return isValidAnvil(supplied) || findNormalAnvil(player) >= 0;
-        return isValidAnvil(supplied) && ItemStack.isSameItemSameComponents(ammo.getFirst(), supplied);
-    }
-
-    private static void load(ServerPlayer player, ItemStack weapon, InteractionHand hand) {
-        List<ItemStack> loaded = new ArrayList<>(ammo(weapon));
-        ItemStack source = otherHand(player, hand);
-        int inventorySlot = -1;
-        if (!isValidAnvil(source)) {
-            inventorySlot = findNormalAnvil(player);
-            if (inventorySlot < 0) return;
-            source = player.getInventory().getItem(inventorySlot);
+    /**
+     * 与弓一致：先看双手，再从物品栏里找铁砧。
+     */
+    private static ItemStack findAmmo(Player player) {
+        ItemStack main = player.getMainHandItem();
+        if (isValidAnvil(main)) return main;
+        ItemStack off = player.getOffhandItem();
+        if (isValidAnvil(off)) return off;
+        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+            ItemStack stack = player.getInventory().getItem(slot);
+            if (isValidAnvil(stack)) return stack;
         }
-        boolean infinity = enchantmentLevel(player.level(), weapon, Enchantments.INFINITY) > 0 && source.is(Items.ANVIL);
-        int maxAmmo = AnvilCraft.CONFIG.equipment.anvilRailgunMaxAmmo;
-        int amount = infinity ? maxAmmo - loaded.size() : Math.min(source.getCount(), maxAmmo - loaded.size());
-        int infiniteAmmoMask = infiniteAmmoMask(weapon, loaded.size());
-        for (int i = 0; i < amount; i++) loaded.add(source.copyWithCount(1));
-        if (infinity) infiniteAmmoMask |= ammoMask(amount) << (loaded.size() - amount);
-        if (!infinity && !player.hasInfiniteMaterials()) source.shrink(amount);
-        if (inventorySlot >= 0 && source.isEmpty()) player.getInventory().removeItem(inventorySlot, 1);
-        setAmmo(weapon, loaded, infiniteAmmoMask);
-        player.level().playSound(
-            null, player.blockPosition(), SoundEvents.CROSSBOW_LOADING_END.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
+        return ItemStack.EMPTY;
     }
 
     private void fire(ServerLevel level, ServerPlayer player, ItemStack weapon, float progress) {
-        List<ItemStack> loaded = new ArrayList<>(ammo(weapon));
-        if (loaded.isEmpty()) return;
+        ItemStack ammo = findAmmo(player);
+        if (ammo.isEmpty()) return;
         int energy = Math.round(progress * 20_000_000.0F);
         if (!consumeEnergy(player, weapon, energy)) return;
 
-        ItemStack projectileStack = loaded.getFirst();
-        boolean infinity = enchantmentLevel(level, weapon, Enchantments.INFINITY) > 0 && projectileStack.is(Items.ANVIL);
-        int infiniteAmmoMask = infiniteAmmoMask(weapon, loaded.size());
-        boolean loadedByInfinity = (infiniteAmmoMask & 1) != 0;
-        if (!infinity) {
-            loaded.removeFirst();
-            infiniteAmmoMask >>>= 1;
-        }
-        setAmmo(weapon, loaded, infiniteAmmoMask);
+        boolean infinity = enchantmentLevel(level, weapon, Enchantments.INFINITY) > 0 && ammo.is(Items.ANVIL);
+        Block block = ((BlockItem) ammo.getItem()).getBlock();
+        if (!infinity && !player.hasInfiniteMaterials()) ammo.shrink(1);
 
         int projectileCount = enchantmentLevel(level, weapon, Enchantments.MULTISHOT) > 0 ? 3 : 1;
         int piercing = enchantmentLevel(level, weapon, Enchantments.PIERCING);
@@ -141,10 +97,9 @@ public class AnvilRailgunItem extends EnergyWeaponItem {
         boolean loyalty = enchantmentLevel(level, weapon, Enchantments.LOYALTY) > 0;
         int power = enchantmentLevel(level, weapon, Enchantments.POWER);
         double speed = Math.sqrt(progress) * 8.0 * (1.0 + Math.min(10, power) * 0.1);
-        Block block = ((BlockItem) projectileStack.getItem()).getBlock();
         for (int i = 0; i < projectileCount; i++) {
             boolean center = i == 0;
-            boolean ghost = !center || infinity || loadedByInfinity;
+            boolean ghost = !center || infinity;
             boolean returns = loyalty && center && !ghost;
             RailgunAnvilEntity projectile = RailgunAnvilEntity.create(
                 level, player, block.defaultBlockState(), weapon, ghost, returns, piercing, knockback);
@@ -158,25 +113,14 @@ public class AnvilRailgunItem extends EnergyWeaponItem {
         level.playSound(null, player.blockPosition(), SoundEvents.WARDEN_SONIC_BOOM, SoundSource.PLAYERS, 0.16F, 1.7F);
     }
 
-    private static int loadTicks(Level level, ItemStack weapon) {
-        return Math.max(5, 25 - enchantmentLevel(level, weapon, Enchantments.QUICK_CHARGE) * 5);
-    }
-
     public static int fullChargeTicks(Level level, ItemStack weapon) {
-        return (int) Math.ceil(100.0 / chargePercentPerTick(level, weapon));
+        int quickCharge = Math.max(0, enchantmentLevel(level, weapon, Enchantments.QUICK_CHARGE));
+        double multiplier = Math.pow(QUICK_CHARGE_MULTIPLIER, quickCharge);
+        return Math.max(1, (int) Math.round(BASE_CHARGE_TICKS * multiplier));
     }
 
     public static float chargeProgress(Level level, ItemStack weapon, int elapsedTicks, float partialTick) {
-        int fullTicks = fullChargeTicks(level, weapon);
-        return Math.min(
-            1.0F,
-            ((elapsedTicks % fullTicks) + partialTick) * chargePercentPerTick(level, weapon) / 100.0F
-        );
-    }
-
-    private static float chargePercentPerTick(Level level, ItemStack weapon) {
-        int quickCharge = enchantmentLevel(level, weapon, Enchantments.QUICK_CHARGE);
-        return Math.min(4.0F, 1.0F + quickCharge * 0.2F);
+        return Math.min(1.0F, (elapsedTicks + partialTick) / fullChargeTicks(level, weapon));
     }
 
     private static int enchantmentLevel(Level level, ItemStack stack, net.minecraft.resources.ResourceKey<Enchantment> key) {
@@ -184,46 +128,9 @@ public class AnvilRailgunItem extends EnergyWeaponItem {
         return stack.getEnchantmentLevel(enchantment);
     }
 
-    private static ItemStack otherHand(Player player, InteractionHand hand) {
-        return player.getItemInHand(hand == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND);
-    }
-
-    private static int findNormalAnvil(Player player) {
-        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-            if (player.getInventory().getItem(i).is(Items.ANVIL)) return i;
-        }
-        return -1;
-    }
-
     private static boolean isValidAnvil(ItemStack stack) {
         if (!(stack.getItem() instanceof BlockItem blockItem)) return false;
         return blockItem.getBlock().defaultBlockState().is(BlockTags.ANVIL) && blockItem.getBlock() != ModBlocks.SPECTRAL_ANVIL.get();
-    }
-
-    private static List<ItemStack> ammo(ItemStack weapon) {
-        ChargedProjectiles stored = weapon.getOrDefault(ModComponents.RAILGUN_AMMO, ChargedProjectiles.EMPTY);
-        if (!stored.isEmpty()) return stored.getItems();
-        return weapon.getOrDefault(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.EMPTY).getItems();
-    }
-
-    private static void setAmmo(ItemStack weapon, List<ItemStack> ammo, int infiniteAmmoMask) {
-        weapon.set(ModComponents.RAILGUN_AMMO, ChargedProjectiles.of(ammo));
-        weapon.set(ModComponents.RAILGUN_INFINITE_AMMO_MASK, infiniteAmmoMask & ammoMask(ammo.size()));
-        weapon.remove(DataComponents.CHARGED_PROJECTILES);
-    }
-
-    private static int infiniteAmmoMask(ItemStack weapon, int ammoSize) {
-        int validMask = ammoMask(ammoSize);
-        Integer stored = weapon.get(ModComponents.RAILGUN_INFINITE_AMMO_MASK);
-        if (stored == null) {
-            // Treat pre-component ammo as infinite so generated anvils cannot be recovered after upgrading.
-            return validMask;
-        }
-        return stored & validMask;
-    }
-
-    private static int ammoMask(int ammoSize) {
-        return (1 << Math.min(ammoSize, AnvilCraft.CONFIG.equipment.anvilRailgunMaxAmmo)) - 1;
     }
 
     @Override
@@ -234,16 +141,5 @@ public class AnvilRailgunItem extends EnergyWeaponItem {
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
         return UseAnim.BOW;
-    }
-
-    @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        super.appendHoverText(stack, context, tooltip, flag);
-        List<ItemStack> loaded = ammo(stack);
-        if (!loaded.isEmpty()) {
-            tooltip.add(Component.translatable("item.minecraft.crossbow.projectile")
-                .append(CommonComponents.SPACE).append(loaded.getFirst().getDisplayName())
-                .append(Component.translatable("tooltip.anvilcraft.count", loaded.size()).withStyle(ChatFormatting.GRAY)));
-        }
     }
 }

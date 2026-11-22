@@ -79,13 +79,15 @@ public class LaserGunItem extends EnergyWeaponItem {
             level, visualStart, end, WeaponBeamEntity.LASER, VISUAL_LEVEL[visualStage], player);
 
         if (!targets.isEmpty()) {
+            state.focusLostTicks = 0;
             state.resetMining();
             hurtTargets(serverLevel, player, stack, targets, state);
             WeaponChargeProgressPacket.sync(
                 player, stack, state.targetTicks >= 400 ? 100 : state.targetTicks, 100, state.targetTicks < 400);
             return;
         }
-        state.resetTarget();
+        // 失去焦点后保留 1 秒的充能等级，重新锁定同一目标时接着蓄力
+        if (++state.focusLostTicks > 20) state.resetTarget();
         mine(serverLevel, player, stack, blockHit, state);
         WeaponChargeProgressPacket.sync(player, stack, state.miningTicks, state.vein.isEmpty() ? 0 : miningPeriod(level, stack), true);
     }
@@ -217,6 +219,7 @@ public class LaserGunItem extends EnergyWeaponItem {
     private static final class LaserState {
         private UUID target;
         private int targetTicks;
+        private int focusLostTicks;
         private int miningTicks;
         private int idleTicks;
         private BlockPos miningAnchor;
@@ -225,6 +228,7 @@ public class LaserGunItem extends EnergyWeaponItem {
         private void resetTarget() {
             this.target = null;
             this.targetTicks = 0;
+            this.focusLostTicks = 0;
         }
 
         private void resetMining() {

@@ -40,7 +40,6 @@ import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -166,11 +165,7 @@ public class AnvilCraftClient {
             if (!entity.isUsingItem() || entity.getUseItem().getItem() != stack.getItem()) {
                 return IClientItemExtensions.super.getArmPose(entity, hand, stack);
             }
-            if (stack.getItem() instanceof AnvilRailgunItem && entity instanceof Player player
-                && AnvilRailgunItem.isLoading(player, stack, hand)) {
-                return HumanoidModel.ArmPose.CROSSBOW_CHARGE;
-            }
-            if (stack.getItem() instanceof LaserGunItem) {
+            if (stack.getItem() instanceof AnvilRailgunItem || stack.getItem() instanceof LaserGunItem) {
                 return HumanoidModel.ArmPose.BOW_AND_ARROW;
             }
             return HumanoidModel.ArmPose.CROSSBOW_HOLD;

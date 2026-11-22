@@ -737,10 +737,6 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(min = 1, max = 2000000000)
         public int energyWeaponMaxEnergy = 640000000;
 
-        @Comment("Controls the maximum number of Anvil Railgun rounds that can be loaded")
-        @BoundedDiscrete(min = 1, max = 30)
-        public int anvilRailgunMaxAmmo = 16;
-
         @Comment("Controls the minimum energy the Anvil Railgun needs to fire (in FE)")
         @BoundedDiscrete(min = 1, max = 2000000000)
         public int anvilRailgunMinShotEnergy = 2000000;
