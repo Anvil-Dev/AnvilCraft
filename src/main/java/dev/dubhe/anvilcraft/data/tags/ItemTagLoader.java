@@ -130,6 +130,7 @@ public class ItemTagLoader {
             .addTag(ModItemTags.ANVIL_HAMMER.location());
         provider.rawBuilder(ModItemTags.FIRE_STARTER)
             .addElement(ItemTagLoader.findId(Items.TORCH))
+            .addElement(ItemTagLoader.findId(Items.COPPER_TORCH))
             .addElement(ItemTagLoader.findId(Items.SOUL_TORCH))
             .addElement(ItemTagLoader.findId(Items.CAMPFIRE))
             .addElement(ItemTagLoader.findId(Items.SOUL_CAMPFIRE))
