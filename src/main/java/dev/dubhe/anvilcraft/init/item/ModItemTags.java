@@ -161,6 +161,7 @@ public class ModItemTags {
     public static final TagKey<Item> FIRE_STARTER = bind("fire_starter");
     public static final TagKey<Item> UNBROKEN_FIRE_STARTER = bind("unbroken_fire_starter");
     public static final TagKey<Item> NETHERITE_BLOCK = bind("netherite_block");
+    public static final TagKey<Item> TUNGSTEN_BLOCK = bind("tungsten_block");
     public static final TagKey<Item> EXPLOSION_PROOF = bind("explosion_proof");
     public static final TagKey<Item> AMULET = bind("amulet");
     public static final TagKey<Item> ANVIL_HAMMER = bind("tools/anvil_hammer");

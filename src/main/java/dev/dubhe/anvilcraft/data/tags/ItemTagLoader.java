@@ -143,6 +143,12 @@ public class ItemTagLoader {
             .add(findResourceKey(ModBlocks.GLOWING_NETHERITE_BLOCK.asItem()))
             .add(findResourceKey(ModBlocks.HEATED_NETHERITE_BLOCK.asItem()))
             .add(findResourceKey(ModBlocks.INCANDESCENT_NETHERITE_BLOCK.asItem()));
+        provider.addTag(ModItemTags.TUNGSTEN_BLOCK)
+            .add(findResourceKey(ModBlocks.TUNGSTEN_BLOCK.asItem()))
+            .add(findResourceKey(ModBlocks.REDHOT_TUNGSTEN_BLOCK.asItem()))
+            .add(findResourceKey(ModBlocks.GLOWING_TUNGSTEN_BLOCK.asItem()))
+            .add(findResourceKey(ModBlocks.HEATED_TUNGSTEN_BLOCK.asItem()))
+            .add(findResourceKey(ModBlocks.INCANDESCENT_TUNGSTEN_BLOCK.asItem()));
         provider.addTag(ModItemTags.EXPLOSION_PROOF)
             .add(findResourceKey(ModBlocks.EARTH_CORE_SHARD_BLOCK.asItem()))
             .add(findResourceKey(ModBlocks.EARTH_CORE_SHARD_ORE.asItem()))

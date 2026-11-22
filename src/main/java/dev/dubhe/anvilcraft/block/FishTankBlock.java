@@ -206,7 +206,10 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
         }
         IItemHandler items = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
         FishTankBlockEntity.insertItemToTank(items, itemEntity);
-        if (this.isIgnited(new BlockCache(level), pos) && !itemEntity.isRemoved()) {
+        // 点燃后锅内的物品会被烧掉，但热金属块要留给后续配方
+        if (this.isIgnited(new BlockCache(level), pos)
+            && !itemEntity.isRemoved()
+            && !itemEntity.getItem().is(ModItemTags.UNBROKEN_FIRE_STARTER)) {
             itemEntity.discard();
         }
     }

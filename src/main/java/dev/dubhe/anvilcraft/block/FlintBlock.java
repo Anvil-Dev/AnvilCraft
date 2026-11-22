@@ -2,9 +2,12 @@ package dev.dubhe.anvilcraft.block;
 
 import dev.anvilcraft.lib.v2.recipe.cache.BlockCache;
 import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
+import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.BaseFireBlock;
@@ -49,11 +52,20 @@ public class FlintBlock extends Block {
                             if (!ignitableCauldron.isIgnited(blockCache, offset)) {
                                 ignitableCauldron.setIgnited(blockCache, offset, true);
                                 blockCache.accept();
+                                FlintBlock.playIgniteSound(level, offset);
                                 return;
                             }
+                        } else if (blockState.getBlock() instanceof LargeCauldronBlock
+                                   && level instanceof Level realLevel
+                                   && LargeCauldronBlockEntity.getMain(realLevel, offset, blockState)
+                                       instanceof LargeCauldronBlockEntity cauldron
+                                   && cauldron.tryIgnite()) {
+                            FlintBlock.playIgniteSound(level, offset);
+                            return;
                         } else if (blockState.getBlock() instanceof CampfireBlock) {
                             if (!blockState.getValue(CampfireBlock.LIT)) {
                                 level.setBlock(offset, blockState.setValue(CampfireBlock.LIT, true), 3);
+                                FlintBlock.playIgniteSound(level, offset);
                                 return;
                             }
                         }
@@ -71,8 +83,20 @@ public class FlintBlock extends Block {
             if (!newBlocks.isEmpty()) {
                 BlockPos blockPos = newBlocks.get(level.getRandom().nextIntBetweenInclusive(0, newBlocks.size() - 1));
                 level.setBlock(blockPos.above(), BaseFireBlock.getState(level, blockPos), 3);
+                FlintBlock.playIgniteSound(level, blockPos);
             }
         }
+    }
+
+    private static void playIgniteSound(LevelAccessor level, BlockPos pos) {
+        level.playSound(
+            null,
+            pos,
+            SoundEvents.FLINTANDSTEEL_USE,
+            SoundSource.BLOCKS,
+            1.0F,
+            level.getRandom().nextFloat() * 0.4F + 0.8F
+        );
     }
 
     @Override

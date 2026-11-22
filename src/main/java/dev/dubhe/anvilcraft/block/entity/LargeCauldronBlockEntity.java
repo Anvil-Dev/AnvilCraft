@@ -21,9 +21,7 @@ import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.api.itemhandler.LargeCauldronInputHandler;
 import dev.dubhe.anvilcraft.api.recipe.CauldronProcessing;
-import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
-import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -1471,10 +1469,19 @@ public class LargeCauldronBlockEntity extends BlockEntity
         return this.topFluid().is(ModFluidTags.IGNITABLE);
     }
 
+    private boolean hasFireStarter() {
+        for (int slot = 0; slot < this.input.getSlots(); slot++) {
+            ItemStack stack = this.input.getStackInSlot(slot);
+            if (stack.is(ModItemTags.FIRE_STARTER) || stack.is(ModItemTags.UNBROKEN_FIRE_STARTER)) return true;
+        }
+        return false;
+    }
+
     private void refreshIgnited() {
         if (!this.canIgniteTopFluid()) {
             this.setIgnited(false);
-            return;
+            // 原油不在顶层时，投入点燃物会先把它移到顶层
+            if (!this.hasFireStarter() || !this.promoteIgnitableFluidToTop()) return;
         }
         if (this.ignited) return;
         for (int slot = 0; slot < this.input.getSlots(); slot++) {
@@ -1489,6 +1496,34 @@ public class LargeCauldronBlockEntity extends BlockEntity
                 return;
             }
         }
+    }
+
+    /** 尝试点燃：可点燃流体不在顶层时先把它移到顶层。 */
+    public boolean tryIgnite() {
+        LargeCauldronBlockEntity main = this.getMainPart();
+        if (main.ignited) return false;
+        if (!main.canIgniteTopFluid() && !main.promoteIgnitableFluidToTop()) return false;
+        if (!main.canIgniteTopFluid()) return false;
+        main.setIgnited(true);
+        return true;
+    }
+
+    /** 把可点燃流体移到最上层，其余层次保持原有顺序。 */
+    public boolean promoteIgnitableFluidToTop() {
+        LargeCauldronBlockEntity main = this.getMainPart();
+        List<FluidStack> layers = new ArrayList<>();
+        for (FluidStack fluid : main.fluids.copyFluids()) {
+            if (!fluid.isEmpty()) layers.add(fluid);
+        }
+        int index = -1;
+        for (int i = 0; i < layers.size(); i++) {
+            if (layers.get(i).is(ModFluidTags.IGNITABLE)) index = i;
+        }
+        if (index < 0) return false;
+        if (index == layers.size() - 1) return true;
+        layers.add(layers.remove(index));
+        main.fluids.setFluids(layers);
+        return true;
     }
 
     private AABB contentArea() {
