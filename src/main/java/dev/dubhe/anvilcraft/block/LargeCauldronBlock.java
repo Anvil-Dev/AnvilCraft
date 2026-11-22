@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.block.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.util.BlockPlacementPicking;
+import dev.dubhe.anvilcraft.util.CauldronIgnition;
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -280,6 +281,12 @@ public class LargeCauldronBlock
         if (stack.is(ModItemTags.ANVIL_HAMMER)) return InteractionResult.SUCCESS;
         LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(level, pos, state);
         if (cauldron == null) return InteractionResult.PASS;
+        if (CauldronIgnition.isShovel(stack) && cauldron.isIgnited()) {
+            return CauldronIgnition.useShovelToExtinguish(
+                level, pos, player, hand, stack, () -> cauldron.setIgnited(false));
+        }
+        InteractionResult ignition = CauldronIgnition.useOn(level, pos, player, hand, stack, cauldron::tryIgnite);
+        if (ignition != null) return ignition;
         if (cauldron.interactWithFluid(player, hand, hit)) {
             return Util.sidedSuccess(level);
         }
