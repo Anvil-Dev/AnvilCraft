@@ -14,9 +14,10 @@ abstract class LocalPlayerMixin {
     private boolean shouldSlowDownUsingEnergyWeapon(boolean original) {
         LocalPlayer player = (LocalPlayer) (Object) this;
         ItemStack stack = player.getUseItem();
+        // 铁砧轨道炮改成弓式蓄力，蓄力时应当和弓一样减速
         if (!(stack.getItem() instanceof EnergyWeaponItem)) return original;
-        return stack.getItem() instanceof AnvilRailgunItem
-               && AnvilRailgunItem.isLoading(player, stack, player.getUsedItemHand());
+        if (stack.getItem() instanceof AnvilRailgunItem) return original;
+        return false;
     }
 
     @ModifyReturnValue(method = "itemUseSpeedMultiplier", at = @At("RETURN"))
@@ -24,11 +25,7 @@ abstract class LocalPlayerMixin {
         LocalPlayer player = (LocalPlayer) (Object) this;
         ItemStack stack = player.getUseItem();
         if (!(stack.getItem() instanceof EnergyWeaponItem)) return original;
-        if (stack.getItem() instanceof AnvilRailgunItem
-            && AnvilRailgunItem.isLoading(player, stack, player.getUsedItemHand())
-        ) {
-            return original;
-        }
+        if (stack.getItem() instanceof AnvilRailgunItem) return original;
         return 1.0F;
     }
 }
