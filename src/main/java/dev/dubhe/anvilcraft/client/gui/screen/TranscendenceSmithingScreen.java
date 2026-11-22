@@ -664,6 +664,12 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
     }
 
     @Override
+    protected boolean hasClickedOutside(double mouseX, double mouseY, int guiLeft, int guiTop) {
+        return super.hasClickedOutside(mouseX, mouseY, guiLeft, guiTop)
+            && !this.isOverTemplatePanel(mouseX, mouseY);
+    }
+
+    @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean handled) {
         double mouseX = event.x();
         double mouseY = event.y();
