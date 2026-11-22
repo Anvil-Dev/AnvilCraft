@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.api.tooltip.impl;
 
 import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
-import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StorageFluidPortBlockEntity;
@@ -26,7 +25,7 @@ public class FluidTankTooltipProvider extends ITooltipProvider.BlockEntityToolti
     @Override
     public boolean accepts(BlockEntity value) {
         return value instanceof FluidTankBlockEntity || value instanceof LargeFluidTankBlockEntity
-            || value instanceof FishTankBlockEntity || value instanceof StorageFluidPortBlockEntity;
+            || value instanceof StorageFluidPortBlockEntity;
     }
 
     @Override
@@ -90,9 +89,6 @@ public class FluidTankTooltipProvider extends ITooltipProvider.BlockEntityToolti
                     .setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
             }
         }
-        if (value instanceof FishTankBlockEntity) {
-            lines.addAll(CauldronProcessingTooltip.previewLines(value));
-        }
         return lines;
     }
 
@@ -105,7 +101,7 @@ public class FluidTankTooltipProvider extends ITooltipProvider.BlockEntityToolti
      * 判断某个方块实体里这种流体是否处于无限存量。
      *
      * <p>小型储罐与仓储流体端口整体无限；大型储罐按流体分别判定；
-     * 其余容器（鱼缸等）不支持无限存量。</p>
+     * 其余容器使用实际存量。</p>
      *
      * @param value  方块实体
      * @param fluid  待判定的流体

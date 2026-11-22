@@ -47,8 +47,7 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.large_cauldron.fluids", "Fluids");
         provider.add("tooltip.anvilcraft.large_cauldron.inputs", "Inputs");
         provider.add("tooltip.anvilcraft.large_cauldron.outputs", "Outputs");
-        provider.add("tooltip.anvilcraft.large_cauldron.preview", "Next process: %s");
-        provider.add("tooltip.anvilcraft.large_cauldron.will_process", " · Next: %s");
+        provider.add("tooltip.anvilcraft.large_cauldron.will_process", "%1$s → %2$s");
         provider.add("tooltip.anvilcraft.large_fluid_tank.total", "Total: %s / %s (%s)");
         provider.add("tooltip.anvilcraft.large_fluid_tank.total_infinite", "Infinite capacity · Stored: %s");
         provider.add("tooltip.anvilcraft.large_fluid_tank.infinite_count", " · %s infinite");

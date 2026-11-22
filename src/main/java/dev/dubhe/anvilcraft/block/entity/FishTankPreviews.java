@@ -40,9 +40,11 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 final class FishTankPreviews {
     private FishTankPreviews() {
@@ -79,10 +81,7 @@ final class FishTankPreviews {
                 if (match == null) {
                     continue;
                 }
-                if (!(recipe instanceof AbstractProcessRecipe<?> process) || process.getHasCauldron() == null
-                    || fits(tank, recipe, match, outputs, useOutputs)) {
-                    results = match.previews(holder, useOutputs);
-                }
+                results = previews(tank, holder, match, outputs, useOutputs);
                 // 鱼缸会停在第一个匹配的配方，即使此时产物槽已经装满。
                 break;
             }
@@ -180,17 +179,6 @@ final class FishTankPreviews {
             return CauldronPreviewMatcher.matchesWorld(predicate, this.world.level, this.world.impact, this.world.anvil);
         }
 
-        private List<RecipePreview> previews(RecipeHolder<InWorldRecipe> holder, boolean output) {
-            List<RecipePreview> result = new ArrayList<>();
-            var predicates = List.copyOf(this.fluids);
-            for (int slot = 0; slot < this.reserved.length; slot++) {
-                if (this.reserved[slot] > 0) {
-                    result.add(RecipePreview.of(output ? -1 : slot, output ? slot : -1, holder, predicates));
-                }
-            }
-            return result.isEmpty() && !predicates.isEmpty() ? List.of(RecipePreview.of(-1, -1, holder, predicates)) : List.copyOf(result);
-        }
-
         private boolean applyComponents(SpawnItem outcome, ItemStack product) {
             for (var function : outcome.functions()) {
                 if (!(function instanceof ApplyTagToComponent<?> apply) || this.unknownTags) {
@@ -232,74 +220,93 @@ final class FishTankPreviews {
         }
     }
 
-    private static boolean fits(
-        FishTankBlockEntity tank, InWorldRecipe recipe, Ingredients match, List<ItemStack> outputs, boolean shared
+    private static List<RecipePreview> previews(
+        FishTankBlockEntity tank, RecipeHolder<InWorldRecipe> holder, Ingredients first, List<ItemStack> outputs, boolean shared
     ) {
+        var recipe = holder.value();
         int limit = Math.min(recipe.maxEfficiency(), AnvilLibRecipe.CONFIG.inWorldRecipeMaxEfficiency);
-        if (limit <= 0) {
-            return false;
+        if (limit <= 0 || (Arrays.stream(first.consumed).noneMatch(count -> count > 0)
+            && first.fluids.stream().noneMatch(fluid -> fluid.consume() > 0 && fluid.chance() > 0))) {
+            return List.of();
         }
-        var planned = products(tank, recipe, match, shared);
-        List<ItemStack> products = planned.stacks;
-        int unknownSlots = planned.unknownSlots;
-        if (unknownSlots > 0) {
-            int emptySlots = 0;
-            for (int slot = 0; slot < outputs.size(); slot++) {
-                if (outputs.get(slot).isEmpty() || (shared && outputs.get(slot).getCount() == match.consumed[slot])) {
-                    emptySlots++;
-                }
-            }
-            for (ItemStack stack : products) {
-                unknownSlots += Math.ceilDiv(stack.getCount(), stack.getMaxStackSize());
-            }
-            return emptySlots >= unknownSlots;
-        }
-        if (products.isEmpty()) {
-            return true;
-        }
-        ItemBatchPlan.SlotCapacity capacity = (slot, stack) -> stack.getMaxStackSize();
-        if (!shared) {
-            return ItemBatchPlan.separate(match.stacks, outputs, 1, capacity, batch -> match.fillBatch(batch, products)).batches() > 0;
-        }
-        if (ItemBatchPlan.shared(outputs, 1, capacity, batch -> match.fillBatch(batch, products)).batches() > 0) {
-            return true;
-        }
-        // 共用槽位时后续批次可以腾出位置；在鱼缸副本上跟踪各批的剩余流体和原料。
         var simulated = tank.copyForRecipe();
-        var blocks = new BlockCache(match.world.level);
-        blocks.setBlockEntity(match.world.pos, simulated);
-        var world = new Snapshot(match.world.level, match.world.pos, match.world.impact, match.world.anvil, blocks, match.world.bounds);
-        List<ItemStack> remaining = new ArrayList<>(outputs);
-        return ItemBatchPlan.shared(outputs, limit, capacity, batch -> {
-            var next = CauldronPreviewMatcher.match(recipe, new Ingredients(world, remaining));
-            if (next == null) {
+        var blocks = new BlockCache(first.world.level);
+        blocks.setBlockEntity(first.world.pos, simulated);
+        var world = new Snapshot(first.world.level, first.world.pos, first.world.impact, first.world.anvil, blocks, first.world.bounds);
+        List<ItemStack> remaining = new ArrayList<>(first.stacks);
+        Map<Integer, Integer> itemCounts = new HashMap<>();
+        Map<FluidResource, Integer> fluidAmounts = new HashMap<>();
+        boolean checkOutputs = recipe instanceof AbstractProcessRecipe<?> process && process.getHasCauldron() != null;
+        Products initial = checkOutputs ? products(tank, recipe, first, shared) : new Products(List.of(), 0, false);
+        Predicate<ItemBatchPlan.Batch> prepare = batch -> {
+            var match = CauldronPreviewMatcher.match(recipe, new Ingredients(world, remaining));
+            if (match == null) {
                 return false;
             }
-            var current = planned.variesByInput ? products(tank, recipe, next, true) : planned;
-            if (current.unknownSlots > 0 || !next.fillBatch(batch, current.stacks)) {
+            Products current = initial.variesByInput ? products(tank, recipe, match, shared) : initial;
+            if (current.unknownSlots > 0 && !hasSpaceForUnknown(outputs, match, current, shared)) {
                 return false;
             }
-            boolean freed = false;
+            if (!match.fillBatch(batch, current.stacks)) {
+                return false;
+            }
             for (int slot = 0; slot < remaining.size(); slot++) {
-                if (next.consumed[slot] > 0) {
-                    ItemStack before = remaining.get(slot);
-                    remaining.set(slot, before.copyWithCount(before.getCount() - next.consumed[slot]));
-                    freed = true;
+                if (match.consumed[slot] > 0) {
+                    var before = remaining.get(slot);
+                    remaining.set(slot, before.copyWithCount(before.getCount() - match.consumed[slot]));
                 }
             }
-            if (freed) {
-                for (HasCauldron fluid : next.fluids) {
-                    if (fluid.chance() >= 1) {
-                        FluidStack stored = simulated.getFluidHandler().getStack();
-                        int amount = stored.getAmount() - fluid.consume() + fluid.produce();
-                        FluidStack result = fluid.transforms().isEmpty() ? stored : fluid.transforms().getFirst().create();
-                        simulated.getFluidHandler().set(FluidResource.of(result), amount);
+            Map<FluidResource, Integer> batchFluids = new HashMap<>();
+            for (HasCauldron fluid : match.fluids) {
+                if (fluid.chance() <= 0) {
+                    continue;
+                }
+                FluidStack stored = simulated.getFluidHandler().getStack();
+                if (fluid.consume() > 0 && !stored.isEmpty()) {
+                    batchFluids.merge(FluidResource.of(stored), fluid.consume(), Integer::sum);
+                }
+                if (fluid.consume() > 0 || !fluid.transforms().isEmpty()) {
+                    int amount = stored.getAmount() - fluid.consume() + fluid.produce();
+                    FluidStack result = fluid.transforms().isEmpty() ? stored : fluid.transforms().getFirst().create();
+                    simulated.getFluidHandler().set(FluidResource.of(result), amount);
+                }
+            }
+            simulated.setIgnited(simulated.isIgnited() && FishTankBlockEntity.canIgnite(simulated.getFluidHandler().getStack()));
+            // 只有产物能完整放入的批次才计入预览；共用槽位时后续批次可能腾出空间。
+            batch.afterCommit(() -> {
+                for (int slot = 0; slot < match.consumed.length; slot++) {
+                    if (match.consumed[slot] > 0) {
+                        itemCounts.merge(slot, match.consumed[slot], Integer::sum);
                     }
                 }
-                simulated.setIgnited(simulated.isIgnited() && FishTankBlockEntity.canIgnite(simulated.getFluidHandler().getStack()));
+                batchFluids.forEach((fluid, amount) -> fluidAmounts.merge(fluid, amount, Integer::sum));
+            });
+            return true;
+        };
+        // 自定义产物函数的组件和堆叠上限未知，只展示已经预留独立空槽的一批。
+        int batches = initial.unknownSlots > 0 ? 1 : limit;
+        ItemBatchPlan.SlotCapacity capacity = (slot, stack) -> stack.getMaxStackSize();
+        var plan = shared ? ItemBatchPlan.shared(outputs, batches, capacity, prepare)
+            : ItemBatchPlan.separate(first.stacks, outputs, batches, capacity, prepare);
+        plan.commit(ignored -> {});
+        if (itemCounts.isEmpty() && fluidAmounts.isEmpty()) {
+            return List.of();
+        }
+        return List.of(RecipePreview.of(holder, shared, itemCounts, fluidAmounts));
+    }
+
+    private static boolean hasSpaceForUnknown(List<ItemStack> outputs, Ingredients match, Products products, boolean shared) {
+        int empty = 0;
+        for (int slot = 0; slot < outputs.size(); slot++) {
+            if (outputs.get(slot).isEmpty() || (shared && outputs.get(slot).getCount() == match.consumed[slot])) {
+                empty++;
             }
-            return freed;
-        }).batches() > 0;
+        }
+        int required = products.unknownSlots;
+        for (ItemStack stack : products.stacks) {
+            required += Math.ceilDiv(stack.getCount(), stack.getMaxStackSize());
+        }
+        return empty >= required;
     }
 
     private record Products(List<ItemStack> stacks, int unknownSlots, boolean variesByInput) {

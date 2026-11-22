@@ -99,21 +99,9 @@ final class LargeCauldronRecipes {
             .toList());
     }
 
-    private static boolean recipeUsesInput(InWorldRecipe recipe, ItemStack stack) {
-        if (stack.isEmpty()) {
-            return false;
-        }
-        for (IRecipePredicate<?> predicate : recipe.nonConflicting()) {
-            if (predicate instanceof HasItemIngredient ingredient && ingredient.getItem().test(stack)) {
-                return true;
-            }
-        }
-        for (IRecipePredicate<?> predicate : recipe.conflicting()) {
-            if (predicate instanceof HasItemIngredient ingredient && ingredient.getItem().test(stack)) {
-                return true;
-            }
-        }
-        return false;
+    static boolean matchesAnchor(InWorldRecipe recipe, ItemStack stack) {
+        var ingredient = firstIngredient(recipe);
+        return ingredient != null && ingredient.getItem().test(stack);
     }
 
     static final class Previews {
@@ -193,7 +181,7 @@ final class LargeCauldronRecipes {
             var candidates = (BitSet) this.dynamicItems.clone();
             this.addItem(candidates, stack);
             return candidates.stream().mapToObj(this.recipes::get)
-                .filter(holder -> recipeUsesInput(holder.value(), stack)).toList();
+                .filter(holder -> matchesAnchor(holder.value(), stack)).toList();
         }
 
         List<RecipeHolder<InWorldRecipe>> forTank(List<ItemStack> stacks) {

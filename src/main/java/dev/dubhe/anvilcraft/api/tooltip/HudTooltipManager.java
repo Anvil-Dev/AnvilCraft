@@ -157,6 +157,13 @@ public class HudTooltipManager {
         Font font = Minecraft.getInstance().font;
         ITooltipProvider.BlockEntityTooltipProvider currentProvider = this.determineBlockEntityTooltipProvider(entity);
         if (currentProvider == null) return;
+        if (currentProvider instanceof LargeCauldronTooltipProvider cauldron) {
+            TooltipRenderHelper.renderComponentsWithItemIcon(
+                graphics, font, cauldron.icon(entity), cauldron.components(entity, screenWidth), tooltipPosX, tooltipPosY,
+                BACKGROUND_COLOR, BORDER_COLOR_TOP, BORDER_COLOR_BOTTOM
+            );
+            return;
+        }
         List<Component> tooltip = currentProvider.tooltip(entity);
         if (tooltip.isEmpty()) {
             return;
