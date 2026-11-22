@@ -116,15 +116,18 @@ public class HudTooltipManager {
         int screenWidth,
         int screenHeight
     ) {
+        if (CompatUtil.HAS_JADE.get() && !AnvilCraftClient.CONFIG.ui.showGoggleTooltipWhenJadePresent) {
+            return;
+        }
         final int tooltipPosX = screenWidth / 2 + 10;
         final int tooltipPosY = screenHeight / 2 + 10;
         Font font = Minecraft.getInstance().font;
         ITooltipProvider.BlockTooltipProvider currentProvider = this.determineBlockTooltipProvider(level, pos, state);
         if (currentProvider == null) return;
         List<Component> tooltip = currentProvider.tooltip(level, pos, state);
-        if (
-            (CompatUtil.HAS_JADE.get() && !AnvilCraftClient.CONFIG.ui.showGoggleTooltipWhenJadePresent)
-            || tooltip.isEmpty()) return;
+        if (tooltip.isEmpty()) {
+            return;
+        }
         TooltipRenderHelper.renderTooltipWithItemIcon(
             graphics,
             font,
@@ -146,15 +149,18 @@ public class HudTooltipManager {
         int screenWidth,
         int screenHeight
     ) {
+        if (CompatUtil.HAS_JADE.get() && !AnvilCraftClient.CONFIG.ui.showGoggleTooltipWhenJadePresent) {
+            return;
+        }
         final int tooltipPosX = screenWidth / 2 + 10;
         final int tooltipPosY = screenHeight / 2 + 10;
         Font font = Minecraft.getInstance().font;
         ITooltipProvider.BlockEntityTooltipProvider currentProvider = this.determineBlockEntityTooltipProvider(entity);
         if (currentProvider == null) return;
         List<Component> tooltip = currentProvider.tooltip(entity);
-        if (
-            (CompatUtil.HAS_JADE.get() && !AnvilCraftClient.CONFIG.ui.showGoggleTooltipWhenJadePresent)
-            || tooltip.isEmpty()) return;
+        if (tooltip.isEmpty()) {
+            return;
+        }
         if (currentProvider instanceof StoragePortTooltipProvider port) {
             TooltipRenderHelper.renderComponentsWithItemIcon(
                 graphics, font, port.icon(entity), port.components(entity), tooltipPosX, tooltipPosY,

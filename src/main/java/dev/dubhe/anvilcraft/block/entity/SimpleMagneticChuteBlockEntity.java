@@ -1,14 +1,16 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
+import dev.dubhe.anvilcraft.api.block.entity.IConvertableBlockEntity;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.api.itemhandler.SingleStackResourceHandler;
 import dev.dubhe.anvilcraft.block.logistics.chute.SimpleMagneticChuteBlock;
+import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.server.level.ServerLevel;
@@ -35,7 +37,7 @@ import java.util.Objects;
 import java.util.Set;
 
 @Getter
-public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItemResourceHandlerHolder {
+public class SimpleMagneticChuteBlockEntity extends PlatedChuteBlockEntity implements IConvertableBlockEntity<MagneticChuteBlockEntity> {
     private static final int EJECTED_ITEM_TRACK_TICKS = 20;
     private final SingleStackResourceHandler itemHandler = new SingleStackResourceHandler() {
         @Override
@@ -97,7 +99,10 @@ public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItem
 
     /// tick
     public void tick() {
-        if (this.level == null) return;
+        this.getChutePlates().clearPortPlates();
+        if (this.level == null || this.isRemoved()) {
+            return;
+        }
         this.tickEjectedItemTracking();
         if (this.cooldown > 0) this.cooldown--;
         this.tickedGameTime = this.level.getGameTime();
@@ -246,5 +251,15 @@ public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItem
         if (level != null) {
             Containers.dropItemStack(level, center.x, center.y, center.z, this.itemHandler.getStack());
         }
+    }
+
+    @Override
+    public Holder<BlockEntityType<?>> targetTypeHolder() {
+        return ModBlockEntities.MAGNETIC_CHUTE;
+    }
+
+    @Override
+    public void convertTo(MagneticChuteBlockEntity target) {
+        this.getChutePlates().transferTo(target);
     }
 }

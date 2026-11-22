@@ -6,6 +6,7 @@ public class JadeLang {
     public static void init(RegistrumLangProvider provider) {
         provider.add("tooltip.anvilcraft.infinity", "Infinity");
         provider.add("config.jade.plugin_anvilcraft.overflow_disposal_fluid_tank", "Overflow Disposal Fluid Tank");
+        provider.add("config.jade.plugin_anvilcraft.cauldron_processing_preview", "Processing Preview");
         provider.add("config.jade.plugin_anvilcraft.crab_trap", "Crab Trap");
         provider.add("config.jade.plugin_anvilcraft.control_valve", "Control Valve");
         provider.add("config.jade.plugin_anvilcraft.crate", "Crate");

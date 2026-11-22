@@ -90,6 +90,9 @@ public class FluidTankTooltipProvider extends ITooltipProvider.BlockEntityToolti
                     .setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
             }
         }
+        if (value instanceof FishTankBlockEntity) {
+            lines.addAll(CauldronProcessingTooltip.previewLines(value));
+        }
         return lines;
     }
 

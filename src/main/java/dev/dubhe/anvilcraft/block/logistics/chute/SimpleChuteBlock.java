@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.block.entity.ChutePlates;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -11,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -20,7 +22,6 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
@@ -39,11 +40,15 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
+
+import java.util.List;
 
 public class SimpleChuteBlock
     extends BaseEntityBlock
@@ -120,6 +125,11 @@ public class SimpleChuteBlock
     }
 
     @Override
+    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        return ChutePlates.withPlateDrops(super.getDrops(state, params), params);
+    }
+
+    @Override
     public ItemStack getCloneItemStack(
         LevelReader level,
         BlockPos pos,
@@ -169,7 +179,17 @@ public class SimpleChuteBlock
     }
 
     @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        return level.getBlockEntity(pos) instanceof ChutePlates.Holder chute
+            ? chute.getChutePlates().takePlate(player, hit) : super.useWithoutItem(state, level, pos, player, hit);
+    }
+
+    @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return ChutePlates.withPlates(level, pos, getChuteShape(state));
+    }
+
+    private static VoxelShape getChuteShape(BlockState state) {
         Direction facing = state.getValue(SimpleChuteBlock.FACING);
         if (!state.getValue(SimpleChuteBlock.TALL)) {
             return switch (facing) {
@@ -225,9 +245,7 @@ public class SimpleChuteBlock
         };
         BlockState facingState = level.getBlockState(pos.relative(newFacing));
         if (ChuteBlock.outputsToward(facingState, newFacing.getOpposite())) {
-            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
-            level.levelEvent(2001, pos, Block.getId(oldState));
-            Block.dropResources(oldState, level, pos);
+            ChuteBlock.destroyFacingConflict(level, pos, player);
             return true;
         }
         HammerRotateBehavior.DEFAULT.change(player, pos, level, anvilHammer);
@@ -252,25 +270,23 @@ public class SimpleChuteBlock
 
     @Nullable
     BlockState getState(LevelReader level, BlockPos pos, Direction facing) {
-        boolean success = false;
+        boolean connected = false;
         boolean tall = false;
         BlockState result = level.getBlockState(pos);
-
-        // 相邻输出口决定溜槽是否采用连接形态。
+        ChutePlates chute = ChutePlates.at(level, pos);
         for (Direction dir : Direction.values()) {
-            BlockPos neighborPos = pos.relative(dir);
-            BlockState neighborState = level.getBlockState(neighborPos);
-            if (ChuteBlock.isChuteBlock(neighborState)
-                || neighborState.is(ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE)) {
-                if (ChuteBlock.outputsToward(neighborState, dir.getOpposite())) {
-                    success = true;
-                    if (dir == Direction.UP) {
-                        tall = !neighborState.is(ModBlocks.MAGNETIC_CHUTE.get());
-                    }
+            if (chute != null && chute.getPlates().contains(dir)) {
+                continue;
+            }
+            BlockState source = level.getBlockState(pos.relative(dir));
+            if (ChuteBlock.outputsToward(source, dir.getOpposite())) {
+                connected = true;
+                if (dir == Direction.UP) {
+                    tall = !source.is(ModBlocks.MAGNETIC_CHUTE.get());
                 }
             }
         }
-        if (!success) {
+        if (!connected) {
             result = ModBlocks.CHUTE.getDefaultState()
                 .setValue(SimpleChuteBlock.FACING, facing)
                 .setValue(SimpleChuteBlock.ENABLED, !level.hasNeighborSignal(pos));

@@ -24,7 +24,7 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
 @Getter
-public class ChuteBlockEntity extends BaseChuteBlockEntity implements IConvertableBlockEntity<SimpleChuteBlockEntity> {
+public class ChuteBlockEntity extends FullChuteBlockEntity implements IConvertableBlockEntity<SimpleChuteBlockEntity> {
     protected ChuteBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
@@ -81,6 +81,7 @@ public class ChuteBlockEntity extends BaseChuteBlockEntity implements IConvertab
 
     @Override
     public void convertTo(SimpleChuteBlockEntity newBe) {
+        this.getChutePlates().transferTo(newBe);
         FilteredItemStackHandler handler = this.getItemHandler();
         for (int i = 0; i < handler.size(); i++) {
             ItemResource resource = handler.getResource(i);
