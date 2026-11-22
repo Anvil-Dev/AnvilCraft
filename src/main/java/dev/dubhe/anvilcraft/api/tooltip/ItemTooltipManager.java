@@ -848,9 +848,16 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(
             ModBlocks.INFINITE_COLLECTOR.asItem(), """
                                                    Generates power by collecting both heat and charge, no upper power limit
-                                                   Provides 256 kW base power, boosted by negative void mass
-                                                   Mass thresholds -11/-21/-41 in a 7x7x7 area yield 768/2048/5120 kW"""
+                                                   Provides %1$s kW base power, boosted by negative void mass
+                                                   Mass thresholds -11/-21/-41 in a %2$sx%2$sx%2$s area yield %3$s/%4$s/%5$s kW"""
         );
+        ItemTooltipManager.NORMAL_ARGUMENTS.put(ModBlocks.INFINITE_COLLECTOR.asItem(), new Supplier<?>[]{
+            () -> AnvilCraft.CONFIG.machines.infiniteCollectorBasePower,
+            () -> 2 * AnvilCraft.CONFIG.machines.infiniteCollectorRange + 1,
+            () -> 3 * AnvilCraft.CONFIG.machines.infiniteCollectorBasePower,
+            () -> 8 * AnvilCraft.CONFIG.machines.infiniteCollectorBasePower,
+            () -> 20 * AnvilCraft.CONFIG.machines.infiniteCollectorBasePower
+        });
         ItemTooltipManager.NORMAL.put(
             ModBlocks.LOAD_MONITOR.asItem(),
             "Monitor the grid load condition, can output a signal by redstone comparator"
@@ -1503,6 +1510,9 @@ public class ItemTooltipManager {
     }
 
     public static String getTranslationKey(Item item) {
+        if (item == ModBlocks.INFINITE_COLLECTOR.asItem()) {
+            return "tooltip.anvilcraft.item.infinite_collector.generation";
+        }
         ResourceLocation key = BuiltInRegistries.ITEM.getKey(item);
         return "tooltip.%s.item.%s".formatted(key.getNamespace(), key.getPath());
     }
