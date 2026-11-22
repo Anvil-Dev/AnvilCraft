@@ -319,6 +319,9 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
         int sourceEffectiveHeight = getBlockPos().getY() + PUMP_HEADLIFT;
 
         if (FluidNetworkScanner.isPipePart(frontState)) {
+            if (!FluidNetworkScanner.hasAnyConnectionToward(frontState, facing.getOpposite())) {
+                return;
+            }
             /// 前方是管道 → 扫描网络，作为高等效高度的外部源向其分配
             FluidPipeNetwork network = FluidNetworkScanner.scan(level, frontPos);
             if (network == null) return;

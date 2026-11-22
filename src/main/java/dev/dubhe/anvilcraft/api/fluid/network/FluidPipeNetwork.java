@@ -305,7 +305,7 @@ public class FluidPipeNetwork {
         this.reachabilityCache.clear();
         this.distributeFromSource(new FluidEndpoint(
             srcPos,
-            new FluidEndpoint.Entry(entryPipePos, null, sourceEffectiveHeight),
+            new FluidEndpoint.Entry(entryPipePos, directionBetween(srcPos, entryPipePos), sourceEffectiveHeight),
             srcHandler,
             false,
             null));
