@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluidTags;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
+import dev.dubhe.anvilcraft.util.CauldronIgnition;
 import dev.dubhe.anvilcraft.util.ModInteractionMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -257,6 +258,13 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
             } else if (clickedFace == Direction.UP) {
                 return this.changeOutlet(level, pos, state, player, player.getDirection());
             }
+        }
+        if (CauldronIgnition.isShovel(stack)
+            && level.getBlockEntity(pos) instanceof FishTankBlockEntity tank
+            && tank.isIgnited()
+        ) {
+            return CauldronIgnition.useShovelToExtinguish(
+                level, pos, player, hand, stack, () -> tank.setIgnited(false));
         }
         CauldronInteraction interaction = ModInteractionMap.FISH_TANK.map().get(stack.getItem());
         if (interaction != null) return interaction.interact(state, level, pos, player, hand, stack);

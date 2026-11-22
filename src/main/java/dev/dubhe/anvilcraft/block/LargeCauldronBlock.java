@@ -287,6 +287,10 @@ public class LargeCauldronBlock
         if (stack.is(ModItemTags.ANVIL_HAMMER)) return ItemInteractionResult.SUCCESS;
         LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(level, pos, state);
         if (cauldron == null) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        if (CauldronIgnition.isShovel(stack) && cauldron.isIgnited()) {
+            return CauldronIgnition.useShovelToExtinguish(
+                level, pos, player, hand, stack, () -> cauldron.setIgnited(false));
+        }
         ItemInteractionResult ignition = CauldronIgnition.useOn(level, pos, player, hand, stack, cauldron::tryIgnite);
         if (ignition != null) return ignition;
         if (cauldron.interactWithFluid(player, hand, hit)) {
