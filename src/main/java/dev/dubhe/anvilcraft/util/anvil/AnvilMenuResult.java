@@ -15,11 +15,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AnvilMenu;
+import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
+import net.neoforged.neoforge.common.CommonHooks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -65,7 +67,33 @@ public class AnvilMenuResult {
         return new Builder();
     }
 
+    public void updateMenu(AnvilMenu menu, ResultContainer output, Player player, @Nullable String name) {
+        ItemStack left = menu.getSlot(0).getItem();
+        ItemStack right = menu.getSlot(1).getItem();
+        boolean calculated = this.calculateIfUnhandled(player, left, right, name,
+            tax -> CommonHooks.onAnvilChange(menu, left, right, output, name, tax, player));
+        if (calculated) {
+            output.setItem(0, this.result);
+            menu.setMaximumCost(this.xpCost);
+            menu.repairItemCountCost = this.repairItemCountCost;
+        } else {
+            this.result = output.getItem(0);
+            this.xpCost = menu.getCost();
+            this.repairItemCountCost = menu.repairItemCountCost;
+        }
+    }
+
     public void createResult(
+        @Nullable Player player,
+        ItemStack inputLeft,
+        ItemStack inputRight,
+        @Nullable String itemName,
+        LongPredicate onAnvilChangeEventSender
+    ) {
+        this.calculateIfUnhandled(player, inputLeft, inputRight, itemName, onAnvilChangeEventSender);
+    }
+
+    private boolean calculateIfUnhandled(
         @Nullable Player player,
         ItemStack inputLeft,
         ItemStack inputRight,
@@ -78,26 +106,26 @@ public class AnvilMenuResult {
         this.onlyRenaming = false;
         this.shouldCancel = false;
 
-        // 左侧为空或无法存储魔咒，则返回
-        if (inputLeft.isEmpty() || !EnchantmentHelper.canStoreEnchantments(inputLeft)) {
-            this.result = ItemStack.EMPTY;
-            return;
+        if (inputLeft.isEmpty()) {
+            return true;
         }
+        long tax = (long) inputLeft.getOrDefault(DataComponents.REPAIR_COST, 0)
+            + inputRight.getOrDefault(DataComponents.REPAIR_COST, 0);
+        if (!onAnvilChangeEventSender.test(tax)) {
+            return false;
+        }
+        if (EnchantmentHelper.canStoreEnchantments(inputLeft)) {
+            this.calculateResult(player, inputLeft, inputRight, itemName, tax);
+        }
+        return true;
+    }
 
-        // 变量初始化
+    private void calculateResult(@Nullable Player player, ItemStack inputLeft, ItemStack inputRight, @Nullable String itemName, long tax) {
         int price = 0;
         int repairingCost = 0;
-        long tax = (long) inputLeft.getOrDefault(DataComponents.REPAIR_COST, 0)
-                   + (long) inputRight.getOrDefault(DataComponents.REPAIR_COST, 0);
         ItemStack result = inputLeft.copy();
         final ItemEnchantments.Mutable enchantments = new ItemEnchantments.Mutable(EnchantmentHelper.getEnchantmentsForCrafting(result));
         boolean usingBook = false;
-
-        // 发送事件，若事件取消，则返回
-        if (!onAnvilChangeEventSender.test(tax)) {
-            this.result = ItemStack.EMPTY;
-            return;
-        }
 
         if (this.isMultiphaseMerge(inputLeft, inputRight)) {
             this.createMultiphaseResult(player, inputLeft, inputRight, itemName);
