@@ -657,8 +657,8 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(
             ModBlocks.INFINITE_COLLECTOR.asItem(), """
             Generates power by collecting both heat and charge, no upper power limit
-            Provides 256 kW base power, boosted by negative void mass
-            Mass thresholds -11/-21/-41 in a 7x7x7 area yield 768/2048/5120 kW"""
+            Provides %1$s kW base power, boosted by negative void mass
+            Mass thresholds -11/-21/-41 in a %2$sx%2$sx%2$s area yield %3$s/%4$s/%5$s kW"""
         );
         ItemTooltipManager.NORMAL.put(ModBlocks.LOAD_MONITOR.asItem(), "Monitor the grid load condition, can output a signal by redstone comparator");
         ItemTooltipManager.NORMAL.put(ModBlocks.CHUTE.asItem(), "An advanced Hopper, can transfer a full stack of items at a time");
@@ -1095,6 +1095,13 @@ public class ItemTooltipManager {
     }
 
     private static void addNormalTooltip(Consumer<Component> builder, Item item) {
+        if (item == ModBlocks.INFINITE_COLLECTOR.asItem()) {
+            int power = AnvilCraft.CONFIG.machines.infiniteCollectorBasePower;
+            int diameter = 2 * AnvilCraft.CONFIG.machines.infiniteCollectorRange + 1;
+            ItemTooltipManager.addTranslatedTooltip(builder, ItemTooltipManager.getTranslationKey(item),
+                power, diameter, 3 * power, 8 * power, 20 * power);
+            return;
+        }
         ItemTooltipManager.addTranslatedTooltip(builder, ItemTooltipManager.getTranslationKey(item),
             item == ModBlocks.MASS_ENERGY_INVERTER.asItem()
                 ? new Object[]{AnvilCraft.CONFIG.machines.massEnergyInverterPower}
@@ -1129,6 +1136,9 @@ public class ItemTooltipManager {
     }
 
     public static String getTranslationKey(Item item) {
+        if (item == ModBlocks.INFINITE_COLLECTOR.asItem()) {
+            return "tooltip.anvilcraft.item.infinite_collector.generation";
+        }
         Identifier key = BuiltInRegistries.ITEM.getKey(item);
         return "tooltip.%s.item.%s".formatted(key.getNamespace(), key.getPath());
     }
