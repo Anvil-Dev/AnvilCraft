@@ -53,11 +53,25 @@ public final class CauldronProcessing {
 
     /** 判断方块是否能执行指定类别的配方，未注册的类别不匹配。 */
     public static boolean matches(ResourceLocation category, BlockState state) {
-        return PROCESSORS.getOrDefault(category, List.of()).stream().anyMatch(active -> active.test(state));
+        return matchesAny(PROCESSORS.getOrDefault(category, List.of()), state);
     }
 
     /** 判断方块能否作为大锅的加工位置。 */
     public static boolean isActive(BlockState state) {
-        return PROCESSORS.values().stream().flatMap(List::stream).anyMatch(active -> active.test(state));
+        for (var predicates : PROCESSORS.values()) {
+            if (matchesAny(predicates, state)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean matchesAny(List<Predicate<BlockState>> predicates, BlockState state) {
+        for (var predicate : predicates) {
+            if (predicate.test(state)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

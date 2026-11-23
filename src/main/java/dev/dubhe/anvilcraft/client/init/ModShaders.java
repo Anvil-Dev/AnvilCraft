@@ -42,10 +42,14 @@ public class ModShaders {
     @Getter
     static ShaderInstance scanPreviewShader;
     @Getter
+    private static ShaderInstance monolithSurface;
+    @Getter
     static Matrix4f orthoMatrix = new Matrix4f();
 
     public static void register(RegisterShadersEvent event) {
         try {
+            event.registerShader(new ShaderInstance(event.getResourceProvider(), AnvilCraft.of("monolith_surface"),
+                DefaultVertexFormat.POSITION), shader -> monolithSurface = shader);
             event.registerShader(new ShaderInstance(event.getResourceProvider(), AnvilCraft.of("equipment_charge"),
                 DefaultVertexFormat.POSITION_TEX_COLOR), shader -> equipmentChargeShader = shader);
             event.registerShader(

@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
 import lombok.Getter;
@@ -26,7 +25,7 @@ import java.util.Objects;
 import static dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil.getTargetItemHandlerList;
 
 @Getter
-public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerHolder {
+public class SimpleChuteBlockEntity extends PlatedChuteBlockEntity {
     private final ItemStackHandler itemHandler = new ItemStackHandler(9) {
         /**
          * 简易溜槽内部不合并物品：槽内已有物品时拒绝输入，等它先传递出去。
@@ -71,7 +70,10 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerH
      */
     @SuppressWarnings({"UnreachableCode", "DuplicatedCode"})
     public void tick() {
-        if (level == null) return;
+        this.getChutePlates().clearPortPlates();
+        if (level == null || this.isRemoved()) {
+            return;
+        }
         if (this.cooldown > 0) this.cooldown--;
         this.tickedGameTime = level.getGameTime();
         if (this.cooldown == 0) {

@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.client.renderer.blockentity.TheEndPortalRenderer;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
@@ -107,6 +108,23 @@ public class ModRenderTypes {
             }
         };
     }
+
+    public static final RenderType MONOLITH_SURFACE = RenderType.create(
+        "anvilcraft_monolith_surface", DefaultVertexFormat.POSITION, VertexFormat.Mode.QUADS, 256,
+        RenderType.CompositeState.builder()
+            .setShaderState(new RenderStateShard.ShaderStateShard(ModShaders::getMonolithSurface))
+            .setTextureState(RenderStateShard.MultiTextureStateShard.builder()
+                .add(TheEndPortalRenderer.END_SKY_LOCATION, false, false)
+                .add(TheEndPortalRenderer.END_PORTAL_LOCATION, false, false).build())
+            // 固定深度偏移让内表面覆盖底材，同时避免斜视时穿过外壳。
+            .setLayeringState(new RenderStateShard.LayeringStateShard("monolith_surface", () -> {
+                RenderSystem.polygonOffset(0, -2);
+                RenderSystem.enablePolygonOffset();
+            }, () -> {
+                RenderSystem.polygonOffset(0, 0);
+                RenderSystem.disablePolygonOffset();
+            }))
+            .createCompositeState(false));
 
     public static final RenderType FISH_TANK_FLUID = RenderType.create(
         "anvilcraft:fish_tank_fluid",

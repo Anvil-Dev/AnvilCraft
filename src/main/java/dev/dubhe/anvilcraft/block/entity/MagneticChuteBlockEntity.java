@@ -18,7 +18,7 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
-public class MagneticChuteBlockEntity extends BaseChuteBlockEntity {
+public class MagneticChuteBlockEntity extends FullChuteBlockEntity {
     public MagneticChuteBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }

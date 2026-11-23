@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.client.renderer.mun.MunSurfaceRenderer;
 import dev.dubhe.anvilcraft.client.support.OverworldLikeClientState;
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
 import dev.dubhe.anvilcraft.util.EnchantedGoldBlockPositions;
+import dev.dubhe.anvilcraft.util.MonolithBlockPositions;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -70,6 +71,7 @@ abstract class ClientLevelMixin {
         OverworldLikeClientState.clear();
         PowerGridSupport.clearAllGrid();
         EnchantedGoldBlockPositions.clear();
+        MonolithBlockPositions.clear();
     }
 
     @Inject(method = "onChunkLoaded(Lnet/minecraft/world/level/ChunkPos;)V", at = @At("TAIL"))
@@ -77,10 +79,12 @@ abstract class ClientLevelMixin {
         MunSurfaceRenderer.onChunkChanged(chunkPos);
         LevelChunk chunk = ((ClientLevel) (Object) this).getChunk(chunkPos.x, chunkPos.z);
         EnchantedGoldBlockPositions.scanChunk(chunk);
+        MonolithBlockPositions.scanChunk(chunk);
     }
 
     @Inject(method = "unload", at = @At("TAIL"))
     private void anvilcraft$unloadMunOcclusion(LevelChunk chunk, CallbackInfo ci) {
+        MonolithBlockPositions.unload(chunk);
         MunSurfaceRenderer.onChunkChanged(chunk.getPos());
     }
 }

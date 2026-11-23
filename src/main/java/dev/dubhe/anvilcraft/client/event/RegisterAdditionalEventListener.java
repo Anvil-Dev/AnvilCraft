@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CelestialForgingAnvilBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.ChutePlateRenderer;
 import dev.dubhe.anvilcraft.init.registry.ModRegistries;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -23,6 +24,7 @@ public class RegisterAdditionalEventListener {
      */
     @SubscribeEvent
     public static void registerModels(ModelEvent.RegisterAdditional event) {
+        ChutePlateRenderer.registerModels(event);
         event.register(standaloneItem("crab_claw_holding_block"));
         event.register(standaloneItem("crab_claw_holding_block_slab"));
         event.register(standaloneItem("crab_claw_holding_block_panel"));
@@ -120,6 +122,11 @@ public class RegisterAdditionalEventListener {
         registerWipDisplayModels(event);
 
         event.register(standaloneBlock("hypercube"));
+    }
+
+    @SubscribeEvent
+    public static void bakeChutePlates(ModelEvent.ModifyBakingResult event) {
+        ChutePlateRenderer.bakeModels(event);
     }
 
     private static ModelResourceLocation standaloneBlock(String path) {

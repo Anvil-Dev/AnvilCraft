@@ -12,10 +12,13 @@ import net.minecraft.world.level.material.Fluids;
 import snownee.jade.api.Accessor;
 import snownee.jade.api.fluid.JadeFluidObject;
 import snownee.jade.api.ui.IDisplayHelper;
+import snownee.jade.api.ui.IElementHelper;
 import snownee.jade.api.view.ClientViewGroup;
 import snownee.jade.api.view.FluidView;
 import snownee.jade.api.view.IClientExtensionProvider;
 import snownee.jade.api.view.ViewGroup;
+import snownee.jade.util.CommonProxy;
+import snownee.jade.util.FluidTextHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +38,21 @@ public class FluidTankClientProvider implements IClientExtensionProvider<Compoun
     ) {
         List<ClientViewGroup<FluidView>> result = new ArrayList<>();
         for (ViewGroup<CompoundTag> group : groups) {
+            if (FluidTankProvider.CAULDRON_GROUP.equals(group.id)) {
+                List<FluidView> views = new ArrayList<>();
+                for (CompoundTag tag : group.views) {
+                    var fluid = JadeFluidObject.CODEC.parse(accessor.nbtOps(), tag.get("fluid")).getOrThrow();
+                    long capacity = tag.getLong("capacity");
+                    FluidView view = new FluidView(IElementHelper.get().fluid(fluid));
+                    view.fluidName = CommonProxy.getFluidName(fluid);
+                    view.current = FluidTextHelper.getUnicodeMillibuckets(fluid.getAmount(), true);
+                    view.max = FluidTextHelper.getUnicodeMillibuckets(capacity, true);
+                    view.ratio = ratio(fluid.getAmount(), capacity);
+                    views.add(view);
+                }
+                result.add(new ClientViewGroup<>(views));
+                continue;
+            }
             boolean largeTank = FluidTankProvider.LARGE_TANK_GROUP.equals(group.id);
             boolean singleFluid = FluidTankProvider.FLUID_TANK_GROUP.equals(group.id)
                 || FluidTankProvider.FLUID_PORT_GROUP.equals(group.id)

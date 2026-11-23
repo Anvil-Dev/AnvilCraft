@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.integration.jade.provider;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StorageFluidPortBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StoragePortConsolidatorBlockEntity;
@@ -24,6 +26,7 @@ public class FluidTankProvider implements IServerExtensionProvider<CompoundTag> 
     public static final FluidTankProvider INSTANCE = new FluidTankProvider();
     public static final ResourceLocation UID = AnvilCraft.of("fluid_tank");
 
+    public static final String CAULDRON_GROUP = "cauldron";
     public static final String LARGE_TANK_GROUP = "large_tank";
     public static final String FLUID_TANK_GROUP = "fluid_tank";
     public static final String FLUID_PORT_GROUP = "fluid_port";
@@ -68,6 +71,12 @@ public class FluidTankProvider implements IServerExtensionProvider<CompoundTag> 
         }
         if (blockAccessor.getBlockEntity() instanceof StoragePortConsolidatorBlockEntity consolidator) {
             return consolidatorGroups(consolidator);
+        }
+        if (blockAccessor.getBlockEntity() instanceof LargeCauldronBlockEntity cauldron) {
+            return componentFluidGroup(accessor, cauldron.getFluids());
+        }
+        if (blockAccessor.getBlockEntity() instanceof FishTankBlockEntity fish) {
+            return componentFluidGroup(accessor, fish.getFluidHandler());
         }
         if (!(blockAccessor.getBlockEntity() instanceof LargeFluidTankBlockEntity tank)) {
             return null;
@@ -162,6 +171,34 @@ public class FluidTankProvider implements IServerExtensionProvider<CompoundTag> 
             (long) StorageFluidPortBlockEntity.CAPACITY_MB * tanks
         );
         group.getExtraData().putInt(FluidTankProvider.INFINITE_KEY, infiniteCount);
+        return List.of(group);
+    }
+
+    // Jade 15 的默认流体编解码器缺少注册表，药水等组件需要使用当前世界的注册表。
+    private static @Nullable List<ViewGroup<CompoundTag>> componentFluidGroup(Accessor<?> accessor, IFluidHandler handler) {
+        boolean hasComponents = false;
+        for (int tank = 0; tank < handler.getTanks(); tank++) {
+            if (!handler.getFluidInTank(tank).getComponentsPatch().isEmpty()) {
+                hasComponents = true;
+                break;
+            }
+        }
+        if (!hasComponents) {
+            return null;
+        }
+        List<CompoundTag> fluids = new ArrayList<>();
+        for (int tank = 0; tank < handler.getTanks(); tank++) {
+            FluidStack stack = handler.getFluidInTank(tank);
+            if (!stack.isEmpty()) {
+                var fluid = JadeFluidObject.of(stack.getFluid(), stack.getAmount(), stack.getComponentsPatch());
+                CompoundTag view = new CompoundTag();
+                view.put("fluid", JadeFluidObject.CODEC.encodeStart(accessor.nbtOps(), fluid).getOrThrow());
+                view.putLong("capacity", handler.getTankCapacity(tank));
+                fluids.add(view);
+            }
+        }
+        ViewGroup<CompoundTag> group = new ViewGroup<>(fluids);
+        group.id = CAULDRON_GROUP;
         return List.of(group);
     }
 

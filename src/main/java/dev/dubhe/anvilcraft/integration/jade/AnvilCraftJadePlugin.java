@@ -6,8 +6,10 @@ import dev.dubhe.anvilcraft.block.CreativeCrateBlock;
 import dev.dubhe.anvilcraft.block.CreativeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.CursedGoldBlock;
 import dev.dubhe.anvilcraft.block.ExpCollectorBlock;
+import dev.dubhe.anvilcraft.block.FishTankBlock;
 import dev.dubhe.anvilcraft.block.FluidTankBlock;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
+import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.block.LargeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.LoadMonitorBlock;
 import dev.dubhe.anvilcraft.block.MengerSpongeBlock;
@@ -28,6 +30,8 @@ import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.integration.jade.provider.AutoEnchantingTableProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.BurningHeaterProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.CauldronItemStorage;
+import dev.dubhe.anvilcraft.integration.jade.provider.CauldronProcessingProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.ChargerProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.CollectorProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.ControlValveProvider;
@@ -52,6 +56,7 @@ import dev.dubhe.anvilcraft.integration.jade.provider.SmartBlockPlacerProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.SpaceOvercompressorProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.StoragePortProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.WipBlockProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.client.CauldronProcessingClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.FluidTankClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.StoragePortClientProvider;
 import net.minecraft.world.level.block.Block;
@@ -65,6 +70,10 @@ import snownee.jade.api.WailaPlugin;
 public class AnvilCraftJadePlugin implements IWailaPlugin {
     @Override
     public void register(IWailaCommonRegistration registration) {
+        registration.registerItemStorage(CauldronItemStorage.INSTANCE, LargeCauldronBlock.class);
+        registration.registerItemStorage(CauldronItemStorage.INSTANCE, FishTankBlock.class);
+        registration.registerBlockDataProvider(CauldronProcessingProvider.INSTANCE, LargeCauldronBlock.class);
+        registration.registerBlockDataProvider(CauldronProcessingProvider.INSTANCE, FishTankBlock.class);
         registration.registerItemStorage(StoragePortProvider.INSTANCE, StoragePortBlockEntity.class);
         registration.registerItemStorage(StoragePortProvider.INSTANCE, StoragePortConsolidatorBlockEntity.class);
         registration.registerItemStorage(StoragePortProvider.INSTANCE, CrateBlock.class);
@@ -97,6 +106,9 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
 
     @Override
     public void registerClient(IWailaClientRegistration registration) {
+        registration.registerItemStorageClient(CauldronItemStorage.INSTANCE);
+        registration.registerBlockComponent(CauldronProcessingClientProvider.INSTANCE, LargeCauldronBlock.class);
+        registration.registerBlockComponent(CauldronProcessingClientProvider.INSTANCE, FishTankBlock.class);
         registration.registerItemStorageClient(StoragePortClientProvider.INSTANCE);
         registration.registerBlockComponent(PowerBlockProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(RubyPrismProvider.INSTANCE, Block.class);

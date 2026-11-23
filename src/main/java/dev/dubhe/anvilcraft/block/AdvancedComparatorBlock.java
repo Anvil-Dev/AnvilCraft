@@ -113,7 +113,13 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
 
     @Override
     protected int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
-        return MountedRedstone.inputDirection(state) == direction && state.getValue(POWERED) ? 15 : 0;
+        if (MountedRedstone.inputDirection(state) != direction || !state.getValue(POWERED)) {
+            return 0;
+        }
+        if (state.getValue(MODE) == Mode.WINDOW && level.getBlockEntity(pos) instanceof AdvancedComparatorBlockEntity comparator) {
+            return comparator.getPublishedWindowOutput();
+        }
+        return 15;
     }
 
     @Override
@@ -272,21 +278,30 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
     }
 
     protected void updateBlockAndNeighbours(Level level, BlockPos pos, BlockState state, AdvancedComparatorBlockEntity blockEntity) {
-        Direction direction = MountedRedstone.inputDirection(state).getOpposite();
-        BlockPos neighbourPos = pos.relative(direction);
-        boolean shouldPower = blockEntity.isOutputting();
-        int inputtingSignal = Mth.clamp(blockEntity.getInputtingSignal(), 0, 15);
+        int windowOutput = blockEntity.getWindowOutput();
         Mode mode = blockEntity.getCompareMode();
+        boolean shouldPower = blockEntity.isOutputting() && (mode != Mode.WINDOW || windowOutput > 0);
+        boolean strengthChanged = mode == Mode.WINDOW && shouldPower && windowOutput != blockEntity.getPublishedWindowOutput();
+        blockEntity.setPublishedWindowOutput(windowOutput);
+        int inputtingSignal = Mth.clamp(blockEntity.getInputtingSignal(), 0, 15);
         boolean changed = state.getValue(AdvancedComparatorBlock.POWERED) != shouldPower
             || state.getValue(AdvancedComparatorBlock.INPUT) != (inputtingSignal > 0)
             || state.getValue(AdvancedComparatorBlock.POWER) != inputtingSignal
             || state.getValue(AdvancedComparatorBlock.MODE) != mode;
-        if (!changed) return;
+        if (!changed) {
+            if (strengthChanged) {
+                level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
+                this.notifyOutput(level, pos, state);
+            }
+            return;
+        }
         BlockState newState = state.setValue(AdvancedComparatorBlock.POWERED, shouldPower)
             .setValue(AdvancedComparatorBlock.INPUT, inputtingSignal > 0)
             .setValue(AdvancedComparatorBlock.POWER, inputtingSignal)
             .setValue(AdvancedComparatorBlock.MODE, mode);
         level.setBlockAndUpdate(pos, newState);
+        Direction direction = MountedRedstone.inputDirection(state).getOpposite();
+        BlockPos neighbourPos = pos.relative(direction);
         level.neighborChanged(neighbourPos, newState.getBlock(), pos);
         level.updateNeighborsAtExceptFromFacing(neighbourPos, newState.getBlock(), direction.getOpposite());
     }

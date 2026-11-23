@@ -14,6 +14,8 @@ import dev.dubhe.anvilcraft.block.ChuteBlock;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
+import dev.dubhe.anvilcraft.entity.MagnetizedNodeEntity;
+import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
@@ -103,8 +105,56 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     @Unique
     private BlockPos anvilcraft$blockPos;
 
+    @Unique
+    private @Nullable MagnetizedNodeEntity anvilcraft$magnetizedNode;
+
+    @Override
+    public void anvilcraft$attachToMagnetizedNode(MagnetizedNodeEntity node) {
+        this.anvilcraft$magnetizedNode = node;
+        Vec3 anchor = node.position();
+        if (!anchor.equals(this.getExistingDataOrNull(ModDataAttachments.MAGNETIZED_ITEM_POSITION))) {
+            this.setData(ModDataAttachments.MAGNETIZED_ITEM_POSITION, anchor);
+            this.hasImpulse = true;
+        }
+        if (!anchor.equals(this.position())) {
+            this.teleportTo(anchor.x, anchor.y, anchor.z);
+        }
+        this.setDeltaMovement(Vec3.ZERO);
+    }
+
+    @Unique
+    private @Nullable Vec3 anvilcraft$magnetizedItemPosition() {
+        if (this.level().isClientSide()) {
+            return this.getExistingDataOrNull(ModDataAttachments.MAGNETIZED_ITEM_POSITION);
+        }
+        MagnetizedNodeEntity node = this.anvilcraft$magnetizedNode;
+        if (node == null) {
+            return null;
+        }
+        if (!node.isRemoved() && node.level() == this.level() && this.anvilcraft$isAdsorbable()) {
+            if (node.position().equals(this.position())) {
+                return node.position();
+            }
+            if (node.getAttractionArea().intersects(this.getBoundingBox())) {
+                this.anvilcraft$attachToMagnetizedNode(node);
+                return node.position();
+            }
+        }
+        this.anvilcraft$magnetizedNode = null;
+        this.removeData(ModDataAttachments.MAGNETIZED_ITEM_POSITION);
+        this.hasImpulse = true;
+        return null;
+    }
+
     @Inject(method = "tick", at = @At("RETURN"))
     private void tickReturn(CallbackInfo ci) {
+        Vec3 anchor = this.anvilcraft$magnetizedItemPosition();
+        if (anchor != null) {
+            if (!anchor.equals(this.position())) {
+                this.moveTo(anchor.x, anchor.y, anchor.z);
+            }
+            this.setDeltaMovement(Vec3.ZERO);
+        }
         if (!this.level().isClientSide()) RecipeOutputTracker.getOrigin((ItemEntity) (Object) this);
         BlockPos blockPos = BlockPos.containing(this.position());
         if (!blockPos.equals(this.anvilcraft$blockPos)) {
@@ -183,6 +233,10 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
     private void anvilcraft$neutroniumTick(CallbackInfo ci) {
         ItemEntity thiz = Util.cast(this);
+        if (this.anvilcraft$magnetizedItemPosition() != null) {
+            this.setDeltaMovement(Vec3.ZERO);
+            return;
+        }
         ItemStack item = this.getItem();
         if (!item.is(ModItems.NEUTRONIUM_INGOT)) return;
         if (item.onEntityItemUpdate(thiz)) {
