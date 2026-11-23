@@ -54,6 +54,7 @@ public class DragonRodItem extends Item {
     public static final Identifier COOLDOWN_GROUP = AnvilCraft.of("dragon_rods");
     public static final Identifier TRANSCENDENCE_COOLDOWN_GROUP = AnvilCraft.of("transcendence_dragon_rod");
     private final BlockMiningEffect miningEffect;
+    private static final int STARTUP_COOLDOWN = 10;
     private static final Map<UUID, Long> LAST_TRANSCENDENCE_DEVOUR_TICK = new HashMap<>();
     private static final Set<UUID> CONTINUOUS_DEVOUR_PLAYERS = new HashSet<>();
 
@@ -108,6 +109,10 @@ public class DragonRodItem extends Item {
         ItemStack dragonRod = player.getItemInHand(hand);
         if (!dragonRod.has(ModComponents.DEVOUR_RANGE) || !DragonRodItem.canDevour(player, dragonRod)) return;
 
+        if (dragonRod.is(ModItems.TRANSCENDENCE_DRAGON_ROD)
+            && Objects.equals(DragonRodItem.LAST_TRANSCENDENCE_DEVOUR_TICK.get(player.getUUID()), level.getGameTime())) {
+            return;
+        }
         int range = dragonRod.getOrDefault(ModComponents.DEVOUR_RANGE, DevourRange.THREE).getRange();
         range = (range - 1) / 2;
         List<BlockPos> devouringPoses = DevourUtil.getDevourPosList(level, centerPos, clickedSide, range, 0);
@@ -193,15 +198,14 @@ public class DragonRodItem extends Item {
         if (dragonRod.is(ModItems.TRANSCENDENCE_DRAGON_ROD)) {
             long currentTick = level.getGameTime();
             Long lastTick = DragonRodItem.LAST_TRANSCENDENCE_DEVOUR_TICK.put(player.getUUID(), currentTick);
-            boolean warmedUp = lastTick != null && currentTick - lastTick < 15;
-            player.getCooldowns().addCooldown(DragonRodItem.TRANSCENDENCE_COOLDOWN_GROUP, warmedUp ? 0 : 10);
-            if (warmedUp) {
+            if (lastTick != null && currentTick - lastTick < 15) {
                 DragonRodItem.CONTINUOUS_DEVOUR_PLAYERS.add(player.getUUID());
+            } else {
+                player.getCooldowns().addCooldown(DragonRodItem.TRANSCENDENCE_COOLDOWN_GROUP, DragonRodItem.STARTUP_COOLDOWN);
             }
         } else {
-            player.getCooldowns().addCooldown(DragonRodItem.TRANSCENDENCE_COOLDOWN_GROUP, 0);
+            DragonRodItem.stopContinuousMode(player);
         }
-
         if (!(dragonRod.getItem() instanceof DragonRodItem)) {
             player.getCooldowns().addCooldown(dragonRod, DragonRodItem.calculateCooldown(player));
         }
@@ -237,7 +241,10 @@ public class DragonRodItem extends Item {
     }
 
     public static void stopContinuousMode(Player player) {
-        DragonRodItem.CONTINUOUS_DEVOUR_PLAYERS.remove(player.getUUID());
+        DragonRodItem.LAST_TRANSCENDENCE_DEVOUR_TICK.remove(player.getUUID());
+        if (DragonRodItem.CONTINUOUS_DEVOUR_PLAYERS.remove(player.getUUID())) {
+            player.getCooldowns().addCooldown(DragonRodItem.TRANSCENDENCE_COOLDOWN_GROUP, DragonRodItem.STARTUP_COOLDOWN);
+        }
     }
 
     public static void tickContinuousDevour(ServerPlayer player) {
@@ -250,12 +257,12 @@ public class DragonRodItem extends Item {
             rod = player.getOffhandItem();
             hand = InteractionHand.OFF_HAND;
             if (!rod.is(ModItems.TRANSCENDENCE_DRAGON_ROD)) {
-                DragonRodItem.CONTINUOUS_DEVOUR_PLAYERS.remove(playerId);
+                DragonRodItem.stopContinuousMode(player);
                 return;
             }
         }
         if (!DragonRodItem.canDevour(player, rod)) {
-            DragonRodItem.CONTINUOUS_DEVOUR_PLAYERS.remove(playerId);
+            DragonRodItem.stopContinuousMode(player);
             return;
         }
         HitResult hit = player.pick(player.blockInteractionRange(), 0.0F, false);

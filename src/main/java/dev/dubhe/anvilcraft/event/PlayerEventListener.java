@@ -71,6 +71,7 @@ public class PlayerEventListener {
 
     @SubscribeEvent
     public static void onLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+        DragonRodItem.stopContinuousMode(event.getEntity());
         InfiniteFluidTankBreakProtection.clear(event.getEntity());
     }
 
@@ -173,7 +174,6 @@ public class PlayerEventListener {
         if (!stack.has(ModComponents.DEVOUR_RANGE)) return;
         if (event.getAction() == PlayerInteractEvent.LeftClickBlock.Action.STOP
             || event.getAction() == PlayerInteractEvent.LeftClickBlock.Action.ABORT) {
-            DragonRodItem.stopContinuousMode(player);
             return;
         }
         if (!DragonRodItem.canDevour(player, stack) || !BlockDevourerBlock.canDevour(state)) {
