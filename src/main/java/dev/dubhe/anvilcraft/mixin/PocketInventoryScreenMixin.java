@@ -15,7 +15,9 @@ import net.minecraft.world.inventory.Slot;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(InventoryScreen.class)
@@ -57,6 +59,21 @@ abstract class PocketInventoryScreenMixin extends AbstractContainerScreen<Invent
                 pocket.updatePosition();
             }
         }
+    }
+
+    // 配方书展开时 InventoryScreen 会把 GUI 右移让位，右侧口袋面板可能被推出屏幕。
+    // 这里按两侧面板宽度抬高窄屏阈值，让界面在空间不足时改用配方书覆盖 GUI 的原版窄屏表现。
+    @ModifyConstant(method = "init", constant = @Constant(intValue = 379))
+    private int anvilcraft$allowRoomForPockets(int original) {
+        if (this.minecraft == null || this.minecraft.player == null) {
+            return original;
+        }
+        int capacity = PocketInventory.capacity(this.minecraft.player);
+        if (capacity == 0) {
+            return original;
+        }
+        return original + PocketLayout.of(capacity, 0, 0, 0).width()
+            + PocketLayout.of(capacity, 1, 0, 0).width() + 4;
     }
 
     @Inject(method = "renderBg", at = @At("TAIL"))

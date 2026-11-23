@@ -1,14 +1,18 @@
 package dev.dubhe.anvilcraft.inventory;
 
-import dev.dubhe.anvilcraft.mixin.SlotPositionAccessor;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 public class PocketSlot extends Slot {
+    private static final int HIDDEN_X = -10000;
     private final Player owner;
     private final int pocketIndex;
+    private int cachedCapacity = -1;
+    private PocketLayout leftLayout;
+    private PocketLayout rightLayout;
+    private boolean active;
 
     public PocketSlot(Player owner, int index) {
         super(new Access(owner), index, 0, 84 + index % 3 * 18);
@@ -17,32 +21,46 @@ public class PocketSlot extends Slot {
         this.updatePosition();
     }
 
+    /**
+     * 按当前容量重算槽位坐标。布局只在容量变化时重建，避免每帧重复分配记录。
+     */
     public void updatePosition() {
         int capacity = PocketInventory.capacity(this.owner);
-        if (this.pocketIndex >= capacity) {
-            this.setPosition(-10000, 0);
+        if (this.cachedCapacity != capacity) {
+            this.cachedCapacity = capacity;
+            this.leftLayout = PocketLayout.of(capacity, 0, 176, 70);
+            this.rightLayout = PocketLayout.of(capacity, 1, 176, 70);
+        }
+        this.active = this.pocketIndex < capacity;
+        if (!this.active) {
+            this.hide();
             return;
         }
         int perSide = (capacity + 1) / 2;
         int side = this.pocketIndex / perSide;
         int local = this.pocketIndex % perSide;
-        PocketLayout layout = PocketLayout.of(capacity, side, 176, 70);
-        if (local >= layout.slots()) {
-            this.setPosition(-10000, 0);
+        PocketLayout layout = side == 0 ? this.leftLayout : this.rightLayout;
+        if (layout == null || local >= layout.slots()) {
+            this.active = false;
+            this.hide();
             return;
         }
-        this.setPosition(layout.slotItemX(local), layout.slotItemY(local));
+        this.x = layout.slotItemX(local);
+        this.y = layout.slotItemY(local);
     }
 
-    private void setPosition(int x, int y) {
-        this.x = x;
-        ((SlotPositionAccessor) this).anvilcraft$setY(y);
+    private void hide() {
+        this.x = HIDDEN_X;
+        this.y = 0;
     }
 
     @Override
     public boolean isActive() {
-        this.updatePosition();
-        return this.pocketIndex < PocketInventory.capacity(this.owner);
+        int capacity = PocketInventory.capacity(this.owner);
+        if (capacity != this.cachedCapacity) {
+            this.updatePosition();
+        }
+        return this.active;
     }
 
     @Override
@@ -50,6 +68,10 @@ public class PocketSlot extends Slot {
         return this.isActive();
     }
 
+    /**
+     * 菜单本身只属于该玩家，可视性已由 {@code isActive} 与 {@code Access#stillValid} 约束，
+     * 这里不再比较 Player 实例，避免客户端与服务端实例不同导致口袋无法取出物品。
+     */
     @Override
     public boolean mayPickup(Player player) {
         return this.isActive();

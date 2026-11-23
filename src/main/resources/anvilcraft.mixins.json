@@ -79,7 +79,6 @@
     "ServerPlayerContainerListenerMixin",
     "ServerPlayerMixin",
     "ServicesMixin",
-    "SlotPositionAccessor",
     "StriderMixin",
     "TargetGoalMixin",
     "TntBlockMixin",
