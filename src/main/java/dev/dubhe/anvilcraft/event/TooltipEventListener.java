@@ -62,7 +62,6 @@ public class TooltipEventListener {
             tooltip -> builder.accept(tooltip.copy().withColor(0x5F93A3)),
             flag
         );
-        stack.addToTooltip(ModComponents.CAN_TAKE_OUT_AMMO, ctx, display, builder, flag);
         stack.addUnitComponentToTooltip(ModComponents.FIRE_REFORGING, TooltipEventListener.FIRE_REFORGING, display, builder);
         stack.addToTooltip(ModComponents.MERCILESS, ctx, display, builder, flag);
         stack.addToTooltip(ModComponents.FEROCIOUS, ctx, display, builder, flag);

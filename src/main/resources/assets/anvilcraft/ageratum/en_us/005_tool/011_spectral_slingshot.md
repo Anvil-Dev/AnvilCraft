@@ -24,15 +24,15 @@ items:
 
 # Usage
 
-- Loading: hold the weapon in your offhand and the Spectral Slingshot in your main hand, then right-click to load
-- Shooting: right-click to fire a projectile; hold right-click to fire continuously, firing spectral projectiles unaffected by gravity
-- Removing and swapping ammo: when the other hand is empty, sneak + right-click to remove ammo; when the other hand holds an item different from the ammo, sneak + right-click to swap ammo
+- Hold the Slingshot in one hand and a melee weapon in the other. Hold right-click to load a spectral copy. The original stays in your hand.
+- Right-click to shoot the loaded copy. Spectral projectiles fly without gravity. Each shot clears the loaded copy unless the Slingshot has Infinity.
+- Sneak and right-click to clear the loaded copy. Holding another weapon in your free hand lets you load a replacement.
 - Damage: 50% of the weapon's melee damage. Only damage-boosting enchantments on the original weapon take effect. Damage can be boosted by the Slingshot's Power enchantment
 
 # Enchantment Notes
 
 - Quick Charge: affects loading speed, same as vanilla crossbow; also reduces cooldown by 0.25 seconds per level, up to 1 second
-- Infinity: does not consume the item in hand when loading, but also does not retrieve items when removing or swapping ammo
+- Infinity: keeps the spectral copy after firing. You can shoot again after the cooldown without reloading.
 - Power: increases projectile damage (unlike vanilla arrows, only increases damage by 10% per level)
 - Other enchantments work the same as vanilla
 

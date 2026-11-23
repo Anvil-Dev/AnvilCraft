@@ -115,6 +115,7 @@ public class ModComponents {
         builder -> builder.persistent(StoredEnergy.CODEC.codec()).networkSynchronized(StoredEnergy.STREAM_CODEC)
     );
 
+    /** 旧弹匣的弹药和来源掩码需要同时解码，才能按装填时的消耗返还实物。 */
     public static final DataComponentType<ChargedProjectiles> RAILGUN_AMMO = ModComponents.register(
         "railgun_ammo",
         builder -> builder.persistent(ChargedProjectiles.CODEC).networkSynchronized(ChargedProjectiles.STREAM_CODEC)
