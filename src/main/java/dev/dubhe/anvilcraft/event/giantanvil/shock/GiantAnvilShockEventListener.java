@@ -220,19 +220,21 @@ public class GiantAnvilShockEventListener {
 
     @SubscribeEvent
     public static void onLand(AnvilEvent.GiantOnLand event) {
+        Level level = event.getLevel();
+        BlockPos shockCenter = event.getPos().below(2);
+        if (!level.getBlockState(shockCenter).is(ModBlocks.HEAVY_IRON_BLOCK)) {
+            return;
+        }
         ShockContext context = ShockContext.inflate(event);
         GiantAnvilShockEventListener.behaviorTree.run(context);
 
-        Level level = event.getLevel();
-        // 仅当冲击机制实际触发（中心为重型铁块）时才生成撼地效果
-        BlockState center = level.getBlockState(event.getPos().below(2));
-        if (!center.is(ModBlocks.HEAVY_IRON_BLOCK)) {
+        // 撼地行为可能改变中心方块，发送效果前需重新检查。
+        if (!level.getBlockState(shockCenter).is(ModBlocks.HEAVY_IRON_BLOCK)) {
             return;
         }
 
         float fallDistance = event.getFallDistance();
         int radius = (int) Math.min(Math.ceil(fallDistance), AnvilCraft.CONFIG.world.giantAnvilMaxShockRadius);
-        BlockPos shockCenter = event.getPos().below(2);
 
         // 发送震波效果包到附近所有玩家
         if (level instanceof ServerLevel serverLevel) {

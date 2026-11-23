@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.api.event.BlockEntityEvent;
 import dev.dubhe.anvilcraft.api.fluid.DrainChunkAccess;
 import dev.dubhe.anvilcraft.api.fluid.FluidChangeTracker;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ChutePlates;
 import dev.dubhe.anvilcraft.util.EnchantedGoldBlockPositions;
 import dev.dubhe.anvilcraft.util.MonolithBlockPositions;
 import net.minecraft.core.BlockPos;
@@ -186,6 +187,9 @@ public abstract class LevelChunkMixin implements FluidChangeTracker {
             instance.addAndRegisterBlockEntity(replacement);
         } else {
             replacement.setLevel(this.getLevel());
+            if (replacement instanceof ChutePlates.Holder chute) {
+                chute.getChutePlates().dropAfterFailedConversion();
+            }
             replacement.preRemoveSideEffects(pos, replacement.getBlockState());
         }
     }

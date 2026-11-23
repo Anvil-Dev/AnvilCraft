@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.entity;
 
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
+import dev.dubhe.anvilcraft.block.entity.ChutePlates;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 import net.minecraft.core.BlockPos;
@@ -186,21 +187,17 @@ public class CauldronOutletEntity extends Entity {
 
         // 物品输出逻辑
         BlockPos cauldronPos = this.getCauldronPos();
-        AABB aabb = new AABB(
-            cauldronPos.getX() - 0.01,
-            cauldronPos.getY() - 0.01,
-            cauldronPos.getZ() - 0.01,
-            cauldronPos.getX() + 1.01,
-            cauldronPos.getY() + 1.01,
-            cauldronPos.getZ() + 1.01
-        );
         Direction attachedDirection = this.getAttachedDirection();
+        BlockPos targetPos = cauldronPos.relative(attachedDirection);
+        if (ChutePlates.hasPlate(this.level(), targetPos, attachedDirection.getOpposite())) {
+            return;
+        }
 
         // 输出口前方的方块，如果是容器则优先输入进容器，输入不进的部分再作为掉落物输出
         ResourceHandler<ItemResource> containerTarget = null;
         if (this.level() instanceof ServerLevel) {
             List<ResourceHandler<ItemResource>> targets = ItemHandlerUtil.getOutletTargetItemHandlerList(
-                cauldronPos.relative(attachedDirection),
+                targetPos,
                 attachedDirection.getOpposite(),
                 this.level()
             );
@@ -217,7 +214,7 @@ public class CauldronOutletEntity extends Entity {
         final boolean blocked = containerTarget == null
             && this.level() instanceof ServerLevel
             && AnvilUtil.isOutletBlocked(
-                this.level(), cauldronPos.relative(attachedDirection), this.position(), attachedDirection);
+                this.level(), targetPos, this.position(), attachedDirection);
 
         // 物品输出仅在服务端处理：通过销毁原实体并生成新实体来输出，避免对已被客户端追踪的
         // 实体使用传送包导致的插值拉扯（客户端会先按自身速度穿过去再被同步拉回）
@@ -225,6 +222,14 @@ public class CauldronOutletEntity extends Entity {
             return;
         }
         final ResourceHandler<ItemResource> finalContainerTarget = containerTarget;
+        AABB aabb = new AABB(
+            cauldronPos.getX() - 0.01,
+            cauldronPos.getY() - 0.01,
+            cauldronPos.getZ() - 0.01,
+            cauldronPos.getX() + 1.01,
+            cauldronPos.getY() + 1.01,
+            cauldronPos.getZ() + 1.01
+        );
         serverLevel.getEntities(EntityType.ITEM, aabb, entity -> !entity.anvilcraft$isAdsorbable()).forEach(entity -> {
             if (finalContainerTarget != null) {
                 ItemStack stack = entity.getItem();

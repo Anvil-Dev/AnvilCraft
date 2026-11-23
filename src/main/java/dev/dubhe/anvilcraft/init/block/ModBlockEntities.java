@@ -110,6 +110,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CelestialForgingAnvilFluidInterfaceBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargerRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.ChutePlateRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ConfinementChamberRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ControlValveBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
@@ -193,21 +194,25 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<ChuteBlockEntity> CHUTE = REGISTRUM
         .blockEntity("chute", ChuteBlockEntity::createBlockEntity)
         .validBlock(ModBlocks.CHUTE)
+        .renderer(() -> ChutePlateRenderer::new)
         .register();
 
     public static final BlockEntityEntry<MagneticChuteBlockEntity> MAGNETIC_CHUTE = REGISTRUM
         .blockEntity("magnetic_chute", MagneticChuteBlockEntity::new)
         .validBlock(ModBlocks.MAGNETIC_CHUTE)
+        .renderer(() -> ChutePlateRenderer::new)
         .register();
 
     public static final BlockEntityEntry<SimpleChuteBlockEntity> SIMPLE_CHUTE = REGISTRUM
         .blockEntity("simple_chute", SimpleChuteBlockEntity::new)
         .validBlock(ModBlocks.SIMPLE_CHUTE)
+        .renderer(() -> ChutePlateRenderer::new)
         .register();
 
     public static final BlockEntityEntry<SimpleMagneticChuteBlockEntity> SIMPLE_MAGNETIC_CHUTE = REGISTRUM
         .blockEntity("simple_magnetic_chute", SimpleMagneticChuteBlockEntity::new)
         .validBlock(ModBlocks.SIMPLE_MAGNETIC_CHUTE)
+        .renderer(() -> ChutePlateRenderer::new)
         .register();
 
     public static final BlockEntityEntry<CorruptedBeaconBlockEntity> CORRUPTED_BEACON = REGISTRUM

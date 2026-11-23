@@ -21,9 +21,12 @@ import dev.dubhe.anvilcraft.block.logistics.storage.StorageFluidPortBlock;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.production.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.utility.MengerSpongeBlock;
+import dev.dubhe.anvilcraft.block.workstation.FishTankBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.integration.jade.provider.AutoEnchantingTableProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.BurningHeaterProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.CauldronItemStorage;
+import dev.dubhe.anvilcraft.integration.jade.provider.CauldronProcessingProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.ChargerProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.CrabTrapBlockStateProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.CreativeCrateProvider;
@@ -43,6 +46,7 @@ import dev.dubhe.anvilcraft.integration.jade.provider.StoragePortProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.WipBlockProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.AutoEnchantingTableClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.BurningHeaterClientProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.client.CauldronProcessingClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.ChargerClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.ControlValveClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.CrabTrapBlockStateClientProvider;
@@ -103,6 +107,10 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
             StoragePortConsolidatorBlockEntity.class
         );
         registration.registerFluidStorage(LargeFluidTankProvider.INSTANCE, LargeCauldronBlock.class);
+        registration.registerItemStorage(CauldronItemStorage.INSTANCE, FishTankBlock.class);
+        registration.registerItemStorage(CauldronItemStorage.INSTANCE, LargeCauldronBlock.class);
+        registration.registerBlockDataProvider(CauldronProcessingProvider.INSTANCE, LargeCauldronBlock.class);
+        registration.registerBlockDataProvider(CauldronProcessingProvider.INSTANCE, FishTankBlock.class);
         registration.registerFluidStorage(MengerSpongeFluidProvider.INSTANCE, MengerSpongeBlock.class);
         registration.registerBlockDataProvider(WipBlockProvider.INSTANCE, WipBlock.class);
         registration.registerBlockDataProvider(MultiPartPowerBlockProvider.INSTANCE, AbstractMultiPartBlock.class);
@@ -111,6 +119,7 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
     @Override
     public void registerClient(IWailaClientRegistration registration) {
         registration.registerItemStorageClient(StoragePortClientProvider.INSTANCE);
+        registration.registerItemStorageClient(CauldronItemStorage.INSTANCE);
         registration.registerBlockComponent(ControlValveClientProvider.INSTANCE, ControlValveBlock.class);
         registration.registerBlockComponent(CursedGoldEnchantPowerProvider.INSTANCE, CursedGoldBlock.class);
         registration.registerCustomEnchantPower(ModBlocks.TRANSCENDIUM_BLOCK.get(), BlockState::getEnchantPowerBonus);
@@ -133,6 +142,8 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
         registration.registerItemStorageClient(CreativeCrateClientProvider.INSTANCE);
         registration.registerFluidStorageClient(CreativeFluidTankClientProvider.INSTANCE);
         registration.registerFluidStorageClient(LargeFluidTankClientProvider.INSTANCE);
+        registration.registerBlockComponent(CauldronProcessingClientProvider.INSTANCE, LargeCauldronBlock.class);
+        registration.registerBlockComponent(CauldronProcessingClientProvider.INSTANCE, FishTankBlock.class);
         registration.registerBlockComponent(MengerSpongeClientProvider.INSTANCE, MengerSpongeBlock.class);
         registration.registerBlockComponent(WipBlockClientProvider.INSTANCE, WipBlock.class);
         registration.registerBlockComponent(RedstoneWirePowerClientProvider.INSTANCE, RedstoneWireBlock.class);

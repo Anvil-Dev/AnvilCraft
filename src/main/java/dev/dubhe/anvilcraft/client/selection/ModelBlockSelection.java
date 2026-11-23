@@ -12,6 +12,7 @@ import dev.anvilcraft.lib.v2.cube.geometry.ConvexShape;
 import dev.anvilcraft.lib.v2.cube.geometry.PackedOutline;
 import dev.anvilcraft.lib.v2.cube.geometry.SelectionGeometry;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.ChutePlates;
 import dev.dubhe.anvilcraft.block.entity.RuinsBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.RuinsRenderContext;
@@ -20,6 +21,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -44,6 +46,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public final class ModelBlockSelection {
@@ -63,6 +66,14 @@ public final class ModelBlockSelection {
         .maximumWeight(4 * 1024 * 1024)
         .weigher((VoxelShape key, SelectionPart value) -> (int) value.geometry().estimatedBytes() + 512)
         .build();
+
+    private static final Cache<ChuteOutlineKey, SelectionPart> CHUTE_OUTLINES = CacheBuilder.newBuilder()
+        .maximumWeight(2 * 1024 * 1024)
+        .weigher((ChuteOutlineKey key, SelectionPart part) -> (int) part.geometry().estimatedBytes() + 128)
+        .build();
+
+    private record ChuteOutlineKey(BlockState state, BlockPos pos, Set<Direction> plates) {
+    }
 
     /** 预览缓存键：放置位不同则渲染结果可能不同，必须一并入键。 */
     private record PreviewKey(BlockState state, BlockPos pos) {
@@ -87,6 +98,7 @@ public final class ModelBlockSelection {
         pending = new Snapshot(Map.of(), Map.of(), Map.of());
         DYNAMIC.clear();
         FALLBACK.invalidateAll();
+        CHUTE_OUTLINES.invalidateAll();
         for (Block block : BuiltInRegistries.BLOCK) {
             if (!AnvilCraft.MOD_ID.equals(BuiltInRegistries.BLOCK.getKey(block).getNamespace())) continue;
             AABB bounds = null;
@@ -292,6 +304,24 @@ public final class ModelBlockSelection {
         ClientLevel level = event.getLevel();
         BlockPos pos = event.getBlockPos().immutable();
         float partialTick = event.getCamera().getCameraEntityPartialTicks(minecraft.getDeltaTracker());
+        ChutePlates plates = state.hasBlockEntity() ? ChutePlates.at(level, pos) : null;
+        if (plates != null && !plates.getPlates().isEmpty()) {
+            ChuteOutlineKey key = new ChuteOutlineKey(state, pos, plates.getPlates());
+            SelectionPart merged = CHUTE_OUTLINES.asMap().computeIfAbsent(key, ignored ->
+                ModelSelectionBakery.mergeOutline(parts(level, pos, state, partialTick)));
+            if (merged == null) {
+                return false;
+            }
+            PackedOutline outline = CubeSelection.outlines().get(merged.geometry());
+            // 后台并集尚未就绪时，原版会描绘槽体与盖板合并后的 VoxelShape。
+            if (outline == merged.geometry().fallbackOutline()) {
+                return false;
+            }
+            Vec3 offset = state.getOffset(pos);
+            Vec3 camera = event.getCamera().position().subtract(Vec3.atLowerCornerOf(pos)).subtract(offset);
+            submitOutline(event, pos, offset, List.of(new OutlinePart(merged, outline.forView(merged.localPosition(camera)))));
+            return true;
+        }
         List<SelectionPart> whole = snapshot.outlines().get(state);
         boolean multipart = whole != null && block instanceof AbstractMultiPartBlock<?>;
         List<SelectionPart> outline = multipart ? whole : parts(level, pos, state, partialTick);
@@ -375,6 +405,7 @@ public final class ModelBlockSelection {
         PREVIEW_BER_PARTS.clear();
         PREVIEW_BER_MODELS.clear();
         FALLBACK.invalidateAll();
+        CHUTE_OUTLINES.invalidateAll();
     }
 
     private record OutlinePart(SelectionPart part, PackedOutline outline) {

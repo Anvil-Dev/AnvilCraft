@@ -24,6 +24,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public record RoyalPreferenceOutcome(ChanceItemStack result) implements IPlannedItemOutcome<RoyalPreferenceOutcome> {
@@ -54,36 +56,42 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IPlanned
 
     @Override
     public List<PlannedItem> plan(InWorldRecipeContext context) {
-        ServerLevel level = context.getLevel();
-        Vec3 pos = context.getPos();
-        if (!context.get(RoyalPreferenceOutcome.IS_ROYAL_STEEL_RECIPE)) {
+        if (!context.get(IS_ROYAL_STEEL_RECIPE) || !hasPreferredSource(context.getLevel(), context.getPos(), null)) {
             return List.of();
         }
+        return this.planBonus(context);
+    }
 
+    /** 根据配方输入、重叠实体锅和掉落物判断加成。客户端只排除绝不可能被选为偏爱的材料。 */
+    public static boolean hasPreferredSource(Level level, Vec3 pos, @Nullable ResourceHandler<ItemResource> input) {
+        Predicate<ItemStack> preferred = level instanceof ServerLevel server
+            ? stack -> RoyalPreference.isRoyalPreferred(server, stack)
+            : stack -> (stack.is(ModItemTags.GEMS) && !stack.is(Items.EMERALD))
+                || (stack.is(ModItemTags.GEM_BLOCKS) && !stack.is(Items.EMERALD_BLOCK));
         BlockPos belowPos = BlockPos.containing(pos.x, pos.y - 1, pos.z);
 
         BlockEntity blockEntity = level.getBlockEntity(belowPos);
         boolean hasRecipeCache = false;
         if (blockEntity instanceof ItemResourceHandlerCache cache) {
             hasRecipeCache = true;
-            if (RoyalPreferenceOutcome.hasRoyalPreferred(level, cache.getInput())) {
-                return this.planBonus(context);
+            if (hasRoyalPreferred(preferred, input == null ? cache.getInput() : input)) {
+                return true;
             }
         }
 
         ItemResourceHandlerCache entityCauldron = RoyalPreferenceOutcome.findEntityCauldron(level, belowPos);
         if (entityCauldron != null) {
             hasRecipeCache = true;
-            if (RoyalPreferenceOutcome.hasRoyalPreferred(level, entityCauldron.getInput())) {
-                return this.planBonus(context);
+            if (hasRoyalPreferred(preferred, entityCauldron.getInput())) {
+                return true;
             }
         }
 
         // 没有配方缓存的容器（如原版容器）退回到直接读能力
         if (!hasRecipeCache) {
             ResourceHandler<ItemResource> handler = level.getCapability(Capabilities.Item.BLOCK, belowPos, null);
-            if (handler != null && RoyalPreferenceOutcome.hasRoyalPreferred(level, handler)) {
-                return this.planBonus(context);
+            if (handler != null && hasRoyalPreferred(preferred, handler)) {
+                return true;
             }
         }
 
@@ -92,11 +100,11 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IPlanned
         AABB inputBox = new AABB(inputCenter, inputCenter).inflate(
             RoyalPreferenceOutcome.INPUT_RANGE.x, RoyalPreferenceOutcome.INPUT_RANGE.y, RoyalPreferenceOutcome.INPUT_RANGE.z);
         for (ItemEntity itemEntity : level.getEntitiesOfClass(ItemEntity.class, inputBox)) {
-            if (RoyalPreference.isRoyalPreferred(level, itemEntity.getItem())) {
-                return this.planBonus(context);
+            if (preferred.test(itemEntity.getItem())) {
+                return true;
             }
         }
-        return List.of();
+        return false;
     }
 
     private List<PlannedItem> planBonus(InWorldRecipeContext context) {
@@ -104,16 +112,18 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IPlanned
         return bonus.isEmpty() ? List.of() : List.of(new PlannedItem(bonus, context.getPos().add(OUTPUT_OFFSET)));
     }
 
-    private static boolean hasRoyalPreferred(ServerLevel level, ResourceHandler<ItemResource> handler) {
+    private static boolean hasRoyalPreferred(Predicate<ItemStack> preferred, ResourceHandler<ItemResource> handler) {
         for (int slot = 0; slot < handler.size(); slot++) {
             ItemStack stack = handler.getResource(slot).toStack(handler.getAmountAsInt(slot));
-            if (!stack.isEmpty() && RoyalPreference.isRoyalPreferred(level, stack)) return true;
+            if (!stack.isEmpty() && preferred.test(stack)) {
+                return true;
+            }
         }
         return false;
     }
 
     /// 查找占据该位置、可作为配方容器的实体炼药锅
-    private static @Nullable ItemResourceHandlerCache findEntityCauldron(ServerLevel level, BlockPos pos) {
+    private static @Nullable ItemResourceHandlerCache findEntityCauldron(Level level, BlockPos pos) {
         Vec3 center = pos.getCenter();
         Entity closest = null;
         double closestDistance = Double.POSITIVE_INFINITY;

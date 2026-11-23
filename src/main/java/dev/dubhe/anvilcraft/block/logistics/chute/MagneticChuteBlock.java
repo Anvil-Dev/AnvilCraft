@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
+import dev.dubhe.anvilcraft.block.entity.ChutePlates;
 import dev.dubhe.anvilcraft.block.entity.MagneticChuteBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -29,7 +30,6 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
@@ -46,12 +46,15 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.level.redstone.Orientation;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
+
+import java.util.List;
 
 public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerRotateBehavior, IHammerRemovable {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
@@ -87,7 +90,7 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
     ///
     /// @param properties 方块属性
     public MagneticChuteBlock(Properties properties) {
-        super(properties);
+        super(properties.dynamicShape());
         this.registerDefaultState(
             this.stateDefinition.any().setValue(MagneticChuteBlock.FACING, Direction.DOWN).setValue(MagneticChuteBlock.ENABLED, true)
                 .setValue(MagneticChuteBlock.HEAD, false));
@@ -99,8 +102,13 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
     }
 
     @Override
+    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        return ChutePlates.withPlateDrops(super.getDrops(state, params), params);
+    }
+
+    @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext collisionContext) {
-        return switch (state.getValue(MagneticChuteBlock.FACING)) {
+        VoxelShape body = switch (state.getValue(MagneticChuteBlock.FACING)) {
             case NORTH -> MagneticChuteBlock.SHAPE_N;
             case SOUTH -> MagneticChuteBlock.SHAPE_S;
             case WEST -> MagneticChuteBlock.SHAPE_W;
@@ -108,6 +116,7 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
             case DOWN -> MagneticChuteBlock.SHAPE_DOWN;
             case UP -> MagneticChuteBlock.SHAPE_UP;
         };
+        return ChutePlates.withPlates(level, pos, body);
     }
 
     @Override
@@ -192,9 +201,7 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
         };
         BlockState facingState = level.getBlockState(pos.relative(newFacing));
         if (ChuteBlock.outputsToward(facingState, newFacing.getOpposite())) {
-            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
-            level.levelEvent(2001, pos, Block.getId(oldState));
-            Block.dropResources(oldState, level, pos);
+            ChuteBlock.destroyFacingConflict(level, pos, player);
             return true;
         }
         HammerRotateBehavior.DEFAULT.change(player, pos, level, anvilHammer);
@@ -242,7 +249,8 @@ public Property<?> getChangeableProperty(BlockState blockState) {
             }
             // 上方有朝下的普通溜槽/简易溜槽时，附加连接头模型
             BlockState aboveState = level.getBlockState(pos.above());
-            boolean hasHead = (aboveState.is(ModBlocks.CHUTE.get()) || aboveState.is(ModBlocks.SIMPLE_CHUTE.get()))
+            boolean hasHead = !ChutePlates.hasPlate(level, pos, Direction.UP)
+                && (aboveState.is(ModBlocks.CHUTE.get()) || aboveState.is(ModBlocks.SIMPLE_CHUTE.get()))
                 && aboveState.getValue(ChuteBlock.FACING) == Direction.DOWN;
             if (state.getValue(MagneticChuteBlock.HEAD) != hasHead) {
                 level.setBlockAndUpdate(pos, state.setValue(MagneticChuteBlock.HEAD, hasHead));
@@ -280,6 +288,16 @@ public Property<?> getChangeableProperty(BlockState blockState) {
         InteractionHand hand,
         BlockHitResult hit
     ) {
+        if (player.getItemInHand(hand).is(ModBlocks.HEAVY_IRON_PLATE.asItem()) || hand == InteractionHand.MAIN_HAND
+            && player.getMainHandItem().isEmpty() && player.getOffhandItem().is(ModBlocks.HEAVY_IRON_PLATE.asItem())) {
+            return InteractionResult.PASS;
+        }
+        if (hand == InteractionHand.MAIN_HAND && player.isShiftKeyDown() && player.getMainHandItem().isEmpty()) {
+            ChutePlates covers = ChutePlates.at(level, pos);
+            if (covers != null && covers.takePlate(player, hit).consumesAction()) {
+                return InteractionResult.SUCCESS;
+            }
+        }
         if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }

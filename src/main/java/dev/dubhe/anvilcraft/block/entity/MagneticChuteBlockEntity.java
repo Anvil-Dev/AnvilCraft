@@ -1,11 +1,14 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.block.entity.IConvertableBlockEntity;
 import dev.dubhe.anvilcraft.block.logistics.chute.MagneticChuteBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.MagneticChuteMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -18,7 +21,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-public class MagneticChuteBlockEntity extends BaseChuteBlockEntity {
+public class MagneticChuteBlockEntity extends FullChuteBlockEntity implements IConvertableBlockEntity<SimpleMagneticChuteBlockEntity> {
     public MagneticChuteBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
@@ -75,5 +78,15 @@ public class MagneticChuteBlockEntity extends BaseChuteBlockEntity {
     @Override
     public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
         return new MagneticChuteMenu(ModMenuTypes.MAGNETIC_CHUTE.get(), i, inventory, this);
+    }
+
+    @Override
+    public Holder<BlockEntityType<?>> targetTypeHolder() {
+        return ModBlockEntities.SIMPLE_MAGNETIC_CHUTE;
+    }
+
+    @Override
+    public void convertTo(SimpleMagneticChuteBlockEntity target) {
+        this.getChutePlates().transferTo(target);
     }
 }

@@ -147,7 +147,9 @@ public class LargeCauldronBlock
         BlockState state,
         BlockEntityType<T> type
     ) {
-        if (level.isClientSide()) return null;
+        if (level.isClientSide() || !this.isMainPart(state)) {
+            return null;
+        }
         return PropelPistonBlock.createTickerHelper(
             type,
             ModBlockEntities.LARGE_CAULDRON.get(),

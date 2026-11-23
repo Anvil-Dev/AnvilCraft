@@ -274,6 +274,7 @@ import dev.dubhe.anvilcraft.item.block.FrostMetalBlockItem;
 import dev.dubhe.anvilcraft.item.block.HasMobBlockItem;
 import dev.dubhe.anvilcraft.item.block.HeatCollectorBlockItem;
 import dev.dubhe.anvilcraft.item.block.HeatableBlockItem;
+import dev.dubhe.anvilcraft.item.block.HeavyIronPlateBlockItem;
 import dev.dubhe.anvilcraft.item.block.HeliostatsItem;
 import dev.dubhe.anvilcraft.item.block.HyperdimensionStorageStationBlockItem;
 import dev.dubhe.anvilcraft.item.block.InfiniteCollectorBlockItem;
@@ -1606,7 +1607,7 @@ public class ModBlocks {
     public static final BlockEntry<ItemCollectorBlock> ITEM_COLLECTOR = REGISTRUM.block("item_collector", ItemCollectorBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(PropertiesProviderUtil::metalSound)
-        .properties(p -> p.isValidSpawn(Blocks::never))
+        .properties(p -> p.isValidSpawn(Blocks::never).explosionResistance(15F))
         .item().transform(PropertiesProviderUtil::blockItem).build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1928,7 +1929,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> CHUTE = REGISTRUM.block("chute", ChuteBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(PropertiesProviderUtil::metalSound)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never).explosionResistance(15F))
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(ChuteBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
@@ -1940,7 +1941,7 @@ public class ModBlocks {
 
     public static final BlockEntry<MagneticChuteBlock> MAGNETIC_CHUTE = REGISTRUM.block("magnetic_chute", MagneticChuteBlock::new)
         .initialProperties(ModBlocks.CHUTE)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never).explosionResistance(15F))
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(ChuteBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
@@ -1952,7 +1953,7 @@ public class ModBlocks {
     public static final BlockEntry<SimpleChuteBlock> SIMPLE_CHUTE = REGISTRUM.block("simple_chute", SimpleChuteBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(PropertiesProviderUtil::metalSound)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never).explosionResistance(15F))
+        .properties(p -> p.dynamicShape().noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((tables, block) -> tables.dropOther(block, ModBlocks.CHUTE))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.ENCHANTMENT_POWER_TRANSMITTER)
@@ -1962,7 +1963,7 @@ public class ModBlocks {
         .block("simple_magnetic_chute", SimpleMagneticChuteBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(PropertiesProviderUtil::metalSound)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never).explosionResistance(15F))
+        .properties(p -> p.dynamicShape().noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((tables, block) -> tables.dropOther(block, ModBlocks.MAGNETIC_CHUTE))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.ENCHANTMENT_POWER_TRANSMITTER)
@@ -2940,7 +2941,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(p -> p.strength(5.0F, 1200F))
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .item().transform(PropertiesProviderUtil::blockItem).build()
+        .item(HeavyIronPlateBlockItem::new).transform(PropertiesProviderUtil::blockItem).build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
         .recipe(RegistrumBlockRecipeLoader::heavyIronPlate)
         .register();

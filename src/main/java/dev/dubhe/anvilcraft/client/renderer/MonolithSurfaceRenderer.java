@@ -13,7 +13,6 @@ import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.blockentity.AbstractEndPortalRenderer;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.rendertype.TextureTransform;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.core.BlockPos;
@@ -30,7 +29,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ExtractLevelRenderStateEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
-import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.jspecify.annotations.Nullable;
 
@@ -44,7 +42,11 @@ public final class MonolithSurfaceRenderer {
     private static final Identifier INNER = AnvilCraft.of("block/monolith_inner");
     private static final ContextKey<List<Surface>> SURFACES = new ContextKey<>(AnvilCraft.of("monolith_surfaces"));
     private static final Map<BlockStateModel, List<Face>> FACES = new IdentityHashMap<>();
-    private static final float SURFACE_OFFSET = 0.001F;
+    private static final RenderType SURFACE = RenderType.create("anvilcraft_monolith_surface",
+        RenderSetup.builder(ModRenderPipelines.MONOLITH_SURFACE)
+            .withTexture("Sampler0", AbstractEndPortalRenderer.END_SKY_LOCATION)
+            .withTexture("Sampler1", AbstractEndPortalRenderer.END_PORTAL_LOCATION)
+            .createRenderSetup());
 
     private MonolithSurfaceRenderer() {
     }
@@ -70,12 +72,10 @@ public final class MonolithSurfaceRenderer {
 
     private static void addFaces(List<Face> faces, List<BakedQuad> quads, @Nullable Direction cullFace) {
         for (BakedQuad quad : quads) {
-            if (!quad.materialInfo().sprite().contents().name().equals(INNER)) continue;
-            Vector3f normal = new Vector3f(quad.position1()).sub(quad.position0())
-                .cross(new Vector3f(quad.position2()).sub(quad.position0())).normalize().mul(SURFACE_OFFSET);
-            List<Vector3fc> vertices = new ArrayList<>(4);
-            for (int index = 0; index < 4; index++) vertices.add(new Vector3f(quad.position(index)).add(normal));
-            faces.add(new Face(cullFace, List.copyOf(vertices)));
+            if (!quad.materialInfo().sprite().contents().name().equals(INNER)) {
+                continue;
+            }
+            faces.add(new Face(cullFace, List.of(quad.position0(), quad.position1(), quad.position2(), quad.position3())));
         }
     }
 
@@ -132,7 +132,9 @@ public final class MonolithSurfaceRenderer {
 
     private static RenderType renderType() {
         var projection = GatewayGuiProjection.current();
-        if (projection == null) return RenderTypes.endPortal();
+        if (projection == null) {
+            return SURFACE;
+        }
         return RenderType.create("anvilcraft_monolith_surface_gui",
             RenderSetup.builder(ModRenderPipelines.MONOLITH_SURFACE_GUI)
                 .withTexture("Sampler0", AbstractEndPortalRenderer.END_SKY_LOCATION)
