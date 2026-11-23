@@ -395,8 +395,11 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE.get(),
             "Uses 100 kFE per second\nRechargeable from grids or capacitors");
         final String pockets = "%s pocket slots\nUse the pocket key to swap with your offhand\nEmpty pockets before removing leggings";
-        ItemTooltipManager.NORMAL.put(ModItems.POCKETS_LEGGINGS.get(), pockets.formatted(6));
-        ItemTooltipManager.NORMAL.put(ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS.get(), pockets.formatted(12));
+        ItemTooltipManager.NORMAL.put(ModItems.POCKETS_LEGGINGS.get(), pockets.formatted(ModItems.POCKETS_LEGGINGS.get().getPocketCount()));
+        ItemTooltipManager.NORMAL.put(
+            ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS.get(),
+            pockets.formatted(ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS.get().getPocketCount())
+        );
         final String boots = "Immune to fall damage\nHold sneak to charge a jump, up to 4 blocks height";
         ItemTooltipManager.NORMAL.put(ModItems.BUFFER_BOOTS.get(), boots);
         ItemTooltipManager.NORMAL.put(ModItems.WEATHERPROOF_SPACESUIT_BOOTS.get(), boots

@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.init.ModAttributes;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import lombok.Getter;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
@@ -27,6 +28,11 @@ import org.jspecify.annotations.Nullable;
 public class EquipmentArmorItem extends Item {
     private final ArmorType armorType;
     private final Identifier texture;
+    /**
+     * 该护腿提供的口袋数量，同时是属性修正与 tooltip 文案的唯一来源。
+     */
+    @Getter
+    private final int pocketCount;
 
     public EquipmentArmorItem(Properties properties, ArmorType type, boolean weatherproof, String texture) {
         this(properties, type, weatherproof, texture, 0);
@@ -36,6 +42,7 @@ public class EquipmentArmorItem extends Item {
         super(properties(properties, type, weatherproof, texture, pocketCount));
         this.armorType = type;
         this.texture = AnvilCraft.of("textures/entity/equipment/" + texture + ".png");
+        this.pocketCount = pocketCount;
     }
 
     private static Properties properties(Properties properties, ArmorType type, boolean weatherproof, String texture, int pocketCount) {
