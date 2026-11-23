@@ -7,6 +7,12 @@ import net.minecraft.world.item.ItemStack;
 
 public class PocketSlot extends Slot {
     private static final int HIDDEN_X = -10000;
+    /**
+     * 普通物品栏的 GUI 宽度与口袋面板顶位。创造模式界面尺寸不同（宽 195、顶位 40），
+     * 由 {@code CreativePocketSlotMixin} 在这一基准上平移补偿，改动任意一侧都需同步另一侧。
+     */
+    public static final int SCREEN_IMAGE_WIDTH = 176;
+    public static final int SCREEN_PANEL_TOP = 70;
     private final Player owner;
     private final int pocketIndex;
     private int cachedCapacity = -1;
@@ -28,8 +34,8 @@ public class PocketSlot extends Slot {
         int capacity = PocketInventory.capacity(this.owner);
         if (this.cachedCapacity != capacity) {
             this.cachedCapacity = capacity;
-            this.leftLayout = PocketLayout.of(capacity, 0, 176, 70);
-            this.rightLayout = PocketLayout.of(capacity, 1, 176, 70);
+            this.leftLayout = PocketLayout.of(capacity, 0, SCREEN_IMAGE_WIDTH, SCREEN_PANEL_TOP);
+            this.rightLayout = PocketLayout.of(capacity, 1, SCREEN_IMAGE_WIDTH, SCREEN_PANEL_TOP);
         }
         this.active = this.pocketIndex < capacity;
         if (!this.active) {
@@ -69,8 +75,8 @@ public class PocketSlot extends Slot {
     }
 
     /**
-     * 菜单本身只属于该玩家，可视性已由 {@code isActive} 与 {@code Access#stillValid} 约束，
-     * 这里不再比较 Player 实例，避免客户端与服务端实例不同导致口袋无法取出物品。
+     * 可视性由 {@code isActive} 与 {@code Access#stillValid} 双重约束，此处不再重复判定，
+     * 避免在容器交互路径上多做一次玩家身份比较。
      */
     @Override
     public boolean mayPickup(Player player) {

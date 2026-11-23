@@ -25,6 +25,10 @@ public class EquipmentArmorItem extends ArmorItem {
     @Getter
     private final boolean weatherproof;
     private final ResourceLocation texture;
+    /**
+     * 该护腿提供的口袋数量，同时是属性修正与 tooltip 文案的唯一来源。
+     */
+    @Getter
     private final int pocketCount;
 
     public EquipmentArmorItem(Properties properties, Type type, boolean weatherproof, String texture) {
