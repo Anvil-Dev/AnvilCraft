@@ -637,6 +637,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     public boolean isCraftingUnlocked() {
+        if (StorageJeiBridge.isRecipeParent(this)) {
+            this.refreshTransferSnapshot();
+        }
         return this.craftingAvailable;
     }
 
@@ -715,6 +718,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         if (request < this.acceptedContentsMetadataRequest
             || Objects.equals(this.requestedStorageId, metadata.storageId()) && metadata.version() < this.requestedContentsVersion) return;
         this.acceptedContentsMetadataRequest = request;
+        this.craftingAvailable = metadata.craftingAvailable();
+        if (!this.craftingAvailable && this.craftingMode) {
+            this.setCraftingMode(false);
+        }
         this.nextContentsMetadata = System.currentTimeMillis() + 1000;
         if (!Objects.equals(this.requestedStorageId, metadata.storageId())) {
             this.contentsRequest++;
