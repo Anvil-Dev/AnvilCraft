@@ -29,6 +29,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.AnvilMenu;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.ResultContainer;
@@ -39,13 +40,20 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -61,6 +69,7 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
     private final Container result = new ResultContainer();
     private final ContainerLevelAccess access;
     private final HolderLookup.Provider registries;
+    private Mode resultMode = Mode.UNSUPPORTED;
 
     @Getter
     private final IntSet selectedIndexes = new IntArraySet();
@@ -140,6 +149,11 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
             public boolean mayPlace(ItemStack stack) {
                 return TranscendenceGrindstoneMenu.this.isValidModifier(stack);
             }
+
+            @Override
+            public int getMaxStackSize(ItemStack stack) {
+                return TranscendenceGrindstoneMenu.isFluidContainer(stack) ? 1 : super.getMaxStackSize(stack);
+            }
         });
         this.addSlot(new Slot(this.result, 0, 145, 34) {
             @Override
@@ -156,7 +170,33 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
             }
 
             @Override
+            public ItemStack remove(int amount) {
+                if (TranscendenceGrindstoneMenu.this.resultMode != Mode.FLUID_CONTAINER) {
+                    return super.remove(amount);
+                }
+                ItemStack output = this.getItem();
+                if (amount <= 0 || output.isEmpty()) {
+                    return ItemStack.EMPTY;
+                }
+                // 背包等容器可能共享外部库存，只在玩家实际取走产物时写入。
+                Optional<ItemStack> filled = TranscendenceGrindstoneMenu.this.fillFluidContainer(
+                    playerInventory.player.level().isClientSide()
+                );
+                if (filled.isEmpty()) {
+                    TranscendenceGrindstoneMenu.this.result.setItem(0, ItemStack.EMPTY);
+                    return ItemStack.EMPTY;
+                }
+                TranscendenceGrindstoneMenu.this.source.setItem(0, ItemStack.EMPTY);
+                TranscendenceGrindstoneMenu.this.modifier.setItem(0, filled.orElseThrow());
+                return output;
+            }
+
+            @Override
             public void onTake(Player player, ItemStack stack) {
+                if (TranscendenceGrindstoneMenu.this.source.isEmpty()) {
+                    player.playSound(SoundEvents.GRINDSTONE_USE);
+                    return;
+                }
                 TranscendenceGrindstoneMenu.this.takeResult(player, stack);
             }
         });
@@ -182,7 +222,21 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
                || stack.is(Items.BOOK)
                || this.isSmallTank(stack)
                || this.isLargeTank(stack)
+               || TranscendenceGrindstoneMenu.isFluidContainer(stack)
                || TranscendenceGrindstoneMenu.isTransferTarget(stack);
+    }
+
+    private static boolean isFluidContainer(ItemStack stack) {
+        if (stack.isEmpty() || stack.is(Items.BOOK) || stack.is(Items.ENCHANTED_BOOK)) {
+            return false;
+        }
+        return TranscendenceGrindstoneMenu.containerAccess(stack).getCapability(Capabilities.Fluid.ITEM) != null;
+    }
+
+    private static ItemAccess containerAccess(ItemStack stack) {
+        var single = new ItemStacksResourceHandler(1);
+        single.set(0, ItemResource.of(stack), 1);
+        return ItemAccess.forHandlerIndexStrict(single, 0);
     }
 
     private static boolean isTransferTarget(ItemStack stack) {
@@ -229,6 +283,9 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
         if (stack.is(Items.BOOK)) return Mode.BOOK;
         if (this.isSmallTank(stack)) return Mode.SMALL_TANK;
         if (this.isLargeTank(stack)) return Mode.LARGE_TANK;
+        if (TranscendenceGrindstoneMenu.isFluidContainer(stack)) {
+            return Mode.FLUID_CONTAINER;
+        }
         if (TranscendenceGrindstoneMenu.isTransferTarget(stack)) return Mode.ITEM;
         return Mode.UNSUPPORTED;
     }
@@ -244,11 +301,8 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
     }
 
     private ItemStack createResult() {
-        if (this.source.isEmpty()) {
-            this.resetGoldStats();
-            return ItemStack.EMPTY;
-        }
-        return switch (this.getMode()) {
+        this.resultMode = this.source.isEmpty() ? Mode.UNSUPPORTED : this.getMode();
+        return switch (this.resultMode) {
             case GOLD -> this.createGoldResult();
             case BOOK, ITEM -> {
                 this.resetGoldStats();
@@ -257,6 +311,10 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
             case SMALL_TANK, LARGE_TANK -> {
                 this.resetGoldStats();
                 yield this.createTankResult();
+            }
+            case FLUID_CONTAINER -> {
+                this.resetGoldStats();
+                yield this.fillFluidContainer(true).isEmpty() ? ItemStack.EMPTY : this.createSourceWithoutSelected();
             }
             case DISENCHANT -> {
                 this.resetGoldStats();
@@ -347,6 +405,35 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
         return target;
     }
 
+    private Optional<ItemStack> fillFluidContainer(boolean simulate) {
+        List<EnchantmentData> selected = this.getSelectedEnchantments();
+        if (selected.size() != 1 || this.modifier.getItem(0).getCount() != 1) {
+            return Optional.empty();
+        }
+        EnchantmentData data = selected.getFirst();
+        long amount = LiquidEnchantmentUtil.amountForLevel(data.level());
+        if (amount <= 0 || amount > Integer.MAX_VALUE) {
+            return Optional.empty();
+        }
+        FluidStack fluid = new FluidStack(ModFluids.LIQUID_ENCHANTMENT.get(), (int) amount);
+        fluid.set(ModComponents.LIQUID_ENCHANTMENT, data.enchantment());
+        ItemAccess access = TranscendenceGrindstoneMenu.containerAccess(this.modifier.getItem(0));
+        var handler = access.getCapability(Capabilities.Fluid.ITEM);
+        if (handler == null) {
+            return Optional.empty();
+        }
+        try (var transaction = Transaction.openRoot()) {
+            if (handler.insert(FluidResource.of(fluid), (int) amount, transaction) != amount) {
+                return Optional.empty();
+            }
+            ItemStack filled = access.getResource().toStack(access.getAmount());
+            if (!simulate) {
+                transaction.commit();
+            }
+            return Optional.of(filled);
+        }
+    }
+
     private ItemStack createTankResult() {
         Mode mode = this.getMode();
         List<EnchantmentData> selected = this.getSelectedEnchantments();
@@ -428,8 +515,13 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
         this.removedCurseCount = 0;
     }
 
+    private boolean isSingleSelection() {
+        Mode mode = this.getMode();
+        return mode == Mode.SMALL_TANK || mode == Mode.FLUID_CONTAINER;
+    }
+
     private void restrictSelectionForMode() {
-        if (this.getMode() == Mode.SMALL_TANK && this.selectedIndexes.size() > 1) {
+        if (this.isSingleSelection() && this.selectedIndexes.size() > 1) {
             this.selectedIndexes.clear();
         }
     }
@@ -442,7 +534,7 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
 
     public void select(int index) {
         if (index < 0 || index >= this.enchantments.size() || this.isGoldMode()) return;
-        if (this.getMode() == Mode.SMALL_TANK) {
+        if (this.isSingleSelection()) {
             this.selectedIndexes.clear();
             this.selectedIndexes.add(index);
             this.result.setItem(0, this.createResult());
@@ -539,6 +631,18 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
     }
 
     @Override
+    public void clicked(int slotId, int button, ContainerInput input, Player player) {
+        if (slotId == 2 && input == ContainerInput.SWAP && this.resultMode == Mode.FLUID_CONTAINER
+            && (button >= 0 && button < 9 || button == Inventory.SLOT_OFFHAND)) {
+            if (player.getInventory().getItem(button).isEmpty()) {
+                player.getInventory().setItem(button, this.getSlot(2).safeTake(1, 1, player));
+            }
+            return;
+        }
+        super.clicked(slotId, button, input, player);
+    }
+
+    @Override
     public ItemStack quickMoveStack(Player player, int index) {
         if (index < 0 || index >= this.slots.size()) return ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
@@ -546,6 +650,18 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
 
         ItemStack clicked = slot.getItem();
         ItemStack original = clicked.copy();
+        if (index == 2 && this.resultMode == Mode.FLUID_CONTAINER) {
+            if (this.slots.subList(PLAYER_INVENTORY_SLOT_START, PLAYER_INVENTORY_SLOT_END).stream()
+                .noneMatch(target -> AbstractContainerMenu.canItemQuickReplace(target, clicked, false))) {
+                return ItemStack.EMPTY;
+            }
+            ItemStack taken = slot.safeTake(1, 1, player);
+            if (taken.isEmpty()) {
+                return ItemStack.EMPTY;
+            }
+            this.moveItemStackTo(taken, PLAYER_INVENTORY_SLOT_START, PLAYER_INVENTORY_SLOT_END, true);
+            return original;
+        }
         if (index == 2) {
             ItemStack moving = clicked.copy();
             if (!this.moveItemStackTo(
@@ -615,6 +731,7 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
         GOLD,
         BOOK,
         ITEM,
+        FLUID_CONTAINER,
         SMALL_TANK,
         LARGE_TANK,
         UNSUPPORTED
