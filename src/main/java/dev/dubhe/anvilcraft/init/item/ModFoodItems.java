@@ -9,6 +9,9 @@ import dev.dubhe.anvilcraft.item.food.CannedFoodItem;
 import dev.dubhe.anvilcraft.item.food.CursedGoldenAppleItem;
 import dev.dubhe.anvilcraft.item.food.UtusanItem;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingRecipe;
+import net.minecraft.client.color.item.Potion;
+import net.minecraft.client.data.models.model.ItemModelUtils;
+import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
@@ -99,6 +102,9 @@ public class ModFoodItems {
 
     public static final ItemEntry<Item> PILL = REGISTRUM
         .item("pill", Item::new)
+        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.tintedModel(
+            generator.createFlatItemModel(ctx.get(), ModelTemplates.FLAT_ITEM), new Potion(0xFFFFFF)
+        )))
         .properties(properties -> properties
             .component(DataComponents.CONSUMABLE, ModConsumables.INSTANT_FOOD)
             .component(DataComponents.POTION_CONTENTS, PotionContents.EMPTY)
