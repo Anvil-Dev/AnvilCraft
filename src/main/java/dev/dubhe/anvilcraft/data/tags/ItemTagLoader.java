@@ -152,7 +152,7 @@ public class ItemTagLoader {
             .addElement(ItemTagLoader.findId(ModBlocks.HEATED_NETHERITE_BLOCK.asItem()))
             .addElement(ItemTagLoader.findId(ModBlocks.INCANDESCENT_NETHERITE_BLOCK.asItem()));
         provider.rawBuilder(ModItemTags.TUNGSTEN_BLOCK)
-            .addElement(ItemTagLoader.findId(ModBlocks.TUNGSTEN_BLOCK.asItem()))
+            .addTag(ModItemTags.STORAGE_BLOCKS_TUNGSTEN.location())
             .addElement(ItemTagLoader.findId(ModBlocks.REDHOT_TUNGSTEN_BLOCK.asItem()))
             .addElement(ItemTagLoader.findId(ModBlocks.GLOWING_TUNGSTEN_BLOCK.asItem()))
             .addElement(ItemTagLoader.findId(ModBlocks.HEATED_TUNGSTEN_BLOCK.asItem()))

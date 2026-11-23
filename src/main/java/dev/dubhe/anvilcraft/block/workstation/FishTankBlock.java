@@ -184,6 +184,9 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
 
     @Override
     protected void tick(BlockState cauldronState, ServerLevel level, BlockPos pos, RandomSource random) {
+        if (!(level.getBlockEntity(pos) instanceof FishTankBlockEntity tank) || !tank.isIgnited()) {
+            return;
+        }
         BlockState below = level.getBlockState(pos.below());
         if (below.is(ModBlocks.HEATER) && !below.getValue(HeaterBlock.OVERLOAD) && !PlasmaJetsBlock.trySpawn(pos.above(), level)) {
             level.scheduleTick(pos, this, 10);
@@ -297,19 +300,18 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
     }
 
     public boolean tryIgnite(Level level, BlockPos pos) {
-        if (!(level.getBlockEntity(pos) instanceof FishTankBlockEntity tank)) return false;
-        if (!FishTankBlockEntity.canIgnite(tank.getFluidHandler().getStack())) return false;
-        if (tank.isIgnited()) {
-            if (this.isIgnited(new BlockCache(level), pos) && level.getBlockState(pos.below()).is(ModBlocks.HEATER)) {
-                level.scheduleTick(pos, this, 2);
-            }
+        if (!(level.getBlockEntity(pos) instanceof FishTankBlockEntity tank)
+            || !FishTankBlockEntity.canIgnite(tank.getFluidHandler().getStack())) {
             return false;
         }
-        tank.setIgnited(true);
-        if (this.isIgnited(new BlockCache(level), pos) && level.getBlockState(pos.below()).is(ModBlocks.HEATER)) {
-            level.scheduleTick(pos, this, 2);
+        boolean wasIgnited = tank.isIgnited();
+        if (!level.isClientSide()) {
+            tank.setIgnited(true);
+            if (level.getBlockState(pos.below()).is(ModBlocks.HEATER)) {
+                level.scheduleTick(pos, this, 2);
+            }
         }
-        return true;
+        return !wasIgnited;
     }
 
     private InteractionResult useItemOnTank(

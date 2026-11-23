@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarTrackLibrary;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.RoyalPreferenceOutcome;
 import net.minecraft.util.Unit;
@@ -20,5 +21,6 @@ public class ReloadEventListener {
     @SubscribeEvent
     public static void onServerTagsUpdated(TagsUpdatedEvent.ServerDataLoad event) {
         RoyalPreferenceOutcome.RoyalPreference.clear();
+        LargeCauldronBlockEntity.invalidateIgnitionTags();
     }
 }

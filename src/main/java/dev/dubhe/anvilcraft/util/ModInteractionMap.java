@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.util;
 
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.cauldron.CementCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.HoneyCauldronBlock;
@@ -10,8 +9,6 @@ import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.block.workstation.FishTankBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.tool.MultitoolItem;
-import dev.dubhe.anvilcraft.item.tool.MultitoolMode;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.core.cauldron.CauldronInteractions;
 import net.minecraft.resources.Identifier;
@@ -140,37 +137,18 @@ public class ModInteractionMap {
                 SoundEvents.BUCKET_FILL
             )
         );
-        event.register(
-            oil,
-            Items.FLINT_AND_STEEL,
-            (state, level, pos, player, hand, stack) -> {
-                OilCauldronBlock.ignite(level, pos, state);
-                stack.hurtAndBreak(1, player, hand.asEquipmentSlot());
-                level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS);
-                return dev.dubhe.anvilcraft.util.Util.sidedSuccess(level);
+        CauldronInteraction igniteOil = (state, level, pos, player, hand, stack) -> {
+            if (!CauldronIgnition.isIgnitionItem(stack)) {
+                return InteractionResult.SUCCESS;
             }
-        );
-        event.register(
-            oil,
-            Items.FIRE_CHARGE,
-            (state, level, pos, _, _, stack) -> {
+            if (!level.isClientSide()) {
                 OilCauldronBlock.ignite(level, pos, state);
-                stack.shrink(1);
-                level.playSound(null, pos, SoundEvents.FIRECHARGE_USE, SoundSource.BLOCKS);
-                return dev.dubhe.anvilcraft.util.Util.sidedSuccess(level);
             }
-        );
-        event.register(
-            oil,
-            ModItems.MULTITOOL_ITEM.asItem(),
-            (state, level, pos, player, hand, stack) -> {
-                if (!MultitoolItem.isActingAs(stack, MultitoolMode.FLINT_AND_STEEL)) return InteractionResult.SUCCESS;
-                OilCauldronBlock.ignite(level, pos, state);
-                stack.hurtAndBreak(1, player, hand.asEquipmentSlot());
-                level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS);
-                return dev.dubhe.anvilcraft.util.Util.sidedSuccess(level);
-            }
-        );
+            return CauldronIgnition.finishIgnition(level, pos, player, hand, stack, 1);
+        };
+        event.register(oil, Items.FLINT_AND_STEEL, igniteOil);
+        event.register(oil, Items.FIRE_CHARGE, igniteOil);
+        event.register(oil, ModItems.MULTITOOL_ITEM.asItem(), igniteOil);
 
         Identifier cement = AnvilCraft.of("cement");
         event.register(
@@ -260,37 +238,18 @@ public class ModInteractionMap {
         );
 
         Identifier fishTank = AnvilCraft.of("fish_tank");
-        event.register(
-            fishTank,
-            Items.FLINT_AND_STEEL,
-            (state, level, pos, player, hand, stack) -> {
-                if (!Util.<FishTankBlock>cast(state.getBlock()).tryIgnite(level, pos)) return InteractionResult.FAIL;
-                stack.hurtAndBreak(2, player, hand.asEquipmentSlot());
-                level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS);
-                return dev.dubhe.anvilcraft.util.Util.sidedSuccess(level);
+        CauldronInteraction igniteFishTank = (state, level, pos, player, hand, stack) -> {
+            if (!CauldronIgnition.isIgnitionItem(stack)) {
+                return InteractionResult.SUCCESS;
             }
-        );
-        event.register(
-            fishTank,
-            Items.FIRE_CHARGE,
-            (state, level, pos, _, _, stack) -> {
-                if (!Util.<FishTankBlock>cast(state.getBlock()).tryIgnite(level, pos)) return InteractionResult.FAIL;
-                stack.shrink(1);
-                level.playSound(null, pos, SoundEvents.FIRECHARGE_USE, SoundSource.BLOCKS);
-                return dev.dubhe.anvilcraft.util.Util.sidedSuccess(level);
+            if (!((FishTankBlock) state.getBlock()).tryIgnite(level, pos)) {
+                return InteractionResult.FAIL;
             }
-        );
-        event.register(
-            fishTank,
-            ModItems.MULTITOOL_ITEM.asItem(),
-            (state, level, pos, player, hand, stack) -> {
-                if (!MultitoolItem.isActingAs(stack, MultitoolMode.FLINT_AND_STEEL)) return InteractionResult.SUCCESS;
-                if (!Util.<FishTankBlock>cast(state.getBlock()).tryIgnite(level, pos)) return InteractionResult.FAIL;
-                stack.hurtAndBreak(2, player, hand.asEquipmentSlot());
-                level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS);
-                return dev.dubhe.anvilcraft.util.Util.sidedSuccess(level);
-            }
-        );
+            return CauldronIgnition.finishIgnition(level, pos, player, hand, stack, 2);
+        };
+        event.register(fishTank, Items.FLINT_AND_STEEL, igniteFishTank);
+        event.register(fishTank, Items.FIRE_CHARGE, igniteFishTank);
+        event.register(fishTank, ModItems.MULTITOOL_ITEM.asItem(), igniteFishTank);
 
         Identifier empty = Identifier.withDefaultNamespace("empty");
         ModItems.CEMENT_BUCKETS.forEach((k, v) -> event.register(

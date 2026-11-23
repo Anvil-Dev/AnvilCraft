@@ -192,22 +192,23 @@ public class ModDispenserBehavior {
      * 对点燃物品包装一个原油容器优先的发射行为：点燃成功才损坏打火石或消耗烈焰弹。
      */
     private static void wrapCauldronIgnition(Item item) {
-        DispenseItemBehavior original = DispenserBlock.DISPENSER_REGISTRY.get(item);
-        if (original == null) return;
-        DispenserBlock.registerBehavior(item, new DefaultDispenseItemBehavior() {
+        DispenseItemBehavior original = DispenserBlock.DISPENSER_REGISTRY.getOrDefault(item, DEFAULT_BEHAVIOUR);
+        DispenseItemBehavior consumeIgniter = new DefaultDispenseItemBehavior() {
             @Override
-            public ItemStack execute(BlockSource source, ItemStack stack) {
-                ServerLevel level = source.level();
-                BlockPos pos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
-                if (!CauldronIgnition.dispenseIgnite(level, pos)) return original.dispense(source, stack);
+            protected ItemStack execute(BlockSource source, ItemStack stack) {
                 if (stack.is(Items.FIRE_CHARGE)) {
                     stack.shrink(1);
                 } else {
-                    stack.hurtAndBreak(1, level, null, ignored -> {
-                    });
+                    stack.hurtAndBreak(1, source.level(), null, ignored -> {});
                 }
                 return stack;
             }
+        };
+        DispenserBlock.registerBehavior(item, (source, stack) -> {
+            BlockPos pos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
+            return CauldronIgnition.dispenseIgnite(source.level(), pos)
+                ? consumeIgniter.dispense(source, stack)
+                : original.dispense(source, stack);
         });
     }
 

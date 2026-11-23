@@ -21,9 +21,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.ItemAbilities;
-import org.jspecify.annotations.Nullable;
-
-import java.util.function.BooleanSupplier;
 
 /**
  * 装有原油的炼药锅、鱼缸、大型炼药锅共用的点燃逻辑。
@@ -40,28 +37,22 @@ public final class CauldronIgnition {
                    && MultitoolItem.isActingAs(stack, MultitoolMode.FLINT_AND_STEEL));
     }
 
-    /**
-     * 玩家手持点燃物品右键容器，点燃成功才消耗耐久或数量。
-     *
-     * @return {@code null} 表示手持物品不是点燃物品，调用方应继续其它交互
-     */
-    public static @Nullable InteractionResult useOn(
+    /** 点燃成功后由服务端扣除消耗并向附近玩家播放音效。 */
+    public static InteractionResult finishIgnition(
         Level level,
         BlockPos pos,
         Player player,
         InteractionHand hand,
         ItemStack stack,
-        BooleanSupplier ignite
+        int toolDamage
     ) {
-        if (!CauldronIgnition.isIgnitionItem(stack)) return null;
-        if (!ignite.getAsBoolean()) return InteractionResult.PASS;
         if (!level.isClientSide()) {
             if (stack.is(Items.FIRE_CHARGE)) {
-                stack.shrink(1);
-                level.playSound(null, pos, SoundEvents.FIRECHARGE_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
+                stack.consume(1, player);
+                level.playSound(null, pos, SoundEvents.FIRECHARGE_USE, SoundSource.BLOCKS);
             } else {
-                stack.hurtAndBreak(1, player, hand.asEquipmentSlot());
-                level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
+                stack.hurtAndBreak(toolDamage, player, hand.asEquipmentSlot());
+                level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS);
             }
         }
         return Util.sidedSuccess(level);
@@ -104,7 +95,7 @@ public final class CauldronIgnition {
         }
         if (state.getBlock() instanceof LargeCauldronBlock
             && LargeCauldronBlockEntity.getMain(level, pos, state) instanceof LargeCauldronBlockEntity cauldron) {
-            return cauldron.tryIgnite();
+            return cauldron.tryIgnite(false);
         }
         return false;
     }
