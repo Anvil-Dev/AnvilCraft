@@ -19,6 +19,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -130,6 +131,37 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
         stack.set(ModComponents.CAN_TAKE_OUT_AMMO, can);
     }
 
+    private static void migrateLoadedWeapon(ItemStack weapon, LivingEntity owner) {
+        if (owner.level().isClientSide() || !canTakeOutAmmo(weapon)) {
+            return;
+        }
+        ChargedProjectiles loaded = weapon.getOrDefault(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.EMPTY);
+        if (loaded.isEmpty()) {
+            return;
+        }
+        List<ItemStack> items = loaded.getItems();
+        ItemStack original = items.getFirst();
+        List<ItemStack> ghosts = items.stream().map(SpectralSlingshotItem::useSpectralAmmo).toList();
+        weapon.set(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.of(ghosts));
+        setCanTakeOutAmmo(weapon, false);
+        // 多重射击只消耗第一件实物，创造模式和无限附魔装入的副本带有虚影标记。
+        if (!original.has(DataComponents.INTANGIBLE_PROJECTILE)) {
+            if (owner instanceof Player player) {
+                player.getInventory().placeItemBackInInventory(original);
+            } else {
+                owner.spawnAtLocation(original);
+            }
+        }
+    }
+
+    @Override
+    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slot, boolean selected) {
+        super.inventoryTick(stack, level, entity, slot, selected);
+        if (entity instanceof Player player) {
+            migrateLoadedWeapon(stack, player);
+        }
+    }
+
     public boolean unableToUse(ItemStack stack) {
         return false;
     }
@@ -152,9 +184,7 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
                 int cdBuff = Math.min(quickCharge * 5, 20); // 5tick = 0.25s, 20tick = 1s
                 player.getCooldowns().addCooldown(this, 40 - cdBuff);
             } else {
-                // 这个部分是卸载和替换弹药
-                ItemStack stack = chargedprojectiles.getItems().getFirst();
-                if (SpectralSlingshotItem.canTakeOutAmmo(itemstack)) player.addItem(stack); // 如果能拿出来，那么拿出来
+                migrateLoadedWeapon(itemstack, player);
                 itemstack.set(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.EMPTY);
                 // 装载走正常的使用流程
                 if (!SpectralSlingshotItem.getSlingShotAmmo(player).isEmpty()) {
@@ -306,22 +336,13 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
         @Nullable LivingEntity target
     ) {
         if (level instanceof ServerLevel serverlevel) {
-            // 这一行是原版的弩被neoforge切入的钩子，是说弩的射击可以被事件取消。不过，它并不是弩。
-            // if (
-            //     shooter instanceof Player player
-            //     && net.neoforged.neoforge.event.EventHooks.onArrowLoose(weapon, shooter.level(), player, 1, true) < 0
-            // ) return;
-            // 因为不会消耗装填物，所以原版的weapon.set(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.EMPTY);改成了如下
+            migrateLoadedWeapon(weapon, shooter);
             ChargedProjectiles chargedprojectiles = weapon.get(DataComponents.CHARGED_PROJECTILES);
             if (chargedprojectiles != null && !chargedprojectiles.isEmpty()) {
-                // 这里的替换是因为爆掉的时候要返还弹药
-                // 注意这里写的是isCrit = false，不会暴击
                 this.spectralShoot(serverlevel, shooter, hand, weapon, chargedprojectiles.getItems(), velocity, inaccuracy, false, target);
                 if (shooter instanceof ServerPlayer serverplayer) {
-                    // 触发器删掉了——因为它并不是弩。
                     serverplayer.awardStat(Stats.ITEM_USED.get(weapon.getItem()));
                 }
-                // 没有无限附魔时，射击会消耗掉装填的虚影
                 if (weapon.getEnchantmentLevel(
                     shooter.level().holderLookup(Registries.ENCHANTMENT).getOrThrow(Enchantments.INFINITY)
                 ) <= 0) {

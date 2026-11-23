@@ -15,9 +15,13 @@ public final class AttackIndicatorProgressHUD {
     }
 
     public static void render(GuiGraphics graphics, float progress) {
+        render(graphics, progress, 0);
+    }
+
+    static void render(GuiGraphics graphics, float progress, int offsetY) {
         float clamped = Math.clamp(progress, 0.0F, 1.0F);
         int x = graphics.guiWidth() / 2 - 8;
-        int y = graphics.guiHeight() / 2 - 7 + 16;
+        int y = graphics.guiHeight() / 2 - 7 + 16 + offsetY;
         int progressWidth = Math.min(WIDTH, (int) (clamped * 17.0F));
         graphics.blitSprite(BACKGROUND, x, y, WIDTH, HEIGHT);
         if (progressWidth > 0) {

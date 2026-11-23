@@ -3,8 +3,10 @@ package dev.dubhe.anvilcraft.item.weapon;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.entity.RailgunAnvilEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.network.WeaponChargeProgressPacket;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -13,17 +15,21 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.List;
 
 public class AnvilRailgunItem extends EnergyWeaponItem {
     private static final float MIN_FIRE_CHARGE_PROGRESS = 0.2F;
@@ -40,9 +46,45 @@ public class AnvilRailgunItem extends EnergyWeaponItem {
         return AnvilCraft.CONFIG.equipment.anvilRailgunMinShotEnergy;
     }
 
+    private static void returnMagazine(ItemStack weapon, Player player) {
+        if (player.level().isClientSide() || !(weapon.has(ModComponents.RAILGUN_AMMO)
+            || weapon.has(DataComponents.CHARGED_PROJECTILES) || weapon.has(ModComponents.RAILGUN_INFINITE_AMMO_MASK))) {
+            return;
+        }
+        ChargedProjectiles magazine = weapon.remove(ModComponents.RAILGUN_AMMO);
+        ChargedProjectiles legacy = weapon.remove(DataComponents.CHARGED_PROJECTILES);
+        Integer infiniteMask = weapon.remove(ModComponents.RAILGUN_INFINITE_AMMO_MASK);
+        // 没有记录来源的弹药可能来自无限附魔，退还这些物品会复制铁砧。
+        if (infiniteMask == null) {
+            return;
+        }
+        if (magazine == null || magazine.isEmpty()) {
+            magazine = legacy;
+        }
+        if (magazine == null) {
+            return;
+        }
+        List<ItemStack> rounds = magazine.getItems();
+        for (int i = 0; i < rounds.size() && i < Integer.SIZE; i++) {
+            ItemStack round = rounds.get(i);
+            if ((infiniteMask & (1 << i)) == 0 && !round.has(DataComponents.INTANGIBLE_PROJECTILE)) {
+                player.getInventory().placeItemBackInInventory(round);
+            }
+        }
+    }
+
+    @Override
+    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slot, boolean selected) {
+        super.inventoryTick(stack, level, entity, slot, selected);
+        if (entity instanceof Player player) {
+            returnMagazine(stack, player);
+        }
+    }
+
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack weapon = player.getItemInHand(hand);
+        returnMagazine(weapon, player);
         if (!canStartUsing(player, weapon, this.minimumEnergy())) return InteractionResultHolder.fail(weapon);
         if (findAmmo(player).isEmpty()) return InteractionResultHolder.fail(weapon);
         player.startUsingItem(hand);
