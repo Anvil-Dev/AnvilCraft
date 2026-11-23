@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.block.entity.ChutePlates;
 import dev.dubhe.anvilcraft.block.entity.SimpleMagneticChuteBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -11,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -20,7 +22,6 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
@@ -40,11 +41,15 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.level.redstone.Orientation;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
+
+import java.util.List;
 
 public class SimpleMagneticChuteBlock
     extends BaseEntityBlock
@@ -115,7 +120,11 @@ public class SimpleMagneticChuteBlock
      * 相邻输出口指向本格时使用连接形态。
      */
     public static boolean isPointedByChute(BlockGetter level, BlockPos pos) {
+        ChutePlates plates = ChutePlates.at(level, pos);
         for (Direction dir : Direction.values()) {
+            if (plates != null && plates.getPlates().contains(dir)) {
+                continue;
+            }
             BlockState neighborState = level.getBlockState(pos.relative(dir));
             if ((neighborState.is(ModBlocks.MAGNETIC_CHUTE.get())
                 || neighborState.is(ModBlocks.SIMPLE_MAGNETIC_CHUTE.get())
@@ -137,8 +146,7 @@ public class SimpleMagneticChuteBlock
         boolean movedByPiston
     ) {
         if (!level.isClientSide()) {
-            // 不再被任意磁性溜槽指向时，升级回正常磁性溜槽
-            if (!SimpleMagneticChuteBlock.isPointedByChute(level, pos)) {
+            if (!isPointedByChute(level, pos)) {
                 level.setBlockAndUpdate(
                     pos, ModBlocks.MAGNETIC_CHUTE.get().defaultBlockState()
                         .setValue(MagneticChuteBlock.FACING, state.getValue(SimpleMagneticChuteBlock.FACING))
@@ -147,8 +155,9 @@ public class SimpleMagneticChuteBlock
             }
             // 上方有朝下的普通溜槽/简易溜槽时，附加连接头模型
             BlockState aboveState = level.getBlockState(pos.above());
-            boolean hasHead = (aboveState.is(ModBlocks.CHUTE.get()) || aboveState.is(ModBlocks.SIMPLE_CHUTE.get()))
-                              && aboveState.getValue(ChuteBlock.FACING) == Direction.DOWN;
+            boolean hasHead = !ChutePlates.hasPlate(level, pos, Direction.UP)
+                && (aboveState.is(ModBlocks.CHUTE.get()) || aboveState.is(ModBlocks.SIMPLE_CHUTE.get()))
+                && aboveState.getValue(ChuteBlock.FACING) == Direction.DOWN;
             if (state.getValue(SimpleMagneticChuteBlock.HEAD) != hasHead) {
                 level.setBlockAndUpdate(pos, state.setValue(SimpleMagneticChuteBlock.HEAD, hasHead));
             }
@@ -168,6 +177,11 @@ public class SimpleMagneticChuteBlock
     ) {
         if (state.getValue(SimpleMagneticChuteBlock.WATERLOGGED)) ticks.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         return super.updateShape(state, level, ticks, pos, directionToNeighbour, neighbourPos, neighbourState, random);
+    }
+
+    @Override
+    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        return ChutePlates.withPlateDrops(super.getDrops(state, params), params);
     }
 
     @Override
@@ -220,7 +234,17 @@ public class SimpleMagneticChuteBlock
     }
 
     @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        return level.getBlockEntity(pos) instanceof ChutePlates.Holder chute
+            ? chute.getChutePlates().takePlate(player, hit) : super.useWithoutItem(state, level, pos, player, hit);
+    }
+
+    @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return ChutePlates.withPlates(level, pos, getChuteShape(state));
+    }
+
+    private static VoxelShape getChuteShape(BlockState state) {
         return switch (state.getValue(SimpleMagneticChuteBlock.FACING)) {
             case DOWN -> SimpleMagneticChuteBlock.SHAPE_DOWN;
             case NORTH -> state.getValue(SimpleMagneticChuteBlock.HEAD) ? SimpleMagneticChuteBlock.SHAPE_N_HEAD
@@ -271,9 +295,7 @@ public class SimpleMagneticChuteBlock
         };
         BlockState facingState = level.getBlockState(pos.relative(newFacing));
         if (ChuteBlock.outputsToward(facingState, newFacing.getOpposite())) {
-            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
-            level.levelEvent(2001, pos, Block.getId(oldState));
-            Block.dropResources(oldState, level, pos);
+            ChuteBlock.destroyFacingConflict(level, pos, player);
             return true;
         }
         HammerRotateBehavior.DEFAULT.change(player, pos, level, anvilHammer);

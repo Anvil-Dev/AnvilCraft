@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.block.entity.IConvertableBlockEntity;
-import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.api.itemhandler.SingleStackResourceHandler;
 import dev.dubhe.anvilcraft.block.logistics.chute.SimpleChuteBlock;
@@ -34,7 +33,8 @@ import java.util.List;
 import java.util.Objects;
 
 @Getter
-public class SimpleChuteBlockEntity extends BlockEntity implements IItemResourceHandlerHolder, IConvertableBlockEntity<ChuteBlockEntity> {
+public class SimpleChuteBlockEntity extends PlatedChuteBlockEntity
+    implements IConvertableBlockEntity<ChuteBlockEntity> {
     private final SingleStackResourceHandler itemHandler = new SingleStackResourceHandler() {
         @Override
         public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
@@ -81,7 +81,10 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemResource
 
     /// tick
     public void tick() {
-        if (this.level == null) return;
+        this.getChutePlates().clearPortPlates();
+        if (this.level == null || this.isRemoved()) {
+            return;
+        }
         if (this.cooldown > 0) this.cooldown--;
         this.tickedGameTime = this.level.getGameTime();
         if (this.cooldown == 0 && !this.itemHandler.getResource(0).isEmpty()) {
@@ -199,6 +202,7 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemResource
 
     @Override
     public void convertTo(ChuteBlockEntity newBe) {
+        this.getChutePlates().transferTo(newBe);
         SingleStackResourceHandler handler = this.getItemHandler();
         ItemResource resource = handler.getResource(0);
         if (resource.isEmpty()) return;

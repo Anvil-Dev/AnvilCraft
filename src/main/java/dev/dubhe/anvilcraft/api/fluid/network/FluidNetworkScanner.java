@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.PumpBlockEntity;
 import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
-import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -71,11 +70,10 @@ public final class FluidNetworkScanner {
      * 管道部件在某方向上是否有<b>任何</b>连接（PIPE 或 END），用于网络遍历。
      * 节点需认 END（连容器方向），否则容器无法接入网络。
      */
-    private static boolean hasAnyConnectionToward(BlockState state, Direction toward) {
-        if (state.getBlock() instanceof PipeNodeBlock) {
-            return state.getValue(PipeBlock.getPropertyForDirection(toward)) != PipeBlock.NodePipe.NONE;
-        }
-        return PipeBlock.hasConnectionToward(state, toward);
+    public static boolean hasAnyConnectionToward(BlockState state, Direction toward) {
+        return PipeBlock.hasConnectionToward(state, toward)
+            || PumpBlock.isConnectableFace(state, toward)
+            || ControlValveBlock.isConnectableFace(state, toward);
     }
 
     /**

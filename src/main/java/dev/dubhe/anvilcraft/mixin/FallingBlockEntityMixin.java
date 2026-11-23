@@ -65,6 +65,10 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
     private float fallDamagePerDistance;
     @Shadow
     private int fallDamageMax;
+    @Shadow
+    private boolean hurtEntities;
+    @Unique
+    private static final String ANVILCRAFT_PORTAL_CONVERTED = "anvilcraft:portal_converted_anvil";
     @Unique
     private double anvilcraft$fallDistance;
     @Unique
@@ -395,6 +399,12 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
     }
 
     @Override
+    public void anvilcraft$disablePortalImpactDamage() {
+        this.hurtEntities = false;
+        this.getPersistentData().putBoolean(ANVILCRAFT_PORTAL_CONVERTED, true);
+    }
+
+    @Override
     public double anvilcraft$getFallDistance() {
         return this.anvilcraft$fallDistance;
     }
@@ -474,7 +484,9 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         if (this.getDeltaMovement().multiply(1, 0, 1).length() < 0.75 && this.getDeltaMovement().y < 2.5) {
             return;
         }
-        if (!this.blockState.is(BlockTags.ANVIL)) return;
+        if (!this.blockState.is(BlockTags.ANVIL) || this.getPersistentData().getBooleanOr(ANVILCRAFT_PORTAL_CONVERTED, false)) {
+            return;
+        }
         EntityHitResult hitResult = ProjectileUtil.getEntityHitResult(
             this.level(),
             this,

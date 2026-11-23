@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock;
 import dev.dubhe.anvilcraft.block.entity.BaseChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ChutePlates;
 import dev.dubhe.anvilcraft.block.entity.OverflowChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleMagneticChuteBlockEntity;
@@ -58,6 +59,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.redstone.Orientation;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -66,6 +68,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBehavior, IHammerRemovable {
@@ -107,7 +110,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
     ///
     /// @param properties 方块属性
     public ChuteBlock(Properties properties) {
-        super(properties);
+        super(properties.dynamicShape());
         this.registerDefaultState(
             this.stateDefinition.any()
                 .setValue(ChuteBlock.FACING, Direction.DOWN)
@@ -159,6 +162,9 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
             .move(-pos.getX(), -pos.getY(), -pos.getZ()));
         if (!Shapes.joinIsNotEmpty(state.getCollisionShape(level, pos, CollisionContext.of(item)), itemShape, BooleanOp.AND)) return;
         BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof ChutePlates.Holder chute && chute.getChutePlates().intersectsPlate(itemShape)) {
+            return;
+        }
         int cooldown = switch (blockEntity) {
             case BaseChuteBlockEntity chute -> chute.getCooldown();
             case SimpleChuteBlockEntity chute -> chute.getCooldown();
@@ -223,13 +229,20 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         };
         BlockState facingState = level.getBlockState(pos.relative(newFacing));
         if (ChuteBlock.outputsToward(facingState, newFacing.getOpposite())) {
-            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
-            level.levelEvent(2001, pos, Block.getId(oldState));
-            Block.dropResources(oldState, level, pos);
+            ChuteBlock.destroyFacingConflict(level, pos, player);
             return true;
         }
         HammerRotateBehavior.DEFAULT.change(player, pos, level, anvilHammer);
         return true;
+    }
+
+    public static void destroyFacingConflict(Level level, BlockPos pos, Player player) {
+        BlockState state = level.getBlockState(pos);
+        BlockEntity entity = level.getBlockEntity(pos);
+        BlockEntity plates = !player.isCreative() && entity instanceof ChutePlates.Holder ? entity : null;
+        level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+        level.levelEvent(2001, pos, Block.getId(state));
+        Block.dropResources(state, level, pos, plates);
     }
 
     @Override
@@ -320,14 +333,20 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
     }
 
     @Override
+    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        return ChutePlates.withPlateDrops(super.getDrops(state, params), params);
+    }
+
+    @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext collisionContext) {
-        return switch (state.getValue(ChuteBlock.FACING)) {
+        VoxelShape body = switch (state.getValue(ChuteBlock.FACING)) {
             case NORTH -> ChuteBlock.AABB_N;
             case SOUTH -> ChuteBlock.AABB_S;
             case WEST -> ChuteBlock.AABB_W;
             case EAST -> ChuteBlock.AABB_E;
             default -> ChuteBlock.AABB;
         };
+        return ChutePlates.withPlates(level, pos, body);
     }
 
     @Override
@@ -339,6 +358,16 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         InteractionHand hand,
         BlockHitResult hit
     ) {
+        if (player.getItemInHand(hand).is(ModBlocks.HEAVY_IRON_PLATE.asItem()) || hand == InteractionHand.MAIN_HAND
+            && player.getMainHandItem().isEmpty() && player.getOffhandItem().is(ModBlocks.HEAVY_IRON_PLATE.asItem())) {
+            return InteractionResult.PASS;
+        }
+        if (hand == InteractionHand.MAIN_HAND && player.isShiftKeyDown() && player.getMainHandItem().isEmpty()) {
+            ChutePlates covers = ChutePlates.at(level, pos);
+            if (covers != null && covers.takePlate(player, hit).consumesAction()) {
+                return InteractionResult.SUCCESS;
+            }
+        }
         if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
@@ -410,8 +439,12 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         BlockState result = this.defaultBlockState()
             .setValue(ChuteBlock.FACING, facing)
             .setValue(ChuteBlock.ENABLED, !level.hasNeighborSignal(pos));
+        ChutePlates covers = ChutePlates.at(level, pos);
         // 相邻输出口决定溜槽是否采用连接形态。
         for (Direction dir : Direction.values()) {
+            if (covers != null && covers.getPlates().contains(dir)) {
+                continue;
+            }
             BlockPos neighborPos = pos.relative(dir);
             BlockState neighborState = level.getBlockState(neighborPos);
             if (ChuteBlock.isChuteBlock(neighborState)
@@ -429,7 +462,8 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
                             facing = facing.getOpposite();
                         }
                         BlockState backState = level.getBlockState(pos.relative(facing));
-                        if (ChuteBlock.outputsToward(backState, facing.getOpposite())) {
+                        if ((covers == null || !covers.getPlates().contains(facing))
+                            && ChuteBlock.outputsToward(backState, facing.getOpposite())) {
                             return null;
                         }
 

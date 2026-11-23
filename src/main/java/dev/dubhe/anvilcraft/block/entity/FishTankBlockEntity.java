@@ -25,6 +25,7 @@ import dev.dubhe.anvilcraft.util.EntityUtil;
 import dev.dubhe.anvilcraft.util.ExperienceMending;
 import dev.dubhe.anvilcraft.util.FireReforgingUtil;
 import io.netty.buffer.ByteBuf;
+import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -290,11 +291,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             if (!state.getValue(FishTankBlock.OUTLET)) return;
             Direction outletDir = state.getValue(FishTankBlock.FACING);
             BlockPos pos = FishTankBlockEntity.this.getBlockPos();
-            List<ResourceHandler<ItemResource>> targets = ItemHandlerUtil.getOutletTargetItemHandlerList(
-                pos.relative(outletDir),
-                null,
-                level
-            );
+            List<ResourceHandler<ItemResource>> targets = outletTargets(level, pos, outletDir);
             this.autoOutputting = true;
             try (Transaction transaction = Transaction.openRoot()) {
                 ItemResource resourceIn = this.getResource(index);
@@ -335,6 +332,8 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
     private ItemStack @Nullable [] processingInputSnapshot;
     private long lastRecipeProcessingGameTime = Long.MIN_VALUE;
     private boolean ignited = false;
+    @Getter(AccessLevel.NONE)
+    private FishTankPreviews.@Nullable Cache recipePreview;
 
     public FishTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -404,7 +403,19 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         super.setRemoved();
     }
 
+    /** 返回下一次落砧时鱼缸中参与加工的物品槽和流体。 */
+    public List<LargeCauldronBlockEntity.RecipePreview> getRecipePreviews() {
+        Level level = this.level;
+        if (level == null) {
+            return List.of();
+        }
+        boolean allowOutputs = this.lastRecipeProcessingGameTime != level.getGameTime();
+        this.recipePreview = FishTankPreviews.get(this, level, this.recipePreview, allowOutputs);
+        return this.recipePreview.results();
+    }
+
     private void sendUpdate() {
+        this.recipePreview = null;
         if (this.level == null) return;
         this.level.sendBlockUpdated(
             this.getBlockPos(),
@@ -506,7 +517,12 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         this.processingOutput = !hasInput
             && !FishTankBlockEntity.isEmpty(this.output)
             && gameTime != this.lastRecipeProcessingGameTime;
-        if (hasInput || this.processingOutput) this.lastRecipeProcessingGameTime = gameTime;
+        if ((hasInput || this.processingOutput) && gameTime != this.lastRecipeProcessingGameTime) {
+            this.lastRecipeProcessingGameTime = gameTime;
+            if (this.processingOutput) {
+                this.sendUpdate();
+            }
+        }
         if (hasInput) {
             ItemStack[] snapshot = new ItemStack[this.input.size()];
             for (int slot = 0; slot < this.input.size(); slot++) {
@@ -579,6 +595,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         this.input.deserialize(input.childOrEmpty("Inputs"));
         this.output.deserialize(input.childOrEmpty("Outputs"));
         this.ignited = input.getBooleanOr("ignited", false);
+        this.lastRecipeProcessingGameTime = input.getLongOr("LastRecipeProcessingTick", this.lastRecipeProcessingGameTime);
 
         this.fishes.clear();
         for (TropicalFishData fishTag : input.listOrEmpty(FishTankBlockEntity.TAG_TROPICAL_FISH_DATA, TropicalFishData.CODEC.codec())) {
@@ -595,6 +612,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         this.input.serialize(output.child("Inputs"));
         this.output.serialize(output.child("Outputs"));
         output.putBoolean("ignited", this.ignited);
+        output.putLong("LastRecipeProcessingTick", this.lastRecipeProcessingGameTime);
 
         ValueOutput.TypedOutputList<TropicalFishData> list = output.list(
             FishTankBlockEntity.TAG_TROPICAL_FISH_DATA,
@@ -746,17 +764,20 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         return ItemHandlerUtil.insertItem(handler, stack, false);
     }
 
+    private static @Nullable List<ResourceHandler<ItemResource>> outletTargets(Level level, BlockPos pos, Direction direction) {
+        BlockPos target = pos.relative(direction);
+        // 可装盖板的溜槽需要区分进料面，其余容器沿用鱼缸的无方向输出。
+        Direction side = level.getBlockEntity(target) instanceof ChutePlates.Holder ? direction.getOpposite() : null;
+        return ItemHandlerUtil.getOutletTargetItemHandlerList(target, side, level);
+    }
+
     public void tryAutoOutputResults() {
         if (this.processingRecipe) return;
         Level level = this.level;
         if (level == null || level.isClientSide()) return;
         BlockPos pos = this.getBlockPos();
         Direction outletDir = this.getBlockState().getValue(FishTankBlock.FACING);
-        List<ResourceHandler<ItemResource>> targets = ItemHandlerUtil.getOutletTargetItemHandlerList(
-            pos.relative(outletDir),
-            null,
-            level
-        );
+        List<ResourceHandler<ItemResource>> targets = outletTargets(level, pos, outletDir);
         if (targets == null || targets.isEmpty()) {
             // 开口被有碰撞的方块堵住时不输出，物品留在输出槽等待下次重试
             if (FishTankBlockEntity.isOutletBlocked(level, pos, outletDir)) return;

@@ -136,15 +136,33 @@ final class ModelSelectionBakery {
 
     private static void appendShapes(ModelSelection selection, Matrix4d transform, List<ConvexShape> output) {
         if (selection instanceof ModelSelection.Fixed(SelectionPart part1)) {
-            PoseStack pose = new PoseStack();
-            part1.apply(pose);
-            Matrix4d matrix = new Matrix4d(transform).scale(ModelCubeGeometry.SCALE).mul(new Matrix4d(pose.last().pose()));
-            part1.geometry().shapes().forEach(shape -> output.add(shape.transform(matrix)));
+            appendShapes(part1, transform, output);
         } else if (selection instanceof ModelSelection.Multipart multipart) {
             for (ModelSelection part : multipart.parts()) appendShapes(part, transform, output);
         } else {
             throw new IllegalArgumentException("Randomized multipart structure");
         }
+    }
+
+    private static void appendShapes(SelectionPart part, Matrix4d transform, List<ConvexShape> output) {
+        PoseStack pose = new PoseStack();
+        part.apply(pose);
+        Matrix4d matrix = new Matrix4d(transform).scale(ModelCubeGeometry.SCALE).mul(new Matrix4d(pose.last().pose()));
+        part.geometry().shapes().forEach(shape -> output.add(shape.transform(matrix)));
+    }
+
+    static @Nullable SelectionPart mergeOutline(List<SelectionPart> parts) {
+        int count = parts.stream().mapToInt(part -> part.geometry().shapes().size()).sum();
+        if (count == 0 || count > SelectionGeometry.MAX_SHAPES) {
+            return null;
+        }
+        List<ConvexShape> shapes = new ArrayList<>(count);
+        Matrix4d identity = new Matrix4d();
+        for (SelectionPart part : parts) {
+            appendShapes(part, identity, shapes);
+        }
+        SelectionGeometry geometry = new SelectionGeometry(shapes, ModelCubeGeometry.SCALE);
+        return new SelectionPart(geometry, new Matrix4f().scaling(1 / ModelCubeGeometry.SCALE));
     }
 
     private <P extends Enum<P>> void multipart(

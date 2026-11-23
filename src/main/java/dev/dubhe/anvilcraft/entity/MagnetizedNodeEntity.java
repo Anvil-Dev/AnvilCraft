@@ -54,36 +54,29 @@ public class MagnetizedNodeEntity extends Entity {
 
     @Override
     public void tick() {
+        super.tick();
         if (this.level().isClientSide()) {
             this.rotatingState.startIfStopped(this.tickCount);
+            return;
         }
-        super.tick();
-        if (!this.level().isClientSide()) {
-            BlockState currentState = this.level().getBlockState(this.blockPos);
-            if (currentState.is(Blocks.MOVING_PISTON)
-                && this.level().getBlockEntity(this.blockPos) instanceof PistonMovingBlockEntity piston
-                && !piston.isSourcePiston()) {
-                currentState = piston.getMovedState();
-            }
-            if (!currentState.is(this.blockState.getBlock())
-                && (!currentState.is(BlockTags.CAULDRONS) || !this.blockState.is(BlockTags.CAULDRONS))) {
-                this.discard();
-                return;
-            }
+        BlockState currentState = this.level().getBlockState(this.blockPos);
+        if (currentState.is(Blocks.MOVING_PISTON)
+            && this.level().getBlockEntity(this.blockPos) instanceof PistonMovingBlockEntity piston
+            && !piston.isSourcePiston()) {
+            currentState = piston.getMovedState();
         }
-        AABB aabb = new AABB(this.blockPos.getX() - 0.01,
-                             this.blockPos.getY() - 0.01,
-                             this.blockPos.getZ() - 0.01,
-                             this.blockPos.getX() + 1.01,
-                             this.blockPos.getY() + 1.01,
-                             this.blockPos.getZ() + 1.01
-        );
+        if (!currentState.is(this.blockState.getBlock())
+            && (!currentState.is(BlockTags.CAULDRONS) || !this.blockState.is(BlockTags.CAULDRONS))) {
+            this.discard();
+            return;
+        }
         this.level()
-            .getEntities(EntityType.ITEM, aabb, IItemEntityExtension::anvilcraft$isAdsorbable)
-            .forEach(entity -> {
-                entity.teleportTo(this.position().x, this.position().y, this.position().z);
-                entity.setDeltaMovement(Vec3.ZERO);
-            });
+            .getEntities(EntityType.ITEM, this.getAttractionArea(), IItemEntityExtension::anvilcraft$isAdsorbable)
+            .forEach(item -> item.anvilcraft$attachToMagnetizedNode(this));
+    }
+
+    public AABB getAttractionArea() {
+        return new AABB(this.blockPos).inflate(0.01);
     }
 
     /** 保留节点相对附着方块的偏移，并同步活塞移动后的附着位置。 */
