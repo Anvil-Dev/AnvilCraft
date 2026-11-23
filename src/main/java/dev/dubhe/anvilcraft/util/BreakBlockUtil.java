@@ -33,11 +33,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.Tags;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public class BreakBlockUtil {
     private static @Nullable ItemStack DUMMY_SILK_TOUCH_TOOL = null;
@@ -162,22 +165,37 @@ public class BreakBlockUtil {
         BlockPos origin,
         ItemStack rawMaterial
     ) {
-        for (TagKey<Item> rawMaterialTag : BuiltInRegistries.ITEM.wrapAsHolder(rawMaterial.getItem()).tags().toList()) {
-            Identifier tagId = rawMaterialTag.location();
-            if (!tagId.getNamespace().equals("c") || !tagId.getPath().startsWith("raw_materials/")) continue;
-            String material = tagId.getPath().substring("raw_materials/".length());
+        Set<String> materials = new LinkedHashSet<>();
+        for (TagKey<Item> tag : BuiltInRegistries.ITEM.wrapAsHolder(rawMaterial.getItem()).tags().toList()) {
+            Identifier tagId = tag.location();
+            if (tagId.getNamespace().equals("c") && tagId.getPath().startsWith("raw_materials/")) {
+                materials.add(tagId.getPath().substring("raw_materials/".length()));
+            }
+        }
+        materials.add(BuiltInRegistries.ITEM.getKey(rawMaterial.getItem()).getPath());
+
+        BlockState fallback = null;
+        for (String material : materials) {
             TagKey<Item> oreTag = TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("c", "ores/" + material));
             for (Holder<Item> oreHolder : BuiltInRegistries.ITEM.getTagOrEmpty(oreTag)) {
                 Block ore = Block.byItem(oreHolder.value());
-                if (ore == Blocks.AIR) continue;
+                if (ore == Blocks.AIR) {
+                    continue;
+                }
                 BlockState oreState = ore.defaultBlockState();
                 List<ItemStack> normalDrops = BreakBlockUtil.dropVirtual(level, origin, oreState, BlockMiningEffect.NORMAL);
-                if (normalDrops.stream().anyMatch(stack -> stack.is(rawMaterial.getItem()))) {
+                if (normalDrops.stream().noneMatch(stack -> stack.is(rawMaterial.getItem()))) {
+                    continue;
+                }
+                if (oreState.is(Tags.Blocks.ORES_IN_GROUND_DEEPSLATE)) {
                     return Optional.of(oreState);
+                }
+                if (fallback == null) {
+                    fallback = oreState;
                 }
             }
         }
-        return Optional.empty();
+        return Optional.ofNullable(fallback);
     }
 
     public static List<ItemStack> dropSmelt(ServerLevel level, BlockPos pos) {
