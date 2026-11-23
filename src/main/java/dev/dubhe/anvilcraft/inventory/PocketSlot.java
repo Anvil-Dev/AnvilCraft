@@ -8,8 +8,8 @@ import net.minecraft.world.item.ItemStack;
 public class PocketSlot extends Slot {
     private static final int HIDDEN_X = -10000;
     /**
-     * 普通物品栏的 GUI 宽度与口袋面板顶位。创造模式界面尺寸不同（宽 195、顶位 40），
-     * 由 {@code CreativePocketSlotMixin} 在这一基准上平移补偿，改动任意一侧都需同步另一侧。
+     * 普通物品栏的 GUI 宽度与口袋面板顶位，作为槽位坐标的统一基准。
+     * 创造界面尺寸不同，其平移量见 {@link PocketLayout#CREATIVE_X_SHIFT} 与 {@link PocketLayout#CREATIVE_Y_SHIFT}。
      */
     public static final int SCREEN_IMAGE_WIDTH = 176;
     public static final int SCREEN_PANEL_TOP = 70;

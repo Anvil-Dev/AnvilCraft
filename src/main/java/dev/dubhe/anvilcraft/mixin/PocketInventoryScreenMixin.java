@@ -62,18 +62,17 @@ abstract class PocketInventoryScreenMixin extends AbstractContainerScreen<Invent
     }
 
     // 配方书展开时 InventoryScreen 会把 GUI 右移让位，右侧口袋面板可能被推出屏幕。
-    // 这里按两侧面板宽度抬高窄屏阈值，让界面在空间不足时改用配方书覆盖 GUI 的原版窄屏表现。
+    // 这里按配方书与两侧面板各自所需的最小宽度抬高窄屏阈值，让界面在空间不足时改用配方书覆盖 GUI 的原版窄屏表现。
     @ModifyConstant(method = "init", constant = @Constant(intValue = 379))
     private int anvilcraft$allowRoomForPockets(int original) {
         if (this.minecraft == null || this.minecraft.player == null) {
             return original;
         }
-        int capacity = PocketInventory.capacity(this.minecraft.player);
-        if (capacity == 0) {
-            return original;
-        }
-        return original + PocketLayout.of(capacity, 0, 0, 0).width()
-            + PocketLayout.of(capacity, 1, 0, 0).width() + 4;
+        int minWidth = PocketLayout.recipeBookMinWidth(
+            PocketInventory.capacity(this.minecraft.player),
+            this.imageWidth
+        );
+        return Math.max(original, minWidth);
     }
 
     @Inject(method = "renderBg", at = @At("TAIL"))
@@ -100,8 +99,13 @@ abstract class PocketInventoryScreenMixin extends AbstractContainerScreen<Invent
         }
         double localX = mouseX - left;
         double localY = mouseY - top;
-        if (PocketLayout.of(capacity, 0, this.imageWidth, 70).contains(localX, localY)
-            || PocketLayout.of(capacity, 1, this.imageWidth, 70).contains(localX, localY)) {
+        if (PocketLayout.containsPocket(
+            capacity,
+            this.imageWidth,
+            PocketSlot.SCREEN_PANEL_TOP,
+            localX,
+            localY
+        )) {
             return false;
         }
         return original;
