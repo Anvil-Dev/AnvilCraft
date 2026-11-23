@@ -149,21 +149,26 @@ public class ModDispenserBehavior {
      */
     private static void wrapCauldronIgnition(Item item) {
         DispenseItemBehavior original = DispenserBlock.DISPENSER_REGISTRY.get(item);
-        if (original == null) return;
-        DispenserBlock.registerBehavior(item, new DefaultDispenseItemBehavior() {
+        if (original == null) {
+            return;
+        }
+        DispenseItemBehavior consumeIgniter = new DefaultDispenseItemBehavior() {
             @Override
-            public ItemStack execute(BlockSource source, ItemStack stack) {
-                ServerLevel level = source.level();
-                BlockPos pos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
-                if (!CauldronIgnition.dispenseIgnite(level, pos)) return original.dispense(source, stack);
+            protected ItemStack execute(BlockSource source, ItemStack stack) {
                 if (stack.is(Items.FIRE_CHARGE)) {
                     stack.shrink(1);
                 } else {
-                    stack.hurtAndBreak(1, level, null, ignored -> {
-                    });
+                    stack.hurtAndBreak(1, source.level(), null, ignored -> {});
                 }
                 return stack;
             }
+        };
+        DispenserBlock.registerBehavior(item, (source, stack) -> {
+            ServerLevel level = source.level();
+            BlockPos target = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
+            return CauldronIgnition.tryIgnite(level, target, level.getBlockState(target))
+                ? consumeIgniter.dispense(source, stack)
+                : original.dispense(source, stack);
         });
     }
 

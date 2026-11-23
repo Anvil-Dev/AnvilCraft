@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.MultitoolItem;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -21,9 +20,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.ItemAbilities;
-import org.jspecify.annotations.Nullable;
-
-import java.util.function.BooleanSupplier;
 
 /**
  * 装有原油的炼药锅、鱼缸、大型炼药锅共用的点燃逻辑。
@@ -39,28 +35,28 @@ public final class CauldronIgnition {
                || (stack.is(ModItems.MULTITOOL_ITEM) && MultitoolItem.getMode(stack) == MultitoolItem.FLINT_AND_STEEL_MODE);
     }
 
-    /**
-     * 玩家手持点燃物品右键容器，点燃成功才消耗耐久或数量。
-     *
-     * @return {@code null} 表示手持物品不是点燃物品，调用方应继续其它交互
-     */
-    public static @Nullable ItemInteractionResult useOn(
-        Level level,
-        BlockPos pos,
-        Player player,
-        InteractionHand hand,
-        ItemStack stack,
-        BooleanSupplier ignite
+    static ItemInteractionResult useOn(
+        BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, ItemStack stack
     ) {
-        if (!CauldronIgnition.isIgnitionItem(stack)) return null;
-        if (!ignite.getAsBoolean()) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        if (!CauldronIgnition.isIgnitionItem(stack)) {
+            return ItemInteractionResult.SUCCESS;
+        }
+        if (!CauldronIgnition.tryIgnite(level, pos, state)) {
+            return ItemInteractionResult.FAIL;
+        }
+        return CauldronIgnition.consumeIgnitionItem(level, pos, player, hand, stack);
+    }
+
+    public static ItemInteractionResult consumeIgnitionItem(
+        Level level, BlockPos pos, Player player, InteractionHand hand, ItemStack stack
+    ) {
         if (!level.isClientSide()) {
             if (stack.is(Items.FIRE_CHARGE)) {
-                stack.shrink(1);
-                level.playSound(null, pos, SoundEvents.FIRECHARGE_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
+                stack.consume(1, player);
+                level.playSound(null, pos, SoundEvents.FIRECHARGE_USE, SoundSource.BLOCKS);
             } else {
                 stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
-                level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
+                level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS);
             }
         }
         return ItemInteractionResult.sidedSuccess(level.isClientSide());
@@ -91,19 +87,20 @@ public final class CauldronIgnition {
         return ItemInteractionResult.sidedSuccess(level.isClientSide());
     }
 
-    /**
-     * 发射器代玩家点燃前方的容器的原油，成功时调用方需要消耗物品耐久或数量。
-     */
-    public static boolean dispenseIgnite(ServerLevel level, BlockPos pos) {
-        BlockState state = level.getBlockState(pos);
-        if (state.getBlock() instanceof FishTankBlock tank) return tank.tryIgnite(level, pos);
+    /** 客户端仅预测点燃结果，服务端负责修改容器。 */
+    public static boolean tryIgnite(Level level, BlockPos pos, BlockState state) {
+        if (state.getBlock() instanceof FishTankBlock tank) {
+            return tank.tryIgnite(level, pos);
+        }
         if (state.getBlock() instanceof OilCauldronBlock) {
-            OilCauldronBlock.ignite(level, pos, state);
+            if (!level.isClientSide()) {
+                OilCauldronBlock.ignite(level, pos, state);
+            }
             return true;
         }
-        if (state.getBlock() instanceof LargeCauldronBlock
-            && LargeCauldronBlockEntity.getMain(level, pos, state) instanceof LargeCauldronBlockEntity cauldron) {
-            return cauldron.tryIgnite();
+        if (state.getBlock() instanceof LargeCauldronBlock) {
+            LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(level, pos, state);
+            return cauldron != null && cauldron.tryIgnite(level.isClientSide());
         }
         return false;
     }

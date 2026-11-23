@@ -289,10 +289,11 @@ public class LargeCauldronBlock
         if (cauldron == null) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if (CauldronIgnition.isShovel(stack) && cauldron.isIgnited()) {
             return CauldronIgnition.useShovelToExtinguish(
-                level, pos, player, hand, stack, () -> cauldron.setIgnited(false));
+                level, pos, player, hand, stack, cauldron::extinguish);
         }
-        ItemInteractionResult ignition = CauldronIgnition.useOn(level, pos, player, hand, stack, cauldron::tryIgnite);
-        if (ignition != null) return ignition;
+        if (CauldronIgnition.isIgnitionItem(stack) && cauldron.tryIgnite(level.isClientSide())) {
+            return CauldronIgnition.consumeIgnitionItem(level, pos, player, hand, stack);
+        }
         if (cauldron.interactWithFluid(player, hand, hit)) {
             return ItemInteractionResult.sidedSuccess(level.isClientSide());
         }
