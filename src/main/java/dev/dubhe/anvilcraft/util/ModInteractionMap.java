@@ -2,22 +2,18 @@ package dev.dubhe.anvilcraft.util;
 
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.block.CementCauldronBlock;
-import dev.dubhe.anvilcraft.block.FishTankBlock;
 import dev.dubhe.anvilcraft.block.HoneyCauldronBlock;
 import dev.dubhe.anvilcraft.block.Layered4LevelCauldronBlock;
 import dev.dubhe.anvilcraft.block.MilkCauldronBlock;
-import dev.dubhe.anvilcraft.block.OilCauldronBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.MultitoolItem;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.ItemInteractionResult;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
@@ -25,6 +21,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
+
+import java.util.Map;
 
 public class ModInteractionMap {
     public static final CauldronInteraction.InteractionMap LAYERED_LAVA = CauldronInteraction.newInteractionMap("layered_lava");
@@ -103,36 +101,7 @@ public class ModInteractionMap {
                 SoundEvents.BUCKET_FILL
             )
         );
-        oilInteractionMap.put(
-            Items.FLINT_AND_STEEL,
-            (state, level, pos, player, hand, stack) -> {
-                OilCauldronBlock.ignite(level, pos, state);
-                stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
-                level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS);
-                return ItemInteractionResult.sidedSuccess(level.isClientSide());
-            }
-        );
-        oilInteractionMap.put(
-            Items.FIRE_CHARGE,
-            (state, level, pos, player, hand, stack) -> {
-                OilCauldronBlock.ignite(level, pos, state);
-                stack.shrink(1);
-                level.playSound(null, pos, SoundEvents.FIRECHARGE_USE, SoundSource.BLOCKS);
-                return ItemInteractionResult.sidedSuccess(level.isClientSide());
-            }
-        );
-        oilInteractionMap.put(
-            ModItems.MULTITOOL_ITEM.asItem(),
-            (state, level, pos, player, hand, stack) -> {
-                if (MultitoolItem.getMode(stack) == MultitoolItem.FLINT_AND_STEEL_MODE) {
-                    OilCauldronBlock.ignite(level, pos, state);
-                    stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
-                    level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS);
-                    return ItemInteractionResult.sidedSuccess(level.isClientSide());
-                }
-                return ItemInteractionResult.SUCCESS;
-            }
-        );
+        ModInteractionMap.registerIgnitionItems(oilInteractionMap);
 
         var layeredLavaInteractionMap = LAYERED_LAVA.map();
         layeredLavaInteractionMap.put(
@@ -381,35 +350,12 @@ public class ModInteractionMap {
 
         Object2ObjectMap<Item, CauldronInteraction> fishTankInteractionMap = Util.cast(FISH_TANK.map());
         fishTankInteractionMap.defaultReturnValue(null);
-        fishTankInteractionMap.put(
-            Items.FLINT_AND_STEEL,
-            (state, level, pos, player, hand, stack) -> {
-                if (!Util.<FishTankBlock>cast(state.getBlock()).tryIgnite(level, pos)) return ItemInteractionResult.FAIL;
-                stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
-                level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS);
-                return ItemInteractionResult.sidedSuccess(level.isClientSide());
-            }
-        );
-        fishTankInteractionMap.put(
-            Items.FIRE_CHARGE,
-            (state, level, pos, player, hand, stack) -> {
-                if (!Util.<FishTankBlock>cast(state.getBlock()).tryIgnite(level, pos)) return ItemInteractionResult.FAIL;
-                stack.shrink(1);
-                level.playSound(null, pos, SoundEvents.FIRECHARGE_USE, SoundSource.BLOCKS);
-                return ItemInteractionResult.sidedSuccess(level.isClientSide());
-            }
-        );
-        fishTankInteractionMap.put(
-            ModItems.MULTITOOL_ITEM.asItem(),
-            (state, level, pos, player, hand, stack) -> {
-                if (MultitoolItem.getMode(stack) == MultitoolItem.FLINT_AND_STEEL_MODE) {
-                    if (!Util.<FishTankBlock>cast(state.getBlock()).tryIgnite(level, pos)) return ItemInteractionResult.FAIL;
-                    stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
-                    level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS);
-                    return ItemInteractionResult.sidedSuccess(level.isClientSide());
-                }
-                return ItemInteractionResult.SUCCESS;
-            }
-        );
+        ModInteractionMap.registerIgnitionItems(fishTankInteractionMap);
+    }
+
+    private static void registerIgnitionItems(Map<Item, CauldronInteraction> interactions) {
+        interactions.put(Items.FLINT_AND_STEEL, CauldronIgnition::useOn);
+        interactions.put(Items.FIRE_CHARGE, CauldronIgnition::useOn);
+        interactions.put(ModItems.MULTITOOL_ITEM.asItem(), CauldronIgnition::useOn);
     }
 }

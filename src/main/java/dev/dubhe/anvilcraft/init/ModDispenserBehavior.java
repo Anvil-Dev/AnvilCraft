@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.ExpGemItem;
+import dev.dubhe.anvilcraft.util.CauldronIgnition;
 import dev.dubhe.anvilcraft.util.EntityUtil;
 import dev.dubhe.anvilcraft.util.PlayerUtil;
 import net.minecraft.core.BlockPos;
@@ -137,6 +138,38 @@ public class ModDispenserBehavior {
         wrapAndRegister(Items.HONEY_BOTTLE);
         wrapAndRegister(Items.POTION);
         wrapAndRegister(Items.EXPERIENCE_BOTTLE);
+
+        // 打火石与烈焰弹：点燃前方的原油容器，失败回退原版
+        wrapCauldronIgnition(Items.FLINT_AND_STEEL);
+        wrapCauldronIgnition(Items.FIRE_CHARGE);
+    }
+
+    /**
+     * 对点燃物品包装一个原油容器优先的发射行为：点燃成功才损坏打火石或消耗烈焰弹。
+     */
+    private static void wrapCauldronIgnition(Item item) {
+        DispenseItemBehavior original = DispenserBlock.DISPENSER_REGISTRY.get(item);
+        if (original == null) {
+            return;
+        }
+        DispenseItemBehavior consumeIgniter = new DefaultDispenseItemBehavior() {
+            @Override
+            protected ItemStack execute(BlockSource source, ItemStack stack) {
+                if (stack.is(Items.FIRE_CHARGE)) {
+                    stack.shrink(1);
+                } else {
+                    stack.hurtAndBreak(1, source.level(), null, ignored -> {});
+                }
+                return stack;
+            }
+        };
+        DispenserBlock.registerBehavior(item, (source, stack) -> {
+            ServerLevel level = source.level();
+            BlockPos target = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
+            return CauldronIgnition.tryIgnite(level, target, level.getBlockState(target))
+                ? consumeIgniter.dispense(source, stack)
+                : original.dispense(source, stack);
+        });
     }
 
     private static void wrapAndRegister(Item item) {
