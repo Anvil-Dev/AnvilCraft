@@ -115,12 +115,13 @@ public class LargeCauldronBlockEntity extends BlockEntity
     };
     private static final double CONTENT_HEIGHT = 2.25;
     private static final int MAX_EJECT_FALL_DISTANCE = 8;
+    private static long ignitionTagVersion;
     private static final ResourceHandler<ItemResource> EMPTY_HANDLER = new EmptyItemHandler();
     private static final InWorldRecipeData<Map<Long, FluidRecipeState>> FLUID_RECIPE_STATES =
         InWorldRecipeData.of(AnvilCraft.of("large_cauldron_fluid_states"), (context, key) -> new HashMap<>());
     private static final Identifier FLUID_RECIPE_ACCEPTOR = AnvilCraft.of("large_cauldron_fluid_acceptor");
 
-    private final LargeCauldronInputHandler input = new LargeCauldronInputHandler(this::contentsChanged);
+    private final LargeCauldronInputHandler input = new LargeCauldronInputHandler(this::ignitionContentsChanged);
     private final ItemStacksResourceHandler output = new ItemStacksResourceHandler(LargeCauldronBlockEntity.OUTPUT_SLOTS) {
         @Override
         protected void onContentsChanged(int slot, ItemStack previousContents) {
@@ -138,6 +139,8 @@ public class LargeCauldronBlockEntity extends BlockEntity
     private List<RecipePreview> recipePreviewCache = List.of();
     private boolean droppedContents;
     private boolean ignited;
+    private boolean manuallyExtinguished;
+    private long checkedIgnitionTagVersion = -1;
 
     public LargeCauldronBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -197,7 +200,10 @@ public class LargeCauldronBlockEntity extends BlockEntity
     ) {
         if (!entity.isMainPart()) return;
         entity.absorbFluidSources(level);
-        entity.refreshIgnited();
+        if (entity.checkedIgnitionTagVersion != LargeCauldronBlockEntity.ignitionTagVersion) {
+            entity.checkedIgnitionTagVersion = LargeCauldronBlockEntity.ignitionTagVersion;
+            entity.refreshIgnited();
+        }
         entity.applyFluidEffects((ServerLevel) level);
         entity.hurtEntitiesInsideFromCampfire((ServerLevel) level);
         entity.reforgeItemsInLava(level);
@@ -270,10 +276,27 @@ public class LargeCauldronBlockEntity extends BlockEntity
         return this.getMainPart().ignited;
     }
 
+    /** 标签重载后，已放置的大锅会在下次服务端更新时使用新标签。 */
+    public static void invalidateIgnitionTags() {
+        LargeCauldronBlockEntity.ignitionTagVersion++;
+    }
+
+    /** 锹熄灭后，原有点火物可以留在锅内，直到下一次投料、换液或主动点燃。 */
+    public void extinguish() {
+        LargeCauldronBlockEntity main = this.getMainPart();
+        main.manuallyExtinguished = true;
+        main.setIgnited(false);
+    }
+
     public void setIgnited(boolean ignited) {
         LargeCauldronBlockEntity main = this.getMainPart();
         boolean next = ignited && main.canIgniteTopFluid();
-        if (main.ignited == next) return;
+        if (main.ignited == next) {
+            return;
+        }
+        if (next) {
+            main.manuallyExtinguished = false;
+        }
         main.ignited = next;
         main.contentsChanged();
     }
@@ -489,8 +512,14 @@ public class LargeCauldronBlockEntity extends BlockEntity
         return Math.round(maxLight * fill);
     }
 
-    private void fluidsChanged() {
+    private void ignitionContentsChanged() {
+        this.checkedIgnitionTagVersion = -1;
+        this.manuallyExtinguished = false;
         this.contentsChanged();
+    }
+
+    private void fluidsChanged() {
+        this.ignitionContentsChanged();
         if (this.level == null || !this.isMainPart()) return;
         for (Cube3x3PartHalf part : Cube3x3PartHalf.values()) {
             BlockPos pos = this.worldPosition.offset(part.getOffsetX(), part.getOffsetY() - 1, part.getOffsetZ());
@@ -514,6 +543,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
         this.output.serialize(output.child("Outputs"));
         this.fluids.serialize(output.child("Fluids"));
         output.putBoolean("Ignited", this.ignited);
+        output.putBoolean("ManuallyExtinguished", this.manuallyExtinguished);
     }
 
     @Override
@@ -524,6 +554,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
         this.output.deserialize(input.childOrEmpty("Outputs"));
         this.fluids.deserialize(input.childOrEmpty("Fluids"));
         this.ignited = input.getBooleanOr("Ignited", false) && this.canIgniteTopFluid();
+        this.manuallyExtinguished = input.getBooleanOr("ManuallyExtinguished", false);
         this.recipePreviewGameTime = Long.MIN_VALUE;
     }
 
@@ -1431,25 +1462,50 @@ public class LargeCauldronBlockEntity extends BlockEntity
     }
 
     private void refreshIgnited() {
-        if (!this.canIgniteTopFluid()) {
-            if (this.ignited) {
-                this.setIgnited(false);
+        if (this.ignited) {
+            if (this.canIgniteTopFluid()) {
+                return;
             }
+            this.setIgnited(false);
+        }
+        if (this.manuallyExtinguished) {
             return;
         }
-        if (this.ignited) return;
         for (int slot = 0; slot < this.input.size(); slot++) {
-            ItemStack stack = this.input.getStackInSlot(slot);
-            if (stack.is(ModItemTags.FIRE_STARTER)) {
-                LargeCauldronBlockEntity.extractItem(this.input, slot, 1);
-                this.setIgnited(true);
-                return;
-            }
-            if (stack.is(ModItemTags.UNBROKEN_FIRE_STARTER)) {
-                this.setIgnited(true);
+            ItemResource resource = this.input.getResource(slot);
+            boolean consumed = resource.is(ModItemTags.FIRE_STARTER);
+            if (consumed || resource.is(ModItemTags.UNBROKEN_FIRE_STARTER)) {
+                if (this.tryIgnite(false) && consumed) {
+                    LargeCauldronBlockEntity.extractItem(this.input, slot, 1);
+                }
                 return;
             }
         }
+    }
+
+    /** 客户端只检查可点燃的流体层，服务端点燃时才调整层序。 */
+    public boolean tryIgnite(boolean simulate) {
+        LargeCauldronBlockEntity main = this.getMainPart();
+        if (main.ignited) {
+            return false;
+        }
+        int topLayer = main.fluids.getLayerCount() - 1;
+        for (int layer = topLayer; layer >= 0; layer--) {
+            FluidResource fluid = main.fluids.getResource(layer);
+            if (!fluid.getFluid().is(ModFluidTags.IGNITABLE)) {
+                continue;
+            }
+            if (!simulate) {
+                if (layer < topLayer) {
+                    List<FluidStack> layers = main.fluids.copyFluids();
+                    layers.add(layers.remove(layer));
+                    main.fluids.setFluids(layers);
+                }
+                main.setIgnited(true);
+            }
+            return true;
+        }
+        return false;
     }
 
     private AABB contentArea() {

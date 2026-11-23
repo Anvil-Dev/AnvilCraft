@@ -48,7 +48,7 @@ public class TimeWarpRecipeLoader {
         timeWarp(provider, ModItemTags.STORAGE_BLOCKS_ZINC, 1, ModItems.RAW_ZINC, 3);
         timeWarp(provider, ModItemTags.STORAGE_BLOCKS_TIN, 1, ModItems.RAW_TIN, 3);
         timeWarp(provider, ModItemTags.STORAGE_BLOCKS_TITANIUM, 1, ModItems.RAW_TITANIUM, 3);
-        timeWarp(provider, ModItemTags.STORAGE_BLOCKS_TUNGSTEN, 1, ModItems.RAW_TUNGSTEN, 3);
+        timeWarp(provider, ModItemTags.TUNGSTEN_BLOCK, 1, ModItems.RAW_TUNGSTEN, 3);
         timeWarp(provider, ModItemTags.STORAGE_BLOCKS_LEAD, 1, ModItems.RAW_LEAD, 3);
         timeWarp(provider, ModItemTags.STORAGE_BLOCKS_SILVER, 1, ModItems.RAW_SILVER, 3);
 

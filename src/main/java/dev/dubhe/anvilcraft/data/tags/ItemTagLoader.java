@@ -130,6 +130,7 @@ public class ItemTagLoader {
             .addTag(ModItemTags.ANVIL_HAMMER.location());
         provider.rawBuilder(ModItemTags.FIRE_STARTER)
             .addElement(ItemTagLoader.findId(Items.TORCH))
+            .addElement(ItemTagLoader.findId(Items.COPPER_TORCH))
             .addElement(ItemTagLoader.findId(Items.SOUL_TORCH))
             .addElement(ItemTagLoader.findId(Items.CAMPFIRE))
             .addElement(ItemTagLoader.findId(Items.SOUL_CAMPFIRE))
@@ -150,6 +151,12 @@ public class ItemTagLoader {
             .addElement(ItemTagLoader.findId(ModBlocks.GLOWING_NETHERITE_BLOCK.asItem()))
             .addElement(ItemTagLoader.findId(ModBlocks.HEATED_NETHERITE_BLOCK.asItem()))
             .addElement(ItemTagLoader.findId(ModBlocks.INCANDESCENT_NETHERITE_BLOCK.asItem()));
+        provider.rawBuilder(ModItemTags.TUNGSTEN_BLOCK)
+            .addTag(ModItemTags.STORAGE_BLOCKS_TUNGSTEN.location())
+            .addElement(ItemTagLoader.findId(ModBlocks.REDHOT_TUNGSTEN_BLOCK.asItem()))
+            .addElement(ItemTagLoader.findId(ModBlocks.GLOWING_TUNGSTEN_BLOCK.asItem()))
+            .addElement(ItemTagLoader.findId(ModBlocks.HEATED_TUNGSTEN_BLOCK.asItem()))
+            .addElement(ItemTagLoader.findId(ModBlocks.INCANDESCENT_TUNGSTEN_BLOCK.asItem()));
         provider.rawBuilder(ModItemTags.EXPLOSION_PROOF)
             .addElement(ModBlocks.INFINITE_COLLECTOR.getId())
             .addElement(ItemTagLoader.findId(ModBlocks.EARTH_CORE_SHARD_BLOCK.asItem()))

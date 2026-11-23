@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.block.HasMobBlockItem;
 import dev.dubhe.anvilcraft.item.block.ResinBlockItem;
+import dev.dubhe.anvilcraft.util.CauldronIgnition;
 import dev.dubhe.anvilcraft.util.EntityUtil;
 import dev.dubhe.anvilcraft.util.PlayerUtil;
 import net.minecraft.core.BlockPos;
@@ -26,6 +27,7 @@ import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.monster.zombie.ZombieVillager;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.DispensibleContainerItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -180,6 +182,34 @@ public class ModDispenserBehavior {
             }
         });
         DispenserBlock.registerBehavior(Items.GLASS_BOTTLE, ModDispenserBehavior.EMPTY_FLUID_CONTAINER);
+
+        // 打火石与烈焰弹：点燃前方的原油容器，失败回退原版
+        ModDispenserBehavior.wrapCauldronIgnition(Items.FLINT_AND_STEEL);
+        ModDispenserBehavior.wrapCauldronIgnition(Items.FIRE_CHARGE);
+    }
+
+    /**
+     * 对点燃物品包装一个原油容器优先的发射行为：点燃成功才损坏打火石或消耗烈焰弹。
+     */
+    private static void wrapCauldronIgnition(Item item) {
+        DispenseItemBehavior original = DispenserBlock.DISPENSER_REGISTRY.getOrDefault(item, DEFAULT_BEHAVIOUR);
+        DispenseItemBehavior consumeIgniter = new DefaultDispenseItemBehavior() {
+            @Override
+            protected ItemStack execute(BlockSource source, ItemStack stack) {
+                if (stack.is(Items.FIRE_CHARGE)) {
+                    stack.shrink(1);
+                } else {
+                    stack.hurtAndBreak(1, source.level(), null, ignored -> {});
+                }
+                return stack;
+            }
+        };
+        DispenserBlock.registerBehavior(item, (source, stack) -> {
+            BlockPos pos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
+            return CauldronIgnition.dispenseIgnite(source.level(), pos)
+                ? consumeIgniter.dispense(source, stack)
+                : original.dispense(source, stack);
+        });
     }
 
     private static ItemStack mengerSponge(BlockSource source, ItemStack stack) {
