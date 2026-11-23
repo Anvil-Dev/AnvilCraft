@@ -4,13 +4,16 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.EntityThroughPortalEvent;
 import dev.dubhe.anvilcraft.api.portal.PortalType;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.PortalConversionRecipe;
 import dev.dubhe.anvilcraft.util.CompatUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -42,7 +45,12 @@ public class PortalEventListener {
         if (recipeOp.isPresent()) result = recipeOp.get().value().getResult().getResult(level);
         if (result == null) result = CompatUtil.PORTAL_DEFAULT_CONVERSION.get(type.getPortal());
         if (result == null) return;
-        entity.blockState = result.getKey();
+        BlockState converted = result.getKey();
+        if (type.getPortal() == Blocks.END_PORTAL && entity.blockState.is(BlockTags.ANVIL)
+            && (converted.is(ModBlocks.END_DUST.get()) || converted.is(ModBlocks.SPECTRAL_ANVIL.get()))) {
+            entity.anvilcraft$disablePortalImpactDamage();
+        }
+        entity.blockState = converted;
         CompoundTag nbt = result.getValue();
         entity.blockData = nbt == null ? null : nbt.copy();
     }
