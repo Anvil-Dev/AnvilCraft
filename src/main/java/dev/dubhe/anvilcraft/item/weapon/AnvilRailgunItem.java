@@ -3,8 +3,10 @@ package dev.dubhe.anvilcraft.item.weapon;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.entity.RailgunAnvilEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.network.WeaponChargeProgressPacket;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -14,17 +16,23 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
+
+import java.util.List;
 
 public class AnvilRailgunItem extends EnergyWeaponItem {
 
@@ -43,8 +51,46 @@ public class AnvilRailgunItem extends EnergyWeaponItem {
     }
 
     @Override
+    public void inventoryTick(ItemStack stack, ServerLevel level, Entity entity, @Nullable EquipmentSlot slot) {
+        super.inventoryTick(stack, level, entity, slot);
+        if (entity instanceof Player player) {
+            AnvilRailgunItem.returnMagazine(player, stack);
+        }
+    }
+
+    private static void returnMagazine(Player player, ItemStack weapon) {
+        if (!weapon.has(ModComponents.RAILGUN_AMMO) && !weapon.has(DataComponents.CHARGED_PROJECTILES)
+            && !weapon.has(ModComponents.RAILGUN_INFINITE_AMMO_MASK)) {
+            return;
+        }
+        ChargedProjectiles magazine = weapon.remove(ModComponents.RAILGUN_AMMO);
+        ChargedProjectiles legacy = weapon.remove(DataComponents.CHARGED_PROJECTILES);
+        Integer infiniteAmmoMask = weapon.remove(ModComponents.RAILGUN_INFINITE_AMMO_MASK);
+        // 旧弹匣无来源标记时，原有射击逻辑将所有弹药视为不可回收。
+        if (infiniteAmmoMask == null) {
+            return;
+        }
+        if (magazine == null || magazine.isEmpty()) {
+            magazine = legacy;
+        }
+        if (magazine == null) {
+            return;
+        }
+        List<ItemStack> ammo = magazine.itemCopies();
+        for (int slot = 0; slot < Math.min(ammo.size(), Integer.SIZE); slot++) {
+            ItemStack round = ammo.get(slot);
+            if ((infiniteAmmoMask & (1 << slot)) == 0 && !round.has(DataComponents.INTANGIBLE_PROJECTILE)) {
+                player.getInventory().placeItemBackInInventory(round);
+            }
+        }
+    }
+
+    @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack weapon = player.getItemInHand(hand);
+        if (!level.isClientSide()) {
+            AnvilRailgunItem.returnMagazine(player, weapon);
+        }
         if (!this.canStartUsing(player, weapon, this.minimumEnergy())) return InteractionResult.FAIL;
         if (AnvilRailgunItem.findAmmo(player).isEmpty()) return InteractionResult.FAIL;
         player.startUsingItem(hand);

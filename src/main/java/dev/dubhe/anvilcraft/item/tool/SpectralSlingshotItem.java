@@ -18,6 +18,8 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -114,6 +116,33 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem implements IItem
         stack.set(ModComponents.CAN_TAKE_OUT_AMMO, new CanTakeOutAmmo(can));
     }
 
+    @Override
+    public void inventoryTick(ItemStack stack, ServerLevel level, Entity entity, @Nullable EquipmentSlot slot) {
+        super.inventoryTick(stack, level, entity, slot);
+        if (entity instanceof Player player) {
+            SpectralSlingshotItem.returnLoadedWeapon(player, stack);
+        }
+    }
+
+    private static void returnLoadedWeapon(Player player, ItemStack weapon) {
+        if (!SpectralSlingshotItem.canTakeOutAmmo(weapon)) {
+            return;
+        }
+        ChargedProjectiles loaded = weapon.get(DataComponents.CHARGED_PROJECTILES);
+        if (loaded == null || loaded.isEmpty()) {
+            return;
+        }
+        List<ItemStack> projectiles = loaded.itemCopies();
+        // 旧装填只从副手扣除第一发，其余发数来自多重射击。
+        ItemStack original = projectiles.getFirst();
+        weapon.set(ModComponents.CAN_TAKE_OUT_AMMO, CanTakeOutAmmo.CANT);
+        if (!original.has(DataComponents.INTANGIBLE_PROJECTILE)) {
+            weapon.set(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.ofNonEmpty(
+                projectiles.stream().map(SpectralSlingshotItem::useSpectralAmmo).toList()));
+            player.getInventory().placeItemBackInInventory(original);
+        }
+    }
+
     public boolean unableToUse(ItemStack stack) {
         return false;
     }
@@ -123,6 +152,9 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem implements IItem
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack inHand = player.getItemInHand(hand);
+        if (!level.isClientSide()) {
+            SpectralSlingshotItem.returnLoadedWeapon(player, inHand);
+        }
         ChargedProjectiles projectiles = inHand.get(DataComponents.CHARGED_PROJECTILES);
         if (projectiles != null && !projectiles.isEmpty()) {
             if (!player.isCrouching() && !player.getCooldowns().isOnCooldown(inHand)) {
@@ -136,9 +168,6 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem implements IItem
                 int cdBuff = Math.min(quickCharge * 5, 20); // 5tick = 0.25s, 20tick = 1s
                 player.getCooldowns().addCooldown(inHand, 40 - cdBuff);
             } else {
-                // 这个部分是卸载和替换弹药
-                ItemStack stack = projectiles.itemCopies().getFirst();
-                if (SpectralSlingshotItem.canTakeOutAmmo(inHand)) player.addItem(stack); // 如果能拿出来，那么拿出来
                 inHand.set(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.EMPTY);
                 // 装载走正常的使用流程
                 if (!SpectralSlingshotItem.getSlingShotAmmo(player).isEmpty()) {
@@ -196,8 +225,7 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem implements IItem
             List<ItemStack> list = SpectralSlingshotItem.spectralDraw(crossbowStack, ammo, shooter);
             if (!list.isEmpty()) {
                 crossbowStack.set(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.ofNonEmpty(list));
-                // 装进去的是虚影，拿不出来
-                crossbowStack.set(ModComponents.CAN_TAKE_OUT_AMMO, new CanTakeOutAmmo(false));
+                crossbowStack.set(ModComponents.CAN_TAKE_OUT_AMMO, CanTakeOutAmmo.CANT);
                 return true;
             } else {
                 return false;
@@ -292,6 +320,9 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem implements IItem
         @Nullable LivingEntity target
     ) {
         if (level instanceof ServerLevel serverlevel) {
+            if (shooter instanceof Player player) {
+                SpectralSlingshotItem.returnLoadedWeapon(player, weapon);
+            }
             ChargedProjectiles chargedProjectiles = weapon.get(DataComponents.CHARGED_PROJECTILES);
             if (chargedProjectiles != null && !chargedProjectiles.isEmpty()) {
                 // 注意这里写的是isCrit = false，不会暴击

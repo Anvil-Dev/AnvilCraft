@@ -46,9 +46,9 @@ If the first item in the recipe has enchantments, the finished product inherits 
 
 <recipe id="anvilcraft:energy_weapon_make/anvil_railgun"/>
 
-1. Requires anvils as ammunition. Place *anvils* (excluding <ref item="anvilcraft:spectral_anvil"/>) in your offhand, long-press right-click then release to load up to 16 anvils as ammo
-2. To fire, hold right-click to charge for up to 5s. Can fire at any time during charging (requires at least 10% of the charge time)
-3. The longer the charge, the faster the speed, the higher the damage, and the more power consumed
+1. Keep an anvil in your other hand or inventory. The railgun uses the anvil in your hand first, then checks your inventory in slot order. <ref item="anvilcraft:spectral_anvil"/> cannot be fired.
+2. Hold right-click to charge and release to fire once. A shot requires at least 20% charge. Full charge takes 25 ticks (1.25 seconds) by default. Each level of Quick Charge multiplies the previous charge time by 0.9, rounded to the nearest tick after all levels are applied.
+3. A longer charge increases speed, damage and power consumption. Infinity preserves ordinary anvils. Other anvil variants are consumed on firing.
 
 <info>
 Against large mobs, it may deal both impact damage and anvil landing damage consecutively
@@ -81,7 +81,9 @@ Against large mobs, it may deal both impact damage and anvil landing damage cons
 
 ## Attack Mode
 
-- Continuously attacks a single mob, dealing increasing damage. Stopping or switching targets resets the damage
+- Keep the beam on the same mob to charge it. The beam grows stronger every 5 seconds, reaching full charge after 20 seconds.
+- While holding right-click, aiming away costs one charge level every second. The upper bar and the beam show the remaining charge. If you aim at ore during this time, a second bar shows mining progress.
+- Aim at the same mob again to resume from its remaining charge. A different target starts at the first level. Releasing right-click clears the charge.
 - Loot from killed mobs is deposited directly into your inventory
 
 | Duration   | DPS | Power Consumption | Extra Effects            |
