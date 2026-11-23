@@ -834,7 +834,7 @@ public class ItemTooltipManager {
         );
         ItemTooltipManager.NORMAL.put(
             ModItems.ANVIL_RAILGUN.get(),
-            "Hold right-click to consumes power to charge up and launch a high-speed anvil"
+            "Hold right-click to charge, then release to launch an anvil from your inventory"
         );
         ItemTooltipManager.NORMAL.put(
             ModItems.SPECTRAL_WEAPON_LAUNCHER.get(),
@@ -977,10 +977,10 @@ public class ItemTooltipManager {
         );
         ItemTooltipManager.SHIFT.put(
             ModItems.ANVIL_RAILGUN.get(), """
-                                          Hold right-click to load an anvil from your offhand into the railgun
-                                          Then hold right-click again to charge up, and release to launch the anvil
+                                          Uses the anvils in your inventory as ammo, no loading needed
+                                          Hold right-click to charge, then release to launch an anvil
                                           Longer charging results in higher speed and damage
-                                          Enchanting the Anvil Railgun can boost damage, reduce charge time, or change its firing behavior"""
+                                          Quick Charge shortens the charge time by 10% per level"""
         );
         ItemTooltipManager.SHIFT.put(
             ModItems.SPECTRAL_WEAPON_LAUNCHER.get(), """

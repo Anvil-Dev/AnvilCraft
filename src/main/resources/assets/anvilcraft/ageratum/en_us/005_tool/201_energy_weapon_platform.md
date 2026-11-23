@@ -46,9 +46,9 @@ If the first item in the recipe has enchantments, the finished product inherits 
 
 <recipe id="anvilcraft:energy_weapon_make/anvil_railgun"/>
 
-1. Requires anvils as ammunition. Place *anvils* (excluding <ref item="anvilcraft:spectral_anvil"/>) in your offhand, long-press right-click then release to load up to 16 anvils as ammo
-2. To fire, hold right-click to charge for up to 5s. Can fire at any time during charging (requires at least 10% of the charge time)
-3. The longer the charge, the faster the speed, the higher the damage, and the more power consumed
+1. Carry an anvil in your inventory or hold one in your free hand. The Railgun uses the held anvil first and accepts every anvil except the <ref item="anvilcraft:spectral_anvil"/>.
+2. Hold right-click to charge and release to fire one anvil. A shot needs at least 20% charge. Full charge takes 25 ticks (1.25 seconds). Each level of Quick Charge reduces the previous level's charge time by 10%.
+3. A longer charge increases projectile speed, damage and power consumption.
 
 <info>
 Against large mobs, it may deal both impact damage and anvil landing damage consecutively
@@ -81,7 +81,9 @@ Against large mobs, it may deal both impact damage and anvil landing damage cons
 
 ## Attack Mode
 
-- Continuously attacks a single mob, dealing increasing damage. Stopping or switching targets resets the damage
+- Keep the beam on the same mob to build charge. The attack bar fills over 20 seconds, and each quarter of the bar raises the damage and the beam strength by one level.
+- While you hold right-click and aim away, the attack bar loses one quarter every second. Aim at the same mob to resume from the remaining charge. Switching to another mob or releasing right-click resets the charge.
+- When you mine ore with attack charge remaining, the upper bar shows attack charge and the lower bar shows mining progress.
 - Loot from killed mobs is deposited directly into your inventory
 
 | Duration   | DPS | Power Consumption | Extra Effects            |

@@ -12,28 +12,36 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 
-public record WeaponChargeProgressPacket(int item, int hand, int elapsed, int duration, boolean repeating, float tickRate)
-    implements IClientboundPacket {
+public record WeaponChargeProgressPacket(
+    int item, int hand, int elapsed, int duration, boolean repeating, float tickRate, float retainedCharge
+) implements IClientboundPacket {
     public static final Type<WeaponChargeProgressPacket> TYPE = IPacket.type(AnvilCraft.of("weapon_charge_progress"));
-    public static final StreamCodec<ByteBuf, WeaponChargeProgressPacket> STREAM_CODEC = StreamCodec.composite(
+    public static final StreamCodec<ByteBuf, WeaponChargeProgressPacket> STREAM_CODEC = NeoForgeStreamCodecs.composite(
         ByteBufCodecs.VAR_INT, WeaponChargeProgressPacket::item,
         ByteBufCodecs.VAR_INT, WeaponChargeProgressPacket::hand,
         ByteBufCodecs.VAR_INT, WeaponChargeProgressPacket::elapsed,
         ByteBufCodecs.VAR_INT, WeaponChargeProgressPacket::duration,
         ByteBufCodecs.BOOL, WeaponChargeProgressPacket::repeating,
         ByteBufCodecs.FLOAT, WeaponChargeProgressPacket::tickRate,
+        ByteBufCodecs.FLOAT, WeaponChargeProgressPacket::retainedCharge,
         WeaponChargeProgressPacket::new
     );
 
     public static void sync(Player player, ItemStack stack, int elapsed, int duration, boolean repeating) {
+        sync(player, stack, elapsed, duration, repeating, 0);
+    }
+
+    public static void sync(Player player, ItemStack stack, int elapsed, int duration, boolean repeating, float retainedCharge) {
         if (!(player instanceof ServerPlayer serverPlayer) || player.getUseItem() != stack) return;
         float tickRate = player.level().tickRateManager().tickrate();
         int interval = Math.max(1, Math.round(tickRate / 20));
         boolean boundary = elapsed == 1 || repeating && duration > 0 && elapsed % duration == 0;
         if (!boundary && player.tickCount % interval != 0) return;
         PacketDistributor.sendToPlayer(serverPlayer, new WeaponChargeProgressPacket(
-            BuiltInRegistries.ITEM.getId(stack.getItem()), player.getUsedItemHand().ordinal(), elapsed, duration, repeating, tickRate));
+            BuiltInRegistries.ITEM.getId(stack.getItem()), player.getUsedItemHand().ordinal(),
+            elapsed, duration, repeating, tickRate, retainedCharge));
     }
 
     public float progressAfter(double milliseconds) {
