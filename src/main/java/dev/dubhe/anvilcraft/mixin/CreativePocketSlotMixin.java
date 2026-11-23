@@ -23,8 +23,8 @@ abstract class CreativePocketSlotMixin extends Slot {
     private boolean anvilcraft$positionPockets(boolean active) {
         if (this.target instanceof PocketSlot pocket) {
             pocket.updatePosition();
-            ((SlotPositionAccessor) this).anvilcraft$setX(pocket.x < 0 ? pocket.x : pocket.x + 19);
-            ((SlotPositionAccessor) this).anvilcraft$setY(pocket.y - 30);
+            this.x = pocket.x < 0 ? pocket.x : pocket.x + 19;
+            this.y = pocket.y - 30;
         }
         return active;
     }

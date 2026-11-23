@@ -32,7 +32,6 @@
     "BlueprintTicksMixin",
     "accessor.BlueprintBlockEventsAccessor",
     "ResonatorItemTypeMixin",
-    "SlotPositionAccessor",
     "InventoryMenuMixin",
     "ArmorSlotMixin",
     "CreativePocketPacketMixin",

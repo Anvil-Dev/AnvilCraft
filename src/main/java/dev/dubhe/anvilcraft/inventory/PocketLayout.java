@@ -141,12 +141,13 @@ public record PocketLayout(
             return new Spec(BASE_COLUMNS, BASE_ROWS, Shape.RECTANGLE, 0, 0);
         }
         int extra = slots - BASE_SLOTS;
-        int columns = BASE_COLUMNS + (extra + BASE_ROWS - 1) / BASE_ROWS;
-        int shortRows = extra - (columns - BASE_COLUMNS) * BASE_ROWS;
-        if (shortRows == BASE_ROWS) {
+        int fullColumns = extra / BASE_ROWS;
+        int remainingRows = extra % BASE_ROWS;
+        int columns = BASE_COLUMNS + fullColumns + (remainingRows > 0 ? 1 : 0);
+        if (remainingRows == 0) {
             return new Spec(columns, BASE_ROWS, Shape.RECTANGLE, 0, 0);
         }
-        return new Spec(columns, BASE_ROWS, Shape.SIDE_STEP, shortRows, 0);
+        return new Spec(columns, BASE_ROWS, Shape.SIDE_STEP, remainingRows, 0);
     }
 
     private static Cell cell(int index) {
