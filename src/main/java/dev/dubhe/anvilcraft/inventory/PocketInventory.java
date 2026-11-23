@@ -24,7 +24,7 @@ public class PocketInventory extends SimpleContainer {
      * 菜单槽位上限，而不是默认容量：菜单槽位索引不能在运行期增删，因此按上限一次性注册，
      * 实际可用格数由 {@code pocket_count} 属性决定。快照与同步也按此上限收发。
      */
-    public static final int MAX_SIZE = 40;
+    public static final int MAX_SIZE = 32;
     public static final Codec<PocketInventory> CODEC = ItemStack.OPTIONAL_CODEC.listOf()
         .xmap(PocketInventory::new, PocketInventory::snapshot);
     public static final StreamCodec<RegistryFriendlyByteBuf, PocketInventory> STREAM_CODEC = ItemStack.OPTIONAL_STREAM_CODEC
