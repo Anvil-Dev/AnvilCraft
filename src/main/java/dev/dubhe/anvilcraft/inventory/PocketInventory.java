@@ -10,8 +10,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -53,8 +55,49 @@ public class PocketInventory extends SimpleContainer {
         return Mth.clamp(Mth.floor(instance.getValue()), 0, PocketInventory.MAX_SIZE);
     }
 
-    public static boolean isLocked(Player player) {
-        return PocketInventory.capacity(player) > 0 && !PocketInventory.get(player).isEmpty();
+    /**
+     * 判断更换护腿是否会丢失已占用的口袋。只有「本次换装后仍会超出的物品」才算丢失，
+     * 因此从不提供容量的护腿换成另一件普通护腿不会被拦截。
+     *
+     * @param target 将要穿上的护腿，取出时为 {@link ItemStack#EMPTY}
+     */
+    public static boolean blocksLeggingsChange(Player player, ItemStack target) {
+        int next = Mth.clamp(PocketInventory.capacityWithoutLeggings(player) + PocketInventory.pocketCountOf(target), 0, MAX_SIZE);
+        PocketInventory pockets = PocketInventory.get(player);
+        for (int slot = next; slot < MAX_SIZE; slot++) {
+            if (!pockets.getItem(slot).isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 读取一件物品在护腿槽能提供的口袋数量。走属性修饰符而不是读物品字段，
+     * 使第三方提供的护腿同样被正确识别。
+     */
+    public static int pocketCountOf(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return 0;
+        }
+        return Mth.clamp(Mth.floor(PocketInventory.pocketCountOf(stack.getAttributeModifiers())), 0, MAX_SIZE);
+    }
+
+    private static double pocketCountOf(ItemAttributeModifiers modifiers) {
+        double total = 0;
+        for (ItemAttributeModifiers.Entry entry : modifiers.modifiers()) {
+            if (entry.attribute().value() != ModAttributes.POCKET_COUNT.get()
+                || !entry.slot().test(EquipmentSlot.LEGS)
+                || entry.modifier().operation() != AttributeModifier.Operation.ADD_VALUE) {
+                continue;
+            }
+            total += entry.modifier().amount();
+        }
+        return total;
+    }
+
+    private static int capacityWithoutLeggings(Player player) {
+        return PocketInventory.capacity(player) - PocketInventory.pocketCountOf(player.getItemBySlot(EquipmentSlot.LEGS));
     }
 
     public static List<ItemStack> items(Player player) {

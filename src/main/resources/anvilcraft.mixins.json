@@ -209,6 +209,7 @@
     "EnergyWeaponProjectionMixin",
     "EquipmentLayerTextureMixin",
     "PocketRecipeScreenAccessor",
+    "PocketRecipeBookAccessor",
     "PocketEffectScreenMixin",
     "JeiPocketEffectAreaMixin",
     "PocketInventoryScreenMixin",

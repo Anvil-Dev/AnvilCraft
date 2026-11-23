@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.integration.jei.util;
 
 import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.inventory.PocketLayout;
+import dev.dubhe.anvilcraft.inventory.PocketSlot;
 import mezz.jei.api.gui.handlers.IGuiContainerHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -26,15 +27,17 @@ public class PocketGuiHandler<T extends AbstractContainerScreen<?>> implements I
         if (capacity == 0) {
             return List.of();
         }
-        int posY = creative ? 40 : 70;
-        PocketLayout leftLayout = PocketLayout.of(capacity, 0, imageWidth, posY);
-        PocketLayout rightLayout = PocketLayout.of(capacity, 1, imageWidth, posY);
-        List<Rect2i> areas = new ArrayList<>(2);
-        if (!leftLayout.isEmpty()) {
-            areas.add(new Rect2i(left + leftLayout.x(), top + leftLayout.y(), leftLayout.width(), leftLayout.height()));
-        }
-        if (!rightLayout.isEmpty()) {
-            areas.add(new Rect2i(left + rightLayout.x(), top + rightLayout.y(), rightLayout.width(), rightLayout.height()));
+        int posY = creative ? PocketLayout.CREATIVE_PANEL_TOP : PocketSlot.SCREEN_PANEL_TOP;
+        List<Rect2i> areas = new ArrayList<>(4);
+        for (int side = 0; side < 2; side++) {
+            for (PocketLayout.Segment segment : PocketLayout.of(capacity, side, imageWidth, posY).segments()) {
+                areas.add(new Rect2i(
+                    left + segment.x(),
+                    top + segment.y(),
+                    segment.width(),
+                    segment.height()
+                ));
+            }
         }
         return areas;
     }

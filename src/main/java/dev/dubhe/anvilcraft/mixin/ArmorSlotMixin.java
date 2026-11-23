@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -19,9 +20,15 @@ abstract class ArmorSlotMixin {
     @Final
     private EquipmentSlot slot;
 
-    @ModifyReturnValue(method = {"mayPickup", "mayPlace"}, at = @At("RETURN"))
-    private boolean anvilcraft$lockFilledPockets(boolean original) {
+    @ModifyReturnValue(method = "mayPickup", at = @At("RETURN"))
+    private boolean anvilcraft$lockFilledPocketsWhenRemoving(boolean original) {
         return original && !(this.slot == EquipmentSlot.LEGS && this.owner instanceof Player player
-            && PocketInventory.isLocked(player));
+            && PocketInventory.blocksLeggingsChange(player, ItemStack.EMPTY));
+    }
+
+    @ModifyReturnValue(method = "mayPlace", at = @At("RETURN"))
+    private boolean anvilcraft$lockFilledPocketsWhenReplacing(boolean original, ItemStack stack) {
+        return original && !(this.slot == EquipmentSlot.LEGS && this.owner instanceof Player player
+            && PocketInventory.blocksLeggingsChange(player, stack));
     }
 }

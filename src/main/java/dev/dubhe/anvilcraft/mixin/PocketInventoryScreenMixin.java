@@ -67,8 +67,18 @@ abstract class PocketInventoryScreenMixin extends AbstractContainerScreen<Invent
         if (capacity == 0) {
             return;
         }
-        PocketRenderer.render(graphics, PocketLayout.of(capacity, 0, this.imageWidth, 70), this.leftPos, this.topPos);
-        PocketRenderer.render(graphics, PocketLayout.of(capacity, 1, this.imageWidth, 70), this.leftPos, this.topPos);
+        PocketRenderer.render(
+            graphics,
+            PocketLayout.of(capacity, 0, this.imageWidth, PocketSlot.SCREEN_PANEL_TOP),
+            this.leftPos,
+            this.topPos
+        );
+        PocketRenderer.render(
+            graphics,
+            PocketLayout.of(capacity, 1, this.imageWidth, PocketSlot.SCREEN_PANEL_TOP),
+            this.leftPos,
+            this.topPos
+        );
     }
 
 }

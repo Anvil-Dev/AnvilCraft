@@ -35,13 +35,6 @@ import java.util.function.Supplier;
 
 @Mixin(CreativeModeInventoryScreen.class)
 abstract class CreativePocketScreenMixin extends AbstractContainerScreen<CreativeModeInventoryScreen.ItemPickerMenu> {
-    /**
-     * 创造界面与普通物品栏的差异：GUI 宽度 195 对 176、面板顶位 40 对 70。
-     * 槽位坐标由 {@code PocketSlot} 按普通物品栏基准算出，这里统一平移，
-     * {@code CreativePocketSlotMixin} 复用同一对常量。
-     */
-    public static final int POCKET_X_SHIFT = 195 - PocketSlot.SCREEN_IMAGE_WIDTH;
-    public static final int POCKET_Y_SHIFT = 40 - PocketSlot.SCREEN_PANEL_TOP;
     @Shadow
     private static CreativeModeTab selectedTab;
     @Shadow
@@ -81,8 +74,8 @@ abstract class CreativePocketScreenMixin extends AbstractContainerScreen<Creativ
     private void anvilcraft$positionPockets(Args args) {
         if (args.get(0) instanceof PocketSlot pocket) {
             pocket.updatePosition();
-            args.set(2, pocket.x < 0 ? pocket.x : pocket.x + POCKET_X_SHIFT);
-            args.set(3, pocket.y + POCKET_Y_SHIFT);
+            args.set(2, pocket.x < 0 ? pocket.x : pocket.x + PocketLayout.CREATIVE_X_SHIFT);
+            args.set(3, pocket.y + PocketLayout.CREATIVE_Y_SHIFT);
         }
     }
 
@@ -105,8 +98,19 @@ abstract class CreativePocketScreenMixin extends AbstractContainerScreen<Creativ
     @Inject(method = "slotClicked", at = @At("HEAD"), cancellable = true)
     private void anvilcraft$lockLeggings(@Nullable Slot slot, int slotId, int button, ContainerInput type, CallbackInfo ci) {
         int targetSlot = slot == null ? slotId : slot.getContainerSlot();
-        if (selectedTab.getType() == CreativeModeTab.Type.INVENTORY && targetSlot == 7 && this.minecraft != null
-            && this.minecraft.player != null && PocketInventory.isLocked(this.minecraft.player)) ci.cancel();
+        if (selectedTab.getType() != CreativeModeTab.Type.INVENTORY || targetSlot != 7
+            || this.minecraft == null || this.minecraft.player == null) {
+            return;
+        }
+        // 创造模式直接置物，不经过 ArmorSlot#mayPlace，这里按光标物品判断本次换装是否丢失口袋。
+        ItemStack target = switch (type) {
+            case PICKUP, QUICK_MOVE -> ItemStack.EMPTY;
+            case SWAP -> this.minecraft.player.getInventory().getItem(button);
+            default -> this.menu.getCarried();
+        };
+        if (PocketInventory.blocksLeggingsChange(this.minecraft.player, target)) {
+            ci.cancel();
+        }
     }
 
     @Inject(method = "extractBackground", at = @At("TAIL"))
@@ -118,8 +122,18 @@ abstract class CreativePocketScreenMixin extends AbstractContainerScreen<Creativ
         if (capacity == 0) {
             return;
         }
-        PocketRenderer.render(graphics, PocketLayout.of(capacity, 0, this.imageWidth, 40), this.leftPos, this.topPos);
-        PocketRenderer.render(graphics, PocketLayout.of(capacity, 1, this.imageWidth, 40), this.leftPos, this.topPos);
+        PocketRenderer.render(
+            graphics,
+            PocketLayout.of(capacity, 0, this.imageWidth, PocketLayout.CREATIVE_PANEL_TOP),
+            this.leftPos,
+            this.topPos
+        );
+        PocketRenderer.render(
+            graphics,
+            PocketLayout.of(capacity, 1, this.imageWidth, PocketLayout.CREATIVE_PANEL_TOP),
+            this.leftPos,
+            this.topPos
+        );
     }
 
     @ModifyReturnValue(method = "hasClickedOutside", at = @At("RETURN"))
@@ -134,8 +148,13 @@ abstract class CreativePocketScreenMixin extends AbstractContainerScreen<Creativ
         }
         double localX = mouseX - left;
         double localY = mouseY - top;
-        if (PocketLayout.of(capacity, 0, this.imageWidth, 40).contains(localX, localY)
-            || PocketLayout.of(capacity, 1, this.imageWidth, 40).contains(localX, localY)) {
+        if (PocketLayout.containsPocket(
+            capacity,
+            this.imageWidth,
+            PocketLayout.CREATIVE_PANEL_TOP,
+            localX,
+            localY
+        )) {
             return false;
         }
         return original;
