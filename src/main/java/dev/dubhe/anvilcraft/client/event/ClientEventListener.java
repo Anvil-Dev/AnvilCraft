@@ -56,6 +56,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class ClientEventListener {
     private static boolean wasAttackDown = false;
+    private static boolean attackReleased;
 
     @SubscribeEvent
     public static void on(SubmitCustomGeometryEvent event) {
@@ -106,6 +107,11 @@ public class ClientEventListener {
 
     @SubscribeEvent
     public static void onKeyPress(InputEvent.Key event) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (event.getAction() == InputConstants.RELEASE
+            && minecraft.options.keyAttack.getKey().equals(InputConstants.getKey(event.getKeyEvent()))) {
+            ClientEventListener.onAttackReleased(minecraft);
+        }
         if (ModKeyMappings.shouldIgnoreForDebugChord(event.getAction())) return;
         if (event.getAction() == InputConstants.PRESS
             && ModKeyMappings.TOGGLE_GOGGLE.get().isActiveAndMatches(InputConstants.getKey(event.getKeyEvent()))) {
@@ -185,17 +191,26 @@ public class ClientEventListener {
             || minecraft.options.keyAttack.getKey().getValue() != event.getButton()) {
             return;
         }
-        ClientEventListener.sendDragonRodStopDevourPacket(minecraft);
-        ClientEventListener.wasAttackDown = false;
+        ClientEventListener.onAttackReleased(minecraft);
     }
 
     private static void handleAttackKeyRelease() {
         Minecraft minecraft = Minecraft.getInstance();
         boolean attackDown = minecraft.options.keyAttack.isDown();
-        if (ClientEventListener.wasAttackDown && !attackDown) {
+        // 原版可能在松键之后才处理排队的单击，需在本刻处理完输入后再结束预热。
+        boolean releasedWithRod = ClientEventListener.attackReleased && minecraft.player != null
+            && minecraft.player.isHolding(ModItems.TRANSCENDENCE_DRAGON_ROD.asItem());
+        if (!attackDown && (ClientEventListener.wasAttackDown || releasedWithRod)) {
             ClientEventListener.sendDragonRodStopDevourPacket(minecraft);
         }
         ClientEventListener.wasAttackDown = attackDown;
+        ClientEventListener.attackReleased = false;
+    }
+
+    private static void onAttackReleased(Minecraft minecraft) {
+        ClientEventListener.sendDragonRodStopDevourPacket(minecraft);
+        ClientEventListener.wasAttackDown = false;
+        ClientEventListener.attackReleased = true;
     }
 
     private static void sendDragonRodStopDevourPacket(Minecraft minecraft) {
