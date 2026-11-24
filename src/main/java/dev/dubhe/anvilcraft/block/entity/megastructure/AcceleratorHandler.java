@@ -820,7 +820,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
             this.ticksRemaining = 0;
             this.ticksTotal = 0;
             this.dysonDestroyed = false;
-        this.infinitePowerAwarded = false;
+            this.infinitePowerAwarded = false;
             this.dysonDestroyTick = -1L;
             this.pausedSinceGameTime = -1L;
             this.quenchedScheduled = false;
