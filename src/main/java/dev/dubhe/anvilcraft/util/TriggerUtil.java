@@ -1,14 +1,14 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarTerminal;
 import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.nbt.CompoundTag;
-import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
@@ -215,6 +215,7 @@ public class TriggerUtil {
     }
 
     private static final int HIGH_VOLTAGE_TOWER_COMPONENTS = 16;
+
     public static void playerWearAnvilHammer(Level level, BlockPos pos) {
         if (!level.isClientSide()) {
             for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 5)) {
@@ -294,6 +295,7 @@ public class TriggerUtil {
             }
         }
     }
+
     public static void inexhaustible(Level level, BlockPos pos) {
         if (!level.isClientSide()) {
             for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 32)) {
@@ -301,6 +303,7 @@ public class TriggerUtil {
             }
         }
     }
+
     public static void railgunSelfKill(ServerPlayer player) {
         ModCriterionTriggers.RAILGUN_SELF_KILL.get().trigger(player);
     }
@@ -341,6 +344,7 @@ public class TriggerUtil {
 
     private static final String CELESTIAL_VISITED_TAG = "anvilcraft:celestial_visited";
     /** 演化终局伴随超新星爆发，玩家多在爆炸范围外观察，因此搜索半径对齐震屏半径。 */
+
     public static void celestialEvolution(Level level, BlockPos pos, int massAnvils, StellarTerminal.Kind terminal) {
         if (!level.isClientSide()) {
             for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 32)) {

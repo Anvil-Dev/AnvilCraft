@@ -9,8 +9,8 @@ import dev.dubhe.anvilcraft.advancements.criterion.AnvilLootingTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilOnGroundTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.BigStomachTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.BlockComparatorTurnOverTrigger;
-import dev.dubhe.anvilcraft.advancements.criterion.CelestialVisitTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.CelestialEvolutionTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.CelestialVisitTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.CompressedBiscuitTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.ConnectFluidContainersTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.ConvertBeaconTrigger;
@@ -27,9 +27,9 @@ import dev.dubhe.anvilcraft.advancements.criterion.HeatCollectorTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.HighVoltageTowerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.HyperdimensionStationUpgradeTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.InWorldRecipeTrigger;
-import dev.dubhe.anvilcraft.advancements.criterion.LargeCauldronCocktailTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.InexhaustibleTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.InfinitePowerTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.LargeCauldronCocktailTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MagnetLiftingAnvilTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MilkTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MineralFountainCreateTrigger;
@@ -45,16 +45,16 @@ import dev.dubhe.anvilcraft.advancements.criterion.PlanetDetonationTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlanetaryCollapseDeathTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerKilledEntityByAnvilHammerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerWearAnvilHammerTrigger;
-import dev.dubhe.anvilcraft.advancements.criterion.RailgunSelfKillTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.RailgunCollisionTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.RailgunSelfKillTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.ShulkerContainerUpgradeTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.StarContactDeathTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.UseItemTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.VoidCollectorTrigger;
-import dev.dubhe.anvilcraft.advancements.criterion.WormholeDeliveryTrigger;
-import dev.dubhe.anvilcraft.advancements.criterion.VoidWalkerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.VoidEnergyCollectorWorkingTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.VoidWalkerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.WearBreathingHelmetTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.WormholeDeliveryTrigger;
 import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.core.registries.Registries;
 import net.neoforged.bus.api.IEventBus;
@@ -275,6 +275,7 @@ public class ModCriterionTriggers {
         REGISTER.register("high_voltage_tower", HighVoltageTowerTrigger::new);
     public static final DeferredHolder<CriterionTrigger<?>, InfinitePowerTrigger> INFINITE_POWER =
         REGISTER.register("infinite_power", InfinitePowerTrigger::new);
+
     public static void register(IEventBus eventBus) {
         ModCriterionTriggers.REGISTER.register(eventBus);
     }
