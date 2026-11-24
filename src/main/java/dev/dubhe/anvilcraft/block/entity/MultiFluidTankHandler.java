@@ -143,6 +143,56 @@ final class MultiFluidTankHandler implements IFluidHandler, INBTSerializable<Com
         return stack.isEmpty() || !stack.is(ModFluidTags.CANNOT_BE_INFINITE);
     }
 
+    IFluidHandler accessLayer(FluidStack fluid) {
+        return fluid.isEmpty() ? this : new SelectedLayer(fluid);
+    }
+
+    private final class SelectedLayer implements IFluidHandler {
+        private final FluidStack selected;
+
+        private SelectedLayer(FluidStack selected) {
+            this.selected = selected;
+        }
+
+        @Override
+        public int getTanks() {
+            return 1;
+        }
+
+        @Override
+        public FluidStack getFluidInTank(int tank) {
+            int index = MultiFluidTankHandler.this.findFluid(this.selected);
+            return tank == 0 && index >= 0 ? MultiFluidTankHandler.this.getFluidInTank(index) : FluidStack.EMPTY;
+        }
+
+        @Override
+        public int getTankCapacity(int tank) {
+            int index = MultiFluidTankHandler.this.findFluid(this.selected);
+            return tank == 0 && index >= 0 ? MultiFluidTankHandler.this.getTankCapacity(index) : 0;
+        }
+
+        @Override
+        public boolean isFluidValid(int tank, FluidStack stack) {
+            return tank == 0 && !stack.isEmpty();
+        }
+
+        @Override
+        public int fill(FluidStack resource, FluidAction action) {
+            return MultiFluidTankHandler.this.fill(resource, action);
+        }
+
+        @Override
+        public FluidStack drain(FluidStack resource, FluidAction action) {
+            return FluidStack.isSameFluidSameComponents(resource, this.selected)
+                ? MultiFluidTankHandler.this.drain(resource, action) : FluidStack.EMPTY;
+        }
+
+        @Override
+        public FluidStack drain(int amount, FluidAction action) {
+            return MultiFluidTankHandler.this.drain(this.selected.copyWithAmount(amount), action);
+        }
+    }
+
     @Override
     public FluidStack drain(FluidStack resource, FluidAction action) {
         if (resource.isEmpty() || resource.getAmount() <= 0) return FluidStack.EMPTY;

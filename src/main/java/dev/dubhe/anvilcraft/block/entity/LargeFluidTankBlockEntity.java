@@ -281,17 +281,28 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
     }
 
     public boolean onPlayerUse(Player player, InteractionHand hand) {
+        return this.onPlayerUse(player, hand, this.getFluidHandler());
+    }
+
+    public boolean onPlayerUse(Player player, InteractionHand hand, double hitY) {
+        LargeFluidTankBlockEntity main = this.getMainPart();
+        List<TankFluidLayer> layers = TankFluidLayer.of(main.tank.copyFluids(), main.tank.isEnhanced());
+        FluidStack fluid = TankFluidLayer.atHeight(layers, hitY - main.getBlockPos().getY());
+        return main.onPlayerUse(player, hand, main.tank.accessLayer(fluid));
+    }
+
+    private boolean onPlayerUse(Player player, InteractionHand hand, IFluidHandler handler) {
         if (this.level != null
             && FluidHandlerWrapper.tryInteractWithBottle(
                 player,
                 hand,
-                this.getFluidHandler(),
+                handler,
                 this.level,
                 this.getBlockPos()
             )) {
             return true;
         }
-        return FluidUtil.interactWithFluidHandler(player, hand, this.getFluidHandler());
+        return FluidUtil.interactWithFluidHandler(player, hand, handler);
     }
 
     public int getRedstoneSignal() {

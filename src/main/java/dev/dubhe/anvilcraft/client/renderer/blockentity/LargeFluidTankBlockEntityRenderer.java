@@ -17,17 +17,13 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.TankFluidLayer;
 import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.fluids.FluidStack;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 
 public class LargeFluidTankBlockEntityRenderer implements BlockEntityRenderer<LargeFluidTankBlockEntity> {
     public LargeFluidTankBlockEntityRenderer(BlockEntityRendererProvider.Context ignore) {
@@ -48,55 +44,18 @@ public class LargeFluidTankBlockEntityRenderer implements BlockEntityRenderer<La
         int overlay
     ) {
         if (!tank.isMainPart()) return;
-        List<FluidStack> fluids = tank.getStoredFluids().stream()
-            .filter(fluid -> !fluid.isEmpty())
-            .sorted(Comparator
-                .comparingInt(FluidStack::getAmount)
-                .reversed()
-                .thenComparing(fluid -> BuiltInRegistries.FLUID.getKey(fluid.getFluid()).toString()))
-            .toList();
-        if (fluids.isEmpty()) return;
-
-        long totalAmount = fluids.stream().mapToLong(FluidStack::getAmount).sum();
-        long renderAmount = tank.isEnhanced()
-            ? Math.max(totalAmount, LargeFluidTankBlockEntity.infinityThreshold())
-            : LargeFluidTankBlockEntity.BASE_CAPACITY;
-
-        List<FluidStack> liquids = new ArrayList<>();
-        List<FluidStack> gases = new ArrayList<>();
-        for (FluidStack fluid : fluids) {
-            if (fluid.getFluidType().isLighterThanAir()) {
-                gases.add(fluid);
+        for (TankFluidLayer layer : TankFluidLayer.of(tank.getStoredFluids(), tank.isEnhanced())) {
+            if (layer.fluid().getFluidType().isLighterThanAir()) {
+                drawGasInTank(
+                    ms, vertexConsumers, light, layer.fluid(), layer.bottom(), layer.top(), layer.opacity(), layer.renderBottom()
+                );
             } else {
-                liquids.add(fluid);
+                drawFluidInTank(ms, vertexConsumers, light, layer.fluid(), layer.bottom(), layer.top());
             }
-        }
-
-        double liquidTop = 0;
-        for (FluidStack liquid : liquids) {
-            if (liquidTop >= 1) break;
-            double layerTop = Math.min(1, liquidTop + (double) liquid.getAmount() / renderAmount);
-            drawFluidInTank(ms, vertexConsumers, light, liquid, liquidTop, layerTop);
-            liquidTop = layerTop;
-        }
-
-        // 气体浮于液面之上：均分液面到罐顶的空隙，各自独立成带，储量仍由透明度表达。
-        if (gases.isEmpty() || liquidTop >= 1) return;
-        double bandHeight = (1 - liquidTop) / gases.size();
-        double bandBottom = liquidTop;
-        for (int i = 0; i < gases.size(); i++) {
-            FluidStack gas = gases.get(i);
-            double bandTop = Math.min(1, bandBottom + bandHeight);
-            drawGasInTank(
-                ms, vertexConsumers, light, gas, bandBottom, bandTop,
-                (float) ((double) gas.getAmount() / renderAmount),
-                i == 0 && liquidTop <= 0
-            );
-            bandBottom = bandTop;
         }
     }
 
-    private static final float TANK_W = 4 / 16f + 0.001f; // avoiding Z-fighting
+    private static final float TANK_W = TankFluidLayer.INSET;
 
     public static void drawFluidInTank(
         PoseStack ps,

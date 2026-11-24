@@ -139,7 +139,7 @@ public class LargeFluidTankBlock
             BlockPos mainPartPos = getMainPartPos(pos, state);
             BlockEntity blockEntity = level.getBlockEntity(mainPartPos);
             if (blockEntity instanceof LargeFluidTankBlockEntity tank) {
-                if (tank.onPlayerUse(player, hand)) {
+                if (tank.onPlayerUse(player, hand, hitResult.getLocation().y)) {
                     return ItemInteractionResult.sidedSuccess(level.isClientSide());
                 }
             }
