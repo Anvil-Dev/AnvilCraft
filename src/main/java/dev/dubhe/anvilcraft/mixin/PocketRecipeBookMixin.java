@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import dev.dubhe.anvilcraft.inventory.PocketInventory;
+import dev.dubhe.anvilcraft.inventory.PocketLayout;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.world.inventory.InventoryMenu;
@@ -27,9 +28,11 @@ abstract class PocketRecipeBookMixin {
 
     @ModifyConstant(method = "initVisuals", constant = @Constant(intValue = 86))
     private int anvilcraft$makeRoomForPockets(int original) {
-        if (!(this.menu instanceof InventoryMenu) || this.minecraft.player == null) return original;
+        if (!(this.menu instanceof InventoryMenu) || this.minecraft.player == null) {
+            return original;
+        }
         int capacity = PocketInventory.capacity(this.minecraft.player);
-        return original + (capacity == 0 ? 0 : capacity == 12 ? 46 : 28);
+        return original + (capacity == 0 ? 0 : PocketLayout.of(capacity, 0, 0, 0).width() + 2);
     }
 
     @ModifyReturnValue(method = "isOffsetNextToMainGUI", at = @At("RETURN"))

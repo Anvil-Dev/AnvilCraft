@@ -34,6 +34,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public final class EquipmentClientEvents {
     private static final WheelScreenController POCKET_WHEEL = new WheelScreenController();
+    private static final int POCKET_WHEEL_MAX_SLOTS_PER_PAGE = 12;
     private static boolean pocketHeld;
     private static boolean chargedMessage;
 
@@ -108,8 +109,10 @@ public final class EquipmentClientEvents {
             || !ModKeyMappings.POCKETS.get().isActiveAndMatches(key)) return;
         int capacity = PocketInventory.capacity(client.player);
         if (capacity == 0) return;
+        // 扇区图标按原始 16×16 绘制，每页超过 12 个会互相重叠，超出部分依靠轮盘翻页。
+        int slotsPerPage = Math.min(capacity, POCKET_WHEEL_MAX_SLOTS_PER_PAGE);
         WheelMenuBuilder builder = WheelMenuBuilder.create().selectionEffect(WheelSelectionEffect.ANNULAR_SECTOR)
-            .slotsPerPage(capacity);
+            .slotsPerPage(slotsPerPage);
         for (int slot = 0; slot < capacity; slot++) {
             int selected = slot;
             ItemStack stack = PocketInventory.get(client.player).getItem(slot).copy();

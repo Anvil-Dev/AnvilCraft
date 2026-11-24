@@ -15,7 +15,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 abstract class EquipmentPocketLockMixin {
     @Inject(method = "swapWithEquipmentSlot", at = @At("HEAD"), cancellable = true)
     private void anvilcraft$lockFilledPockets(ItemStack stack, Player player, CallbackInfoReturnable<InteractionResult> callback) {
-        if (((Equippable) (Object) this).slot() == EquipmentSlot.LEGS && PocketInventory.isLocked(player)) {
+        if (((Equippable) (Object) this).slot() == EquipmentSlot.LEGS
+            && PocketInventory.blocksLeggingsChange(player, stack)) {
             callback.setReturnValue(InteractionResult.FAIL);
         }
     }

@@ -31,6 +31,7 @@ public class OtherLang {
         provider.add("tooltip.anvilcraft.spectral_slingshot.current", "Current spectral weapon: %s");
 
         provider.add("entity.anvilcraft.villager.jeweler", "Jeweler");
+        provider.add("attribute.name.anvilcraft.pocket_count", "Pocket Count");
 
         provider.add("pack.anvilcraft.builtin_pack", "AnvilCraft Builtin ResourcePack");
         provider.add("pack.anvilcraft.builtin_data_pack", "AnvilCraft Builtin DataPack");
