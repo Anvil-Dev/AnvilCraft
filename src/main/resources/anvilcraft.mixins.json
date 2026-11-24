@@ -139,6 +139,7 @@
     "CreativePocketScreenMixin",
     "CreativePocketSlotMixin",
     "EquipmentFluidOverlayMixin",
+    "HumanoidArmorLayerMixin",
     "GameRendererMixin",
     "GuiGraphicsMixin",
     "HumanoidModelMixin",
