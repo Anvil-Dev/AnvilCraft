@@ -6,7 +6,7 @@
       "item": "anvilcraft:royal_steel_ingot"
     },
     "B": {
-      "item": "anvilcraft:topaz_block"
+      "tag": "c:storage_blocks/topaz"
     },
     "C": {
       "item": "anvilcraft:transmission_pole"

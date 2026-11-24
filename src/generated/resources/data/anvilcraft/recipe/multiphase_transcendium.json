@@ -6,7 +6,7 @@
       "item": "anvilcraft:multiphase_matter"
     },
     "N": {
-      "item": "anvilcraft:transcendium_nugget"
+      "tag": "c:nuggets/transcendium"
     }
   },
   "pattern": [

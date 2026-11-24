@@ -4,7 +4,7 @@
   "cookingtime": 200,
   "experience": 0.0,
   "ingredient": {
-    "item": "anvilcraft:rotten_flesh_block"
+    "tag": "c:storage_blocks/rotten_flesh"
   },
   "result": {
     "count": 1,

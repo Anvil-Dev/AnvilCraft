@@ -3,7 +3,7 @@
   "ingredients": [
     {
       "count": 2,
-      "items": "minecraft:copper_ingot"
+      "items": "#c:ingots/copper"
     },
     {
       "items": "#c:ingots/tin"

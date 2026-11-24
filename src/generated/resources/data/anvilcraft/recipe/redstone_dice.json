@@ -6,10 +6,10 @@
       "tag": "minecraft:wooden_buttons"
     },
     "G": {
-      "item": "minecraft:glass"
+      "tag": "c:glass_blocks/colorless"
     },
     "I": {
-      "item": "minecraft:iron_ingot"
+      "tag": "c:ingots/iron"
     }
   },
   "pattern": [

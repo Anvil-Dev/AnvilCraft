@@ -5,7 +5,7 @@
   "experience": 1.0,
   "group": "anvilcraft:silver_ingot",
   "ingredient": {
-    "item": "anvilcraft:deepslate_silver_ore"
+    "tag": "c:ores/silver"
   },
   "result": {
     "count": 1,

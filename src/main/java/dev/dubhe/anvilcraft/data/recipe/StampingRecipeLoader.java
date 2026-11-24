@@ -12,12 +12,13 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
+import net.neoforged.neoforge.common.Tags;
 
 public class StampingRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
-        stamping(provider, Items.IRON_INGOT, Items.HEAVY_WEIGHTED_PRESSURE_PLATE);
-        stamping(provider, Items.GOLD_INGOT, Items.LIGHT_WEIGHTED_PRESSURE_PLATE);
-        stamping(provider, Items.COPPER_INGOT, ModBlocks.COPPER_PRESSURE_PLATE);
+        stamping(provider, Tags.Items.INGOTS_IRON, Items.HEAVY_WEIGHTED_PRESSURE_PLATE);
+        stamping(provider, Tags.Items.INGOTS_GOLD, Items.LIGHT_WEIGHTED_PRESSURE_PLATE);
+        stamping(provider, Tags.Items.INGOTS_COPPER, ModBlocks.COPPER_PRESSURE_PLATE);
         stamping(provider, ModItemTags.TUNGSTEN_INGOTS, ModBlocks.TUNGSTEN_PRESSURE_PLATE);
         stamping(provider, ModItemTags.TITANIUM_INGOTS, ModBlocks.TITANIUM_PRESSURE_PLATE);
         stamping(provider, ModItemTags.ZINC_INGOTS, ModBlocks.ZINC_PRESSURE_PLATE);
@@ -41,7 +42,7 @@ public class StampingRecipeLoader {
             .result(Items.BUCKET)
             .save(provider, AnvilCraft.of("stamping/cream"));
         StampingRecipe.builder()
-            .requires(Items.SUGAR_CANE)
+            .requires(Tags.Items.CROPS_SUGAR_CANE)
             .result(Items.PAPER)
             .result(Items.SUGAR)
             .save(provider, AnvilCraft.of("stamping/paper_from_sugar_cane"));
@@ -64,7 +65,7 @@ public class StampingRecipeLoader {
             .result(ModItems.RUBY.get(), 0.25f)
             .save(provider, AnvilCraft.of("stamping/geode_gems"));
         StampingRecipe.builder()
-            .requires(Items.COCOA_BEANS)
+            .requires(Tags.Items.CROPS_COCOA_BEAN)
             .result(ModFoodItems.COCOA_BUTTER)
             .result(ModFoodItems.COCOA_POWDER)
             .save(provider);

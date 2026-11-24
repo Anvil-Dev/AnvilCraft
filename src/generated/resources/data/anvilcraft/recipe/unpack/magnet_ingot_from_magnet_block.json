@@ -2,7 +2,7 @@
   "type": "anvilcraft:unpack",
   "ingredients": [
     {
-      "items": "anvilcraft:magnet_block"
+      "items": "#c:storage_blocks/magnet"
     }
   ],
   "results": [

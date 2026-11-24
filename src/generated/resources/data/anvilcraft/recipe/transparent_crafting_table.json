@@ -3,10 +3,10 @@
   "category": "misc",
   "key": {
     "A": {
-      "item": "minecraft:amethyst_shard"
+      "tag": "c:gems/amethyst"
     },
     "B": {
-      "item": "minecraft:crafting_table"
+      "tag": "c:player_workstations/crafting_tables"
     }
   },
   "pattern": [

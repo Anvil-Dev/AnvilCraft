@@ -1,7 +1,7 @@
 {
   "type": "anvilcraft:block_crush",
   "input": {
-    "blocks": "minecraft:end_stone"
+    "blocks": "#c:end_stones"
   },
   "result": {
     "block": "anvilcraft:end_dust"

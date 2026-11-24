@@ -11,7 +11,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:topaz"
+            "items": "#c:gems/topaz"
           }
         ]
       },

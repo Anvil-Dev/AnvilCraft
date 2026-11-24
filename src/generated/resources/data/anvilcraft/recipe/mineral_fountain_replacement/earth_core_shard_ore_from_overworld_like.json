@@ -3,7 +3,7 @@
   "chance": 0.01,
   "dimension": "anvilcraft:overworld_like",
   "from_block": {
-    "blocks": "minecraft:deepslate"
+    "blocks": "#c:ore_bearing_ground/deepslate"
   },
   "to_block": {
     "block": "anvilcraft:earth_core_shard_ore"

@@ -6,7 +6,7 @@
       "item": "anvilcraft:magnetoelectric_core"
     },
     "B": {
-      "item": "minecraft:copper_block"
+      "tag": "c:storage_blocks/copper"
     }
   },
   "pattern": [

@@ -5,7 +5,7 @@
   },
   "consume": false,
   "hitBlock": {
-    "blocks": "anvilcraft:plutonium_block"
+    "blocks": "#c:storage_blocks/plutonium"
   },
   "output_items": [],
   "speed": 256,

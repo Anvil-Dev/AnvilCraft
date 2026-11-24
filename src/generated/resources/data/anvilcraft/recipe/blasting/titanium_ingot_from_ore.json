@@ -5,7 +5,7 @@
   "experience": 1.0,
   "group": "anvilcraft:titanium_ingot",
   "ingredient": {
-    "item": "anvilcraft:deepslate_titanium_ore"
+    "tag": "c:ores/titanium"
   },
   "result": {
     "count": 1,

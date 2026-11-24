@@ -20,7 +20,7 @@
     ],
     "mapping": {
       "0": {
-        "blocks": "minecraft:coal_block"
+        "blocks": "#c:storage_blocks/coal"
       }
     }
   },

@@ -5,7 +5,7 @@
   "experience": 1.0,
   "group": "anvilcraft:lead_ingot",
   "ingredient": {
-    "item": "anvilcraft:deepslate_lead_ore"
+    "tag": "c:ores/lead"
   },
   "result": {
     "count": 1,

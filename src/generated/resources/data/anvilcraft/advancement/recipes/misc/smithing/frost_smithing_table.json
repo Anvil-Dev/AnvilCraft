@@ -11,7 +11,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:frost_metal_block"
+            "items": "#c:storage_blocks/frost_metal"
           }
         ]
       },

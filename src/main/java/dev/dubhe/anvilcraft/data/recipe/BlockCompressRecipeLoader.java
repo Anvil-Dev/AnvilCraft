@@ -8,14 +8,23 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.neoforged.neoforge.common.Tags;
 
 public class BlockCompressRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
         blockCompress(provider, Blocks.STONE, Blocks.STONE, Blocks.DEEPSLATE);
         blockCompress(provider, Blocks.ICE, Blocks.ICE, Blocks.PACKED_ICE);
         blockCompress(provider, Blocks.PACKED_ICE, Blocks.PACKED_ICE, Blocks.BLUE_ICE);
-        blockCompress(provider, Blocks.NETHER_WART_BLOCK, Blocks.NETHERRACK, Blocks.CRIMSON_NYLIUM);
-        blockCompress(provider, Blocks.WARPED_WART_BLOCK, Blocks.NETHERRACK, Blocks.WARPED_NYLIUM);
+        BlockCompressRecipe.builder()
+            .input(Blocks.NETHER_WART_BLOCK)
+            .input(Tags.Blocks.NETHERRACKS)
+            .result(Blocks.CRIMSON_NYLIUM)
+            .save(provider);
+        BlockCompressRecipe.builder()
+            .input(Blocks.WARPED_WART_BLOCK)
+            .input(Tags.Blocks.NETHERRACKS)
+            .result(Blocks.WARPED_NYLIUM)
+            .save(provider);
         blockCompress(provider, Blocks.BASALT, Blocks.BASALT, Blocks.BLACKSTONE);
         blockCompress(provider, ModBlocks.CREAM_BLOCK.get(), ModBlocks.CAKE_BASE_BLOCK.get(), ModBlocks.CAKE_BLOCK.get());
         blockCompress(provider, ModBlocks.BERRY_CREAM_BLOCK.get(), ModBlocks.CAKE_BASE_BLOCK.get(), ModBlocks.BERRY_CAKE_BLOCK.get());

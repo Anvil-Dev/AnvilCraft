@@ -5,7 +5,7 @@
   "experience": 1.0,
   "group": "anvilcraft:zinc_ingot",
   "ingredient": {
-    "item": "anvilcraft:deepslate_zinc_ore"
+    "tag": "c:ores/zinc"
   },
   "result": {
     "count": 1,

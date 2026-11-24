@@ -23,7 +23,7 @@
         "blocks": "minecraft:sponge"
       },
       "A": {
-        "blocks": "anvilcraft:void_matter_block"
+        "blocks": "#c:storage_blocks/void_matter"
       }
     }
   },

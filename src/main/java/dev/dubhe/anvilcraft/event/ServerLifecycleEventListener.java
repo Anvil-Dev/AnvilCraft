@@ -13,9 +13,11 @@ import dev.dubhe.anvilcraft.api.world.load.RandomChuckTickLoadManager;
 import dev.dubhe.anvilcraft.block.RedstoneWireNetworkManager;
 import dev.dubhe.anvilcraft.init.ModHammerInits;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
+import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessStepManager;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
@@ -25,9 +27,17 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 public class ServerLifecycleEventListener {
     @SubscribeEvent
     public static void onServerStarted(ServerStartedEvent event) {
+        ProceduralProcessStepManager.initialize(event.getServer().getRecipeManager().getRecipes());
         ModHammerInits.init();
         HammerManager.register();
         LevelLoadManager.notifyServerStarted();
+    }
+
+    @SubscribeEvent
+    public static void onDatapackSync(OnDatapackSyncEvent event) {
+        if (event.getPlayer() == null) {
+            ProceduralProcessStepManager.initialize(event.getPlayerList().getServer().getRecipeManager().getRecipes());
+        }
     }
 
     @SubscribeEvent

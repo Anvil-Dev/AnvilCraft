@@ -8,7 +8,7 @@
   ],
   "ingredients": [
     {
-      "items": "anvilcraft:plutonium_block"
+      "items": "#c:storage_blocks/plutonium"
     }
   ],
   "results": [

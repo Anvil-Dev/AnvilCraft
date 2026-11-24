@@ -5,7 +5,7 @@
   "experience": 1.0,
   "group": "anvilcraft:tin_ingot",
   "ingredient": {
-    "item": "anvilcraft:deepslate_tin_ore"
+    "tag": "c:ores/tin"
   },
   "result": {
     "count": 1,

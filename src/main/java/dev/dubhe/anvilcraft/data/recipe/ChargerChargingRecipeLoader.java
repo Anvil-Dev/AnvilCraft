@@ -6,18 +6,18 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
-import net.minecraft.world.item.Items;
+import net.neoforged.neoforge.common.Tags;
 
 public class ChargerChargingRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
         ChargerChargingRecipe.builder()
-            .requires(Items.IRON_INGOT)
+            .requires(Tags.Items.INGOTS_IRON)
             .result(ModItems.MAGNET_INGOT)
             .power(-4)
             .time(20 * 2)
             .save(provider);
         ChargerChargingRecipe.builder()
-            .requires(Items.IRON_BLOCK)
+            .requires(Tags.Items.STORAGE_BLOCKS_IRON)
             .result(ModBlocks.MAGNET_BLOCK)
             .power(-20)
             .time(20 * 4)

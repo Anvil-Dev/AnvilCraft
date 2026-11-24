@@ -25,16 +25,17 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.Tags;
 
 public class TimeWarpRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
-        timeWarp(provider, ModItems.RESIN, 1, ModItems.AMBER, 1);
-        timeWarp(provider, Items.OBSIDIAN, 1, Items.CRYING_OBSIDIAN, 1);
+        timeWarp(provider, ModItemTags.RESIN, 1, ModItems.AMBER, 1);
+        timeWarp(provider, Tags.Items.OBSIDIANS_NORMAL, 1, Items.CRYING_OBSIDIAN, 1);
         timeWarp(provider, Items.CHARCOAL, 1, Items.COAL, 2);
-        timeWarp(provider, Items.SAND, 1, Items.DIRT, 1);
-        timeWarp(provider, Items.IRON_BLOCK, 1, Items.RAW_IRON, 3);
-        timeWarp(provider, Items.GOLD_BLOCK, 1, Items.RAW_GOLD, 3);
-        timeWarp(provider, Items.COPPER_BLOCK, 1, Items.RAW_COPPER, 3);
+        timeWarp(provider, Tags.Items.SANDS_COLORLESS, 1, Items.DIRT, 1);
+        timeWarp(provider, Tags.Items.STORAGE_BLOCKS_IRON, 1, Items.RAW_IRON, 3);
+        timeWarp(provider, Tags.Items.STORAGE_BLOCKS_GOLD, 1, Items.RAW_GOLD, 3);
+        timeWarp(provider, Tags.Items.STORAGE_BLOCKS_COPPER, 1, Items.RAW_COPPER, 3);
         timeWarp(provider, ModItems.GEODE, 1, Items.BUDDING_AMETHYST, 1);
         timeWarp(provider, ModBlocks.CINERITE, 1, Items.TUFF, 1);
         timeWarp(provider, ModBlocks.NETHER_DUST, 1, Items.SOUL_SOIL, 1);
@@ -48,7 +49,7 @@ public class TimeWarpRecipeLoader {
         timeWarp(provider, ModItemTags.STORAGE_BLOCKS_SILVER, 1, ModItems.RAW_SILVER, 3);
 
         TimeWarpRecipe.builder()
-            .requires(Items.EMERALD)
+            .requires(Tags.Items.GEMS_EMERALD)
             .result(Items.EMERALD_BLOCK)
             .consume(1000)
             .fluid(ModBlocks.MELT_GEM_CAULDRON.get())
@@ -131,7 +132,7 @@ public class TimeWarpRecipeLoader {
 
         TimeWarpRecipe.builder()
             .requires(ModItemTags.NETHERITE_BLOCK, 9)
-            .requires(ModBlocks.EARTH_CORE_SHARD_BLOCK, 1)
+            .requires(ModItemTags.STORAGE_BLOCKS_EARTH_CORE_SHARD, 1)
             .result(ModBlocks.EMBER_METAL_BLOCK, 4)
             .fluid(ModBlocks.OIL_CAULDRON.get())
             .ignite()
@@ -140,7 +141,7 @@ public class TimeWarpRecipeLoader {
 
         TimeWarpRecipe.builder()
             .requires(ModItemTags.NETHERITE_BLOCK, 9)
-            .requires(ModBlocks.EARTH_CORE_SHARD_BLOCK, 2)
+            .requires(ModItemTags.STORAGE_BLOCKS_EARTH_CORE_SHARD, 2)
             .result(ModBlocks.EMBER_METAL_BLOCK, 5)
             .fluid(ModBlocks.OIL_CAULDRON.get())
             .ignite()
@@ -149,7 +150,7 @@ public class TimeWarpRecipeLoader {
 
         TimeWarpRecipe.builder()
             .requires(ModItemTags.NETHERITE_BLOCK, 9)
-            .requires(ModBlocks.EARTH_CORE_SHARD_BLOCK, 3)
+            .requires(ModItemTags.STORAGE_BLOCKS_EARTH_CORE_SHARD, 3)
             .result(ModBlocks.EMBER_METAL_BLOCK, 6)
             .fluid(ModBlocks.OIL_CAULDRON.get())
             .ignite()
@@ -180,32 +181,32 @@ public class TimeWarpRecipeLoader {
 
         TimeWarpRecipe.builder()
             .requires(ModItems.ROYAL_STEEL_INGOT, 3)
-            .requires(Items.IRON_INGOT)
+            .requires(Tags.Items.INGOTS_IRON)
             .fluid(Blocks.POWDER_SNOW_CAULDRON)
             .consume(1000)
             .result(ModItems.FROST_METAL_INGOT, 2)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT), AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Tags.Items.INGOTS_IRON))
             .save(provider, "frost_metal_ingot_1");
 
         TimeWarpRecipe.builder()
             .requires(ModItems.ROYAL_STEEL_INGOT, 3)
-            .requires(ModItems.SILVER_INGOT)
+            .requires(ModItemTags.SILVER_INGOTS)
             .fluid(Blocks.POWDER_SNOW_CAULDRON)
             .consume(1000)
             .result(ModItems.FROST_METAL_INGOT, 4)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT), AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.SILVER_INGOT), AnvilCraftDatagen.has(ModItems.SILVER_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.SILVER_INGOT), AnvilCraftDatagen.has(ModItemTags.SILVER_INGOTS))
             .save(provider, "frost_metal_ingot_2");
 
         TimeWarpRecipe.builder()
             .requires(ModItems.ROYAL_STEEL_INGOT, 3)
-            .requires(ModItems.TITANIUM_INGOT)
+            .requires(ModItemTags.TITANIUM_INGOTS)
             .fluid(Blocks.POWDER_SNOW_CAULDRON)
             .consume(1000)
             .result(ModItems.FROST_METAL_INGOT, 8)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT), AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TITANIUM_INGOT), AnvilCraftDatagen.has(ModItems.TITANIUM_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TITANIUM_INGOT), AnvilCraftDatagen.has(ModItemTags.TITANIUM_INGOTS))
             .save(provider, "frost_metal_ingot_3");
 
         TimeWarpRecipe.builder()
@@ -218,32 +219,32 @@ public class TimeWarpRecipeLoader {
 
         TimeWarpRecipe.builder()
             .requires(ModBlocks.ROYAL_STEEL_BLOCK, 3)
-            .requires(Items.IRON_BLOCK)
+            .requires(Tags.Items.STORAGE_BLOCKS_IRON)
             .fluid(Blocks.POWDER_SNOW_CAULDRON)
             .consume(9000)
             .result(ModBlocks.FROST_METAL_BLOCK, 2)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK), AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_BLOCK), AnvilCraftDatagen.has(Items.IRON_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_BLOCK), AnvilCraftDatagen.has(Tags.Items.STORAGE_BLOCKS_IRON))
             .save(provider, "frost_metal_block_1");
 
         TimeWarpRecipe.builder()
             .requires(ModBlocks.ROYAL_STEEL_BLOCK, 3)
-            .requires(ModBlocks.SILVER_BLOCK)
+            .requires(ModItemTags.STORAGE_BLOCKS_SILVER)
             .fluid(Blocks.POWDER_SNOW_CAULDRON)
             .consume(9000)
             .result(ModBlocks.FROST_METAL_BLOCK, 4)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK), AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.SILVER_BLOCK), AnvilCraftDatagen.has(ModBlocks.SILVER_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.SILVER_BLOCK), AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_SILVER))
             .save(provider, "frost_metal_block_2");
 
         TimeWarpRecipe.builder()
             .requires(ModBlocks.ROYAL_STEEL_BLOCK, 3)
-            .requires(ModBlocks.TITANIUM_BLOCK)
+            .requires(ModItemTags.STORAGE_BLOCKS_TITANIUM)
             .fluid(Blocks.POWDER_SNOW_CAULDRON)
             .consume(9000)
             .result(ModBlocks.FROST_METAL_BLOCK, 8)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK), AnvilCraftDatagen.has(ModBlocks.ROYAL_STEEL_BLOCK))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.TITANIUM_BLOCK), AnvilCraftDatagen.has(ModBlocks.TITANIUM_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.TITANIUM_BLOCK), AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_TITANIUM))
             .save(provider, "frost_metal_block_3");
 
         TimeWarpRecipe.builder()
@@ -253,13 +254,13 @@ public class TimeWarpRecipeLoader {
 
         TimeWarpRecipe.builder()
             .heat(HeatTier.INCANDESCENT, 6000)
-            .requires(ModBlocks.URANIUM_BLOCK)
+            .requires(ModItemTags.STORAGE_BLOCKS_URANIUM)
             .result(ModItems.RAW_URANIUM, 2)
             .result(ModItems.RAW_LEAD.asStack())
             .save(provider, AnvilCraft.of("time_warp/raw_uranium_from_uranium_block"));
         TimeWarpRecipe.builder()
             .heat(HeatTier.INCANDESCENT, 12000)
-            .requires(ModBlocks.PLUTONIUM_BLOCK)
+            .requires(ModItemTags.STORAGE_BLOCKS_PLUTONIUM)
             .result(ModItems.RAW_URANIUM, 3)
             .result(ModItems.RAW_LEAD.asStack())
             .save(provider, AnvilCraft.of("time_warp/raw_uranium_from_plutonium_block"));

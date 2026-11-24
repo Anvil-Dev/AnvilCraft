@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.integration.jei.category.anvil.liquid;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
@@ -98,11 +99,11 @@ public class NeutronIrradiationCategory extends AbstractLiquidCategory<NeutronIr
         );
         recipes.add(new RecipeHolder<>(
             AnvilCraft.of("neutron_irradiation/uranium_block_explosion"),
-            NeutronIrradiationRecipe.builder().requires(ModBlocks.URANIUM_BLOCK).buildRecipe()
+            NeutronIrradiationRecipe.builder().requires(ModItemTags.STORAGE_BLOCKS_URANIUM).buildRecipe()
         ));
         recipes.add(new RecipeHolder<>(
             AnvilCraft.of("neutron_irradiation/plutonium_block_explosion"),
-            NeutronIrradiationRecipe.builder().requires(ModBlocks.PLUTONIUM_BLOCK).buildRecipe()
+            NeutronIrradiationRecipe.builder().requires(ModItemTags.STORAGE_BLOCKS_PLUTONIUM).buildRecipe()
         ));
         registration.addRecipes(
             AnvilCraftJeiPlugin.NEUTRON_IRRADIATION,

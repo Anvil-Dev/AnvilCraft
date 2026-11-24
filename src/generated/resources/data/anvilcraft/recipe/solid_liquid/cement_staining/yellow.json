@@ -20,7 +20,7 @@
   ],
   "ingredients": [
     {
-      "items": "minecraft:yellow_dye"
+      "items": "#c:dyes/yellow"
     }
   ],
   "max_efficiency": 1,

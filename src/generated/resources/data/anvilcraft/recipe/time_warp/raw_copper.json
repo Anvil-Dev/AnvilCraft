@@ -2,7 +2,7 @@
   "type": "anvilcraft:time_warp",
   "ingredients": [
     {
-      "items": "minecraft:copper_block"
+      "items": "#c:storage_blocks/copper"
     }
   ],
   "results": [

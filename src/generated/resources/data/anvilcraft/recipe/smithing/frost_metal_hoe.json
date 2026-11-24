@@ -1,7 +1,7 @@
 {
   "type": "minecraft:smithing_transform",
   "addition": {
-    "item": "anvilcraft:frost_metal_ingot"
+    "tag": "c:ingots/frost_metal"
   },
   "base": {
     "tag": "anvilcraft:frost_metal_hoe_base"

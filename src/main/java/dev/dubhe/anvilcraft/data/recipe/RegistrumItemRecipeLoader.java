@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
@@ -69,10 +70,10 @@ public class RegistrumItemRecipeLoader {
             .pattern(" A ")
             .pattern("BCB")
             .pattern(" A ")
-            .define('A', Items.ENDER_PEARL)
-            .define('B', ModItems.MAGNET_INGOT)
-            .define('C', Items.REDSTONE)
-            .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModItems.MAGNET_INGOT))
+            .define('A', Tags.Items.ENDER_PEARLS)
+            .define('B', ModItemTags.MAGNET_INGOTS)
+            .define('C', Tags.Items.DUSTS_REDSTONE)
+            .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModItemTags.MAGNET_INGOTS))
             .save(provider);
     }
 
@@ -140,11 +141,11 @@ public class RegistrumItemRecipeLoader {
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE),
                 Ingredient.of(ModItemTags.FROST_METAL_PICKAXE_BASE),
-                Ingredient.of(ModItems.FROST_METAL_INGOT),
+                Ingredient.of(ModItemTags.FROST_METAL_INGOTS),
                 RecipeCategory.TOOLS,
                 ctx.get()
             )
-            .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.FROST_METAL_INGOT))
+            .unlocks("hasitem", AnvilCraftDatagen.has(ModItemTags.FROST_METAL_INGOTS))
             .save(provider, AnvilCraft.of("smithing/frost_metal_pickaxe"));
     }
 
@@ -152,11 +153,11 @@ public class RegistrumItemRecipeLoader {
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE),
                 Ingredient.of(ModItemTags.FROST_METAL_AXE_BASE),
-                Ingredient.of(ModItems.FROST_METAL_INGOT),
+                Ingredient.of(ModItemTags.FROST_METAL_INGOTS),
                 RecipeCategory.TOOLS,
                 ctx.get()
             )
-            .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.FROST_METAL_INGOT))
+            .unlocks("hasitem", AnvilCraftDatagen.has(ModItemTags.FROST_METAL_INGOTS))
             .save(provider, AnvilCraft.of("smithing/frost_metal_axe"));
     }
 
@@ -164,11 +165,11 @@ public class RegistrumItemRecipeLoader {
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE),
                 Ingredient.of(ModItemTags.FROST_METAL_SHOVEL_BASE),
-                Ingredient.of(ModItems.FROST_METAL_INGOT),
+                Ingredient.of(ModItemTags.FROST_METAL_INGOTS),
                 RecipeCategory.TOOLS,
                 ctx.get()
             )
-            .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.FROST_METAL_INGOT))
+            .unlocks("hasitem", AnvilCraftDatagen.has(ModItemTags.FROST_METAL_INGOTS))
             .save(provider, AnvilCraft.of("smithing/frost_metal_shovel"));
     }
 
@@ -176,11 +177,11 @@ public class RegistrumItemRecipeLoader {
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE),
                 Ingredient.of(ModItemTags.FROST_METAL_HOE_BASE),
-                Ingredient.of(ModItems.FROST_METAL_INGOT),
+                Ingredient.of(ModItemTags.FROST_METAL_INGOTS),
                 RecipeCategory.TOOLS,
                 ctx.get()
             )
-            .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.FROST_METAL_INGOT))
+            .unlocks("hasitem", AnvilCraftDatagen.has(ModItemTags.FROST_METAL_INGOTS))
             .save(provider, AnvilCraft.of("smithing/frost_metal_hoe"));
     }
 
@@ -188,11 +189,11 @@ public class RegistrumItemRecipeLoader {
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE),
                 Ingredient.of(ModItemTags.FROST_METAL_SWORD_BASE),
-                Ingredient.of(ModItems.FROST_METAL_INGOT),
+                Ingredient.of(ModItemTags.FROST_METAL_INGOTS),
                 RecipeCategory.TOOLS,
                 ctx.get()
             )
-            .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.FROST_METAL_INGOT))
+            .unlocks("hasitem", AnvilCraftDatagen.has(ModItemTags.FROST_METAL_INGOTS))
             .save(provider, AnvilCraft.of("smithing/frost_metal_sword"));
     }
 
@@ -263,10 +264,10 @@ public class RegistrumItemRecipeLoader {
             .pattern("C")
             .define('A', Items.ANVIL)
             .define('B', Items.LIGHTNING_ROD)
-            .define('C', Items.IRON_INGOT)
+            .define('C', Tags.Items.INGOTS_IRON)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.ANVIL), RegistrumRecipeProvider.has(Items.ANVIL))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.LIGHTNING_ROD), RegistrumRecipeProvider.has(Items.LIGHTNING_ROD))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), RegistrumRecipeProvider.has(Items.IRON_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), RegistrumRecipeProvider.has(Tags.Items.INGOTS_IRON))
             .save(provider);
     }
 
@@ -298,11 +299,11 @@ public class RegistrumItemRecipeLoader {
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE),
                 Ingredient.of(ModItems.ROYAL_ANVIL_HAMMER),
-                Ingredient.of(ModBlocks.FROST_METAL_BLOCK),
+                Ingredient.of(ModItemTags.STORAGE_BLOCKS_FROST_METAL),
                 RecipeCategory.TOOLS,
                 ctx.get()
             )
-            .unlocks("hasitem", AnvilCraftDatagen.has(ModBlocks.FROST_METAL_BLOCK))
+            .unlocks("hasitem", AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_FROST_METAL))
             .save(provider, AnvilCraft.of("smithing/frost_anvil_hammer"));
     }
 
@@ -364,10 +365,11 @@ public class RegistrumItemRecipeLoader {
         SmithingTransformRecipeBuilder.smithing(
             Ingredient.of(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE),
             Ingredient.of(ModItems.ROYAL_DRAGON_ROD),
-            Ingredient.of(ModBlocks.FROST_METAL_BLOCK),
+            Ingredient.of(ModItemTags.STORAGE_BLOCKS_FROST_METAL),
             RecipeCategory.TOOLS,
             ctx.get()
-        ).unlocks("hasitem", AnvilCraftDatagen.has(ModBlocks.FROST_METAL_BLOCK)).save(provider, ctx.getId().withPrefix("smithing/"));
+        ).unlocks("hasitem", AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_FROST_METAL))
+            .save(provider, ctx.getId().withPrefix("smithing/"));
     }
 
     public static <T extends Item> void energyWeaponPlatform(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
@@ -440,7 +442,7 @@ public class RegistrumItemRecipeLoader {
             .pattern(" W ")
             .pattern("PFP")
             .pattern("NHN")
-            .define('W', Items.WATER_BUCKET)
+            .define('W', Tags.Items.BUCKETS_WATER)
             .define('P', ModItems.PIPE)
             .define('F', ModBlocks.FISH_TANK)
             .define('N', Items.NAUTILUS_SHELL)
@@ -453,8 +455,8 @@ public class RegistrumItemRecipeLoader {
         ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ctx.get())
             .pattern("S S")
             .pattern("LIL")
-            .define('S', Items.STRING)
-            .define('L', Items.LEATHER)
+            .define('S', Tags.Items.STRINGS)
+            .define('L', Tags.Items.LEATHERS)
             .define('I', Items.IRON_LEGGINGS)
             .unlockedBy("has_material", RegistrumRecipeProvider.has(Items.IRON_LEGGINGS))
             .save(provider);
@@ -467,7 +469,7 @@ public class RegistrumItemRecipeLoader {
             .pattern("B B")
             .define('R', ModItems.HARDENED_RESIN)
             .define('I', Items.IRON_BOOTS)
-            .define('B', ModBlocks.RESIN_BLOCK)
+            .define('B', ModItemTags.STORAGE_BLOCKS_RESIN)
             .unlockedBy("has_material", RegistrumRecipeProvider.has(Items.IRON_BOOTS))
             .save(provider);
     }
@@ -538,11 +540,11 @@ public class RegistrumItemRecipeLoader {
             .pattern("ACA")
             .pattern("AAA")
             .define('A', ModItems.HARDENED_RESIN)
-            .define('B', Items.IRON_INGOT)
-            .define('C', ModItems.MAGNET_INGOT)
+            .define('B', Tags.Items.INGOTS_IRON)
+            .define('C', ModItemTags.MAGNET_INGOTS)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.HARDENED_RESIN), RegistrumRecipeProvider.has(ModItems.HARDENED_RESIN))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), RegistrumRecipeProvider.has(Items.IRON_INGOT))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.MAGNET_INGOT), RegistrumRecipeProvider.has(ModItems.MAGNET_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), RegistrumRecipeProvider.has(Tags.Items.INGOTS_IRON))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.MAGNET_INGOT), RegistrumRecipeProvider.has(ModItemTags.MAGNET_INGOTS))
             .save(provider);
     }
 
@@ -607,9 +609,9 @@ public class RegistrumItemRecipeLoader {
             .pattern("B")
             .pattern("A")
             .define('A', ModItemTags.COPPER_PLATES)
-            .define('B', ModItems.RESIN)
+            .define('B', ModItemTags.RESIN)
             .unlockedBy("has_copper_plates", RegistrumRecipeProvider.has(ModItemTags.COPPER_PLATES))
-            .unlockedBy("has_resin", RegistrumRecipeProvider.has(ModItems.RESIN))
+            .unlockedBy("has_resin", RegistrumRecipeProvider.has(ModItemTags.RESIN))
             .save(provider);
     }
 
@@ -618,9 +620,9 @@ public class RegistrumItemRecipeLoader {
             .pattern(" B ")
             .pattern("BAB")
             .pattern(" B ")
-            .define('A', Items.ENDER_PEARL)
+            .define('A', Tags.Items.ENDER_PEARLS)
             .define('B', Items.ECHO_SHARD)
-            .unlockedBy("hasitem", RegistrumRecipeProvider.has(Items.ENDER_PEARL))
+            .unlockedBy("hasitem", RegistrumRecipeProvider.has(Tags.Items.ENDER_PEARLS))
             .save(provider);
     }
 
@@ -641,7 +643,7 @@ public class RegistrumItemRecipeLoader {
     ) {
         return (ctx, provider) -> {
             JewelCraftingRecipe.Builder builder = JewelCraftingRecipe.builder()
-                .requires(ModItems.SILVER_INGOT, 1)
+                .requires(ModItemTags.SILVER_INGOTS, 1)
                 .result(new ItemStack(ctx.get()));
             builderConsumer.accept(builder);
             builder.save(provider);
@@ -650,8 +652,8 @@ public class RegistrumItemRecipeLoader {
 
     public static <T extends Item> void magnetIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-            .requires(ModBlocks.MAGNET_BLOCK)
-            .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModBlocks.MAGNET_BLOCK))
+            .requires(ModItemTags.STORAGE_BLOCKS_MAGNET)
+            .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModItemTags.STORAGE_BLOCKS_MAGNET))
             .group(ctx.getId().toString())
             .save(provider, AnvilCraft.of("magnet_ingot_from_block"));
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 8)
@@ -692,30 +694,30 @@ public class RegistrumItemRecipeLoader {
 
     public static <T extends Item> void frostMetalIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-            .requires(ModBlocks.FROST_METAL_BLOCK)
+            .requires(ModItemTags.STORAGE_BLOCKS_FROST_METAL)
             .group(ctx.getId().toString())
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.FROST_METAL_BLOCK.asItem()),
-                AnvilCraftDatagen.has(ModBlocks.FROST_METAL_BLOCK)
+                AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_FROST_METAL)
             )
             .save(provider, AnvilCraft.of(BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_from_block"));
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
             .pattern("AAA")
-            .define('A', ModItems.FROST_METAL_NUGGET)
+            .define('A', ModItemTags.FROST_METAL_NUGGETS)
             .group(ctx.getId().toString())
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModItems.FROST_METAL_NUGGET),
-                RegistrumRecipeProvider.has(ModItems.FROST_METAL_NUGGET)
+                RegistrumRecipeProvider.has(ModItemTags.FROST_METAL_NUGGETS)
             )
             .save(provider);
     }
 
     public static <T extends Item> void frostMetalNugget(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-            .requires(ModItems.FROST_METAL_INGOT)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.FROST_METAL_INGOT), AnvilCraftDatagen.has(ModItems.FROST_METAL_INGOT))
+            .requires(ModItemTags.FROST_METAL_INGOTS)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.FROST_METAL_INGOT), AnvilCraftDatagen.has(ModItemTags.FROST_METAL_INGOTS))
             .save(provider);
     }
 
@@ -750,30 +752,30 @@ public class RegistrumItemRecipeLoader {
 
     public static <T extends Item> void transcendiumIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-            .requires(ModBlocks.TRANSCENDIUM_BLOCK)
+            .requires(ModItemTags.STORAGE_BLOCKS_TRANSCENDIUM)
             .group(ctx.getId().toString())
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.TRANSCENDIUM_BLOCK.asItem()),
-                AnvilCraftDatagen.has(ModBlocks.TRANSCENDIUM_BLOCK)
+                AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_TRANSCENDIUM)
             )
             .save(provider, AnvilCraft.of(BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_from_block"));
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
             .pattern("AAA")
             .pattern("AAA")
             .pattern("AAA")
-            .define('A', ModItems.TRANSCENDIUM_NUGGET)
+            .define('A', ModItemTags.TRANSCENDIUM_NUGGETS)
             .group(ctx.getId().toString())
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_NUGGET),
-                RegistrumRecipeProvider.has(ModItems.TRANSCENDIUM_NUGGET)
+                RegistrumRecipeProvider.has(ModItemTags.TRANSCENDIUM_NUGGETS)
             )
             .save(provider);
     }
 
     public static <T extends Item> void transcendiumNugget(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-            .requires(ModItems.TRANSCENDIUM_INGOT)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT), AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_INGOT))
+            .requires(ModItemTags.TRANSCENDIUM_INGOTS)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT), AnvilCraftDatagen.has(ModItemTags.TRANSCENDIUM_INGOTS))
             .save(provider, AnvilCraft.of(ctx.getId().getPath() + "_from_ingot"));
     }
 
@@ -782,14 +784,14 @@ public class RegistrumItemRecipeLoader {
             .pattern(" B ")
             .pattern("ACA")
             .pattern(" D ")
-            .define('A', ModItems.TRANSCENDIUM_INGOT)
+            .define('A', ModItemTags.TRANSCENDIUM_INGOTS)
             .define('B', ModBlocks.SINGULARITY_CRYSTAL)
             .define('C', ModItems.SHULKER_TERMINAL)
             .define('D', ModBlocks.HYPERCUBE)
             .group(ctx.getId().toString())
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
-                AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_INGOT)
+                AnvilCraftDatagen.has(ModItemTags.TRANSCENDIUM_INGOTS)
             )
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.SINGULARITY_CRYSTAL.asItem()),
@@ -821,10 +823,10 @@ public class RegistrumItemRecipeLoader {
             .pattern("CDC")
             .pattern("AEA")
             .define('A', ModBlocks.CRATE)
-            .define('B', Items.ENDER_PEARL)
+            .define('B', Tags.Items.ENDER_PEARLS)
             .define('C', ModItems.PROCESSOR)
-            .define('D', Items.LAPIS_LAZULI)
-            .define('E', Blocks.REDSTONE_BLOCK)
+            .define('D', Tags.Items.GEMS_LAPIS)
+            .define('E', Tags.Items.STORAGE_BLOCKS_REDSTONE)
             .group(ctx.getId().toString())
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.CRATE),
@@ -836,15 +838,15 @@ public class RegistrumItemRecipeLoader {
             )
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(Items.ENDER_PEARL),
-                RegistrumRecipeProvider.has(Items.ENDER_PEARL)
+                RegistrumRecipeProvider.has(Tags.Items.ENDER_PEARLS)
             )
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(Items.LAPIS_LAZULI),
-                RegistrumRecipeProvider.has(Items.LAPIS_LAZULI)
+                RegistrumRecipeProvider.has(Tags.Items.GEMS_LAPIS)
             )
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(Blocks.REDSTONE_BLOCK),
-                RegistrumRecipeProvider.has(Blocks.REDSTONE_BLOCK)
+                RegistrumRecipeProvider.has(Tags.Items.STORAGE_BLOCKS_REDSTONE)
             )
             .save(provider);
     }
@@ -931,43 +933,43 @@ public class RegistrumItemRecipeLoader {
 
     public static <T extends Item> void topaz(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-            .requires(ModBlocks.TOPAZ_BLOCK)
-            .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModBlocks.TOPAZ_BLOCK))
+            .requires(ModItemTags.STORAGE_BLOCKS_TOPAZ)
+            .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModItemTags.STORAGE_BLOCKS_TOPAZ))
             .save(provider);
     }
 
     public static <T extends Item> void ruby(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-            .requires(ModBlocks.RUBY_BLOCK)
-            .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModBlocks.RUBY_BLOCK))
+            .requires(ModItemTags.STORAGE_BLOCKS_RUBY)
+            .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModItemTags.STORAGE_BLOCKS_RUBY))
             .save(provider);
     }
 
     public static <T extends Item> void sapphire(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-            .requires(ModBlocks.SAPPHIRE_BLOCK)
-            .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModBlocks.SAPPHIRE_BLOCK))
+            .requires(ModItemTags.STORAGE_BLOCKS_SAPPHIRE)
+            .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModItemTags.STORAGE_BLOCKS_SAPPHIRE))
             .save(provider);
     }
 
     public static <T extends Item> void expGem(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-            .requires(ModBlocks.EXP_GEM_BLOCK)
-            .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModBlocks.EXP_GEM_BLOCK))
+            .requires(ModItemTags.STORAGE_BLOCKS_EXP_GEM)
+            .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModItemTags.STORAGE_BLOCKS_EXP_GEM))
             .save(provider);
     }
 
     public static <T extends Item> void resin(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-            .requires(ModBlocks.RESIN_BLOCK)
-            .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModBlocks.RESIN_BLOCK))
+            .requires(ModItemTags.STORAGE_BLOCKS_RESIN)
+            .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModItemTags.STORAGE_BLOCKS_RESIN))
             .save(provider);
     }
 
     public static <T extends Item> void amber(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-            .requires(ModBlocks.AMBER_BLOCK)
-            .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModBlocks.AMBER_BLOCK))
+            .requires(ModItemTags.STORAGE_BLOCKS_AMBER)
+            .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModItemTags.STORAGE_BLOCKS_AMBER))
             .save(provider);
     }
 
@@ -1008,15 +1010,15 @@ public class RegistrumItemRecipeLoader {
     private static <T extends Item> void standardMetalIngotWithOreRecipes(
         DataGenContext<Item, T> ctx,
         RegistrumRecipeProvider provider,
-        ItemLike block,
+        TagKey<Item> block,
         TagKey<Item> nuggetTag,
-        ItemLike rawMaterial,
-        ItemLike deepslateOre
+        TagKey<Item> rawMaterial,
+        TagKey<Item> ore
     ) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
             .requires(block)
             .group(ctx.getId().toString())
-            .unlockedBy(AnvilCraftDatagen.hasItem(block.asItem()), AnvilCraftDatagen.has(block))
+            .unlockedBy(AnvilCraftDatagen.hasItem(block), AnvilCraftDatagen.has(block))
             .save(provider, AnvilCraft.of(BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_from_block"));
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
             .pattern("AAA")
@@ -1034,13 +1036,13 @@ public class RegistrumItemRecipeLoader {
             .group(ctx.getId().toString())
             .unlockedBy("has_item", AnvilCraftDatagen.has(rawMaterial))
             .save(provider, AnvilCraft.of("blasting/" + ctx.getName()));
-        SimpleCookingRecipeBuilder.smelting(Ingredient.of(deepslateOre), RecipeCategory.MISC, ctx.get(), 1, 200)
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(ore), RecipeCategory.MISC, ctx.get(), 1, 200)
             .group(ctx.getId().toString())
-            .unlockedBy("has_item", AnvilCraftDatagen.has(deepslateOre))
+            .unlockedBy("has_item", AnvilCraftDatagen.has(ore))
             .save(provider, AnvilCraft.of("smelting/" + ctx.getName() + "_from_ore"));
-        SimpleCookingRecipeBuilder.blasting(Ingredient.of(deepslateOre), RecipeCategory.MISC, ctx.get(), 1, 100)
+        SimpleCookingRecipeBuilder.blasting(Ingredient.of(ore), RecipeCategory.MISC, ctx.get(), 1, 100)
             .group(ctx.getId().toString())
-            .unlockedBy("has_item", AnvilCraftDatagen.has(deepslateOre))
+            .unlockedBy("has_item", AnvilCraftDatagen.has(ore))
             .save(provider, AnvilCraft.of("blasting/" + ctx.getName() + "_from_ore"));
     }
 
@@ -1048,10 +1050,10 @@ public class RegistrumItemRecipeLoader {
         standardMetalIngotWithOreRecipes(
             ctx,
             provider,
-            ModBlocks.TUNGSTEN_BLOCK,
+            ModItemTags.STORAGE_BLOCKS_TUNGSTEN,
             ModItemTags.TUNGSTEN_NUGGETS,
-            ModItems.RAW_TUNGSTEN,
-            ModBlocks.DEEPSLATE_TUNGSTEN_ORE
+            ModItemTags.RAW_TUNGSTEN,
+            ModItemTags.TUNGSTEN_ORES
         );
     }
 
@@ -1069,10 +1071,10 @@ public class RegistrumItemRecipeLoader {
         standardMetalIngotWithOreRecipes(
             ctx,
             provider,
-            ModBlocks.TITANIUM_BLOCK,
+            ModItemTags.STORAGE_BLOCKS_TITANIUM,
             ModItemTags.TITANIUM_NUGGETS,
-            ModItems.RAW_TITANIUM,
-            ModBlocks.DEEPSLATE_TITANIUM_ORE
+            ModItemTags.RAW_TITANIUM,
+            ModItemTags.TITANIUM_ORES
         );
     }
 
@@ -1087,10 +1089,10 @@ public class RegistrumItemRecipeLoader {
         standardMetalIngotWithOreRecipes(
             ctx,
             provider,
-            ModBlocks.ZINC_BLOCK,
+            ModItemTags.STORAGE_BLOCKS_ZINC,
             ModItemTags.ZINC_NUGGETS,
-            ModItems.RAW_ZINC,
-            ModBlocks.DEEPSLATE_ZINC_ORE
+            ModItemTags.RAW_ZINC,
+            ModItemTags.ZINC_ORES
         );
     }
 
@@ -1105,10 +1107,10 @@ public class RegistrumItemRecipeLoader {
         standardMetalIngotWithOreRecipes(
             ctx,
             provider,
-            ModBlocks.TIN_BLOCK,
+            ModItemTags.STORAGE_BLOCKS_TIN,
             ModItemTags.TIN_NUGGETS,
-            ModItems.RAW_TIN,
-            ModBlocks.DEEPSLATE_TIN_ORE
+            ModItemTags.RAW_TIN,
+            ModItemTags.TIN_ORES
         );
     }
 
@@ -1123,10 +1125,10 @@ public class RegistrumItemRecipeLoader {
         standardMetalIngotWithOreRecipes(
             ctx,
             provider,
-            ModBlocks.LEAD_BLOCK,
+            ModItemTags.STORAGE_BLOCKS_LEAD,
             ModItemTags.LEAD_NUGGETS,
-            ModItems.RAW_LEAD,
-            ModBlocks.DEEPSLATE_LEAD_ORE
+            ModItemTags.RAW_LEAD,
+            ModItemTags.LEAD_ORES
         );
     }
 
@@ -1141,10 +1143,10 @@ public class RegistrumItemRecipeLoader {
         standardMetalIngotWithOreRecipes(
             ctx,
             provider,
-            ModBlocks.SILVER_BLOCK,
+            ModItemTags.STORAGE_BLOCKS_SILVER,
             ModItemTags.SILVER_NUGGETS,
-            ModItems.RAW_SILVER,
-            ModBlocks.DEEPSLATE_SILVER_ORE
+            ModItemTags.RAW_SILVER,
+            ModItemTags.SILVER_ORES
         );
     }
 
@@ -1159,10 +1161,10 @@ public class RegistrumItemRecipeLoader {
         standardMetalIngotWithOreRecipes(
             ctx,
             provider,
-            ModBlocks.URANIUM_BLOCK,
+            ModItemTags.STORAGE_BLOCKS_URANIUM,
             ModItemTags.URANIUM_NUGGETS,
-            ModItems.RAW_URANIUM,
-            ModBlocks.DEEPSLATE_URANIUM_ORE
+            ModItemTags.RAW_URANIUM,
+            ModItemTags.URANIUM_ORES
         );
     }
 
@@ -1178,9 +1180,12 @@ public class RegistrumItemRecipeLoader {
 
     public static <T extends Item> void plutoniumIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-            .requires(ModBlocks.PLUTONIUM_BLOCK)
+            .requires(ModItemTags.STORAGE_BLOCKS_PLUTONIUM)
             .group(ctx.getId().toString())
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.PLUTONIUM_BLOCK.asItem()), AnvilCraftDatagen.has(ModBlocks.PLUTONIUM_BLOCK))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.PLUTONIUM_BLOCK.asItem()),
+                AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_PLUTONIUM)
+            )
             .save(provider, AnvilCraft.of(BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_from_block"));
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
             .pattern("AAA")
@@ -1197,20 +1202,23 @@ public class RegistrumItemRecipeLoader {
 
     public static <T extends Item> void copperNugget(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-            .requires(Ingredient.of(Items.COPPER_INGOT))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.COPPER_INGOT), RegistrumRecipeProvider.has(Items.COPPER_INGOT))
+            .requires(Ingredient.of(Tags.Items.INGOTS_COPPER))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.COPPER_INGOT), RegistrumRecipeProvider.has(Tags.Items.INGOTS_COPPER))
             .save(provider);
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, Items.COPPER_INGOT)
-            .requires(ctx.get(), 9)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ctx.get()), RegistrumRecipeProvider.has(ctx.get()))
+            .requires(Ingredient.of(ModItemTags.COPPER_NUGGETS), 9)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ctx.get()), RegistrumRecipeProvider.has(ModItemTags.COPPER_NUGGETS))
             .save(provider, AnvilCraft.of("copper_ingot_from_nugget"));
     }
 
     public static <T extends Item> void bronzeIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-            .requires(ModBlocks.BRONZE_BLOCK)
+            .requires(ModItemTags.STORAGE_BLOCKS_BRONZE)
             .group(ctx.getId().toString())
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRONZE_BLOCK.asItem()), AnvilCraftDatagen.has(ModBlocks.BRONZE_BLOCK))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.BRONZE_BLOCK.asItem()),
+                AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_BRONZE)
+            )
             .save(provider, AnvilCraft.of(BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_from_block"));
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
             .pattern("AAA")
@@ -1231,9 +1239,9 @@ public class RegistrumItemRecipeLoader {
 
     public static <T extends Item> void brassIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-            .requires(ModBlocks.BRASS_BLOCK)
+            .requires(ModItemTags.STORAGE_BLOCKS_BRASS)
             .group(ctx.getId().toString())
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRASS_BLOCK.asItem()), AnvilCraftDatagen.has(ModBlocks.BRASS_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRASS_BLOCK.asItem()), AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_BRASS))
             .save(provider, AnvilCraft.of(BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_from_block"));
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
             .pattern("AAA")
@@ -1264,57 +1272,69 @@ public class RegistrumItemRecipeLoader {
 
     public static <T extends Item> void rawZinc(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-            .requires(ModBlocks.RAW_ZINC_BLOCK)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RAW_ZINC_BLOCK), AnvilCraftDatagen.has(ModBlocks.RAW_ZINC_BLOCK))
+            .requires(ModItemTags.STORAGE_BLOCKS_RAW_ZINC)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RAW_ZINC_BLOCK), AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_RAW_ZINC))
             .save(provider);
     }
 
     public static <T extends Item> void rawTin(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-            .requires(ModBlocks.RAW_TIN_BLOCK)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RAW_TIN_BLOCK), AnvilCraftDatagen.has(ModBlocks.RAW_TIN_BLOCK))
+            .requires(ModItemTags.STORAGE_BLOCKS_RAW_TIN)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RAW_TIN_BLOCK), AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_RAW_TIN))
             .save(provider);
     }
 
     public static <T extends Item> void rawTitanium(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-            .requires(ModBlocks.RAW_TITANIUM_BLOCK)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RAW_TITANIUM_BLOCK), AnvilCraftDatagen.has(ModBlocks.RAW_TITANIUM_BLOCK))
+            .requires(ModItemTags.STORAGE_BLOCKS_RAW_TITANIUM)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.RAW_TITANIUM_BLOCK),
+                AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_RAW_TITANIUM)
+            )
             .save(provider);
     }
 
     public static <T extends Item> void rawTungsten(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-            .requires(ModBlocks.RAW_TUNGSTEN_BLOCK)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RAW_TUNGSTEN_BLOCK), AnvilCraftDatagen.has(ModBlocks.RAW_TUNGSTEN_BLOCK))
+            .requires(ModItemTags.STORAGE_BLOCKS_RAW_TUNGSTEN)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.RAW_TUNGSTEN_BLOCK),
+                AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_RAW_TUNGSTEN)
+            )
             .save(provider);
     }
 
     public static <T extends Item> void rawLead(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-            .requires(ModBlocks.RAW_LEAD_BLOCK)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RAW_LEAD_BLOCK), AnvilCraftDatagen.has(ModBlocks.RAW_LEAD_BLOCK))
+            .requires(ModItemTags.STORAGE_BLOCKS_RAW_LEAD)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RAW_LEAD_BLOCK), AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_RAW_LEAD))
             .save(provider);
     }
 
     public static <T extends Item> void rawSilver(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-            .requires(ModBlocks.RAW_SILVER_BLOCK)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RAW_SILVER_BLOCK), AnvilCraftDatagen.has(ModBlocks.RAW_SILVER_BLOCK))
+            .requires(ModItemTags.STORAGE_BLOCKS_RAW_SILVER)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RAW_SILVER_BLOCK), AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_RAW_SILVER))
             .save(provider);
     }
 
     public static <T extends Item> void rawUranium(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-            .requires(ModBlocks.RAW_URANIUM_BLOCK)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RAW_URANIUM_BLOCK), AnvilCraftDatagen.has(ModBlocks.RAW_URANIUM_BLOCK))
+            .requires(ModItemTags.STORAGE_BLOCKS_RAW_URANIUM)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.RAW_URANIUM_BLOCK),
+                AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_RAW_URANIUM)
+            )
             .save(provider);
     }
 
     public static <T extends Item> void voidMatter(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-            .requires(ModBlocks.VOID_MATTER_BLOCK)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.VOID_MATTER_BLOCK), AnvilCraftDatagen.has(ModBlocks.VOID_MATTER_BLOCK))
+            .requires(ModItemTags.STORAGE_BLOCKS_VOID_MATTER)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.VOID_MATTER_BLOCK),
+                AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_VOID_MATTER)
+            )
             .save(provider);
     }
 
@@ -1330,20 +1350,20 @@ public class RegistrumItemRecipeLoader {
 
     public static <T extends Item> void earthCoreShard(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-            .requires(ModBlocks.EARTH_CORE_SHARD_BLOCK)
+            .requires(ModItemTags.STORAGE_BLOCKS_EARTH_CORE_SHARD)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.EARTH_CORE_SHARD_BLOCK),
-                AnvilCraftDatagen.has(ModBlocks.EARTH_CORE_SHARD_BLOCK)
+                AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_EARTH_CORE_SHARD)
             )
             .save(provider);
     }
 
     public static <T extends Item> void multiphaseMatter(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
-            .requires(ModBlocks.MULTIPHASE_MATTER_BLOCK)
+            .requires(ModItemTags.STORAGE_BLOCKS_MULTIPHASE_MATTER)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.MULTIPHASE_MATTER_BLOCK.asItem()),
-                AnvilCraftDatagen.has(ModBlocks.MULTIPHASE_MATTER_BLOCK)
+                AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_MULTIPHASE_MATTER)
             )
             .save(provider, AnvilCraft.of(BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_from_block"));
     }
@@ -1365,10 +1385,10 @@ public class RegistrumItemRecipeLoader {
             .pattern("AEA")
             .pattern("EME")
             .pattern("AEA")
-            .define('A', Items.AMETHYST_SHARD)
+            .define('A', Tags.Items.GEMS_AMETHYST)
             .define('E', Items.ECHO_SHARD)
             .define('M', ModItems.MULTIPHASE_MATTER)
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.AMETHYST_SHARD), AnvilCraftDatagen.has(Items.AMETHYST_SHARD))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.AMETHYST_SHARD), AnvilCraftDatagen.has(Tags.Items.GEMS_AMETHYST))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.ECHO_SHARD), AnvilCraftDatagen.has(Items.ECHO_SHARD))
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.MULTIPHASE_MATTER), AnvilCraftDatagen.has(ModItems.MULTIPHASE_MATTER))
             .save(provider);
@@ -1380,14 +1400,14 @@ public class RegistrumItemRecipeLoader {
             .pattern("NMN")
             .pattern("NNN")
             .define('M', ModItems.MULTIPHASE_MATTER)
-            .define('N', ModItems.TRANSCENDIUM_NUGGET)
+            .define('N', ModItemTags.TRANSCENDIUM_NUGGETS)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModItems.MULTIPHASE_MATTER),
                 AnvilCraftDatagen.has(ModItems.MULTIPHASE_MATTER)
             )
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_NUGGET),
-                AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_NUGGET)
+                AnvilCraftDatagen.has(ModItemTags.TRANSCENDIUM_NUGGETS)
             )
             .save(provider);
     }
@@ -1443,6 +1463,13 @@ public class RegistrumItemRecipeLoader {
         return RegistrumItemRecipeLoader.tool("AA", "AB", " B", ingredient, result);
     }
 
+    public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumRecipeProvider> axe(
+        TagKey<Item> ingredient,
+        NonNullBiFunction<DataGenContext<Item, T>, RegistrumRecipeProvider, ItemStack> result
+    ) {
+        return RegistrumItemRecipeLoader.tool("AA", "AB", " B", ingredient, result);
+    }
+
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumRecipeProvider> hoe(
         ItemLike ingredient
     ) {
@@ -1451,6 +1478,13 @@ public class RegistrumItemRecipeLoader {
 
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumRecipeProvider> hoe(
         ItemLike ingredient,
+        NonNullBiFunction<DataGenContext<Item, T>, RegistrumRecipeProvider, ItemStack> result
+    ) {
+        return RegistrumItemRecipeLoader.tool("AA", " B", " B", ingredient, result);
+    }
+
+    public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumRecipeProvider> hoe(
+        TagKey<Item> ingredient,
         NonNullBiFunction<DataGenContext<Item, T>, RegistrumRecipeProvider, ItemStack> result
     ) {
         return RegistrumItemRecipeLoader.tool("AA", " B", " B", ingredient, result);
@@ -1469,6 +1503,13 @@ public class RegistrumItemRecipeLoader {
         return RegistrumItemRecipeLoader.tool("A", "A", "B", ingredient, result);
     }
 
+    public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumRecipeProvider> sword(
+        TagKey<Item> ingredient,
+        NonNullBiFunction<DataGenContext<Item, T>, RegistrumRecipeProvider, ItemStack> result
+    ) {
+        return RegistrumItemRecipeLoader.tool("A", "A", "B", ingredient, result);
+    }
+
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumRecipeProvider> shovel(
         ItemLike ingredient
     ) {
@@ -1477,6 +1518,13 @@ public class RegistrumItemRecipeLoader {
 
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumRecipeProvider> shovel(
         ItemLike ingredient,
+        NonNullBiFunction<DataGenContext<Item, T>, RegistrumRecipeProvider, ItemStack> result
+    ) {
+        return RegistrumItemRecipeLoader.tool("A", "B", "B", ingredient, result);
+    }
+
+    public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumRecipeProvider> shovel(
+        TagKey<Item> ingredient,
         NonNullBiFunction<DataGenContext<Item, T>, RegistrumRecipeProvider, ItemStack> result
     ) {
         return RegistrumItemRecipeLoader.tool("A", "B", "B", ingredient, result);
@@ -1495,6 +1543,13 @@ public class RegistrumItemRecipeLoader {
         return RegistrumItemRecipeLoader.tool("AAA", " B ", " B ", ingredient, result);
     }
 
+    public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumRecipeProvider> pickaxe(
+        TagKey<Item> ingredient,
+        NonNullBiFunction<DataGenContext<Item, T>, RegistrumRecipeProvider, ItemStack> result
+    ) {
+        return RegistrumItemRecipeLoader.tool("AAA", " B ", " B ", ingredient, result);
+    }
+
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumRecipeProvider> tool(
         String pattern1,
         String pattern2,
@@ -1502,13 +1557,34 @@ public class RegistrumItemRecipeLoader {
         ItemLike ingredient,
         NonNullBiFunction<DataGenContext<Item, T>, RegistrumRecipeProvider, ItemStack> result
     ) {
+        return tool(pattern1, pattern2, pattern3, Ingredient.of(ingredient), RegistrumRecipeProvider.has(ingredient), result);
+    }
+
+    public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumRecipeProvider> tool(
+        String pattern1,
+        String pattern2,
+        String pattern3,
+        TagKey<Item> ingredient,
+        NonNullBiFunction<DataGenContext<Item, T>, RegistrumRecipeProvider, ItemStack> result
+    ) {
+        return tool(pattern1, pattern2, pattern3, Ingredient.of(ingredient), RegistrumRecipeProvider.has(ingredient), result);
+    }
+
+    private static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumRecipeProvider> tool(
+        String pattern1,
+        String pattern2,
+        String pattern3,
+        Ingredient ingredient,
+        Criterion<?> criterion,
+        NonNullBiFunction<DataGenContext<Item, T>, RegistrumRecipeProvider, ItemStack> result
+    ) {
         return (ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, result.apply(ctx, provider))
             .pattern(pattern1)
             .pattern(pattern2)
             .pattern(pattern3)
             .define('A', ingredient)
-            .define('B', Items.STICK)
-            .unlockedBy("hasitem", RegistrumRecipeProvider.has(ingredient))
+            .define('B', Tags.Items.RODS_WOODEN)
+            .unlockedBy("hasitem", criterion)
             .save(provider);
     }
 
@@ -1517,10 +1593,10 @@ public class RegistrumItemRecipeLoader {
             .pattern("ABA")
             .pattern("BCB")
             .pattern("ABA")
-            .define('A', ModItems.TRANSCENDIUM_INGOT)
+            .define('A', ModItemTags.TRANSCENDIUM_INGOTS)
             .define('B', ModItems.EMBER_METAL_INGOT)
             .define('C', ModBlocks.INFINITE_COLLECTOR)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT), AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT), AnvilCraftDatagen.has(ModItemTags.TRANSCENDIUM_INGOTS))
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.EMBER_METAL_INGOT), AnvilCraftDatagen.has(ModItems.EMBER_METAL_INGOT))
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.INFINITE_COLLECTOR.asItem()),
@@ -1534,10 +1610,10 @@ public class RegistrumItemRecipeLoader {
             .pattern("ABA")
             .pattern("BCB")
             .pattern("ABA")
-            .define('A', ModItems.TRANSCENDIUM_INGOT)
+            .define('A', ModItemTags.TRANSCENDIUM_INGOTS)
             .define('B', ModBlocks.HELIOSTATS)
             .define('C', ModBlocks.RUBY_PRISM)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT), AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT), AnvilCraftDatagen.has(ModItemTags.TRANSCENDIUM_INGOTS))
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HELIOSTATS.asItem()), AnvilCraftDatagen.has(ModBlocks.HELIOSTATS))
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RUBY_PRISM.asItem()), AnvilCraftDatagen.has(ModBlocks.RUBY_PRISM))
             .save(provider);
@@ -1548,10 +1624,10 @@ public class RegistrumItemRecipeLoader {
             .pattern("ABA")
             .pattern("BCB")
             .pattern("ABA")
-            .define('A', ModItems.TRANSCENDIUM_INGOT)
+            .define('A', ModItemTags.TRANSCENDIUM_INGOTS)
             .define('B', ModBlocks.LASER_RECEIVER)
             .define('C', ModBlocks.SINGULARITY_CRYSTAL)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT), AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT), AnvilCraftDatagen.has(ModItemTags.TRANSCENDIUM_INGOTS))
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.LASER_RECEIVER.asItem()), AnvilCraftDatagen.has(ModBlocks.LASER_RECEIVER))
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.SINGULARITY_CRYSTAL.asItem()),
@@ -1565,9 +1641,9 @@ public class RegistrumItemRecipeLoader {
             .pattern("ABA")
             .pattern("B B")
             .pattern("ABA")
-            .define('A', ModItems.TRANSCENDIUM_INGOT)
+            .define('A', ModItemTags.TRANSCENDIUM_INGOTS)
             .define('B', ModBlocks.NEGATIVE_MATTER_BLOCK)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT), AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT), AnvilCraftDatagen.has(ModItemTags.TRANSCENDIUM_INGOTS))
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.NEGATIVE_MATTER_BLOCK.asItem()),
                 AnvilCraftDatagen.has(ModBlocks.NEGATIVE_MATTER_BLOCK)
@@ -1582,12 +1658,12 @@ public class RegistrumItemRecipeLoader {
             .pattern("ABA")
             .pattern("BCB")
             .pattern("ABA")
-            .define('A', ModItems.TRANSCENDIUM_INGOT)
+            .define('A', ModItemTags.TRANSCENDIUM_INGOTS)
             .define('B', ModBlocks.ACCELERATION_RING)
             .define('C', ModBlocks.DEFLECTION_RING)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
-                AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_INGOT)
+                AnvilCraftDatagen.has(ModItemTags.TRANSCENDIUM_INGOTS)
             )
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.ACCELERATION_RING.asItem()),
@@ -1607,16 +1683,16 @@ public class RegistrumItemRecipeLoader {
             .pattern("ABA")
             .pattern("BCB")
             .pattern("ABA")
-            .define('A', ModItems.TRANSCENDIUM_INGOT)
-            .define('B', Items.COPPER_BLOCK)
+            .define('A', ModItemTags.TRANSCENDIUM_INGOTS)
+            .define('B', Tags.Items.STORAGE_BLOCKS_COPPER)
             .define('C', ModBlocks.INFINITE_COLLECTOR)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
-                AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_INGOT)
+                AnvilCraftDatagen.has(ModItemTags.TRANSCENDIUM_INGOTS)
             )
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(Items.COPPER_BLOCK),
-                AnvilCraftDatagen.has(Items.COPPER_BLOCK)
+                AnvilCraftDatagen.has(Tags.Items.STORAGE_BLOCKS_COPPER)
             )
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.INFINITE_COLLECTOR.asItem()),
@@ -1632,12 +1708,12 @@ public class RegistrumItemRecipeLoader {
             .pattern("ABA")
             .pattern("BCB")
             .pattern("ABA")
-            .define('A', ModItems.TRANSCENDIUM_INGOT)
+            .define('A', ModItemTags.TRANSCENDIUM_INGOTS)
             .define('B', ModBlocks.CURSED_GOLD_BLOCK)
             .define('C', ModBlocks.CORRUPTED_BEACON)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
-                AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_INGOT)
+                AnvilCraftDatagen.has(ModItemTags.TRANSCENDIUM_INGOTS)
             )
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.CURSED_GOLD_BLOCK.asItem()),
@@ -1680,11 +1756,11 @@ public class RegistrumItemRecipeLoader {
             .pattern(" B ")
             .pattern("B B")
             .pattern(" B ")
-            .define('B', ModBlocks.BRASS_PRESSURE_PLATE.asItem())
+            .define('B', ModItemTags.BRASS_PLATES)
             .group(ctx.getId().toString())
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.BRASS_PRESSURE_PLATE),
-                RegistrumRecipeProvider.has(ModBlocks.BRASS_PRESSURE_PLATE)
+                RegistrumRecipeProvider.has(ModItemTags.BRASS_PLATES)
             )
             .save(provider);
     }

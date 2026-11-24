@@ -3,7 +3,7 @@
   "category": "building",
   "key": {
     "A": {
-      "item": "anvilcraft:raw_tungsten"
+      "tag": "c:raw_materials/tungsten"
     }
   },
   "pattern": [

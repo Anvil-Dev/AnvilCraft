@@ -4,7 +4,7 @@
   "group": "anvilcraft:transcendium_ingot",
   "ingredients": [
     {
-      "item": "anvilcraft:transcendium_block"
+      "tag": "c:storage_blocks/transcendium"
     }
   ],
   "result": {

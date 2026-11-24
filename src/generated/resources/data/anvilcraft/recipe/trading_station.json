@@ -3,13 +3,13 @@
   "category": "misc",
   "key": {
     "B": {
-      "item": "minecraft:barrel"
+      "tag": "c:barrels/wooden"
     },
     "P": {
       "tag": "minecraft:planks"
     },
     "S": {
-      "item": "minecraft:stick"
+      "tag": "c:rods/wooden"
     },
     "W": {
       "tag": "minecraft:wool"

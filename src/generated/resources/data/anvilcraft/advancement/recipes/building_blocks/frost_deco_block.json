@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_frost_metal_nugget": {
+    "has_nuggets/frost_metal": {
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:frost_metal_nugget"
+            "items": "#c:nuggets/frost_metal"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_frost_metal_nugget"
+      "has_nuggets/frost_metal"
     ]
   ],
   "rewards": {

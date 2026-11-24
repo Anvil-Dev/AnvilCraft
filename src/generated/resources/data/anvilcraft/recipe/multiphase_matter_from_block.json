@@ -3,7 +3,7 @@
   "category": "misc",
   "ingredients": [
     {
-      "item": "anvilcraft:multiphase_matter_block"
+      "tag": "c:storage_blocks/multiphase_matter"
     }
   ],
   "result": {

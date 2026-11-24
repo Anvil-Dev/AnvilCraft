@@ -4,7 +4,7 @@
   "group": "anvilcraft:piezoelectric_crystal",
   "key": {
     "A": {
-      "item": "minecraft:copper_ingot"
+      "tag": "c:ingots/copper"
     },
     "B": {
       "item": "minecraft:amethyst_block"

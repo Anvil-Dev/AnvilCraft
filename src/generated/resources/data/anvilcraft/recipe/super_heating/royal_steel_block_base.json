@@ -3,10 +3,10 @@
   "ingredients": [
     {
       "count": 2,
-      "items": "minecraft:iron_block"
+      "items": "#c:storage_blocks/iron"
     },
     {
-      "items": "minecraft:diamond_block"
+      "items": "#c:storage_blocks/diamond"
     },
     {
       "items": "#anvilcraft:gem_blocks"

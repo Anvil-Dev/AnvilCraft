@@ -5,7 +5,7 @@
   },
   "consume": false,
   "hitBlock": {
-    "blocks": "anvilcraft:uranium_block"
+    "blocks": "#c:storage_blocks/uranium"
   },
   "output_items": [],
   "speed": 256,

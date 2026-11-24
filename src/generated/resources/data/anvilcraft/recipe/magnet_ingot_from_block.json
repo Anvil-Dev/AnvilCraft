@@ -4,7 +4,7 @@
   "group": "anvilcraft:magnet_ingot",
   "ingredients": [
     {
-      "item": "anvilcraft:magnet_block"
+      "tag": "c:storage_blocks/magnet"
     }
   ],
   "result": {

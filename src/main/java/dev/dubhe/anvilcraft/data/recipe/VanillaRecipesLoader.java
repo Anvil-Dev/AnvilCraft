@@ -13,6 +13,7 @@ import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.neoforged.neoforge.common.Tags;
 
 public class VanillaRecipesLoader {
     public static void init(RegistrumRecipeProvider provider) {
@@ -21,53 +22,53 @@ public class VanillaRecipesLoader {
             .pattern(" B ")
             .pattern("BBB")
             .define('A', ModBlocks.HEAVY_IRON_BLOCK)
-            .define('B', Items.IRON_BLOCK)
+            .define('B', Tags.Items.STORAGE_BLOCKS_IRON)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK), AnvilCraftDatagen.has(ModBlocks.HEAVY_IRON_BLOCK))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_BLOCK), AnvilCraftDatagen.has(Items.IRON_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_BLOCK), AnvilCraftDatagen.has(Tags.Items.STORAGE_BLOCKS_IRON))
             .save(provider, AnvilCraft.of("anvil_9"));
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Items.CHIPPED_ANVIL)
             .pattern("AAB")
             .pattern(" B ")
             .pattern("BBB")
-            .define('A', Items.IRON_BLOCK)
-            .define('B', Items.IRON_INGOT)
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_BLOCK), AnvilCraftDatagen.has(Items.IRON_BLOCK))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
+            .define('A', Tags.Items.STORAGE_BLOCKS_IRON)
+            .define('B', Tags.Items.INGOTS_IRON)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_BLOCK), AnvilCraftDatagen.has(Tags.Items.STORAGE_BLOCKS_IRON))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Tags.Items.INGOTS_IRON))
             .save(provider, AnvilCraft.of("chipped_anvil"));
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Items.CHIPPED_ANVIL, 9)
             .pattern("AAB")
             .pattern(" B ")
             .pattern("BBB")
             .define('A', ModBlocks.HEAVY_IRON_BLOCK)
-            .define('B', Items.IRON_BLOCK)
+            .define('B', Tags.Items.STORAGE_BLOCKS_IRON)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK), AnvilCraftDatagen.has(ModBlocks.HEAVY_IRON_BLOCK))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_BLOCK), AnvilCraftDatagen.has(Items.IRON_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_BLOCK), AnvilCraftDatagen.has(Tags.Items.STORAGE_BLOCKS_IRON))
             .save(provider, AnvilCraft.of("chipped_anvil_9"));
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Items.DAMAGED_ANVIL)
             .pattern("BAB")
             .pattern(" B ")
             .pattern("BBB")
-            .define('A', Items.IRON_BLOCK)
-            .define('B', Items.IRON_INGOT)
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_BLOCK), AnvilCraftDatagen.has(Items.IRON_BLOCK))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
+            .define('A', Tags.Items.STORAGE_BLOCKS_IRON)
+            .define('B', Tags.Items.INGOTS_IRON)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_BLOCK), AnvilCraftDatagen.has(Tags.Items.STORAGE_BLOCKS_IRON))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Tags.Items.INGOTS_IRON))
             .save(provider, AnvilCraft.of("damaged_anvil"));
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Items.DAMAGED_ANVIL, 9)
             .pattern("BAB")
             .pattern(" B ")
             .pattern("BBB")
             .define('A', ModBlocks.HEAVY_IRON_BLOCK)
-            .define('B', Items.IRON_BLOCK)
+            .define('B', Tags.Items.STORAGE_BLOCKS_IRON)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK), AnvilCraftDatagen.has(ModBlocks.HEAVY_IRON_BLOCK))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_BLOCK), AnvilCraftDatagen.has(Items.IRON_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_BLOCK), AnvilCraftDatagen.has(Tags.Items.STORAGE_BLOCKS_IRON))
             .save(provider, AnvilCraft.of("damaged_anvil_9"));
         ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, Items.TRIDENT)
             .pattern(" AA")
             .pattern(" BA")
             .pattern("A  ")
             .define('A', Items.PRISMARINE_SHARD)
-            .define('B', ModItems.SAPPHIRE)
-            .unlockedBy("hasitem", AnvilCraftDatagen.has(ModItems.SAPPHIRE))
+            .define('B', ModItemTags.GEMS_SAPPHIRE)
+            .unlockedBy("hasitem", AnvilCraftDatagen.has(ModItemTags.GEMS_SAPPHIRE))
             .save(provider, AnvilCraft.of("trident"));
         ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Items.WET_SPONGE)
             .pattern("AA")
@@ -79,7 +80,7 @@ public class VanillaRecipesLoader {
             .pattern("   ")
             .pattern("TRT")
             .pattern("BBB")
-            .define('R', Items.REDSTONE)
+            .define('R', Tags.Items.DUSTS_REDSTONE)
             .define('T', Items.REDSTONE_TORCH)
             .define('B', ModItems.HARDENED_RESIN)
             .unlockedBy("hasitem", AnvilCraftDatagen.has(ModItems.HARDENED_RESIN))
@@ -88,7 +89,7 @@ public class VanillaRecipesLoader {
             .pattern(" T ")
             .pattern("TQT")
             .pattern("BBB")
-            .define('Q', Items.QUARTZ)
+            .define('Q', Tags.Items.GEMS_QUARTZ)
             .define('T', Items.REDSTONE_TORCH)
             .define('B', ModItems.HARDENED_RESIN)
             .unlockedBy("hasitem", AnvilCraftDatagen.has(ModItems.HARDENED_RESIN))
@@ -101,9 +102,9 @@ public class VanillaRecipesLoader {
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModBlocks.DRAIN)
             .requires(Items.COPPER_GRATE)
-            .requires(ModBlocks.BRASS_PRESSURE_PLATE)
+            .requires(ModItemTags.BRASS_PLATES)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.COPPER_GRATE), AnvilCraftDatagen.has(Items.COPPER_GRATE))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRASS_PRESSURE_PLATE), AnvilCraftDatagen.has(ModBlocks.BRASS_PRESSURE_PLATE))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRASS_PRESSURE_PLATE), AnvilCraftDatagen.has(ModItemTags.BRASS_PLATES))
             .save(provider, AnvilCraft.of("drain"));
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModBlocks.FLUID_TANK)
@@ -117,15 +118,15 @@ public class VanillaRecipesLoader {
 
         SimpleCookingRecipeBuilder.campfireCooking(Ingredient.of(ModItemTags.DOUGH), RecipeCategory.FOOD,
                 Items.BREAD, 0.35f, 600)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.DOUGH.get()), AnvilCraftDatagen.has(ModFoodItems.DOUGH))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.DOUGH.get()), AnvilCraftDatagen.has(ModItemTags.DOUGH))
             .save(provider, AnvilCraft.of("campfire_cooking_bread"));
         SimpleCookingRecipeBuilder.smoking(Ingredient.of(ModItemTags.DOUGH), RecipeCategory.FOOD,
                 Items.BREAD, 0.35f, 100)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.DOUGH.get()), AnvilCraftDatagen.has(ModFoodItems.DOUGH))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.DOUGH.get()), AnvilCraftDatagen.has(ModItemTags.DOUGH))
             .save(provider, AnvilCraft.of("smoking_bread"));
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(ModItemTags.DOUGH), RecipeCategory.FOOD,
                 Items.BREAD, 0.35f, 200)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.DOUGH.get()), AnvilCraftDatagen.has(ModFoodItems.DOUGH))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.DOUGH.get()), AnvilCraftDatagen.has(ModItemTags.DOUGH))
             .save(provider, AnvilCraft.of("smelting_cooking_bread"));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Items.ENCHANTED_GOLDEN_APPLE)

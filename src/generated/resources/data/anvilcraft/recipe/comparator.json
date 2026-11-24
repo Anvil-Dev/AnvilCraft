@@ -6,7 +6,7 @@
       "item": "anvilcraft:hardened_resin"
     },
     "Q": {
-      "item": "minecraft:quartz"
+      "tag": "c:gems/quartz"
     },
     "T": {
       "item": "minecraft:redstone_torch"

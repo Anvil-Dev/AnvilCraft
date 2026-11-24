@@ -3,10 +3,10 @@
   "category": "misc",
   "key": {
     "A": {
-      "item": "anvilcraft:transcendium_nugget"
+      "tag": "c:nuggets/transcendium"
     },
     "B": {
-      "item": "anvilcraft:magnet_ingot"
+      "tag": "c:ingots/magnet"
     }
   },
   "pattern": [

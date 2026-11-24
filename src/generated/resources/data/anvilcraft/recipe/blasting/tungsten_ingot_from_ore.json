@@ -5,7 +5,7 @@
   "experience": 1.0,
   "group": "anvilcraft:tungsten_ingot",
   "ingredient": {
-    "item": "anvilcraft:deepslate_tungsten_ore"
+    "tag": "c:ores/tungsten"
   },
   "result": {
     "count": 1,

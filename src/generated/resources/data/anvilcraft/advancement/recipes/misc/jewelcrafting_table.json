@@ -15,7 +15,7 @@
       "conditions": {
         "items": [
           {
-            "items": "minecraft:stonecutter"
+            "items": "#c:player_workstations/stonecutters"
           }
         ]
       },

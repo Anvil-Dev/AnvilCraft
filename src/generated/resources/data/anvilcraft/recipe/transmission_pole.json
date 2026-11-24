@@ -9,7 +9,7 @@
       "item": "minecraft:lightning_rod"
     },
     "C": {
-      "item": "minecraft:iron_block"
+      "tag": "c:storage_blocks/iron"
     }
   },
   "pattern": [

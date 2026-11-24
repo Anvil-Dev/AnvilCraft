@@ -20,7 +20,7 @@
   ],
   "ingredients": [
     {
-      "items": "minecraft:purple_dye"
+      "items": "#c:dyes/purple"
     }
   ],
   "max_efficiency": 1,

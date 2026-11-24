@@ -4,7 +4,7 @@
   "group": "anvilcraft:silver_ingot",
   "ingredients": [
     {
-      "item": "anvilcraft:silver_block"
+      "tag": "c:storage_blocks/silver"
     }
   ],
   "result": {

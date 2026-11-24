@@ -2,7 +2,7 @@
   "type": "anvilcraft:item_crush",
   "ingredients": [
     {
-      "items": "minecraft:bone"
+      "items": "#c:bones"
     }
   ],
   "results": [

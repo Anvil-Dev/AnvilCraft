@@ -3,10 +3,10 @@ package dev.dubhe.anvilcraft.data.recipe;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.SingleItemRecipeBuilder;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 
@@ -69,28 +69,28 @@ public class StoneCutterRecipeLoader {
         this.stoneCutterRecipe(
             provider,
             RecipeCategory.BUILDING_BLOCKS,
-            Ingredient.of(ModItems.FROST_METAL_NUGGET),
+            Ingredient.of(ModItemTags.FROST_METAL_NUGGETS),
             ModBlocks.FROST_DECO_BLOCK,
             16
         );
         this.stoneCutterRecipe(
             provider,
             RecipeCategory.BUILDING_BLOCKS,
-            Ingredient.of(ModItems.FROST_METAL_NUGGET),
+            Ingredient.of(ModItemTags.FROST_METAL_NUGGETS),
             ModBlocks.FROST_DECO_OUTLINE,
             16
         );
         this.stoneCutterRecipe(
             provider,
             RecipeCategory.BUILDING_BLOCKS,
-            Ingredient.of(ModItems.TRANSCENDIUM_NUGGET),
+            Ingredient.of(ModItemTags.TRANSCENDIUM_NUGGETS),
             ModBlocks.TRANSCENDENCE_DECO_BLOCK,
             16
         );
         this.stoneCutterRecipe(
             provider,
             RecipeCategory.BUILDING_BLOCKS,
-            Ingredient.of(ModItems.TRANSCENDIUM_NUGGET),
+            Ingredient.of(ModItemTags.TRANSCENDIUM_NUGGETS),
             ModBlocks.TRANSCENDENCE_DECO_OUTLINE,
             16
         );
@@ -100,45 +100,45 @@ public class StoneCutterRecipeLoader {
         // 青铜块 -> 切制青铜块x4
         SingleItemRecipeBuilder
             .stonecutting(
-                Ingredient.of(ModBlocks.BRONZE_BLOCK),
+                Ingredient.of(ModItemTags.STORAGE_BLOCKS_BRONZE),
                 RecipeCategory.BUILDING_BLOCKS,
                 ModBlocks.CUT_BRONZE_BLOCK,
                 4
             )
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRONZE_BLOCK), AnvilCraftDatagen.has(ModBlocks.BRONZE_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRONZE_BLOCK), AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_BRONZE))
             .save(provider);
 
         // 青铜块 -> 切制青铜楼梯x4
         SingleItemRecipeBuilder
             .stonecutting(
-                Ingredient.of(ModBlocks.BRONZE_BLOCK),
+                Ingredient.of(ModItemTags.STORAGE_BLOCKS_BRONZE),
                 RecipeCategory.BUILDING_BLOCKS,
                 ModBlocks.CUT_BRONZE_STAIRS,
                 4
             )
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRONZE_BLOCK), AnvilCraftDatagen.has(ModBlocks.BRONZE_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRONZE_BLOCK), AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_BRONZE))
             .save(provider, "cutting_bronze_stairs_from_bronze_block");
 
         // 青铜块 -> 切制青铜台阶x8
         SingleItemRecipeBuilder
             .stonecutting(
-                Ingredient.of(ModBlocks.BRONZE_BLOCK),
+                Ingredient.of(ModItemTags.STORAGE_BLOCKS_BRONZE),
                 RecipeCategory.BUILDING_BLOCKS,
                 ModBlocks.CUT_BRONZE_SLAB,
                 8
             )
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRONZE_BLOCK), AnvilCraftDatagen.has(ModBlocks.BRONZE_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRONZE_BLOCK), AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_BRONZE))
             .save(provider, "cutting_bronze_slab_from_bronze_block");
 
         // 青铜块 -> 切制青铜柱x4
         SingleItemRecipeBuilder
             .stonecutting(
-                Ingredient.of(ModBlocks.BRONZE_BLOCK),
+                Ingredient.of(ModItemTags.STORAGE_BLOCKS_BRONZE),
                 RecipeCategory.BUILDING_BLOCKS,
                 ModBlocks.CUT_BRONZE_PILLAR,
                 4
             )
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRONZE_BLOCK), AnvilCraftDatagen.has(ModBlocks.BRONZE_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRONZE_BLOCK), AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_BRONZE))
             .save(provider, "cutting_brass_pillar_from_bronze_block");
 
         // 切制青铜块 -> 切制青铜楼梯x1
@@ -176,12 +176,12 @@ public class StoneCutterRecipeLoader {
         // 青铜块 -> 雕纹青铜块x4
         SingleItemRecipeBuilder
             .stonecutting(
-                Ingredient.of(ModBlocks.BRONZE_BLOCK),
+                Ingredient.of(ModItemTags.STORAGE_BLOCKS_BRONZE),
                 RecipeCategory.BUILDING_BLOCKS,
                 ModBlocks.CHISELED_BRONZE_BLOCK,
                 4
             )
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRONZE_BLOCK), AnvilCraftDatagen.has(ModBlocks.BRONZE_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRONZE_BLOCK), AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_BRONZE))
             .save(provider, "chiseled_bronze_block_from_bronze_block");
 
         // 切制青铜块 -> 雕纹青铜块
@@ -199,45 +199,45 @@ public class StoneCutterRecipeLoader {
         // 黄铜块 -> 切制黄铜块x4
         SingleItemRecipeBuilder
             .stonecutting(
-                Ingredient.of(ModBlocks.BRASS_BLOCK),
+                Ingredient.of(ModItemTags.STORAGE_BLOCKS_BRASS),
                 RecipeCategory.BUILDING_BLOCKS,
                 ModBlocks.CUT_BRASS_BLOCK,
                 4
             )
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRASS_BLOCK), AnvilCraftDatagen.has(ModBlocks.BRASS_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRASS_BLOCK), AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_BRASS))
             .save(provider);
 
         // 黄铜块 -> 切制黄铜楼梯x4
         SingleItemRecipeBuilder
             .stonecutting(
-                Ingredient.of(ModBlocks.BRASS_BLOCK),
+                Ingredient.of(ModItemTags.STORAGE_BLOCKS_BRASS),
                 RecipeCategory.BUILDING_BLOCKS,
                 ModBlocks.CUT_BRASS_STAIRS,
                 4
             )
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRASS_BLOCK), AnvilCraftDatagen.has(ModBlocks.BRASS_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRASS_BLOCK), AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_BRASS))
             .save(provider, "cutting_brass_stairs_from_brass_block");
 
         // 黄铜块 -> 切制黄铜台阶x8
         SingleItemRecipeBuilder
             .stonecutting(
-                Ingredient.of(ModBlocks.BRASS_BLOCK),
+                Ingredient.of(ModItemTags.STORAGE_BLOCKS_BRASS),
                 RecipeCategory.BUILDING_BLOCKS,
                 ModBlocks.CUT_BRASS_SLAB,
                 8
             )
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRASS_BLOCK), AnvilCraftDatagen.has(ModBlocks.BRASS_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRASS_BLOCK), AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_BRASS))
             .save(provider, "cutting_brass_slab_from_brass_block");
 
         // 黄铜块 -> 切制黄铜柱x4
         SingleItemRecipeBuilder
             .stonecutting(
-                Ingredient.of(ModBlocks.BRASS_BLOCK),
+                Ingredient.of(ModItemTags.STORAGE_BLOCKS_BRASS),
                 RecipeCategory.BUILDING_BLOCKS,
                 ModBlocks.CUT_BRASS_PILLAR,
                 4
             )
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRASS_BLOCK), AnvilCraftDatagen.has(ModBlocks.BRASS_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRASS_BLOCK), AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_BRASS))
             .save(provider, "cutting_brass_pillar_from_brass_block");
 
         // 切制黄铜块 -> 切制黄铜楼梯x1
@@ -275,12 +275,12 @@ public class StoneCutterRecipeLoader {
         // 黄铜块 -> 雕纹黄铜块x4
         SingleItemRecipeBuilder
             .stonecutting(
-                Ingredient.of(ModBlocks.BRASS_BLOCK),
+                Ingredient.of(ModItemTags.STORAGE_BLOCKS_BRASS),
                 RecipeCategory.BUILDING_BLOCKS,
                 ModBlocks.CHISELED_BRASS_BLOCK,
                 4
             )
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRASS_BLOCK), AnvilCraftDatagen.has(ModBlocks.BRASS_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRASS_BLOCK), AnvilCraftDatagen.has(ModItemTags.STORAGE_BLOCKS_BRASS))
             .save(provider, "chiseled_brass_block_from_brass_block");
 
         // 切制黄铜块 -> 雕纹黄铜块
@@ -346,9 +346,7 @@ public class StoneCutterRecipeLoader {
             result,
             count
         );
-        for (ItemStack item : ingredient.getItems()) {
-            stonecutting.unlockedBy(AnvilCraftDatagen.hasItem(item.getItem()), AnvilCraftDatagen.has(item.getItem()));
-        }
+        unlockStonecutting(stonecutting, ingredient);
         stonecutting.save(provider);
     }
 
@@ -366,9 +364,18 @@ public class StoneCutterRecipeLoader {
             result,
             count
         );
-        for (ItemStack item : ingredient.getItems()) {
-            stonecutting.unlockedBy(AnvilCraftDatagen.hasItem(item.getItem()), AnvilCraftDatagen.has(item.getItem()));
-        }
+        unlockStonecutting(stonecutting, ingredient);
         stonecutting.save(provider, path);
+    }
+
+    private static void unlockStonecutting(SingleItemRecipeBuilder recipe, Ingredient ingredient) {
+        for (Ingredient.Value value : ingredient.getValues()) {
+            if (value instanceof Ingredient.TagValue entry) {
+                recipe.unlockedBy(AnvilCraftDatagen.hasItem(entry.tag()), AnvilCraftDatagen.has(entry.tag()));
+            } else if (value instanceof Ingredient.ItemValue entry) {
+                var item = entry.item().getItem();
+                recipe.unlockedBy(AnvilCraftDatagen.hasItem(item), AnvilCraftDatagen.has(item));
+            }
+        }
     }
 }

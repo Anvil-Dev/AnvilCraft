@@ -5,7 +5,7 @@
   "experience": 1.0,
   "group": "anvilcraft:zinc_ingot",
   "ingredient": {
-    "item": "anvilcraft:raw_zinc"
+    "tag": "c:raw_materials/zinc"
   },
   "result": {
     "count": 1,

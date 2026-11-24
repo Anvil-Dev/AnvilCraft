@@ -3,7 +3,7 @@
   "category": "redstone",
   "key": {
     "A": {
-      "item": "anvilcraft:magnet_ingot"
+      "tag": "c:ingots/magnet"
     }
   },
   "pattern": [

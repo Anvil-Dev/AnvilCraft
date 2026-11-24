@@ -3,10 +3,10 @@
   "category": "misc",
   "key": {
     "A": {
-      "item": "minecraft:stick"
+      "tag": "c:rods/wooden"
     },
     "B": {
-      "item": "minecraft:string"
+      "tag": "c:strings"
     }
   },
   "pattern": [

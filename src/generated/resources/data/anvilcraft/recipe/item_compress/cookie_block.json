@@ -3,7 +3,7 @@
   "ingredients": [
     {
       "count": 9,
-      "items": "minecraft:cookie"
+      "items": "#c:foods/cookie"
     }
   ],
   "results": [
