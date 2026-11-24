@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:bronze_block"
+            "items": "#c:storage_blocks/bronze"
           }
         ]
       },

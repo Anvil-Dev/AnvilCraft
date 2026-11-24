@@ -7,54 +7,22 @@
   ],
   "type": "anvilcraft:jewel_crafting",
   "ingredients": [
-    {
-      "item": "anvilcraft:magnet_ingot"
-    },
-    {
-      "item": "anvilcraft:magnet_ingot"
-    },
-    {
-      "item": "anvilcraft:magnet_ingot"
-    },
-    {
-      "item": "anvilcraft:magnet_ingot"
-    },
-    {
-      "tag": "minecraft:iron_ores"
-    },
-    {
-      "tag": "minecraft:iron_ores"
-    },
-    {
-      "tag": "minecraft:iron_ores"
-    },
-    {
-      "tag": "minecraft:iron_ores"
-    },
-    {
-      "tag": "minecraft:gold_ores"
-    },
-    {
-      "tag": "minecraft:gold_ores"
-    },
-    {
-      "tag": "minecraft:gold_ores"
-    },
-    {
-      "tag": "minecraft:gold_ores"
-    },
-    {
-      "tag": "minecraft:copper_ores"
-    },
-    {
-      "tag": "minecraft:copper_ores"
-    },
-    {
-      "tag": "minecraft:copper_ores"
-    },
-    {
-      "tag": "minecraft:copper_ores"
-    }
+    "#c:ingots/magnet",
+    "#c:ingots/magnet",
+    "#c:ingots/magnet",
+    "#c:ingots/magnet",
+    "#minecraft:iron_ores",
+    "#minecraft:iron_ores",
+    "#minecraft:iron_ores",
+    "#minecraft:iron_ores",
+    "#minecraft:gold_ores",
+    "#minecraft:gold_ores",
+    "#minecraft:gold_ores",
+    "#minecraft:gold_ores",
+    "#minecraft:copper_ores",
+    "#minecraft:copper_ores",
+    "#minecraft:copper_ores",
+    "#minecraft:copper_ores"
   ],
   "result": {
     "count": 1,

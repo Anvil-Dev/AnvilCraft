@@ -885,25 +885,25 @@ public class ModItems {
         "emerald",
         ModAmulets.EMERALD.getKey(),
         ModAmulets.SMALL_AMULET_WEIGHT,
-        builder -> builder.requires(Items.EMERALD_BLOCK)
+        builder -> builder.requires(Tags.Items.STORAGE_BLOCKS_EMERALD)
     );
     public static final ItemEntry<? extends Item> TOPAZ_AMULET = ModItems.createAmuletItem(
         "topaz",
         ModAmulets.TOPAZ.getKey(),
         ModAmulets.SMALL_AMULET_WEIGHT,
-        builder -> builder.requires(ModBlocks.TOPAZ_BLOCK)
+        builder -> builder.requires(ModItemTags.STORAGE_BLOCKS_TOPAZ)
     );
     public static final ItemEntry<? extends Item> RUBY_AMULET = ModItems.createAmuletItem(
         "ruby",
         ModAmulets.RUBY.getKey(),
         ModAmulets.SMALL_AMULET_WEIGHT,
-        builder -> builder.requires(ModBlocks.RUBY_BLOCK)
+        builder -> builder.requires(ModItemTags.STORAGE_BLOCKS_RUBY)
     );
     public static final ItemEntry<? extends Item> SAPPHIRE_AMULET = ModItems.createAmuletItem(
         "sapphire",
         ModAmulets.SAPPHIRE.getKey(),
         ModAmulets.SMALL_AMULET_WEIGHT,
-        builder -> builder.requires(ModBlocks.SAPPHIRE_BLOCK)
+        builder -> builder.requires(ModItemTags.STORAGE_BLOCKS_SAPPHIRE)
     );
     public static final ItemEntry<? extends Item> ANVIL_AMULET = ModItems.createAmuletItem(
         "anvil",
@@ -922,7 +922,7 @@ public class ModItems {
         "feather",
         ModAmulets.FEATHER.getKey(),
         ModAmulets.SMALL_AMULET_WEIGHT,
-        builder -> builder.requires(Items.FEATHER, 16).requires(Items.PHANTOM_MEMBRANE, 4)
+        builder -> builder.requires(Tags.Items.FEATHERS, 16).requires(Items.PHANTOM_MEMBRANE, 4)
     );
     public static final ItemEntry<? extends Item> ARMADILLO_AMULET = ModItems.createAmuletItem(
         "armadillo",
@@ -940,7 +940,7 @@ public class ModItems {
         "dog",
         ModAmulets.DOG.getKey(),
         ModAmulets.SMALL_AMULET_WEIGHT,
-        builder -> builder.requires(Items.BONE, 16).requires(ItemTags.MEAT, 16)
+        builder -> builder.requires(Tags.Items.BONES, 16).requires(ItemTags.MEAT, 16)
     );
     public static final ItemEntry<? extends Item> SILENCE_AMULET = ModItems.createAmuletItem(
         "silence",

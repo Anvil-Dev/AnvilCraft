@@ -6,7 +6,7 @@
     "H": "minecraft:heart_of_the_sea",
     "N": "minecraft:nautilus_shell",
     "P": "anvilcraft:pipe",
-    "W": "minecraft:water_bucket"
+    "W": "#c:buckets/water"
   },
   "pattern": [
     " W ",

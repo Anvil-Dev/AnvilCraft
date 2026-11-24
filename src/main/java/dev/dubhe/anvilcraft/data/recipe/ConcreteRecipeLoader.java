@@ -63,7 +63,7 @@ public class ConcreteRecipeLoader {
                 .cauldron(cauldronBlock)
                 .requires(items, Tags.Items.GRAVELS, 2)
                 .requires(items, Tags.Items.SANDS, 2)
-                .requires(Items.IRON_BARS, 8)
+                .requires(items, Tags.Items.BARS_IRON, 8)
                 .result(reinforcedConcrete, 16)
                 .save(provider, AnvilCraft.of("solid_liquid/concrete/anvilcraft_reinforced_concrete_%s"
                     .formatted(color.getSerializedName())));
@@ -83,7 +83,7 @@ public class ConcreteRecipeLoader {
                 .cauldron(inputCements)
                 .consume(1000)
                 .transform(BuiltInRegistries.FLUID.getValue(targetCement), 1000)
-                .requires(color.dyeItem())
+                .requires(provider.getItems(), color.color().getTag())
                 .maxEfficiency(1)
                 .save(provider, AnvilCraft.of("solid_liquid/cement_staining/%s".formatted(color.getSerializedName())));
         }

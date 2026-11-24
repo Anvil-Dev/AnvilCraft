@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.common.Tags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +47,7 @@ public class Upgrade2ShulkerContainerBehavior implements IAnvilBehavior {
             ItemStack stack = entity.getItem();
             if (stack.is(ModBlocks.SPACE_OVERCOMPRESSOR.asItem())) {
                 spaceOvercompressor = entity;
-            } else if (stack.is(Blocks.NETHERITE_BLOCK.asItem())) {
+            } else if (stack.is(Tags.Items.STORAGE_BLOCKS_NETHERITE)) {
                 netheriteBlock.add(entity);
                 count += stack.getCount();
             }

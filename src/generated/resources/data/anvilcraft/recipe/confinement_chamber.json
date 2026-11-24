@@ -2,8 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": "anvilcraft:transcendium_nugget",
-    "B": "anvilcraft:magnet_ingot"
+    "A": "#c:nuggets/transcendium",
+    "B": "#c:ingots/magnet"
   },
   "pattern": [
     "ABA",

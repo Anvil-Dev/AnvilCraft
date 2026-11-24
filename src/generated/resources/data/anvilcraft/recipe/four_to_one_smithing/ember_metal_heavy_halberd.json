@@ -8,7 +8,7 @@
       "items": "minecraft:netherite_spear"
     },
     {
-      "items": "minecraft:trident"
+      "items": "#c:tools/trident"
     },
     {
       "items": "#c:tools/mace"

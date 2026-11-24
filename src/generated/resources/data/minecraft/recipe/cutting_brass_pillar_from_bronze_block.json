@@ -1,6 +1,6 @@
 {
   "type": "minecraft:stonecutting",
-  "ingredient": "anvilcraft:bronze_block",
+  "ingredient": "#c:storage_blocks/bronze",
   "result": {
     "count": 4,
     "id": "anvilcraft:cut_bronze_pillar"

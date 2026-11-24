@@ -21,7 +21,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:titanium_block"
+            "items": "#c:storage_blocks/titanium"
           }
         ]
       },

@@ -26,7 +26,7 @@
         },
         "ingredients": [
           {
-            "items": "minecraft:ender_pearl"
+            "items": "#c:ender_pearls"
           }
         ]
       },
@@ -43,7 +43,7 @@
         },
         "ingredients": [
           {
-            "items": "minecraft:chest"
+            "items": "#c:chests/wooden"
           }
         ]
       },

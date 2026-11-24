@@ -18,7 +18,7 @@ public class SuperHeatingRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
         SuperHeatingRecipe.builder()
             .transform(Blocks.LAVA_CAULDRON, 1000)
-            .requires(Items.COBBLESTONE, 4)
+            .requires(provider.getItems(), Tags.Items.COBBLESTONES_NORMAL, 4)
             .requires(ModItems.LIME_POWDER)
             .save(provider, AnvilCraft.of("super_heating/lava_from_cobblestone"));
         SuperHeatingRecipe.builder()
@@ -30,59 +30,59 @@ public class SuperHeatingRecipeLoader {
         SuperHeatingRecipe.builder()
             .fluid(Blocks.LAVA_CAULDRON)
             .consume(250)
-            .requires(ModBlocks.TUNGSTEN_BLOCK)
+            .requires(provider.getItems(), ModItemTags.STORAGE_BLOCKS_TUNGSTEN)
             .result(ModBlocks.HEATED_TUNGSTEN_BLOCK)
             .save(provider);
         SuperHeatingRecipe.builder()
             .fluid(Blocks.LAVA_CAULDRON)
             .consume(250)
-            .requires(Blocks.NETHERITE_BLOCK)
+            .requires(provider.getItems(), Tags.Items.STORAGE_BLOCKS_NETHERITE)
             .result(ModBlocks.HEATED_NETHERITE_BLOCK)
             .save(provider);
 
         // Royal Steel Ingot Recipes
         SuperHeatingRecipe.builder()
-            .requires(Items.IRON_INGOT, 2)
-            .requires(Items.DIAMOND)
+            .requires(provider.getItems(), Tags.Items.INGOTS_IRON, 2)
+            .requires(provider.getItems(), Tags.Items.GEMS_DIAMOND)
             .requires(provider.getItems(), ModItemTags.GEMS)
             .result(ModItems.ROYAL_STEEL_INGOT, 1)
             .save(provider, AnvilCraft.of("super_heating/royal_steel_ingot_base"));
 
         SuperHeatingRecipe.builder()
-            .requires(Items.IRON_INGOT, 2)
-            .requires(Items.DIAMOND)
+            .requires(provider.getItems(), Tags.Items.INGOTS_IRON, 2)
+            .requires(provider.getItems(), Tags.Items.GEMS_DIAMOND)
             .requires(provider.getItems(), ModItemTags.GEMS)
-            .requires(Items.AMETHYST_SHARD)
+            .requires(provider.getItems(), Tags.Items.GEMS_AMETHYST)
             .result(ModItems.ROYAL_STEEL_INGOT, 2)
             .save(provider, AnvilCraft.of("super_heating/royal_steel_ingot_bonus_1"));
 
         SuperHeatingRecipe.builder()
-            .requires(Items.IRON_INGOT, 2)
-            .requires(Items.DIAMOND)
+            .requires(provider.getItems(), Tags.Items.INGOTS_IRON, 2)
+            .requires(provider.getItems(), Tags.Items.GEMS_DIAMOND)
             .requires(provider.getItems(), ModItemTags.GEMS)
-            .requires(Items.AMETHYST_SHARD, 2)
+            .requires(provider.getItems(), Tags.Items.GEMS_AMETHYST, 2)
             .result(ModItems.ROYAL_STEEL_INGOT, 3)
             .save(provider, AnvilCraft.of("super_heating/royal_steel_ingot_bonus_2"));
 
         // Royal Steel Block Recipes
         SuperHeatingRecipe.builder()
-            .requires(Blocks.IRON_BLOCK, 2)
-            .requires(Blocks.DIAMOND_BLOCK)
+            .requires(provider.getItems(), Tags.Items.STORAGE_BLOCKS_IRON, 2)
+            .requires(provider.getItems(), Tags.Items.STORAGE_BLOCKS_DIAMOND)
             .requires(provider.getItems(), ModItemTags.GEM_BLOCKS)
             .result(ModBlocks.ROYAL_STEEL_BLOCK, 1)
             .save(provider, AnvilCraft.of("super_heating/royal_steel_block_base"));
 
         SuperHeatingRecipe.builder()
-            .requires(Blocks.IRON_BLOCK, 2)
-            .requires(Blocks.DIAMOND_BLOCK)
+            .requires(provider.getItems(), Tags.Items.STORAGE_BLOCKS_IRON, 2)
+            .requires(provider.getItems(), Tags.Items.STORAGE_BLOCKS_DIAMOND)
             .requires(provider.getItems(), ModItemTags.GEM_BLOCKS)
             .requires(Blocks.AMETHYST_BLOCK)
             .result(ModBlocks.ROYAL_STEEL_BLOCK, 2)
             .save(provider, AnvilCraft.of("super_heating/royal_steel_block_bonus_1"));
 
         SuperHeatingRecipe.builder()
-            .requires(Blocks.IRON_BLOCK, 2)
-            .requires(Blocks.DIAMOND_BLOCK)
+            .requires(provider.getItems(), Tags.Items.STORAGE_BLOCKS_IRON, 2)
+            .requires(provider.getItems(), Tags.Items.STORAGE_BLOCKS_DIAMOND)
             .requires(provider.getItems(), ModItemTags.GEM_BLOCKS)
             .requires(Blocks.AMETHYST_BLOCK, 2)
             .result(ModBlocks.ROYAL_STEEL_BLOCK, 3)
@@ -95,7 +95,7 @@ public class SuperHeatingRecipeLoader {
             .save(provider);
         SuperHeatingRecipe.builder()
             .requires(ModBlocks.QUARTZ_SAND, 8)
-            .requires(ModItems.FROST_METAL_INGOT)
+            .requires(provider.getItems(), ModItemTags.FROST_METAL_INGOTS)
             .result(ModBlocks.FROST_GLASS, 8)
             .save(provider);
         SuperHeatingRecipe.builder()
@@ -105,12 +105,12 @@ public class SuperHeatingRecipeLoader {
             .save(provider);
 
         SuperHeatingRecipe.builder()
-            .requires(Items.COPPER_INGOT, 2)
+            .requires(provider.getItems(), Tags.Items.INGOTS_COPPER, 2)
             .requires(provider.getItems(), ModItemTags.ZINC_INGOTS)
             .result(ModItems.BRASS_INGOT, 3)
             .save(provider);
         SuperHeatingRecipe.builder()
-            .requires(Items.COPPER_INGOT, 2)
+            .requires(provider.getItems(), Tags.Items.INGOTS_COPPER, 2)
             .requires(provider.getItems(), ModItemTags.TIN_INGOTS)
             .result(ModItems.BRONZE_INGOT, 3)
             .save(provider);
@@ -120,7 +120,7 @@ public class SuperHeatingRecipeLoader {
             .result(Items.CHARCOAL)
             .save(provider);
         SuperHeatingRecipe.builder()
-            .requires(Blocks.COAL_BLOCK, 8)
+            .requires(provider.getItems(), Tags.Items.STORAGE_BLOCKS_COAL, 8)
             .result(Items.DIAMOND)
             .save(provider);
 

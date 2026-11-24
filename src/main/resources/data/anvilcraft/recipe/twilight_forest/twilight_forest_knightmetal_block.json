@@ -8,12 +8,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "C": {
-      "item": "minecraft:cactus"
-    },
-    "H": {
-      "item": "anvilcraft:heavy_iron_block"
-    }
+    "C": "#c:crops/cactus",
+    "H": "anvilcraft:heavy_iron_block"
   },
   "pattern": [
     "CCC",

@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:exp_gem_block"
+            "items": "#c:storage_blocks/exp_gem"
           }
         ]
       },

@@ -3,7 +3,7 @@
   "category": "redstone",
   "key": {
     "C": "#c:nuggets/copper",
-    "R": "minecraft:redstone"
+    "R": "#c:dusts/redstone"
   },
   "pattern": [
     "CRC"

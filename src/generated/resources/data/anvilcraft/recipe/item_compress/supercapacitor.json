@@ -6,7 +6,7 @@
       "type": "anvillib_recipe:has_item_ingredient",
       "item": {
         "count": 2,
-        "items": "minecraft:copper_block"
+        "items": "#c:storage_blocks/copper"
       },
       "offset": [
         0.0,

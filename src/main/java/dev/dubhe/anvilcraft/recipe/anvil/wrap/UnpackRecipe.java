@@ -67,19 +67,22 @@ public class UnpackRecipe extends AbstractProcessRecipe<UnpackRecipe> {
                     .build()
             );
 
-        boolean hasFluidTankMinecart = itemIngredients.stream()
-            .flatMap(ingredient -> Arrays.stream(ingredient.getItems()))
-            .anyMatch(stack -> stack.is(ModItems.FLUID_TANK_MINECART));
-        if (!hasFluidTankMinecart) return property;
-
+        if (results.stream().noneMatch(result -> result.stack().is(ModBlocks.FLUID_TANK.asItem()))) {
+            return property;
+        }
+        boolean hasFluidTankMinecart = false;
         for (int i = 0; i < itemIngredients.size(); i++) {
             ItemIngredientPredicate ingredient = itemIngredients.get(i);
             if (Arrays.stream(ingredient.getItems()).anyMatch(stack -> stack.is(ModItems.FLUID_TANK_MINECART))) {
+                hasFluidTankMinecart = true;
                 property.addInputItemFunction(
                     i,
                     new SaveComponentToTag<>(DataComponents.BLOCK_ENTITY_DATA, UnpackRecipe.FLUID_TANK_DATA_PATH)
                 );
             }
+        }
+        if (!hasFluidTankMinecart) {
+            return property;
         }
         for (int i = 0; i < results.size(); i++) {
             if (results.get(i).stack().is(ModBlocks.FLUID_TANK.asItem())) {

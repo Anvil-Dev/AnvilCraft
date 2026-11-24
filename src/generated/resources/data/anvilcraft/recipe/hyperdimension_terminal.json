@@ -3,7 +3,7 @@
   "category": "misc",
   "group": "anvilcraft:hyperdimension_terminal",
   "key": {
-    "A": "anvilcraft:transcendium_ingot",
+    "A": "#c:ingots/transcendium",
     "B": "anvilcraft:singularity_crystal",
     "C": "anvilcraft:shulker_terminal",
     "D": "anvilcraft:hypercube"

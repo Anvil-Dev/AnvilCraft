@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": "minecraft:obsidian",
+    "A": "#c:obsidians/normal",
     "B": "minecraft:ender_eye",
     "C": "anvilcraft:royal_steel_block"
   },

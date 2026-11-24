@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    "anvilcraft:raw_uranium_block"
+    "#c:storage_blocks/raw_uranium"
   ],
   "result": {
     "count": 9,

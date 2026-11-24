@@ -6,7 +6,7 @@
       "items": "anvilcraft:wood_fiber"
     },
     {
-      "items": "anvilcraft:resin"
+      "items": "#c:resin"
     }
   ],
   "priority": 12,

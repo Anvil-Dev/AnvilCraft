@@ -9,7 +9,7 @@
       "items": "minecraft:sugar"
     },
     {
-      "items": "minecraft:sweet_berries"
+      "items": "#c:foods/berry"
     }
   ],
   "priority": 13,

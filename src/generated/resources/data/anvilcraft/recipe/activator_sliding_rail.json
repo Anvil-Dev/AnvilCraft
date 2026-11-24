@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
   "key": {
-    "R": "minecraft:redstone_block",
+    "R": "#c:storage_blocks/redstone",
     "S": "anvilcraft:sliding_rail"
   },
   "pattern": [

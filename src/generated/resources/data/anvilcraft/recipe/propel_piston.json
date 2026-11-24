@@ -4,9 +4,9 @@
   "key": {
     "A": "anvilcraft:ionocraft",
     "B": "anvilcraft:capacitor",
-    "C": "minecraft:iron_ingot",
+    "C": "#c:ingots/iron",
     "D": "minecraft:piston",
-    "E": "anvilcraft:ruby"
+    "E": "#c:gems/ruby"
   },
   "pattern": [
     "CDC",

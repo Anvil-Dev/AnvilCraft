@@ -3,8 +3,8 @@
   "category": "redstone",
   "key": {
     "H": "anvilcraft:hardened_resin",
-    "I": "minecraft:iron_ingot",
-    "R": "minecraft:redstone"
+    "I": "#c:ingots/iron",
+    "R": "#c:dusts/redstone"
   },
   "pattern": [
     " R ",

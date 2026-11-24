@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "A": "minecraft:soul_sand",
-    "B": "minecraft:iron_ingot"
+    "B": "#c:ingots/iron"
   },
   "pattern": [
     "A A",

@@ -2,7 +2,7 @@
   "type": "anvilcraft:mesh",
   "ingredients": [
     {
-      "items": "minecraft:gravel"
+      "items": "#c:gravels"
     }
   ],
   "results": [

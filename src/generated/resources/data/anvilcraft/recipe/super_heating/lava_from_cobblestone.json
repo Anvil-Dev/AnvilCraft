@@ -4,7 +4,7 @@
   "ingredients": [
     {
       "count": 4,
-      "items": "minecraft:cobblestone"
+      "items": "#c:cobblestones/normal"
     },
     {
       "items": "anvilcraft:lime_powder"

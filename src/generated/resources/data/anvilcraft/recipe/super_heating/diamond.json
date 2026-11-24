@@ -3,7 +3,7 @@
   "ingredients": [
     {
       "count": 8,
-      "items": "minecraft:coal_block"
+      "items": "#c:storage_blocks/coal"
     }
   ],
   "results": [

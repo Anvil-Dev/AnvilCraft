@@ -3,7 +3,7 @@
   "category": "misc",
   "group": "anvilcraft:frost_metal_ingot",
   "key": {
-    "A": "anvilcraft:frost_metal_nugget"
+    "A": "#c:nuggets/frost_metal"
   },
   "pattern": [
     "AAA",

@@ -4,7 +4,7 @@
   "cookingtime": 200,
   "experience": 1.0,
   "group": "anvilcraft:zinc_ingot",
-  "ingredient": "anvilcraft:raw_zinc",
+  "ingredient": "#c:raw_materials/zinc",
   "result": {
     "id": "anvilcraft:zinc_ingot"
   }

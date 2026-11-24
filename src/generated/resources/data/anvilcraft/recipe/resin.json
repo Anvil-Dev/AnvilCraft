@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    "anvilcraft:resin_block"
+    "#c:storage_blocks/resin"
   ],
   "result": {
     "count": 9,

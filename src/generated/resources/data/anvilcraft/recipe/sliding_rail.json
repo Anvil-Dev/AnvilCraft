@@ -3,7 +3,7 @@
   "category": "redstone",
   "key": {
     "A": "minecraft:blue_ice",
-    "B": "minecraft:iron_ingot"
+    "B": "#c:ingots/iron"
   },
   "pattern": [
     "A A",

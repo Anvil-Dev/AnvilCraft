@@ -176,7 +176,12 @@ public class ProceduralProcessStepManager {
                             if (holder != null && holder.value() instanceof ProceduralProcessRecipe ppr) {
                                 BlockPos pos = BlockPos.containing(contextOfStep.getPos());
                                 pos = pos.below();
-                                BlockState initialBlockState = ppr.initialBlock().getBlocks().get(0).value().defaultBlockState();
+                                HolderSet<Block> initialBlocks = ppr.initialBlock().getBlocks();
+                                if (!(initialBlocks instanceof HolderSet.Direct<?>) && initialBlocks.size() == 0) {
+                                    continue;
+                                }
+                                BlockState initialBlockState = initialBlocks.size() == 0
+                                    ? sl.getBlockState(pos) : initialBlocks.get(0).value().defaultBlockState();
                                 BlockPos potentialPos = pos;
                                 for (int i = 0; i < ProceduralProcessStepManager.WIP_BLOCK_DETECTION_DEPTH; i++) {
                                     if (ppr.initialBlock().test(sl, sl.getBlockState(potentialPos), sl.getBlockEntity(potentialPos))) {

@@ -4,7 +4,7 @@
   "key": {
     "A": "minecraft:anvil",
     "B": "minecraft:lightning_rod",
-    "C": "minecraft:iron_ingot"
+    "C": "#c:ingots/iron"
   },
   "pattern": [
     "A",

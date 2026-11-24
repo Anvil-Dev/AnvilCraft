@@ -5,7 +5,7 @@
   "key": {
     "C": "anvilcraft:processor",
     "D": "minecraft:daylight_detector",
-    "I": "minecraft:iron_block",
+    "I": "#c:storage_blocks/iron",
     "S": "#c:plates/silver"
   },
   "pattern": [

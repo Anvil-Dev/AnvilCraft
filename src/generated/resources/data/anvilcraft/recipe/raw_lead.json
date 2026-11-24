@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    "anvilcraft:raw_lead_block"
+    "#c:storage_blocks/raw_lead"
   ],
   "result": {
     "count": 9,

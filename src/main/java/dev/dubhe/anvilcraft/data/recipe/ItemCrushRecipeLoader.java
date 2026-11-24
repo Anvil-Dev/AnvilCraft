@@ -33,18 +33,18 @@ public class ItemCrushRecipeLoader {
             .save(provider);
         ItemCrushRecipe.builder().requires(items, ItemTags.LOGS).result(ModItems.WOOD_FIBER).result(ModItems.RESIN).save(provider);
         ItemCrushRecipe.builder()
-            .requires(Items.BEETROOT)
+            .requires(items, Tags.Items.CROPS_BEETROOT)
             .result(Items.RED_DYE)
             .result(Items.SUGAR)
             .save(provider, AnvilCraft.of("item_crush/red_dye_from_beetroot"));
         ItemCrushRecipe.builder().requires(items, ItemTags.WOOL).result(Items.STRING, 4).save(provider);
         ItemCrushRecipe.builder()
-            .requires(Items.BONE)
+            .requires(items, Tags.Items.BONES)
             .result(Items.BONE_MEAL, 6)
             .save(provider, AnvilCraft.of("item_crush/bone_meal_from_bone"));
-        ItemCrushRecipe.builder().requires(Items.BLAZE_ROD).result(Items.BLAZE_POWDER, 4).save(provider);
-        ItemCrushRecipe.builder().requires(Items.BREEZE_ROD).result(Items.WIND_CHARGE, 8).save(provider);
-        ItemCrushRecipe.builder().requires(Items.LEATHER).result(Items.RABBIT_HIDE, 4).save(provider);
+        ItemCrushRecipe.builder().requires(items, Tags.Items.RODS_BLAZE).result(Items.BLAZE_POWDER, 4).save(provider);
+        ItemCrushRecipe.builder().requires(items, Tags.Items.RODS_BREEZE).result(Items.WIND_CHARGE, 8).save(provider);
+        ItemCrushRecipe.builder().requires(items, Tags.Items.LEATHERS).result(Items.RABBIT_HIDE, 4).save(provider);
         ItemCrushRecipe.builder()
             .requires(ModItems.GEODE)
             .result(Items.AMETHYST_SHARD, 4)
@@ -163,8 +163,14 @@ public class ItemCrushRecipeLoader {
             .save(provider, AnvilCraft.of("item_crush/armor/netherite_nautilus_armor_2_netherite_ingot"));
 
         ItemCrushRecipeLoader.blockCrush(provider, Items.STONE, Items.COBBLESTONE);
-        ItemCrushRecipeLoader.blockCrush(provider, Items.COBBLESTONE, Items.GRAVEL);
-        ItemCrushRecipeLoader.blockCrush(provider, Items.GRAVEL, Items.SAND);
+        ItemCrushRecipe.builder()
+            .requires(items, Tags.Items.COBBLESTONES_NORMAL)
+            .result(Items.GRAVEL, 0.8F)
+            .save(provider, "block_crush/gravel_from_cobblestone");
+        ItemCrushRecipe.builder()
+            .requires(items, Tags.Items.GRAVELS)
+            .result(Items.SAND, 0.8F)
+            .save(provider, "block_crush/sand_from_gravel");
         ItemCrushRecipeLoader.blockCrush(provider, Items.POLISHED_GRANITE, Items.GRANITE);
         ItemCrushRecipeLoader.blockCrush(provider, Items.GRANITE, Items.RED_SAND);
         ItemCrushRecipeLoader.blockCrush(provider, Items.POLISHED_ANDESITE, Items.ANDESITE);
@@ -177,8 +183,14 @@ public class ItemCrushRecipeLoader {
         ItemCrushRecipeLoader.blockCrush(provider, Items.DEEPSLATE_TILES, Items.CRACKED_DEEPSLATE_TILES);
         ItemCrushRecipeLoader.blockCrush(provider, Items.POLISHED_BLACKSTONE_BRICKS, Items.CRACKED_POLISHED_BLACKSTONE_BRICKS);
         ItemCrushRecipeLoader.blockCrush(provider, Items.SOUL_SOIL, Items.SOUL_SAND);
-        ItemCrushRecipeLoader.blockCrush(provider, Items.NETHERRACK, ModBlocks.NETHER_DUST.get());
-        ItemCrushRecipeLoader.blockCrush(provider, Items.END_STONE, ModBlocks.END_DUST.get());
+        ItemCrushRecipe.builder()
+            .requires(items, Tags.Items.NETHERRACKS)
+            .result(ModBlocks.NETHER_DUST.get(), 0.8F)
+            .save(provider, "block_crush/nether_dust_from_netherrack");
+        ItemCrushRecipe.builder()
+            .requires(items, Tags.Items.END_STONES)
+            .result(ModBlocks.END_DUST.get(), 0.8F)
+            .save(provider, "block_crush/end_dust_from_end_stone");
 
         ItemCrushRecipeLoader.flower(provider, Items.LILY_OF_THE_VALLEY, Items.WHITE_DYE);
         ItemCrushRecipeLoader.flower(provider, Items.AZURE_BLUET, Items.LIGHT_GRAY_DYE);
@@ -202,8 +214,14 @@ public class ItemCrushRecipeLoader {
         ItemCrushRecipeLoader.flower(provider, Items.PINK_TULIP, Items.PINK_DYE);
         ItemCrushRecipeLoader.flower(provider, Items.BONE_MEAL, Items.WHITE_DYE);
         ItemCrushRecipeLoader.flower(provider, Items.INK_SAC, Items.BLACK_DYE);
-        ItemCrushRecipeLoader.flower(provider, Items.COCOA_BEANS, Items.BROWN_DYE);
-        ItemCrushRecipeLoader.flower(provider, Items.LAPIS_LAZULI, Items.BLUE_DYE);
+        ItemCrushRecipe.builder()
+            .requires(items, Tags.Items.CROPS_COCOA_BEAN)
+            .result(Items.BROWN_DYE, 2)
+            .save(provider, "flower/brown_dye_from_cocoa_beans");
+        ItemCrushRecipe.builder()
+            .requires(items, Tags.Items.GEMS_LAPIS)
+            .result(Items.BLUE_DYE, 2)
+            .save(provider, "flower/blue_dye_from_lapis_lazuli");
         ItemCrushRecipe.builder()
             .requires(ModItems.SUPER_CAPACITOR)
             .result(ModItems.CAPACITOR, 8)
@@ -212,7 +230,7 @@ public class ItemCrushRecipeLoader {
 
         ItemCrushRecipe.builder()
             .requires(ItemIngredientPredicate.Builder.item()
-                .of(Items.SHULKER_BOX)
+                .of(items, Tags.Items.SHULKER_BOXES)
                 .hasComponents(DataComponentMatchers.Builder.components().exact(DataComponentExactPredicate.builder()
                     .expect(DataComponents.CONTAINER, ItemContainerContents.EMPTY)
                     .build()).build())

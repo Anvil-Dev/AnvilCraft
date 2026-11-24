@@ -5,7 +5,7 @@
   "ingredients": [
     {
       "count": 3,
-      "items": "minecraft:lapis_lazuli"
+      "items": "#c:gems/lapis"
     }
   ],
   "results": [],

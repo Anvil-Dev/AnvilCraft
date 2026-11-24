@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    "anvilcraft:exp_gem_block"
+    "#c:storage_blocks/exp_gem"
   ],
   "result": {
     "count": 9,

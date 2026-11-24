@@ -2,8 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": "minecraft:amethyst_shard",
-    "B": "minecraft:crafting_table"
+    "A": "#c:gems/amethyst",
+    "B": "#c:player_workstations/crafting_tables"
   },
   "pattern": [
     " A ",

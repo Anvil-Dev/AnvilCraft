@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:lead_block"
+            "items": "#c:storage_blocks/lead"
           }
         ]
       },

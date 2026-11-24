@@ -12,7 +12,7 @@ public class JewelCraftingRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
         JewelCraftingRecipe.builder(provider.getItems())
             .requires(Tags.Items.STORAGE_BLOCKS_GOLD)
-            .requires(Items.EMERALD, 2)
+            .requires(Tags.Items.GEMS_EMERALD, 2)
             .requires(ModItems.ROYAL_STEEL_INGOT)
             .result(Items.TOTEM_OF_UNDYING)
             .save(provider);
@@ -27,7 +27,7 @@ public class JewelCraftingRecipeLoader {
 
         JewelCraftingRecipe.builder(provider.getItems())
             .requires(Items.POLISHED_TUFF)
-            .requires(Items.COPPER_INGOT)
+            .requires(Tags.Items.INGOTS_COPPER)
             .result(Items.TRIAL_KEY)
             .hasVanishingCurse(false)
             .save(provider);

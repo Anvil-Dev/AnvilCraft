@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "A": "minecraft:cookie"
+    "A": "#c:foods/cookie"
   },
   "pattern": [
     "AAA",

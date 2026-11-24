@@ -1,7 +1,7 @@
 {
   "type": "anvilcraft:jewel_crafting",
   "ingredients": [
-    "anvilcraft:silver_ingot",
+    "#c:ingots/silver",
     "minecraft:anvil"
   ],
   "result": {

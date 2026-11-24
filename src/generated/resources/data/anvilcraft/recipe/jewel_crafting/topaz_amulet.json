@@ -1,8 +1,8 @@
 {
   "type": "anvilcraft:jewel_crafting",
   "ingredients": [
-    "anvilcraft:silver_ingot",
-    "anvilcraft:topaz_block"
+    "#c:ingots/silver",
+    "#c:storage_blocks/topaz"
   ],
   "result": {
     "id": "anvilcraft:topaz_amulet"

@@ -1,6 +1,6 @@
 {
   "type": "minecraft:smithing_transform",
-  "addition": "anvilcraft:frost_metal_ingot",
+  "addition": "#c:ingots/frost_metal",
   "base": "#anvilcraft:frost_metal_axe_base",
   "result": {
     "id": "anvilcraft:frost_metal_axe"

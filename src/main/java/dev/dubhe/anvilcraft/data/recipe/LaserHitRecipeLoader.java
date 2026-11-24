@@ -35,10 +35,11 @@ public final class LaserHitRecipeLoader {
             Blocks.DEEPSLATE, false, -90);
         tiers(output, "nether_ores", BlockStatePredicate.builder().of(blocks, Tags.Blocks.ORES_IN_GROUND_NETHERRACK).build(),
             Blocks.NETHERRACK, false, -80);
-        tiers(output, "ancient_debris", BlockStatePredicate.builder().of(Blocks.ANCIENT_DEBRIS).build(),
+        tiers(output, "ancient_debris", BlockStatePredicate.builder().of(blocks, Tags.Blocks.ORES_NETHERITE_SCRAP).build(),
             Blocks.NETHERRACK, false, -70);
-        tiers(output, "lens_targets", BlockStatePredicate.builder()
-                .of(ModBlocks.VOID_STONE.get(), ModBlocks.EARTH_CORE_SHARD_ORE.get()).build(),
+        tiers(output, "lens_targets", BlockStatePredicate.builder().of(blocks, ModBlockTags.ORES_VOID_MATTER).build(),
+            Blocks.DEEPSLATE, true, -60);
+        tiers(output, "lens_targets_earth_core_shard", BlockStatePredicate.builder().of(blocks, ModBlockTags.ORES_EARTH_CORE_SHARD).build(),
             Blocks.DEEPSLATE, true, -60);
     }
 

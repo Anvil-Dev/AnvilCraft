@@ -2,8 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": "minecraft:obsidian",
-    "B": "minecraft:netherite_ingot"
+    "A": "#c:obsidians/normal",
+    "B": "#c:ingots/netherite"
   },
   "pattern": [
     " A ",

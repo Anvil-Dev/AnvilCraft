@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:sapphire"
+            "items": "#c:gems/sapphire"
           }
         ]
       },

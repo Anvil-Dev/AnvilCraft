@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "minecraft:amethyst_shard"
+            "items": "#c:gems/amethyst"
           }
         ]
       },

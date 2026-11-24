@@ -4,7 +4,7 @@
   "cookingtime": 200,
   "experience": 1.0,
   "group": "anvilcraft:titanium_ingot",
-  "ingredient": "anvilcraft:deepslate_titanium_ore",
+  "ingredient": "#c:ores/titanium",
   "result": {
     "id": "anvilcraft:titanium_ingot"
   }

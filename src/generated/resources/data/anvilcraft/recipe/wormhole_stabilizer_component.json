@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": "anvilcraft:transcendium_ingot",
+    "A": "#c:ingots/transcendium",
     "B": "anvilcraft:negative_matter_block"
   },
   "pattern": [

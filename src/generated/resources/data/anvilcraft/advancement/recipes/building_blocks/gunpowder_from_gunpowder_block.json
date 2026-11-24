@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:gunpowder_block"
+            "items": "#c:storage_blocks/gunpowder"
           }
         ]
       },

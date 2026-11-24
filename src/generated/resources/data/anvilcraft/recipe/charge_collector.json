@@ -3,8 +3,8 @@
   "category": "misc",
   "key": {
     "A": "anvilcraft:magnetoelectric_core",
-    "B": "minecraft:copper_ingot",
-    "C": "minecraft:iron_ingot"
+    "B": "#c:ingots/copper",
+    "C": "#c:ingots/iron"
   },
   "pattern": [
     " A ",

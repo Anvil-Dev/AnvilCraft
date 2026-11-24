@@ -4,7 +4,7 @@
   "cookingtime": 200,
   "experience": 1.0,
   "group": "anvilcraft:uranium_ingot",
-  "ingredient": "anvilcraft:deepslate_uranium_ore",
+  "ingredient": "#c:ores/uranium",
   "result": {
     "id": "anvilcraft:uranium_ingot"
   }

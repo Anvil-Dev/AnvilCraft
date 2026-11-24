@@ -25,7 +25,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:cream"
+            "items": "#c:foods/cream"
           }
         ]
       },

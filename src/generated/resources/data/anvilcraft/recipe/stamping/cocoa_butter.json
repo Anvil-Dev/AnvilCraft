@@ -2,7 +2,7 @@
   "type": "anvilcraft:stamping",
   "ingredients": [
     {
-      "items": "minecraft:cocoa_beans"
+      "items": "#c:crops/cocoa_bean"
     }
   ],
   "results": [

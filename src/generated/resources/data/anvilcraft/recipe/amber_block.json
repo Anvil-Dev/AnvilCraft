@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "A": "anvilcraft:amber"
+    "A": "#c:gems/amber"
   },
   "pattern": [
     "AAA",

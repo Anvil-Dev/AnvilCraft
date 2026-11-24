@@ -3,8 +3,6 @@ package dev.dubhe.anvilcraft.mixin;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessStepManager;
 import dev.dubhe.anvilcraft.recipe.generate.JewelCraftingRecipeGeneratingCache;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
@@ -40,19 +38,9 @@ abstract class RecipeManagerMixin {
         this.recipes = RecipeMap.create(values);
     }
 
-    @Inject(
-        method = "apply("
-                 + "Lnet/minecraft/world/item/crafting/RecipeMap;"
-                 + "Lnet/minecraft/server/packs/resources/ResourceManager;"
-                 + "Lnet/minecraft/util/profiling/ProfilerFiller;)V",
-        at = @At("TAIL")
-    )
-    private void afterApplyRecipe(
-        RecipeMap recipes,
-        ResourceManager manager,
-        ProfilerFiller profiler,
-        CallbackInfo ci
-    ) {
-        ProceduralProcessStepManager.initialize(recipes);
+    @Inject(method = "finalizeRecipeLoading", at = @At("TAIL"))
+    private void indexProceduralSteps(FeatureFlagSet flags, CallbackInfo ci) {
+        // 首次加载与重载都会先绑定新标签，再完成配方加载，此时才能按步骤的方块标签建立索引。
+        ProceduralProcessStepManager.initialize(this.recipes);
     }
 }

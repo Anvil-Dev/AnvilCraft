@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "A": "anvilcraft:raw_titanium"
+    "A": "#c:raw_materials/titanium"
   },
   "pattern": [
     "AAA",

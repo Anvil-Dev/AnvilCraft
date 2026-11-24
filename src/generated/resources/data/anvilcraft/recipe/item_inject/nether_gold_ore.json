@@ -1,7 +1,7 @@
 {
   "type": "anvilcraft:item_inject",
   "block_ingredient": {
-    "blocks": "minecraft:netherrack"
+    "blocks": "#c:netherracks"
   },
   "block_result": {
     "block": "minecraft:nether_gold_ore"
@@ -9,7 +9,7 @@
   "ingredients": [
     {
       "count": 2,
-      "items": "minecraft:gold_ingot"
+      "items": "#c:ingots/gold"
     }
   ]
 }

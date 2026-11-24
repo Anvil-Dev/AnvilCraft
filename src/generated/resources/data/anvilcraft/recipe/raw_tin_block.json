@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "A": "anvilcraft:raw_tin"
+    "A": "#c:raw_materials/tin"
   },
   "pattern": [
     "AAA",

@@ -4,7 +4,7 @@
   "key": {
     "C": "anvilcraft:charge_collector",
     "H": "anvilcraft:heat_collector",
-    "T": "anvilcraft:transcendium_ingot",
+    "T": "#c:ingots/transcendium",
     "V": "anvilcraft:void_energy_collector"
   },
   "pattern": [

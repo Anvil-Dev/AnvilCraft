@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "A": "anvilcraft:royal_steel_ingot",
-    "B": "anvilcraft:topaz_block",
+    "B": "#c:storage_blocks/topaz",
     "C": "anvilcraft:transmission_pole",
     "D": "anvilcraft:circuit_board"
   },

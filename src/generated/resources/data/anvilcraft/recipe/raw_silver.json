@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    "anvilcraft:raw_silver_block"
+    "#c:storage_blocks/raw_silver"
   ],
   "result": {
     "count": 9,

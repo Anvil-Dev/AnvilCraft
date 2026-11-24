@@ -30,6 +30,7 @@ import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -39,6 +40,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
+import net.neoforged.neoforge.common.Tags;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -150,7 +152,7 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
 
     private static ItemCompressRecipe specialSupercapacitorRecipe() {
         return ItemCompressRecipe.builder()
-            .requires(Blocks.COPPER_BLOCK, 2)
+            .requires(BuiltInRegistries.ITEM, Tags.Items.STORAGE_BLOCKS_COPPER, 2)
             .requires(ItemStackTemplate.fromNonEmptyStack(resinWithCreeper(true)))
             // 数据配方中充能超电容是 in_world 配方（铁砧落下 50% 概率爆炸 / 50% 产出），
             // 该 JEI 分类无法直接收集，这里以概率结果表达

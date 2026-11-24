@@ -12,6 +12,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.SmithingTrimRecipe;
 import net.minecraft.world.level.block.entity.DecoratedPotPatterns;
+import net.neoforged.neoforge.common.Tags;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -100,7 +101,7 @@ public class JewelCraftingRecipeGeneratingCache extends BaseGeneratingCache<Jewe
         for (Item trimTemplate : this.trimTemplates) {
             JewelCraftingRecipe recipe = JewelCraftingRecipe.builder(this.registries.lookupOrThrow(Registries.ITEM))
                 .requires(ModItems.EARTH_CORE_SHARD)
-                .requires(Items.DIAMOND)
+                .requires(Tags.Items.GEMS_DIAMOND)
                 .result(trimTemplate)
                 .hasVanishingCurse(false)
                 .buildRecipe();

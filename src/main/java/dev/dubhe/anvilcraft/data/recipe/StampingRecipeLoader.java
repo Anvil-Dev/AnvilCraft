@@ -12,13 +12,14 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
+import net.neoforged.neoforge.common.Tags;
 
 public class StampingRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
         final HolderGetter<Item> items = provider.getItems();
-        StampingRecipeLoader.stamping(provider, Items.IRON_INGOT, Items.HEAVY_WEIGHTED_PRESSURE_PLATE);
-        StampingRecipeLoader.stamping(provider, Items.GOLD_INGOT, Items.LIGHT_WEIGHTED_PRESSURE_PLATE);
-        StampingRecipeLoader.stamping(provider, Items.COPPER_INGOT, ModBlocks.COPPER_PRESSURE_PLATE);
+        StampingRecipeLoader.stamping(provider, Tags.Items.INGOTS_IRON, Items.HEAVY_WEIGHTED_PRESSURE_PLATE);
+        StampingRecipeLoader.stamping(provider, Tags.Items.INGOTS_GOLD, Items.LIGHT_WEIGHTED_PRESSURE_PLATE);
+        StampingRecipeLoader.stamping(provider, Tags.Items.INGOTS_COPPER, ModBlocks.COPPER_PRESSURE_PLATE);
         StampingRecipeLoader.stamping(provider, ModItemTags.TUNGSTEN_INGOTS, ModBlocks.TUNGSTEN_PRESSURE_PLATE);
         StampingRecipeLoader.stamping(provider, ModItemTags.TITANIUM_INGOTS, ModBlocks.TITANIUM_PRESSURE_PLATE);
         StampingRecipeLoader.stamping(provider, ModItemTags.ZINC_INGOTS, ModBlocks.ZINC_PRESSURE_PLATE);
@@ -42,7 +43,7 @@ public class StampingRecipeLoader {
             .result(Items.BUCKET)
             .save(provider, AnvilCraft.of("stamping/cream"));
         StampingRecipe.builder()
-            .requires(Items.SUGAR_CANE)
+            .requires(items, Tags.Items.CROPS_SUGAR_CANE)
             .result(Items.PAPER)
             .result(Items.SUGAR)
             .save(provider, AnvilCraft.of("stamping/paper_from_sugar_cane"));
@@ -65,7 +66,7 @@ public class StampingRecipeLoader {
             .result(ModItems.RUBY.get(), 0.25F)
             .save(provider, AnvilCraft.of("stamping/geode_gems"));
         StampingRecipe.builder()
-            .requires(Items.COCOA_BEANS)
+            .requires(items, Tags.Items.CROPS_COCOA_BEAN)
             .result(ModItems.COCOA_BUTTER)
             .result(ModItems.COCOA_POWDER)
             .save(provider);

@@ -1,7 +1,7 @@
 {
   "type": "anvilcraft:block_crush",
   "input": {
-    "blocks": "minecraft:cobblestone"
+    "blocks": "#c:cobblestones/normal"
   },
   "result": {
     "block": "minecraft:gravel"

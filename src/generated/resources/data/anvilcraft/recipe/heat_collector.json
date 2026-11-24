@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": "anvilcraft:sapphire",
+    "B": "#c:gems/sapphire",
     "C": "#c:plates/copper",
     "H": "anvilcraft:charge_collector",
     "I": "minecraft:blue_ice",

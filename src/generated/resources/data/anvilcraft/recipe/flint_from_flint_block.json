@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "building",
   "ingredients": [
-    "anvilcraft:flint_block"
+    "#c:storage_blocks/flint"
   ],
   "result": {
     "count": 9,

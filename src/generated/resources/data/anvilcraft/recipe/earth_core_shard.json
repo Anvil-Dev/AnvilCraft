@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    "anvilcraft:earth_core_shard_block"
+    "#c:storage_blocks/earth_core_shard"
   ],
   "result": {
     "count": 9,

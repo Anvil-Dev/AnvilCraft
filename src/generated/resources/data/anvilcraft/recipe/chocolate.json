@@ -4,7 +4,7 @@
   "key": {
     "A": "anvilcraft:cocoa_liquor",
     "B": "anvilcraft:cocoa_butter",
-    "C": "anvilcraft:cream",
+    "C": "#c:foods/cream",
     "D": "minecraft:sugar"
   },
   "pattern": [

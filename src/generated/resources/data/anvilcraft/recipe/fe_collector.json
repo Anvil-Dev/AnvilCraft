@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": "minecraft:copper_ingot",
+    "A": "#c:ingots/copper",
     "B": "anvilcraft:charge_collector"
   },
   "pattern": [

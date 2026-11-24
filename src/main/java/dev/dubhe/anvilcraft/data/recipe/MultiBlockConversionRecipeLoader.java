@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
+import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.block.cake.LargeCakeBlock;
@@ -11,6 +12,7 @@ import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
 import dev.dubhe.anvilcraft.block.workstation.GiantAnvilBlock;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPredicateWithState;
 import dev.dubhe.anvilcraft.recipe.multiblock.ModifySpawnerAction;
@@ -23,6 +25,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.neoforged.neoforge.common.Tags;
@@ -40,17 +43,17 @@ public class MultiBlockConversionRecipeLoader {
             .outputLayer("ABA", "C C", "ABA")
             .inputSymbol('A', ModBlocks.CURSED_GOLD_BLOCK)
             .outputSymbol('A', Blocks.SCULK)
-            .inputSymbol('B', BlockPredicateWithState.of(Blocks.IRON_CHAIN)
-                .hasState(blocks, "axis", "x")
+            .inputSymbol('B', BlockStatePredicate.builder().of(blocks, Tags.Blocks.CHAINS)
+                .with(BlockStateProperties.AXIS, Direction.Axis.X)
             )
             .outputSymbol('B', Blocks.COBWEB)
-            .inputSymbol('C', BlockPredicateWithState.of(Blocks.IRON_CHAIN)
-                .hasState(blocks, "axis", "z")
+            .inputSymbol('C', BlockStatePredicate.builder().of(blocks, Tags.Blocks.CHAINS)
+                .with(BlockStateProperties.AXIS, Direction.Axis.Z)
             )
             .outputSymbol('C', Blocks.COBWEB)
             .inputSymbol('D', Blocks.SOUL_FIRE)
-            .inputSymbol('E', BlockPredicateWithState.of(Blocks.IRON_CHAIN)
-                .hasState(blocks, "axis", "y")
+            .inputSymbol('E', BlockStatePredicate.builder().of(blocks, Tags.Blocks.CHAINS)
+                .with(BlockStateProperties.AXIS, Direction.Axis.Y)
             )
             .outputSymbol('E', Blocks.COBWEB)
             .inputSymbol('F', ModBlocks.RESENTFUL_AMBER_BLOCK)
@@ -593,10 +596,10 @@ public class MultiBlockConversionRecipeLoader {
             .inputLayer("ABA", "B B", "ABA")
             .inputLayer("CDC", "D D", "CDC")
             .inputLayer("ABA", "B B", "ABA")
-            .inputSymbol('A', Blocks.COPPER_BLOCK)
+            .inputSymbol('A', Tags.Blocks.STORAGE_BLOCKS_COPPER)
             .inputSymbol('B', ModBlocks.HEAVY_IRON_BLOCK)
             .inputSymbol('C', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
-            .inputSymbol('D', ModBlocks.TUNGSTEN_BLOCK)
+            .inputSymbol('D', ModBlockTags.STORAGE_BLOCKS_TUNGSTEN)
             .outputLayer("ABC", "DEF", "GHI")
             .outputLayer("JKL", "MNO", "PQR")
             .outputLayer("STU", "VWX", "YZ[")
@@ -888,7 +891,7 @@ public class MultiBlockConversionRecipeLoader {
             .inputLayer("AAA", "ABA", "AAA")
             .inputLayer("AAA", "AAA", "AAA")
             .inputSymbol('A', BlockPredicateWithState.of(Tags.Blocks.STRIPPED_LOGS))
-            .inputSymbol('B', ModBlocks.RESIN_BLOCK)
+            .inputSymbol('B', ModBlockTags.STORAGE_BLOCKS_RESIN)
             .outputLayer("ABC", "DEF", "GHI")
             .outputLayer("JKL", "MNO", "PQR")
             .outputLayer("STU", "VWX", "YZ[")

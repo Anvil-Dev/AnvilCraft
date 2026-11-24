@@ -3,7 +3,7 @@
   "category": "misc",
   "group": "anvilcraft:lead_ingot",
   "ingredients": [
-    "anvilcraft:lead_block"
+    "#c:storage_blocks/lead"
   ],
   "result": {
     "count": 9,

@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": "minecraft:iron_ingot",
+    "A": "#c:ingots/iron",
     "B": "anvilcraft:magnetoelectric_core"
   },
   "pattern": [

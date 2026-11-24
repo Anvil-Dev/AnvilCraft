@@ -2,7 +2,7 @@
   "type": "anvilcraft:time_warp",
   "ingredients": [
     {
-      "items": "minecraft:obsidian"
+      "items": "#c:obsidians/normal"
     }
   ],
   "results": [

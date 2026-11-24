@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:magnet_ingot"
+            "items": "#c:ingots/magnet"
           }
         ]
       },

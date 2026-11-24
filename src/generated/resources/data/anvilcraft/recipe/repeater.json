@@ -3,7 +3,7 @@
   "category": "building",
   "key": {
     "B": "anvilcraft:hardened_resin",
-    "R": "minecraft:redstone",
+    "R": "#c:dusts/redstone",
     "T": "minecraft:redstone_torch"
   },
   "pattern": [

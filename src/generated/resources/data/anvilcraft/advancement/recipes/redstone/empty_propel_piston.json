@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:ruby"
+            "items": "#c:gems/ruby"
           }
         ]
       },

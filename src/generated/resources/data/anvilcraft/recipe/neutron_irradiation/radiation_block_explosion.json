@@ -5,10 +5,13 @@
     {
       "type": "anvillib_recipe:has_item_ingredient",
       "item": {
-        "items": [
-          "anvilcraft:uranium_block",
-          "anvilcraft:plutonium_block"
-        ]
+        "items": {
+          "type": "neoforge:or",
+          "values": [
+            "#c:storage_blocks/uranium",
+            "#c:storage_blocks/plutonium"
+          ]
+        }
       },
       "offset": [
         0.0,

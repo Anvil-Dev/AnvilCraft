@@ -2,7 +2,7 @@
   "type": "anvilcraft:mesh",
   "ingredients": [
     {
-      "items": "minecraft:sand"
+      "items": "#c:sands/colorless"
     }
   ],
   "results": [

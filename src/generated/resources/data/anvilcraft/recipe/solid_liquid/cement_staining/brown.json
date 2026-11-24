@@ -20,7 +20,7 @@
   ],
   "ingredients": [
     {
-      "items": "minecraft:brown_dye"
+      "items": "#c:dyes/brown"
     }
   ],
   "max_efficiency": 1,

@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
   "key": {
-    "A": "minecraft:glass",
+    "A": "#c:glass_blocks/colorless",
     "B": "minecraft:crafter",
     "D": "anvilcraft:magnetoelectric_core",
     "E": "anvilcraft:circuit_board"

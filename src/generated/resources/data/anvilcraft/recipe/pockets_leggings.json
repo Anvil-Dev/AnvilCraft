@@ -3,8 +3,8 @@
   "category": "equipment",
   "key": {
     "I": "minecraft:iron_leggings",
-    "L": "minecraft:leather",
-    "S": "minecraft:string"
+    "L": "#c:leathers",
+    "S": "#c:strings"
   },
   "pattern": [
     "S S",

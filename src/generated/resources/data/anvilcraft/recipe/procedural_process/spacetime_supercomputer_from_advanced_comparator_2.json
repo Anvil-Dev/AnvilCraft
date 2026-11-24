@@ -93,7 +93,7 @@
         },
         "ingredients": [
           {
-            "items": "anvilcraft:transcendium_nugget"
+            "items": "#c:nuggets/transcendium"
           }
         ]
       },

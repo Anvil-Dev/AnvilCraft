@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    "anvilcraft:void_matter_block"
+    "#c:storage_blocks/void_matter"
   ],
   "result": {
     "count": 9,

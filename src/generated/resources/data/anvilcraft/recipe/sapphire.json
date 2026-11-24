@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    "anvilcraft:sapphire_block"
+    "#c:storage_blocks/sapphire"
   ],
   "result": {
     "count": 9,

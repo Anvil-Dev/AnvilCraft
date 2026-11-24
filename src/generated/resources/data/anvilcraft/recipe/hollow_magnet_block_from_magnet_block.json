@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
   "key": {
-    "A": "anvilcraft:magnet_block"
+    "A": "#c:storage_blocks/magnet"
   },
   "pattern": [
     "AAA",

@@ -20,7 +20,7 @@
     ],
     "mapping": {
       "0": {
-        "blocks": "anvilcraft:transcendium_block"
+        "blocks": "#c:storage_blocks/transcendium"
       },
       "A": {
         "blocks": "anvilcraft:spacetime_supercomputer"

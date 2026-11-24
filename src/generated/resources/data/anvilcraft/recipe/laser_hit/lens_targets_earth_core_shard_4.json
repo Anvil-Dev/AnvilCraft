@@ -1,0 +1,17 @@
+{
+  "type": "anvilcraft:laser_hit",
+  "hit_time": 480,
+  "input": {
+    "blocks": "#c:ores/earth_core_shard"
+  },
+  "laser_strength": 4,
+  "priority": -60,
+  "requires_lens": true,
+  "result_block": {
+    "Name": "minecraft:deepslate",
+    "Properties": {
+      "axis": "y"
+    }
+  },
+  "use_block_loot": true
+}

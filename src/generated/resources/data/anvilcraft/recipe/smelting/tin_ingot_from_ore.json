@@ -4,7 +4,7 @@
   "cookingtime": 200,
   "experience": 1.0,
   "group": "anvilcraft:tin_ingot",
-  "ingredient": "anvilcraft:deepslate_tin_ore",
+  "ingredient": "#c:ores/tin",
   "result": {
     "id": "anvilcraft:tin_ingot"
   }
