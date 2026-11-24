@@ -5,7 +5,7 @@
   },
   "consume": true,
   "hitBlock": {
-    "blocks": "anvilcraft:frost_metal_block"
+    "blocks": "#c:storage_blocks/frost_metal"
   },
   "output_items": [
     {

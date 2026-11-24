@@ -3,7 +3,7 @@
   "category": "building",
   "key": {
     "A": {
-      "item": "anvilcraft:raw_uranium"
+      "tag": "c:raw_materials/uranium"
     }
   },
   "pattern": [

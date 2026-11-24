@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.data.recipe.RegistrumItemRecipeLoader;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.AmethystAxeItem;
 import dev.dubhe.anvilcraft.item.AmethystHoeItem;
 import dev.dubhe.anvilcraft.item.AmethystPickaxeItem;
@@ -167,35 +168,35 @@ public class ModItems {
         .register();
     public static final ItemEntry<GeodeItem> GEODE = REGISTRUM.item("geode", GeodeItem::new).register();
     public static final ItemEntry<? extends PickaxeItem> AMETHYST_PICKAXE = REGISTRUM.item("amethyst_pickaxe", AmethystPickaxeItem::new)
-        .recipe(RegistrumItemRecipeLoader.pickaxe(Items.AMETHYST_SHARD, (ctx, provider) ->
+        .recipe(RegistrumItemRecipeLoader.pickaxe(Tags.Items.GEMS_AMETHYST, (ctx, provider) ->
             ModItems.enchanted(ctx.get(), Enchantments.FORTUNE, 3, provider.getProvider())
         ))
         .model((ctx, provider) -> provider.handheld(ctx))
         .tag(ItemTags.PICKAXES, ItemTags.CLUSTER_MAX_HARVESTABLES, Tags.Items.MINING_TOOL_TOOLS)
         .register();
     public static final ItemEntry<? extends AxeItem> AMETHYST_AXE = REGISTRUM.item("amethyst_axe", AmethystAxeItem::new)
-        .recipe(RegistrumItemRecipeLoader.axe(Items.AMETHYST_SHARD, (ctx, provider) ->
+        .recipe(RegistrumItemRecipeLoader.axe(Tags.Items.GEMS_AMETHYST, (ctx, provider) ->
             ModItems.enchanted(ctx.get(), ModEnchantments.FELLING_KEY, 1, provider.getProvider())
         ))
         .model((ctx, provider) -> provider.handheld(ctx))
         .tag(ItemTags.AXES, Tags.Items.MELEE_WEAPON_TOOLS)
         .register();
     public static final ItemEntry<? extends HoeItem> AMETHYST_HOE = REGISTRUM.item("amethyst_hoe", AmethystHoeItem::new)
-        .recipe(RegistrumItemRecipeLoader.hoe(Items.AMETHYST_SHARD, (ctx, provider) ->
+        .recipe(RegistrumItemRecipeLoader.hoe(Tags.Items.GEMS_AMETHYST, (ctx, provider) ->
             ModItems.enchanted(ctx.get(), ModEnchantments.HARVEST_KEY, 1, provider.getProvider())
         ))
         .model((ctx, provider) -> provider.handheld(ctx))
         .tag(ItemTags.HOES)
         .register();
     public static final ItemEntry<? extends SwordItem> AMETHYST_SWORD = REGISTRUM.item("amethyst_sword", AmethystSwordItem::new)
-        .recipe(RegistrumItemRecipeLoader.sword(Items.AMETHYST_SHARD, (ctx, provider) ->
+        .recipe(RegistrumItemRecipeLoader.sword(Tags.Items.GEMS_AMETHYST, (ctx, provider) ->
             ModItems.enchanted(ctx.get(), ModEnchantments.BEHEADING_KEY, 1, provider.getProvider())
         ))
         .model((ctx, provider) -> provider.handheld(ctx))
         .tag(ItemTags.SWORDS, Tags.Items.MELEE_WEAPON_TOOLS)
         .register();
     public static final ItemEntry<? extends ShovelItem> AMETHYST_SHOVEL = REGISTRUM.item("amethyst_shovel", AmethystShovelItem::new)
-        .recipe(RegistrumItemRecipeLoader.shovel(Items.AMETHYST_SHARD, (ctx, provider) ->
+        .recipe(RegistrumItemRecipeLoader.shovel(Tags.Items.GEMS_AMETHYST, (ctx, provider) ->
             ModItems.enchanted(ctx.get(), Enchantments.EFFICIENCY, 3, provider.getProvider())
         ))
         .model((ctx, provider) -> provider.handheld(ctx))
@@ -725,26 +726,26 @@ public class ModItems {
         "emerald",
         ModAmulets.EMERALD.getKey(),
         ModAmulets.SMALL_AMULET_WEIGHT,
-        builder -> builder.requires(Items.EMERALD_BLOCK),
+        builder -> builder.requires(Tags.Items.STORAGE_BLOCKS_EMERALD),
         ModItemTags.AUTO_ENCHANTING_TABLE_PRIMERS
     );
     public static final ItemEntry<? extends Item> TOPAZ_AMULET = ModItems.createAmuletItem(
         "topaz",
         ModAmulets.TOPAZ.getKey(),
         ModAmulets.SMALL_AMULET_WEIGHT,
-        builder -> builder.requires(ModBlocks.TOPAZ_BLOCK)
+        builder -> builder.requires(ModItemTags.STORAGE_BLOCKS_TOPAZ)
     );
     public static final ItemEntry<? extends Item> RUBY_AMULET = ModItems.createAmuletItem(
         "ruby",
         ModAmulets.RUBY.getKey(),
         ModAmulets.SMALL_AMULET_WEIGHT,
-        builder -> builder.requires(ModBlocks.RUBY_BLOCK)
+        builder -> builder.requires(ModItemTags.STORAGE_BLOCKS_RUBY)
     );
     public static final ItemEntry<? extends Item> SAPPHIRE_AMULET = ModItems.createAmuletItem(
         "sapphire",
         ModAmulets.SAPPHIRE.getKey(),
         ModAmulets.SMALL_AMULET_WEIGHT,
-        builder -> builder.requires(ModBlocks.SAPPHIRE_BLOCK)
+        builder -> builder.requires(ModItemTags.STORAGE_BLOCKS_SAPPHIRE)
     );
     public static final ItemEntry<? extends Item> ANVIL_AMULET = ModItems.createAmuletItem(
         "anvil",
@@ -763,7 +764,7 @@ public class ModItems {
         "feather",
         ModAmulets.FEATHER.getKey(),
         ModAmulets.SMALL_AMULET_WEIGHT,
-        builder -> builder.requires(Items.FEATHER, 16).requires(Items.PHANTOM_MEMBRANE, 4)
+        builder -> builder.requires(Tags.Items.FEATHERS, 16).requires(Items.PHANTOM_MEMBRANE, 4)
     );
     public static final ItemEntry<? extends Item> ARMADILLO_AMULET = ModItems.createAmuletItem(
         "armadillo",
@@ -781,7 +782,7 @@ public class ModItems {
         "dog",
         ModAmulets.DOG.getKey(),
         ModAmulets.SMALL_AMULET_WEIGHT,
-        builder -> builder.requires(Items.BONE, 16).requires(ItemTags.MEAT, 16)
+        builder -> builder.requires(Tags.Items.BONES, 16).requires(ItemTags.MEAT, 16)
     );
     public static final ItemEntry<? extends Item> SILENCE_AMULET = ModItems.createAmuletItem(
         "silence",

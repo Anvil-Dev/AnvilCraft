@@ -3,7 +3,7 @@
   "category": "misc",
   "ingredients": [
     {
-      "item": "anvilcraft:void_matter_block"
+      "tag": "c:storage_blocks/void_matter"
     }
   ],
   "result": {

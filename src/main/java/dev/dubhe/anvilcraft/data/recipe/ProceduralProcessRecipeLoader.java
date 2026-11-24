@@ -1,9 +1,12 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
+import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.state.IrradiatorType;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCompressRecipe;
@@ -11,6 +14,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockProcessingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.neoforged.neoforge.common.Tags;
 
 public class ProceduralProcessRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
@@ -38,7 +42,7 @@ public class ProceduralProcessRecipeLoader {
             )
             .addStep(
                 BlockCompressRecipe.builder()
-                    .input(ModBlocks.VOID_MATTER_BLOCK.get())
+                    .input(ModBlockTags.STORAGE_BLOCKS_VOID_MATTER)
                     .input(ModBlocks.WIP_BLOCK.get())
                     .result(ModBlocks.WIP_BLOCK.get())
                     .buildRecipe()
@@ -69,7 +73,7 @@ public class ProceduralProcessRecipeLoader {
             .addStep(
                 ItemInjectRecipe.builder()
                     .inputBlock(ModBlocks.WIP_BLOCK.get())
-                    .requires(ModItems.TRANSCENDIUM_NUGGET)
+                    .requires(ModItemTags.TRANSCENDIUM_NUGGETS)
                     .resultBlock(ModBlocks.WIP_BLOCK)
                     .buildRecipe()
             )
@@ -104,7 +108,7 @@ public class ProceduralProcessRecipeLoader {
             .addStep(
                 ItemInjectRecipe.builder()
                     .inputBlock(ModBlocks.WIP_BLOCK.get())
-                    .requires(ModItems.TRANSCENDIUM_NUGGET)
+                    .requires(ModItemTags.TRANSCENDIUM_NUGGETS)
                     .resultBlock(ModBlocks.WIP_BLOCK)
                     .buildRecipe()
             )
@@ -128,14 +132,14 @@ public class ProceduralProcessRecipeLoader {
             .addStep(
                 ItemInjectRecipe.builder()
                     .inputBlock(Blocks.PURPUR_BLOCK)
-                    .requires(Items.ENDER_PEARL)
+                    .requires(Tags.Items.ENDER_PEARLS)
                     .resultBlock(ModBlocks.WIP_BLOCK)
                     .buildRecipe()
             )
             .addStep(
                 ItemInjectRecipe.builder()
                     .inputBlock(ModBlocks.WIP_BLOCK)
-                    .requires(Items.CHEST)
+                    .requires(Tags.Items.CHESTS_WOODEN)
                     .resultBlock(ModBlocks.WIP_BLOCK)
                     .buildRecipe()
             )
@@ -171,7 +175,7 @@ public class ProceduralProcessRecipeLoader {
             .addStep(
                 ItemInjectRecipe.builder()
                     .inputBlock(ModBlocks.WIP_BLOCK.get())
-                    .requires(ModItems.TRANSCENDIUM_NUGGET)
+                    .requires(ModItemTags.TRANSCENDIUM_NUGGETS)
                     .resultBlock(ModBlocks.WIP_BLOCK)
                     .buildRecipe()
             )
@@ -206,7 +210,7 @@ public class ProceduralProcessRecipeLoader {
             .addStep(
                 ItemInjectRecipe.builder()
                     .inputBlock(ModBlocks.WIP_BLOCK.get())
-                    .requires(ModItems.TRANSCENDIUM_NUGGET)
+                    .requires(ModItemTags.TRANSCENDIUM_NUGGETS)
                     .resultBlock(ModBlocks.WIP_BLOCK)
                     .buildRecipe()
             )
@@ -227,10 +231,10 @@ public class ProceduralProcessRecipeLoader {
             .save(provider, "spacetime_supercomputer_from_advanced_comparator_2");
 
         // 远古残骸
-        ProceduralProcessRecipeBuilder.of(ModBlocks.TUNGSTEN_BLOCK.get())
+        ProceduralProcessRecipeBuilder.of(BlockStatePredicate.builder().of(ModBlockTags.STORAGE_BLOCKS_TUNGSTEN).build())
             .addStep(
                 ItemInjectRecipe.builder()
-                    .inputBlock(ModBlocks.TUNGSTEN_BLOCK)
+                    .inputBlock(ModBlockTags.STORAGE_BLOCKS_TUNGSTEN)
                     .requires(Items.NETHERITE_SCRAP)
                     .resultBlock(ModBlocks.WIP_BLOCK)
                     .buildRecipe()
@@ -247,17 +251,17 @@ public class ProceduralProcessRecipeLoader {
             .save(provider);
 
         // 下界合金块
-        ProceduralProcessRecipeBuilder.of(Blocks.ANCIENT_DEBRIS)
+        ProceduralProcessRecipeBuilder.of(BlockStatePredicate.builder().of(Tags.Blocks.ORES_NETHERITE_SCRAP).build())
             .addStep(
                 BlockCompressRecipe.builder()
-                    .input(Blocks.RAW_GOLD_BLOCK)
-                    .input(Blocks.ANCIENT_DEBRIS)
+                    .input(Tags.Blocks.STORAGE_BLOCKS_RAW_GOLD)
+                    .input(Tags.Blocks.ORES_NETHERITE_SCRAP)
                     .result(ModBlocks.WIP_BLOCK.get())
                     .buildRecipe()
             )
             .addStep(
                 BlockCompressRecipe.builder()
-                    .input(Blocks.ANCIENT_DEBRIS)
+                    .input(Tags.Blocks.ORES_NETHERITE_SCRAP)
                     .input(ModBlocks.WIP_BLOCK.get())
                     .result(ModBlocks.WIP_BLOCK.get())
                     .buildRecipe()
@@ -277,7 +281,7 @@ public class ProceduralProcessRecipeLoader {
             .loop(2)
             .multipleLoopFirstStep(
                 BlockCompressRecipe.builder()
-                    .input(Blocks.RAW_GOLD_BLOCK)
+                    .input(Tags.Blocks.STORAGE_BLOCKS_RAW_GOLD)
                     .input(ModBlocks.WIP_BLOCK.get())
                     .result(ModBlocks.WIP_BLOCK.get())
                     .buildRecipe()
@@ -285,11 +289,11 @@ public class ProceduralProcessRecipeLoader {
             .save(provider);
 
         // 铁块增值
-        ProceduralProcessRecipeBuilder.of(Blocks.IRON_BLOCK)
+        ProceduralProcessRecipeBuilder.of(BlockStatePredicate.builder().of(Tags.Blocks.STORAGE_BLOCKS_IRON).build())
             .addStep(
                 BlockCompressRecipe.builder()
-                    .input(Blocks.IRON_BLOCK)
-                    .input(Blocks.IRON_BLOCK)
+                    .input(Tags.Blocks.STORAGE_BLOCKS_IRON)
+                    .input(Tags.Blocks.STORAGE_BLOCKS_IRON)
                     .result(ModBlocks.WIP_BLOCK.get())
                     .buildRecipe()
             )
@@ -308,7 +312,7 @@ public class ProceduralProcessRecipeLoader {
             .loop(2)
             .multipleLoopFirstStep(
                 BlockCompressRecipe.builder()
-                    .input(Blocks.IRON_BLOCK)
+                    .input(Tags.Blocks.STORAGE_BLOCKS_IRON)
                     .input(ModBlocks.WIP_BLOCK.get())
                     .result(ModBlocks.WIP_BLOCK.get())
                     .buildRecipe()
@@ -327,7 +331,7 @@ public class ProceduralProcessRecipeLoader {
             .addStep(
                 ItemInjectRecipe.builder()
                     .inputBlock(ModBlocks.WIP_BLOCK)
-                    .requires(ModItems.SAPPHIRE)
+                    .requires(ModItemTags.GEMS_SAPPHIRE)
                     .resultBlock(ModBlocks.WIP_BLOCK)
                     .buildRecipe()
             )

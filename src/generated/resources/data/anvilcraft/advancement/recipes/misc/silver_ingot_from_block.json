@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_silver_block": {
+    "has_storage_blocks/silver": {
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:silver_block"
+            "items": "#c:storage_blocks/silver"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_silver_block"
+      "has_storage_blocks/silver"
     ]
   ],
   "rewards": {

@@ -1,7 +1,7 @@
 {
   "type": "minecraft:stonecutting",
   "ingredient": {
-    "item": "anvilcraft:bronze_block"
+    "tag": "c:storage_blocks/bronze"
   },
   "result": {
     "count": 4,

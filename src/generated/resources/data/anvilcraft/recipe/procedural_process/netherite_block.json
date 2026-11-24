@@ -9,7 +9,7 @@
     "id": "minecraft:netherite_block"
   },
   "initial_block": {
-    "blocks": "minecraft:ancient_debris"
+    "blocks": "#c:ores/netherite_scrap"
   },
   "loop": 2,
   "multiple_loop_first_step": {
@@ -17,7 +17,7 @@
       "type": "anvilcraft:block_compress",
       "inputs": [
         {
-          "blocks": "minecraft:raw_gold_block"
+          "blocks": "#c:storage_blocks/raw_gold"
         },
         {
           "blocks": "anvilcraft:wip_block"
@@ -38,10 +38,10 @@
         "type": "anvilcraft:block_compress",
         "inputs": [
           {
-            "blocks": "minecraft:raw_gold_block"
+            "blocks": "#c:storage_blocks/raw_gold"
           },
           {
-            "blocks": "minecraft:ancient_debris"
+            "blocks": "#c:ores/netherite_scrap"
           }
         ],
         "result": {
@@ -55,7 +55,7 @@
         "type": "anvilcraft:block_compress",
         "inputs": [
           {
-            "blocks": "minecraft:ancient_debris"
+            "blocks": "#c:ores/netherite_scrap"
           },
           {
             "blocks": "anvilcraft:wip_block"

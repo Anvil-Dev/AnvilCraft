@@ -6,7 +6,7 @@
       "item": "minecraft:soul_sand"
     },
     "B": {
-      "item": "minecraft:iron_ingot"
+      "tag": "c:ingots/iron"
     }
   },
   "pattern": [

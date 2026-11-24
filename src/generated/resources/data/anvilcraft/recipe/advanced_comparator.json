@@ -9,7 +9,7 @@
       "item": "minecraft:comparator"
     },
     "I": {
-      "item": "minecraft:iron_ingot"
+      "tag": "c:ingots/iron"
     },
     "R": {
       "item": "minecraft:redstone_torch"

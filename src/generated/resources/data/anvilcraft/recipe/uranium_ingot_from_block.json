@@ -4,7 +4,7 @@
   "group": "anvilcraft:uranium_ingot",
   "ingredients": [
     {
-      "item": "anvilcraft:uranium_block"
+      "tag": "c:storage_blocks/uranium"
     }
   ],
   "result": {

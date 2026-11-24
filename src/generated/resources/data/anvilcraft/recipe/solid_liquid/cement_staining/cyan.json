@@ -20,7 +20,7 @@
   ],
   "ingredients": [
     {
-      "items": "minecraft:cyan_dye"
+      "items": "#c:dyes/cyan"
     }
   ],
   "max_efficiency": 1,

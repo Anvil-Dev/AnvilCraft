@@ -3,7 +3,7 @@
   "category": "building",
   "key": {
     "A": {
-      "item": "anvilcraft:frost_metal_ingot"
+      "tag": "c:ingots/frost_metal"
     }
   },
   "pattern": [

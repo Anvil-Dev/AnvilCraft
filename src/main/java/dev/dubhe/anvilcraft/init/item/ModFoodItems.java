@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.CannedFoodItem;
 import dev.dubhe.anvilcraft.item.CursedGoldenAppleItem;
 import dev.dubhe.anvilcraft.item.ModFoods;
@@ -82,7 +83,7 @@ public class ModFoodItems {
                 .pattern("ABA")
                 .define('A', ModFoodItems.COCOA_LIQUOR)
                 .define('B', ModFoodItems.COCOA_BUTTER)
-                .define('C', ModFoodItems.CREAM)
+                .define('C', ModItemTags.CREAM)
                 .define('D', Items.SUGAR)
                 .unlockedBy("has_cocoa_liquor", RegistrumRecipeProvider.has(ModFoodItems.COCOA_LIQUOR))
                 .unlockedBy("has_cocoa_butter", RegistrumRecipeProvider.has(ModFoodItems.COCOA_BUTTER))
@@ -136,7 +137,7 @@ public class ModFoodItems {
                 .pattern("BCB")
                 .pattern("AAA")
                 .define('A', ModFoodItems.COCOA_BUTTER)
-                .define('B', ModFoodItems.CREAM)
+                .define('B', ModItemTags.CREAM)
                 .define('C', Items.SUGAR)
                 .unlockedBy("has_butter", RegistrumRecipeProvider.has(ModFoodItems.COCOA_BUTTER))
                 .unlockedBy("has_cream", RegistrumRecipeProvider.has(ModFoodItems.CREAM))
@@ -159,9 +160,9 @@ public class ModFoodItems {
         .tag(Tags.Items.FOODS)
         .recipe(
             (ctx, provider) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, ctx.get())
-                .requires(Items.BREAD)
+                .requires(Tags.Items.FOODS_BREAD)
                 .requires(Items.SUGAR)
-                .requires(ModFoodItems.CREAM)
+                .requires(ModItemTags.CREAM)
                 .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModFoodItems.CREAM))
                 .save(provider)
         )

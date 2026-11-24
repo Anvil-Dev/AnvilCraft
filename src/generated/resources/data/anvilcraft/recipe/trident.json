@@ -6,7 +6,7 @@
       "item": "minecraft:prismarine_shard"
     },
     "B": {
-      "item": "anvilcraft:sapphire"
+      "tag": "c:gems/sapphire"
     }
   },
   "pattern": [

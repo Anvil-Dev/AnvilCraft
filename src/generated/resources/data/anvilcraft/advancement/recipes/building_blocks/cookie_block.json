@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "minecraft:cookie"
+            "items": "#c:foods/cookie"
           }
         ]
       },

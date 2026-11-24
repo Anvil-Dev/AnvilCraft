@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.block.container.storage.LargeCrateBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.multiblock.ModifySpawnerAction;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
@@ -42,16 +43,16 @@ public class MultiBlockConversionRecipeLoader {
             .outputLayer("ABA", "C C", "ABA")
             .inputSymbol('A', ModBlocks.CURSED_GOLD_BLOCK)
             .outputSymbol('A', Blocks.SCULK)
-            .inputSymbol('B', BlockStatePredicate.builder().of(Blocks.CHAIN)
+            .inputSymbol('B', BlockStatePredicate.builder().of(Tags.Blocks.CHAINS)
                 .with(BlockStateProperties.AXIS, Direction.Axis.X)
             )
             .outputSymbol('B', Blocks.COBWEB)
-            .inputSymbol('C', BlockStatePredicate.builder().of(Blocks.CHAIN)
+            .inputSymbol('C', BlockStatePredicate.builder().of(Tags.Blocks.CHAINS)
                 .with(BlockStateProperties.AXIS, Direction.Axis.Z)
             )
             .outputSymbol('C', Blocks.COBWEB)
             .inputSymbol('D', Blocks.SOUL_FIRE)
-            .inputSymbol('E', BlockStatePredicate.builder().of(Blocks.CHAIN)
+            .inputSymbol('E', BlockStatePredicate.builder().of(Tags.Blocks.CHAINS)
                 .with(BlockStateProperties.AXIS, Direction.Axis.Y)
             )
             .outputSymbol('E', Blocks.COBWEB)
@@ -595,10 +596,10 @@ public class MultiBlockConversionRecipeLoader {
             .inputLayer("ABA", "B B", "ABA")
             .inputLayer("CDC", "D D", "CDC")
             .inputLayer("ABA", "B B", "ABA")
-            .inputSymbol('A', Blocks.COPPER_BLOCK)
+            .inputSymbol('A', Tags.Blocks.STORAGE_BLOCKS_COPPER)
             .inputSymbol('B', ModBlocks.HEAVY_IRON_BLOCK)
             .inputSymbol('C', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
-            .inputSymbol('D', ModBlocks.TUNGSTEN_BLOCK)
+            .inputSymbol('D', ModBlockTags.STORAGE_BLOCKS_TUNGSTEN)
             .outputLayer("ABC", "DEF", "GHI")
             .outputLayer("JKL", "MNO", "PQR")
             .outputLayer("STU", "VWX", "YZ[")
@@ -1088,7 +1089,7 @@ public class MultiBlockConversionRecipeLoader {
             .inputLayer("AAA", "ABA", "AAA")
             .inputLayer("AAA", "AAA", "AAA")
             .inputSymbol('A', Tags.Blocks.STRIPPED_LOGS)
-            .inputSymbol('B', ModBlocks.RESIN_BLOCK)
+            .inputSymbol('B', ModBlockTags.STORAGE_BLOCKS_RESIN)
             .outputLayer("0AB", "CDE", "FGH")
             .outputLayer("IJK", "LMN", "OPQ")
             .outputLayer("RST", "UVW", "XYZ")

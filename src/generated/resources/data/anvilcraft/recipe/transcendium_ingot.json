@@ -4,7 +4,7 @@
   "group": "anvilcraft:transcendium_ingot",
   "key": {
     "A": {
-      "item": "anvilcraft:transcendium_nugget"
+      "tag": "c:nuggets/transcendium"
     }
   },
   "pattern": [

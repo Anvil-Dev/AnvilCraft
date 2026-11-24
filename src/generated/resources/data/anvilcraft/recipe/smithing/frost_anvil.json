@@ -1,7 +1,7 @@
 {
   "type": "minecraft:smithing_transform",
   "addition": {
-    "item": "anvilcraft:frost_metal_block"
+    "tag": "c:storage_blocks/frost_metal"
   },
   "base": {
     "item": "anvilcraft:royal_anvil"

@@ -6,7 +6,7 @@
       "tag": "c:plates/copper"
     },
     "B": {
-      "item": "anvilcraft:resin"
+      "tag": "c:resin"
     }
   },
   "pattern": [

@@ -3,7 +3,7 @@
   "category": "misc",
   "ingredients": [
     {
-      "item": "anvilcraft:amber_block"
+      "tag": "c:storage_blocks/amber"
     }
   ],
   "result": {

@@ -3,7 +3,7 @@
   "category": "misc",
   "ingredients": [
     {
-      "item": "anvilcraft:transcendium_ingot"
+      "tag": "c:ingots/transcendium"
     }
   ],
   "result": {

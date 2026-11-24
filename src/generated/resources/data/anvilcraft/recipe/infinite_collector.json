@@ -9,7 +9,7 @@
       "item": "anvilcraft:heat_collector"
     },
     "T": {
-      "item": "anvilcraft:transcendium_ingot"
+      "tag": "c:ingots/transcendium"
     },
     "V": {
       "item": "anvilcraft:void_energy_collector"

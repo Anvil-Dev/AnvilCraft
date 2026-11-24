@@ -15,7 +15,7 @@
       "conditions": {
         "items": [
           {
-            "items": "minecraft:iron_block"
+            "items": "#c:storage_blocks/iron"
           }
         ]
       },

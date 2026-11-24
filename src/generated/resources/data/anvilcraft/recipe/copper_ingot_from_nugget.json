@@ -3,31 +3,31 @@
   "category": "misc",
   "ingredients": [
     {
-      "item": "anvilcraft:copper_nugget"
+      "tag": "c:nuggets/copper"
     },
     {
-      "item": "anvilcraft:copper_nugget"
+      "tag": "c:nuggets/copper"
     },
     {
-      "item": "anvilcraft:copper_nugget"
+      "tag": "c:nuggets/copper"
     },
     {
-      "item": "anvilcraft:copper_nugget"
+      "tag": "c:nuggets/copper"
     },
     {
-      "item": "anvilcraft:copper_nugget"
+      "tag": "c:nuggets/copper"
     },
     {
-      "item": "anvilcraft:copper_nugget"
+      "tag": "c:nuggets/copper"
     },
     {
-      "item": "anvilcraft:copper_nugget"
+      "tag": "c:nuggets/copper"
     },
     {
-      "item": "anvilcraft:copper_nugget"
+      "tag": "c:nuggets/copper"
     },
     {
-      "item": "anvilcraft:copper_nugget"
+      "tag": "c:nuggets/copper"
     }
   ],
   "result": {

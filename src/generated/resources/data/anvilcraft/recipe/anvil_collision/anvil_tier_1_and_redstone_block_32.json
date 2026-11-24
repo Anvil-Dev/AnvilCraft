@@ -5,7 +5,7 @@
   },
   "consume": false,
   "hitBlock": {
-    "blocks": "minecraft:redstone_block"
+    "blocks": "#c:storage_blocks/redstone"
   },
   "output_items": [
     {

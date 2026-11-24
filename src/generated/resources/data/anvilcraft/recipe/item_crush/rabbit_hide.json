@@ -2,7 +2,7 @@
   "type": "anvilcraft:item_crush",
   "ingredients": [
     {
-      "items": "minecraft:leather"
+      "items": "#c:leathers"
     }
   ],
   "results": [

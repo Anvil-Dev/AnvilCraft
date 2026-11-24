@@ -3,7 +3,7 @@
   "category": "equipment",
   "key": {
     "B": {
-      "item": "anvilcraft:resin_block"
+      "tag": "c:storage_blocks/resin"
     },
     "I": {
       "item": "minecraft:iron_boots"

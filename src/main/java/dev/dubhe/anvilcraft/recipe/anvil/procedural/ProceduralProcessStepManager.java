@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -44,18 +45,16 @@ public class ProceduralProcessStepManager {
      */
     public static final int WIP_BLOCK_DETECTION_DEPTH = 2;
 
-    /**
-     * 在recipe manager构建配方之后执行
-     * 指路：dev.dubhe.anvilcraft.mixin.RecipeManagerMixin.afterBuildRecipe
-     *
-     * @param byName Minecraft的RecipeManager的配方注册表
-     */
     public static void initialize(Map<ResourceLocation, RecipeHolder<?>> byName) {
-        // 由于有数据包热重载的reload存在，需要在每次重新加载数据包的时候清空两个表
+        initialize(byName.values());
+    }
+
+    /** 标签绑定后按当前数据包的方块成员重建步骤索引。 */
+    public static void initialize(Collection<RecipeHolder<?>> recipes) {
         PROCEDURAL_PROCESS_FIRST_STEP_INQUIRY = new HashMap<>();
         PROCEDURAL_PROCESS_EXIST_STEP_INQUIRY = new HashSet<>();
-        for (ResourceLocation rl : byName.keySet()) {
-            if (byName.get(rl).value() instanceof ProceduralProcessRecipe recipe) {
+        for (RecipeHolder<?> holder : recipes) {
+            if (holder.value() instanceof ProceduralProcessRecipe recipe) {
                 List<ProceduralProcessStep> steps = recipe.getSteps();
                 // 实际上数据包里的编号没有用，因为这里会重新编号……
                 for (int index = 0; index < steps.size(); index++) {
@@ -63,7 +62,7 @@ public class ProceduralProcessStepManager {
                     // 这里是在【加载】时设置这个step是本配方中第几步
                     step.setStepIndex(index);
                     // 同样是在【加载】时，记录这个step属于哪个序列装配配方
-                    step.setPpRecipeId(rl);
+                    step.setPpRecipeId(holder.id());
                     // 第一步是0，第二步是1……
                     ProceduralProcessStepManager.addStep(step);
                 }
@@ -71,7 +70,7 @@ public class ProceduralProcessStepManager {
                 if (recipe.getMultiLoopFirstStep().isPresent()) {
                     ProceduralProcessStep step = recipe.getMultiLoopFirstStep().get();
                     step.setStepIndex(0);
-                    step.setPpRecipeId(rl);
+                    step.setPpRecipeId(holder.id());
                     ProceduralProcessStepManager.addStep(step, false);
                 }
             }
@@ -250,7 +249,12 @@ public class ProceduralProcessStepManager {
                                     // 如果有则按照那个写，如果没有搜索到则直接用配方里的
                                     BlockPos pos = BlockPos.containing(contextOfStep.getPos());
                                     pos = pos.below();
-                                    BlockState initialBlock = ppr.getInitialBlock().getBlocks().get(0).value().defaultBlockState();
+                                    HolderSet<Block> initialBlocks = ppr.getInitialBlock().getBlocks();
+                                    if (!(initialBlocks instanceof HolderSet.Direct<?>) && initialBlocks.size() == 0) {
+                                        continue;
+                                    }
+                                    BlockState initialBlock = initialBlocks.size() == 0
+                                        ? sl.getBlockState(pos) : initialBlocks.get(0).value().defaultBlockState();
                                     // 初始值是配方里的初始方块信息的默认方块状态
                                     BlockPos potentialPos = pos;
                                     for (int i = 0; i < WIP_BLOCK_DETECTION_DEPTH; i++) {

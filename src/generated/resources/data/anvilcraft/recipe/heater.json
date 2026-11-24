@@ -6,7 +6,7 @@
       "item": "minecraft:terracotta"
     },
     "B": {
-      "item": "minecraft:iron_ingot"
+      "tag": "c:ingots/iron"
     },
     "C": {
       "item": "anvilcraft:magnetoelectric_core"

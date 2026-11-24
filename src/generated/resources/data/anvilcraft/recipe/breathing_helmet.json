@@ -15,7 +15,7 @@
       "item": "anvilcraft:pipe"
     },
     "W": {
-      "item": "minecraft:water_bucket"
+      "tag": "c:buckets/water"
     }
   },
   "pattern": [

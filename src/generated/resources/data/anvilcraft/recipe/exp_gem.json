@@ -3,7 +3,7 @@
   "category": "misc",
   "ingredients": [
     {
-      "item": "anvilcraft:exp_gem_block"
+      "tag": "c:storage_blocks/exp_gem"
     }
   ],
   "result": {

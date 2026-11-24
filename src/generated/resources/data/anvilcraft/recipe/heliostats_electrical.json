@@ -10,7 +10,7 @@
       "item": "minecraft:daylight_detector"
     },
     "I": {
-      "item": "minecraft:iron_block"
+      "tag": "c:storage_blocks/iron"
     },
     "S": {
       "tag": "c:plates/silver"

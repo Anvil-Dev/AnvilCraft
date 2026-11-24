@@ -34,7 +34,7 @@ public class ItemCrushRecipeLoader {
             .result(ModItems.RESIN)
             .save(provider);
         ItemCrushRecipe.builder()
-            .requires(Items.BEETROOT)
+            .requires(Tags.Items.CROPS_BEETROOT)
             .result(Items.RED_DYE)
             .result(Items.SUGAR)
             .save(provider, AnvilCraft.of("item_crush/red_dye_from_beetroot"));
@@ -43,19 +43,19 @@ public class ItemCrushRecipeLoader {
             .result(Items.STRING, 4)
             .save(provider);
         ItemCrushRecipe.builder()
-            .requires(Items.BONE)
+            .requires(Tags.Items.BONES)
             .result(Items.BONE_MEAL, 6)
             .save(provider, AnvilCraft.of("item_crush/bone_meal_from_bone"));
         ItemCrushRecipe.builder()
-            .requires(Items.BLAZE_ROD)
+            .requires(Tags.Items.RODS_BLAZE)
             .result(Items.BLAZE_POWDER, 4)
             .save(provider);
         ItemCrushRecipe.builder()
-            .requires(Items.BREEZE_ROD)
+            .requires(Tags.Items.RODS_BREEZE)
             .result(Items.WIND_CHARGE, 8)
             .save(provider);
         ItemCrushRecipe.builder()
-            .requires(Items.LEATHER)
+            .requires(Tags.Items.LEATHERS)
             .result(Items.RABBIT_HIDE, 4)
             .save(provider);
         ItemCrushRecipe.builder()
@@ -180,8 +180,10 @@ public class ItemCrushRecipeLoader {
         armor(provider, Items.DIAMOND_HORSE_ARMOR, Items.DIAMOND);
 
         blockCrush(provider, Items.STONE, Items.COBBLESTONE);
-        blockCrush(provider, Items.COBBLESTONE, Items.GRAVEL);
-        blockCrush(provider, Items.GRAVEL, Items.SAND);
+        ItemCrushRecipe.builder().requires(Tags.Items.COBBLESTONES_NORMAL).result(Items.GRAVEL, 0.8f)
+            .save(provider, AnvilCraft.of("item_crush/block_crush/gravel_from_cobblestone"));
+        ItemCrushRecipe.builder().requires(Tags.Items.GRAVELS).result(Items.SAND, 0.8f)
+            .save(provider, AnvilCraft.of("item_crush/block_crush/sand_from_gravel"));
         blockCrush(provider, Items.POLISHED_GRANITE, Items.GRANITE);
         blockCrush(provider, Items.GRANITE, Items.RED_SAND);
         blockCrush(provider, Items.POLISHED_ANDESITE, Items.ANDESITE);
@@ -194,8 +196,10 @@ public class ItemCrushRecipeLoader {
         blockCrush(provider, Items.DEEPSLATE_TILES, Items.CRACKED_DEEPSLATE_TILES);
         blockCrush(provider, Items.POLISHED_BLACKSTONE_BRICKS, Items.CRACKED_POLISHED_BLACKSTONE_BRICKS);
         blockCrush(provider, Items.SOUL_SOIL, Items.SOUL_SAND);
-        blockCrush(provider, Items.NETHERRACK, ModBlocks.NETHER_DUST.get());
-        blockCrush(provider, Items.END_STONE, ModBlocks.END_DUST.get());
+        ItemCrushRecipe.builder().requires(Tags.Items.NETHERRACKS).result(ModBlocks.NETHER_DUST.get(), 0.8f)
+            .save(provider, AnvilCraft.of("item_crush/block_crush/nether_dust_from_netherrack"));
+        ItemCrushRecipe.builder().requires(Tags.Items.END_STONES).result(ModBlocks.END_DUST.get(), 0.8f)
+            .save(provider, AnvilCraft.of("item_crush/block_crush/end_dust_from_end_stone"));
 
         flower(provider, Items.LILY_OF_THE_VALLEY, Items.WHITE_DYE);
         flower(provider, Items.AZURE_BLUET, Items.LIGHT_GRAY_DYE);
@@ -219,8 +223,10 @@ public class ItemCrushRecipeLoader {
         flower(provider, Items.PINK_TULIP, Items.PINK_DYE);
         flower(provider, Items.BONE_MEAL, Items.WHITE_DYE);
         flower(provider, Items.INK_SAC, Items.BLACK_DYE);
-        flower(provider, Items.COCOA_BEANS, Items.BROWN_DYE);
-        flower(provider, Items.LAPIS_LAZULI, Items.BLUE_DYE);
+        ItemCrushRecipe.builder().requires(Tags.Items.CROPS_COCOA_BEAN).result(Items.BROWN_DYE, 2)
+            .save(provider, AnvilCraft.of("item_crush/flower/brown_dye_from_cocoa_beans"));
+        ItemCrushRecipe.builder().requires(Tags.Items.GEMS_LAPIS).result(Items.BLUE_DYE, 2)
+            .save(provider, AnvilCraft.of("item_crush/flower/blue_dye_from_lapis_lazuli"));
 
         ItemCrushRecipe.builder()
             .requires(ModItems.SUPER_CAPACITOR)

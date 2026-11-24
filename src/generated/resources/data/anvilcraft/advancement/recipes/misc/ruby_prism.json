@@ -15,7 +15,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:ruby"
+            "items": "#c:gems/ruby"
           }
         ]
       },
@@ -25,7 +25,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:ruby_block"
+            "items": "#c:storage_blocks/ruby"
           }
         ]
       },

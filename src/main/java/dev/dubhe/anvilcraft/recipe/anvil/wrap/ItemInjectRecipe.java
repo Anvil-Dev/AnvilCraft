@@ -14,6 +14,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -162,6 +163,12 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
          */
         public Builder inputBlock(Supplier<? extends Block> block) {
             return this.inputBlock(block.get());
+        }
+
+        /** 使用方块标签指定注入材料可以附着的方块。 */
+        public Builder inputBlock(TagKey<Block> tag) {
+            this.blockIngredient.of(tag);
+            return this;
         }
 
         /**

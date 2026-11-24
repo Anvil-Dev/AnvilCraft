@@ -20,7 +20,7 @@
     ],
     "mapping": {
       "0": {
-        "blocks": "minecraft:copper_block"
+        "blocks": "#c:storage_blocks/copper"
       },
       "A": {
         "blocks": "anvilcraft:heavy_iron_block"
@@ -29,7 +29,7 @@
         "blocks": "anvilcraft:magnetoelectric_core"
       },
       "C": {
-        "blocks": "anvilcraft:tungsten_block"
+        "blocks": "#c:storage_blocks/tungsten"
       }
     }
   },

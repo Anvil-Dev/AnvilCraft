@@ -96,9 +96,9 @@ public class ShapedRecipeLoader {
             .pattern("ABA")
             .pattern("AAA")
             .define('A', ItemTags.PLANKS)
-            .define('B', ModItems.RESIN)
+            .define('B', ModItemTags.RESIN)
             .unlockedBy(AnvilCraftDatagen.hasItem(ItemTags.PLANKS), AnvilCraftDatagen.has(ItemTags.PLANKS))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RESIN), AnvilCraftDatagen.has(ModItems.RESIN))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RESIN), AnvilCraftDatagen.has(ModItemTags.RESIN))
             .save(provider);
     }
 

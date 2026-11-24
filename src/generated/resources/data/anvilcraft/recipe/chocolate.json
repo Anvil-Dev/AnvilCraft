@@ -9,7 +9,7 @@
       "item": "anvilcraft:cocoa_butter"
     },
     "C": {
-      "item": "anvilcraft:cream"
+      "tag": "c:foods/cream"
     },
     "D": {
       "item": "minecraft:sugar"

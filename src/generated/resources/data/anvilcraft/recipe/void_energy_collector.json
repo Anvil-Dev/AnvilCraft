@@ -6,7 +6,7 @@
       "item": "anvilcraft:void_matter"
     },
     "B": {
-      "item": "anvilcraft:void_matter_block"
+      "tag": "c:storage_blocks/void_matter"
     },
     "C": {
       "item": "anvilcraft:heavy_iron_block"

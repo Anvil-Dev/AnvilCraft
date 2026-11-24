@@ -3,13 +3,13 @@
   "category": "redstone",
   "key": {
     "A": {
-      "item": "minecraft:cobblestone"
+      "tag": "c:cobblestones/normal"
     },
     "B": {
       "item": "anvilcraft:crab_claw"
     },
     "C": {
-      "item": "minecraft:redstone"
+      "tag": "c:dusts/redstone"
     },
     "D": {
       "item": "minecraft:hopper"

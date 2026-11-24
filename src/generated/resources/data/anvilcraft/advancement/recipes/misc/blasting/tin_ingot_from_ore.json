@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:deepslate_tin_ore"
+            "items": "#c:ores/tin"
           }
         ]
       },

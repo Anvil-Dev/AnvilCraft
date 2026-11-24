@@ -9,7 +9,7 @@
       "item": "minecraft:lightning_rod"
     },
     "C": {
-      "item": "minecraft:iron_ingot"
+      "tag": "c:ingots/iron"
     }
   },
   "pattern": [

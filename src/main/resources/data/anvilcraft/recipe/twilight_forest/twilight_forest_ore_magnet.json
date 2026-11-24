@@ -8,16 +8,16 @@
   "type": "anvilcraft:jewel_crafting",
   "ingredients": [
     {
-      "item": "anvilcraft:magnet_ingot"
+      "tag": "c:ingots/magnet"
     },
     {
-      "item": "anvilcraft:magnet_ingot"
+      "tag": "c:ingots/magnet"
     },
     {
-      "item": "anvilcraft:magnet_ingot"
+      "tag": "c:ingots/magnet"
     },
     {
-      "item": "anvilcraft:magnet_ingot"
+      "tag": "c:ingots/magnet"
     },
     {
       "tag": "minecraft:iron_ores"
