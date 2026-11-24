@@ -16,10 +16,8 @@ import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.common.CommonHooks;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.function.Supplier;
 
 public class RoyalAnvilMenu extends AnvilMenu implements HammerOpenedAnvilMenu {
@@ -64,30 +62,11 @@ public class RoyalAnvilMenu extends AnvilMenu implements HammerOpenedAnvilMenu {
 
     @Override
     public void createResult() {
-        ItemStack inputLeft = this.getSlot(0).getItem();
-        ItemStack inputRight = this.getSlot(1).getItem();
-        if (inputLeft.isEmpty()) {
+        if (this.getSlot(0).getItem().isEmpty()) {
             super.createResult();
             return;
         }
-        this.result.createResult(
-            this.player,
-            inputLeft,
-            inputRight,
-            this.itemName,
-            tax -> CommonHooks.onAnvilChange(
-                this,
-                inputLeft,
-                inputRight,
-                this.resultSlots,
-                Objects.requireNonNull(this.itemName),
-                tax,
-                this.player
-            )
-        );
-        this.resultSlots.setItem(0, this.result.result);
-        this.cost.set(this.result.xpCost);
-        this.repairItemCountCost = this.result.repairItemCountCost;
+        this.result.updateMenu(this, this.resultSlots, this.player, this.itemName);
     }
 
     @Override

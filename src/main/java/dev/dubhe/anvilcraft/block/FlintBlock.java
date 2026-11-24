@@ -3,8 +3,12 @@ package dev.dubhe.anvilcraft.block;
 import dev.anvilcraft.lib.v2.recipe.cache.BlockCache;
 import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.util.CauldronIgnition;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.BaseFireBlock;
@@ -22,6 +26,9 @@ public class FlintBlock extends Block {
     }
 
     public static void ignite(LevelAccessor level, BlockPos pos, boolean isFlint) {
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return;
+        }
         boolean flag = false;
         for (Direction direction : Direction.values()) {
             BlockState blockState = level.getBlockState(pos.relative(direction));
@@ -44,18 +51,9 @@ public class FlintBlock extends Block {
                     for (int z = -1; z < 2; z++) {
                         BlockPos offset = pos.offset(x, y, z);
                         BlockState blockState = level.getBlockState(offset);
-                        if (blockState.getBlock() instanceof IIgnitableCauldron ignitableCauldron) {
-                            BlockCache blockCache = new BlockCache(level);
-                            if (!ignitableCauldron.isIgnited(blockCache, offset)) {
-                                ignitableCauldron.setIgnited(blockCache, offset, true);
-                                blockCache.accept();
-                                return;
-                            }
-                        } else if (blockState.getBlock() instanceof CampfireBlock) {
-                            if (!blockState.getValue(CampfireBlock.LIT)) {
-                                level.setBlock(offset, blockState.setValue(CampfireBlock.LIT, true), 3);
-                                return;
-                            }
+                        if (FlintBlock.tryIgniteAt(serverLevel, offset, blockState)) {
+                            FlintBlock.playIgniteSound(level, offset);
+                            return;
                         }
                         blocks.add(offset);
                     }
@@ -64,15 +62,44 @@ public class FlintBlock extends Block {
 
             List<BlockPos> newBlocks = new ArrayList<>();
             for (BlockPos blockPos : blocks) {
-                if (BaseFireBlock.canBePlacedAt((Level) level, blockPos.above(), Direction.UP)) {
+                if (BaseFireBlock.canBePlacedAt(serverLevel, blockPos.above(), Direction.UP)) {
                     newBlocks.add(blockPos);
                 }
             }
             if (!newBlocks.isEmpty()) {
                 BlockPos blockPos = newBlocks.get(level.getRandom().nextIntBetweenInclusive(0, newBlocks.size() - 1));
                 level.setBlock(blockPos.above(), BaseFireBlock.getState(level, blockPos), 3);
+                FlintBlock.playIgniteSound(level, blockPos);
             }
         }
+    }
+
+    private static boolean tryIgniteAt(ServerLevel level, BlockPos pos, BlockState state) {
+        if (state.getBlock() instanceof FishTankBlock || state.getBlock() instanceof LargeCauldronBlock) {
+            return CauldronIgnition.tryIgnite(level, pos, state);
+        }
+        if (state.getBlock() instanceof IIgnitableCauldron cauldron) {
+            BlockCache cache = new BlockCache(level);
+            if (!cauldron.isIgnited(cache, pos)) {
+                cauldron.setIgnited(cache, pos, true);
+                cache.accept();
+                return true;
+            }
+        } else if (state.getBlock() instanceof CampfireBlock && !state.getValue(CampfireBlock.LIT)) {
+            return level.setBlock(pos, state.setValue(CampfireBlock.LIT, true), Block.UPDATE_ALL);
+        }
+        return false;
+    }
+
+    private static void playIgniteSound(LevelAccessor level, BlockPos pos) {
+        level.playSound(
+            null,
+            pos,
+            SoundEvents.FLINTANDSTEEL_USE,
+            SoundSource.BLOCKS,
+            1.0F,
+            level.getRandom().nextFloat() * 0.4F + 0.8F
+        );
     }
 
     @Override

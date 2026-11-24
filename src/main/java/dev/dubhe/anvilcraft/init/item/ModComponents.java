@@ -84,6 +84,7 @@ public class ModComponents {
         (builder) -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)
     );
 
+    /** 轨道炮弹匣与来源掩码必须一同解码，才能向玩家返还装填的实物。 */
     public static final DataComponentType<ChargedProjectiles> RAILGUN_AMMO = register(
         "railgun_ammo",
         builder -> builder.persistent(ChargedProjectiles.CODEC).networkSynchronized(ChargedProjectiles.STREAM_CODEC)

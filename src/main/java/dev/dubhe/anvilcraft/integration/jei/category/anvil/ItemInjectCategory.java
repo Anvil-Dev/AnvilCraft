@@ -168,13 +168,14 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
         double mouseX,
         double mouseY) {
         ItemInjectRecipe recipe = recipeHolder.value();
+        boolean containerUpgrade = isContainerUpgrade(recipeHolder);
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
         RenderSupport.renderBlock(
             guiGraphics,
             Blocks.ANVIL.defaultBlockState(),
             81,
             22 + anvilYOffset,
-            20,
+            containerUpgrade ? 80 : 20,
             12,
             RenderSupport.SINGLE_BLOCK);
 
@@ -187,7 +188,6 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
                 .orElse(input.getFirst())
         );
         boolean giantAnvil = renderedState.getBlock() instanceof GiantAnvilBlock;
-        boolean containerUpgrade = isContainerUpgrade(recipeHolder);
         if (containerUpgrade) {
             renderedState = getContainerPreviewState(renderedState);
         }

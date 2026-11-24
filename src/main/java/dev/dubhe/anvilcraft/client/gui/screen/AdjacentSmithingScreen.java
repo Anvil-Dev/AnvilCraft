@@ -126,6 +126,12 @@ public abstract class AdjacentSmithingScreen<M extends AdjacentSmithingMenu> ext
     }
 
     @Override
+    protected boolean hasClickedOutside(double mouseX, double mouseY, int guiLeft, int guiTop, int button) {
+        return super.hasClickedOutside(mouseX, mouseY, guiLeft, guiTop, button)
+            && (!this.isTemplatePanelVisible() || !this.isOverTemplatePanel(mouseX, mouseY));
+    }
+
+    @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (!this.isTemplatePanelVisible()) return super.mouseClicked(mouseX, mouseY, button);
         int maxScrollRow = this.maxScrollRow();

@@ -1324,7 +1324,13 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         for (Renderable renderable : this.renderables) {
             renderable.render(graphics, mouseX, mouseY, partialTick);
         }
-        NeoForge.EVENT_BUS.post(new ContainerScreenEvent.Render.Foreground(this, graphics, mouseX, mouseY));
+        graphics.pose().pushPose();
+        try {
+            graphics.pose().translate(this.leftPos, this.topPos, 0);
+            NeoForge.EVENT_BUS.post(new ContainerScreenEvent.Render.Foreground(this, graphics, mouseX, mouseY));
+        } finally {
+            graphics.pose().popPose();
+        }
         this.renderCarriedItem(graphics, mouseX, mouseY);
         this.renderFlyout(graphics);
         this.renderStorageTooltip(graphics, mouseX, mouseY);

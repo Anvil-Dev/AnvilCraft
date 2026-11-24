@@ -834,7 +834,7 @@ public class ItemTooltipManager {
         );
         ItemTooltipManager.NORMAL.put(
             ModItems.ANVIL_RAILGUN.get(),
-            "Hold right-click to consumes power to charge up and launch a high-speed anvil"
+            "Hold right-click to charge, then release to launch an anvil from your inventory"
         );
         ItemTooltipManager.NORMAL.put(
             ModItems.SPECTRAL_WEAPON_LAUNCHER.get(),
@@ -848,9 +848,16 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(
             ModBlocks.INFINITE_COLLECTOR.asItem(), """
                                                    Generates power by collecting both heat and charge, no upper power limit
-                                                   Provides 256 kW base power, boosted by negative void mass
-                                                   Mass thresholds -11/-21/-41 in a 7x7x7 area yield 768/2048/5120 kW"""
+                                                   Provides %1$s kW base power, boosted by negative void mass
+                                                   Mass thresholds -11/-21/-41 in a %2$sx%2$sx%2$s area yield %3$s/%4$s/%5$s kW"""
         );
+        ItemTooltipManager.NORMAL_ARGUMENTS.put(ModBlocks.INFINITE_COLLECTOR.asItem(), new Supplier<?>[]{
+            () -> AnvilCraft.CONFIG.machines.infiniteCollectorBasePower,
+            () -> 2 * AnvilCraft.CONFIG.machines.infiniteCollectorRange + 1,
+            () -> 3 * AnvilCraft.CONFIG.machines.infiniteCollectorBasePower,
+            () -> 8 * AnvilCraft.CONFIG.machines.infiniteCollectorBasePower,
+            () -> 20 * AnvilCraft.CONFIG.machines.infiniteCollectorBasePower
+        });
         ItemTooltipManager.NORMAL.put(
             ModBlocks.LOAD_MONITOR.asItem(),
             "Monitor the grid load condition, can output a signal by redstone comparator"
@@ -970,10 +977,10 @@ public class ItemTooltipManager {
         );
         ItemTooltipManager.SHIFT.put(
             ModItems.ANVIL_RAILGUN.get(), """
-                                          Hold right-click to load an anvil from your offhand into the railgun
-                                          Then hold right-click again to charge up, and release to launch the anvil
+                                          Uses the anvils in your inventory as ammo, no loading needed
+                                          Hold right-click to charge, then release to launch an anvil
                                           Longer charging results in higher speed and damage
-                                          Enchanting the Anvil Railgun can boost damage, reduce charge time, or change its firing behavior"""
+                                          Quick Charge shortens the charge time by 10% per level"""
         );
         ItemTooltipManager.SHIFT.put(
             ModItems.SPECTRAL_WEAPON_LAUNCHER.get(), """
@@ -1503,6 +1510,9 @@ public class ItemTooltipManager {
     }
 
     public static String getTranslationKey(Item item) {
+        if (item == ModBlocks.INFINITE_COLLECTOR.asItem()) {
+            return "tooltip.anvilcraft.item.infinite_collector.generation";
+        }
         ResourceLocation key = BuiltInRegistries.ITEM.getKey(item);
         return "tooltip.%s.item.%s".formatted(key.getNamespace(), key.getPath());
     }
