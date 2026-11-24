@@ -295,12 +295,23 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidReso
     }
 
     public boolean onPlayerUse(Player player, InteractionHand hand) {
+        return this.onPlayerUse(player, hand, this.getFluidHandler());
+    }
+
+    public boolean onPlayerUse(Player player, InteractionHand hand, double hitY) {
+        LargeFluidTankBlockEntity main = this.getMainPart();
+        List<TankFluidLayer> layers = TankFluidLayer.of(main.tank.copyFluids(), main.tank.isEnhanced());
+        FluidStack fluid = TankFluidLayer.atHeight(layers, hitY - main.getBlockPos().getY());
+        return main.onPlayerUse(player, hand, main.tank.accessLayer(fluid));
+    }
+
+    private boolean onPlayerUse(Player player, InteractionHand hand, ResourceHandler<FluidResource> handler) {
         if (this.level != null
-            && FluidBottleInteraction.tryInteract(player, hand, this.getFluidHandler(), this.level, this.getBlockPos())) {
+            && FluidBottleInteraction.tryInteract(player, hand, handler, this.level, this.getBlockPos())) {
             return true;
         }
         try (Transaction transaction = Transaction.openRoot()) {
-            boolean success = FluidUtil.interactWithFluidHandler(player, hand, this.getBlockPos(), this.getFluidHandler(), transaction);
+            boolean success = FluidUtil.interactWithFluidHandler(player, hand, this.getBlockPos(), handler, transaction);
             if (success) transaction.commit();
             return success;
         }

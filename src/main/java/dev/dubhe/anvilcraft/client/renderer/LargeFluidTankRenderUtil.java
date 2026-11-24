@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.TankFluidLayer;
 import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderType;
@@ -14,7 +15,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public final class LargeFluidTankRenderUtil {
-    public static final float INSET = 4 / 16F + 0.001F;
+    public static final float INSET = TankFluidLayer.INSET;
 
     private LargeFluidTankRenderUtil() {
     }
@@ -42,11 +43,7 @@ public final class LargeFluidTankRenderUtil {
     }
 
     public static List<FluidRenderLayers.Layer> worldLayers(List<FluidStack> contents, boolean enhanced) {
-        List<FluidStack> fluids = FluidRenderLayers.sorted(contents);
-        long total = fluids.stream().mapToLong(FluidStack::getAmount).sum();
-        long capacity = enhanced ? Math.max(total, LargeFluidTankBlockEntity.infinityThreshold())
-            : LargeFluidTankBlockEntity.BASE_CAPACITY;
-        return FluidRenderLayers.create(fluids, capacity);
+        return TankFluidLayer.of(contents, enhanced, FluidRenderLayers.Layer::of);
     }
 
     public static void submit(
