@@ -5,10 +5,6 @@ import dev.dubhe.anvilcraft.block.entity.celestial.StellarTerminal;
 import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -124,16 +120,6 @@ public class TriggerUtil {
             }
         }
     }
-
-    /** 电网规模达到 16 个组件时派发「高压电塔」。 */
-    public static void highVoltageTower(Level level, BlockPos pos, int componentCount) {
-        if (level.isClientSide || componentCount < HIGH_VOLTAGE_TOWER_COMPONENTS) return;
-        for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 5)) {
-            ModCriterionTriggers.HIGH_VOLTAGE_TOWER.get().trigger(player);
-        }
-    }
-
-    private static final int HIGH_VOLTAGE_TOWER_COMPONENTS = 16;
 
     public static void playerWearAnvilHammer(Level level, BlockPos pos) {
         if (!level.isClientSide) {
@@ -299,35 +285,14 @@ public class TriggerUtil {
         }
     }
 
-    /**
-     * 记录玩家锻造并锁定过的天体大类；每累计一种新的大类就派发一次，
-     * 让「银河系漫游指南」按 1/5 ~ 5/5 逐步推进。
-     */
     public static void celestialVisit(Level level, BlockPos pos, CelestialBodyClass bodyClass) {
-        if (level.isClientSide || bodyClass == null) return;
-        String name = bodyClass.category().name();
+        if (level.isClientSide || bodyClass == null) {
+            return;
+        }
         for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 32)) {
-            CompoundTag data = player.getPersistentData();
-            ListTag stored = data.getList(CELESTIAL_VISITED_TAG, Tag.TAG_STRING);
-            boolean known = false;
-            for (Tag tag : stored) {
-                if (tag.getAsString().equals(name)) {
-                    known = true;
-                    break;
-                }
-            }
-            ListTag visited = new ListTag();
-            visited.addAll(stored);
-            if (!known) {
-                visited.add(StringTag.valueOf(name));
-                data.put(CELESTIAL_VISITED_TAG, visited);
-            }
-            /// 无论是否新大类都按当前累计数派发，便于旧存档补齐已错过的进度。
-            ModCriterionTriggers.CELESTIAL_VISIT.get().trigger(player, visited.size());
+            ModCriterionTriggers.CELESTIAL_VISIT.get().visit(player, bodyClass.category());
         }
     }
-
-    private static final String CELESTIAL_VISITED_TAG = "anvilcraft:celestial_visited";
 
     /** 演化终局伴随超新星爆发，玩家多在爆炸范围外观察，因此搜索半径对齐震屏半径。 */
     public static void celestialEvolution(Level level, BlockPos pos, int massAnvils, StellarTerminal.Kind terminal) {

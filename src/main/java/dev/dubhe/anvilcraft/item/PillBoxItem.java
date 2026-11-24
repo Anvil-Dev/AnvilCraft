@@ -63,10 +63,10 @@ public class PillBoxItem extends BundleLikeItem {
             return InteractionResultHolder.pass(pillBox);
         }
         PillBoxContents.Mutable mutable = contents.mutable();
-        mutable.useAll(player);
+        int usedTypes = mutable.useAllAndCountTypes(player);
         pillBox.set(ModComponents.PILL_BOX_CONTENTS, mutable.immutable());
         player.getCooldowns().addCooldown(ModItems.PILL_BOX.asItem(), 40);
-        if (contents.pills().size() >= PILL_BOX_SIZE && player instanceof ServerPlayer serverPlayer) {
+        if (usedTypes >= PILL_BOX_SIZE && player instanceof ServerPlayer serverPlayer) {
             ModCriterionTriggers.PILL_BOX_EIGHT.get().trigger(serverPlayer);
         }
         return InteractionResultHolder.success(pillBox);

@@ -10,10 +10,12 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+
+import java.util.UUID;
+import javax.annotation.Nullable;
 
 public class RedstoneDiceBlockEntity extends BlockEntity {
     public static final int ROLL_TICKS = 8;
@@ -28,6 +30,7 @@ public class RedstoneDiceBlockEntity extends BlockEntity {
     @Getter
     private int output;
     private long rollStart = -1;
+    private @Nullable UUID roller;
 
     public RedstoneDiceBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.REDSTONE_DICE.get(), pos, state);
@@ -59,7 +62,12 @@ public class RedstoneDiceBlockEntity extends BlockEntity {
     }
 
     public void roll() {
+        this.roll(null);
+    }
+
+    public void roll(@Nullable ServerPlayer player) {
         if (this.level == null || this.level.isClientSide || this.rolling) return;
+        this.roller = player == null ? null : player.getUUID();
         this.previousFaces = this.faces;
         if (this.uniform) {
             this.faces = UNIFORM_OUTCOMES[this.level.random.nextInt(16)];
@@ -84,20 +92,14 @@ public class RedstoneDiceBlockEntity extends BlockEntity {
         // 输出更新传播完成前保持投掷锁定，避免相邻红石粉的回馈更新再次触发。
         this.level.updateNeighborsAt(this.worldPosition, this.getBlockState().getBlock());
         this.rolling = false;
+        if (this.faces == 666 && this.roller != null && this.level instanceof ServerLevel serverLevel) {
+            ServerPlayer player = serverLevel.getServer().getPlayerList().getPlayer(this.roller);
+            if (player != null) {
+                ModCriterionTriggers.DICE_TRIPLE_SIX.get().trigger(player);
+            }
+        }
+        this.roller = null;
         this.sync();
-        this.awardTripleSix();
-    }
-
-    private void awardTripleSix() {
-        if (this.faces != 666 || !(this.level instanceof ServerLevel serverLevel)) return;
-        Player nearest = serverLevel.getNearestPlayer(
-            this.worldPosition.getX() + 0.5,
-            this.worldPosition.getY() + 0.5,
-            this.worldPosition.getZ() + 0.5,
-            16.0,
-            false
-        );
-        if (nearest instanceof ServerPlayer player) ModCriterionTriggers.DICE_TRIPLE_SIX.get().trigger(player);
     }
 
     @Override
@@ -127,6 +129,9 @@ public class RedstoneDiceBlockEntity extends BlockEntity {
         tag.putInt("Faces", this.faces);
         tag.putInt("Output", this.output);
         tag.putLong("RollStart", this.rollStart);
+        if (this.roller != null) {
+            tag.putUUID("Roller", this.roller);
+        }
     }
 
     @Override
@@ -138,6 +143,7 @@ public class RedstoneDiceBlockEntity extends BlockEntity {
         this.faces = validFaces(tag.getInt("Faces"));
         this.output = Mth.clamp(tag.getInt("Output"), 0, 15);
         this.rollStart = tag.contains("RollStart") ? tag.getLong("RollStart") : -1;
+        this.roller = tag.hasUUID("Roller") ? tag.getUUID("Roller") : null;
     }
 
     private static int validFaces(int value) {

@@ -61,6 +61,8 @@ public abstract class BaseLaserBlockEntity extends BlockEntity implements ILaser
     protected int irradiatedLaserTargetRevision = -1;
     private BlockMiningEffect lastEmittedMiningEffect = BlockMiningEffect.NORMAL;
     private boolean lastEmittedGamma = false;
+    private long lastGammaEmissionTick = Long.MIN_VALUE;
+    private long nextGammaAdvancementCheck;
     @Getter
     protected int laserLevel = 0;
 
@@ -474,8 +476,13 @@ public abstract class BaseLaserBlockEntity extends BlockEntity implements ILaser
 
     protected void emitGammaLaserBeam(Direction direction) {
         this.emitLaserComponents(direction, true);
-        if (this.level != null && !this.level.isClientSide()) {
-            TriggerUtil.gammaLaser(this.level, this.getBlockPos());
+        if (this.level instanceof ServerLevel serverLevel) {
+            long now = serverLevel.getGameTime();
+            if (now != this.lastGammaEmissionTick && (now != this.lastGammaEmissionTick + 1 || now >= this.nextGammaAdvancementCheck)) {
+                TriggerUtil.gammaLaser(serverLevel, this.getBlockPos());
+                this.nextGammaAdvancementCheck = now + 20;
+            }
+            this.lastGammaEmissionTick = now;
         }
     }
 }

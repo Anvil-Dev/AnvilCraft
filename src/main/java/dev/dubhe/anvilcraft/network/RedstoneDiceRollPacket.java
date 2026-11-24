@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
@@ -31,7 +32,10 @@ public record RedstoneDiceRollPacket(BlockPos pos, InteractionHand hand) impleme
 
     @Override
     public void handleOnServer(Player player) {
-        Level level = player.level();
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            return;
+        }
+        Level level = serverPlayer.level();
         if (!level.hasChunkAt(this.pos) || !player.isAlive() || player.isSpectator()
             || !player.getAbilities().mayBuild || !player.canInteractWithBlock(this.pos, 0)
             || !level.mayInteract(player, this.pos)) return;
@@ -41,6 +45,6 @@ public record RedstoneDiceRollPacket(BlockPos pos, InteractionHand hand) impleme
             player.getEyePosition(), this.pos.getCenter(), ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, player
         ));
         if (hit.getType() != HitResult.Type.BLOCK || !hit.getBlockPos().equals(this.pos)) return;
-        dice.roll();
+        dice.roll(serverPlayer);
     }
 }

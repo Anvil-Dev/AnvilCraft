@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.entity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.util.AccelerateManager;
-import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Setter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -24,7 +23,6 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
@@ -35,7 +33,10 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -121,14 +122,10 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
         AccelerateManager.AccelerationEntry accelerationEntry = this.level().isClientSide
                                                                 ? null
                                                                 : AccelerateManager.findFirstAccelerationEntry(this, movement);
-        if (!this.level().isClientSide) {
-            Vec3 projectileMovement = accelerationEntry == null
-                                      ? movement
-                                      : movement.scale(accelerationEntry.progress());
-            this.hitEntitiesAlongPath(projectileMovement);
+        MovementResult result = this.moveInSubsteps(movement, accelerationEntry);
+        if (this.isRemoved()) {
+            return;
         }
-        MovementResult result = this.moveInSubsteps(movement, this.isFlying() ? accelerationEntry : null);
-        if (result.converted()) return;
         if (result.collided() && !this.level().isClientSide) this.startFalling();
         if (this.isFlying()) {
             this.setDeltaMovement(movement.scale(0.99));
@@ -140,18 +137,20 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
         }
     }
 
-    private void hitEntitiesAlongPath(Vec3 movement) {
-        while (this.isFlying()) {
-            EntityHitResult entityHit = ProjectileUtil.getEntityHitResult(
-                this.level(), this, this.position(), this.position().add(movement),
-                this.getBoundingBox().expandTowards(movement).inflate(0.5),
-                entity -> entity instanceof LivingEntity
-                    && entity.isAttackable()
-                    && !this.hitEntities.contains(entity.getUUID())
-            );
-            if (entityHit == null) return;
-            this.hit(entityHit);
+    private List<EntityHitResult> findEntityHits(Vec3 start, Vec3 movement) {
+        if (this.level().isClientSide()) {
+            return List.of();
         }
+        Vec3 end = start.add(movement);
+        List<EntityHitResult> hits = new ArrayList<>();
+        for (Entity entity : this.level().getEntities(this, this.getBoundingBox().expandTowards(movement).inflate(0.5),
+            candidate -> candidate instanceof LivingEntity living && living.isAlive()
+                && candidate.isAttackable() && !this.hitEntities.contains(candidate.getUUID()))) {
+            entity.getBoundingBox().inflate(0.3F).clip(start, end)
+                .ifPresent(location -> hits.add(new EntityHitResult(entity, location)));
+        }
+        hits.sort(Comparator.comparingDouble(hit -> start.distanceToSqr(hit.getLocation())));
+        return hits;
     }
 
     private MovementResult moveInSubsteps(
@@ -161,20 +160,27 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
         int steps = Math.max(1, (int) Math.ceil(movement.length() / 0.25));
         Vec3 step = movement.scale(1.0 / steps);
         Vec3 startPosition = this.position();
+        Vec3 end = startPosition.add(movement);
+        Vec3 flightEnd = accelerationEntry == null ? end : startPosition.add(movement.scale(accelerationEntry.progress()));
+        List<EntityHitResult> hits = this.findEntityHits(startPosition, movement);
+        int hitIndex = 0;
         boolean collided = false;
-        if (accelerationEntry != null && accelerationEntry.progress() <= 0.0
-            && this.convertToFallingBlock(accelerationEntry)) {
-            return new MovementResult(false, movement, true);
-        }
-        for (int i = 0; i < steps; i++) {
-            boolean reachesAccelerationArea = accelerationEntry != null
-                                              && !collided
-                                              && accelerationEntry.progress() <= (i + 1.0) / steps;
-            Vec3 requestedMovement = reachesAccelerationArea
-                                     ? startPosition.add(movement.scale(accelerationEntry.progress())).subtract(this.position())
-                                     : step;
+        for (int i = 1; i <= steps;) {
+            boolean reachesAccelerationArea = accelerationEntry != null && accelerationEntry.progress() <= (double) i / steps;
+            Vec3 destination = reachesAccelerationArea ? flightEnd : startPosition.add(step.scale(i));
+            EntityHitResult entityHit = hitIndex < hits.size() ? hits.get(hitIndex) : null;
+            boolean reachesEntity = entityHit != null
+                && startPosition.distanceToSqr(entityHit.getLocation()) <= startPosition.distanceToSqr(destination);
+            if (reachesEntity) {
+                destination = entityHit.getLocation();
+            }
             Vec3 before = this.position();
+            // 沿实体或加速区之间的实际路程移动，先接触到的方块可以挡住后面的命中。
+            Vec3 requestedMovement = collided ? step : destination.subtract(before);
             this.move(MoverType.SELF, requestedMovement);
+            if (this.isRemoved()) {
+                break;
+            }
             Vec3 actual = this.position().subtract(before);
             boolean blockedX = Math.abs(actual.x - requestedMovement.x) > 1.0E-6;
             boolean blockedY = Math.abs(actual.y - requestedMovement.y) > 1.0E-6;
@@ -182,26 +188,43 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
             if (blockedX || blockedY || blockedZ) {
                 collided = true;
                 accelerationEntry = null;
+                hitIndex = hits.size();
                 step = new Vec3(
                     blockedX ? -step.x * 0.1 : step.x,
                     blockedY ? -step.y * 0.1 : step.y,
                     blockedZ ? -step.z * 0.1 : step.z
                 );
+            } else if (reachesEntity) {
+                if (entityHit.getEntity().isAlive()) {
+                    this.hit(entityHit);
+                }
+                if (!this.isFlying()) {
+                    break;
+                }
+                hitIndex++;
+                continue;
             } else if (reachesAccelerationArea) {
                 if (this.convertToFallingBlock(accelerationEntry)) {
-                    return new MovementResult(false, step.scale(steps), true);
+                    break;
                 }
                 accelerationEntry = null;
+                flightEnd = end;
+                continue;
             }
+            i++;
         }
-        return new MovementResult(collided, step.scale(steps), false);
+        return new MovementResult(collided, step.scale(steps));
     }
 
-    /// 读取转换后的掉落方块上记录的发射者，没有记录时返回 null。
-    @Nullable
-    public static UUID getRailgunOwner(Entity entity) {
+    /** 用发射者 UUID 关联飞行中的弹丸与加速区转换出的掉落方块。 */
+    public static @Nullable UUID getRailgunOwner(Entity entity) {
+        if (entity instanceof RailgunAnvilEntity railgun) {
+            return railgun.owner;
+        }
         String raw = entity.getPersistentData().getString(RAILGUN_OWNER_TAG);
-        if (raw.isEmpty()) return null;
+        if (raw.isEmpty()) {
+            return null;
+        }
         try {
             return UUID.fromString(raw);
         } catch (IllegalArgumentException ignored) {
@@ -234,7 +257,7 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
     private void hit(EntityHitResult hit) {
         Entity target = hit.getEntity();
         this.hitEntities.add(target.getUUID());
-        Entity ownerEntity = ((ServerLevel) level()).getEntity(this.owner);
+        Entity ownerEntity = this.owner == null ? null : ((ServerLevel) this.level()).getEntity(this.owner);
         float damage = (float) (this.getDeltaMovement().length() * 2.0)
                        * BASE_DAMAGE_MULTIPLIER
                        * this.getAmmoDamageMultiplier();
@@ -251,10 +274,6 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
                     livingTarget.push(
                         getDeltaMovement().x * knockback * 0.4, 0.1, getDeltaMovement().z * knockback * 0.4);
                 }
-            }
-            // 被自己发射的铁砧砸死
-            if (target instanceof ServerPlayer victim && victim.getUUID().equals(this.owner) && victim.isDeadOrDying()) {
-                TriggerUtil.railgunSelfKill(victim);
             }
         }
         if (this.hitEntities.size() > entityData.get(PIERCE)) this.startFalling();
@@ -317,7 +336,7 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
     @Nullable
     public Entity getOwnerEntity() {
         Entity entity = this.level().getEntity(this.entityData.get(OWNER_ID));
-        if (entity != null || !(this.level() instanceof ServerLevel serverLevel)) return entity;
+        if (entity != null || !(this.level() instanceof ServerLevel serverLevel) || this.owner == null) return entity;
         entity = serverLevel.getEntity(this.owner);
         if (entity != null) this.entityData.set(OWNER_ID, entity.getId());
         return entity;
@@ -399,6 +418,6 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
         return this.entityData.get(FLYING);
     }
 
-    private record MovementResult(boolean collided, Vec3 velocity, boolean converted) {
+    private record MovementResult(boolean collided, Vec3 velocity) {
     }
 }

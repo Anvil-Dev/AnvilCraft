@@ -103,17 +103,12 @@ public class FallingBlockCollisionEventListener {
         if (recipe.consume()) {
             event.getEntity().kill();
         }
-        ServerPlayer railgunOwner = null;
-        if (event.getEntity() instanceof RailgunAnvilEntity railgun
-            && railgun.getOwnerEntity() instanceof ServerPlayer directOwner) {
-            railgunOwner = directOwner;
-        } else {
-            /// 经加速区转换的弹丸已变成普通掉落方块，发射者记录在持久数据里。
-            UUID ownerId = RailgunAnvilEntity.getRailgunOwner(event.getEntity());
-            if (ownerId != null) railgunOwner = serverLevel.getServer().getPlayerList().getPlayer(ownerId);
-        }
-        if (railgunOwner != null) {
-            ModCriterionTriggers.RAILGUN_COLLISION.get().trigger(railgunOwner);
+        UUID ownerId = RailgunAnvilEntity.getRailgunOwner(event.getEntity());
+        if (ownerId != null) {
+            ServerPlayer shooter = serverLevel.getServer().getPlayerList().getPlayer(ownerId);
+            if (shooter != null) {
+                ModCriterionTriggers.RAILGUN_COLLISION.get().trigger(shooter);
+            }
         }
 
         DamageSource damageSource = Explosion.getDefaultDamageSource(level, null);

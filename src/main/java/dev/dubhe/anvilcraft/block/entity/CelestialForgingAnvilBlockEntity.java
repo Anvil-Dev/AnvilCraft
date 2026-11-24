@@ -1560,8 +1560,12 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
 
     /// 当玩家在物流接口中放入或取出物品时立即调用。委托给 WormholeStabilizerHandler。
     public void syncLogisticsOnChange(BlockPos interfacePos, int changedSlot) {
+        this.syncLogisticsOnChange(interfacePos, changedSlot, false);
+    }
+
+    public void syncLogisticsOnChange(BlockPos interfacePos, int changedSlot, boolean deposited) {
         WormholeStabilizerHandler wh = this.megastructureManager.getWormholeHandler();
-        wh.syncLogisticsOnChange(interfacePos, changedSlot, this);
+        wh.syncLogisticsOnChange(interfacePos, changedSlot, this, deposited);
     }
 
     /// 在 CFA 的特定侧面上注册一个传送门。

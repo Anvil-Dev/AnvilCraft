@@ -195,18 +195,23 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
     }
 
     public void syncLogisticsOnChange(BlockPos interfacePos, int changedSlot, CelestialForgingAnvilBlockEntity be) {
+        this.syncLogisticsOnChange(interfacePos, changedSlot, be, false);
+    }
+
+    public void syncLogisticsOnChange(BlockPos interfacePos, int changedSlot, CelestialForgingAnvilBlockEntity be, boolean deposited) {
         if (be.getLevel() == null || be.getLevel().isClientSide() || !this.registered || this.bodyUuid == null) return;
         BlockPos offset = interfacePos.subtract(be.getBlockPos());
         var local = getLogisticsInterfacesMap(be).get(offset);
         if (local == null || local.getWormholeInventory() == null) return;
+        boolean delivered = false;
         for (var remote : this.getConnectedLogisticsInterfaces(be, offset)) {
             if (!local.getWormholeInventory().equals(remote.getWormholeInventory())) continue;
             remote.setChanged();
             remote.setEjectCooldown(CelestialForgingAnvilLogisticsInterfaceBlockEntity.EJECT_COOLDOWN);
-            // 远端位于不同维度时，说明货物确实跨维度送达了
-            if (!remote.getLevel().dimension().equals(be.getLevel().dimension())) {
-                TriggerUtil.wormholeDelivery(be.getLevel(), interfacePos);
-            }
+            delivered |= deposited && !remote.getLevel().dimension().equals(be.getLevel().dimension());
+        }
+        if (delivered) {
+            TriggerUtil.wormholeDelivery(be.getLevel(), interfacePos);
         }
     }
 

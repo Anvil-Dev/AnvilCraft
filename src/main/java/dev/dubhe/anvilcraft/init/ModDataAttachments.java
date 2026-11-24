@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.inventory.SmithingTemplateAdditions;
 import dev.dubhe.anvilcraft.inventory.SmithingTemplateFavorites;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -22,6 +23,12 @@ public class ModDataAttachments {
     public static final Supplier<AttachmentType<PocketInventory>> POCKETS = ATTACHMENT_TYPES.register(
         "pockets", () -> AttachmentType.builder(PocketInventory::new).serialize(PocketInventory.CODEC)
             .copyOnDeath().sync((holder, player) -> holder == player, PocketInventory.STREAM_CODEC).build());
+
+    public static final Supplier<AttachmentType<Double>> VOID_WALK_DISTANCE = ATTACHMENT_TYPES.register(
+        "void_walk_distance", () -> AttachmentType.builder(() -> 0d).serialize(Codec.DOUBLE).copyOnDeath().build());
+
+    public static final Supplier<AttachmentType<Vec3>> LAST_VOID_POSITION = ATTACHMENT_TYPES.register(
+        "last_void_position", () -> AttachmentType.builder(() -> Vec3.ZERO).build());
 
     public static final Supplier<AttachmentType<Boolean>> IN_POWER_GRID = ATTACHMENT_TYPES.register(
         "in_power_grid", () -> AttachmentType.builder(() -> false).sync(ByteBufCodecs.BOOL).build());

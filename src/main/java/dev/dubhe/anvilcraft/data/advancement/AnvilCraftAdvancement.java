@@ -277,9 +277,10 @@ public class AnvilCraftAdvancement {
         AdvancementLineHelper firepowerLine = elecLine.createBranch();
         firepowerLine.next()
             .task(ModBlocks.CHARGER, "charger")
-            .recipe("craft_charger", AnvilCraft.of("charger"))
+            .recipeAnc("craft_charger", "charger")
+            .recipeAnc("convert_discharger", "charger_from_discharger")
             .playerPlace("place_charger", ModBlocks.CHARGER)
-            .requireAll()
+            .requireAdvs(List.of("craft_charger", "convert_discharger"), List.of("place_charger"))
             .save("charger");
         firepowerLine.next()
             .task(ModItems.SUPER_CAPACITOR, "supercapacitor")
@@ -301,6 +302,10 @@ public class AnvilCraftAdvancement {
             .challenge(ModItems.ANVIL_RAILGUN, "railgun_collision")
             .railgunCollision("railgun_collision")
             .save("railgun_collision");
+        firepowerLine.next()
+            .challenge(ModItems.ANVIL_RAILGUN, "railgun_self_kill", true)
+            .railgunSelfKill("railgun_self_kill")
+            .save("railgun_self_kill");
 
         AdvancementLineHelper genelecLine = elecLine.createBranch();
 
