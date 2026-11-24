@@ -139,7 +139,9 @@ public class TheMonolithEventListener {
                 key = KNOWLEDGE[event.getLevel().getRandom().nextInt(KNOWLEDGE.length)];
             }
             player.sendSystemMessage(Component.translatable(key));
-            ModCriterionTriggers.MONOLITH_TOUCH.get().trigger(player);
+            if (Level.OVERWORLD.equals(event.getLevel().dimension())) {
+                ModCriterionTriggers.MONOLITH_TOUCH.get().trigger(player);
+            }
             return;
         }
         long now = player.level().getGameTime();

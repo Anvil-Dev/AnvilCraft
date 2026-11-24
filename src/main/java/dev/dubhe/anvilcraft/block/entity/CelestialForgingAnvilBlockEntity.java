@@ -1408,8 +1408,12 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      * 虫洞稳定器会在同一刻把变更写入权威状态并推送到所有连接的锻星砧。
      */
     public void syncLogisticsOnChange(BlockPos interfacePos, int changedSlot) {
+        this.syncLogisticsOnChange(interfacePos, changedSlot, false);
+    }
+
+    public void syncLogisticsOnChange(BlockPos interfacePos, int changedSlot, boolean deposited) {
         WormholeStabilizerHandler wh = this.megastructureManager.getWormholeHandler();
-        wh.syncLogisticsOnChange(interfacePos, changedSlot, this);
+        wh.syncLogisticsOnChange(interfacePos, changedSlot, this, deposited);
     }
 
     /**

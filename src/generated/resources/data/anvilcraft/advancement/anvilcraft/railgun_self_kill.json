@@ -1,0 +1,27 @@
+{
+  "parent": "anvilcraft:anvilcraft/railgun_collision",
+  "criteria": {
+    "railgun_self_kill": {
+      "trigger": "anvilcraft:railgun_self_kill"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.railgun_self_kill.description"
+    },
+    "frame": "challenge",
+    "hidden": true,
+    "icon": {
+      "id": "anvilcraft:anvil_railgun"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.railgun_self_kill.title"
+    }
+  },
+  "requirements": [
+    [
+      "railgun_self_kill"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

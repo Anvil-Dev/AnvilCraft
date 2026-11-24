@@ -85,7 +85,7 @@ public class ModAdvancementsHandler {
                 Component.translatable("advancements.anvilcraft.fish_tank.description"),
                 AdvancementType.TASK
             )
-            .hasItems("has_fish_tank", ModBlocks.FISH_TANK)
+            .recipeAnc("craft_fish_tank", "fish_tank")
             .playerPlace("place_fish_tank", ModBlocks.FISH_TANK)
             .requireAll()
             .save(provider, "fish_tank");
@@ -477,9 +477,10 @@ public class ModAdvancementsHandler {
                 Component.translatable("advancements.anvilcraft.charger.description"),
                 AdvancementType.TASK
             )
-            .recipe("craft_charger", AnvilCraft.of("charger"))
+            .recipeAnc("craft_charger", "charger")
+            .recipeAnc("convert_discharger", "charger_from_discharger")
             .playerPlace("place_charger", ModBlocks.CHARGER)
-            .requireAll()
+            .requireAdvs(List.of("craft_charger", "convert_discharger"), List.of("place_charger"))
             .save(provider, "charger");
         AdvancementHolder supercapacitor = firepowerLine.next()
             .display(
@@ -516,6 +517,16 @@ public class ModAdvancementsHandler {
             )
             .railgunCollision("railgun_collision")
             .save(provider, "railgun_collision");
+        firepowerLine.next()
+            .display(
+                ModItems.ANVIL_RAILGUN,
+                Component.translatable("advancements.anvilcraft.railgun_self_kill.title"),
+                Component.translatable("advancements.anvilcraft.railgun_self_kill.description"),
+                AdvancementType.CHALLENGE,
+                true
+            )
+            .railgunSelfKill("railgun_self_kill")
+            .save(provider, "railgun_self_kill");
 
         AdvancementLineHelper generateElectLine = electLine.createBranch();
         AdvancementHolder notBeacon = generateElectLine.next()
@@ -643,9 +654,13 @@ public class ModAdvancementsHandler {
                 Component.translatable("advancements.anvilcraft.royal_blacksmith.description"),
                 AdvancementType.TASK
             )
-            .hasItems("has_royal_anvil", ModBlocks.ROYAL_ANVIL)
-            .hasItems("has_royal_smithing_table", ModBlocks.ROYAL_SMITHING_TABLE)
-            .hasItems("has_royal_grindstone", ModBlocks.ROYAL_GRINDSTONE)
+            .recipeAnc("craft_royal_anvil", "smithing/royal_anvil")
+            .recipeAnc("craft_royal_smithing_table", "smithing/royal_smithing_table")
+            .recipeAnc("craft_royal_grindstone", "smithing/royal_grindstone")
+            .playerPlace("place_royal_anvil", ModBlocks.ROYAL_ANVIL)
+            .playerPlace("place_royal_smithing_table", ModBlocks.ROYAL_SMITHING_TABLE)
+            .playerPlace("place_royal_grindstone", ModBlocks.ROYAL_GRINDSTONE)
+            .requireAll()
             .save(provider, "royal_blacksmith");
         AdvancementHolder wither = mainLine.next()
             .display(
@@ -736,12 +751,19 @@ public class ModAdvancementsHandler {
                 Component.translatable("advancements.anvilcraft.ice_and_fire.description"),
                 AdvancementType.CHALLENGE
             )
-            .hasItems("has_ember_smithing_table", ModBlocks.EMBER_SMITHING_TABLE)
-            .hasItems("has_ember_grindstone", ModBlocks.EMBER_GRINDSTONE)
-            .hasItems("has_ember_anvil", ModBlocks.EMBER_ANVIL)
-            .hasItems("has_frost_smithing_table", ModBlocks.FROST_SMITHING_TABLE)
-            .hasItems("has_frost_grindstone", ModBlocks.FROST_GRINDSTONE)
-            .hasItems("has_frost_anvil", ModBlocks.FROST_ANVIL)
+            .requireAll()
+            .recipeAnc("craft_ember_smithing_table", "smithing/ember_smithing_table")
+            .recipeAnc("craft_ember_anvil", "smithing/ember_anvil")
+            .recipeAnc("craft_ember_grindstone", "smithing/ember_grindstone")
+            .recipeAnc("craft_frost_smithing_table", "smithing/frost_smithing_table")
+            .recipeAnc("craft_frost_anvil", "smithing/frost_anvil")
+            .recipeAnc("craft_frost_grindstone", "smithing/frost_grindstone")
+            .playerPlace("place_ember_smithing_table", ModBlocks.EMBER_SMITHING_TABLE)
+            .playerPlace("place_ember_anvil", ModBlocks.EMBER_ANVIL)
+            .playerPlace("place_ember_grindstone", ModBlocks.EMBER_GRINDSTONE)
+            .playerPlace("place_frost_smithing_table", ModBlocks.FROST_SMITHING_TABLE)
+            .playerPlace("place_frost_anvil", ModBlocks.FROST_ANVIL)
+            .playerPlace("place_frost_grindstone", ModBlocks.FROST_GRINDSTONE)
             .save(provider, "ice_and_fire");
 
         AdvancementHolder selfInFlaming = emberLine.next()
@@ -776,7 +798,9 @@ public class ModAdvancementsHandler {
                 Component.translatable("advancements.anvilcraft.laser.description"),
                 AdvancementType.TASK
             )
-            .hasItems("has_ruby_laser", ModBlocks.RUBY_LASER)
+            .recipeAnc("craft_ruby_laser", "ruby_laser")
+            .playerPlace("place_ruby_laser", ModBlocks.RUBY_LASER)
+            .requireAll()
             .save(provider, "laser");
 
         AdvancementHolder heatUtilizing = gemLine.next()
@@ -786,7 +810,9 @@ public class ModAdvancementsHandler {
                 Component.translatable("advancements.anvilcraft.heat_utilizing.description"),
                 AdvancementType.TASK
             )
-            .hasItems("has_heat_collector", ModBlocks.HEAT_COLLECTOR)
+            .recipeAnc("craft_heat_collector", "heat_collector")
+            .playerPlace("place_heat_collector", ModBlocks.HEAT_COLLECTOR)
+            .requireAll()
             .save(provider, "heat_utilizing");
 
         AdvancementLineHelper nuclearLine = gemLine.createBranch();

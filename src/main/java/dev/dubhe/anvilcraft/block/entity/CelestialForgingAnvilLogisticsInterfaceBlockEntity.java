@@ -76,10 +76,13 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         }
 
         @Override
-        protected void onContentsChanged(int slot, ItemStack stack) {
+        protected void onContentsChanged(int slot, ItemStack previous) {
             CelestialForgingAnvilLogisticsInterfaceBlockEntity.this.setChanged();
             if (!CelestialForgingAnvilLogisticsInterfaceBlockEntity.this.syncing) {
-                CelestialForgingAnvilLogisticsInterfaceBlockEntity.this.triggerWormholeSync(slot);
+                ItemResource current = this.getResource(slot);
+                boolean deposited = !current.isEmpty()
+                    && (!current.equals(ItemResource.of(previous)) || this.getAmountAsInt(slot) > previous.getCount());
+                CelestialForgingAnvilLogisticsInterfaceBlockEntity.this.triggerWormholeSync(slot, deposited);
             }
         }
     };
@@ -117,18 +120,29 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         return this.itemHandler;
     }
 
+    /** 镜像保留权威槽位的物品和数量，并阻止回调再次向源端同步。 */
+    public void applyWormholeSlot(int slot, ItemStack stack) {
+        this.setSyncing(true);
+        try {
+            this.itemHandler.set(slot, ItemResource.of(stack), stack.getCount());
+            this.setEjectCooldown(EJECT_COOLDOWN);
+        } finally {
+            this.setSyncing(false);
+        }
+    }
+
     // === 虫洞同步 ===
 
     /**
      * 玩家插入或取出物品时由 {@code onContentsChanged} 调用。
      * 立即通知所属锻星砧，把本接口的变更在同一刻写入虫洞权威状态并推送到其他锻星砧。
      */
-    private void triggerWormholeSync(int changedSlot) {
+    private void triggerWormholeSync(int changedSlot, boolean deposited) {
         if (level == null || level.isClientSide()) return;
         BlockPos cfaPos = this.findParentCfa();
         if (cfaPos == null) return;
         if (level.getBlockEntity(cfaPos) instanceof CelestialForgingAnvilBlockEntity cfa) {
-            cfa.syncLogisticsOnChange(worldPosition, changedSlot);
+            cfa.syncLogisticsOnChange(worldPosition, changedSlot, deposited);
         }
     }
 

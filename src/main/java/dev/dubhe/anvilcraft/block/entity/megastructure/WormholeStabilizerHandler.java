@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.megastructure;
 
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
-import dev.dubhe.anvilcraft.util.TriggerUtil;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.api.world.load.LoadChunkData;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
@@ -14,6 +13,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import dev.dubhe.anvilcraft.saved.WormholeInterfaceStates;
 import dev.dubhe.anvilcraft.saved.WormholeNetwork;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.UUIDUtil;
@@ -203,6 +203,10 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
      * 玩家操作物流接口时立即更新权威状态，并在同一刻推送到所有连接的锻星砧。
      */
     public void syncLogisticsOnChange(BlockPos interfacePos, int changedSlot, CelestialForgingAnvilBlockEntity be) {
+        this.syncLogisticsOnChange(interfacePos, changedSlot, be, false);
+    }
+
+    public void syncLogisticsOnChange(BlockPos interfacePos, int changedSlot, CelestialForgingAnvilBlockEntity be, boolean deposited) {
         if (be.getLevel() == null || be.getLevel().isClientSide() || !this.registered || this.bodyUuid == null) return;
 
         Map<BlockPos, CelestialForgingAnvilLogisticsInterfaceBlockEntity> localMap = getLogisticsInterfacesMap(be);
@@ -229,6 +233,7 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
 
         WormholeNetwork network = WormholeNetwork.get();
         List<WormholeNetwork.Entry> connected = network.getConnected(this.bodyUuid, be.getLevel().dimension(), be.getBlockPos());
+        boolean delivered = false;
         for (WormholeNetwork.Entry entry : connected) {
             ServerLevel targetLevel = be.getLevel().getServer().getLevel(entry.dimension());
             if (targetLevel == null) continue;
@@ -238,18 +243,11 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
                 this.getLogisticsInterfacesMap(targetCfa);
             CelestialForgingAnvilLogisticsInterfaceBlockEntity remoteBe = remoteMap.get(relOffset);
             if (remoteBe == null || remoteBe == localBe) continue;
-            ResourceHandler<ItemResource> remoteHandler = remoteBe.getItemHandler();
-            remoteBe.setSyncing(true);
-            try {
-                setHandlerSlot(remoteHandler, changedSlot, canonStack.copy());
-                remoteBe.setEjectCooldown(CelestialForgingAnvilLogisticsInterfaceBlockEntity.EJECT_COOLDOWN);
-            } finally {
-                remoteBe.setSyncing(false);
-            }
-            // 远端位于不同维度时，说明货物确实跨维度送达了
-            if (!entry.dimension().equals(be.getLevel().dimension())) {
-                TriggerUtil.wormholeDelivery(be.getLevel(), localBe.getBlockPos());
-            }
+            remoteBe.applyWormholeSlot(changedSlot, localStack);
+            delivered |= deposited && !entry.dimension().equals(be.getLevel().dimension());
+        }
+        if (delivered) {
+            TriggerUtil.wormholeDelivery(be.getLevel(), interfacePos);
         }
     }
 

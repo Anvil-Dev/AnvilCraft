@@ -50,6 +50,9 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.railgun_collision.title", "Handheld Collider");
         provider.add("advancements.anvilcraft.railgun_collision.description", "Execute any impact recipe with the Anvil Railgun");
 
+        provider.add("advancements.anvilcraft.railgun_self_kill.title", "Own Goal");
+        provider.add("advancements.anvilcraft.railgun_self_kill.description", "Be killed by an anvil you fired from your own Anvil Railgun");
+
         provider.add("advancements.anvilcraft.not_enough_firepower.title", "Not Enough Firepower");
         provider.add("advancements.anvilcraft.not_enough_firepower.description", "Own all five energy weapons");
         // endregion
