@@ -8,6 +8,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.transfer.RangedResourceHandler;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.TransferPreconditions;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -125,6 +126,13 @@ final class MultiFluidTankHandler implements
         if (space <= 0) return 0;
         if (mayBeInfinite(resource.toStack(amount)) && amount >= space) return amount;
         return (int) Math.min(amount, space);
+    }
+
+    ResourceHandler<FluidResource> accessLayer(FluidStack fluid) {
+        if (fluid.isEmpty()) {
+            return this;
+        }
+        return RangedResourceHandler.ofSingleIndex(this, this.findFluid(FluidResource.of(fluid)));
     }
 
     @Override
