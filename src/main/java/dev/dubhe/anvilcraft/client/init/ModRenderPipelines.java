@@ -261,7 +261,14 @@ public class ModRenderPipelines {
         .withLocation(AnvilCraft.of("pipeline/planet_atmosphere"))
         .build();
 
-    public static final RenderPipeline MONOLITH_SURFACE_GUI = RenderPipelines.END_PORTAL.toBuilder()
+    public static final RenderPipeline MONOLITH_SURFACE = RenderPipelines.END_PORTAL.toBuilder()
+        .withLocation(AnvilCraft.of("pipeline/monolith_surface"))
+        .withFragmentShader(AnvilCraft.of("core/monolith_surface"))
+        // 固定深度偏移让内表面覆盖底材，避免斜视时偏移随坡度放大、穿过外壳。
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, true, 0f, -2f))
+        .build();
+
+    public static final RenderPipeline MONOLITH_SURFACE_GUI = MONOLITH_SURFACE.toBuilder()
         .withLocation(AnvilCraft.of("pipeline/monolith_surface_gui"))
         .withVertexShader(AnvilCraft.of("core/monolith_surface"))
         .build();
@@ -353,6 +360,7 @@ public class ModRenderPipelines {
         event.registerPipeline(ModRenderPipelines.CELESTIAL_ATMOSPHERE);
         event.registerPipeline(ModRenderPipelines.PLANET_ATMOSPHERE);
         event.registerPipeline(ModRenderPipelines.PLANET_ATMOSPHERE_INSIDE);
+        event.registerPipeline(ModRenderPipelines.MONOLITH_SURFACE);
         event.registerPipeline(ModRenderPipelines.MONOLITH_SURFACE_GUI);
         event.registerPipeline(ModRenderPipelines.CELESTIAL_GATEWAY);
         event.registerPipeline(ModRenderPipelines.CELESTIAL_GATEWAY_PREVIEW);

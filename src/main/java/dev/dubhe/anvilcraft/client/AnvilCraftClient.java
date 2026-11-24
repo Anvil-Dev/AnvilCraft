@@ -34,6 +34,7 @@ import dev.dubhe.anvilcraft.item.tool.HeavyHalberdItem;
 import dev.dubhe.anvilcraft.item.tool.HeavyHalberdMode;
 import dev.dubhe.anvilcraft.item.tool.ResonatorItem;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
+import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
@@ -45,7 +46,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -245,11 +245,8 @@ public class AnvilCraftClient {
             ItemStack stack
         ) {
             if (!entity.isUsingItem() || entity.getUseItem().getItem() != stack.getItem()) return null;
-            if (stack.getItem() instanceof AnvilRailgunItem
-                && entity instanceof Player player
-                && AnvilRailgunItem.isLoading(player, stack, hand)
-            ) {
-                return HumanoidModel.ArmPose.CROSSBOW_CHARGE;
+            if (stack.getItem() instanceof AnvilRailgunItem || stack.getItem() instanceof LaserGunItem) {
+                return HumanoidModel.ArmPose.BOW_AND_ARROW;
             }
             return HumanoidModel.ArmPose.CROSSBOW_HOLD;
         }

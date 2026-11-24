@@ -217,6 +217,9 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
         int sourceEffectiveHeight = this.getBlockPos().getY() + CelestialForgingAnvilFluidInterfaceBlockEntity.PUMP_HEADLIFT;
 
         if (FluidNetworkScanner.isPipePart(frontState)) {
+            if (!FluidNetworkScanner.hasAnyConnectionToward(frontState, facing.getOpposite())) {
+                return;
+            }
             FluidPipeNetwork network = FluidNetworkScanner.scan(this.level, frontPos);
             if (network != null) {
                 network.pushFromExternalSource(this.tank, this.getBlockPos(), frontPos, sourceEffectiveHeight);

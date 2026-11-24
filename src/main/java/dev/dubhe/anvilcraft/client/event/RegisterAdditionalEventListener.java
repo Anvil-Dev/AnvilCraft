@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorRender
 import dev.dubhe.anvilcraft.client.renderer.blockentity.BigRedButtonBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.ChutePlateRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ControlValveBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CrushingTableBlockEntityRenderer;
@@ -286,6 +287,7 @@ public class RegisterAdditionalEventListener {
             PumpBlockEntityRenderer.PUMP_PISTON_2,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/pump_piston_2"))
         );
+        ChutePlateRenderer.registerModels(event);
         event.register(
             PipeCheckValveBERenderer.ARM,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/check_valve_arm"))

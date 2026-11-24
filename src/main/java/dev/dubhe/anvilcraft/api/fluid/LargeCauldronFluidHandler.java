@@ -155,8 +155,28 @@ public class LargeCauldronFluidHandler implements ResourceHandler<FluidResource>
     }
 
     public FluidStack getFluidInTank(int tank) {
-        FluidResource resource = this.getResource(tank);
-        return resource.isEmpty() ? FluidStack.EMPTY : resource.toStack(this.getAmountAsInt(tank));
+        Objects.checkIndex(tank, LargeCauldronFluidHandler.TANK_COUNT);
+        return tank < this.fluids.size() ? this.fluids.get(tank).copy() : FluidStack.EMPTY;
+    }
+
+    /** 已占用的液层从底部开始连续排列。 */
+    public int getLayerCount() {
+        return this.fluids.size();
+    }
+
+    /** 比较固定槽位快照的层序、组件和数量。 */
+    public boolean hasSameFluids(List<FluidStack> snapshot) {
+        if (snapshot.size() != LargeCauldronFluidHandler.TANK_COUNT) {
+            return false;
+        }
+        for (int layer = 0; layer < snapshot.size(); layer++) {
+            FluidStack current = layer < this.fluids.size() ? this.fluids.get(layer) : FluidStack.EMPTY;
+            FluidStack previous = snapshot.get(layer);
+            if (!FluidStack.matches(current, previous) || current.getAmount() != previous.getAmount()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public List<FluidStack> copyFluids() {
@@ -201,24 +221,13 @@ public class LargeCauldronFluidHandler implements ResourceHandler<FluidResource>
 
     private int layerAtHeight(int accessibleAmount) {
         if (this.fluids.isEmpty()) return -1;
-        int target = Math.min(Math.max(1, accessibleAmount), this.getTotalAmount());
+        int target = Math.max(1, accessibleAmount);
         int amount = 0;
         for (int layer = 0; layer < this.fluids.size(); layer++) {
             amount += this.fluids.get(layer).getAmount();
             if (amount >= target) return layer;
         }
         return this.fluids.size() - 1;
-    }
-
-    private List<Integer> layerOrder(DrainOrder order, int accessibleAmount) {
-        List<Integer> result = new ArrayList<>(this.fluids.size());
-        if (order == DrainOrder.BOTTOM) {
-            for (int layer = 0; layer < this.fluids.size(); layer++) result.add(layer);
-            return result;
-        }
-        int start = order == DrainOrder.TOP ? this.fluids.size() - 1 : this.layerAtHeight(accessibleAmount);
-        for (int layer = start; layer >= 0; layer--) result.add(layer);
-        return result;
     }
 
     private enum DrainOrder {
@@ -230,15 +239,14 @@ public class LargeCauldronFluidHandler implements ResourceHandler<FluidResource>
     private class FluidsJournal extends SnapshotJournal<List<FluidStack>> {
         @Override
         protected List<FluidStack> createSnapshot() {
-            return LargeCauldronFluidHandler.this.copyFluids();
+            // 液层的每次写入都替换整个栈，对外读取返回副本。
+            return new ArrayList<>(LargeCauldronFluidHandler.this.fluids);
         }
 
         @Override
         protected void revertToSnapshot(List<FluidStack> snapshot) {
             LargeCauldronFluidHandler.this.fluids.clear();
-            for (FluidStack fluid : snapshot) {
-                if (!fluid.isEmpty()) LargeCauldronFluidHandler.this.fluids.add(fluid.copy());
-            }
+            LargeCauldronFluidHandler.this.fluids.addAll(snapshot);
         }
 
         @Override
@@ -263,20 +271,27 @@ public class LargeCauldronFluidHandler implements ResourceHandler<FluidResource>
             return LargeCauldronFluidHandler.TANK_COUNT;
         }
 
+        private int layerAt(int index) {
+            int count = LargeCauldronFluidHandler.this.fluids.size();
+            return switch (this.drainOrder) {
+                case BOTTOM -> index < count ? index : -1;
+                case TOP -> count - 1 - index;
+                case HEIGHT -> LargeCauldronFluidHandler.this.layerAtHeight(this.accessibleAmount) - index;
+            };
+        }
+
         @Override
         public FluidResource getResource(int index) {
             Objects.checkIndex(index, LargeCauldronFluidHandler.TANK_COUNT);
-            List<Integer> order = LargeCauldronFluidHandler.this.layerOrder(this.drainOrder, this.accessibleAmount);
-            return index < order.size()
-                ? LargeCauldronFluidHandler.this.getResource(order.get(index))
-                : FluidResource.EMPTY;
+            int layer = this.layerAt(index);
+            return layer < 0 ? FluidResource.EMPTY : LargeCauldronFluidHandler.this.getResource(layer);
         }
 
         @Override
         public long getAmountAsLong(int index) {
             Objects.checkIndex(index, LargeCauldronFluidHandler.TANK_COUNT);
-            List<Integer> order = LargeCauldronFluidHandler.this.layerOrder(this.drainOrder, this.accessibleAmount);
-            return index < order.size() ? LargeCauldronFluidHandler.this.getAmountAsLong(order.get(index)) : 0;
+            int layer = this.layerAt(index);
+            return layer < 0 ? 0 : LargeCauldronFluidHandler.this.getAmountAsLong(layer);
         }
 
         @Override
@@ -305,16 +320,16 @@ public class LargeCauldronFluidHandler implements ResourceHandler<FluidResource>
         @Override
         public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
             Objects.checkIndex(index, LargeCauldronFluidHandler.TANK_COUNT);
-            List<Integer> order = LargeCauldronFluidHandler.this.layerOrder(this.drainOrder, this.accessibleAmount);
-            return index < order.size()
-                ? LargeCauldronFluidHandler.this.extractLayer(order.get(index), resource, amount, transaction)
-                : 0;
+            int layer = this.layerAt(index);
+            return layer < 0 ? 0 : LargeCauldronFluidHandler.this.extractLayer(layer, resource, amount, transaction);
         }
 
         @Override
         public int extract(FluidResource resource, int amount, TransactionContext transaction) {
             TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
-            for (int layer : LargeCauldronFluidHandler.this.layerOrder(this.drainOrder, this.accessibleAmount)) {
+            int step = this.drainOrder == DrainOrder.BOTTOM ? 1 : -1;
+            int count = LargeCauldronFluidHandler.this.fluids.size();
+            for (int layer = this.layerAt(0); layer >= 0 && layer < count; layer += step) {
                 if (LargeCauldronFluidHandler.this.getResource(layer).equals(resource)) {
                     return LargeCauldronFluidHandler.this.extractLayer(layer, resource, amount, transaction);
                 }

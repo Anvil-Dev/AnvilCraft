@@ -650,15 +650,15 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModItems.LASER_GUN.get(), "Hold right-click to consume power and fire a laser that grows increasingly powerful");
         ItemTooltipManager.NORMAL.put(ModItems.CORRUPTED_BEACON_ACTIVATOR.get(), "Hold right-click to consume power and fire a corruption beam");
         ItemTooltipManager.NORMAL.put(ModItems.TESLA_GUN.get(), "Hold right-click to consume power and fire chain lightning that bounces between mobs");
-        ItemTooltipManager.NORMAL.put(ModItems.ANVIL_RAILGUN.get(), "Hold right-click to consumes power to charge up and launch a high-speed anvil");
+        ItemTooltipManager.NORMAL.put(ModItems.ANVIL_RAILGUN.get(), "Hold right-click to charge, then release to launch an anvil from your inventory");
         ItemTooltipManager.NORMAL.put(ModItems.SPECTRAL_WEAPON_LAUNCHER.get(), "Hold right-click to consume power and fires spectral weapons");
         ItemTooltipManager.NORMAL.put(ModItems.SPECTRAL_SLINGSHOT.get(), "Hold right-click to consume power and fires spectral weapons");
         ItemTooltipManager.NORMAL.put(ModItems.ENERGY_WEAPON_PLATFORM.get(), "640 MFE stored, but will only inherit the result of Energy Weapon Making");
         ItemTooltipManager.NORMAL.put(
             ModBlocks.INFINITE_COLLECTOR.asItem(), """
             Generates power by collecting both heat and charge, no upper power limit
-            Provides 256 kW base power, boosted by negative void mass
-            Mass thresholds -11/-21/-41 in a 7x7x7 area yield 768/2048/5120 kW"""
+            Provides %1$s kW base power, boosted by negative void mass
+            Mass thresholds -11/-21/-41 in a %2$sx%2$sx%2$s area yield %3$s/%4$s/%5$s kW"""
         );
         ItemTooltipManager.NORMAL.put(ModBlocks.LOAD_MONITOR.asItem(), "Monitor the grid load condition, can output a signal by redstone comparator");
         ItemTooltipManager.NORMAL.put(ModBlocks.CHUTE.asItem(), "An advanced Hopper, can transfer a full stack of items at a time");
@@ -808,10 +808,10 @@ public class ItemTooltipManager {
         );
         ItemTooltipManager.SHIFT.put(
             ModItems.ANVIL_RAILGUN.get(), """
-                Hold right-click to load an anvil from your offhand into the railgun
-                Then hold right-click again to charge up, and release to launch the anvil
+                Uses the anvils in your inventory as ammo, no loading needed
+                Hold right-click to charge, then release to launch an anvil
                 Longer charging results in higher speed and damage
-                Enchanting the Anvil Railgun can boost damage, reduce charge time, or change its firing behavior"""
+                Quick Charge shortens the charge time by 10% per level"""
         );
         ItemTooltipManager.SHIFT.put(
             ModItems.SPECTRAL_WEAPON_LAUNCHER.get(), """
@@ -1095,6 +1095,13 @@ public class ItemTooltipManager {
     }
 
     private static void addNormalTooltip(Consumer<Component> builder, Item item) {
+        if (item == ModBlocks.INFINITE_COLLECTOR.asItem()) {
+            int power = AnvilCraft.CONFIG.machines.infiniteCollectorBasePower;
+            int diameter = 2 * AnvilCraft.CONFIG.machines.infiniteCollectorRange + 1;
+            ItemTooltipManager.addTranslatedTooltip(builder, ItemTooltipManager.getTranslationKey(item),
+                power, diameter, 3 * power, 8 * power, 20 * power);
+            return;
+        }
         ItemTooltipManager.addTranslatedTooltip(builder, ItemTooltipManager.getTranslationKey(item),
             item == ModBlocks.MASS_ENERGY_INVERTER.asItem()
                 ? new Object[]{AnvilCraft.CONFIG.machines.massEnergyInverterPower}
@@ -1129,6 +1136,9 @@ public class ItemTooltipManager {
     }
 
     public static String getTranslationKey(Item item) {
+        if (item == ModBlocks.INFINITE_COLLECTOR.asItem()) {
+            return "tooltip.anvilcraft.item.infinite_collector.generation";
+        }
         Identifier key = BuiltInRegistries.ITEM.getKey(item);
         return "tooltip.%s.item.%s".formatted(key.getNamespace(), key.getPath());
     }

@@ -172,6 +172,7 @@ public class ModItemTags {
     public static final TagKey<Item> FIRE_STARTER = ModItemTags.bind("fire_starter");
     public static final TagKey<Item> UNBROKEN_FIRE_STARTER = ModItemTags.bind("unbroken_fire_starter");
     public static final TagKey<Item> NETHERITE_BLOCK = ModItemTags.bind("netherite_block");
+    public static final TagKey<Item> TUNGSTEN_BLOCK = ModItemTags.bind("tungsten_block");
     public static final TagKey<Item> EXPLOSION_PROOF = ModItemTags.bind("explosion_proof");
     public static final TagKey<Item> AMULET = ModItemTags.bind("amulet");
     public static final TagKey<Item> ANVIL_HAMMER = ModItemTags.bind("tools/anvil_hammer");

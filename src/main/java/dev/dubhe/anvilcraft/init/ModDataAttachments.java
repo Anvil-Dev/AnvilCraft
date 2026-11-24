@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.inventory.SmithingTemplateAdditions;
 import dev.dubhe.anvilcraft.inventory.SmithingTemplateFavorites;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -54,6 +55,9 @@ public class ModDataAttachments {
     public static final Supplier<AttachmentType<PocketInventory>> POCKETS = ATTACHMENT_TYPES.register(
         "pockets", () -> AttachmentType.builder(PocketInventory::new).serialize(PocketInventory.CODEC.fieldOf("items"))
             .copyOnDeath().sync((holder, player) -> holder == player, PocketInventory.STREAM_CODEC).build());
+
+    public static final Supplier<AttachmentType<Vec3>> MAGNETIZED_ITEM_POSITION = ATTACHMENT_TYPES.register(
+        "magnetized_item_position", () -> AttachmentType.builder(() -> Vec3.ZERO).sync(Vec3.STREAM_CODEC).build());
 
     public static final Supplier<AttachmentType<Boolean>> IN_POWER_GRID = ATTACHMENT_TYPES.register(
         "in_power_grid", () -> AttachmentType.builder(() -> false).sync(ByteBufCodecs.BOOL).build());

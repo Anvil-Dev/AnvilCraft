@@ -1,0 +1,21 @@
+{
+    "parent": "anvilcraft:block/heavy_iron_plate",
+    "elements": [
+        {
+            "from": [0, 15, 0], "to": [16, 16, 0],
+            "faces": {"north": {"uv": [0, 0, 16, 1], "texture": "#side"}}
+        },
+        {
+            "from": [1, 14, 0], "to": [16, 15, 0],
+            "faces": {"north": {"uv": [0, 1, 15, 2], "texture": "#side"}}
+        },
+        {
+            "from": [2, 13, 0], "to": [16, 14, 0],
+            "faces": {"north": {"uv": [0, 2, 14, 3], "texture": "#side"}}
+        },
+        {
+            "from": [3, 12, 0], "to": [16, 13, 0],
+            "faces": {"north": {"uv": [0, 3, 13, 4], "texture": "#side"}}
+        }
+    ]
+}

@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
-import dev.dubhe.anvilcraft.block.utility.redstone.AdvancedComparatorBlock;
 import dev.dubhe.anvilcraft.client.gui.component.SwitchableButton;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
@@ -16,7 +15,6 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.joml.Matrix3x2fStack;
 
@@ -38,28 +36,38 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
     private int slider2Pos = 0;
     private boolean scrolling1;
     private boolean scrolling2;
+    private boolean draggingOutput;
+    private double outputGrabOffset;
+    private AdvancedComparatorUpdatePacket sentSettings;
 
     public AdvancedComparatorScreen(AdvancedComparatorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.minecraft = Minecraft.getInstance();
+        this.sentSettings = this.settings();
     }
 
     @Override
     public void onClose() {
-        AdvancedComparatorBlockEntity comparator = this.menu.getBlockEntity();
-        ClientPacketDistributor.sendToServer(new AdvancedComparatorUpdatePacket(
+        this.sendSettings();
+        super.onClose();
+    }
+
+    private void sendSettings() {
+        var settings = this.settings();
+        if (!settings.equals(this.sentSettings)) {
+            ClientPacketDistributor.sendToServer(settings);
+            this.sentSettings = settings;
+        }
+    }
+
+    private AdvancedComparatorUpdatePacket settings() {
+        return new AdvancedComparatorUpdatePacket(
             this.menu.getCompareMode().index(),
             this.menu.isOutputInvert(),
             this.menu.isRedstoneControl(),
             this.menu.getHighLimit(),
-            this.menu.getLowLimit(),
-            comparator.getInputtingSignal()
-        ));
-        Level level = comparator.getLevel();
-        if (level != null) {
-            level.scheduleTick(comparator.getBlockPos(), comparator.getBlockState().getBlock(), AdvancedComparatorBlock.getDelay());
-        }
-        super.onClose();
+            this.menu.getLowLimit()
+        );
     }
 
     @Override
@@ -163,12 +171,7 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
         int max = Math.max(this.slider1X, this.slider2X);
         int min = Math.min(this.slider1X, this.slider2X);
         if (this.menu.getCompareMode() == AdvancedComparatorBlockEntity.Mode.WINDOW) {
-            graphics.fill(min + 3, this.sliderY, min + 4, this.sliderY - 90, 0xFF990000);
-            graphics.fill(max + 3, this.sliderY, max + 4, this.sliderY - 90, 0xFF990000);
-            graphics.fill(min + 3, this.sliderY - 90, max + 4, this.sliderY - 91, 0xFFFF0000);
-            graphics.fill(max + 3, this.sliderY, this.sliderMax + 15, this.sliderY - 1, 0xFF990000);
-            graphics.fill(max + 3, this.sliderY, this.sliderMax + 15, this.sliderY - 1, 0xFF990000);
-            graphics.fill(this.sliderMin - 4, this.sliderY, min + 4, this.sliderY - 1, 0xFF990000);
+            this.drawWindow(graphics, min + 3, max + 3, mouseX, mouseY);
             return;
         }
         if (this.menu.isOutputInvert()) {
@@ -184,6 +187,52 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
         graphics.fill(this.sliderMax + 5, this.sliderY - 90, min + 3, this.sliderY - 91, 0xFFFF0000);
     }
 
+    private int outputSliderX() {
+        return this.sliderMin + 15 * GRID + 5;
+    }
+
+    private int outputSliderY() {
+        return this.sliderY - 1 - this.menu.getBlockEntity().getWindowOutput() * GRID;
+    }
+
+    private void drawWindow(GuiGraphicsExtractor graphics, int lowX, int highX, int mouseX, int mouseY) {
+        int bottom = this.sliderY - 1;
+        int y = this.outputSliderY();
+        int x = this.outputSliderX();
+        boolean invert = this.menu.isOutputInvert();
+        int inside = invert ? bottom : y;
+        int outside = invert ? y : bottom;
+        int outsideColor = invert ? 0xFFFF0000 : 0xFF990000;
+        graphics.fill(lowX, y, lowX + 1, bottom + 1, 0xFF990000);
+        graphics.fill(highX, y, highX + 1, bottom + 1, 0xFF990000);
+        graphics.fill(this.sliderMin - 4, outside, lowX + 1, outside + 1, outsideColor);
+        graphics.fill(highX, outside, x, outside + 1, outsideColor);
+        graphics.fill(lowX, inside, highX + 1, inside + 1, invert ? 0xFF990000 : 0xFFFF0000);
+        graphics.fill(x + 6, bottom - 15 * GRID, x + 7, bottom + 1, 0xFF4A4334);
+
+        Matrix3x2fStack pose = graphics.pose();
+        pose.pushMatrix();
+        pose.translate(x, y + 4);
+        pose.rotate((float) (-Math.PI / 2));
+        boolean hovered = mouseX >= x && mouseX < x + 11 && mouseY >= y - 3 && mouseY < y + 4;
+        graphics.blit(RenderPipelines.GUI_TEXTURED, SLIDER, 0, 0, 0, hovered || this.draggingOutput ? 11 : 0, 7, 11, 7, 22);
+        pose.popMatrix();
+        pose.pushMatrix();
+        pose.scale(0.5f, 0.5f);
+        String value = String.valueOf(this.menu.getBlockEntity().getWindowOutput());
+        graphics.text(this.font, value, (x + 7) * 2 - this.font.width(value) / 2, y * 2 - 3, 0xFF404040, false);
+        pose.popMatrix();
+    }
+
+    private void dragOutput(double mouseY) {
+        int strength = Math.clamp(Math.round((this.sliderY - 1 - mouseY + this.outputGrabOffset) / GRID), 0, 15);
+        if (strength != this.menu.getBlockEntity().getWindowOutput() && this.minecraft.gameMode != null) {
+            this.sendSettings();
+            this.menu.getBlockEntity().setWindowOutput(strength);
+            this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId, strength);
+        }
+    }
+
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         return false;
@@ -192,11 +241,22 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean handled) {
         if (event.button() == 0) {
-            if (this.menu.isRedstoneControl()) return super.mouseClicked(event, handled);
-            if (this.isInSlider(event.x(), event.y(), this.slider1X, this.sliderY)) {
-                this.scrolling1 = true;
-            } else if (this.isInSlider(event.x(), event.y(), this.slider2X, this.sliderY)) {
-                this.scrolling2 = true;
+            boolean low = this.isInSlider(event.x(), event.y(), this.slider1X, this.sliderY);
+            boolean high = this.isInSlider(event.x(), event.y(), this.slider2X, this.sliderY);
+            if (!this.menu.isRedstoneControl() && (low || high)) {
+                this.scrolling1 = low;
+                this.scrolling2 = !low;
+                return true;
+            }
+            int bottom = this.sliderY - 1;
+            int x = this.outputSliderX();
+            if (this.menu.getCompareMode() == AdvancedComparatorBlockEntity.Mode.WINDOW && event.x() >= x && event.x() < x + 11
+                && event.y() >= bottom - 15 * GRID - 3 && event.y() < bottom + 4) {
+                int y = this.outputSliderY();
+                this.outputGrabOffset = event.y() >= y - 3 && event.y() < y + 4 ? event.y() - y : 0;
+                this.draggingOutput = true;
+                this.dragOutput(event.y());
+                return true;
             }
         }
         return super.mouseClicked(event, handled);
@@ -204,6 +264,11 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
 
     @Override
     public boolean mouseReleased(MouseButtonEvent event) {
+        if (this.draggingOutput && event.button() == 0) {
+            this.dragOutput(event.y());
+            this.draggingOutput = false;
+            return true;
+        }
         this.scrolling1 = false;
         this.scrolling2 = false;
         this.menu.setHighLimit(Math.max(this.slider1Pos, this.slider2Pos));
@@ -213,6 +278,10 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
 
     @Override
     public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        if (this.draggingOutput) {
+            this.dragOutput(event.y());
+            return true;
+        }
         if (this.scrolling1) {
             this.slider1Pos = Math.clamp((int) (event.x() - this.sliderMin) / AdvancedComparatorScreen.GRID, 0, 15);
             this.slider1X = Math.clamp(
