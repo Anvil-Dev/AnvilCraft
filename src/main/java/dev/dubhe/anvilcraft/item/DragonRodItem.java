@@ -51,6 +51,7 @@ public class DragonRodItem extends Item {
     public static final int DEFAULT_RANGE = 3;
     private final int enchantmentValue;
     private final BlockMiningEffect miningEffect;
+    private static final int STARTUP_COOLDOWN = 10;
     private static final Map<UUID, Long> LAST_TRANSCENDENCE_DEVOUR_TICK = new HashMap<>();
     private static final Set<UUID> CONTINUOUS_DEVOUR_PLAYERS = new HashSet<>();
 
@@ -131,6 +132,10 @@ public class DragonRodItem extends Item {
         BlockMiningEffect miningEffect = dragonRod.getItem() instanceof DragonRodItem item
                                           ? item.miningEffect
                                           : BlockMiningEffect.NORMAL;
+        if (dragonRod.is(ModItems.TRANSCENDENCE_DRAGON_ROD)
+            && Objects.equals(LAST_TRANSCENDENCE_DEVOUR_TICK.get(player.getUUID()), level.getGameTime())) {
+            return;
+        }
         int range = dragonRod.getOrDefault(ModComponents.DEVOUR_RANGE, -1);
         if (range == -1) return;
         range = (range - 1) / 2;
@@ -227,16 +232,14 @@ public class DragonRodItem extends Item {
         // 超限龙杖：首次使用有0.5s启动延迟，之后持续快速破坏
         if (dragonRod.is(ModItems.TRANSCENDENCE_DRAGON_ROD)) {
             long currentTick = level.getGameTime();
-            long lastTick = LAST_TRANSCENDENCE_DEVOUR_TICK.getOrDefault(player.getUUID(), 0L);
-            boolean isWarmedUp = (currentTick - lastTick) < 15; // 0.75s内再次使用=已预热
-            player.getCooldowns().addCooldown(ModItems.TRANSCENDENCE_DRAGON_ROD.asItem(), isWarmedUp ? 0 : 10);
-            LAST_TRANSCENDENCE_DEVOUR_TICK.put(player.getUUID(), currentTick);
-            if (isWarmedUp) {
-                // 预热完成，进入服务端持续破坏模式，绕过原版攻击速度限制
+            Long lastTick = LAST_TRANSCENDENCE_DEVOUR_TICK.put(player.getUUID(), currentTick);
+            if (lastTick != null && currentTick - lastTick < 15) {
                 CONTINUOUS_DEVOUR_PLAYERS.add(player.getUUID());
+            } else {
+                player.getCooldowns().addCooldown(ModItems.TRANSCENDENCE_DRAGON_ROD.asItem(), STARTUP_COOLDOWN);
             }
         } else {
-            player.getCooldowns().addCooldown(ModItems.TRANSCENDENCE_DRAGON_ROD.asItem(), 0);
+            stopContinuousMode(player);
         }
         if (!(dragonRod.getItem() instanceof DragonRodItem)) {
             player.getCooldowns().addCooldown(dragonRod.getItem(), cooldown);
@@ -277,7 +280,10 @@ public class DragonRodItem extends Item {
     }
 
     public static void stopContinuousMode(Player player) {
-        CONTINUOUS_DEVOUR_PLAYERS.remove(player.getUUID());
+        LAST_TRANSCENDENCE_DEVOUR_TICK.remove(player.getUUID());
+        if (CONTINUOUS_DEVOUR_PLAYERS.remove(player.getUUID())) {
+            player.getCooldowns().addCooldown(ModItems.TRANSCENDENCE_DRAGON_ROD.asItem(), STARTUP_COOLDOWN);
+        }
     }
 
     public static void tickContinuousDevour(ServerPlayer player) {
@@ -290,12 +296,12 @@ public class DragonRodItem extends Item {
             rod = player.getOffhandItem();
             hand = InteractionHand.OFF_HAND;
             if (!rod.is(ModItems.TRANSCENDENCE_DRAGON_ROD)) {
-                CONTINUOUS_DEVOUR_PLAYERS.remove(playerId);
+                stopContinuousMode(player);
                 return;
             }
         }
         if (!canDevour(player, rod)) {
-            CONTINUOUS_DEVOUR_PLAYERS.remove(playerId);
+            stopContinuousMode(player);
             return;
         }
         HitResult hit = player.pick(player.blockInteractionRange(), 0.0F, false);

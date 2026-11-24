@@ -66,6 +66,7 @@ public class PlayerEventListener {
     @SubscribeEvent
     public static void loggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
         Player player = event.getEntity();
+        DragonRodItem.stopContinuousMode(player);
         InfiniteFluidTankBreakProtection.clear(player);
         BundleLikeServerStub.clear(player.getUUID());
         StorageServerStub.clearInvertedBucketAction(player.getUUID());
@@ -167,7 +168,6 @@ public class PlayerEventListener {
 
         if (event.getAction() == PlayerInteractEvent.LeftClickBlock.Action.STOP
             || event.getAction() == PlayerInteractEvent.LeftClickBlock.Action.ABORT) {
-            DragonRodItem.stopContinuousMode(player);
             return;
         }
         if (blockFace == null) return;
