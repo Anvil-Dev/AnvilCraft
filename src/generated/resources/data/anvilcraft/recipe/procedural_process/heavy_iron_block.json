@@ -8,7 +8,7 @@
     "id": "anvilcraft:heavy_iron_block"
   },
   "initial_block": {
-    "blocks": "minecraft:iron_block"
+    "blocks": "#c:storage_blocks/iron"
   },
   "loop": 2,
   "multiple_loop_first_step": {
@@ -16,7 +16,7 @@
       "type": "anvilcraft:block_compress",
       "inputs": [
         {
-          "blocks": "minecraft:iron_block"
+          "blocks": "#c:storage_blocks/iron"
         },
         {
           "blocks": "anvilcraft:wip_block"
@@ -37,10 +37,10 @@
         "type": "anvilcraft:block_compress",
         "inputs": [
           {
-            "blocks": "minecraft:iron_block"
+            "blocks": "#c:storage_blocks/iron"
           },
           {
-            "blocks": "minecraft:iron_block"
+            "blocks": "#c:storage_blocks/iron"
           }
         ],
         "result": {

@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "A": "minecraft:grindstone",
-    "B": "minecraft:glass",
+    "B": "#c:glass_blocks/colorless",
     "C": "minecraft:grindstone",
     "D": "minecraft:smooth_stone",
     "F": "#minecraft:planks"

@@ -2,8 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": "anvilcraft:transcendium_ingot",
-    "B": "minecraft:copper_block",
+    "A": "#c:ingots/transcendium",
+    "B": "#c:storage_blocks/copper",
     "C": "anvilcraft:infinite_collector"
   },
   "pattern": [

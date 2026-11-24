@@ -1,6 +1,6 @@
 {
   "type": "anvilcraft:charger_charging",
-  "ingredient": "minecraft:iron_ingot",
+  "ingredient": "#c:ingots/iron",
   "power": -4,
   "result": {
     "id": "anvilcraft:magnet_ingot"

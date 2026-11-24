@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.data.recipe;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.decoration.heavyiron.HeavyIronBeamBlock;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPredicateWithState;
 import dev.dubhe.anvilcraft.recipe.multiblock.Multiblock4DRecipe;
@@ -97,14 +98,14 @@ public class MultiBlockRecipeLoader {
             .layer("A A", " B ", "A A")
             .layer("AAA", "A A", "AAA")
             .symbol('A', Blocks.SPONGE)
-            .symbol('B', ModBlocks.VOID_MATTER_BLOCK)
+            .symbol('B', ModBlockTags.STORAGE_BLOCKS_VOID_MATTER)
             .save(provider);
 
         MultiblockRecipe.builder(Blocks.DIAMOND_BLOCK)
             .layer("AAA", "AAA", "AAA")
             .layer("AAA", "AAA", "AAA")
             .layer("AAA", "AAA", "AAA")
-            .symbol('A', Blocks.COAL_BLOCK)
+            .symbol('A', Tags.Blocks.STORAGE_BLOCKS_COAL)
             .save(provider);
 
         MultiblockRecipe.builder(ModBlocks.LARGE_CAKE)
@@ -222,10 +223,10 @@ public class MultiBlockRecipeLoader {
             .layer("ABA", "B B", "ABA")
             .layer("CDC", "D D", "CDC")
             .layer("ABA", "B B", "ABA")
-            .symbol('A', "minecraft:copper_block")
+            .symbol('A', Tags.Blocks.STORAGE_BLOCKS_COPPER)
             .symbol('B', "anvilcraft:heavy_iron_block")
             .symbol('C', "anvilcraft:magnetoelectric_core")
-            .symbol('D', "anvilcraft:tungsten_block")
+            .symbol('D', ModBlockTags.STORAGE_BLOCKS_TUNGSTEN)
             .save(provider);
 
         MultiblockRecipe.builder(ModBlocks.LARGE_CRATE)
@@ -233,7 +234,7 @@ public class MultiBlockRecipeLoader {
             .layer("AAA", "ABA", "AAA")
             .layer("AAA", "AAA", "AAA")
             .symbol('A', BlockPredicateWithState.of(Tags.Blocks.STRIPPED_LOGS))
-            .symbol('B', ModBlocks.RESIN_BLOCK)
+            .symbol('B', ModBlockTags.STORAGE_BLOCKS_RESIN)
             .save(provider);
 
         MultiblockRecipe.builder(ModBlocks.LARGE_LASER, 1)
@@ -273,7 +274,7 @@ public class MultiBlockRecipeLoader {
             .layer("AAA", "ABA", "AAA")
             .layer("CCC", "CFC", "CCC")
             .layer("DED", "E E", "DED")
-            .symbol('A', ModBlocks.TRANSCENDIUM_BLOCK)
+            .symbol('A', ModBlockTags.STORAGE_BLOCKS_TRANSCENDIUM)
             .symbol('B', ModBlocks.SPACETIME_SUPERCOMPUTER)
             .symbol('C', ModBlocks.ENCHANTED_GOLD_BLOCK)
             .symbol('D', ModBlocks.CONFINEMENT_CHAMBER)

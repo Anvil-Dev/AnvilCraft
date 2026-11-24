@@ -1,6 +1,6 @@
 {
   "type": "anvilcraft:charger_charging",
-  "ingredient": "minecraft:iron_block",
+  "ingredient": "#c:storage_blocks/iron",
   "power": -20,
   "result": {
     "id": "anvilcraft:magnet_block"

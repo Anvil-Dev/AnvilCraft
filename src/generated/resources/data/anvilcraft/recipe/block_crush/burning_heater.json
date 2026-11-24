@@ -1,7 +1,7 @@
 {
   "type": "anvilcraft:block_crush",
   "input": {
-    "blocks": "minecraft:furnace"
+    "blocks": "#c:player_workstations/furnaces"
   },
   "result": {
     "block": "anvilcraft:burning_heater"

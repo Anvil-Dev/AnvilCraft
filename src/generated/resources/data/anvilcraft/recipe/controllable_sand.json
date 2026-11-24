@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "L": "anvilcraft:levitation_powder",
-    "R": "minecraft:redstone",
+    "R": "#c:dusts/redstone",
     "S": "#minecraft:sand"
   },
   "pattern": [

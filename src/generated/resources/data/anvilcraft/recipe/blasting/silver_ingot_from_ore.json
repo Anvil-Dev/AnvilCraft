@@ -4,7 +4,7 @@
   "cookingtime": 100,
   "experience": 1.0,
   "group": "anvilcraft:silver_ingot",
-  "ingredient": "anvilcraft:deepslate_silver_ore",
+  "ingredient": "#c:ores/silver",
   "result": {
     "id": "anvilcraft:silver_ingot"
   }

@@ -4,7 +4,7 @@
   "group": "anvilcraft:heliostats",
   "key": {
     "F": "minecraft:sunflower",
-    "I": "minecraft:iron_block",
+    "I": "#c:storage_blocks/iron",
     "S": "#c:plates/silver"
   },
   "pattern": [

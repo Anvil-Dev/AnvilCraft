@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "building",
   "ingredients": [
-    "anvilcraft:gunpowder_block"
+    "#c:storage_blocks/gunpowder"
   ],
   "result": {
     "count": 9,

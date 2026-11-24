@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.integration.jei.category.anvil.liquid;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
@@ -16,6 +17,7 @@ import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -98,11 +100,11 @@ public class NeutronIrradiationCategory extends AbstractLiquidCategory<NeutronIr
         );
         recipes.add(new RecipeHolder<>(
             ResourceKey.create(Registries.RECIPE, AnvilCraft.of("neutron_irradiation/uranium_block_explosion")),
-            NeutronIrradiationRecipe.builder().requires(ModBlocks.URANIUM_BLOCK).buildRecipe()
+            NeutronIrradiationRecipe.builder().requires(BuiltInRegistries.ITEM, ModItemTags.STORAGE_BLOCKS_URANIUM).buildRecipe()
         ));
         recipes.add(new RecipeHolder<>(
             ResourceKey.create(Registries.RECIPE, AnvilCraft.of("neutron_irradiation/plutonium_block_explosion")),
-            NeutronIrradiationRecipe.builder().requires(ModBlocks.PLUTONIUM_BLOCK).buildRecipe()
+            NeutronIrradiationRecipe.builder().requires(BuiltInRegistries.ITEM, ModItemTags.STORAGE_BLOCKS_PLUTONIUM).buildRecipe()
         ));
         registration.addRecipes(
             AnvilCraftJeiPlugin.NEUTRON_IRRADIATION,

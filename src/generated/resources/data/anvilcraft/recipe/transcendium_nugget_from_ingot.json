@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    "anvilcraft:transcendium_ingot"
+    "#c:ingots/transcendium"
   ],
   "result": {
     "count": 9,

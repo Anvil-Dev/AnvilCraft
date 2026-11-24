@@ -15,7 +15,7 @@
         "type": "anvilcraft:custom",
         "predicate": {
           "count": 2,
-          "items": "anvilcraft:transcendium_ingot"
+          "items": "#c:ingots/transcendium"
         }
       },
       "result": {
@@ -27,7 +27,7 @@
         "type": "anvilcraft:custom",
         "predicate": {
           "count": 2,
-          "items": "anvilcraft:transcendium_ingot"
+          "items": "#c:ingots/transcendium"
         }
       },
       "result": {
@@ -39,7 +39,7 @@
         "type": "anvilcraft:custom",
         "predicate": {
           "count": 2,
-          "items": "anvilcraft:transcendium_ingot"
+          "items": "#c:ingots/transcendium"
         }
       },
       "result": {
@@ -51,7 +51,7 @@
         "type": "anvilcraft:custom",
         "predicate": {
           "count": 2,
-          "items": "anvilcraft:transcendium_ingot"
+          "items": "#c:ingots/transcendium"
         }
       },
       "result": {
@@ -63,7 +63,7 @@
         "type": "anvilcraft:custom",
         "predicate": {
           "count": 2,
-          "items": "anvilcraft:transcendium_ingot"
+          "items": "#c:ingots/transcendium"
         }
       },
       "result": {

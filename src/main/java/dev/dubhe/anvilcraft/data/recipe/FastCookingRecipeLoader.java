@@ -34,7 +34,7 @@ public class FastCookingRecipeLoader {
 
         FastCookingRecipe.builder()
             .cauldron(Blocks.WATER_CAULDRON)
-            .requires(Items.BEEF)
+            .requires(items, ModItemTags.RAW_BEEF)
             .requires(Items.BROWN_MUSHROOM)
             .requires(Items.RED_MUSHROOM)
             .requires(Items.BOWL)

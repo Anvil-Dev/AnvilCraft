@@ -2,8 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": "minecraft:iron_block",
-    "B": "minecraft:iron_ingot"
+    "A": "#c:storage_blocks/iron",
+    "B": "#c:ingots/iron"
   },
   "pattern": [
     "AAB",

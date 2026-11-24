@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "A": "anvilcraft:frost_metal_ingot"
+    "A": "#c:ingots/frost_metal"
   },
   "pattern": [
     "AAA",

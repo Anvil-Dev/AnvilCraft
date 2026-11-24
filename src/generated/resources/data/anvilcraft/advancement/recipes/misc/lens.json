@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "minecraft:glass"
+            "items": "#c:glass_blocks/colorless"
           }
         ]
       },

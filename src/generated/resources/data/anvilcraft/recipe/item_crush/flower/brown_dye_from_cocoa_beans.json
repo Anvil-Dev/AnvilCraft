@@ -2,7 +2,7 @@
   "type": "anvilcraft:item_crush",
   "ingredients": [
     {
-      "items": "minecraft:cocoa_beans"
+      "items": "#c:crops/cocoa_bean"
     }
   ],
   "results": [

@@ -1,6 +1,6 @@
 {
   "type": "minecraft:stonecutting",
-  "ingredient": "anvilcraft:transcendium_nugget",
+  "ingredient": "#c:nuggets/transcendium",
   "result": {
     "count": 16,
     "id": "anvilcraft:transcendence_deco_block"

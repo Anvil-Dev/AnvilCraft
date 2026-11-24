@@ -2,9 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": "minecraft:barrel",
+    "B": "#c:barrels/wooden",
     "P": "#minecraft:planks",
-    "S": "minecraft:stick",
+    "S": "#c:rods/wooden",
     "W": "#minecraft:wool"
   },
   "pattern": [

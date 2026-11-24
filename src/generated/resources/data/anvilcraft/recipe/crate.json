@@ -3,7 +3,7 @@
   "category": "building",
   "key": {
     "A": "#minecraft:planks",
-    "B": "anvilcraft:resin"
+    "B": "#c:resin"
   },
   "pattern": [
     "AAA",

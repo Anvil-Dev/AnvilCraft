@@ -5,25 +5,26 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.MeshRecipe;
 import net.minecraft.world.item.Items;
+import net.neoforged.neoforge.common.Tags;
 
 public class MeshRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
         MeshRecipe.builder()
-            .requires(Items.GRAVEL)
+            .requires(provider.getItems(), Tags.Items.GRAVELS)
             .result(Items.GRAVEL, 0.5F)
             .result(Items.FLINT, 0.25F)
             .result(Items.IRON_NUGGET, 0.2F)
             .save(provider);
 
         MeshRecipe.builder()
-            .requires(Items.SAND)
+            .requires(provider.getItems(), Tags.Items.SANDS_COLORLESS)
             .result(Items.SAND, 0.5F)
             .result(Items.CLAY_BALL, 0.25F)
             .result(Items.GOLD_NUGGET, 0.05F)
             .save(provider);
 
         MeshRecipe.builder()
-            .requires(Items.RED_SAND)
+            .requires(provider.getItems(), Tags.Items.SANDS_RED)
             .result(Items.RED_SAND, 0.5F)
             .result(Items.GLOWSTONE_DUST, 0.1F)
             .result(Items.COPPER_NUGGET, 0.2F)

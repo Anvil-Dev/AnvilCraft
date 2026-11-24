@@ -4,7 +4,7 @@
   "key": {
     "B": "anvilcraft:circuit_board",
     "C": "minecraft:clock",
-    "I": "minecraft:iron_ingot",
+    "I": "#c:ingots/iron",
     "R": "minecraft:redstone_torch"
   },
   "pattern": [

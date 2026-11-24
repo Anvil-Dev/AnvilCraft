@@ -12,6 +12,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.neoforged.neoforge.common.Tags;
 
 import java.util.function.Consumer;
 
@@ -25,9 +26,9 @@ public class AnvilCollisionCraftRecipeLoader {
             .save(provider);
         AnvilCollisionCraftRecipe.builder()
             .anvil(ModBlocks.EMBER_ANVIL.get())
-            .hitBlock(ModBlocks.FROST_METAL_BLOCK.get())
+            .hitBlock(blocks, ModBlockTags.STORAGE_BLOCKS_FROST_METAL)
             .outputItem(ModItems.MULTIPHASE_MATTER.get(), 4)
-            .save(provider);
+            .save(provider, "ember_anvil_and_frost_metal_block_32");
         AnvilCollisionCraftRecipe.builder()
             .anvil(ModBlocks.FROST_ANVIL.get())
             .hitBlock(ModBlocks.EMBER_METAL_BLOCK.get())
@@ -94,11 +95,11 @@ public class AnvilCollisionCraftRecipeLoader {
         AnvilCollisionCraftRecipe.builder()
             .anvil(blocks, ModBlockTags.ANVIL_TIER_1)
             .consume(false)
-            .hitBlock(Blocks.REDSTONE_BLOCK)
+            .hitBlock(blocks, Tags.Blocks.STORAGE_BLOCKS_REDSTONE)
             .outputItem(ModItems.URANIUM_NUGGET.get(), 6)
             .outputItem(ModItems.URANIUM_NUGGET.get(), 4, 0.5F)
             .outputItem(ModItems.URANIUM_NUGGET.get(), 2, 0.25F)
-            .save(provider);
+            .save(provider, "anvil_tier_1_and_redstone_block_32");
         AnvilCollisionCraftRecipe.builder()
             .anvil(blocks, ModBlockTags.ANVIL_TIER_1)
             .consume(false)
@@ -113,27 +114,27 @@ public class AnvilCollisionCraftRecipeLoader {
         AnvilCollisionCraftRecipe.builder()
             .anvil(blocks, ModBlockTags.ANVIL_TIER_2)
             .consume(false)
-            .hitBlock(ModBlocks.URANIUM_BLOCK.get())
+            .hitBlock(blocks, ModBlockTags.STORAGE_BLOCKS_URANIUM)
             .transformBlock(
                 BlockStatePredicate.builder().of(blocks, ModBlockTags.OVERHEATABLE).build(),
                 ChanceBlockState.of(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK, uraniumHeatableData),
                 16
             )
             .speed(256)
-            .save(provider);
+            .save(provider, "anvil_tier_2_and_uranium_block_256");
         CompoundTag plutoniumHeatableData = new CompoundTag();
         plutoniumHeatableData.putInt("duration", 1200);
         AnvilCollisionCraftRecipe.builder()
             .anvil(blocks, ModBlockTags.ANVIL_TIER_2)
             .consume(false)
-            .hitBlock(ModBlocks.PLUTONIUM_BLOCK.get())
+            .hitBlock(blocks, ModBlockTags.STORAGE_BLOCKS_PLUTONIUM)
             .transformBlock(
                 BlockStatePredicate.builder().of(blocks, ModBlockTags.OVERHEATABLE).build(),
                 ChanceBlockState.of(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK, plutoniumHeatableData),
                 16
             )
             .speed(256)
-            .save(provider);
+            .save(provider, "anvil_tier_2_and_plutonium_block_256");
 
         // Excited State Void Matter Block collision products
         AnvilCollisionCraftRecipe.builder()

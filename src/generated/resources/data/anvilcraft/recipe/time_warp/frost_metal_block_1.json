@@ -8,7 +8,7 @@
       "items": "anvilcraft:royal_steel_block"
     },
     {
-      "items": "minecraft:iron_block"
+      "items": "#c:storage_blocks/iron"
     }
   ],
   "results": [

@@ -15,7 +15,7 @@
     }
   ],
   "material": {
-    "items": "anvilcraft:frost_metal_block"
+    "items": "#c:storage_blocks/frost_metal"
   },
   "result": {
     "id": "anvilcraft:nature_amulet"

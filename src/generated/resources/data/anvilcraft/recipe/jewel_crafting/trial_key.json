@@ -3,7 +3,7 @@
   "has_vanishing_curse": false,
   "ingredients": [
     "minecraft:polished_tuff",
-    "minecraft:copper_ingot"
+    "#c:ingots/copper"
   ],
   "result": {
     "id": "minecraft:trial_key"

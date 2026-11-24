@@ -20,7 +20,7 @@
   ],
   "ingredients": [
     {
-      "items": "minecraft:gray_dye"
+      "items": "#c:dyes/gray"
     }
   ],
   "max_efficiency": 1,

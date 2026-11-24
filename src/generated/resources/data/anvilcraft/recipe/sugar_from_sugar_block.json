@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "building",
   "ingredients": [
-    "anvilcraft:sugar_block"
+    "#c:storage_blocks/sugar"
   ],
   "result": {
     "count": 9,

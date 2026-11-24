@@ -2,10 +2,7 @@
   "type": "anvilcraft:laser_hit",
   "hit_time": 20,
   "input": {
-    "blocks": [
-      "anvilcraft:void_stone",
-      "anvilcraft:earth_core_shard_ore"
-    ]
+    "blocks": "#c:ores/void_matter"
   },
   "laser_strength": 16,
   "priority": -60,

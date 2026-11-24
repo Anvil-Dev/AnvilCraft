@@ -2,7 +2,7 @@
   "type": "anvilcraft:item_crush",
   "ingredients": [
     {
-      "items": "minecraft:beetroot"
+      "items": "#c:crops/beetroot"
     }
   ],
   "results": [

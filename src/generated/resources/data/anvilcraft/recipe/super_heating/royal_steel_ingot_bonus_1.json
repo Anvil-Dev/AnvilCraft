@@ -3,16 +3,16 @@
   "ingredients": [
     {
       "count": 2,
-      "items": "minecraft:iron_ingot"
+      "items": "#c:ingots/iron"
     },
     {
-      "items": "minecraft:diamond"
+      "items": "#c:gems/diamond"
     },
     {
       "items": "#anvilcraft:gems"
     },
     {
-      "items": "minecraft:amethyst_shard"
+      "items": "#c:gems/amethyst"
     }
   ],
   "results": [

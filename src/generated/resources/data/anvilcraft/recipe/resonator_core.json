@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": "minecraft:amethyst_shard",
+    "A": "#c:gems/amethyst",
     "E": "minecraft:echo_shard",
     "M": "anvilcraft:multiphase_matter"
   },

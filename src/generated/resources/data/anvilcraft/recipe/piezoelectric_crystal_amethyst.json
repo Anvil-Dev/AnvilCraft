@@ -3,7 +3,7 @@
   "category": "misc",
   "group": "anvilcraft:piezoelectric_crystal",
   "key": {
-    "A": "minecraft:copper_ingot",
+    "A": "#c:ingots/copper",
     "B": "minecraft:amethyst_block"
   },
   "pattern": [

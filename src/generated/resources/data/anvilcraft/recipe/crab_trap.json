@@ -2,8 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": "minecraft:stick",
-    "B": "minecraft:string"
+    "A": "#c:rods/wooden",
+    "B": "#c:strings"
   },
   "pattern": [
     "ABA",

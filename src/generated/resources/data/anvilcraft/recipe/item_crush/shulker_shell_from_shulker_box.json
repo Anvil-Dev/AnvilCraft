@@ -7,7 +7,7 @@
           "minecraft:container": []
         }
       },
-      "items": "minecraft:shulker_box"
+      "items": "#c:shulker_boxes"
     }
   ],
   "results": [

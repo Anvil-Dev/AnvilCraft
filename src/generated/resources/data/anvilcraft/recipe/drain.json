@@ -3,7 +3,7 @@
   "category": "misc",
   "ingredients": [
     "minecraft:copper_grate",
-    "anvilcraft:brass_pressure_plate"
+    "#c:plates/brass"
   ],
   "result": {
     "id": "anvilcraft:drain"

@@ -8,10 +8,12 @@ import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import lombok.Getter;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -116,6 +118,12 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
         /// @return 构建器实例
         public Builder inputBlock(Block block) {
             this.blockIngredient.of(block);
+            return this;
+        }
+
+        /// 按标签匹配可注入的方块。
+        public Builder inputBlock(HolderGetter<Block> blocks, TagKey<Block> tag) {
+            this.blockIngredient.of(blocks, tag);
             return this;
         }
 

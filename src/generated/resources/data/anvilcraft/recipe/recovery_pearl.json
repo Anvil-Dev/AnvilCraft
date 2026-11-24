@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "A": "minecraft:ender_pearl",
+    "A": "#c:ender_pearls",
     "B": "minecraft:echo_shard"
   },
   "pattern": [

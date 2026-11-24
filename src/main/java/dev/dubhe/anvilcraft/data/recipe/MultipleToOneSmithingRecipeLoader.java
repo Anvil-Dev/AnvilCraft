@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.recipe.data.ItemEnchantmentsData;
 import dev.dubhe.anvilcraft.api.recipe.data.MultiphaseData;
 import dev.dubhe.anvilcraft.api.recipe.data.NormalDataComponent;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.multiple.EightToOneSmithingRecipe;
 import dev.dubhe.anvilcraft.recipe.multiple.FourToOneSmithingRecipe;
@@ -105,7 +106,7 @@ public class MultipleToOneSmithingRecipeLoader {
             .material(ModItems.HEAVY_HALBERD_CORE)
             .input(ModItems.FROST_METAL_SWORD)
             .input(Items.NETHERITE_SPEAR)
-            .input(Items.TRIDENT)
+            .input(items, Tags.Items.TOOLS_TRIDENT)
             .input(items, Tags.Items.TOOLS_MACE)
             .resultMerge(ModItems.FROST_METAL_HEAVY_HALBERD, NormalDataComponent.frostFour())
             .save(provider);
@@ -113,7 +114,7 @@ public class MultipleToOneSmithingRecipeLoader {
             .material(ModItems.HEAVY_HALBERD_CORE)
             .input(ModItems.EMBER_METAL_SWORD)
             .input(Items.NETHERITE_SPEAR)
-            .input(Items.TRIDENT)
+            .input(items, Tags.Items.TOOLS_TRIDENT)
             .input(items, Tags.Items.TOOLS_MACE)
             .resultMerge(ModItems.EMBER_METAL_HEAVY_HALBERD, NormalDataComponent.emberFour())
             .save(provider);
@@ -134,7 +135,7 @@ public class MultipleToOneSmithingRecipeLoader {
             .resultMerge(ModItems.EMBER_METAL_RESONATOR, NormalDataComponent.emberFour())
             .save(provider);
         FourToOneSmithingRecipe.builder()
-            .material(ModBlocks.FROST_METAL_BLOCK)
+            .material(items, ModItemTags.STORAGE_BLOCKS_FROST_METAL)
             .input(ModItems.SAPPHIRE_AMULET)
             .input(ModItems.RUBY_AMULET)
             .input(ModItems.TOPAZ_AMULET)
@@ -142,7 +143,7 @@ public class MultipleToOneSmithingRecipeLoader {
             .result(ModItems.GEM_AMULET)
             .save(provider);
         FourToOneSmithingRecipe.builder()
-            .material(ModBlocks.FROST_METAL_BLOCK)
+            .material(items, ModItemTags.STORAGE_BLOCKS_FROST_METAL)
             .input(ModItems.SILENCE_AMULET)
             .input(ModItems.ARMADILLO_AMULET)
             .input(ModItems.CAT_AMULET)
@@ -152,14 +153,15 @@ public class MultipleToOneSmithingRecipeLoader {
     }
 
     public static void eight(RegistrumRecipeProvider provider) {
+        HolderGetter<Item> items = provider.getItems();
         EightToOneSmithingRecipe.builder()
             .material(ModItems.MULTIPHASE_MATTER)
-            .input(Items.SHEARS)
-            .input(Items.FLINT_AND_STEEL)
-            .input(Items.BRUSH)
+            .input(items, Tags.Items.TOOLS_SHEAR)
+            .input(items, Tags.Items.TOOLS_IGNITER)
+            .input(items, Tags.Items.TOOLS_BRUSH)
             .input(Items.SPYGLASS)
             .input(ModItems.MAGNET)
-            .input(Items.FISHING_ROD)
+            .input(items, Tags.Items.TOOLS_FISHING_ROD)
             .input(Items.CARROT_ON_A_STICK)
             .input(Items.WARPED_FUNGUS_ON_A_STICK)
             .resultMerge(ModItems.MULTITOOL_ITEM, NormalDataComponent.normalEight())

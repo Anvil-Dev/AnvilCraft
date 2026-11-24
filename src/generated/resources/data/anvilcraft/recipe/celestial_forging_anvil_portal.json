@@ -2,9 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "E": "minecraft:ender_pearl",
+    "E": "#c:ender_pearls",
     "S": "anvilcraft:spacetime_supercomputer",
-    "T": "anvilcraft:transcendium_ingot"
+    "T": "#c:ingots/transcendium"
   },
   "pattern": [
     " T ",

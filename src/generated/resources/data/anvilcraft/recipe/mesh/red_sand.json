@@ -2,7 +2,7 @@
   "type": "anvilcraft:mesh",
   "ingredients": [
     {
-      "items": "minecraft:red_sand"
+      "items": "#c:sands/red"
     }
   ],
   "results": [

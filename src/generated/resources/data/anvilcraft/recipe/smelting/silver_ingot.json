@@ -4,7 +4,7 @@
   "cookingtime": 200,
   "experience": 1.0,
   "group": "anvilcraft:silver_ingot",
-  "ingredient": "anvilcraft:raw_silver",
+  "ingredient": "#c:raw_materials/silver",
   "result": {
     "id": "anvilcraft:silver_ingot"
   }

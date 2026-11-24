@@ -2,7 +2,7 @@
   "type": "anvilcraft:item_crush",
   "ingredients": [
     {
-      "items": "minecraft:end_stone"
+      "items": "#c:end_stones"
     }
   ],
   "results": [

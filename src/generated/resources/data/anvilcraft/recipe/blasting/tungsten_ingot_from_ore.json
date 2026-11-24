@@ -4,7 +4,7 @@
   "cookingtime": 100,
   "experience": 1.0,
   "group": "anvilcraft:tungsten_ingot",
-  "ingredient": "anvilcraft:deepslate_tungsten_ore",
+  "ingredient": "#c:ores/tungsten",
   "result": {
     "id": "anvilcraft:tungsten_ingot"
   }

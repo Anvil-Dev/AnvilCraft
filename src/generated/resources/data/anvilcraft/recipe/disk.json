@@ -3,8 +3,8 @@
   "category": "equipment",
   "key": {
     "A": "anvilcraft:hardened_resin",
-    "B": "minecraft:iron_ingot",
-    "C": "anvilcraft:magnet_ingot"
+    "B": "#c:ingots/iron",
+    "C": "#c:ingots/magnet"
   },
   "pattern": [
     "ABA",

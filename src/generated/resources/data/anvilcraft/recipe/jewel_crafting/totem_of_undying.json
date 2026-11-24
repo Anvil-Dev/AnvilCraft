@@ -2,8 +2,8 @@
   "type": "anvilcraft:jewel_crafting",
   "ingredients": [
     "#c:storage_blocks/gold",
-    "minecraft:emerald",
-    "minecraft:emerald",
+    "#c:gems/emerald",
+    "#c:gems/emerald",
     "anvilcraft:royal_steel_ingot"
   ],
   "result": {

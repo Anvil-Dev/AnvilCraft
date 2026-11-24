@@ -2,8 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "A": "minecraft:amethyst_shard",
-    "B": "minecraft:stick"
+    "A": "#c:gems/amethyst",
+    "B": "#c:rods/wooden"
   },
   "pattern": [
     "A",

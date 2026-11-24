@@ -4,7 +4,7 @@
   "cookingtime": 200,
   "experience": 1.0,
   "group": "anvilcraft:lead_ingot",
-  "ingredient": "anvilcraft:deepslate_lead_ore",
+  "ingredient": "#c:ores/lead",
   "result": {
     "id": "anvilcraft:lead_ingot"
   }

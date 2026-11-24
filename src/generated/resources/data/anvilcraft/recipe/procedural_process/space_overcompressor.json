@@ -9,7 +9,7 @@
     "id": "anvilcraft:space_overcompressor"
   },
   "initial_block": {
-    "blocks": "minecraft:shulker_box"
+    "blocks": "#minecraft:shulker_boxes"
   },
   "loop": 1,
   "result_block": {
@@ -21,10 +21,10 @@
         "type": "anvilcraft:block_compress",
         "inputs": [
           {
-            "blocks": "minecraft:shulker_box"
+            "blocks": "#minecraft:shulker_boxes"
           },
           {
-            "blocks": "minecraft:shulker_box"
+            "blocks": "#minecraft:shulker_boxes"
           }
         ],
         "result": {
@@ -38,7 +38,7 @@
         "type": "anvilcraft:block_compress",
         "inputs": [
           {
-            "blocks": "minecraft:shulker_box"
+            "blocks": "#minecraft:shulker_boxes"
           },
           {
             "blocks": "anvilcraft:wip_block"
@@ -55,7 +55,7 @@
         "type": "anvilcraft:block_compress",
         "inputs": [
           {
-            "blocks": "minecraft:shulker_box"
+            "blocks": "#minecraft:shulker_boxes"
           },
           {
             "blocks": "anvilcraft:wip_block"
@@ -72,7 +72,7 @@
         "type": "anvilcraft:block_compress",
         "inputs": [
           {
-            "blocks": "anvilcraft:void_matter_block"
+            "blocks": "#c:storage_blocks/void_matter"
           },
           {
             "blocks": "anvilcraft:wip_block"

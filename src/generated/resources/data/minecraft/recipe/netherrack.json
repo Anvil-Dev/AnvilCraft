@@ -3,7 +3,7 @@
   "category": "blocks",
   "cookingtime": 200,
   "experience": 0.0,
-  "ingredient": "anvilcraft:rotten_flesh_block",
+  "ingredient": "#c:storage_blocks/rotten_flesh",
   "result": {
     "id": "minecraft:netherrack"
   }

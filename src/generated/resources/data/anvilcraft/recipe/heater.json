@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "A": "minecraft:terracotta",
-    "B": "minecraft:iron_ingot",
+    "B": "#c:ingots/iron",
     "C": "anvilcraft:magnetoelectric_core"
   },
   "pattern": [

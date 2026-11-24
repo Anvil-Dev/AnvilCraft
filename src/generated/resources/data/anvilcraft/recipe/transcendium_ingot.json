@@ -3,7 +3,7 @@
   "category": "misc",
   "group": "anvilcraft:transcendium_ingot",
   "key": {
-    "A": "anvilcraft:transcendium_nugget"
+    "A": "#c:nuggets/transcendium"
   },
   "pattern": [
     "AAA",

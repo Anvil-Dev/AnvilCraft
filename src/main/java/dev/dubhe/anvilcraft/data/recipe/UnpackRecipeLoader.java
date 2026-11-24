@@ -3,15 +3,17 @@ package dev.dubhe.anvilcraft.data.recipe;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.UnpackRecipe;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
+import net.neoforged.neoforge.common.Tags;
 
 public class UnpackRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
         UnpackRecipeLoader.unpack(provider, Items.WET_SPONGE, ModItems.SPONGE_GEMMULE, 4);
-        UnpackRecipeLoader.unpack(provider, Items.MELON, Items.MELON_SLICE, 9);
+        UnpackRecipe.builder().requires(provider.getItems(), Tags.Items.CROPS_MELON).result(Items.MELON_SLICE, 9).save(provider);
         UnpackRecipeLoader.unpack(provider, Items.SNOW_BLOCK, Items.SNOWBALL, 4);
         UnpackRecipeLoader.unpack(provider, Items.CLAY, Items.CLAY_BALL, 4);
         UnpackRecipeLoader.unpack(provider, Items.GLOWSTONE, Items.GLOWSTONE_DUST, 4);
@@ -31,7 +33,7 @@ public class UnpackRecipeLoader {
             .result(ModItems.MAGNET_INGOT, 8)
             .save(provider, AnvilCraft.of("unpack/magnet_ingot_from_hollow_magnet_block"));
         UnpackRecipe.builder()
-            .requires(ModBlocks.MAGNET_BLOCK)
+            .requires(provider.getItems(), ModItemTags.STORAGE_BLOCKS_MAGNET)
             .result(ModItems.MAGNET_INGOT, 9)
             .save(provider, AnvilCraft.of("unpack/magnet_ingot_from_magnet_block"));
 

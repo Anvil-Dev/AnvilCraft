@@ -101,9 +101,10 @@ public class MineralFountainRecipeLoader {
         Block block,
         double chance
     ) {
+        var blocks = provider.getRegistries().lookupOrThrow(Registries.BLOCK);
         MineralFountainReplacementRecipe.builder()
             .dimension(dimension.identifier())
-            .fromBlock(from(Blocks.DEEPSLATE))
+            .fromBlock(BlockStatePredicate.builder().of(blocks, Tags.Blocks.ORE_BEARING_GROUND_DEEPSLATE).build())
             .chance(chance)
             .toBlock(result(block))
             .save(provider, replacementId(dimension, block));
@@ -116,7 +117,7 @@ public class MineralFountainRecipeLoader {
     private static void mineralFountainDeepslate(RegistrumRecipeProvider provider, TagKey<Block> require, Block block) {
         HolderGetter<Block> blocks = provider.getRegistries().lookupOrThrow(Registries.BLOCK);
         MineralFountainActiveRecipe.builder()
-            .fromBlock(from(Blocks.DEEPSLATE))
+            .fromBlock(BlockStatePredicate.builder().of(blocks, Tags.Blocks.ORE_BEARING_GROUND_DEEPSLATE).build())
             .require(new AroundRequirement(BlockStatePredicate.builder().of(blocks, require).build(), 4))
             .toBlock(result(block))
             .save(provider);

@@ -1,6 +1,6 @@
 {
   "type": "minecraft:stonecutting",
-  "ingredient": "anvilcraft:frost_metal_nugget",
+  "ingredient": "#c:nuggets/frost_metal",
   "result": {
     "count": 16,
     "id": "anvilcraft:frost_deco_outline"

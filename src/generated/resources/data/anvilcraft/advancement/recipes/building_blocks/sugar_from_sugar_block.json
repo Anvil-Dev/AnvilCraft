@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:sugar_block"
+            "items": "#c:storage_blocks/sugar"
           }
         ]
       },

@@ -11,7 +11,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:topaz_block"
+            "items": "#c:storage_blocks/topaz"
           }
         ]
       },

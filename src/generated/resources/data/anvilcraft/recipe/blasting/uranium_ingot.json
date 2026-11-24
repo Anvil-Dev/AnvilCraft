@@ -4,7 +4,7 @@
   "cookingtime": 100,
   "experience": 1.0,
   "group": "anvilcraft:uranium_ingot",
-  "ingredient": "anvilcraft:raw_uranium",
+  "ingredient": "#c:raw_materials/uranium",
   "result": {
     "id": "anvilcraft:uranium_ingot"
   }

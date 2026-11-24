@@ -11,7 +11,7 @@
   },
   "ingredients": [
     {
-      "items": "anvilcraft:transcendium_ingot"
+      "items": "#c:ingots/transcendium"
     }
   ],
   "results": [],

@@ -37,6 +37,7 @@ import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -49,6 +50,7 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.common.Tags;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -393,7 +395,7 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
                 ItemInjectRecipe.builder()
                     .inputBlock(ModBlocks.LARGE_CRATE)
                     .requires(ModBlocks.SPACE_OVERCOMPRESSOR)
-                    .requires(Blocks.NETHERITE_BLOCK, 6)
+                    .requires(BuiltInRegistries.ITEM, Tags.Items.STORAGE_BLOCKS_NETHERITE, 6)
                     .resultBlock(ModBlocks.SHULKER_CONTAINER)
                     .buildRecipe()
             ),

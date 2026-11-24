@@ -2,9 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
   "key": {
-    "A": "anvilcraft:ruby",
+    "A": "#c:gems/ruby",
     "B": "anvilcraft:magnetoelectric_core",
-    "C": "minecraft:redstone",
+    "C": "#c:dusts/redstone",
     "D": "anvilcraft:royal_steel_ingot"
   },
   "pattern": [

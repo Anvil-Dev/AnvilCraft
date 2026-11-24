@@ -7,7 +7,7 @@
     "id": "minecraft:ancient_debris"
   },
   "initial_block": {
-    "blocks": "anvilcraft:tungsten_block"
+    "blocks": "#c:storage_blocks/tungsten"
   },
   "loop": 1,
   "result_block": {
@@ -18,7 +18,7 @@
       "content": {
         "type": "anvilcraft:item_inject",
         "block_ingredient": {
-          "blocks": "anvilcraft:tungsten_block"
+          "blocks": "#c:storage_blocks/tungsten"
         },
         "block_result": {
           "block": "anvilcraft:wip_block"

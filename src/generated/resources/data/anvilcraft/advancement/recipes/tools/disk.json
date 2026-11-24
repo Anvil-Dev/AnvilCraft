@@ -15,7 +15,7 @@
       "conditions": {
         "items": [
           {
-            "items": "minecraft:iron_ingot"
+            "items": "#c:ingots/iron"
           }
         ]
       },
@@ -25,7 +25,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:magnet_ingot"
+            "items": "#c:ingots/magnet"
           }
         ]
       },

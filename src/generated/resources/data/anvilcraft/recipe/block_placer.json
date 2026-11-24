@@ -2,9 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
   "key": {
-    "A": "minecraft:cobblestone",
+    "A": "#c:cobblestones/normal",
     "B": "anvilcraft:crab_claw",
-    "C": "minecraft:redstone",
+    "C": "#c:dusts/redstone",
     "D": "minecraft:hopper"
   },
   "pattern": [

@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:sapphire_block"
+            "items": "#c:storage_blocks/sapphire"
           }
         ]
       },

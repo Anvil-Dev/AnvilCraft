@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "A": "anvilcraft:raw_uranium"
+    "A": "#c:raw_materials/uranium"
   },
   "pattern": [
     "AAA",

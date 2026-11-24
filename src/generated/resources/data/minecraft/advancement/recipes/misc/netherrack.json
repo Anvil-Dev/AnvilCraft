@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:rotten_flesh_block"
+            "items": "#c:storage_blocks/rotten_flesh"
           }
         ]
       },

@@ -27,6 +27,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.Tags;
 
 import java.util.Map;
 
@@ -34,7 +35,7 @@ public class ItemCompressRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
         HolderGetter<Item> items = provider.getItems();
         ItemCompressRecipe.builder()
-            .requires(Items.BONE, 3)
+            .requires(items, Tags.Items.BONES, 3)
             .result(Items.BONE_BLOCK)
             .save(provider);
 
@@ -48,7 +49,7 @@ public class ItemCompressRecipeLoader {
         ItemCompressRecipe.builder()
             .requires(items, ModItemTags.CREAM, 4)
             .requires(Items.SUGAR)
-            .requires(Items.SWEET_BERRIES)
+            .requires(items, Tags.Items.FOODS_BERRY)
             .result(ModBlocks.BERRY_CREAM_BLOCK)
             .priority(13)
             .save(provider);
@@ -70,7 +71,7 @@ public class ItemCompressRecipeLoader {
             .save(provider);
 
         ItemCompressRecipe.builder()
-            .requires(Items.COOKIE, 9)
+            .requires(items, Tags.Items.FOODS_COOKIE, 9)
             .result(ModBlocks.COOKIE_BLOCK)
             .save(provider);
 
@@ -80,7 +81,7 @@ public class ItemCompressRecipeLoader {
             .save(provider);
 
         ItemCompressRecipe.builder()
-            .requires(Items.COPPER_BLOCK, 2)
+            .requires(items, Tags.Items.STORAGE_BLOCKS_COPPER, 2)
             .requires(
                 ItemIngredientPredicate
                     .of(ModBlocks.RESIN_BLOCK.asItem())
@@ -109,7 +110,7 @@ public class ItemCompressRecipeLoader {
 
         ExtendInWorldRecipeBuilder.extendCompatible(ModRecipeTriggers.ON_ANVIL_FALL_ON)
             .hasItemIngredient(builder -> builder
-                .of(Items.COPPER_BLOCK)
+                .of(items, Tags.Items.STORAGE_BLOCKS_COPPER)
                 .count(2)
                 .offset(0.0, -0.375, 0.0)
                 .range(0.75, 0.75, 0.75)

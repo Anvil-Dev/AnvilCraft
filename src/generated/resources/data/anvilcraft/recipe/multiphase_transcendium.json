@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "M": "anvilcraft:multiphase_matter",
-    "N": "anvilcraft:transcendium_nugget"
+    "N": "#c:nuggets/transcendium"
   },
   "pattern": [
     "NNN",

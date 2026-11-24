@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.api.entity.IGenericAnvilEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipePredicateTypes;
 import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -88,8 +89,11 @@ public record HasAnvil(Optional<BlockStatePredicate> anvil, boolean inverted) im
     }
 
     private static boolean isUnrestrictedAnvil(BlockStatePredicate predicate) {
-        if (predicate.getBlocks().size() == 0) return true;
-        return predicate.getBlocks().unwrap().map(
+        HolderSet<Block> blocks = predicate.getBlocks();
+        if (blocks.size() == 0) {
+            return blocks instanceof HolderSet.Direct<?>;
+        }
+        return blocks.unwrap().map(
             BlockTags.ANVIL::equals,
             holders -> holders.size() == 1 && holders.getFirst().value() == Blocks.ANVIL
         );

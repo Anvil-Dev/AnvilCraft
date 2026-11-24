@@ -2,9 +2,9 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    "minecraft:bread",
+    "#c:foods/bread",
     "minecraft:sugar",
-    "anvilcraft:cream"
+    "#c:foods/cream"
   ],
   "result": {
     "id": "anvilcraft:creamy_bread_roll"

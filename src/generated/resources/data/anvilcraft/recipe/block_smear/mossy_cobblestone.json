@@ -5,7 +5,7 @@
       "blocks": "minecraft:moss_block"
     },
     {
-      "blocks": "minecraft:cobblestone"
+      "blocks": "#c:cobblestones/normal"
     }
   ],
   "result": {

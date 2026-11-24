@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:deepslate_uranium_ore"
+            "items": "#c:ores/uranium"
           }
         ]
       },

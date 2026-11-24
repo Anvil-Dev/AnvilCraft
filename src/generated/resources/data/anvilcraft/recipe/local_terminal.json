@@ -4,10 +4,10 @@
   "group": "anvilcraft:local_terminal",
   "key": {
     "A": "anvilcraft:crate",
-    "B": "minecraft:ender_pearl",
+    "B": "#c:ender_pearls",
     "C": "anvilcraft:processor",
-    "D": "minecraft:lapis_lazuli",
-    "E": "minecraft:redstone_block"
+    "D": "#c:gems/lapis",
+    "E": "#c:storage_blocks/redstone"
   },
   "pattern": [
     "ABA",

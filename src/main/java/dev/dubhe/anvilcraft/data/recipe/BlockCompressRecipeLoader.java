@@ -10,6 +10,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.neoforged.neoforge.common.Tags;
 
 public class BlockCompressRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
@@ -32,13 +33,13 @@ public class BlockCompressRecipeLoader {
         BlockCompressRecipeLoader.recipe(
             provider,
             Blocks.NETHER_WART_BLOCK,
-            Blocks.NETHERRACK,
+            Tags.Blocks.NETHERRACKS,
             Blocks.CRIMSON_NYLIUM
         );
         BlockCompressRecipeLoader.recipe(
             provider,
             Blocks.WARPED_WART_BLOCK,
-            Blocks.NETHERRACK,
+            Tags.Blocks.NETHERRACKS,
             Blocks.WARPED_NYLIUM
         );
         BlockCompressRecipeLoader.recipe(
@@ -88,6 +89,11 @@ public class BlockCompressRecipeLoader {
 
     private static void recipe(RegistrumRecipeProvider provider, Block block1, Block block2, Block result) {
         BlockCompressRecipe.builder().input(block1).input(block2).result(result).save(provider);
+    }
+
+    private static void recipe(RegistrumRecipeProvider provider, Block first, TagKey<Block> second, Block result) {
+        HolderGetter<Block> blocks = provider.getRegistries().lookupOrThrow(Registries.BLOCK);
+        BlockCompressRecipe.builder().input(first).input(blocks, second).result(result).save(provider);
     }
 
     @SuppressWarnings("SameParameterValue")

@@ -3,7 +3,7 @@
   "chance": 0.01,
   "dimension": "minecraft:overworld",
   "from_block": {
-    "blocks": "minecraft:deepslate"
+    "blocks": "#c:ore_bearing_ground/deepslate"
   },
   "to_block": {
     "block": "anvilcraft:void_stone"

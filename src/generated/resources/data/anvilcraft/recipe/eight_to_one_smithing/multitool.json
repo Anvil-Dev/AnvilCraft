@@ -2,13 +2,13 @@
   "type": "anvilcraft:eight_to_one_smithing",
   "inputs": [
     {
-      "items": "minecraft:shears"
+      "items": "#c:tools/shear"
     },
     {
-      "items": "minecraft:flint_and_steel"
+      "items": "#c:tools/igniter"
     },
     {
-      "items": "minecraft:brush"
+      "items": "#c:tools/brush"
     },
     {
       "items": "minecraft:spyglass"
@@ -17,7 +17,7 @@
       "items": "anvilcraft:magnet"
     },
     {
-      "items": "minecraft:fishing_rod"
+      "items": "#c:tools/fishing_rod"
     },
     {
       "items": "minecraft:carrot_on_a_stick"

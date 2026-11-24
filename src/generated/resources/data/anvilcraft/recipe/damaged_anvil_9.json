@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "A": "anvilcraft:heavy_iron_block",
-    "B": "minecraft:iron_block"
+    "B": "#c:storage_blocks/iron"
   },
   "pattern": [
     "BAB",

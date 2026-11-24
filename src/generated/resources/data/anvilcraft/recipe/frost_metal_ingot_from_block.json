@@ -3,7 +3,7 @@
   "category": "misc",
   "group": "anvilcraft:frost_metal_ingot",
   "ingredients": [
-    "anvilcraft:frost_metal_block"
+    "#c:storage_blocks/frost_metal"
   ],
   "result": {
     "count": 9,

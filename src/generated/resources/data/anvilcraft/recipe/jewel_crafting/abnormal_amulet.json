@@ -1,7 +1,7 @@
 {
   "type": "anvilcraft:jewel_crafting",
   "ingredients": [
-    "anvilcraft:silver_ingot",
+    "#c:ingots/silver",
     "anvilcraft:cursed_gold_ingot",
     "anvilcraft:levitation_powder",
     "anvilcraft:levitation_powder",

@@ -3,7 +3,7 @@
   "category": "misc",
   "group": "anvilcraft:tungsten_ingot",
   "ingredients": [
-    "anvilcraft:tungsten_block"
+    "#c:storage_blocks/tungsten"
   ],
   "result": {
     "count": 9,

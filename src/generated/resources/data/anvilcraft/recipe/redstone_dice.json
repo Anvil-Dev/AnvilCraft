@@ -3,8 +3,8 @@
   "category": "redstone",
   "key": {
     "B": "#minecraft:wooden_buttons",
-    "G": "minecraft:glass",
-    "I": "minecraft:iron_ingot"
+    "G": "#c:glass_blocks/colorless",
+    "I": "#c:ingots/iron"
   },
   "pattern": [
     " G ",

@@ -3,8 +3,8 @@
   "category": "misc",
   "key": {
     "A": "anvilcraft:royal_steel_ingot",
-    "B": "anvilcraft:ruby_block",
-    "C": "anvilcraft:ruby"
+    "B": "#c:storage_blocks/ruby",
+    "C": "#c:gems/ruby"
   },
   "pattern": [
     "ACA",

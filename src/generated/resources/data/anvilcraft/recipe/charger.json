@@ -2,9 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": "minecraft:copper_ingot",
+    "A": "#c:ingots/copper",
     "B": "anvilcraft:magnetoelectric_core",
-    "C": "minecraft:iron_ingot",
+    "C": "#c:ingots/iron",
     "D": "#c:glass_panes"
   },
   "pattern": [

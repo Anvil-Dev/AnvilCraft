@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "A": "#c:plates/copper",
-    "B": "anvilcraft:resin"
+    "B": "#c:resin"
   },
   "pattern": [
     "A",

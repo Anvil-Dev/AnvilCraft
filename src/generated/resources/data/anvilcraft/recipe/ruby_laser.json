@@ -5,8 +5,8 @@
     "A": "anvilcraft:royal_steel_ingot",
     "B": "anvilcraft:induction_light",
     "C": "#c:plates/silver",
-    "D": "anvilcraft:ruby_block",
-    "E": "minecraft:tinted_glass"
+    "D": "#c:storage_blocks/ruby",
+    "E": "#c:glass_blocks/tinted"
   },
   "pattern": [
     "AEA",

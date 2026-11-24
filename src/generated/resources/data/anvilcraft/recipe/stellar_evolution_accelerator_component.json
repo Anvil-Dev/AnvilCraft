@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": "anvilcraft:transcendium_ingot",
+    "A": "#c:ingots/transcendium",
     "B": "anvilcraft:cursed_gold_block",
     "C": "anvilcraft:corrupted_beacon"
   },

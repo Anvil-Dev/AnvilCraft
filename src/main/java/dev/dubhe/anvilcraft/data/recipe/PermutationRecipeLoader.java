@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.api.recipe.result.RecipeResult;
 import dev.dubhe.anvilcraft.api.recipe.slot.RecipeInputSlot;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
 import dev.dubhe.anvilcraft.recipe.frost.CustomFrostMaterialPredicate;
@@ -55,7 +56,9 @@ public class PermutationRecipeLoader {
                 ModItems.LASER_GUN
             )
             .options(
-                CustomFrostMaterialPredicate.of(PermutationRecipeLoader.count(ModItems.TRANSCENDIUM_INGOT, 2)),
+                CustomFrostMaterialPredicate.of(
+                    ItemIngredientPredicate.of(provider.getItems(), ModItemTags.TRANSCENDIUM_INGOTS).withCount(2).build()
+                ),
                 ModItems.SPECTRAL_WEAPON_LAUNCHER,
                 ModItems.ANVIL_RAILGUN,
                 ModItems.CORRUPTED_BEACON_ACTIVATOR,
@@ -116,7 +119,9 @@ public class PermutationRecipeLoader {
                 .result(RecipeResult.builder().result(royalSteel).removeData(ModComponents.FIRE_REFORGING).build())
                 .result(RecipeResult.builder().result(netherite).removeData(ModComponents.FIRE_REFORGING).build())
                 .option(
-                    CustomFrostMaterialPredicate.of(PermutationRecipeLoader.count(ModItems.FROST_METAL_NUGGET, 3)),
+                    CustomFrostMaterialPredicate.of(
+                        ItemIngredientPredicate.of(provider.getItems(), ModItemTags.FROST_METAL_NUGGETS).withCount(3).build()
+                    ),
                     RecipeResult.builder().result(frostMetal).removeData(ModComponents.FIRE_REFORGING).build()
                 )
                 .save(provider, PermutationRecipeLoader.id(emberMetal));
@@ -183,7 +188,9 @@ public class PermutationRecipeLoader {
         PermutationRecipe.builder()
             .input(ember)
             .option(
-                CustomFrostMaterialPredicate.of(PermutationRecipeLoader.count(ModItems.FROST_METAL_INGOT, 3)),
+                CustomFrostMaterialPredicate.of(
+                    ItemIngredientPredicate.of(provider.getItems(), ModItemTags.FROST_METAL_INGOTS).withCount(3).build()
+                ),
                 frostResult.build()
             )
             .save(provider, PermutationRecipeLoader.id(ember.asItem()));

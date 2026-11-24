@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "A": "anvilcraft:cocoa_butter",
-    "B": "anvilcraft:cream",
+    "B": "#c:foods/cream",
     "C": "minecraft:sugar"
   },
   "pattern": [
