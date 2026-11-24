@@ -11,21 +11,21 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_laser_gun": {
-      "conditions": {
-        "items": [
-          {
-            "items": "anvilcraft:laser_gun"
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
     "has_corrupted_beacon_activator": {
       "conditions": {
         "items": [
           {
             "items": "anvilcraft:corrupted_beacon_activator"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_laser_gun": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:laser_gun"
           }
         ]
       },
