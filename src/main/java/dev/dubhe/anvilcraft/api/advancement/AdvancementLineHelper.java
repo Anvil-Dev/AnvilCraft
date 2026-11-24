@@ -9,8 +9,8 @@ import dev.dubhe.anvilcraft.advancements.criterion.AnvilLootingTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilOnGroundTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.BigStomachTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.BlockComparatorTurnOverTrigger;
-import dev.dubhe.anvilcraft.advancements.criterion.CelestialVisitTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.CelestialEvolutionTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.CelestialVisitTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.CompressedBiscuitTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.ConvertBeaconTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.DevourerDevourTrigger;
@@ -26,9 +26,9 @@ import dev.dubhe.anvilcraft.advancements.criterion.HeatCollectorTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.HighVoltageTowerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.HyperdimensionStationUpgradeTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.InWorldRecipeTrigger;
-import dev.dubhe.anvilcraft.advancements.criterion.LargeCauldronCocktailTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.InexhaustibleTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.InfinitePowerTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.LargeCauldronCocktailTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MagnetLiftingAnvilTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MilkTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MineralFountainCreateTrigger;
@@ -44,15 +44,15 @@ import dev.dubhe.anvilcraft.advancements.criterion.PlanetDetonationTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlanetaryCollapseDeathTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerKilledEntityByAnvilHammerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerWearAnvilHammerTrigger;
-import dev.dubhe.anvilcraft.advancements.criterion.RailgunSelfKillTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.RailgunCollisionTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.RailgunSelfKillTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.ShulkerContainerUpgradeTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.StarContactDeathTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.UseItemTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.VoidEnergyCollectorWorkingTrigger;
-import dev.dubhe.anvilcraft.advancements.criterion.WormholeDeliveryTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.VoidWalkerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.WearBreathingHelmetTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.WormholeDeliveryTrigger;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarTerminal;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
@@ -813,12 +813,15 @@ public class AdvancementLineHelper {
         public AdvancementHelper celestialVisit(String key, int count) {
             return this.addCriterion(key, CelestialVisitTrigger.TriggerInstance.visited(count));
         }
+
         public AdvancementHelper highVoltageTower(String key) {
             return this.addCriterion(key, HighVoltageTowerTrigger.TriggerInstance.powered());
         }
+
         public AdvancementHelper infinitePower(String key) {
             return this.addCriterion(key, InfinitePowerTrigger.TriggerInstance.powered());
         }
+
         public AdvancementHolder build(String id) {
             ResourceLocation location = ResourceLocation.fromNamespaceAndPath(this.lineHelper.modId, this.lineHelper.modId + "/" + id);
             AdvancementHolder holder = this.current.build(location);

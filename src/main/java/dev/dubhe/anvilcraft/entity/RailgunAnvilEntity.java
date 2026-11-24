@@ -2,8 +2,8 @@ package dev.dubhe.anvilcraft.entity;
 
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
-import dev.dubhe.anvilcraft.util.TriggerUtil;
 import dev.dubhe.anvilcraft.util.AccelerateManager;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Setter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;

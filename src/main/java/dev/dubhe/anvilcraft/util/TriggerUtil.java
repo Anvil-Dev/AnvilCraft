@@ -1,15 +1,15 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarTerminal;
 import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.StringTag;
-import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
@@ -270,6 +270,7 @@ public class TriggerUtil {
             }
         }
     }
+
     public static void inexhaustible(Level level, BlockPos pos) {
         if (!level.isClientSide) {
             for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 32)) {

@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block.entity.megastructure;
 
-import dev.dubhe.anvilcraft.util.TriggerUtil;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.api.world.load.LoadChuckData;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
@@ -14,6 +13,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import dev.dubhe.anvilcraft.saved.WormholeInterfaceStates;
 import dev.dubhe.anvilcraft.saved.WormholeNetwork;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
