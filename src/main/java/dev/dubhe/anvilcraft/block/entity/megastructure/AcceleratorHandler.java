@@ -453,7 +453,8 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
             this.syncProgress(gameTime);
             if (phaseChanged || gameTime % 20L == 0L) this.syncToClient(be);
         }
-        /// 戴森球进入无限发电状态（主序星期 + 增幅器）时派发「取之不尽」的无限发电判据
+
+        // 戴森球进入无限发电状态（主序星期 + 增幅器）时派发「取之不尽」的无限发电判据
         if (!this.infinitePowerAwarded && be.isInfinitePower()) {
             this.infinitePowerAwarded = true;
             TriggerUtil.infinitePower(be.getLevel(), be.getBlockPos());
@@ -565,7 +566,8 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
     }
 
     private void triggerDestructiveEvent(CelestialForgingAnvilBlockEntity be, String profileId, long eventSeed) {
-        /// 触发闪光、震动和方块爆炸，残骸在演化结束时生成。
+
+        // 触发闪光、震动和方块爆炸，残骸在演化结束时生成。
         be.startSupernovaFlash(profileId, eventSeed);
         if (be.getLevel() instanceof ServerLevel serverLevel) {
             PacketDistributor.sendToPlayersTrackingChunk(
@@ -582,7 +584,8 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
                 )
             );
         }
-        /// profile 只改变渲染核心、抛射物和发光节奏。
+
+        // profile 只改变渲染核心、抛射物和发光节奏。
         be.getLevel().explode(
             null,
             be.getBlockPos().getX() + 0.5,

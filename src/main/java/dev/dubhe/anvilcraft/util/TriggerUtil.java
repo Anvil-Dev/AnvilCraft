@@ -334,7 +334,7 @@ public class TriggerUtil {
                 ? stored
                 : (stored.isEmpty() ? name : stored + "," + name);
             data.putString(CELESTIAL_VISITED_TAG, visited);
-            /// 无论是否新大类都按当前累计数派发，便于旧存档补齐已错过的进度。
+            // 无论是否新大类都按当前累计数派发，便于旧存档补齐已错过的进度。
             ModCriterionTriggers.CELESTIAL_VISIT.get().trigger(player, visited.split(",").length);
         }
     }
