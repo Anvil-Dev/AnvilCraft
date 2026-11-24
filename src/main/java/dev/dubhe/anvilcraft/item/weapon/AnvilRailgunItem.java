@@ -145,7 +145,7 @@ public class AnvilRailgunItem extends EnergyWeaponItem {
         int knockback = AnvilRailgunItem.enchantmentLevel(level, weapon, Enchantments.PUNCH);
         boolean loyalty = AnvilRailgunItem.enchantmentLevel(level, weapon, Enchantments.LOYALTY) > 0;
         int power = AnvilRailgunItem.enchantmentLevel(level, weapon, Enchantments.POWER);
-        double speed = Math.sqrt(progress) * 8.0 * (1.0 + Math.min(10, power) * 0.1);
+        double speed = Math.sqrt(progress) * 8.0 * Math.pow(1.1, Math.min(15, power));
         for (int i = 0; i < projectileCount; i++) {
             boolean center = i == 0;
             boolean ghost = !center || infinity;

@@ -2374,7 +2374,7 @@
   "tooltip.anvilcraft.discharger.jade.working_progress": "放电进度：%s",
   "tooltip.anvilcraft.item.amulet_box.shift": "可收纳多个护符并同时激活其效果，亦可收纳各种图腾\n右键收纳物品栏中的不死图腾，Shift+右键取出图腾；\n手持时在需要的时候消耗盒中的图腾，消耗图腾后可能得到神秘礼物",
   "tooltip.anvilcraft.item.anvil_railgun": "装填铁砧后，按住右键消耗电力蓄力发射高速的铁砧",
-  "tooltip.anvilcraft.item.anvil_railgun.shift": "按住右键把副手的铁砧装入轨道炮\n装填后按住右键蓄力，松开发射铁砧\n蓄力越久发射的铁砧速度越快伤害越高\n给铁砧轨道炮附魔可以增强伤害、缩短蓄力时长或改变发射效果",
+  "tooltip.anvilcraft.item.anvil_railgun.shift": "按住右键把副手的铁砧装入轨道炮\n装填后按住右键蓄力，松开发射铁砧\n蓄力越久发射的铁砧速度越快伤害越高\n给铁砧轨道炮附魔可以增强伤害、缩短蓄力时长或改变发射效果\n附魔力量 VIII 后，发射的铁砧会引发爆炸",
   "tooltip.anvilcraft.item.block_devourer.shift": "当被红石激活时，该方块会立即破坏前方 3×3 区域内的方块\n若被下落的铁砧击中，破坏范围会扩大——铁砧下落高度越高，摧毁的区域就越大\n无内部存储空间，将物品从其后方输出——可送入容器、以掉落物形式出现，或在受阻时直接出现在破坏位置\n基础世界方块（如石头、泥土和深板岩）仅会少量掉落",
   "tooltip.anvilcraft.item.block_placer.shift": "当被红石激活时，此方块会在其前方放置一个方块\n若被下落的铁砧击中，放置距离会增加——铁砧下落距离越远，方块放置得越远\n无内部存储空间，必须从其后方的掉落物或容器中获取方块",
   "tooltip.anvilcraft.item.brass_block": "一大块耐腐蚀的铜锌合金",

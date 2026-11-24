@@ -40,6 +40,7 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.UUID;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class FallingBlockCollisionEventListener {
@@ -105,9 +106,17 @@ public class FallingBlockCollisionEventListener {
         if (recipe.consume()) {
             event.getEntity().discard();
         }
+        ServerPlayer railgunOwner = null;
         if (event.getEntity() instanceof RailgunAnvilEntity railgun
-            && railgun.getOwnerEntity() instanceof ServerPlayer owner) {
-            ModCriterionTriggers.RAILGUN_COLLISION.get().trigger(owner);
+            && railgun.getOwnerEntity() instanceof ServerPlayer directOwner) {
+            railgunOwner = directOwner;
+        } else {
+            /// 经加速区转换的弹丸已变成普通掉落方块，发射者记录在持久数据里。
+            UUID ownerId = RailgunAnvilEntity.getRailgunOwner(event.getEntity());
+            if (ownerId != null) railgunOwner = level.getServer().getPlayerList().getPlayer(ownerId);
+        }
+        if (railgunOwner != null) {
+            ModCriterionTriggers.RAILGUN_COLLISION.get().trigger(railgunOwner);
         }
 
         DamageSource damageSource = Explosion.getDefaultDamageSource(level, null);
