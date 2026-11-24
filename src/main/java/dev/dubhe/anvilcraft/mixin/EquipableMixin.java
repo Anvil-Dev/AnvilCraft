@@ -19,7 +19,8 @@ interface EquipableMixin {
     @Inject(method = "swapWithEquipmentSlot", at = @At("HEAD"), cancellable = true)
     private void anvilcraft$lockFilledPockets(Item item, Level level, Player player, InteractionHand hand,
                                             CallbackInfoReturnable<InteractionResultHolder<ItemStack>> cir) {
-        if (((Equipable) this).getEquipmentSlot() == EquipmentSlot.LEGS && PocketInventory.isLocked(player)) {
+        if (((Equipable) this).getEquipmentSlot() == EquipmentSlot.LEGS
+            && PocketInventory.blocksLeggingsChange(player, player.getItemInHand(hand))) {
             cir.setReturnValue(InteractionResultHolder.fail(player.getItemInHand(hand)));
         }
     }

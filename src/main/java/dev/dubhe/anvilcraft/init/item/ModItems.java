@@ -543,7 +543,7 @@ public class ModItems {
         .register();
 
     public static final ItemEntry<EquipmentArmorItem> POCKETS_LEGGINGS = REGISTRUM
-        .item("pockets_leggings", p -> new EquipmentArmorItem(p, ArmorItem.Type.LEGGINGS, false, "spacesuit"))
+        .item("pockets_leggings", p -> new EquipmentArmorItem(p, ArmorItem.Type.LEGGINGS, false, "spacesuit", 6))
         .tag(ItemTags.LEG_ARMOR, ItemTags.LEG_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
         .recipe(RegistrumItemRecipeLoader::pocketsArmor)
         .register();
@@ -577,7 +577,8 @@ public class ModItems {
         .register();
 
     public static final ItemEntry<EquipmentArmorItem> WEATHERPROOF_SPACESUIT_LEGGINGS = REGISTRUM
-        .item("weatherproof_spacesuit_leggings", p -> new EquipmentArmorItem(p, ArmorItem.Type.LEGGINGS, true, "weatherproof_spacesuit"))
+        .item("weatherproof_spacesuit_leggings",
+            p -> new EquipmentArmorItem(p, ArmorItem.Type.LEGGINGS, true, "weatherproof_spacesuit", 12))
         .properties(Item.Properties::fireResistant)
         .tag(ItemTags.LEG_ARMOR, ItemTags.LEG_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
         .register();

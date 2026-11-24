@@ -66,7 +66,7 @@ public class ItemTooltipManager {
         final String endermanProtection = "Endermen remain calm when stared at";
         final String fullSuit = "\nFull suit: immune to environmental damage except the void; prevents falling into the void";
         ItemTooltipManager.NORMAL.put(ModItems.BREATHING_HELMET.get(), breathing);
-        ItemTooltipManager.NORMAL.put(ModItems.POCKETS_LEGGINGS.get(), pockets.formatted(6));
+        ItemTooltipManager.NORMAL.put(ModItems.POCKETS_LEGGINGS.get(), pockets.formatted(ModItems.POCKETS_LEGGINGS.get().getPocketCount()));
         ItemTooltipManager.NORMAL.put(ModItems.BUFFER_BOOTS.get(), boots);
         ItemTooltipManager.NORMAL.put(
             ModItems.WEATHERPROOF_SPACESUIT_HELMET.get(),
@@ -78,7 +78,10 @@ public class ItemTooltipManager {
             ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE.get(),
             "Uses 100 kFE per second\nRechargeable from grids or capacitors" + fullSuit
         );
-        ItemTooltipManager.NORMAL.put(ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS.get(), pockets.formatted(12) + fullSuit);
+        ItemTooltipManager.NORMAL.put(
+            ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS.get(),
+            pockets.formatted(ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS.get().getPocketCount()) + fullSuit
+        );
         ItemTooltipManager.NORMAL.put(
             ModItems.WEATHERPROOF_SPACESUIT_BOOTS.get(),
             boots + "\nWalk on still fluid surfaces; sneak to submerge, hold sneak to descend faster" + fullSuit

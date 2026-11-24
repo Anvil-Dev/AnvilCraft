@@ -1,14 +1,17 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.gui.component.PocketRenderer;
 import dev.dubhe.anvilcraft.inventory.PocketInventory;
+import dev.dubhe.anvilcraft.inventory.PocketLayout;
+import dev.dubhe.anvilcraft.inventory.PocketSlot;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.inventory.Slot;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -30,45 +33,81 @@ abstract class PocketInventoryScreenMixin extends AbstractContainerScreen<Invent
     private void anvilcraft$rememberPockets(CallbackInfo ci) {
         if (this.minecraft != null && this.minecraft.player != null) {
             this.anvilcraft$pocketCapacity = PocketInventory.capacity(this.minecraft.player);
+            this.anvilcraft$updatePocketSlots();
         }
     }
 
     @Inject(method = "containerTick", at = @At("TAIL"))
     private void anvilcraft$updatePocketLayout(CallbackInfo ci) {
-        if (this.minecraft != null && this.minecraft.player != null
-            && this.anvilcraft$pocketCapacity != PocketInventory.capacity(this.minecraft.player)) {
+        if (this.minecraft == null || this.minecraft.player == null) {
+            return;
+        }
+        if (this.anvilcraft$pocketCapacity != PocketInventory.capacity(this.minecraft.player)) {
             this.rebuildWidgets();
+            return;
+        }
+        this.anvilcraft$updatePocketSlots();
+    }
+
+    @Unique
+    private void anvilcraft$updatePocketSlots() {
+        if (this.menu == null) {
+            return;
+        }
+        for (Slot slot : this.menu.slots) {
+            if (slot instanceof PocketSlot pocket) {
+                pocket.updatePosition();
+            }
         }
     }
 
+    // 配方书展开时 InventoryScreen 会把 GUI 右移让位，右侧口袋面板可能被推出屏幕。
+    // 这里按配方书与两侧面板各自所需的最小宽度抬高窄屏阈值，让界面在空间不足时改用配方书覆盖 GUI 的原版窄屏表现。
     @ModifyConstant(method = "init", constant = @Constant(intValue = 379))
     private int anvilcraft$allowRoomForPockets(int original) {
-        if (this.minecraft == null || this.minecraft.player == null) return original;
-        int capacity = PocketInventory.capacity(this.minecraft.player);
-        return original + (capacity == 0 ? 0 : capacity == 12 ? 92 : 56);
+        if (this.minecraft == null || this.minecraft.player == null) {
+            return original;
+        }
+        int minWidth = PocketLayout.recipeBookMinWidth(
+            PocketInventory.capacity(this.minecraft.player),
+            this.imageWidth
+        );
+        return Math.max(original, minWidth);
     }
 
     @Inject(method = "renderBg", at = @At("TAIL"))
     private void anvilcraft$drawPockets(GuiGraphics graphics, float partialTick, int mouseX, int mouseY, CallbackInfo ci) {
-        if (this.minecraft == null || this.minecraft.player == null) return;
-        int capacity = PocketInventory.capacity(this.minecraft.player);
-        if (capacity == 0) return;
-        int width = capacity == 12 ? 44 : 26;
-        String texture = capacity == 12 ? "weatherproof_spacesuit_leggings" : "pockets_leggings";
-        for (int side = 0; side < 2; side++) {
-            int posX = this.leftPos + (side == 0 ? -width - 2 : this.imageWidth + 2);
-            graphics.blit(AnvilCraft.of("textures/gui/misc/equipment/" + texture + ".png"),
-                posX, this.topPos + 70, 0, 0, width, 73, width, 73);
+        if (this.minecraft == null || this.minecraft.player == null) {
+            return;
         }
+        int capacity = PocketInventory.capacity(this.minecraft.player);
+        if (capacity == 0) {
+            return;
+        }
+        PocketRenderer.render(graphics, PocketLayout.of(capacity, 0, this.imageWidth, 70), this.leftPos, this.topPos);
+        PocketRenderer.render(graphics, PocketLayout.of(capacity, 1, this.imageWidth, 70), this.leftPos, this.topPos);
     }
 
     @ModifyReturnValue(method = "hasClickedOutside", at = @At("RETURN"))
     private boolean anvilcraft$includePockets(boolean original, double mouseX, double mouseY, int left, int top, int button) {
-        if (!original || this.minecraft == null || this.minecraft.player == null) return original;
+        if (this.minecraft == null || this.minecraft.player == null) {
+            return original;
+        }
         int capacity = PocketInventory.capacity(this.minecraft.player);
-        if (capacity == 0 || mouseY < top + 70 || mouseY >= top + 143) return original;
-        int width = capacity == 12 ? 44 : 26;
-        return !(mouseX >= left - width - 2 && mouseX < left - 2
-            || mouseX >= left + this.imageWidth + 2 && mouseX < left + this.imageWidth + width + 2);
+        if (capacity == 0) {
+            return original;
+        }
+        double localX = mouseX - left;
+        double localY = mouseY - top;
+        if (PocketLayout.containsPocket(
+            capacity,
+            this.imageWidth,
+            PocketSlot.SCREEN_PANEL_TOP,
+            localX,
+            localY
+        )) {
+            return false;
+        }
+        return original;
     }
 }

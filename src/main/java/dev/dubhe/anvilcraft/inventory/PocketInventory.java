@@ -1,22 +1,30 @@
 package dev.dubhe.anvilcraft.inventory;
 
 import com.mojang.serialization.Codec;
+import dev.dubhe.anvilcraft.init.ModAttributes;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
-import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.Mth;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
 
 public class PocketInventory extends SimpleContainer {
-    public static final int MAX_SIZE = 12;
+    /**
+     * 菜单槽位上限，而不是默认容量：菜单槽位索引不能在运行期增删，因此按上限一次性注册，
+     * 实际可用格数由 {@code pocket_count} 属性决定。快照与同步也按此上限收发。
+     */
+    public static final int MAX_SIZE = 32;
     public static final Codec<PocketInventory> CODEC = ItemStack.OPTIONAL_CODEC.listOf()
         .xmap(PocketInventory::new, PocketInventory::snapshot);
     public static final StreamCodec<RegistryFriendlyByteBuf, PocketInventory> STREAM_CODEC = ItemStack.OPTIONAL_STREAM_CODEC
@@ -38,13 +46,56 @@ public class PocketInventory extends SimpleContainer {
     }
 
     public static int capacity(Player player) {
-        ItemStack legs = player.getItemBySlot(EquipmentSlot.LEGS);
-        if (legs.is(ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS)) return 12;
-        return legs.is(ModItems.POCKETS_LEGGINGS) ? 6 : 0;
+        AttributeInstance instance = player.getAttribute(ModAttributes.POCKET_COUNT);
+        if (instance == null) {
+            return 0;
+        }
+        return Mth.clamp(Mth.floor(instance.getValue()), 0, MAX_SIZE);
     }
 
-    public static boolean isLocked(Player player) {
-        return capacity(player) > 0 && !get(player).isEmpty();
+    /**
+     * 判断更换护腿是否会丢失已占用的口袋。只有「本次换装后仍会超出的物品」才算丢失，
+     * 因此从不提供容量的护腿换成另一件普通护腿不会被拦截。
+     *
+     * @param target 将要穿上的护腿，取出时为 {@link ItemStack#EMPTY}
+     */
+    public static boolean blocksLeggingsChange(Player player, ItemStack target) {
+        int next = Mth.clamp(capacityWithoutLeggings(player) + pocketCountOf(target), 0, MAX_SIZE);
+        PocketInventory pockets = get(player);
+        for (int slot = next; slot < MAX_SIZE; slot++) {
+            if (!pockets.getItem(slot).isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 读取一件物品在护腿槽能提供的口袋数量。走属性修饰符而不是读物品字段，
+     * 使第三方提供的护腿同样被正确识别。
+     */
+    public static int pocketCountOf(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return 0;
+        }
+        return Mth.clamp(Mth.floor(PocketInventory.pocketCountOf(stack.getAttributeModifiers())), 0, MAX_SIZE);
+    }
+
+    private static double pocketCountOf(ItemAttributeModifiers modifiers) {
+        double total = 0;
+        for (ItemAttributeModifiers.Entry entry : modifiers.modifiers()) {
+            if (entry.attribute().value() != ModAttributes.POCKET_COUNT.get()
+                || !entry.slot().test(EquipmentSlot.LEGS)
+                || entry.modifier().operation() != AttributeModifier.Operation.ADD_VALUE) {
+                continue;
+            }
+            total += entry.modifier().amount();
+        }
+        return total;
+    }
+
+    private static int capacityWithoutLeggings(Player player) {
+        return capacity(player) - pocketCountOf(player.getItemBySlot(EquipmentSlot.LEGS));
     }
 
     public static List<ItemStack> items(Player player) {

@@ -741,6 +741,7 @@
   "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.u_i_settings.goggle_info_activation_mode.wearing_or_holding_hammer": "When Wearing or Holding Hammer",
   "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_server_config.overworld_sky_mode.special": "Special",
   "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_server_config.overworld_sky_mode.vanilla": "Vanilla",
+  "attribute.name.anvilcraft.pocket_count": "Pocket Count",
   "block.anvilcraft.acceleration_ring": "Acceleration Ring",
   "block.anvilcraft.activator_sliding_rail": "Activator Sliding Rail",
   "block.anvilcraft.active_silencer": "Active Silencer",

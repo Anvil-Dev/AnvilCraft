@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import dev.dubhe.anvilcraft.inventory.PocketLayout;
 import dev.dubhe.anvilcraft.inventory.PocketSlot;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.Slot;
@@ -21,7 +22,11 @@ abstract class CreativePocketSlotMixin extends Slot {
 
     @ModifyReturnValue(method = "isActive", at = @At("RETURN"))
     private boolean anvilcraft$positionPockets(boolean active) {
-        if (this.target instanceof PocketSlot pocket) this.x = pocket.x < 0 ? pocket.x : pocket.x + 19;
+        if (this.target instanceof PocketSlot pocket) {
+            pocket.updatePosition();
+            this.x = pocket.x < 0 ? pocket.x : pocket.x + PocketLayout.CREATIVE_X_SHIFT;
+            this.y = pocket.y + PocketLayout.CREATIVE_Y_SHIFT;
+        }
         return active;
     }
 }

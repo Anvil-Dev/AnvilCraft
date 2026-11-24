@@ -29,6 +29,9 @@ abstract class InventoryMenuMixin extends AbstractContainerMenu {
 
     @Inject(method = "quickMoveStack", at = @At("HEAD"), cancellable = true)
     private void anvilcraft$lockLeggings(Player player, int index, CallbackInfoReturnable<ItemStack> cir) {
-        if (index == 7 && PocketInventory.isLocked(player)) cir.setReturnValue(ItemStack.EMPTY);
+        // 快速移动护腿槽只会把护腿取出，按取出后判定是否丢失口袋。
+        if (index == 7 && PocketInventory.blocksLeggingsChange(player, ItemStack.EMPTY)) {
+            cir.setReturnValue(ItemStack.EMPTY);
+        }
     }
 }

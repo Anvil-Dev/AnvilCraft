@@ -6,8 +6,19 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 public class PocketSlot extends Slot {
+    private static final int HIDDEN_X = -10000;
+    /**
+     * 普通物品栏的 GUI 宽度与口袋面板顶位，作为槽位坐标的统一基准。
+     * 创造界面尺寸不同，其平移量见 {@link PocketLayout#CREATIVE_X_SHIFT} 与 {@link PocketLayout#CREATIVE_Y_SHIFT}。
+     */
+    public static final int SCREEN_IMAGE_WIDTH = 176;
+    public static final int SCREEN_PANEL_TOP = 70;
     private final Player owner;
     private final int pocketIndex;
+    private int cachedCapacity = -1;
+    private PocketLayout leftLayout;
+    private PocketLayout rightLayout;
+    private boolean active;
 
     public PocketSlot(Player owner, int index) {
         super(new Access(owner), index, 0, 84 + index % 3 * 18);
@@ -16,18 +27,46 @@ public class PocketSlot extends Slot {
         this.updatePosition();
     }
 
+    /**
+     * 按当前容量重算槽位坐标。布局只在容量变化时重建，避免每帧重复分配记录。
+     */
     public void updatePosition() {
         int capacity = PocketInventory.capacity(this.owner);
-        int perSide = capacity == 12 ? 6 : 3;
-        int width = capacity == 12 ? 44 : 26;
+        if (this.cachedCapacity != capacity) {
+            this.cachedCapacity = capacity;
+            this.leftLayout = PocketLayout.of(capacity, 0, SCREEN_IMAGE_WIDTH, SCREEN_PANEL_TOP);
+            this.rightLayout = PocketLayout.of(capacity, 1, SCREEN_IMAGE_WIDTH, SCREEN_PANEL_TOP);
+        }
+        this.active = this.pocketIndex < capacity;
+        if (!this.active) {
+            this.hide();
+            return;
+        }
+        int perSide = (capacity + 1) / 2;
         int side = this.pocketIndex / perSide;
-        this.x = (side == 0 ? -width - 2 : 178) + 5 + (this.pocketIndex % perSide / 3) * 18;
+        int local = this.pocketIndex % perSide;
+        PocketLayout layout = side == 0 ? this.leftLayout : this.rightLayout;
+        if (layout == null || local >= layout.slots()) {
+            this.active = false;
+            this.hide();
+            return;
+        }
+        this.x = layout.slotItemX(local);
+        this.y = layout.slotItemY(local);
+    }
+
+    private void hide() {
+        this.x = HIDDEN_X;
+        this.y = 0;
     }
 
     @Override
     public boolean isActive() {
-        this.updatePosition();
-        return this.pocketIndex < PocketInventory.capacity(this.owner);
+        int capacity = PocketInventory.capacity(this.owner);
+        if (capacity != this.cachedCapacity) {
+            this.updatePosition();
+        }
+        return this.active;
     }
 
     @Override
@@ -35,9 +74,13 @@ public class PocketSlot extends Slot {
         return this.isActive();
     }
 
+    /**
+     * 可视性由 {@code isActive} 与 {@code Access#stillValid} 双重约束，此处不再重复判定，
+     * 避免在容器交互路径上多做一次玩家身份比较。
+     */
     @Override
     public boolean mayPickup(Player player) {
-        return player == this.owner && this.isActive();
+        return this.isActive();
     }
 
     private record Access(Player owner) implements Container {

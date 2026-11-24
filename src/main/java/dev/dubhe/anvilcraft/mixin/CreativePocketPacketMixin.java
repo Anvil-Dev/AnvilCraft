@@ -37,7 +37,7 @@ abstract class CreativePocketPacketMixin {
         int slot = packet.slotNum();
         if (slot >= this.player.inventoryMenu.slots.size()
             || slot >= 0 && this.player.inventoryMenu.getSlot(slot) instanceof PocketSlot pocket && !pocket.isActive()
-            || slot == 7 && PocketInventory.isLocked(this.player)) {
+            || slot == 7 && PocketInventory.blocksLeggingsChange(this.player, packet.itemStack())) {
             if (slot >= 0 && slot < this.player.inventoryMenu.slots.size()) {
                 ItemStack serverStack = this.player.inventoryMenu.getSlot(slot).getItem().copy();
                 this.player.connection.send(new ClientboundContainerSetSlotPacket(
