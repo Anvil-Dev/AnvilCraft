@@ -5,7 +5,7 @@
   "experience": 1.0,
   "group": "anvilcraft:titanium_ingot",
   "ingredient": {
-    "item": "anvilcraft:raw_titanium"
+    "tag": "c:raw_materials/titanium"
   },
   "result": {
     "count": 1,

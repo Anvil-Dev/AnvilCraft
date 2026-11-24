@@ -14,6 +14,7 @@ import dev.dubhe.anvilcraft.api.itemhandler.VoidItemHandler;
 import dev.dubhe.anvilcraft.block.container.storage.HyperdimensionStorageStationBlock;
 import dev.dubhe.anvilcraft.block.container.storage.LargeCrateBlock;
 import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
+import dev.dubhe.anvilcraft.block.entity.ChutePlates;
 import dev.dubhe.anvilcraft.block.entity.FeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
@@ -52,16 +53,17 @@ public class CapabilitiesEventListener {
                 (level, pos, state, blockEntity, side) -> new MilkCauldronWrapper(level, pos),
                 ModBlocks.MILK_CAULDRON.get());
         }
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.CHUTE.get(), ChutePlates.Holder::getPort);
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.SIMPLE_CHUTE.get(), ChutePlates.Holder::getPort);
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.SIMPLE_MAGNETIC_CHUTE.get(),
+            ChutePlates.Holder::getPort);
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.MAGNETIC_CHUTE.get(), ChutePlates.Holder::getPort);
         List.of(
             ModBlockEntities.BATCH_CRAFTER.get(),
             ModBlockEntities.BATCH_CUTTER.get(),
             ModBlockEntities.CHARGER.get(),
             ModBlockEntities.DISCHARGER.get(),
-            ModBlockEntities.CHUTE.get(),
-            ModBlockEntities.SIMPLE_CHUTE.get(),
-            ModBlockEntities.SIMPLE_MAGNETIC_CHUTE.get(),
             ModBlockEntities.ITEM_COLLECTOR.get(),
-            ModBlockEntities.MAGNETIC_CHUTE.get(),
             ModBlockEntities.OVERFLOW_CHUTE.get(),
             ModBlockEntities.ITEM_SPLITTER.get(),
             ModBlockEntities.CONFINEMENT_CHAMBER.get(),

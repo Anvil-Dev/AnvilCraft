@@ -223,6 +223,7 @@ import dev.dubhe.anvilcraft.block.item.FrostMetalBlockItem;
 import dev.dubhe.anvilcraft.block.item.HasMobBlockItem;
 import dev.dubhe.anvilcraft.block.item.HeatCollectorBlockItem;
 import dev.dubhe.anvilcraft.block.item.HeatableBlockItem;
+import dev.dubhe.anvilcraft.block.item.HeavyIronPlateBlockItem;
 import dev.dubhe.anvilcraft.block.item.HeliostatsItem;
 import dev.dubhe.anvilcraft.block.item.HyperdimensionStorageStationBlockItem;
 import dev.dubhe.anvilcraft.block.item.InfiniteCollectorBlockItem;
@@ -1283,7 +1284,7 @@ public class ModBlocks {
 
     public static final BlockEntry<ItemCollectorBlock> ITEM_COLLECTOR = REGISTRUM.block("item_collector", ItemCollectorBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(properties -> properties.isValidSpawn(Blocks::never))
+        .properties(properties -> properties.isValidSpawn(Blocks::never).explosionResistance(15F))
         .simpleItem()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1827,7 +1828,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> CHUTE = REGISTRUM.block("chute", ChuteBlock::new)
         .initialProperties(() -> Blocks.END_STONE)
         .properties(properties -> properties.sound(net.minecraft.world.level.block.SoundType.METAL))
-        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(properties -> properties.explosionResistance(6F).noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(ChuteBlockItem::new)
         .onRegister(blockItem -> Item.BY_BLOCK.put(ModBlocks.SIMPLE_CHUTE.get(), blockItem))
@@ -1862,7 +1863,7 @@ public class ModBlocks {
     public static final BlockEntry<SimpleChuteBlock> SIMPLE_CHUTE = REGISTRUM.block("simple_chute", SimpleChuteBlock::new)
         .initialProperties(() -> Blocks.END_STONE)
         .properties(properties -> properties.sound(net.minecraft.world.level.block.SoundType.METAL))
-        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(properties -> properties.explosionResistance(6F).noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((tables, block) -> tables.dropOther(block, ModBlocks.CHUTE))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.ENCHANTMENT_POWER_TRANSMITTER)
@@ -1874,7 +1875,7 @@ public class ModBlocks {
         )
         .initialProperties(() -> Blocks.END_STONE)
         .properties(properties -> properties.sound(net.minecraft.world.level.block.SoundType.METAL))
-        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(properties -> properties.explosionResistance(6F).noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((tables, block) -> tables.dropOther(block, ModBlocks.MAGNETIC_CHUTE))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.ENCHANTMENT_POWER_TRANSMITTER)
@@ -2708,7 +2709,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(properties -> properties.strength(5.0f, 1200f))
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .simpleItem()
+        .item(HeavyIronPlateBlockItem::new).build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
         .recipe(RegistrumBlockRecipeLoader::heavyIronPlate)
         .register();

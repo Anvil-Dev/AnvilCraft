@@ -57,6 +57,7 @@ import java.util.UUID;
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class ClientEventListener {
     private static boolean wasAttackDown = false;
+    private static boolean attackReleased;
 
     /**
      * 按下时被创造背包 BundleLike 分支消费过的标记：松开时需取消 vanilla
@@ -117,6 +118,11 @@ public class ClientEventListener {
 
     @SubscribeEvent
     public static void onKeyPress(InputEvent.Key event) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (event.getAction() == InputConstants.RELEASE
+            && minecraft.options.keyAttack.getKey().equals(InputConstants.getKey(event.getKey(), event.getScanCode()))) {
+            onAttackReleased(minecraft);
+        }
         if (ModKeyMappings.shouldIgnoreForDebugChord(event.getAction())) return;
         if (event.getAction() == InputConstants.PRESS
             && ModKeyMappings.TOGGLE_GOGGLE.get().isActiveAndMatches(InputConstants.getKey(event.getKey(), event.getScanCode()))) {
@@ -194,18 +200,27 @@ public class ClientEventListener {
     public static void onMouseButton(InputEvent.MouseButton.Post event) {
         Minecraft minecraft = Minecraft.getInstance();
         if (event.getAction() == InputConstants.RELEASE && minecraft.options.keyAttack.matchesMouse(event.getButton())) {
-            sendDragonRodStopDevourPacket(minecraft);
-            wasAttackDown = false;
+            onAttackReleased(minecraft);
         }
     }
 
     private static void handleAttackKeyRelease() {
         Minecraft minecraft = Minecraft.getInstance();
         boolean attackDown = minecraft.options.keyAttack.isDown();
-        if (wasAttackDown && !attackDown) {
+        // 原版可能在松键之后才处理排队的单击，需在本刻处理完输入后再结束预热。
+        boolean releasedWithRod = attackReleased && minecraft.player != null
+            && minecraft.player.isHolding(ModItems.TRANSCENDENCE_DRAGON_ROD.asItem());
+        if (!attackDown && (wasAttackDown || releasedWithRod)) {
             sendDragonRodStopDevourPacket(minecraft);
         }
         wasAttackDown = attackDown;
+        attackReleased = false;
+    }
+
+    private static void onAttackReleased(Minecraft minecraft) {
+        sendDragonRodStopDevourPacket(minecraft);
+        wasAttackDown = false;
+        attackReleased = true;
     }
 
     private static void sendDragonRodStopDevourPacket(Minecraft minecraft) {

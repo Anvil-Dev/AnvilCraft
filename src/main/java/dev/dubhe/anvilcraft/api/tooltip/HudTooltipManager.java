@@ -130,7 +130,7 @@ public class HudTooltipManager {
         int screenWidth,
         int screenHeight
     ) {
-        if (state == null) {
+        if (state == null || (CompatUtil.HAS_JADE.get() && !AnvilCraftClient.CONFIG.ui.showGoggleTooltipWhenJadePresent)) {
             return;
         }
         final int tooltipPosX = screenWidth / 2 + 10;
@@ -141,11 +141,7 @@ public class HudTooltipManager {
             return;
         }
         List<Component> tooltip = currentProvider.tooltip(level, pos, state);
-        if (
-            (CompatUtil.HAS_JADE.get() && !AnvilCraftClient.CONFIG.ui.showGoggleTooltipWhenJadePresent)
-            || tooltip == null
-            || tooltip.isEmpty()
-        ) {
+        if (tooltip == null || tooltip.isEmpty()) {
             return;
         }
         renderTooltipWithItemIcon(
@@ -165,7 +161,7 @@ public class HudTooltipManager {
      * 渲染方块实体的tooltip
      */
     public void renderTooltip(GuiGraphics guiGraphics, BlockEntity entity, float partialTick, int screenWidth, int screenHeight) {
-        if (entity == null) {
+        if (entity == null || (CompatUtil.HAS_JADE.get() && !AnvilCraftClient.CONFIG.ui.showGoggleTooltipWhenJadePresent)) {
             return;
         }
         final int tooltipPosX = screenWidth / 2 + 10;
@@ -175,12 +171,15 @@ public class HudTooltipManager {
         if (currentProvider == null) {
             return;
         }
+        if (currentProvider instanceof LargeCauldronTooltipProvider cauldron) {
+            TooltipRenderHelper.renderComponentsWithItemIcon(
+                guiGraphics, font, cauldron.icon(entity), cauldron.components(entity, screenWidth), tooltipPosX, tooltipPosY,
+                BACKGROUND_COLOR, BORDER_COLOR_TOP, BORDER_COLOR_BOTTOM
+            );
+            return;
+        }
         List<Component> tooltip = currentProvider.tooltip(entity);
-        if (
-            (CompatUtil.HAS_JADE.get() && !AnvilCraftClient.CONFIG.ui.showGoggleTooltipWhenJadePresent)
-            || tooltip == null
-            || tooltip.isEmpty()
-        ) {
+        if (tooltip == null || tooltip.isEmpty()) {
             return;
         }
         if (currentProvider instanceof StoragePortTooltipProvider port) {

@@ -1,7 +1,7 @@
 {
   "type": "minecraft:stonecutting",
   "ingredient": {
-    "item": "anvilcraft:flint_block"
+    "tag": "c:storage_blocks/flint"
   },
   "result": {
     "count": 2,

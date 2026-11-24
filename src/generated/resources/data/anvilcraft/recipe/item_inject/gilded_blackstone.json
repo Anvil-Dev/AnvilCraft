@@ -8,7 +8,7 @@
   },
   "ingredients": [
     {
-      "items": "minecraft:gold_ingot"
+      "items": "#c:ingots/gold"
     }
   ]
 }

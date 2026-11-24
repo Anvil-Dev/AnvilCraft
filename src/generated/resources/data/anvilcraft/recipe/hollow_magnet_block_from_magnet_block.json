@@ -3,7 +3,7 @@
   "category": "redstone",
   "key": {
     "A": {
-      "item": "anvilcraft:magnet_block"
+      "tag": "c:storage_blocks/magnet"
     }
   },
   "pattern": [

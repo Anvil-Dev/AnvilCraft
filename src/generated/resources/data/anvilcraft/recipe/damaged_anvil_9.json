@@ -6,7 +6,7 @@
       "item": "anvilcraft:heavy_iron_block"
     },
     "B": {
-      "item": "minecraft:iron_block"
+      "tag": "c:storage_blocks/iron"
     }
   },
   "pattern": [

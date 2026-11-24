@@ -6,7 +6,7 @@
       "tag": "minecraft:planks"
     },
     "B": {
-      "item": "anvilcraft:resin"
+      "tag": "c:resin"
     }
   },
   "pattern": [

@@ -2,10 +2,10 @@
   "type": "anvilcraft:jewel_crafting",
   "ingredients": [
     {
-      "item": "anvilcraft:silver_ingot"
+      "tag": "c:ingots/silver"
     },
     {
-      "item": "anvilcraft:sapphire_block"
+      "tag": "c:storage_blocks/sapphire"
     }
   ],
   "result": {

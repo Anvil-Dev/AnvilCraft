@@ -130,34 +130,21 @@ public record HasCauldron(
     }
 
     @Override
-    @SuppressWarnings("RedundantIfStatement")
     public boolean test(InWorldRecipeContext context) {
-        /*
-         * 由于过去在此出现了非常多的bug，在此罗列，以供测试：
-         * 1. 时移不完成宝石转化
-         * 2. 无水执行不消耗水的物品膨发
-         * 3. 流体不足执行配方
-         * 4. 流体不满1B不执行配方
-         * 4. 压榨重置炼药锅——永远无法达到满锅的真实
-         * 5. 一桶原油完成多份余烬金属的合成
-         * 6. 锅满了，仍可以熔融宝石，溢出浪费
-         * 7. 流体可以相互替代使用
-         */
+        if (!this.hasValidAmounts()) {
+            return false;
+        }
 
-        // 消耗为负 否决
-        if (this.consume() < 0) return false;
-        // 概率不在0-1之间 否决
-        if (this.chance() < 0 || this.chance() > 1) return false;
-        // 消耗量比允许的现有量大 否决
-        if (this.fluid().amount().flatMap(MinMaxBounds.Ints::max).map(max -> this.consume() > max).orElse(false)) return false;
-
-        // 不是锅 否决
         BlockPos pos = BlockPos.containing(context.getPos().add(this.offset()));
         BlockCache cache = context.computeIfAbsent(BlockCache.BLOCK_CACHE);
         IEntityCauldron entityCauldron = findEntityCauldron(context, pos);
         BlockState state = cache.getBlockState(pos);
-        if (!state.is(BlockTags.CAULDRONS) && entityCauldron == null) return false;
-        if (this.hasMultipleFluidOutputs() && !HasCauldron.supportsMultipleFluidOutputs(cache, pos)) return false;
+        if (!state.is(BlockTags.CAULDRONS) && entityCauldron == null) {
+            return false;
+        }
+        if (this.hasMultipleFluidOutputs() && !HasCauldron.supportsMultipleFluidOutputs(cache, pos)) {
+            return false;
+        }
 
         if (cache.getBlockEntity(pos) instanceof LargeCauldronBlockEntity cauldron) {
             if (
@@ -170,51 +157,56 @@ public record HasCauldron(
             return cauldron.testFluidRecipe(context, this);
         }
 
-        // 消耗/产生比锅容量大 否决
+        return this.matchesSingleTank(cache, pos, entityCauldron);
+    }
+
+    /** 检查方块内单层流体的需求和剩余容量，供鱼缸预览读取当前流体。 */
+    public boolean matchesSingleTank(BlockCache cache, BlockPos pos) {
+        return this.hasValidAmounts() && !this.hasMultipleFluidOutputs()
+            && cache.getBlockState(pos).is(BlockTags.CAULDRONS) && this.matchesSingleTank(cache, pos, null);
+    }
+
+    private boolean matchesSingleTank(BlockCache cache, BlockPos pos, @Nullable IEntityCauldron entityCauldron) {
         double capacity = HasCauldron.getCapacity(cache, pos, entityCauldron);
-        if (this.consume() > capacity || this.produce() > capacity) return false;
-
-        // 锅中流体检查不通过 否决
-        FluidStack curFluid = HasCauldron.getCurFluidStack(cache, pos, entityCauldron);
-        if (this.hasCheck() && !this.matchesFluid(curFluid)) return false;
-
-        // 要求特定流体、不消耗且存量不足1000mB 否决（空锅条件与不要求流体的配方不受约束）
-        if (this.hasCheck() && !this.requiresEmptyCauldron() && this.consume() == 0
-            && HasCauldron.getCur(cache, pos, entityCauldron) < 1000) return false;
-
-        // 如果锅必须为可点燃锅
-        if (this.ignited) {
-            if (entityCauldron != null) {
-                if (!entityCauldron.anvilcraft$isIgnited()) return false;
-            } else {
-                if (!(cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron)) return false;
-                if (!cauldron.isIgnited(cache, pos)) return false;
-            }
-        }
-
-        // 不消耗且不产生 通过
-        if (this.consume() == 0 && this.produce() == 0) return true;
-
-        // 消耗量大于存量 否决
-        double cur = HasCauldron.getCur(cache, pos, entityCauldron);
-        if (this.consume() > cur) return false;
-
-        // 最终总量超出容量 否决
-        double afterConsume = cur - this.consume();
-        if (afterConsume + this.produce() > capacity) return false;
-
-        // 锅中有流体 且 转换有效 且 前后流体类型不同 且 锅中流体没有消耗完 否决
-        if (
-            cur > 0
-            && !this.transforms().isEmpty()
-            && !FluidStack.isSameFluidSameComponents(curFluid, this.transforms().getFirst())
-            && afterConsume != 0
-        ) {
+        if (this.consume() > capacity || this.produce() > capacity) {
             return false;
         }
+        FluidStack curFluid = HasCauldron.getCurFluidStack(cache, pos, entityCauldron);
+        if (this.hasCheck() && !this.matchesFluid(curFluid)) {
+            return false;
+        }
+        // 单层锅中只检查流体、不消耗流体的配方也需要一桶存量。
+        if (this.hasCheck() && !this.requiresEmptyCauldron() && this.consume() == 0
+            && HasCauldron.getCur(cache, pos, entityCauldron) < 1000) {
+            return false;
+        }
+        if (this.ignited) {
+            if (entityCauldron != null) {
+                if (!entityCauldron.anvilcraft$isIgnited()) {
+                    return false;
+                }
+            } else if (!(cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron) || !cauldron.isIgnited(cache, pos)) {
+                return false;
+            }
+        }
+        if (this.consume() == 0 && this.produce() == 0) {
+            return true;
+        }
+        double cur = HasCauldron.getCur(cache, pos, entityCauldron);
+        if (this.consume() > cur) {
+            return false;
+        }
+        double afterConsume = cur - this.consume();
+        if (afterConsume + this.produce() > capacity) {
+            return false;
+        }
+        return cur <= 0 || this.transforms().isEmpty()
+            || FluidStack.isSameFluidSameComponents(curFluid, this.transforms().getFirst()) || afterConsume == 0;
+    }
 
-        // 全部通过
-        return true;
+    private boolean hasValidAmounts() {
+        return !(this.consume() < 0 || this.chance() < 0 || this.chance() > 1
+            || this.fluid().amount().flatMap(MinMaxBounds.Ints::max).map(max -> this.consume() > max).orElse(false));
     }
 
     @Override

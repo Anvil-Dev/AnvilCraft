@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.client.renderer.OverworldLikeOrbitalSkyRenderer;
 import dev.dubhe.anvilcraft.client.renderer.entity.model.EquipmentModels;
 import dev.dubhe.anvilcraft.client.renderer.item.CelestialForgingAnvilItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.ItemSlotClipping;
+import dev.dubhe.anvilcraft.client.renderer.item.MonolithItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.RuinsBlockItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SmartBlockPlacerItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.decoration.TerminalInsertionDecoration;
@@ -113,6 +114,8 @@ public class AnvilCraftClient {
 
     public static void registerClientExtensions(RegisterClientExtensionsEvent e) {
         ModFluids.onRegisterFluidType(e);
+        e.registerItem(new MonolithItemRenderer.ItemExtensions(), ModBlocks.MONOLITH_CORE.asItem(), ModBlocks.MONOLITH_LINE.asItem(),
+            ModBlocks.GIANT_MONOLITH_CORE.asItem(), ModBlocks.GIANT_MONOLITH_LINE.asItem());
         e.registerItem(new RuinsBlockItemRenderer.ItemExtensions(), ModBlocks.RUINS_BLOCK.asItem());
         e.registerItem(new CelestialForgingAnvilItemRenderer.ItemExtensions(), ModBlocks.CELESTIAL_FORGING_ANVIL.asItem());
         e.registerItem(new SmartBlockPlacerItemRenderer.ItemExtensions(), ModBlocks.SMART_BLOCK_PLACER.asItem());

@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "A": {
-      "item": "minecraft:iron_ingot"
+      "tag": "c:ingots/iron"
     },
     "B": {
       "item": "anvilcraft:magnetoelectric_core"

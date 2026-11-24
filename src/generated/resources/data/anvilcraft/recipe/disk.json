@@ -6,10 +6,10 @@
       "item": "anvilcraft:hardened_resin"
     },
     "B": {
-      "item": "minecraft:iron_ingot"
+      "tag": "c:ingots/iron"
     },
     "C": {
-      "item": "anvilcraft:magnet_ingot"
+      "tag": "c:ingots/magnet"
     }
   },
   "pattern": [

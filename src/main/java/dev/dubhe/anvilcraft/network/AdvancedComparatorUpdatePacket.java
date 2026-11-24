@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.network;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.anvilcraft.lib.v2.network.packet.IServerboundPacket;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.AdvancedComparatorBlock;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
 import dev.dubhe.anvilcraft.inventory.AdvancedComparatorMenu;
 import io.netty.buffer.ByteBuf;
@@ -15,8 +16,7 @@ public record AdvancedComparatorUpdatePacket(
     boolean outputInvert,
     boolean redstoneControl,
     int highLimit,
-    int lowLimit,
-    int inputSignal
+    int lowLimit
 ) implements IServerboundPacket {
     public static final Type<AdvancedComparatorUpdatePacket> TYPE = IPacket.type(AnvilCraft.of("advanced_comparator_update"));
     public static final StreamCodec<ByteBuf, AdvancedComparatorUpdatePacket> STREAM_CODEC = StreamCodec.composite(
@@ -30,29 +30,29 @@ public record AdvancedComparatorUpdatePacket(
         AdvancedComparatorUpdatePacket::highLimit,
         ByteBufCodecs.VAR_INT,
         AdvancedComparatorUpdatePacket::lowLimit,
-        ByteBufCodecs.VAR_INT,
-        AdvancedComparatorUpdatePacket::inputSignal,
         AdvancedComparatorUpdatePacket::new
     );
 
     @Override
     public Type<AdvancedComparatorUpdatePacket> type() {
-        return TYPE;
+        return AdvancedComparatorUpdatePacket.TYPE;
     }
 
     @Override
     public void handleOnServer(Player player) {
-        if (player.isSpectator()) {
+        if (player.isSpectator() || this.compareMode < 0 || this.compareMode >= AdvancedComparatorBlockEntity.Mode.values().length) {
             return;
         }
-        if (!player.hasContainerOpen()) return;
-        if (!(player.containerMenu instanceof AdvancedComparatorMenu menu)) return;
-        AdvancedComparatorBlockEntity repeater = menu.getBlockEntity();
-        repeater.setCompareMode(AdvancedComparatorBlockEntity.Mode.fromIndex(this.compareMode));
-        repeater.setOutputInvert(this.outputInvert);
-        repeater.setRedstoneControl(this.redstoneControl);
-        repeater.setHighLimit(this.highLimit);
-        repeater.setLowLimit(this.lowLimit);
-        repeater.setInputtingSignal(this.inputSignal);
+        if (!(player.containerMenu instanceof AdvancedComparatorMenu menu) || !menu.stillValid(player)) {
+            return;
+        }
+        AdvancedComparatorBlockEntity comparator = menu.getBlockEntity();
+        comparator.setCompareMode(AdvancedComparatorBlockEntity.Mode.fromIndex(this.compareMode));
+        comparator.setOutputInvert(this.outputInvert);
+        comparator.setRedstoneControl(this.redstoneControl);
+        comparator.setHighLimit(this.highLimit);
+        comparator.setLowLimit(this.lowLimit);
+        comparator.setChanged();
+        player.level().scheduleTick(comparator.getBlockPos(), comparator.getBlockState().getBlock(), AdvancedComparatorBlock.getDelay());
     }
 }

@@ -1,7 +1,7 @@
 {
   "type": "minecraft:stonecutting",
   "ingredient": {
-    "item": "anvilcraft:frost_metal_block"
+    "tag": "c:storage_blocks/frost_metal"
   },
   "result": {
     "count": 4,

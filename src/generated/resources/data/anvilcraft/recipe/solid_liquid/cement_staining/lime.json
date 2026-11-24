@@ -20,7 +20,7 @@
   ],
   "ingredients": [
     {
-      "items": "minecraft:lime_dye"
+      "items": "#c:dyes/lime"
     }
   ],
   "max_efficiency": 1,

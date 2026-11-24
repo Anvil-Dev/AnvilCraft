@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ChutePlates;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -14,6 +15,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -22,7 +24,6 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
@@ -39,6 +40,8 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -47,6 +50,8 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class SimpleChuteBlock
     extends BaseEntityBlock
@@ -72,7 +77,7 @@ public class SimpleChuteBlock
         Shapes.join(Block.box(0, 4, 4, 12, 12, 12), Block.box(2, 8, 2, 14, 16, 14), BooleanOp.OR);
 
     public SimpleChuteBlock(Properties properties) {
-        super(properties);
+        super(properties.dynamicShape());
         this.registerDefaultState(this.stateDefinition
             .any()
             .setValue(FACING, Direction.DOWN)
@@ -192,7 +197,22 @@ public class SimpleChuteBlock
     }
 
     @Override
+    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        return ChutePlates.withPlateDrops(super.getDrops(state, params), params);
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        ChutePlates covers = ChutePlates.at(level, pos);
+        return covers != null ? covers.takePlate(player, hit) : super.useWithoutItem(state, level, pos, player, hit);
+    }
+
+    @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return ChutePlates.withPlates(level, pos, getChuteShape(state));
+    }
+
+    private static VoxelShape getChuteShape(BlockState state) {
         Direction facing = state.getValue(FACING);
         if (!state.getValue(TALL)) {
             return switch (facing) {
@@ -248,9 +268,7 @@ public class SimpleChuteBlock
         };
         BlockState facingState = level.getBlockState(pos.relative(newFacing));
         if (ChuteBlock.outputsToward(facingState, newFacing.getOpposite())) {
-            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
-            level.levelEvent(2001, pos, Block.getId(oldState));
-            Block.dropResources(oldState, level, pos);
+            ChuteBlock.destroyFacingConflict(level, pos, player);
             return true;
         }
         HammerRotateBehavior.DEFAULT.change(player, pos, level, anvilHammer);
@@ -279,7 +297,11 @@ public class SimpleChuteBlock
         BlockState result = level.getBlockState(pos);
 
         // 遍历六个方向 获取指向自己的溜槽
+        ChutePlates covers = ChutePlates.at(level, pos);
         for (Direction dir : Direction.values()) {
+            if (covers != null && covers.getPlates().contains(dir)) {
+                continue;
+            }
             BlockPos neighborPos = pos.relative(dir);
             BlockState neighborState = level.getBlockState(neighborPos);
             if (ChuteBlock.isChuteBlock(neighborState)) {

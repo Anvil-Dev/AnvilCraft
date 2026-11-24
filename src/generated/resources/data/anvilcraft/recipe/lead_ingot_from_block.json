@@ -4,7 +4,7 @@
   "group": "anvilcraft:lead_ingot",
   "ingredients": [
     {
-      "item": "anvilcraft:lead_block"
+      "tag": "c:storage_blocks/lead"
     }
   ],
   "result": {

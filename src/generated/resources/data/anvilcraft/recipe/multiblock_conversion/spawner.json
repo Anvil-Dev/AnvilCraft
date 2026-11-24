@@ -23,7 +23,7 @@
         "blocks": "anvilcraft:cursed_gold_block"
       },
       "A": {
-        "blocks": "minecraft:chain",
+        "blocks": "#c:chains",
         "properties": [
           {
             "axis": "x"
@@ -31,7 +31,7 @@
         ]
       },
       "B": {
-        "blocks": "minecraft:chain",
+        "blocks": "#c:chains",
         "properties": [
           {
             "axis": "z"
@@ -42,7 +42,7 @@
         "blocks": "minecraft:soul_fire"
       },
       "D": {
-        "blocks": "minecraft:chain",
+        "blocks": "#c:chains",
         "properties": [
           {
             "axis": "y"

@@ -20,7 +20,7 @@
   ],
   "ingredients": [
     {
-      "items": "minecraft:white_dye"
+      "items": "#c:dyes/white"
     }
   ],
   "max_efficiency": 1,

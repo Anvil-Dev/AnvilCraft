@@ -46,6 +46,8 @@ public class BlockTagLoader {
             .addTag(BlockTags.BUTTONS)
             .addTag(BlockTags.PRESSURE_PLATES)
             .addTag(BlockTags.FENCE_GATES)
+            .addTag(Tags.Blocks.PLAYER_WORKSTATIONS_CRAFTING_TABLES)
+            .addTag(Tags.Blocks.VILLAGER_JOB_SITES)
             .add(findResourceKey(Blocks.BELL))
             .add(findResourceKey(Blocks.REDSTONE_LAMP))
             .add(findResourceKey(Blocks.RAIL))

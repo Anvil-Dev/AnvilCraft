@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.init;
 
 import com.mojang.serialization.Codec;
+import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.dubhe.anvilcraft.api.amulet.AmuletRaffleProbability;
 import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.inventory.SmithingTemplateAdditions;
@@ -23,6 +24,9 @@ public class ModDataAttachments {
     public static final Supplier<AttachmentType<PocketInventory>> POCKETS = ATTACHMENT_TYPES.register(
         "pockets", () -> AttachmentType.builder(PocketInventory::new).serialize(PocketInventory.CODEC)
             .copyOnDeath().sync((holder, player) -> holder == player, PocketInventory.STREAM_CODEC).build());
+
+    public static final Supplier<AttachmentType<Vec3>> MAGNETIZED_ITEM_POSITION = ATTACHMENT_TYPES.register(
+        "magnetized_item_position", () -> AttachmentType.builder(() -> Vec3.ZERO).sync(StreamCodecUtil.VEC3).build());
 
     public static final Supplier<AttachmentType<Double>> VOID_WALK_DISTANCE = ATTACHMENT_TYPES.register(
         "void_walk_distance", () -> AttachmentType.builder(() -> 0d).serialize(Codec.DOUBLE).copyOnDeath().build());

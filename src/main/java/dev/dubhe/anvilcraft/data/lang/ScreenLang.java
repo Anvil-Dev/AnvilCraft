@@ -74,8 +74,8 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.transcendence_grindstone.penalty", "Penalty: %1$s / %2$s");
         provider.add(
             "screen.anvilcraft.transcendence_grindstone.modifier_slot.tooltip",
-            "Accepts gold ingots or blocks, books, weapons or tools, and empty small or large fluid tanks; "
-                + "leave empty to disenchant"
+            "Accepts gold ingots or blocks, books, weapons or tools, and fluid containers. "
+                + "Take the disenchanted item to fill a third-party container. Leave empty to disenchant"
         );
 
         provider.add("screen.anvilcraft.royal_steel_upgrade_smithing_template", "Royal Steel Upgrade");
@@ -122,11 +122,11 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.storage_port.storage", "Storage");
         provider.add("tooltip.anvilcraft.storage_port.unmarked", "No item marked");
 
-        provider.add("tooltip.anvilcraft.large_cauldron.inputs", "Input Items:");
-        provider.add("tooltip.anvilcraft.large_cauldron.outputs", "Output Items:");
-        provider.add("tooltip.anvilcraft.large_cauldron.fluids", "Fluids:");
-        provider.add("tooltip.anvilcraft.large_cauldron.burning", " burning");
-        provider.add("tooltip.anvilcraft.large_cauldron.will_process", " will be processed by %s");
+        provider.add("tooltip.anvilcraft.large_cauldron.burning", " (burning)");
+        provider.add("tooltip.anvilcraft.large_cauldron.fluids", "Fluids");
+        provider.add("tooltip.anvilcraft.large_cauldron.inputs", "Inputs");
+        provider.add("tooltip.anvilcraft.large_cauldron.outputs", "Outputs");
+        provider.add("tooltip.anvilcraft.large_cauldron.processing_step", "%1$s → %2$s");
 
         provider.add("tooltip.anvilcraft.redstone.title", "Redstone Stats:");
         provider.add("tooltip.anvilcraft.redstone.power", "  Power: %d");

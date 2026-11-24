@@ -42,6 +42,9 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
     protected boolean redstoneControl = false;
     protected int highLimit = 10;
     protected int lowLimit = 5;
+    private int windowOutput = 15;
+    // 信号查询使用结算后的强度，避免拖动滑块时提前改变同一刻内其他比较器采样的值。
+    private int publishedWindowOutput = 15;
     protected int inputtingSignal;
 
     public AdvancedComparatorBlockEntity(BlockPos pos, BlockState blockState) {
@@ -82,6 +85,8 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
         super.saveAdditional(tag, registries);
         CompoundTag data = this.constructDataNbt();
         data.putInt("InputSignal", this.inputtingSignal);
+        data.putInt("PublishedWindowOutput", this.publishedWindowOutput);
+        data.putBoolean("ComparisonHigh", this.state == State.OUTPUT_HIGH);
         tag.put("ExtraData", data);
     }
 
@@ -90,9 +95,13 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
         super.loadAdditional(tag, registries);
         CompoundTag data = tag.getCompound("ExtraData");
         this.readDataNbt(data);
-        // 以保存的实际输出恢复状态，抵消反相后保留迟滞区间内的记忆。
-        this.state = this.getBlockState().getValue(AdvancedComparatorBlock.POWERED) != this.outputInvert
-            ? State.OUTPUT_HIGH : State.OUTPUT_LOW;
+        this.inputtingSignal = data.getInt("InputSignal");
+        this.publishedWindowOutput = data.contains("PublishedWindowOutput")
+            ? Mth.clamp(data.getInt("PublishedWindowOutput"), 0, 15) : this.windowOutput;
+        // 窗口强度为零时指示灯无法区分比较结果。旧存档从指示灯和反相设置恢复迟滞记忆。
+        boolean high = data.contains("ComparisonHigh") ? data.getBoolean("ComparisonHigh")
+            : this.getBlockState().getValue(AdvancedComparatorBlock.POWERED) != this.outputInvert;
+        this.state = high ? State.OUTPUT_HIGH : State.OUTPUT_LOW;
     }
 
     public CompoundTag constructDataNbt() {
@@ -102,6 +111,7 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
         data.putBoolean("RedstoneControl", this.redstoneControl);
         data.putInt("HighLimit", this.highLimit);
         data.putInt("LowLimit", this.lowLimit);
+        data.putInt("WindowOutput", this.windowOutput);
         return data;
     }
 
@@ -111,7 +121,7 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
         this.redstoneControl = data.getBoolean("RedstoneControl");
         this.highLimit = data.getInt("HighLimit");
         this.lowLimit = data.getInt("LowLimit");
-        this.inputtingSignal = data.getInt("InputSignal");
+        this.setWindowOutput(data.contains("WindowOutput") ? data.getInt("WindowOutput") : 15);
         return this;
     }
 
@@ -126,6 +136,10 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
         if (this.getLevel() == null) return;
         Util.castSafely(this.getBlockState().getBlock(), AdvancedComparatorBlock.class)
             .ifPresent(block -> block.update(this.getLevel(), this.getBlockPos()));
+    }
+
+    public void setWindowOutput(int strength) {
+        this.windowOutput = Mth.clamp(strength, 0, 15);
     }
 
     public boolean isOutputting() {
@@ -146,9 +160,6 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
         super.onLoad();
         if (this.level == null) return;
         this.updateInputtingSignal(this.level, this.getBlockPos(), this.getBlockState());
-        // 重新采样输入，保留迟滞区间内的输出记忆，并在下一次计划刻更新。
-        this.state = this.getBlockState().getValue(AdvancedComparatorBlock.POWERED) != this.outputInvert
-            ? State.OUTPUT_HIGH : State.OUTPUT_LOW;
         Optional.ofNullable(this.level)
             .ifPresent(level1 ->
                 level1.scheduleTick(this.getBlockPos(), ModBlocks.ADVANCED_COMPARATOR.get(), 1));

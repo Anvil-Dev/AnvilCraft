@@ -3,7 +3,7 @@
   "category": "building",
   "ingredients": [
     {
-      "item": "anvilcraft:rotten_flesh_block"
+      "tag": "c:storage_blocks/rotten_flesh"
     }
   ],
   "result": {

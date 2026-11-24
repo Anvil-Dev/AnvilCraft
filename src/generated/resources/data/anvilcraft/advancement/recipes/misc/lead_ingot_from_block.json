@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_lead_block": {
+    "has_storage_blocks/lead": {
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:lead_block"
+            "items": "#c:storage_blocks/lead"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_lead_block"
+      "has_storage_blocks/lead"
     ]
   ],
   "rewards": {

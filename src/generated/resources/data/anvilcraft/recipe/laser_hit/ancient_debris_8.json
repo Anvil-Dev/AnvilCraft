@@ -2,7 +2,7 @@
   "type": "anvilcraft:laser_hit",
   "hit_time": 120,
   "input": {
-    "blocks": "minecraft:ancient_debris"
+    "blocks": "#c:ores/netherite_scrap"
   },
   "laser_strength": 8,
   "priority": -70,

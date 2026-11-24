@@ -20,6 +20,7 @@ import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 import dev.dubhe.anvilcraft.util.ExperienceMending;
 import dev.dubhe.anvilcraft.util.FireReforgingUtil;
+import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -319,11 +320,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             if (!state.getValue(FishTankBlock.OUTLET)) return;
             Direction outletDir = state.getValue(FishTankBlock.FACING);
             BlockPos pos = FishTankBlockEntity.this.getBlockPos();
-            List<IItemHandler> targets = ItemHandlerUtil.getOutletTargetItemHandlerList(
-                pos.relative(outletDir),
-                null,
-                level
-            );
+            List<IItemHandler> targets = outletTargets(level, pos, outletDir);
 
             this.autoOutputting = true;
             try {
@@ -366,6 +363,8 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     private boolean processingOutput;
     private long lastRecipeProcessingGameTime = Long.MIN_VALUE;
     private boolean ignited = false;
+    @Getter(AccessLevel.NONE)
+    private @Nullable FishTankPreviews.Cache recipePreview;
     /**
      * 本次铁砧加工开始前的输入槽快照；{@code null} 表示当前不在加工中。
      * 用于把催化类配方（产物与底物相同）的产物归还输入槽。
@@ -438,7 +437,19 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         super.setRemoved();
     }
 
+    /** 返回下一次落砧时鱼缸中参与加工的物品槽和流体。 */
+    public List<LargeCauldronBlockEntity.RecipePreview> getRecipePreviews() {
+        Level level = this.level;
+        if (level == null) {
+            return List.of();
+        }
+        boolean allowOutputs = this.lastRecipeProcessingGameTime != level.getGameTime();
+        this.recipePreview = FishTankPreviews.get(this, level, this.recipePreview, allowOutputs);
+        return this.recipePreview.results();
+    }
+
     private void sendUpdate() {
+        this.recipePreview = null;
         if (this.level == null || this.level.getBlockEntity(this.worldPosition) != this) return;
         this.level.sendBlockUpdated(
             this.getBlockPos(),
@@ -539,7 +550,12 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         this.processingOutput = !hasInput
             && !isEmpty(this.output)
             && gameTime != this.lastRecipeProcessingGameTime;
-        if (hasInput || this.processingOutput) this.lastRecipeProcessingGameTime = gameTime;
+        if ((hasInput || this.processingOutput) && gameTime != this.lastRecipeProcessingGameTime) {
+            this.lastRecipeProcessingGameTime = gameTime;
+            if (this.processingOutput) {
+                this.sendUpdate();
+            }
+        }
         if (hasInput) {
             // 快照本次加工前的输入槽，用于把“催化”类配方（产物与底物相同）
             // 生成的产物归还输入槽，实现底物不消耗（见 #4700）。
@@ -621,6 +637,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             tag.put("Outputs", outputNbt);
         }
         tag.putBoolean("ignited", this.ignited);
+        tag.putLong("LastRecipeProcessingTick", this.lastRecipeProcessingGameTime);
 
         if (!this.tropicalFishData.isEmpty()) {
             ListTag list = new ListTag();
@@ -660,6 +677,10 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         }
         this.input.deserializeNBT(registries, tag.getCompound("Inputs"));
         this.output.deserializeNBT(registries, tag.getCompound("Outputs"));
+        this.recipePreview = null;
+        if (tag.contains("LastRecipeProcessingTick", Tag.TAG_LONG)) {
+            this.lastRecipeProcessingGameTime = tag.getLong("LastRecipeProcessingTick");
+        }
         this.setIgnited(tag.getBoolean("ignited") && FishTankBlockEntity.canIgnite(this.fluidHandler.getFluid()));
 
         this.tropicalFishData.clear();
@@ -688,6 +709,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             tag.put("Outputs", outputNbt);
         }
         tag.putBoolean("ignited", this.ignited);
+        tag.putLong("LastRecipeProcessingTick", this.lastRecipeProcessingGameTime);
 
         if (!this.tropicalFishData.isEmpty()) {
             ListTag list = new ListTag();
@@ -841,17 +863,20 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         return ItemHandlerUtil.insertItem(handler, stack, false);
     }
 
+    private static @Nullable List<IItemHandler> outletTargets(Level level, BlockPos pos, Direction direction) {
+        BlockPos target = pos.relative(direction);
+        // 可装盖板的溜槽需要区分进料面，其余容器沿用鱼缸的无方向输出。
+        Direction side = level.getBlockEntity(target) instanceof ChutePlates.Holder ? direction.getOpposite() : null;
+        return ItemHandlerUtil.getOutletTargetItemHandlerList(target, side, level);
+    }
+
     public void tryAutoOutputResults() {
         if (this.processingRecipe) return;
         Level level = this.level;
         if (level == null || level.isClientSide()) return;
         BlockPos pos = this.getBlockPos();
         Direction outletDir = this.getBlockState().getValue(FishTankBlock.FACING);
-        List<IItemHandler> targets = ItemHandlerUtil.getOutletTargetItemHandlerList(
-            pos.relative(outletDir),
-            null,
-            level
-        );
+        List<IItemHandler> targets = outletTargets(level, pos, outletDir);
         if (targets == null || targets.isEmpty()) {
             // 开口被有碰撞的方块堵住时不输出，物品留在输出槽等待下次重试
             if (FishTankBlockEntity.isOutletBlocked(level, pos, outletDir)) return;

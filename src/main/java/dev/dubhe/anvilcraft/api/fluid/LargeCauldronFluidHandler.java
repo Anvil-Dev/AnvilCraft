@@ -32,6 +32,7 @@ public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializabl
 
     private final Runnable changeListener;
     private final FluidTank[] tanks = new FluidTank[TANK_COUNT];
+    private int layerCount;
     private boolean suppressChanges;
 
     public LargeCauldronFluidHandler(Runnable changeListener) {
@@ -55,7 +56,7 @@ public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializabl
 
     @Override
     public FluidStack getFluidInTank(int tank) {
-        return tank >= 0 && tank < TANK_COUNT ? this.tanks[tank].getFluid() : FluidStack.EMPTY;
+        return tank >= 0 && tank < this.layerCount ? this.tanks[tank].getFluid().copy() : FluidStack.EMPTY;
     }
 
     @Override
@@ -66,7 +67,7 @@ public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializabl
     @Override
     public boolean isFluidValid(int tank, FluidStack stack) {
         if (stack.isEmpty()) return false;
-        return this.findFluid(stack) >= 0 || this.activeLayers() < TANK_COUNT;
+        return this.findFluid(stack) >= 0 || this.layerCount < TANK_COUNT;
     }
 
     @Override
@@ -78,13 +79,15 @@ public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializabl
         if (resource.isEmpty()) return 0;
         int matching = this.findFluid(resource);
 
-        List<FluidStack> layers = this.nonEmptyFluids();
-        if (matching < 0 && layers.size() >= TANK_COUNT) return 0;
+        if (matching < 0 && this.layerCount >= TANK_COUNT) {
+            return 0;
+        }
         int stored = matching < 0 ? 0 : this.tanks[matching].getFluidAmount();
         int accepted = Math.min(resource.getAmount(), tankCapacity() - stored);
         if (accepted <= 0) return 0;
         if (action.simulate()) return accepted;
 
+        List<FluidStack> layers = this.nonEmptyFluids();
         FluidStack filled = matching < 0
             ? resource.copyWithAmount(accepted)
             : this.tanks[matching].getFluid().copyWithAmount(stored + accepted);
@@ -103,14 +106,13 @@ public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializabl
     @Override
     public FluidStack drain(FluidStack resource, FluidAction action) {
         return this.drainFirstMatching(
-            resource, action, this.layerOrder(DrainOrder.TOP, totalCapacity()));
+            resource, action, this.layerCount - 1, -1);
     }
 
     @Override
     public FluidStack drain(int maxDrain, FluidAction action) {
         if (maxDrain <= 0) return FluidStack.EMPTY;
-        List<Integer> order = this.layerOrder(DrainOrder.TOP, totalCapacity());
-        return order.isEmpty() ? FluidStack.EMPTY : this.drainLayer(order.getFirst(), maxDrain, action);
+        return this.layerCount == 0 ? FluidStack.EMPTY : this.drainLayer(this.layerCount - 1, maxDrain, action);
     }
 
     public IFluidHandler bottomAccess() {
@@ -133,11 +135,11 @@ public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializabl
     }
 
     private FluidStack drainFirstMatching(
-        FluidStack resource, FluidAction action, List<Integer> order
+        FluidStack resource, FluidAction action, int start, int step
     ) {
         if (resource.isEmpty()) return FluidStack.EMPTY;
-        for (int layer : order) {
-            FluidStack stored = this.getFluidInTank(layer);
+        for (int layer = start; layer >= 0 && layer < this.layerCount; layer += step) {
+            FluidStack stored = this.tanks[layer].getFluid();
             if (FluidStack.isSameFluidSameComponents(stored, resource)) {
                 return this.drainLayer(layer, resource.getAmount(), action);
             }
@@ -146,7 +148,7 @@ public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializabl
     }
 
     private FluidStack drainLayer(int layer, int maxDrain, FluidAction action) {
-        FluidStack stored = this.getFluidInTank(layer);
+        FluidStack stored = this.tanks[layer].getFluid();
         if (stored.isEmpty() || maxDrain <= 0) return FluidStack.EMPTY;
         int drained = Math.min(maxDrain, stored.getAmount());
         FluidStack result = stored.copyWithAmount(drained);
@@ -164,41 +166,39 @@ public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializabl
     }
 
     private int findFluid(FluidStack resource) {
-        for (int i = 0; i < this.activeLayers(); i++) {
+        for (int i = 0; i < this.layerCount; i++) {
             if (FluidStack.isSameFluidSameComponents(this.tanks[i].getFluid(), resource)) return i;
         }
         return -1;
     }
 
-    private int activeLayers() {
-        for (int i = 0; i < TANK_COUNT; i++) {
-            if (this.tanks[i].isEmpty()) return i;
+    /** 已占用的液层从底部开始连续排列。 */
+    public int getLayerCount() {
+        return this.layerCount;
+    }
+
+    public boolean hasSameFluids(List<FluidStack> snapshot) {
+        if (snapshot.size() != TANK_COUNT) {
+            return false;
         }
-        return TANK_COUNT;
+        for (int layer = 0; layer < TANK_COUNT; layer++) {
+            if (!FluidStack.matches(this.tanks[layer].getFluid(), snapshot.get(layer))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private int layerAtHeight(int accessibleAmount) {
-        int active = this.activeLayers();
+        int active = this.layerCount;
         if (active == 0) return -1;
-        int target = Math.min(Math.max(1, accessibleAmount), this.getTotalAmount());
+        int target = Math.max(1, accessibleAmount);
         int amount = 0;
         for (int i = 0; i < active; i++) {
             amount += this.tanks[i].getFluidAmount();
             if (amount >= target) return i;
         }
         return active - 1;
-    }
-
-    private List<Integer> layerOrder(DrainOrder order, int accessibleAmount) {
-        int active = this.activeLayers();
-        List<Integer> result = new ArrayList<>(active);
-        if (order == DrainOrder.BOTTOM) {
-            for (int i = 0; i < active; i++) result.add(i);
-            return result;
-        }
-        int start = order == DrainOrder.TOP ? active - 1 : this.layerAtHeight(accessibleAmount);
-        for (int i = start; i >= 0; i--) result.add(i);
-        return result;
     }
 
     private List<FluidStack> nonEmptyFluids() {
@@ -224,6 +224,7 @@ public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializabl
         }
         this.suppressChanges = true;
         try {
+            this.layerCount = compact.size();
             for (int i = 0; i < this.tanks.length; i++) {
                 this.tanks[i].setFluid(i < compact.size() ? compact.get(i) : FluidStack.EMPTY);
             }
@@ -288,8 +289,15 @@ public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializabl
             this.fillAtBottom = fillAtBottom;
         }
 
-        private List<Integer> order() {
-            return LargeCauldronFluidHandler.this.layerOrder(this.drainOrder, this.accessibleAmount);
+        private int layerAt(int index) {
+            if (index < 0 || index >= LargeCauldronFluidHandler.this.layerCount) {
+                return -1;
+            }
+            return switch (this.drainOrder) {
+                case BOTTOM -> index;
+                case TOP -> LargeCauldronFluidHandler.this.layerCount - 1 - index;
+                case HEIGHT -> LargeCauldronFluidHandler.this.layerAtHeight(this.accessibleAmount) - index;
+            };
         }
 
         @Override
@@ -299,10 +307,7 @@ public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializabl
 
         @Override
         public FluidStack getFluidInTank(int tank) {
-            List<Integer> order = this.order();
-            return tank >= 0 && tank < order.size()
-                ? LargeCauldronFluidHandler.this.getFluidInTank(order.get(tank))
-                : FluidStack.EMPTY;
+            return LargeCauldronFluidHandler.this.getFluidInTank(this.layerAt(tank));
         }
 
         @Override
@@ -322,16 +327,15 @@ public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializabl
 
         @Override
         public FluidStack drain(FluidStack resource, FluidAction action) {
-            return LargeCauldronFluidHandler.this.drainFirstMatching(resource, action, this.order());
+            int step = this.drainOrder == DrainOrder.BOTTOM ? 1 : -1;
+            return LargeCauldronFluidHandler.this.drainFirstMatching(resource, action, this.layerAt(0), step);
         }
 
         @Override
         public FluidStack drain(int maxDrain, FluidAction action) {
             if (maxDrain <= 0) return FluidStack.EMPTY;
-            List<Integer> order = this.order();
-            return order.isEmpty()
-                ? FluidStack.EMPTY
-                : LargeCauldronFluidHandler.this.drainLayer(order.getFirst(), maxDrain, action);
+            int layer = this.layerAt(0);
+            return layer < 0 ? FluidStack.EMPTY : LargeCauldronFluidHandler.this.drainLayer(layer, maxDrain, action);
         }
     }
 }

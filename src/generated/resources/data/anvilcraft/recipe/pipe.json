@@ -4,7 +4,7 @@
   "group": "anvilcraft:pipe",
   "key": {
     "B": {
-      "item": "anvilcraft:brass_pressure_plate"
+      "tag": "c:plates/brass"
     }
   },
   "pattern": [

@@ -3,10 +3,10 @@
   "category": "redstone",
   "key": {
     "A": {
-      "item": "minecraft:glass"
+      "tag": "c:glass_blocks/colorless"
     },
     "B": {
-      "item": "minecraft:stonecutter"
+      "tag": "c:player_workstations/stonecutters"
     },
     "D": {
       "item": "anvilcraft:magnetoelectric_core"

@@ -11,6 +11,8 @@
     "#minecraft:buttons",
     "#minecraft:pressure_plates",
     "#minecraft:fence_gates",
+    "#c:player_workstations/crafting_tables",
+    "#c:villager_job_sites",
     "minecraft:bell",
     "minecraft:redstone_lamp",
     "minecraft:rail",

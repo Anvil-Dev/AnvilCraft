@@ -8,7 +8,7 @@
   ],
   "ingredients": [
     {
-      "items": "anvilcraft:uranium_block"
+      "items": "#c:storage_blocks/uranium"
     }
   ],
   "results": [

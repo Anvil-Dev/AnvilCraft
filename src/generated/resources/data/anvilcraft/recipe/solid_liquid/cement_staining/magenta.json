@@ -20,7 +20,7 @@
   ],
   "ingredients": [
     {
-      "items": "minecraft:magenta_dye"
+      "items": "#c:dyes/magenta"
     }
   ],
   "max_efficiency": 1,

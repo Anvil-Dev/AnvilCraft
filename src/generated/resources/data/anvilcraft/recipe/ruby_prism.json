@@ -6,10 +6,10 @@
       "item": "anvilcraft:royal_steel_ingot"
     },
     "B": {
-      "item": "anvilcraft:ruby_block"
+      "tag": "c:storage_blocks/ruby"
     },
     "C": {
-      "item": "anvilcraft:ruby"
+      "tag": "c:gems/ruby"
     }
   },
   "pattern": [

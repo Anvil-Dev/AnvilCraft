@@ -5,10 +5,10 @@
       "tag": "c:storage_blocks/gold"
     },
     {
-      "item": "minecraft:emerald"
+      "tag": "c:gems/emerald"
     },
     {
-      "item": "minecraft:emerald"
+      "tag": "c:gems/emerald"
     },
     {
       "item": "anvilcraft:royal_steel_ingot"

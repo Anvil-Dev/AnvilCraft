@@ -9,7 +9,7 @@
     }
   ],
   "from_block": {
-    "blocks": "minecraft:deepslate"
+    "blocks": "#c:ore_bearing_ground/deepslate"
   },
   "to_block": {
     "block": "anvilcraft:deepslate_uranium_ore"

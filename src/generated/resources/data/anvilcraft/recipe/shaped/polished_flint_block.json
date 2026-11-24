@@ -3,7 +3,7 @@
   "category": "building",
   "key": {
     "A": {
-      "item": "anvilcraft:flint_block"
+      "tag": "c:storage_blocks/flint"
     }
   },
   "pattern": [

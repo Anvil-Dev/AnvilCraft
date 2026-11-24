@@ -20,7 +20,7 @@
   ],
   "ingredients": [
     {
-      "items": "minecraft:orange_dye"
+      "items": "#c:dyes/orange"
     }
   ],
   "max_efficiency": 1,

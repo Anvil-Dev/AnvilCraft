@@ -9,7 +9,7 @@
     "type": "anvilcraft:custom",
     "predicate": {
       "count": 3,
-      "items": "anvilcraft:transcendium_ingot"
+      "items": "#c:ingots/transcendium"
     }
   }
 }

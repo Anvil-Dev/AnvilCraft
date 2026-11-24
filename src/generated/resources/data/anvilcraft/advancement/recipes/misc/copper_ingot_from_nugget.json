@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:copper_nugget"
+            "items": "#c:nuggets/copper"
           }
         ]
       },

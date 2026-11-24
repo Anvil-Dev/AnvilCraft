@@ -3,13 +3,13 @@
   "category": "misc",
   "ingredients": [
     {
-      "item": "minecraft:bread"
+      "tag": "c:foods/bread"
     },
     {
       "item": "minecraft:sugar"
     },
     {
-      "item": "anvilcraft:cream"
+      "tag": "c:foods/cream"
     }
   ],
   "result": {

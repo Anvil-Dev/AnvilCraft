@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "A": {
-      "item": "anvilcraft:transcendium_ingot"
+      "tag": "c:ingots/transcendium"
     },
     "B": {
       "item": "anvilcraft:laser_receiver"

@@ -3,7 +3,7 @@
   "category": "redstone",
   "key": {
     "A": {
-      "item": "minecraft:iron_ingot"
+      "tag": "c:ingots/iron"
     },
     "B": {
       "item": "anvilcraft:crab_claw"

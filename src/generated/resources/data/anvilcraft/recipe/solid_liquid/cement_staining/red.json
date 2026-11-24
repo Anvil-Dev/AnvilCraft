@@ -20,7 +20,7 @@
   ],
   "ingredients": [
     {
-      "items": "minecraft:red_dye"
+      "items": "#c:dyes/red"
     }
   ],
   "max_efficiency": 1,

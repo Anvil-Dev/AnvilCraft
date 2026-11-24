@@ -6,7 +6,7 @@
       "item": "anvilcraft:royal_steel_ingot"
     },
     "B": {
-      "item": "minecraft:glass"
+      "tag": "c:glass_blocks/colorless"
     }
   },
   "pattern": [

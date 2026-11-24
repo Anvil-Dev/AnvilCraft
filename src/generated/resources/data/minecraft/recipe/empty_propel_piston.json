@@ -9,13 +9,13 @@
       "item": "anvilcraft:empty_capacitor"
     },
     "C": {
-      "item": "minecraft:iron_ingot"
+      "tag": "c:ingots/iron"
     },
     "D": {
       "item": "minecraft:piston"
     },
     "E": {
-      "item": "anvilcraft:ruby"
+      "tag": "c:gems/ruby"
     }
   },
   "pattern": [

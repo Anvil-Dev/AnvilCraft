@@ -4,13 +4,10 @@
   "key": {
     "A": [
       {
-        "item": "anvilcraft:neutronium_ingot"
+        "tag": "anvilcraft:uncharged_neutronium_ingots"
       },
       {
         "item": "anvilcraft:charged_neutronium_ingot"
-      },
-      {
-        "item": "anvilcraft:stable_neutronium_ingot"
       }
     ],
     "B": {

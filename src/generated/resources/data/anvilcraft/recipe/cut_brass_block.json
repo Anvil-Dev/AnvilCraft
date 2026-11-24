@@ -1,7 +1,7 @@
 {
   "type": "minecraft:stonecutting",
   "ingredient": {
-    "item": "anvilcraft:brass_block"
+    "tag": "c:storage_blocks/brass"
   },
   "result": {
     "count": 4,

@@ -6,7 +6,7 @@
       "item": "anvilcraft:levitation_powder"
     },
     "R": {
-      "item": "minecraft:redstone"
+      "tag": "c:dusts/redstone"
     },
     "S": {
       "tag": "minecraft:sand"

@@ -3,7 +3,7 @@
   "category": "building",
   "key": {
     "A": {
-      "item": "anvilcraft:raw_lead"
+      "tag": "c:raw_materials/lead"
     }
   },
   "pattern": [

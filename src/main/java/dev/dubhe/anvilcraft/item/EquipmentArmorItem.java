@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.init.ModAttributes;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import lombok.Getter;
@@ -24,12 +25,22 @@ public class EquipmentArmorItem extends ArmorItem {
     @Getter
     private final boolean weatherproof;
     private final ResourceLocation texture;
+    /**
+     * 该护腿提供的口袋数量，同时是属性修正与 tooltip 文案的唯一来源。
+     */
+    @Getter
+    private final int pocketCount;
 
     public EquipmentArmorItem(Properties properties, Type type, boolean weatherproof, String texture) {
+        this(properties, type, weatherproof, texture, 0);
+    }
+
+    public EquipmentArmorItem(Properties properties, Type type, boolean weatherproof, String texture, int pocketCount) {
         super(weatherproof ? ArmorMaterials.NETHERITE : ArmorMaterials.IRON, type,
             properties.durability(type.getDurability(weatherproof ? 74 : 15)));
         this.weatherproof = weatherproof;
         this.texture = AnvilCraft.of("textures/entity/equipment/" + texture + ".png");
+        this.pocketCount = pocketCount;
     }
 
     public static @Nullable DataComponentType<Boolean> abilityComponent(ItemStack stack) {
@@ -52,16 +63,28 @@ public class EquipmentArmorItem extends ArmorItem {
 
     @Override
     public ItemAttributeModifiers getDefaultAttributeModifiers() {
-        if (!this.weatherproof) return super.getDefaultAttributeModifiers();
-        ResourceLocation id = ResourceLocation.withDefaultNamespace("armor." + this.type.getName());
-        EquipmentSlotGroup slot = EquipmentSlotGroup.bySlot(this.type.getSlot());
-        return ItemAttributeModifiers.builder()
-            .add(Attributes.ARMOR, new AttributeModifier(id, this.getDefense(), AttributeModifier.Operation.ADD_VALUE), slot)
-            .add(Attributes.ARMOR_TOUGHNESS,
-                new AttributeModifier(id, this.getToughness(), AttributeModifier.Operation.ADD_VALUE), slot)
-            .add(Attributes.KNOCKBACK_RESISTANCE,
-                new AttributeModifier(id, 0.1, AttributeModifier.Operation.ADD_VALUE), slot)
-            .build();
+        ItemAttributeModifiers modifiers;
+        if (this.weatherproof) {
+            ResourceLocation id = ResourceLocation.withDefaultNamespace("armor." + this.type.getName());
+            EquipmentSlotGroup slot = EquipmentSlotGroup.bySlot(this.type.getSlot());
+            modifiers = ItemAttributeModifiers.builder()
+                .add(Attributes.ARMOR, new AttributeModifier(id, this.getDefense(), AttributeModifier.Operation.ADD_VALUE), slot)
+                .add(Attributes.ARMOR_TOUGHNESS,
+                    new AttributeModifier(id, this.getToughness(), AttributeModifier.Operation.ADD_VALUE), slot)
+                .add(Attributes.KNOCKBACK_RESISTANCE,
+                    new AttributeModifier(id, 0.1, AttributeModifier.Operation.ADD_VALUE), slot)
+                .build();
+        } else {
+            modifiers = super.getDefaultAttributeModifiers();
+        }
+        if (this.pocketCount <= 0) {
+            return modifiers;
+        }
+        return modifiers.withModifierAdded(
+            ModAttributes.POCKET_COUNT,
+            new AttributeModifier(AnvilCraft.of("pocket_count"), this.pocketCount, AttributeModifier.Operation.ADD_VALUE),
+            EquipmentSlotGroup.LEGS
+        );
     }
 
     @Override

@@ -4,7 +4,7 @@
   "group": "anvilcraft:hyperdimension_terminal",
   "key": {
     "A": {
-      "item": "anvilcraft:transcendium_ingot"
+      "tag": "c:ingots/transcendium"
     },
     "B": {
       "item": "anvilcraft:singularity_crystal"

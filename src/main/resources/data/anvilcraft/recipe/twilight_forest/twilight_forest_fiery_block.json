@@ -7,7 +7,7 @@
   ],
   "type": "anvilcraft:item_inject",
   "block_ingredient": {
-    "blocks": "minecraft:iron_block"
+    "blocks": "#c:storage_blocks/iron"
   },
   "block_result": {
     "block": "twilightforest:fiery_block"

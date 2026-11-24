@@ -3,13 +3,13 @@
   "category": "redstone",
   "key": {
     "A": {
-      "item": "anvilcraft:ruby"
+      "tag": "c:gems/ruby"
     },
     "B": {
       "item": "anvilcraft:magnetoelectric_core"
     },
     "C": {
-      "item": "minecraft:redstone"
+      "tag": "c:dusts/redstone"
     },
     "D": {
       "item": "anvilcraft:royal_steel_ingot"

@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "A": {
-      "item": "minecraft:obsidian"
+      "tag": "c:obsidians/normal"
     },
     "B": {
       "item": "minecraft:ender_eye"

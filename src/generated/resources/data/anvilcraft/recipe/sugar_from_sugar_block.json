@@ -3,7 +3,7 @@
   "category": "building",
   "ingredients": [
     {
-      "item": "anvilcraft:sugar_block"
+      "tag": "c:storage_blocks/sugar"
     }
   ],
   "result": {

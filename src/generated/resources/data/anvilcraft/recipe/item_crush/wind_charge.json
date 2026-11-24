@@ -2,7 +2,7 @@
   "type": "anvilcraft:item_crush",
   "ingredients": [
     {
-      "items": "minecraft:breeze_rod"
+      "items": "#c:rods/breeze"
     }
   ],
   "results": [

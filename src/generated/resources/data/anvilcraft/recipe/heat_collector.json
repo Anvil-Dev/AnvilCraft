@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "B": {
-      "item": "anvilcraft:sapphire"
+      "tag": "c:gems/sapphire"
     },
     "C": {
       "tag": "c:plates/copper"

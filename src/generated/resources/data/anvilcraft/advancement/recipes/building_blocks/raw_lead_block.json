@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:raw_lead"
+            "items": "#c:raw_materials/lead"
           }
         ]
       },
