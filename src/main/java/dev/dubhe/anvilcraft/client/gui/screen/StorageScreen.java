@@ -395,8 +395,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
      * 流体信息全在这个组件里。丢了它，界面里就只剩物品名，看不到罐内流体。</p>
      */
     private Optional<TooltipComponent> renderingTooltipImage = Optional.empty();
-    @Getter
     private boolean craftingAvailable;
+    private long transferVersion = -1;
+    private long nextRecipeMetadata;
     private boolean craftingLoaded;
     @Getter
     private CraftingStorage crafting = CraftingStorage.EMPTY;
@@ -985,10 +986,17 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         return this.preview != null;
     }
 
+    public boolean isCraftingAvailable() {
+        if (this.preview == null && StorageJeiBridge.isRecipeParent(this) && System.currentTimeMillis() >= this.nextRecipeMetadata) {
+            this.refreshMetadata();
+        }
+        return this.craftingAvailable;
+    }
+
     public boolean canTransferRecipe() {
         // 打开配方查看器会切换当前屏幕，父屏幕状态仍允许发起配方请求。
         return this.preview == null
-            && this.craftingAvailable
+            && this.isCraftingAvailable()
             && this.isTransferContextActive()
             && (StorageJeiBridge.isRecipeParent(this) || this.orderLoaded && this.craftingLoaded)
             && !this.interactionPending
@@ -1128,10 +1136,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     private void invalidateUnfilteredSnapshots() {
         if (this.hasUnfilteredContents()) {
-            this.unfilteredVersion = this.version - 1;
+            this.unfilteredVersion = this.transferVersion - 1;
         }
         if (this.hasUnfilteredFluids()) {
-            this.unfilteredFluidVersion = this.version - 1;
+            this.unfilteredFluidVersion = this.transferVersion - 1;
         }
     }
 
@@ -4762,13 +4770,22 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.metadataPending = true;
         final int request = ++this.metadataRequest;
         this.metadataCooldown = StorageScreen.METADATA_REFRESH_INTERVAL;
-        this.refreshUnfilteredContents();
-        this.refreshUnfilteredFluids();
+        this.nextRecipeMetadata = System.currentTimeMillis() + 1000;
         StorageClientStub.loadMetadata(this.sourcePos).whenCompleteAsync(
             (metadata, error) -> {
                 if (request != this.metadataRequest) return;
                 this.metadataPending = false;
-                if (error != null) {
+                if (error != null || !this.isTransferContextActive()) {
+                    return;
+                }
+                this.craftingAvailable = metadata.craftingAvailable();
+                if (!this.craftingAvailable && this.mode == ScreenMode.CRAFTING) {
+                    this.setMode(ScreenMode.NORMAL);
+                }
+                this.transferVersion = metadata.version();
+                this.refreshUnfilteredContents();
+                this.refreshUnfilteredFluids();
+                if (this.minecraft.screen != this) {
                     return;
                 }
                 this.fullness = metadata.fullness();
@@ -4784,7 +4801,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     this.syncVisible();
                 }
             },
-            this.screenExecutor
+            this.minecraft
         );
     }
 
@@ -4801,11 +4818,11 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         if (this.preview != null) {
             return;
         }
-        if (!this.isTransferContextActive() || this.unfilteredPending || this.unfilteredVersion == this.version) {
+        if (!this.isTransferContextActive() || this.unfilteredPending || this.unfilteredVersion == this.transferVersion) {
             return;
         }
         this.unfilteredPending = true;
-        long requested = this.version;
+        long requested = this.transferVersion;
         this.fetchUnfilteredPage(requested, 0, new ArrayList<>());
     }
 
@@ -4832,11 +4849,11 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         if (this.preview != null) {
             return;
         }
-        if (!this.isTransferContextActive() || this.unfilteredFluidPending || this.unfilteredFluidVersion == this.version) {
+        if (!this.isTransferContextActive() || this.unfilteredFluidPending || this.unfilteredFluidVersion == this.transferVersion) {
             return;
         }
         this.unfilteredFluidPending = true;
-        long requested = this.version;
+        long requested = this.transferVersion;
         StorageClientStub.craftingStorageFluids(this.sourcePos).whenCompleteAsync(
             (fluids, error) -> {
                 if (error != null || !this.isTransferContextActive()) {
