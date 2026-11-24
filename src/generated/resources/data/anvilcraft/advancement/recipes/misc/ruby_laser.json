@@ -35,7 +35,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:ruby_block"
+            "items": "#c:storage_blocks/ruby"
           }
         ]
       },
@@ -51,7 +51,7 @@
       "conditions": {
         "items": [
           {
-            "items": "minecraft:tinted_glass"
+            "items": "#c:glass_blocks/tinted"
           }
         ]
       },

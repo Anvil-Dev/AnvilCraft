@@ -3,7 +3,7 @@
   "category": "redstone",
   "key": {
     "R": {
-      "item": "minecraft:redstone_block"
+      "tag": "c:storage_blocks/redstone"
     },
     "S": {
       "item": "anvilcraft:sliding_rail"

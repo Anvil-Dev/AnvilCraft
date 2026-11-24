@@ -112,7 +112,9 @@ public class LargeCauldronBlockEntity extends BlockEntity
         InWorldRecipeData.of(AnvilCraft.of("large_cauldron_fluid_states"), (context, key) -> new HashMap<>());
     private static final ResourceLocation FLUID_RECIPE_ACCEPTOR = AnvilCraft.of("large_cauldron_fluid_acceptor");
 
-    private final LargeCauldronInputHandler input = new LargeCauldronInputHandler(this::contentsChanged);
+    private static long ignitionTagVersion;
+
+    private final LargeCauldronInputHandler input = new LargeCauldronInputHandler(this::inputsChanged);
     private final ItemStackHandler output = new ItemStackHandler(OUTPUT_SLOTS) {
         @Override
         protected void onContentsChanged(int slot) {
@@ -130,6 +132,8 @@ public class LargeCauldronBlockEntity extends BlockEntity
     private List<RecipePreview> recipePreviewCache = List.of();
     private boolean droppedContents;
     private boolean ignited;
+    private boolean manuallyExtinguished;
+    private long checkedIgnitionTags = -1;
 
     public LargeCauldronBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -189,7 +193,10 @@ public class LargeCauldronBlockEntity extends BlockEntity
     ) {
         if (!entity.isMainPart()) return;
         entity.absorbFluidSources(level);
-        entity.refreshIgnited();
+        if (!entity.manuallyExtinguished && entity.checkedIgnitionTags != ignitionTagVersion) {
+            entity.checkedIgnitionTags = ignitionTagVersion;
+            entity.refreshIgnited();
+        }
         entity.applyFluidEffects((ServerLevel) level);
         entity.hurtEntitiesInsideFromCampfire((ServerLevel) level);
         entity.reforgeItemsInLava(level);
@@ -269,9 +276,20 @@ public class LargeCauldronBlockEntity extends BlockEntity
     public void setIgnited(boolean ignited) {
         LargeCauldronBlockEntity main = this.getMainPart();
         boolean next = ignited && main.canIgniteTopFluid();
-        if (main.ignited == next) return;
+        if (main.ignited == next) {
+            return;
+        }
+        if (next) {
+            main.manuallyExtinguished = false;
+        }
         main.ignited = next;
         main.contentsChanged();
+    }
+
+    public void extinguish() {
+        LargeCauldronBlockEntity main = this.getMainPart();
+        main.manuallyExtinguished = true;
+        main.setIgnited(false);
     }
 
     public IItemHandler getAutomationItemHandler(@Nullable Direction side) {
@@ -464,8 +482,18 @@ public class LargeCauldronBlockEntity extends BlockEntity
         return Math.round(maxLight * fill);
     }
 
-    private void fluidsChanged() {
+    public static void invalidateIgnitionTags() {
+        ignitionTagVersion++;
+    }
+
+    private void inputsChanged() {
+        this.checkedIgnitionTags = -1;
+        this.manuallyExtinguished = false;
         this.contentsChanged();
+    }
+
+    private void fluidsChanged() {
+        this.inputsChanged();
         if (this.level == null || !this.isMainPart()) return;
         for (Cube3x3PartHalf part : Cube3x3PartHalf.values()) {
             BlockPos pos = this.worldPosition.offset(part.getOffsetX(), part.getOffsetY() - 1, part.getOffsetZ());
@@ -489,6 +517,9 @@ public class LargeCauldronBlockEntity extends BlockEntity
         tag.put("Outputs", this.output.serializeNBT(registries));
         tag.put("Fluids", this.fluids.serializeNBT(registries));
         tag.putBoolean("Ignited", this.ignited);
+        if (this.manuallyExtinguished) {
+            tag.putBoolean("ManuallyExtinguished", true);
+        }
     }
 
     @Override
@@ -499,6 +530,8 @@ public class LargeCauldronBlockEntity extends BlockEntity
         this.output.deserializeNBT(registries, tag.getCompound("Outputs"));
         this.fluids.deserializeNBT(registries, tag.getCompound("Fluids"));
         this.ignited = tag.getBoolean("Ignited") && this.canIgniteTopFluid();
+        this.manuallyExtinguished = !this.ignited && tag.getBoolean("ManuallyExtinguished");
+        this.checkedIgnitionTags = -1;
         this.recipePreviewGameTime = Long.MIN_VALUE;
     }
 
@@ -1414,19 +1447,45 @@ public class LargeCauldronBlockEntity extends BlockEntity
             }
             return;
         }
-        if (this.ignited) return;
+        this.setIgnited(false);
         for (int slot = 0; slot < this.input.getSlots(); slot++) {
             ItemStack stack = this.input.getStackInSlot(slot);
-            if (stack.is(ModItemTags.FIRE_STARTER)) {
-                this.input.extractItem(slot, 1, false);
-                this.setIgnited(true);
-                return;
-            }
-            if (stack.is(ModItemTags.UNBROKEN_FIRE_STARTER)) {
-                this.setIgnited(true);
+            boolean consumed = stack.is(ModItemTags.FIRE_STARTER);
+            if (consumed || stack.is(ModItemTags.UNBROKEN_FIRE_STARTER)) {
+                if (this.tryIgnite(false) && consumed) {
+                    this.input.extractItem(slot, 1, false);
+                }
                 return;
             }
         }
+    }
+
+    /** 预测点燃时只检查流体层，成功执行时将可燃流体移到顶层。 */
+    public boolean tryIgnite(boolean simulate) {
+        LargeCauldronBlockEntity main = this.getMainPart();
+        if (main.ignited) {
+            return false;
+        }
+        boolean hasLayerAbove = false;
+        for (int tank = main.fluids.getTanks() - 1; tank >= 0; tank--) {
+            FluidStack fluid = main.fluids.getFluidInTank(tank);
+            if (fluid.isEmpty()) {
+                continue;
+            }
+            if (fluid.is(ModFluidTags.IGNITABLE)) {
+                if (!simulate) {
+                    if (hasLayerAbove) {
+                        List<FluidStack> layers = main.fluids.copyFluids();
+                        layers.add(layers.remove(tank));
+                        main.fluids.setFluids(layers);
+                    }
+                    main.setIgnited(true);
+                }
+                return true;
+            }
+            hasLayerAbove = true;
+        }
+        return false;
     }
 
     private AABB contentArea() {

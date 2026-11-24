@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.CementCauldronBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SolidLiquidRecipe;
 import dev.dubhe.anvilcraft.util.FluidStackPredicate;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -85,7 +86,7 @@ public class ConcreteRecipeLoader {
                 .cauldron(inputCements)
                 .consume(1000)
                 .transform(BuiltInRegistries.FLUID.get(targetCement), 1000)
-                .requires(color.dyeItem())
+                .requires(ModItemTags.bindC("dyes/" + color.getSerializedName()))
                 .maxEfficiency(1)
                 .save(provider, AnvilCraft.of("solid_liquid/cement_staining/%s".formatted(color.getSerializedName())));
         }

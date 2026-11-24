@@ -3,31 +3,31 @@
   "category": "building",
   "ingredients": [
     {
-      "item": "minecraft:gunpowder"
+      "tag": "c:gunpowders"
     },
     {
-      "item": "minecraft:gunpowder"
+      "tag": "c:gunpowders"
     },
     {
-      "item": "minecraft:gunpowder"
+      "tag": "c:gunpowders"
     },
     {
-      "item": "minecraft:gunpowder"
+      "tag": "c:gunpowders"
     },
     {
-      "item": "minecraft:gunpowder"
+      "tag": "c:gunpowders"
     },
     {
-      "item": "minecraft:gunpowder"
+      "tag": "c:gunpowders"
     },
     {
-      "item": "minecraft:gunpowder"
+      "tag": "c:gunpowders"
     },
     {
-      "item": "minecraft:gunpowder"
+      "tag": "c:gunpowders"
     },
     {
-      "item": "minecraft:gunpowder"
+      "tag": "c:gunpowders"
     }
   ],
   "result": {

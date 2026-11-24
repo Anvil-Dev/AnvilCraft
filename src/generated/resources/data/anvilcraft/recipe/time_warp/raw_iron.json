@@ -2,7 +2,7 @@
   "type": "anvilcraft:time_warp",
   "ingredients": [
     {
-      "items": "minecraft:iron_block"
+      "items": "#c:storage_blocks/iron"
     }
   ],
   "results": [

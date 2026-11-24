@@ -1,8 +1,9 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.gui.component.PocketRenderer;
 import dev.dubhe.anvilcraft.inventory.PocketInventory;
+import dev.dubhe.anvilcraft.inventory.PocketLayout;
 import dev.dubhe.anvilcraft.inventory.PocketSlot;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -12,6 +13,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -36,39 +38,57 @@ abstract class CreativePocketScreenMixin extends AbstractContainerScreen<Creativ
             + "<init>(Lnet/minecraft/world/inventory/Slot;III)V"))
     private void anvilcraft$positionPockets(Args args) {
         if (args.get(0) instanceof PocketSlot pocket) {
-            args.set(2, pocket.x < 0 ? pocket.x : pocket.x + 19);
-            args.set(3, pocket.y - 30);
+            pocket.updatePosition();
+            args.set(2, pocket.x < 0 ? pocket.x : pocket.x + PocketLayout.CREATIVE_X_SHIFT);
+            args.set(3, pocket.y + PocketLayout.CREATIVE_Y_SHIFT);
         }
     }
 
     @Inject(method = "slotClicked", at = @At("HEAD"), cancellable = true)
     private void anvilcraft$lockLeggings(@Nullable Slot slot, int slotId, int button, ClickType type, CallbackInfo ci) {
-        if (selectedTab.getType() == CreativeModeTab.Type.INVENTORY && slotId == 7 && this.minecraft != null
-            && this.minecraft.player != null && PocketInventory.isLocked(this.minecraft.player)) ci.cancel();
+        if (selectedTab.getType() != CreativeModeTab.Type.INVENTORY || slotId != 7
+            || this.minecraft == null || this.minecraft.player == null) {
+            return;
+        }
+        // 创造模式直接置物，不经过 ArmorSlot#mayPlace，这里按光标物品判断本次换装是否丢失口袋。
+        ItemStack target = switch (type) {
+            case PICKUP, QUICK_MOVE -> ItemStack.EMPTY;
+            case SWAP -> this.minecraft.player.getInventory().getItem(button);
+            default -> this.menu.getCarried();
+        };
+        if (PocketInventory.blocksLeggingsChange(this.minecraft.player, target)) {
+            ci.cancel();
+        }
     }
 
     @Inject(method = "renderBg", at = @At("TAIL"))
     private void anvilcraft$drawPockets(GuiGraphics graphics, float partialTick, int mouseX, int mouseY, CallbackInfo ci) {
-        if (selectedTab.getType() != CreativeModeTab.Type.INVENTORY || this.minecraft == null || this.minecraft.player == null) return;
-        int capacity = PocketInventory.capacity(this.minecraft.player);
-        if (capacity == 0) return;
-        int width = capacity == 12 ? 44 : 26;
-        String texture = capacity == 12 ? "weatherproof_spacesuit_leggings" : "pockets_leggings";
-        for (int side = 0; side < 2; side++) {
-            int posX = this.leftPos + (side == 0 ? -width - 2 : this.imageWidth + 2);
-            graphics.blit(AnvilCraft.of("textures/gui/misc/equipment/" + texture + ".png"),
-                posX, this.topPos + 40, 0, 0, width, 73, width, 73);
+        if (selectedTab.getType() != CreativeModeTab.Type.INVENTORY || this.minecraft == null || this.minecraft.player == null) {
+            return;
         }
+        int capacity = PocketInventory.capacity(this.minecraft.player);
+        if (capacity == 0) {
+            return;
+        }
+        PocketRenderer.render(graphics, PocketLayout.of(capacity, 0, this.imageWidth, 40), this.leftPos, this.topPos);
+        PocketRenderer.render(graphics, PocketLayout.of(capacity, 1, this.imageWidth, 40), this.leftPos, this.topPos);
     }
 
     @ModifyReturnValue(method = "hasClickedOutside", at = @At("RETURN"))
     private boolean anvilcraft$includePockets(boolean original, double mouseX, double mouseY, int left, int top, int button) {
-        if (!original || selectedTab.getType() != CreativeModeTab.Type.INVENTORY
-            || this.minecraft == null || this.minecraft.player == null) return original;
+        if (selectedTab.getType() != CreativeModeTab.Type.INVENTORY
+            || this.minecraft == null || this.minecraft.player == null) {
+            return original;
+        }
         int capacity = PocketInventory.capacity(this.minecraft.player);
-        if (capacity == 0 || mouseY < top + 40 || mouseY >= top + 113) return original;
-        int width = capacity == 12 ? 44 : 26;
-        return !(mouseX >= left - width - 2 && mouseX < left - 2
-            || mouseX >= left + this.imageWidth + 2 && mouseX < left + this.imageWidth + width + 2);
+        if (capacity == 0) {
+            return original;
+        }
+        double localX = mouseX - left;
+        double localY = mouseY - top;
+        if (PocketLayout.containsPocket(capacity, this.imageWidth, PocketLayout.CREATIVE_PANEL_TOP, localX, localY)) {
+            return false;
+        }
+        return original;
     }
 }

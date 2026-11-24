@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:frost_metal_nugget"
+            "items": "#c:nuggets/frost_metal"
           }
         ]
       },

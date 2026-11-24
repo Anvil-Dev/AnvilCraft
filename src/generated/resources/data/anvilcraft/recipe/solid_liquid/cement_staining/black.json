@@ -20,7 +20,7 @@
   ],
   "ingredients": [
     {
-      "items": "minecraft:black_dye"
+      "items": "#c:dyes/black"
     }
   ],
   "max_efficiency": 1,

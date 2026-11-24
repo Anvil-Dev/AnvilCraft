@@ -42,6 +42,8 @@ public class LaserGunItem extends EnergyWeaponItem {
     private static final int[] DAMAGE = {12, 28, 60, 124, 252};
     private static final int[] ENERGY = {400_000, 800_000, 1_600_000, 3_200_000, 6_400_000};
     private static final int[] VISUAL_LEVEL = {1, 2, 4, 8, 16};
+    private static final int TICKS_PER_STAGE = 100;
+    private static final int MAX_CHARGE = TICKS_PER_STAGE * (DAMAGE.length - 1);
 
     public LaserGunItem(Properties properties) {
         super(properties);
@@ -72,38 +74,32 @@ public class LaserGunItem extends EnergyWeaponItem {
             level.holderLookup(Registries.ENCHANTMENT).getOrThrow(Enchantments.PIERCING));
         List<LivingEntity> targets = WeaponRaycastUtil.livingEntitiesToEnd(
             level, player, ray, Math.min(5, piercing) + 1);
-        Vec3 end = ray.end();
-        int visualStage = targets.isEmpty() ? 0 : Math.min(4, state.targetTicks / 100);
-        Vec3 visualStart = WeaponRaycastUtil.visualStart(player, WeaponRaycastUtil.MUZZLE_RIGHT_OFFSET);
-        WeaponBeamEntity.showContinuous(
-            level, visualStart, end, WeaponBeamEntity.LASER, VISUAL_LEVEL[visualStage], player);
-
-        if (!targets.isEmpty()) {
+        if (targets.isEmpty()) {
+            state.loseFocus();
+            mine(serverLevel, player, stack, blockHit, state);
+            int period = state.vein.isEmpty() ? 0 : miningPeriod(level, stack);
+            WeaponChargeProgressPacket.sync(player, stack, state.miningTicks, period, true, (float) state.targetTicks / MAX_CHARGE);
+        } else {
+            state.focus(targets.getFirst().getUUID());
             state.resetMining();
             hurtTargets(serverLevel, player, stack, targets, state);
-            WeaponChargeProgressPacket.sync(
-                player, stack, state.targetTicks >= 400 ? 100 : state.targetTicks, 100, state.targetTicks < 400);
-            return;
+            WeaponChargeProgressPacket.sync(player, stack, state.targetTicks, MAX_CHARGE, false);
         }
-        state.resetTarget();
-        mine(serverLevel, player, stack, blockHit, state);
-        WeaponChargeProgressPacket.sync(player, stack, state.miningTicks, state.vein.isEmpty() ? 0 : miningPeriod(level, stack), true);
+        Vec3 visualStart = WeaponRaycastUtil.visualStart(player, WeaponRaycastUtil.MUZZLE_RIGHT_OFFSET);
+        WeaponBeamEntity.showContinuous(
+            level, visualStart, ray.end(), WeaponBeamEntity.LASER, VISUAL_LEVEL[state.targetTicks / TICKS_PER_STAGE], player);
     }
 
     private static void hurtTargets(
         ServerLevel level, ServerPlayer player, ItemStack stack, List<LivingEntity> targets, LaserState state
     ) {
-        UUID first = targets.getFirst().getUUID();
-        if (!first.equals(state.target)) {
-            state.target = first;
-            state.targetTicks = 0;
-        }
-        state.targetTicks++;
         int quickCharge = stack.getEnchantmentLevel(
             level.holderLookup(Registries.ENCHANTMENT).getOrThrow(Enchantments.QUICK_CHARGE));
         int period = 20 - Math.min(quickCharge, 10);
-        if (state.targetTicks % period != 0) return;
-        int stage = Math.min(4, state.targetTicks / 100);
+        if (state.attackTicks % period != 0) {
+            return;
+        }
+        int stage = state.targetTicks / TICKS_PER_STAGE;
         if (!((EnergyWeaponItem) stack.getItem()).consumeEnergy(player, stack, ENERGY[stage])) return;
 
         if (stage >= 3) {
@@ -217,14 +213,32 @@ public class LaserGunItem extends EnergyWeaponItem {
     private static final class LaserState {
         private UUID target;
         private int targetTicks;
+        private int attackTicks;
+        private int focusLostTicks;
         private int miningTicks;
         private int idleTicks;
         private BlockPos miningAnchor;
         private final Deque<BlockPos> vein = new ArrayDeque<>();
 
-        private void resetTarget() {
-            this.target = null;
-            this.targetTicks = 0;
+        private void focus(UUID targetId) {
+            if (!targetId.equals(this.target)) {
+                this.target = targetId;
+                this.targetTicks = 0;
+                this.attackTicks = 0;
+            }
+            this.targetTicks = Math.min(MAX_CHARGE, this.targetTicks + 1);
+            this.attackTicks++;
+            this.focusLostTicks = 0;
+        }
+
+        private void loseFocus() {
+            if (this.targetTicks > 0 && ++this.focusLostTicks == 20) {
+                this.targetTicks = Math.max(0, this.targetTicks - TICKS_PER_STAGE);
+                this.focusLostTicks = 0;
+                if (this.targetTicks == 0) {
+                    this.target = null;
+                }
+            }
         }
 
         private void resetMining() {

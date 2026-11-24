@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
+import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -24,6 +25,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.common.NeoForgeMod;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 public class SolidLiquidRecipeLoader {
@@ -92,7 +94,7 @@ public class SolidLiquidRecipeLoader {
             .cauldron(ModFluids.EXP_FLUID.get())
             .consume(2000)
             .transform(ModFluids.LIQUID_ENCHANTMENT.get(), 1)
-            .requires(Items.LAPIS_LAZULI, 3)
+            .requires(Tags.Items.GEMS_LAPIS, 3)
             .save(provider, AnvilCraft.of("solid_liquid/liquid_enchantment"));
 
         SolidLiquidRecipe.builder()
@@ -122,17 +124,29 @@ public class SolidLiquidRecipeLoader {
             .requires(ModItems.EXP_GEM)
             .save(provider, AnvilCraft.of("solid_liquid/exp_fluid_cauldron"));
 
-        SolidLiquidRecipeLoader.liquidEnchantment(provider, ModItems.ROYAL_STEEL_INGOT, 1, Enchantments.SILK_TOUCH);
-        SolidLiquidRecipeLoader.liquidEnchantment(provider, ModItems.FROST_METAL_INGOT, 1, ModEnchantments.DISINTEGRATION_KEY);
-        SolidLiquidRecipeLoader.liquidEnchantment(provider, ModItems.EMBER_METAL_INGOT, 16, ModEnchantments.SMELTING_KEY);
-        SolidLiquidRecipeLoader.liquidEnchantment(provider, ModItems.TRANSCENDIUM_INGOT, 128, Enchantments.FORTUNE, Enchantments.LOOTING);
-        SolidLiquidRecipeLoader.liquidEnchantment(provider, Items.EMERALD, 1, Enchantments.MENDING);
-        SolidLiquidRecipeLoader.liquidEnchantment(provider, ModItems.RUBY, 8, Enchantments.FIRE_PROTECTION);
-        SolidLiquidRecipeLoader.liquidEnchantment(provider, ModItems.SAPPHIRE, 2, Enchantments.FROST_WALKER);
-        SolidLiquidRecipeLoader.liquidEnchantment(provider, ModItems.TOPAZ, 1, Enchantments.CHANNELING);
+        SolidLiquidRecipeLoader.liquidEnchantment(
+            provider, ItemIngredientPredicate.of(ModItems.ROYAL_STEEL_INGOT), 1, Enchantments.SILK_TOUCH
+        );
+        SolidLiquidRecipeLoader.liquidEnchantment(
+            provider, ItemIngredientPredicate.of(ModItemTags.FROST_METAL_INGOTS), 1, ModEnchantments.DISINTEGRATION_KEY
+        );
+        SolidLiquidRecipeLoader.liquidEnchantment(
+            provider, ItemIngredientPredicate.of(ModItems.EMBER_METAL_INGOT), 16, ModEnchantments.SMELTING_KEY
+        );
+        SolidLiquidRecipeLoader.liquidEnchantment(
+            provider, ItemIngredientPredicate.of(ModItemTags.TRANSCENDIUM_INGOTS), 128, Enchantments.FORTUNE, Enchantments.LOOTING
+        );
+        SolidLiquidRecipeLoader.liquidEnchantment(provider, ItemIngredientPredicate.of(Tags.Items.GEMS_EMERALD), 1, Enchantments.MENDING);
+        SolidLiquidRecipeLoader.liquidEnchantment(
+            provider, ItemIngredientPredicate.of(ModItemTags.GEMS_RUBY), 8, Enchantments.FIRE_PROTECTION
+        );
+        SolidLiquidRecipeLoader.liquidEnchantment(
+            provider, ItemIngredientPredicate.of(ModItemTags.GEMS_SAPPHIRE), 2, Enchantments.FROST_WALKER
+        );
+        SolidLiquidRecipeLoader.liquidEnchantment(provider, ItemIngredientPredicate.of(ModItemTags.GEMS_TOPAZ), 1, Enchantments.CHANNELING);
         SolidLiquidRecipeLoader.liquidEnchantment(
             provider,
-            Items.AMETHYST_BLOCK,
+            ItemIngredientPredicate.of(Items.AMETHYST_BLOCK),
             12,
             ModEnchantments.FELLING_KEY,
             ModEnchantments.HARVEST_KEY,
@@ -165,7 +179,7 @@ public class SolidLiquidRecipeLoader {
             )
             .consume(1)
             .requires(ModBlocks.CURSED_GOLD_BLOCK, 9)
-            .requires(Items.CHAIN)
+            .requires(Tags.Items.CHAINS)
             .transform(SolidLiquidRecipeLoader.curseFluid(Enchantments.BINDING_CURSE))
             .save(provider, AnvilCraft.of("solid_liquid/binding_curse"));
     }
@@ -202,7 +216,7 @@ public class SolidLiquidRecipeLoader {
     @SuppressWarnings("SameParameterValue")
     private static void liquidEnchantment(
         RegistrumRecipeProvider provider,
-        ItemLike input,
+        ItemIngredientPredicate.Builder input,
         int amount,
         ResourceKey<Enchantment>... enchantments
     ) {
@@ -214,7 +228,7 @@ public class SolidLiquidRecipeLoader {
                     .build()
             )
             .consume(amount)
-            .requires(input);
+            .requires(input.build());
         int each = amount / enchantments.length;
         StringBuilder idBuilder = new StringBuilder();
         for (ResourceKey<Enchantment> enchantment : enchantments) {

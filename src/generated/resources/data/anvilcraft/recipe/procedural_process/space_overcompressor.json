@@ -73,7 +73,7 @@
         "type": "anvilcraft:block_compress",
         "inputs": [
           {
-            "blocks": "anvilcraft:void_matter_block"
+            "blocks": "#c:storage_blocks/void_matter"
           },
           {
             "blocks": "anvilcraft:wip_block"

@@ -3,7 +3,7 @@
   "ingredients": [
     {
       "count": 3,
-      "items": "minecraft:bone"
+      "items": "#c:bones"
     }
   ],
   "results": [

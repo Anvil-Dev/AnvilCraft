@@ -44,7 +44,7 @@
         },
         "ingredients": [
           {
-            "items": "anvilcraft:sapphire"
+            "items": "#c:gems/sapphire"
           }
         ]
       },

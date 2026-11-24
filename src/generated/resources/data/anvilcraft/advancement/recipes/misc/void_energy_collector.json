@@ -41,7 +41,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:void_matter_block"
+            "items": "#c:storage_blocks/void_matter"
           }
         ]
       },

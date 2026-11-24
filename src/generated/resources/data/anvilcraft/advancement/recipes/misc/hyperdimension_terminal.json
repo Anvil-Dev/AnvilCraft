@@ -41,7 +41,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:transcendium_ingot"
+            "items": "#c:ingots/transcendium"
           }
         ]
       },

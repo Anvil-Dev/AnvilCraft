@@ -6,7 +6,7 @@
       "item": "anvilcraft:hardened_resin"
     },
     "R": {
-      "item": "minecraft:redstone"
+      "tag": "c:dusts/redstone"
     },
     "T": {
       "item": "minecraft:redstone_torch"

@@ -11,7 +11,7 @@
   },
   "ingredients": [
     {
-      "items": "minecraft:emerald"
+      "items": "#c:gems/emerald"
     }
   ],
   "results": [],

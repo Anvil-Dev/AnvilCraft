@@ -41,6 +41,7 @@ import dev.dubhe.anvilcraft.saved.setting.mode.OrderMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SortMode;
 import dev.dubhe.anvilcraft.saved.storage.BaseStorage;
 import dev.dubhe.anvilcraft.saved.storage.CraftingStorage;
+import dev.dubhe.anvilcraft.saved.storage.CrateStorage;
 import dev.dubhe.anvilcraft.saved.storage.HyperdimensionStorage;
 import dev.dubhe.anvilcraft.saved.storage.IStorageType;
 import dev.dubhe.anvilcraft.saved.storage.LargeCrateStorage;
@@ -174,7 +175,9 @@ public final class StorageServerStub {
     private long version;
     private long orderVersion;
     private List<BaseStorage<?>> viewedStorages = List.of();
+    private boolean localContents;
     private @Nullable StorageView view;
+    private @Nullable StorageView craftingView;
     private @Nullable List<ItemStack> craftingContents;
     private final Map<SortOptions, IntList> orders = new HashMap<>();
     private final Deque<UndoRecord> undoRecords = new ArrayDeque<>();
@@ -225,9 +228,9 @@ public final class StorageServerStub {
 
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static Metadata load(UUID playerId, long sourcePos) {
-        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos, true);
         StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
-        return new Metadata(stub.version, stub.orderVersion, view.fullness(), view.capacity());
+        return new Metadata(stub.version, stub.orderVersion, view.fullness(), view.capacity(), view.craftingAvailable());
     }
 
     @RemoteCallable(validator = StorageOpenStateValidator.class)
@@ -303,7 +306,7 @@ public final class StorageServerStub {
     @CallableParam(clazz = StorageServerStub.class, field = "ITEM_STACK_LIST_STREAM_CODEC")
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static List<ItemStack> craftingStorageContents(UUID playerId, long sourcePos, int offset) {
-        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos, true);
         StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
         if (offset < 0) {
             throw new IllegalArgumentException("Invalid crafting contents offset: " + offset);
@@ -868,17 +871,17 @@ public final class StorageServerStub {
         return virtualPos;
     }
 
-    /** 查询主存储是否已解锁合成模式，不消耗材料。 */
+    /** 查询当前存储可用的合成工作站。 */
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static boolean craftingAvailable(UUID playerId, long sourcePos) {
-        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
-        return view.primary().getRecipeBases() != null;
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos, true);
+        return view.craftingAvailable();
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static boolean craftingUnlock(UUID playerId, long sourcePos) {
-        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
-        return view.primary().unlockCrafting();
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos, true);
+        return view.unlockCrafting();
     }
 
     /**
@@ -896,7 +899,7 @@ public final class StorageServerStub {
      * 左键空指针取整堆 / 右键取半堆；指针有物时同种堆叠（左键放全部、右键放 1 个），
      * 异种整个交换。仅接受能匹配切石机配方的物品。
      */
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static InteractionResult craftingPutStonecutterInput(
         UUID playerId,
         long sourcePos,
@@ -961,7 +964,7 @@ public final class StorageServerStub {
      * ② 合成 9 宫格：按玩家物品栏点击语义与指定槽交换物品。
      * 左键空指针取整堆 / 右键取半堆；指针有物时同种堆叠（左键放全部、右键放 1 个），异种整个交换。
      */
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static InteractionResult craftingPutCraftingSlot(
         UUID playerId,
         long sourcePos,
@@ -1037,7 +1040,7 @@ public final class StorageServerStub {
     }
 
     /** 设置① 的切石机选中配方索引。 */
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static void craftingSelect(UUID playerId, long sourcePos, int index) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
@@ -1045,7 +1048,7 @@ public final class StorageServerStub {
     }
 
     /** 设置合成面板选项（自动补料 / 产物去向）。 */
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static void craftingSetOptions(UUID playerId, long sourcePos, boolean autoFill, boolean toStorage) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
@@ -1053,7 +1056,7 @@ public final class StorageServerStub {
     }
 
     /** 按指定目标转移输入物品，容不下的物品保留在原槽。 */
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static boolean craftingClear(UUID playerId, long sourcePos, boolean toStorage) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
@@ -1108,7 +1111,7 @@ public final class StorageServerStub {
      * {@code craftingSlots} 为 ①/② 槽（0 为①，1~9 为②），
      * {@code inventorySlots} 为玩家背包在 containerMenu 中的槽位号。
      */
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static InteractionResult craftingQuickCraft(
         UUID playerId,
         long sourcePos,
@@ -1246,7 +1249,7 @@ public final class StorageServerStub {
      * 输入槽 Shift 点击：把 ①/② 槽内物品移出——先放入玩家背包（合并已有堆叠/空格），
      * 放不下再放入仓储（仅世界存储场景），仍放不下则留在槽内。绝不放到指针。
      */
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static boolean craftingQuickMoveOut(UUID playerId, long sourcePos, int slot) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         if (slot < 0 || slot >= 10) {
@@ -1313,7 +1316,7 @@ public final class StorageServerStub {
      *
      * <p>指针非空时不丢出，与原版 {@code ClickType.THROW} 及仓储槽丢弃一致。</p>
      */
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static InteractionResult craftingThrowSlot(UUID playerId, long sourcePos, int slot, boolean stack) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         if (slot < 0 || slot >= 10) {
@@ -1352,7 +1355,7 @@ public final class StorageServerStub {
      * <p>与仓储槽中键的 {@code CLONE} 语义一致：仅创造模式、指针为空时生效，
      * 且槽内物品保留（复制而非取出）。</p>
      */
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static InteractionResult craftingCloneSlot(UUID playerId, long sourcePos, int slot) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         if (slot < 0 || slot >= 10) {
@@ -1375,7 +1378,7 @@ public final class StorageServerStub {
         return new InteractionResult(cloned, false);
     }
 
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static InteractionResult craftingPickupAll(
         UUID playerId,
         long sourcePos,
@@ -1475,7 +1478,7 @@ public final class StorageServerStub {
      * 背包槽双击补充：把 ①/② 输入槽中与指针同种的物品收集到指针
      * （背包 PICKUP_ALL 只收集背包，此调用补充输入槽部分，上限为最大堆叠）。
      */
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static InteractionResult craftingPickupIntoCarried(
         UUID playerId,
         long sourcePos,
@@ -1520,7 +1523,7 @@ public final class StorageServerStub {
      * 取③/④ 配方结果：消耗输入并放到指针。stonecutter=true 取③（消耗①），false 取④（消耗②）。
      * 指针已有同种且能放下的物品时合并取出；异种或放不下时不消耗输入。
      */
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static InteractionResult craftingTakeResult(UUID playerId, long sourcePos, boolean stonecutter, boolean shift) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
@@ -1593,7 +1596,7 @@ public final class StorageServerStub {
      * @param stack true 为 Ctrl+Q（约一组），false 为 Q（一次）
      * @return {@code changed} 表示本次是否有产物被丢出
      */
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static InteractionResult craftingThrowResult(
         UUID playerId,
         long sourcePos,
@@ -1688,7 +1691,7 @@ public final class StorageServerStub {
      * {@code done=false}，由客户端循环调用直至 {@code done=true}，避免一次性阻塞
      * 服务端线程过久。</p>
      */
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static TakeAllResult craftingTakeAll(UUID playerId, long sourcePos, boolean stonecutter, int multiplier) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
@@ -2507,7 +2510,9 @@ public final class StorageServerStub {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
         CraftingStorage crafting = target.read();
-        if (target.view() == null || target.view().primary().getRecipeBases() == null) return false;
+        if (target.view() == null || !target.view().craftingAvailable()) {
+            return false;
+        }
         Inventory inventory = player.getInventory();
         crafting = StorageServerStub.clearCrafting(target, crafting);
         if (stonecutter) {
@@ -2680,7 +2685,7 @@ public final class StorageServerStub {
         if (
             target.terminal() != null && currentCarried == target.terminal()
             || target.view() == null
-            || target.view().primary().getRecipeBases() == null
+            || !target.view().craftingAvailable()
             || request.maxBatches() <= 0
         ) {
             return new InteractionResult(currentCarried.copy(), false).withCrafting(target.read());
@@ -4000,7 +4005,7 @@ public final class StorageServerStub {
             ItemStack terminal = StorageServerStub.findTerminalStack(player, remote.kind());
             // 终端场景：合成数据读写目标为终端物品的 crafting 组件，但转移材料
             // 需要从终端连接的目标存储补足——view 复用 getView 的终端目标解析
-            StorageView view = StorageServerStub.getView(registries, playerId, sourcePos);
+            StorageView view = StorageServerStub.getView(registries, playerId, sourcePos, true);
             return new CraftingTarget(
                 terminal,
                 null,
@@ -4008,7 +4013,7 @@ public final class StorageServerStub {
                 player
             );
         }
-        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos, true);
         return new CraftingTarget(null, view.primary(), view, player);
     }
 
@@ -4275,7 +4280,7 @@ public final class StorageServerStub {
             return new InteractionResult(ItemStack.EMPTY, false);
         }
         HolderLookup.Provider registries = player.level().registryAccess();
-        StorageView view = new StorageView(StorageServerStub.terminalStorages(player, targetId), List.of());
+        StorageView view = new StorageView(StorageServerStub.terminalStorages(player, targetId));
         if (view.size() <= 0) {
             return new InteractionResult(ItemStack.EMPTY, false);
         }
@@ -4371,7 +4376,7 @@ public final class StorageServerStub {
             }
             int space = StorageServerStub.getInventorySpace(player.getInventory(), resource);
             int got = StorageServerStub.extractByResource(
-                new StorageView(storages, List.of()), resource, Math.min(required, space)
+                new StorageView(storages), resource, Math.min(required, space)
             );
             if (got > 0) {
                 player.getInventory().add(resource.copyWithCount(got));
@@ -5011,7 +5016,7 @@ public final class StorageServerStub {
         List<BaseStorage<?>> sources = storages.stream()
             .filter(storage -> StorageServerStub.canStore(storage, resource))
             .toList();
-        int taken = StorageServerStub.extractByResource(new StorageView(sources, List.of()), resource, need);
+        int taken = StorageServerStub.extractByResource(new StorageView(sources), resource, need);
         if (taken <= 0) {
             return;
         }
@@ -5173,7 +5178,7 @@ public final class StorageServerStub {
             return ItemStack.EMPTY;
         }
         HolderLookup.Provider registries = player.level().registryAccess();
-        StorageView view = new StorageView(StorageServerStub.terminalStorages(player, targetId), List.of());
+        StorageView view = new StorageView(StorageServerStub.terminalStorages(player, targetId));
         if (view.size() <= 0) {
             return ItemStack.EMPTY;
         }
@@ -5281,7 +5286,7 @@ public final class StorageServerStub {
     /** 构造终端目标不可达时的空占位存储视图（界面 / 浮窗显示为空）。 */
     private static StorageView emptyView(ServerPlayer player) {
         UUID id = StorageServerStub.emptyTerminalId(player.getGameProfile().getId());
-        return new StorageView(List.of(new EmptyTerminalStorage(id)), List.of());
+        return new StorageView(List.of(new EmptyTerminalStorage(id)));
     }
 
     /** 终端目标不可达（超出范围 / 目标消失）时的占位空存储。 */
@@ -5514,7 +5519,7 @@ public final class StorageServerStub {
         }
     }
 
-    public static final class StorageAccessValidator implements IRemoteCallableValidator {
+    public static class StorageAccessValidator implements IRemoteCallableValidator {
         @Override
         public boolean validate(IPayloadContext ctx, Method method, Object[] args) {
             boolean valid = this.isValid(ctx, args);
@@ -5524,7 +5529,7 @@ public final class StorageServerStub {
             return valid;
         }
 
-        private boolean isValid(IPayloadContext ctx, Object[] args) {
+        protected boolean isValid(IPayloadContext ctx, Object[] args) {
             if (
                 !(ctx.player() instanceof ServerPlayer player)
                 || args.length < 2
@@ -5547,6 +5552,15 @@ public final class StorageServerStub {
                 player,
                 storage.getBlockState().getBlock()
             );
+        }
+    }
+
+    /** 合成面板的操作需要当前存储仍能访问已安装的工作站。 */
+    public static final class CraftingAccessValidator extends StorageAccessValidator {
+        @Override
+        protected boolean isValid(IPayloadContext ctx, Object[] args) {
+            return super.isValid(ctx, args)
+                && getView(ctx.player().registryAccess(), (UUID) args[0], (long) args[1], true).craftingAvailable();
         }
     }
 
@@ -5634,7 +5648,7 @@ public final class StorageServerStub {
         }
     }
 
-    public record Metadata(long version, long orderVersion, double fullness, Capacity capacity) {
+    public record Metadata(long version, long orderVersion, double fullness, Capacity capacity, boolean craftingAvailable) {
         public static final StreamCodec<ByteBuf, Metadata> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.VAR_LONG,
             Metadata::version,
@@ -5644,6 +5658,8 @@ public final class StorageServerStub {
             Metadata::fullness,
             Capacity.STREAM_CODEC,
             Metadata::capacity,
+            ByteBufCodecs.BOOL,
+            Metadata::craftingAvailable,
             Metadata::new
         );
     }
@@ -6630,6 +6646,10 @@ public final class StorageServerStub {
     }
 
     private static StorageView getView(HolderLookup.Provider registries, UUID playerId, long sourcePos) {
+        return getView(registries, playerId, sourcePos, false);
+    }
+
+    private static StorageView getView(HolderLookup.Provider registries, UUID playerId, long sourcePos, boolean crafting) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         RemoteTarget remote = StorageServerStub.REMOTE_STORAGES.getOrDefault(playerId, Map.of()).get(sourcePos);
         if (remote != null && remote.storageId() != null) {
@@ -6674,7 +6694,7 @@ public final class StorageServerStub {
             crate.refreshDispose();
         }
         String search = PlayerSettings.getSetting(registries, playerId).storage().getSearchContent().strip();
-        if (search.isEmpty() || !(storage instanceof CrateBlockEntity)) {
+        if (!(storage instanceof CrateBlockEntity)) {
             return StorageServerStub.getView(playerId, List.of(primary));
         }
         List<BaseStorage<?>> storages = new ArrayList<>();
@@ -6688,13 +6708,18 @@ public final class StorageServerStub {
                 });
             }
         }
-        return StorageServerStub.getView(playerId, storages);
+        return getView(playerId, storages, search.isEmpty(), crafting);
     }
 
     // 分页请求复用同一份汇总，库存或来源变化时重新构建。
     private static StorageView getView(UUID playerId, List<BaseStorage<?>> storages) {
+        return getView(playerId, storages, false, false);
+    }
+
+    private static StorageView getView(UUID playerId, List<BaseStorage<?>> storages, boolean localContents, boolean crafting) {
         StorageServerStub stub = StorageServerStub.get(playerId, storages.getLast().getId());
-        if (!stub.viewedStorages.equals(storages)) {
+        if (stub.localContents != localContents || !stub.viewedStorages.equals(storages)) {
+            stub.localContents = localContents;
             stub.viewedStorages = List.copyOf(storages);
             stub.view = null;
             stub.version++;
@@ -6702,9 +6727,11 @@ public final class StorageServerStub {
             stub.orders.clear();
         }
         if (stub.view == null) {
-            stub.view = new StorageView(stub.viewedStorages, List.of());
+            List<BaseStorage<?>> displayed = localContents ? List.of(storages.getLast()) : stub.viewedStorages;
+            stub.view = new StorageView(displayed);
+            stub.craftingView = displayed.size() == storages.size() ? stub.view : new StorageView(stub.viewedStorages, displayed);
         }
-        return stub.view;
+        return crafting ? Objects.requireNonNull(stub.craftingView) : stub.view;
     }
 
     private record SortOptions(SortMode sort, OrderMode order) {
@@ -6715,10 +6742,16 @@ public final class StorageServerStub {
 
     private static final class StorageView {
         private final List<BaseStorage<?>> storages;
+        private final List<BaseStorage<?>> destinations;
         private @Nullable List<Entry> entries;
 
-        private StorageView(List<BaseStorage<?>> storages, List<Entry> ignored) {
+        private StorageView(List<BaseStorage<?>> storages) {
+            this(storages, storages);
+        }
+
+        private StorageView(List<BaseStorage<?>> storages, List<BaseStorage<?>> destinations) {
             this.storages = storages;
+            this.destinations = destinations;
         }
 
         private List<Entry> entries() {
@@ -6751,6 +6784,21 @@ public final class StorageServerStub {
 
         BaseStorage<?> primary() {
             return this.storages.getLast();
+        }
+
+        boolean craftingAvailable() {
+            if (this.primary() instanceof CrateStorage) {
+                return this.storages.stream().anyMatch(storage -> storage.getRecipeBases() != null);
+            }
+            return this.primary().getRecipeBases() != null;
+        }
+
+        boolean unlockCrafting() {
+            if (this.craftingAvailable()) {
+                return true;
+            }
+            return this.primary() instanceof CrateStorage
+                ? this.primary().unlockCrafting(this.storages.reversed()) : this.primary().unlockCrafting();
         }
 
         int size() {
@@ -6787,8 +6835,8 @@ public final class StorageServerStub {
                 return 0;
             }
             int inserted = 0;
-            for (int i = 0; i < this.storages.size() - 1; i++) {
-                UnlimitedItemStacksResourceHandler items = this.storages.get(i).getAvailableItems();
+            for (int i = 0; i < this.destinations.size() - 1; i++) {
+                UnlimitedItemStacksResourceHandler items = this.destinations.get(i).getAvailableItems();
                 if (!contains(items, resource)) continue;
                 inserted += insertInto(items, resource.copyWithCount(amount - inserted));
                 if (inserted == amount) return inserted;
@@ -6796,8 +6844,8 @@ public final class StorageServerStub {
             UnlimitedItemStacksResourceHandler primaryItems = this.primary().getAvailableItems();
             inserted += insertInto(primaryItems, resource.copyWithCount(amount - inserted));
             if (inserted == amount) return inserted;
-            for (int i = 0; i < this.storages.size() - 1; i++) {
-                inserted += insertInto(this.storages.get(i).getAvailableItems(), resource.copyWithCount(amount - inserted));
+            for (int i = 0; i < this.destinations.size() - 1; i++) {
+                inserted += insertInto(this.destinations.get(i).getAvailableItems(), resource.copyWithCount(amount - inserted));
                 if (inserted == amount) return inserted;
             }
             return inserted;

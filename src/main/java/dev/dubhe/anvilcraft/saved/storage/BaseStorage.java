@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.api.event.StorageUnlockCraftingEvent;
+import dev.dubhe.anvilcraft.api.event.StorageUnlockCraftingEvent.SourceSlot;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.LinkedStorageItems;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
@@ -72,47 +73,64 @@ public abstract class BaseStorage<T extends UnlimitedItemStacksResourceHandler> 
      * @return 解锁成功或此前已解锁时为 true
      */
     public boolean unlockCrafting() {
+        return this.unlockCrafting(List.of(this));
+    }
+
+    /** 从参与合成的存储中扣除工作台和切石机，将安装记录保存在当前存储。 */
+    public boolean unlockCrafting(List<BaseStorage<?>> sources) {
         if (this.recipeBases != null) {
             return true;
         }
-        UnlimitedItemStacksResourceHandler available = this.getAvailableItems();
-        int workbench = -1;
-        int stonecutter = -1;
-        for (int i = 0; i < available.size(); i++) {
-            ItemStack stack = available.getStackInSlot(i);
-            if (stack.isEmpty()) continue;
-            if (stack.is(Tags.Items.PLAYER_WORKSTATIONS_CRAFTING_TABLES)) {
-                workbench = i;
-            } else if (stack.is(ModItemTags.PLAYER_WORKSTATIONS_STONECUTTERS)) {
-                stonecutter = i;
+        SourceSlot workbench = null;
+        SourceSlot stonecutter = null;
+        for (BaseStorage<?> source : sources) {
+            var available = source.getAvailableItems();
+            for (int slot = 0; slot < available.size(); slot++) {
+                var stack = available.getStackInSlot(slot);
+                if (stack.isEmpty() || available.getAmountAsLong(slot) <= 0) {
+                    continue;
+                }
+                if (workbench == null && stack.is(Tags.Items.PLAYER_WORKSTATIONS_CRAFTING_TABLES)) {
+                    workbench = new SourceSlot(source, slot);
+                } else if (stonecutter == null && stack.is(ModItemTags.PLAYER_WORKSTATIONS_STONECUTTERS)) {
+                    stonecutter = new SourceSlot(source, slot);
+                }
+                if (workbench != null && stonecutter != null) {
+                    break;
+                }
             }
-            if (workbench >= 0 && stonecutter >= 0) break;
+            if (workbench != null && stonecutter != null) {
+                break;
+            }
         }
-        if (workbench < 0 || stonecutter < 0) {
+        if (workbench == null || stonecutter == null) {
             return false;
         }
         StorageUnlockCraftingEvent event = new StorageUnlockCraftingEvent(this);
-        event.addRecipeBaseSlot(workbench);
-        event.addRecipeBaseSlot(stonecutter);
+        event.addRecipeBaseSlot(workbench.storage(), workbench.slot());
+        event.addRecipeBaseSlot(stonecutter.storage(), stonecutter.slot());
         if (NeoForge.EVENT_BUS.post(event).isCanceled()) {
             return false;
         }
-        List<Integer> slots = event.getRecipeBaseSlots();
-        List<ItemStack> bases = new ArrayList<>(slots.size());
-        for (int slot : slots) {
-            if (slot < 0 || slot >= available.size()) {
+        List<ItemStack> bases = new ArrayList<>();
+        Map<SourceSlot, Integer> costs = new HashMap<>();
+        for (SourceSlot source : event.getSources()) {
+            var available = source.storage().getAvailableItems();
+            int slot = source.slot();
+            if (!sources.contains(source.storage()) || slot < 0 || slot >= available.size()) {
                 return false;
             }
-            ItemStack stack = available.getStackInSlot(slot);
-            if (stack.isEmpty()) {
+            int count = costs.merge(source, 1, Integer::sum);
+            ItemStack stack = available.extractItem(slot, 1, true);
+            if (stack.isEmpty() || available.getAmountAsLong(slot) < count) {
                 return false;
             }
-            bases.add(stack.copyWithCount(1));
+            bases.add(stack);
         }
-        for (int slot : slots) {
-            available.extractItem(slot, 1, false);
+        for (SourceSlot source : event.getSources()) {
+            source.storage().getAvailableItems().extractItem(source.slot(), 1, false);
         }
-        this.recipeBases = List.copyOf(bases);
+        this.setRecipeBases(List.copyOf(bases));
         Storages.get().setDirty();
         return true;
     }

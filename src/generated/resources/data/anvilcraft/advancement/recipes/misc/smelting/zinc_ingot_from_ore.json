@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:deepslate_zinc_ore"
+            "items": "#c:ores/zinc"
           }
         ]
       },

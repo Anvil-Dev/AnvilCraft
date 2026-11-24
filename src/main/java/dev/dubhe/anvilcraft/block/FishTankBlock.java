@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluidTags;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
+import dev.dubhe.anvilcraft.util.CauldronIgnition;
 import dev.dubhe.anvilcraft.util.ModInteractionMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -206,7 +207,10 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
         }
         IItemHandler items = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
         FishTankBlockEntity.insertItemToTank(items, itemEntity);
-        if (this.isIgnited(new BlockCache(level), pos) && !itemEntity.isRemoved()) {
+        // 点燃后锅内的物品会被烧掉，但热金属块要留给后续配方
+        if (this.isIgnited(new BlockCache(level), pos)
+            && !itemEntity.isRemoved()
+            && !itemEntity.getItem().is(ModItemTags.UNBROKEN_FIRE_STARTER)) {
             itemEntity.discard();
         }
     }
@@ -255,6 +259,13 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
                 return this.changeOutlet(level, pos, state, player, player.getDirection());
             }
         }
+        if (CauldronIgnition.isShovel(stack)
+            && level.getBlockEntity(pos) instanceof FishTankBlockEntity tank
+            && tank.isIgnited()
+        ) {
+            return CauldronIgnition.useShovelToExtinguish(
+                level, pos, player, hand, stack, () -> tank.setIgnited(false));
+        }
         CauldronInteraction interaction = ModInteractionMap.FISH_TANK.map().get(stack.getItem());
         if (interaction != null) return interaction.interact(state, level, pos, player, hand, stack);
         return this.useItemOnTank(stack, state, level, pos, player, hand, hitResult);
@@ -280,19 +291,18 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
     }
 
     public boolean tryIgnite(Level level, BlockPos pos) {
-        if (!(level.getBlockEntity(pos) instanceof FishTankBlockEntity tank)) return false;
-        if (!FishTankBlockEntity.canIgnite(tank.getFluidHandler().getFluid())) return false;
-        if (tank.isIgnited()) {
-            if (this.isIgnited(new BlockCache(level), pos) && level.getBlockState(pos.below()).is(ModBlocks.HEATER)) {
-                level.scheduleTick(pos, this, 2);
-            }
+        if (!(level.getBlockEntity(pos) instanceof FishTankBlockEntity tank)
+            || !FishTankBlockEntity.canIgnite(tank.getFluidHandler().getFluid())) {
             return false;
         }
-        tank.setIgnited(true);
-        if (this.isIgnited(new BlockCache(level), pos) && level.getBlockState(pos.below()).is(ModBlocks.HEATER)) {
-            level.scheduleTick(pos, this, 2);
+        boolean wasIgnited = tank.isIgnited();
+        if (!level.isClientSide()) {
+            tank.setIgnited(true);
+            if (level.getBlockState(pos.below()).is(ModBlocks.HEATER)) {
+                level.scheduleTick(pos, this, 2);
+            }
         }
-        return true;
+        return !wasIgnited;
     }
 
     private ItemInteractionResult useItemOnTank(
@@ -352,6 +362,9 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
 
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        if (!(level.getBlockEntity(pos) instanceof FishTankBlockEntity tank) || !tank.isIgnited()) {
+            return;
+        }
         BlockState below = level.getBlockState(pos.below());
         if (below.is(ModBlocks.HEATER) && !below.getValue(HeaterBlock.OVERLOAD) && !PlasmaJetsBlock.trySpawn(pos.above(), level)) {
             level.scheduleTick(pos, this, 10);

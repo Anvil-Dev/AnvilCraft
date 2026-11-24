@@ -5,7 +5,7 @@
       "blocks": "minecraft:nether_wart_block"
     },
     {
-      "blocks": "minecraft:netherrack"
+      "blocks": "#c:netherracks"
     }
   ],
   "result": {

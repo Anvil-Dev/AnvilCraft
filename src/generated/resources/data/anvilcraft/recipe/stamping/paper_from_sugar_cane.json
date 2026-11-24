@@ -2,7 +2,7 @@
   "type": "anvilcraft:stamping",
   "ingredients": [
     {
-      "items": "minecraft:sugar_cane"
+      "items": "#c:crops/sugar_cane"
     }
   ],
   "results": [

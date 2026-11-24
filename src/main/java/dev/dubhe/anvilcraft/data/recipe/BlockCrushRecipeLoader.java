@@ -5,11 +5,12 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCrushRecipe;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.neoforged.neoforge.common.Tags;
 
 public class BlockCrushRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
-        blockCrush(provider, Blocks.COBBLESTONE, Blocks.GRAVEL);
-        blockCrush(provider, Blocks.GRAVEL, Blocks.SAND);
+        BlockCrushRecipe.builder().input(Tags.Blocks.COBBLESTONES_NORMAL).result(Blocks.GRAVEL).save(provider);
+        BlockCrushRecipe.builder().input(Tags.Blocks.GRAVELS).result(Blocks.SAND).save(provider);
         blockCrush(provider, Blocks.POLISHED_GRANITE, Blocks.GRANITE);
         blockCrush(provider, Blocks.GRANITE, Blocks.RED_SAND);
         blockCrush(provider, Blocks.POLISHED_ANDESITE, Blocks.ANDESITE);
@@ -22,9 +23,9 @@ public class BlockCrushRecipeLoader {
         blockCrush(provider, Blocks.DEEPSLATE_TILES, Blocks.CRACKED_DEEPSLATE_TILES);
         blockCrush(provider, Blocks.POLISHED_BLACKSTONE_BRICKS, Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS);
         blockCrush(provider, Blocks.SOUL_SOIL, Blocks.SOUL_SAND);
-        blockCrush(provider, Blocks.NETHERRACK, ModBlocks.NETHER_DUST.get());
-        blockCrush(provider, Blocks.END_STONE, ModBlocks.END_DUST.get());
-        blockCrush(provider, Blocks.FURNACE, ModBlocks.BURNING_HEATER.get());
+        BlockCrushRecipe.builder().input(Tags.Blocks.NETHERRACKS).result(ModBlocks.NETHER_DUST.get()).save(provider);
+        BlockCrushRecipe.builder().input(Tags.Blocks.END_STONES).result(ModBlocks.END_DUST.get()).save(provider);
+        BlockCrushRecipe.builder().input(Tags.Blocks.PLAYER_WORKSTATIONS_FURNACES).result(ModBlocks.BURNING_HEATER.get()).save(provider);
     }
 
     private static void blockCrush(RegistrumRecipeProvider provider, Block input, Block result) {

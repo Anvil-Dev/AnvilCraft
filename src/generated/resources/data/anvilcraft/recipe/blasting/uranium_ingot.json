@@ -5,7 +5,7 @@
   "experience": 1.0,
   "group": "anvilcraft:uranium_ingot",
   "ingredient": {
-    "item": "anvilcraft:raw_uranium"
+    "tag": "c:raw_materials/uranium"
   },
   "result": {
     "count": 1,

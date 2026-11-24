@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "A": {
-      "item": "minecraft:copper_ingot"
+      "tag": "c:ingots/copper"
     },
     "B": {
       "item": "anvilcraft:charge_collector"

@@ -20,7 +20,7 @@
   ],
   "ingredients": [
     {
-      "items": "minecraft:green_dye"
+      "items": "#c:dyes/green"
     }
   ],
   "max_efficiency": 1,

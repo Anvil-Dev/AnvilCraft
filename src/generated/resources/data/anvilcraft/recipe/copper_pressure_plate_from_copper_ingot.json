@@ -3,7 +3,7 @@
   "category": "redstone",
   "key": {
     "A": {
-      "item": "minecraft:copper_ingot"
+      "tag": "c:ingots/copper"
     }
   },
   "pattern": [

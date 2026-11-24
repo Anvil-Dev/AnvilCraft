@@ -32,10 +32,11 @@ public class OtherLang {
 
         provider.add("item.anvilcraft.geode.find", "Suspected amethyst geode, located %s");
         provider.add("item.anvilcraft.disk.stored_from", "Stored from: %s");
-        provider.add("item.anvilcraft.spectral_slingshot.unload_return", "Returned when Unloaded");
-        provider.add("item.anvilcraft.spectral_slingshot.unload_vanish", "Vanishes when Unloaded");
+        provider.add("tooltip.anvilcraft.spectral_slingshot.clear", "[Shift+Right-click] to clear the spectral weapon");
+        provider.add("tooltip.anvilcraft.spectral_slingshot.current", "Current spectral weapon: %s");
 
         provider.add("entity.minecraft.villager.anvilcraft.jeweler", "Jeweler");
+        provider.add("attribute.name.anvilcraft.pocket_count", "Pocket Count");
 
         provider.add("pack.anvilcraft.builtin_pack", "AnvilCraft Builtin ResourcePack");
         provider.add("pack.anvilcraft.transparent_cauldron.description", "Transparent Cauldron");

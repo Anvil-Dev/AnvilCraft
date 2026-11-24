@@ -20,7 +20,7 @@
   ],
   "ingredients": [
     {
-      "items": "minecraft:light_blue_dye"
+      "items": "#c:dyes/light_blue"
     }
   ],
   "max_efficiency": 1,

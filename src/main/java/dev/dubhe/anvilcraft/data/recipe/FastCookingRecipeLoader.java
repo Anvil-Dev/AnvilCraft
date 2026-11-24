@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.FastCookingRecipe;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.neoforged.neoforge.common.Tags;
 
 public class FastCookingRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
@@ -18,7 +19,7 @@ public class FastCookingRecipeLoader {
 
         FastCookingRecipe.builder()
             .requires(ModItemTags.DOUGH)
-            .requires(Items.EGG)
+            .requires(Tags.Items.EGGS)
             .requires(Items.SUGAR)
             .result(ModBlocks.CAKE_BASE_BLOCK)
             .save(provider);
@@ -31,7 +32,7 @@ public class FastCookingRecipeLoader {
 
         FastCookingRecipe.builder()
             .cauldron(Blocks.WATER_CAULDRON)
-            .requires(Items.BEEF)
+            .requires(ModItemTags.RAW_BEEF)
             .requires(Items.BROWN_MUSHROOM)
             .requires(Items.RED_MUSHROOM)
             .requires(Items.BOWL)

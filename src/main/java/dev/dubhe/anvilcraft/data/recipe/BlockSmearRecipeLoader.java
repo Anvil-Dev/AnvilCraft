@@ -14,10 +14,12 @@ import net.minecraft.world.level.block.GrindstoneBlock;
 import net.minecraft.world.level.block.WeatheringCopper;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.AttachFace;
+import net.neoforged.neoforge.common.Tags;
 
 public class BlockSmearRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
-        blockSmear(provider, Blocks.MOSS_BLOCK, Blocks.COBBLESTONE, Blocks.MOSSY_COBBLESTONE);
+        BlockSmearRecipe.builder().input(Blocks.MOSS_BLOCK).input(Tags.Blocks.COBBLESTONES_NORMAL)
+            .result(Blocks.MOSSY_COBBLESTONE).save(provider);
         blockSmear(provider, Blocks.MOSS_BLOCK, Blocks.STONE_BRICKS, Blocks.MOSSY_STONE_BRICKS);
 
         for (Holder<Block> holder : BuiltInRegistries.BLOCK.holders().toList()) {

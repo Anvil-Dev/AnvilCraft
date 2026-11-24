@@ -3,7 +3,7 @@
   "category": "building",
   "ingredients": [
     {
-      "item": "anvilcraft:gunpowder_block"
+      "tag": "c:storage_blocks/gunpowder"
     }
   ],
   "result": {

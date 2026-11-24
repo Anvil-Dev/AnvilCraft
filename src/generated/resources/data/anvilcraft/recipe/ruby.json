@@ -3,7 +3,7 @@
   "category": "misc",
   "ingredients": [
     {
-      "item": "anvilcraft:ruby_block"
+      "tag": "c:storage_blocks/ruby"
     }
   ],
   "result": {

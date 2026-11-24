@@ -9,7 +9,7 @@
   "category": "building",
   "key": {
     "C": {
-      "item": "minecraft:cactus"
+      "tag": "c:crops/cactus"
     },
     "H": {
       "item": "anvilcraft:heavy_iron_block"

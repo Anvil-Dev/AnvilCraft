@@ -9,7 +9,7 @@
         "type": "anvilcraft:custom",
         "predicate": {
           "count": 3,
-          "items": "anvilcraft:frost_metal_ingot"
+          "items": "#c:ingots/frost_metal"
         }
       },
       "result": {

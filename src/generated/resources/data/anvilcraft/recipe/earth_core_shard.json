@@ -3,7 +3,7 @@
   "category": "misc",
   "ingredients": [
     {
-      "item": "anvilcraft:earth_core_shard_block"
+      "tag": "c:storage_blocks/earth_core_shard"
     }
   ],
   "result": {

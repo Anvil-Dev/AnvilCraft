@@ -6,7 +6,7 @@
       "tag": "c:nuggets/copper"
     },
     "R": {
-      "item": "minecraft:redstone"
+      "tag": "c:dusts/redstone"
     }
   },
   "pattern": [

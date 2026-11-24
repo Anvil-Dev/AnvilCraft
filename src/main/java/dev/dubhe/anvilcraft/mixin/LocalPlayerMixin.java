@@ -22,10 +22,8 @@ abstract class LocalPlayerMixin {
     private boolean shouldSlowDownUsingEnergyWeapon(LocalPlayer player, Operation<Boolean> original) {
         if (!original.call(player)) return false;
         ItemStack stack = player.getUseItem();
-        if (!(stack.getItem() instanceof EnergyWeaponItem)) return true;
-        if (stack.getItem() instanceof AnvilRailgunItem) {
-            return AnvilRailgunItem.isLoading(player, stack, player.getUsedItemHand());
-        }
-        return false;
+        // 铁砧轨道炮改成弓式蓄力，蓄力时应当和弓一样减速
+        if (stack.getItem() instanceof AnvilRailgunItem) return true;
+        return !(stack.getItem() instanceof EnergyWeaponItem);
     }
 }

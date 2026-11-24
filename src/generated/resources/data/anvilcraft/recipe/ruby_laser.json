@@ -12,10 +12,10 @@
       "tag": "c:plates/silver"
     },
     "D": {
-      "item": "anvilcraft:ruby_block"
+      "tag": "c:storage_blocks/ruby"
     },
     "E": {
-      "item": "minecraft:tinted_glass"
+      "tag": "c:glass_blocks/tinted"
     }
   },
   "pattern": [

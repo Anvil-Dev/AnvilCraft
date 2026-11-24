@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "A": {
-      "item": "minecraft:amethyst_shard"
+      "tag": "c:gems/amethyst"
     },
     "E": {
       "item": "minecraft:echo_shard"

@@ -6,10 +6,10 @@
       "item": "minecraft:iron_leggings"
     },
     "L": {
-      "item": "minecraft:leather"
+      "tag": "c:leathers"
     },
     "S": {
-      "item": "minecraft:string"
+      "tag": "c:strings"
     }
   },
   "pattern": [

@@ -2,7 +2,7 @@
   "type": "anvilcraft:stamping",
   "ingredients": [
     {
-      "items": "minecraft:iron_ingot"
+      "items": "#c:ingots/iron"
     }
   ],
   "results": [

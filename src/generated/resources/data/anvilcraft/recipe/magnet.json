@@ -3,13 +3,13 @@
   "category": "equipment",
   "key": {
     "A": {
-      "item": "minecraft:ender_pearl"
+      "tag": "c:ender_pearls"
     },
     "B": {
-      "item": "anvilcraft:magnet_ingot"
+      "tag": "c:ingots/magnet"
     },
     "C": {
-      "item": "minecraft:redstone"
+      "tag": "c:dusts/redstone"
     }
   },
   "pattern": [

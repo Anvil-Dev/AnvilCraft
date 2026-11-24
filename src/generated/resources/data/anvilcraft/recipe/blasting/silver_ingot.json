@@ -5,7 +5,7 @@
   "experience": 1.0,
   "group": "anvilcraft:silver_ingot",
   "ingredient": {
-    "item": "anvilcraft:raw_silver"
+    "tag": "c:raw_materials/silver"
   },
   "result": {
     "count": 1,

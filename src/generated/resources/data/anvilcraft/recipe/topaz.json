@@ -3,7 +3,7 @@
   "category": "misc",
   "ingredients": [
     {
-      "item": "anvilcraft:topaz_block"
+      "tag": "c:storage_blocks/topaz"
     }
   ],
   "result": {

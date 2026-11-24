@@ -1,15 +1,21 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
+import com.mojang.serialization.JsonOps;
+import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.LaserHitRecipe;
+import net.minecraft.core.RegistryCodecs;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.registries.holdersets.OrHolderSet;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +24,7 @@ public final class LaserHitRecipeLoader {
     private LaserHitRecipeLoader() {
     }
 
-    public static void init(RecipeOutput output) {
+    public static void init(RegistrumRecipeProvider output) {
         heating(output, "netherite", Tags.Blocks.STORAGE_BLOCKS_NETHERITE, List.of(
             ModBlocks.HEATED_NETHERITE_BLOCK.get(), ModBlocks.REDHOT_NETHERITE_BLOCK.get(),
             ModBlocks.GLOWING_NETHERITE_BLOCK.get(), ModBlocks.INCANDESCENT_NETHERITE_BLOCK.get()
@@ -32,11 +38,17 @@ public final class LaserHitRecipeLoader {
             Blocks.DEEPSLATE, false, -90);
         tiers(output, "nether_ores", BlockStatePredicate.builder().of(Tags.Blocks.ORES_IN_GROUND_NETHERRACK).build(),
             Blocks.NETHERRACK, false, -80);
-        tiers(output, "ancient_debris", BlockStatePredicate.builder().of(Blocks.ANCIENT_DEBRIS).build(),
+        tiers(output, "ancient_debris", BlockStatePredicate.builder().of(Tags.Blocks.ORES_NETHERITE_SCRAP).build(),
             Blocks.NETHERRACK, false, -70);
-        tiers(output, "lens_targets", BlockStatePredicate.builder()
-                .of(ModBlocks.VOID_STONE.get(), ModBlocks.EARTH_CORE_SHARD_ORE.get()).build(),
-            Blocks.DEEPSLATE, true, -60);
+        var targets = new OrHolderSet<>(
+            BuiltInRegistries.BLOCK.getOrCreateTag(ModBlockTags.ORES_VOID_MATTER),
+            BuiltInRegistries.BLOCK.getOrCreateTag(ModBlockTags.ORES_EARTH_CORE_SHARD)
+        );
+        var ops = output.getProvider().createSerializationContext(JsonOps.INSTANCE);
+        // 方块谓词构建器只接受单个标签，通过编解码器保留两种矿石标签的并集。
+        var lensTargets = RegistryCodecs.homogeneousList(Registries.BLOCK).fieldOf("blocks").codec()
+            .encodeStart(ops, targets).flatMap(value -> BlockStatePredicate.CODEC.parse(ops, value)).getOrThrow();
+        tiers(output, "lens_targets", lensTargets, Blocks.DEEPSLATE, true, -60);
     }
 
     private static void heating(RecipeOutput output, String material, TagKey<Block> normal, List<Block> heated) {

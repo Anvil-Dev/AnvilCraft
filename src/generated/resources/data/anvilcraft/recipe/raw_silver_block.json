@@ -3,7 +3,7 @@
   "category": "building",
   "key": {
     "A": {
-      "item": "anvilcraft:raw_silver"
+      "tag": "c:raw_materials/silver"
     }
   },
   "pattern": [

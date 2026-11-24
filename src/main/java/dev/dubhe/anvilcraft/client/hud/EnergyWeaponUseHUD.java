@@ -56,6 +56,14 @@ public final class EnergyWeaponUseHUD {
         }
         if (minecraft.options.hideGui || minecraft.screen != null) return;
         float progress = sample.progressAfter(paused ? pausedElapsed : now - receivedAt);
-        if (progress > 0) AttackIndicatorProgressHUD.render(graphics, progress);
+        boolean hasRetainedCharge = sample.retainedCharge() > 0;
+        if (hasRetainedCharge) {
+            AttackIndicatorProgressHUD.render(graphics, sample.retainedCharge());
+            if (progress >= 0) {
+                AttackIndicatorProgressHUD.render(graphics, progress, 5);
+            }
+        } else if (progress > 0) {
+            AttackIndicatorProgressHUD.render(graphics, progress);
+        }
     }
 }

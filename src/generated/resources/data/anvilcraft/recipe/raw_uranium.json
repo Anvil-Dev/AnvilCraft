@@ -3,7 +3,7 @@
   "category": "misc",
   "ingredients": [
     {
-      "item": "anvilcraft:raw_uranium_block"
+      "tag": "c:storage_blocks/raw_uranium"
     }
   ],
   "result": {

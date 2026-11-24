@@ -66,7 +66,7 @@ public class ItemTooltipManager {
         final String endermanProtection = "Endermen remain calm when stared at";
         final String fullSuit = "\nFull suit: immune to environmental damage except the void; prevents falling into the void";
         ItemTooltipManager.NORMAL.put(ModItems.BREATHING_HELMET.get(), breathing);
-        ItemTooltipManager.NORMAL.put(ModItems.POCKETS_LEGGINGS.get(), pockets.formatted(6));
+        ItemTooltipManager.NORMAL.put(ModItems.POCKETS_LEGGINGS.get(), pockets.formatted(ModItems.POCKETS_LEGGINGS.get().getPocketCount()));
         ItemTooltipManager.NORMAL.put(ModItems.BUFFER_BOOTS.get(), boots);
         ItemTooltipManager.NORMAL.put(
             ModItems.WEATHERPROOF_SPACESUIT_HELMET.get(),
@@ -78,7 +78,10 @@ public class ItemTooltipManager {
             ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE.get(),
             "Uses 100 kFE per second\nRechargeable from grids or capacitors" + fullSuit
         );
-        ItemTooltipManager.NORMAL.put(ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS.get(), pockets.formatted(12) + fullSuit);
+        ItemTooltipManager.NORMAL.put(
+            ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS.get(),
+            pockets.formatted(ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS.get().getPocketCount()) + fullSuit
+        );
         ItemTooltipManager.NORMAL.put(
             ModItems.WEATHERPROOF_SPACESUIT_BOOTS.get(),
             boots + "\nWalk on still fluid surfaces; sneak to submerge, hold sneak to descend faster" + fullSuit
@@ -834,7 +837,7 @@ public class ItemTooltipManager {
         );
         ItemTooltipManager.NORMAL.put(
             ModItems.ANVIL_RAILGUN.get(),
-            "Hold right-click to consumes power to charge up and launch a high-speed anvil"
+            "Hold right-click to charge, then release to launch an anvil from your inventory"
         );
         ItemTooltipManager.NORMAL.put(
             ModItems.SPECTRAL_WEAPON_LAUNCHER.get(),
@@ -977,10 +980,10 @@ public class ItemTooltipManager {
         );
         ItemTooltipManager.SHIFT.put(
             ModItems.ANVIL_RAILGUN.get(), """
-                                          Hold right-click to load an anvil from your offhand into the railgun
-                                          Then hold right-click again to charge up, and release to launch the anvil
+                                          Uses the anvils in your inventory as ammo, no loading needed
+                                          Hold right-click to charge, then release to launch an anvil
                                           Longer charging results in higher speed and damage
-                                          Enchanting the Anvil Railgun can boost damage, reduce charge time, or change its firing behavior"""
+                                          Quick Charge shortens the charge time by 10% per level"""
         );
         ItemTooltipManager.SHIFT.put(
             ModItems.SPECTRAL_WEAPON_LAUNCHER.get(), """

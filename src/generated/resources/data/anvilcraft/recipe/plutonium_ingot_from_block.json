@@ -4,7 +4,7 @@
   "group": "anvilcraft:plutonium_ingot",
   "ingredients": [
     {
-      "item": "anvilcraft:plutonium_block"
+      "tag": "c:storage_blocks/plutonium"
     }
   ],
   "result": {

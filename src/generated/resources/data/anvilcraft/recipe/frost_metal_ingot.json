@@ -4,7 +4,7 @@
   "group": "anvilcraft:frost_metal_ingot",
   "key": {
     "A": {
-      "item": "anvilcraft:frost_metal_nugget"
+      "tag": "c:nuggets/frost_metal"
     }
   },
   "pattern": [

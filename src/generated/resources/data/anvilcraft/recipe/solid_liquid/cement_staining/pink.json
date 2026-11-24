@@ -20,7 +20,7 @@
   ],
   "ingredients": [
     {
-      "items": "minecraft:pink_dye"
+      "items": "#c:dyes/pink"
     }
   ],
   "max_efficiency": 1,

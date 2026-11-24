@@ -4,7 +4,7 @@
   "group": "anvilcraft:zinc_ingot",
   "ingredients": [
     {
-      "item": "anvilcraft:zinc_block"
+      "tag": "c:storage_blocks/zinc"
     }
   ],
   "result": {

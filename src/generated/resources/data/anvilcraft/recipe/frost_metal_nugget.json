@@ -3,7 +3,7 @@
   "category": "misc",
   "ingredients": [
     {
-      "item": "anvilcraft:frost_metal_ingot"
+      "tag": "c:ingots/frost_metal"
     }
   ],
   "result": {
