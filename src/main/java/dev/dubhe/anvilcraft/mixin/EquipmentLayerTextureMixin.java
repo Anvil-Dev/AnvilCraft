@@ -1,22 +1,32 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.dubhe.anvilcraft.client.renderer.item.EquipmentPoweredProperty;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
 import net.minecraft.client.renderer.entity.layers.EquipmentLayerRenderer;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(EquipmentLayerRenderer.class)
 abstract class EquipmentLayerTextureMixin {
-    @ModifyExpressionValue(method = "renderLayers(Lnet/minecraft/client/resources/model/EquipmentClientInfo$LayerType;"
+    @Unique
+    private static final String anvilcraft$RENDER_LAYERS =
+        "renderLayers(Lnet/minecraft/client/resources/model/EquipmentClientInfo$LayerType;"
         + "Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lnet/minecraft/world/item/ItemStack;"
         + "Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;"
-        + "ILnet/minecraft/resources/Identifier;II)V",
+        + "ILnet/minecraft/resources/Identifier;II)V";
+
+    @ModifyExpressionValue(method = anvilcraft$RENDER_LAYERS,
         at = @At(value = "INVOKE",
         target = "Lnet/neoforged/neoforge/client/ClientHooks;getArmorTexture(Lnet/minecraft/world/item/ItemStack;"
             + "Lnet/minecraft/client/resources/model/EquipmentClientInfo$LayerType;"
@@ -28,5 +38,16 @@ abstract class EquipmentLayerTextureMixin {
         boolean inGrid = state instanceof LivingEntityRenderState living
             && Boolean.TRUE.equals(living.getRenderData(EquipmentPoweredProperty.IN_GRID));
         return backpack.getArmorTexture(stack, inGrid);
+    }
+
+    @WrapOperation(method = anvilcraft$RENDER_LAYERS, at = @At(value = "INVOKE",
+        target = "Lnet/minecraft/client/renderer/rendertype/RenderTypes;armorCutoutNoCull(Lnet/minecraft/resources/Identifier;)"
+            + "Lnet/minecraft/client/renderer/rendertype/RenderType;"))
+    private RenderType anvilcraft$helmetGlass(Identifier texture, Operation<RenderType> original,
+                                             @Local(argsOnly = true) ItemStack stack) {
+        if (stack.is(ModItems.WEATHERPROOF_SPACESUIT_HELMET)) {
+            return RenderTypes.armorTranslucent(texture);
+        }
+        return original.call(texture);
     }
 }
