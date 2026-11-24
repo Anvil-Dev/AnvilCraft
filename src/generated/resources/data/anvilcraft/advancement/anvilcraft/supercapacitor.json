@@ -1,0 +1,32 @@
+{
+  "parent": "anvilcraft:anvilcraft/charger",
+  "criteria": {
+    "has_supercapacitor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:supercapacitor"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.supercapacitor.description"
+    },
+    "icon": {
+      "id": "anvilcraft:supercapacitor"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.supercapacitor.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_supercapacitor"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

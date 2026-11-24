@@ -9,9 +9,11 @@ import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarTerminal;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.loot.ModLootTables;
 import net.minecraft.advancements.AdvancementHolder;
+import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.AdvancementType;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -52,6 +54,68 @@ public class ModAdvancementsHandler {
             .playerFirstDetected("join")
             .rewardLoot(ModLootTables.ADVANCEMENT_ROOT)
             .save(provider, "root");
+
+        AdvancementLineHelper wisdomLine = mainLine.createBranch();
+        AdvancementHolder wisdomTree = wisdomLine.next()
+            .display(
+                ModBlocks.MONOLITH.asItem(),
+                Component.translatable("advancements.anvilcraft.wisdom_tree.title"),
+                Component.translatable("advancements.anvilcraft.wisdom_tree.description"),
+                AdvancementType.TASK
+            )
+            .monolithTouch("monolith_touch")
+            .save(provider, "wisdom_tree");
+
+        AdvancementLineHelper diceLine = mainLine.createBranch();
+        AdvancementHolder diceTripleSix = diceLine.next()
+            .display(
+                ModBlocks.REDSTONE_DICE.asItem(),
+                Component.translatable("advancements.anvilcraft.dice_triple_six.title"),
+                Component.translatable("advancements.anvilcraft.dice_triple_six.description"),
+                AdvancementType.GOAL
+            )
+            .diceTripleSix("dice_triple_six")
+            .save(provider, "dice_triple_six");
+
+        AdvancementLineHelper fishTankLine = mainLine.createBranch();
+        AdvancementHolder fishTank = fishTankLine.next()
+            .display(
+                ModBlocks.FISH_TANK.asItem(),
+                Component.translatable("advancements.anvilcraft.fish_tank.title"),
+                Component.translatable("advancements.anvilcraft.fish_tank.description"),
+                AdvancementType.TASK
+            )
+            .hasItems("has_fish_tank", ModBlocks.FISH_TANK)
+            .playerPlace("place_fish_tank", ModBlocks.FISH_TANK)
+            .requireAll()
+            .save(provider, "fish_tank");
+        AdvancementHolder breathingHelmet = fishTankLine.next()
+            .display(
+                ModItems.BREATHING_HELMET,
+                Component.translatable("advancements.anvilcraft.breathing_helmet.title"),
+                Component.translatable("advancements.anvilcraft.breathing_helmet.description"),
+                AdvancementType.TASK
+            )
+            .wearBreathingHelmet("wear_breathing_helmet")
+            .save(provider, "breathing_helmet");
+        AdvancementHolder moonLanding = fishTankLine.next()
+            .display(
+                ModBlocks.LUNAR_ROCK.asItem(),
+                Component.translatable("advancements.anvilcraft.moon_landing.title"),
+                Component.translatable("advancements.anvilcraft.moon_landing.description"),
+                AdvancementType.GOAL
+            )
+            .moonLanding("moon_landing")
+            .save(provider, "moon_landing");
+        AdvancementHolder moonFarSide = fishTankLine.next()
+            .display(
+                ModBlocks.LUNAR_SOIL.asItem(),
+                Component.translatable("advancements.anvilcraft.moon_far_side.title"),
+                Component.translatable("advancements.anvilcraft.moon_far_side.description"),
+                AdvancementType.CHALLENGE
+            )
+            .moonFarSide("moon_far_side")
+            .save(provider, "moon_far_side");
 
         AdvancementLineHelper clawLine = mainLine.createBranch();
         AdvancementHolder crabClaw = clawLine.next()
@@ -171,6 +235,36 @@ public class ModAdvancementsHandler {
             .inWorldRecipe("anything_anvil_crafting")
             .save(provider, "dang");
 
+        AdvancementLineHelper foodLine = mainLine.createBranch();
+        AdvancementHolder compressedBiscuit = foodLine.next()
+            .display(
+                ModFoodItems.CANNED_FOOD,
+                Component.translatable("advancements.anvilcraft.compressed_biscuit.title"),
+                Component.translatable("advancements.anvilcraft.compressed_biscuit.description"),
+                AdvancementType.TASK
+            )
+            .compressedBiscuit("compressed_biscuit")
+            .save(provider, "compressed_biscuit");
+        AdvancementHolder bigStomach = foodLine.next()
+            .display(
+                ModItems.TIN_CAN,
+                Component.translatable("advancements.anvilcraft.big_stomach.title"),
+                Component.translatable("advancements.anvilcraft.big_stomach.description"),
+                AdvancementType.CHALLENGE
+            )
+            .bigStomach("big_stomach")
+            .save(provider, "big_stomach");
+
+        mainLine.createBranch().next()
+            .display(
+                ModItems.PILL_BOX,
+                Component.translatable("advancements.anvilcraft.pill_box_eight.title"),
+                Component.translatable("advancements.anvilcraft.pill_box_eight.description"),
+                AdvancementType.GOAL
+            )
+            .pillBoxEight("pill_box_eight")
+            .save(provider, "pill_box_eight");
+
         AdvancementLineHelper stoneLine = mainLine.createBranch();
         AdvancementHolder stoneCrusher = stoneLine.next()
             .display(
@@ -242,6 +336,64 @@ public class ModAdvancementsHandler {
             .inWorldRecipeAnc("diamond_boots", "item_crush/armor/diamond_boots_2_diamond")
             .inWorldRecipeAnc("diamond_horse_armor", "item_crush/armor/diamond_horse_armor_2_diamond")
             .save(provider, "recycling_diamonds");
+
+        AdvancementHolder circularEconomy = stampingLine.next()
+            .display(
+                Items.IRON_INGOT,
+                Component.translatable("advancements.anvilcraft.circular_economy.title"),
+                Component.translatable("advancements.anvilcraft.circular_economy.description"),
+                AdvancementType.GOAL
+            )
+            .inWorldRecipeAnc("chainmail_boots", "item_crush/armor/chainmail_boots_2_iron_chain")
+            .inWorldRecipeAnc("chainmail_chestplate", "item_crush/armor/chainmail_chestplate_2_iron_chain")
+            .inWorldRecipeAnc("chainmail_helmet", "item_crush/armor/chainmail_helmet_2_iron_chain")
+            .inWorldRecipeAnc("chainmail_leggings", "item_crush/armor/chainmail_leggings_2_iron_chain")
+            .inWorldRecipeAnc("leather_boots", "item_crush/armor/leather_boots_2_leather")
+            .inWorldRecipeAnc("leather_chestplate", "item_crush/armor/leather_chestplate_2_leather")
+            .inWorldRecipeAnc("leather_helmet", "item_crush/armor/leather_helmet_2_leather")
+            .inWorldRecipeAnc("leather_leggings", "item_crush/armor/leather_leggings_2_leather")
+            .inWorldRecipeAnc("leather_horse_armor", "item_crush/armor/leather_horse_armor_2_leather")
+            .inWorldRecipeAnc("golden_boots", "item_crush/armor/golden_boots_2_gold_ingot")
+            .inWorldRecipeAnc("golden_chestplate", "item_crush/armor/golden_chestplate_2_gold_ingot")
+            .inWorldRecipeAnc("golden_helmet", "item_crush/armor/golden_helmet_2_gold_ingot")
+            .inWorldRecipeAnc("golden_leggings", "item_crush/armor/golden_leggings_2_gold_ingot")
+            .inWorldRecipeAnc("golden_horse_armor", "item_crush/armor/golden_horse_armor_2_gold_ingot")
+            .inWorldRecipeAnc("golden_axe", "item_crush/tool/golden_axe_2_gold_ingot")
+            .inWorldRecipeAnc("golden_hoe", "item_crush/tool/golden_hoe_2_gold_ingot")
+            .inWorldRecipeAnc("golden_pickaxe", "item_crush/tool/golden_pickaxe_2_gold_ingot")
+            .inWorldRecipeAnc("golden_shovel", "item_crush/tool/golden_shovel_2_gold_ingot")
+            .inWorldRecipeAnc("golden_sword", "item_crush/tool/golden_sword_2_gold_ingot")
+            .inWorldRecipeAnc("iron_boots", "item_crush/armor/iron_boots_2_iron_ingot")
+            .inWorldRecipeAnc("iron_chestplate", "item_crush/armor/iron_chestplate_2_iron_ingot")
+            .inWorldRecipeAnc("iron_helmet", "item_crush/armor/iron_helmet_2_iron_ingot")
+            .inWorldRecipeAnc("iron_leggings", "item_crush/armor/iron_leggings_2_iron_ingot")
+            .inWorldRecipeAnc("iron_horse_armor", "item_crush/armor/iron_horse_armor_2_iron_ingot")
+            .inWorldRecipeAnc("iron_axe", "item_crush/tool/iron_axe_2_iron_ingot")
+            .inWorldRecipeAnc("iron_hoe", "item_crush/tool/iron_hoe_2_iron_ingot")
+            .inWorldRecipeAnc("iron_pickaxe", "item_crush/tool/iron_pickaxe_2_iron_ingot")
+            .inWorldRecipeAnc("iron_shovel", "item_crush/tool/iron_shovel_2_iron_ingot")
+            .inWorldRecipeAnc("iron_sword", "item_crush/tool/iron_sword_2_iron_ingot")
+            .inWorldRecipeAnc("diamond_boots", "item_crush/armor/diamond_boots_2_diamond")
+            .inWorldRecipeAnc("diamond_chestplate", "item_crush/armor/diamond_chestplate_2_diamond")
+            .inWorldRecipeAnc("diamond_helmet", "item_crush/armor/diamond_helmet_2_diamond")
+            .inWorldRecipeAnc("diamond_leggings", "item_crush/armor/diamond_leggings_2_diamond")
+            .inWorldRecipeAnc("diamond_horse_armor", "item_crush/armor/diamond_horse_armor_2_diamond")
+            .inWorldRecipeAnc("diamond_axe", "item_crush/tool/diamond_axe_2_diamond")
+            .inWorldRecipeAnc("diamond_hoe", "item_crush/tool/diamond_hoe_2_diamond")
+            .inWorldRecipeAnc("diamond_pickaxe", "item_crush/tool/diamond_pickaxe_2_diamond")
+            .inWorldRecipeAnc("diamond_shovel", "item_crush/tool/diamond_shovel_2_diamond")
+            .inWorldRecipeAnc("diamond_sword", "item_crush/tool/diamond_sword_2_diamond")
+            .requirements(new AdvancementRequirements(List.of(
+                List.of("chainmail_boots", "chainmail_chestplate", "chainmail_helmet", "chainmail_leggings"),
+                List.of("leather_boots", "leather_chestplate", "leather_helmet", "leather_leggings", "leather_horse_armor"),
+                List.of("golden_boots", "golden_chestplate", "golden_helmet", "golden_leggings", "golden_horse_armor",
+                    "golden_axe", "golden_hoe", "golden_pickaxe", "golden_shovel", "golden_sword"),
+                List.of("iron_boots", "iron_chestplate", "iron_helmet", "iron_leggings", "iron_horse_armor",
+                    "iron_axe", "iron_hoe", "iron_pickaxe", "iron_shovel", "iron_sword"),
+                List.of("diamond_boots", "diamond_chestplate", "diamond_helmet", "diamond_leggings", "diamond_horse_armor",
+                    "diamond_axe", "diamond_hoe", "diamond_pickaxe", "diamond_shovel", "diamond_sword")
+            )))
+            .save(provider, "circular_economy");
 
         AdvancementHolder allInOne = mainLine.next()
             .display(
@@ -317,6 +469,54 @@ public class ModAdvancementsHandler {
             .recipeAnc("craft_magnetoelectric_core", "magnetoelectric_core")
             .save(provider, "hearts_of_iron");
 
+        AdvancementLineHelper firepowerLine = electLine.createBranch();
+        AdvancementHolder charger = firepowerLine.next()
+            .display(
+                ModBlocks.CHARGER,
+                Component.translatable("advancements.anvilcraft.charger.title"),
+                Component.translatable("advancements.anvilcraft.charger.description"),
+                AdvancementType.TASK
+            )
+            .recipe("craft_charger", AnvilCraft.of("charger"))
+            .playerPlace("place_charger", ModBlocks.CHARGER)
+            .requireAll()
+            .save(provider, "charger");
+        AdvancementHolder supercapacitor = firepowerLine.next()
+            .display(
+                ModItems.SUPER_CAPACITOR,
+                Component.translatable("advancements.anvilcraft.supercapacitor.title"),
+                Component.translatable("advancements.anvilcraft.supercapacitor.description"),
+                AdvancementType.TASK
+            )
+            .hasItems("has_supercapacitor", ModItems.SUPER_CAPACITOR)
+            .save(provider, "supercapacitor");
+
+        AdvancementLineHelper armoryLine = firepowerLine.createBranch();
+        AdvancementHolder notEnoughFirepower = armoryLine.next()
+            .display(
+                ModItems.ENERGY_WEAPON_PLATFORM,
+                Component.translatable("advancements.anvilcraft.not_enough_firepower.title"),
+                Component.translatable("advancements.anvilcraft.not_enough_firepower.description"),
+                AdvancementType.CHALLENGE
+            )
+            .hasItems("has_anvil_railgun", ModItems.ANVIL_RAILGUN)
+            .hasItems("has_laser_gun", ModItems.LASER_GUN)
+            .hasItems("has_tesla_gun", ModItems.TESLA_GUN)
+            .hasItems("has_corrupted_beacon_activator", ModItems.CORRUPTED_BEACON_ACTIVATOR)
+            .hasItems("has_spectral_weapon_launcher", ModItems.SPECTRAL_WEAPON_LAUNCHER)
+            .requireAll()
+            .save(provider, "not_enough_firepower");
+
+        AdvancementHolder railgunCollision = firepowerLine.next()
+            .display(
+                ModItems.ANVIL_RAILGUN,
+                Component.translatable("advancements.anvilcraft.railgun_collision.title"),
+                Component.translatable("advancements.anvilcraft.railgun_collision.description"),
+                AdvancementType.CHALLENGE
+            )
+            .railgunCollision("railgun_collision")
+            .save(provider, "railgun_collision");
+
         AdvancementLineHelper generateElectLine = electLine.createBranch();
         AdvancementHolder notBeacon = generateElectLine.next()
             .display(
@@ -357,6 +557,17 @@ public class ModAdvancementsHandler {
             )
             .enterPowerGrid("enter_power_grid")
             .save(provider, "electric_filed_rhythm");
+
+        AdvancementLineHelper voltageLine = electLine.createBranch();
+        AdvancementHolder highVoltageTower = voltageLine.next()
+            .display(
+                ModBlocks.TRANSMISSION_POLE,
+                Component.translatable("advancements.anvilcraft.high_voltage_tower.title"),
+                Component.translatable("advancements.anvilcraft.high_voltage_tower.description"),
+                AdvancementType.GOAL
+            )
+            .highVoltageTower("high_voltage_tower")
+            .save(provider, "high_voltage_tower");
 
         AdvancementHolder industrialGradeSmelting = mainLine.next()
             .display(
@@ -646,7 +857,9 @@ public class ModAdvancementsHandler {
                 Component.translatable("advancements.anvilcraft.saikou_scrubber.description"),
                 AdvancementType.TASK
             )
-            .hasItems("has_menger_sponge", ModBlocks.MENGER_SPONGE)
+            .inWorldRecipeAnc("multiblock_menger_sponge", "multiblock/menger_sponge")
+            .inWorldRecipeAnc("multiblock_menger_sponge_2", "multiblock/menger_sponge_2")
+            .requireAny()
             .save(provider, "saikou_scrubber");
         mengerSpongeLine.createBranch().next()
             .display(ModBlocks.MENGER_SPONGE,
@@ -694,6 +907,60 @@ public class ModAdvancementsHandler {
             .hasItems("has_giant_anvil", ModBlocks.GIANT_ANVIL)
             .save(provider, "giant_age");
 
+        AdvancementLineHelper storageLine = mainLine.createBranch();
+        AdvancementHolder largeCrate = storageLine.next()
+            .display(
+                ModBlocks.LARGE_CRATE,
+                Component.translatable("advancements.anvilcraft.large_crate.title"),
+                Component.translatable("advancements.anvilcraft.large_crate.description"),
+                AdvancementType.TASK
+            )
+            .inWorldRecipeAnc("multiblock_large_crate", "multiblock/large_crate")
+            .inWorldRecipeAnc("multiblock_conversion_large_crate", "multiblock_conversion/large_crate")
+            .requireAny()
+            .save(provider, "large_crate");
+        AdvancementHolder shulkerContainer = storageLine.next()
+            .display(
+                ModBlocks.SHULKER_CONTAINER,
+                Component.translatable("advancements.anvilcraft.shulker_container.title"),
+                Component.translatable("advancements.anvilcraft.shulker_container.description"),
+                AdvancementType.GOAL
+            )
+            .shulkerContainerUpgrade("shulker_container_upgrade")
+            .save(provider, "shulker_container");
+        AdvancementHolder hyperdimensionStation = storageLine.next()
+            .display(
+                ModBlocks.HYPERDIMENSION_STORAGE_STATION,
+                Component.translatable("advancements.anvilcraft.hyperdimension_station.title"),
+                Component.translatable("advancements.anvilcraft.hyperdimension_station.description"),
+                AdvancementType.CHALLENGE
+            )
+            .hyperdimensionStationUpgrade("hyperdimension_station_upgrade")
+            .save(provider, "hyperdimension_station");
+
+        AdvancementLineHelper cauldronLine = mainLine.createBranch();
+        AdvancementHolder superpower = cauldronLine.next()
+            .display(
+                ModBlocks.LARGE_CAULDRON,
+                Component.translatable("advancements.anvilcraft.superpower.title"),
+                Component.translatable("advancements.anvilcraft.superpower.description"),
+                AdvancementType.TASK
+            )
+            .inWorldRecipeAnc("multiblock_large_cauldron", "multiblock/large_cauldron")
+            .inWorldRecipeAnc("multiblock_conversion_large_cauldron", "multiblock_conversion/large_cauldron")
+            .requireAny()
+            .save(provider, "superpower");
+        AdvancementHolder cocktail = cauldronLine.next()
+            .display(
+                Items.POTION,
+                Component.translatable("advancements.anvilcraft.cocktail.title"),
+                Component.translatable("advancements.anvilcraft.cocktail.description"),
+                AdvancementType.GOAL,
+                true
+            )
+            .largeCauldronCocktail("large_cauldron_cocktail")
+            .save(provider, "cocktail");
+
         AdvancementHolder anvilAccelerator = mainLine.createBranch().next()
             .display(
                 ModBlocks.ACCELERATION_RING,
@@ -701,9 +968,14 @@ public class ModAdvancementsHandler {
                 Component.translatable("advancements.anvilcraft.anvil_accelerator.description"),
                 AdvancementType.TASK
             )
-            .requireAll()
-            .hasItems("has_acceleration_ring", ModBlocks.ACCELERATION_RING)
-            .hasItems("has_deflection_ring", ModBlocks.DEFLECTION_RING)
+            .inWorldRecipeAnc("multiblock_acceleration_ring", "multiblock/acceleration_ring")
+            .inWorldRecipeAnc("multiblock_conversion_acceleration_ring", "multiblock_conversion/acceleration_ring")
+            .inWorldRecipeAnc("multiblock_deflection_ring", "multiblock/deflection_ring")
+            .inWorldRecipeAnc("multiblock_conversion_deflection_ring", "multiblock_conversion/deflection_ring")
+            .requirements(new AdvancementRequirements(List.of(
+                List.of("multiblock_acceleration_ring", "multiblock_conversion_acceleration_ring"),
+                List.of("multiblock_deflection_ring", "multiblock_conversion_deflection_ring")
+            )))
             .save(provider, "anvil_accelerator");
 
         AdvancementLineHelper sideLine1 = mainLine.createBranch();
@@ -719,6 +991,27 @@ public class ModAdvancementsHandler {
             .recipeAnc("multiphase_matter", "anvil_collision/ember_anvil_and_frost_metal_block_32")
             .recipeAnc("negative_matter", "anvil_collision/anvil_tier_1_and_levitation_powder_block_32")
             .save(provider, "new_matter");
+
+        AdvancementLineHelper spacesuitLine = sideLine1.createBranch();
+        AdvancementHolder fullSpacesuit = spacesuitLine.next()
+            .display(
+                ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE,
+                Component.translatable("advancements.anvilcraft.full_spacesuit.title"),
+                Component.translatable("advancements.anvilcraft.full_spacesuit.description"),
+                AdvancementType.CHALLENGE
+            )
+            .fullSpacesuit("full_spacesuit")
+            .save(provider, "full_spacesuit");
+        AdvancementHolder voidWalker = spacesuitLine.next()
+            .display(
+                ModItems.WEATHERPROOF_SPACESUIT_BOOTS,
+                Component.translatable("advancements.anvilcraft.void_walker.title"),
+                Component.translatable("advancements.anvilcraft.void_walker.description"),
+                AdvancementType.CHALLENGE
+            )
+            .voidWalker("void_walker")
+            .save(provider, "void_walker");
+
         AdvancementHolder anvilon = sideLine1.next()
             .display(
                 ModBlocks.CONFINED_SPACE_ANVILON,
@@ -785,8 +1078,63 @@ public class ModAdvancementsHandler {
                 Component.translatable("advancements.anvilcraft.the_start.description"),
                 AdvancementType.CHALLENGE
             )
-            .hasItems("has_celestial_forging_anvil", ModBlocks.CELESTIAL_FORGING_ANVIL)
+            .inWorldRecipeAnc("multiblock_celestial_forging_anvil", "multiblock/celestial_forging_anvil")
             .save(provider, "the_start");
+
+        AdvancementHolder hitchhikerGuide = mainLine.createBranch().next()
+            .display(
+                ModItems.DYSON_SPHERE_COMPONENT,
+                Component.translatable("advancements.anvilcraft.hitchhiker_guide.title"),
+                Component.translatable("advancements.anvilcraft.hitchhiker_guide.description"),
+                AdvancementType.CHALLENGE
+            )
+            .celestialVisit("visited_1", 1)
+            .celestialVisit("visited_2", 2)
+            .celestialVisit("visited_3", 3)
+            .celestialVisit("visited_4", 4)
+            .celestialVisit("visited_5", 5)
+            .celestialVisit("visited_6", 6)
+            .celestialVisit("visited_7", 7)
+            .celestialVisit("visited_8", 8)
+            .celestialVisit("visited_9", 9)
+            .celestialVisit("visited_10", 10)
+            .celestialVisit("visited_11", 11)
+            .requireAll()
+            .save(provider, "hitchhiker_guide");
+
+        AdvancementLineHelper deliveryLine = mainLine.createBranch();
+        AdvancementHolder wormholeDelivery = deliveryLine.next()
+            .display(
+                ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE.asItem(),
+                Component.translatable("advancements.anvilcraft.wormhole_delivery.title"),
+                Component.translatable("advancements.anvilcraft.wormhole_delivery.description"),
+                AdvancementType.GOAL
+            )
+            .wormholeDelivery("wormhole_delivery")
+            .save(provider, "wormhole_delivery");
+
+        AdvancementLineHelper dysonLine = mainLine.createBranch();
+        AdvancementHolder dysonSphere = dysonLine.next()
+            .display(
+                ModItems.DYSON_SPHERE_COMPONENT,
+                Component.translatable("advancements.anvilcraft.dyson_sphere.title"),
+                Component.translatable("advancements.anvilcraft.dyson_sphere.description"),
+                AdvancementType.CHALLENGE
+            )
+            .dysonSphere("dyson_sphere")
+            .save(provider, "dyson_sphere");
+        AdvancementHolder inexhaustible = dysonLine.next()
+            .display(
+                ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT,
+                Component.translatable("advancements.anvilcraft.inexhaustible.title"),
+                Component.translatable("advancements.anvilcraft.inexhaustible.description"),
+                AdvancementType.CHALLENGE
+            )
+            .inexhaustible("inexhaustible")
+            .infinitePower("infinite_power")
+            .requireAll()
+            .save(provider, "inexhaustible");
+
         mainLine.createBranch().next()
             .display(
                 ModItems.EARTH_CORE_SHARD,
@@ -807,7 +1155,8 @@ public class ModAdvancementsHandler {
             )
             .planetaryCollapseDeath("cannon_fodder")
             .save(provider, "cannon_fodder");
-        mainLine.createBranch().next()
+        AdvancementLineHelper blackHoleLine = mainLine.createBranch();
+        blackHoleLine.next()
             .display(
                 ModBlocks.BLACK_HOLE,
                 Component.translatable("advancements.anvilcraft.black_hole.title"),
@@ -816,6 +1165,15 @@ public class ModAdvancementsHandler {
             )
             .celestialEvolution("black_hole", StellarTerminal.Kind.BLACK_HOLE)
             .save(provider, "black_hole");
+        blackHoleLine.next()
+            .display(
+                ModItems.PENROSE_SPHERE_COMPONENT,
+                Component.translatable("advancements.anvilcraft.gamma_laser.title"),
+                Component.translatable("advancements.anvilcraft.gamma_laser.description"),
+                AdvancementType.TASK
+            )
+            .gammaLaser("gamma_laser")
+            .save(provider, "gamma_laser");
         mainLine.createBranch().next()
             .display(
                 ModItems.MAGNETAR_COIL_COMPONENT,

@@ -1,65 +1,107 @@
 {
   "parent": "anvilcraft:anvilcraft/forged_over_eons",
   "criteria": {
-    "has_ember_anvil": {
+    "craft_ember_anvil": {
       "conditions": {
-        "items": [
-          {
-            "items": "anvilcraft:ember_anvil"
-          }
-        ]
+        "recipe_id": "anvilcraft:smithing/ember_anvil"
       },
-      "trigger": "minecraft:inventory_changed"
+      "trigger": "minecraft:recipe_crafted"
     },
-    "has_ember_grindstone": {
+    "craft_ember_grindstone": {
       "conditions": {
-        "items": [
-          {
-            "items": "anvilcraft:ember_grindstone"
-          }
-        ]
+        "recipe_id": "anvilcraft:smithing/ember_grindstone"
       },
-      "trigger": "minecraft:inventory_changed"
+      "trigger": "minecraft:recipe_crafted"
     },
-    "has_ember_smithing_table": {
+    "craft_ember_smithing_table": {
       "conditions": {
-        "items": [
-          {
-            "items": "anvilcraft:ember_smithing_table"
-          }
-        ]
+        "recipe_id": "anvilcraft:smithing/ember_smithing_table"
       },
-      "trigger": "minecraft:inventory_changed"
+      "trigger": "minecraft:recipe_crafted"
     },
-    "has_frost_anvil": {
+    "craft_frost_anvil": {
       "conditions": {
-        "items": [
-          {
-            "items": "anvilcraft:frost_anvil"
-          }
-        ]
+        "recipe_id": "anvilcraft:smithing/frost_anvil"
       },
-      "trigger": "minecraft:inventory_changed"
+      "trigger": "minecraft:recipe_crafted"
     },
-    "has_frost_grindstone": {
+    "craft_frost_grindstone": {
       "conditions": {
-        "items": [
-          {
-            "items": "anvilcraft:frost_grindstone"
-          }
-        ]
+        "recipe_id": "anvilcraft:smithing/frost_grindstone"
       },
-      "trigger": "minecraft:inventory_changed"
+      "trigger": "minecraft:recipe_crafted"
     },
-    "has_frost_smithing_table": {
+    "craft_frost_smithing_table": {
       "conditions": {
-        "items": [
+        "recipe_id": "anvilcraft:smithing/frost_smithing_table"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "place_ember_anvil": {
+      "conditions": {
+        "location": [
           {
-            "items": "anvilcraft:frost_smithing_table"
+            "block": "anvilcraft:ember_anvil",
+            "condition": "minecraft:block_state_property"
           }
         ]
       },
-      "trigger": "minecraft:inventory_changed"
+      "trigger": "minecraft:placed_block"
+    },
+    "place_ember_grindstone": {
+      "conditions": {
+        "location": [
+          {
+            "block": "anvilcraft:ember_grindstone",
+            "condition": "minecraft:block_state_property"
+          }
+        ]
+      },
+      "trigger": "minecraft:placed_block"
+    },
+    "place_ember_smithing_table": {
+      "conditions": {
+        "location": [
+          {
+            "block": "anvilcraft:ember_smithing_table",
+            "condition": "minecraft:block_state_property"
+          }
+        ]
+      },
+      "trigger": "minecraft:placed_block"
+    },
+    "place_frost_anvil": {
+      "conditions": {
+        "location": [
+          {
+            "block": "anvilcraft:frost_anvil",
+            "condition": "minecraft:block_state_property"
+          }
+        ]
+      },
+      "trigger": "minecraft:placed_block"
+    },
+    "place_frost_grindstone": {
+      "conditions": {
+        "location": [
+          {
+            "block": "anvilcraft:frost_grindstone",
+            "condition": "minecraft:block_state_property"
+          }
+        ]
+      },
+      "trigger": "minecraft:placed_block"
+    },
+    "place_frost_smithing_table": {
+      "conditions": {
+        "location": [
+          {
+            "block": "anvilcraft:frost_smithing_table",
+            "condition": "minecraft:block_state_property"
+          }
+        ]
+      },
+      "trigger": "minecraft:placed_block"
     }
   },
   "display": {
@@ -76,22 +118,40 @@
   },
   "requirements": [
     [
-      "has_ember_smithing_table"
+      "craft_ember_smithing_table"
     ],
     [
-      "has_ember_grindstone"
+      "craft_ember_anvil"
     ],
     [
-      "has_ember_anvil"
+      "craft_ember_grindstone"
     ],
     [
-      "has_frost_smithing_table"
+      "craft_frost_smithing_table"
     ],
     [
-      "has_frost_grindstone"
+      "craft_frost_anvil"
     ],
     [
-      "has_frost_anvil"
+      "craft_frost_grindstone"
+    ],
+    [
+      "place_ember_smithing_table"
+    ],
+    [
+      "place_ember_anvil"
+    ],
+    [
+      "place_ember_grindstone"
+    ],
+    [
+      "place_frost_smithing_table"
+    ],
+    [
+      "place_frost_anvil"
+    ],
+    [
+      "place_frost_grindstone"
     ]
   ],
   "sends_telemetry_event": true

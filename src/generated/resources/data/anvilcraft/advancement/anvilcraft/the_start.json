@@ -1,15 +1,11 @@
 {
   "parent": "anvilcraft:anvilcraft/the_end",
   "criteria": {
-    "has_celestial_forging_anvil": {
+    "multiblock_celestial_forging_anvil": {
       "conditions": {
-        "items": [
-          {
-            "items": "anvilcraft:celestial_forging_anvil"
-          }
-        ]
+        "id": "anvilcraft:multiblock/celestial_forging_anvil"
       },
-      "trigger": "minecraft:inventory_changed"
+      "trigger": "anvilcraft:in_world_recipe"
     }
   },
   "display": {
@@ -26,7 +22,7 @@
   },
   "requirements": [
     [
-      "has_celestial_forging_anvil"
+      "multiblock_celestial_forging_anvil"
     ]
   ],
   "sends_telemetry_event": true

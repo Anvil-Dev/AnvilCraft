@@ -1,0 +1,25 @@
+{
+  "parent": "anvilcraft:anvilcraft/black_hole",
+  "criteria": {
+    "gamma_laser": {
+      "trigger": "anvilcraft:gamma_laser"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.gamma_laser.description"
+    },
+    "icon": {
+      "id": "anvilcraft:penrose_sphere_component"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.gamma_laser.title"
+    }
+  },
+  "requirements": [
+    [
+      "gamma_laser"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

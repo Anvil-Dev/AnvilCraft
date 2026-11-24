@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.anvilcraft.lib.v2.rendering.cachedber.pipeline.CachedBlockEntityRenderingPipeline;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.api.laser.GammaLaserBehavior;
 import dev.dubhe.anvilcraft.api.laser.ILaserComponent;
@@ -457,5 +458,8 @@ public abstract class BaseLaserBlockEntity extends BlockEntity implements ILaser
 
     protected void emitGammaLaserBeam(Direction direction) {
         this.emitLaserComponents(direction, true);
+        if (this.level != null && !this.level.isClientSide()) {
+            TriggerUtil.gammaLaser(this.level, this.getBlockPos());
+        }
     }
 }

@@ -1,0 +1,35 @@
+{
+  "parent": "anvilcraft:anvilcraft/giant_age",
+  "criteria": {
+    "multiblock_conversion_large_cauldron": {
+      "conditions": {
+        "id": "anvilcraft:multiblock_conversion/large_cauldron"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "multiblock_large_cauldron": {
+      "conditions": {
+        "id": "anvilcraft:multiblock/large_cauldron"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.superpower.description"
+    },
+    "icon": {
+      "id": "anvilcraft:large_cauldron"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.superpower.title"
+    }
+  },
+  "requirements": [
+    [
+      "multiblock_large_cauldron",
+      "multiblock_conversion_large_cauldron"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

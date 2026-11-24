@@ -1,0 +1,26 @@
+{
+  "parent": "anvilcraft:anvilcraft/dang",
+  "criteria": {
+    "pill_box_eight": {
+      "trigger": "anvilcraft:pill_box_eight"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.pill_box_eight.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "id": "anvilcraft:pill_box"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.pill_box_eight.title"
+    }
+  },
+  "requirements": [
+    [
+      "pill_box_eight"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

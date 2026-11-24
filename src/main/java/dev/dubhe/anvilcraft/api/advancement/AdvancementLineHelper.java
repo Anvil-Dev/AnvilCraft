@@ -9,20 +9,36 @@ import dev.dubhe.anvilcraft.advancements.criterion.AnvilHammerHurtEntityTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilHitPiezoelectricCrystalTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilLootingTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilOnGroundTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.BigStomachTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.BlockComparatorTurnOverTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.CelestialVisitTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.CelestialEvolutionTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.CompressedBiscuitTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.ConvertBeaconTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.DevourerDevourTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.DiceTripleSixTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.DispenserRepairIronGolem;
+import dev.dubhe.anvilcraft.advancements.criterion.DysonSphereTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.ElectricAllergyTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.EnterPowerGridTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.FireReforgeTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.FullSpacesuitTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.GammaLaserTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.HeatCollectorTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.HighVoltageTowerTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.HyperdimensionStationUpgradeTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.InWorldRecipeTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.LargeCauldronCocktailTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.InexhaustibleTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.InfinitePowerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MagnetLiftingAnvilTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MilkTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MineralFountainCreateTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.MonolithTouchTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.MoonFarSideTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.MoonLandingTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MultiBlockFormTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.PillBoxEightTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PipeConnectContainersTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerPlaceTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerShuttleTrigger;
@@ -30,10 +46,16 @@ import dev.dubhe.anvilcraft.advancements.criterion.PlanetDetonationTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlanetaryCollapseDeathTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerKilledEntityByAnvilHammerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerWearAnvilHammerTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.RailgunSelfKillTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.RailgunCollisionTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.ShulkerContainerUpgradeTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.StarContactDeathTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.UseItemTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.VoidCollectorTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.WormholeDeliveryTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.VoidWalkerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.VoidEnergyCollectorWorkingTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.WearBreathingHelmetTrigger;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarTerminal;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
@@ -506,6 +528,94 @@ public class AdvancementLineHelper {
             return this.addCriterion(key, StarContactDeathTrigger.TriggerInstance.died());
         }
 
+        public AdvancementHelper monolithTouch(String key) {
+            return this.addCriterion(key, MonolithTouchTrigger.TriggerInstance.touched());
+        }
+
+        public AdvancementHelper diceTripleSix(String key) {
+            return this.addCriterion(key, DiceTripleSixTrigger.TriggerInstance.rolled());
+        }
+
+        public AdvancementHelper moonLanding(String key) {
+            return this.addCriterion(key, MoonLandingTrigger.TriggerInstance.landed());
+        }
+
+        public AdvancementHelper moonFarSide(String key) {
+            return this.addCriterion(key, MoonFarSideTrigger.TriggerInstance.reached());
+        }
+
+        public AdvancementHelper compressedBiscuit(String key) {
+            return this.addCriterion(key, CompressedBiscuitTrigger.TriggerInstance.eaten());
+        }
+
+        public AdvancementHelper bigStomach(String key) {
+            return this.addCriterion(key, BigStomachTrigger.TriggerInstance.eaten());
+        }
+
+        public AdvancementHelper pillBoxEight(String key) {
+            return this.addCriterion(key, PillBoxEightTrigger.TriggerInstance.used());
+        }
+
+        public AdvancementHelper railgunCollision(String key) {
+            return this.addCriterion(key, RailgunCollisionTrigger.TriggerInstance.collided());
+        }
+
+        public AdvancementHelper wearBreathingHelmet(String key) {
+            return this.addCriterion(key, WearBreathingHelmetTrigger.TriggerInstance.wear());
+        }
+
+        public AdvancementHelper shulkerContainerUpgrade(String key) {
+            return this.addCriterion(key, ShulkerContainerUpgradeTrigger.TriggerInstance.upgraded());
+        }
+
+        public AdvancementHelper hyperdimensionStationUpgrade(String key) {
+            return this.addCriterion(key, HyperdimensionStationUpgradeTrigger.TriggerInstance.upgraded());
+        }
+
+        public AdvancementHelper largeCauldronCocktail(String key) {
+            return this.addCriterion(key, LargeCauldronCocktailTrigger.TriggerInstance.ignited());
+        }
+
+        public AdvancementHelper fullSpacesuit(String key) {
+            return this.addCriterion(key, FullSpacesuitTrigger.TriggerInstance.wearing());
+        }
+
+        public AdvancementHelper voidWalker(String key) {
+            return this.addCriterion(key, VoidWalkerTrigger.TriggerInstance.walked());
+        }
+
+        public AdvancementHelper gammaLaser(String key) {
+            return this.addCriterion(key, GammaLaserTrigger.TriggerInstance.emitted());
+        }
+
+        public AdvancementHelper dysonSphere(String key) {
+            return this.addCriterion(key, DysonSphereTrigger.TriggerInstance.built());
+        }
+
+        public AdvancementHelper inexhaustible(String key) {
+            return this.addCriterion(key, InexhaustibleTrigger.TriggerInstance.started());
+        }
+        public AdvancementHelper railgunSelfKill(String key) {
+            return this.addCriterion(key, RailgunSelfKillTrigger.TriggerInstance.killed());
+        }
+
+        public AdvancementHelper wormholeDelivery(String key) {
+            return this.addCriterion(key, WormholeDeliveryTrigger.TriggerInstance.delivered());
+        }
+
+        public AdvancementHelper celestialVisit(String key) {
+            return this.addCriterion(key, CelestialVisitTrigger.TriggerInstance.visited());
+        }
+
+        public AdvancementHelper celestialVisit(String key, int count) {
+            return this.addCriterion(key, CelestialVisitTrigger.TriggerInstance.visited(count));
+        }
+        public AdvancementHelper highVoltageTower(String key) {
+            return this.addCriterion(key, HighVoltageTowerTrigger.TriggerInstance.powered());
+        }
+        public AdvancementHelper infinitePower(String key) {
+            return this.addCriterion(key, InfinitePowerTrigger.TriggerInstance.powered());
+        }
         public AdvancementHolder build(String id) {
             AdvancementHolder holder = this.current.build(
                 Identifier.fromNamespaceAndPath(this.lineHelper.namespace, this.lineHelper.namespace + "/" + id)

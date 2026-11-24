@@ -3,7 +3,9 @@ package dev.dubhe.anvilcraft.event;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
 import dev.dubhe.anvilcraft.config.AnvilCraftServerConfig.WorldSettings.OverworldSkyMode;
+import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import dev.dubhe.anvilcraft.util.Util;
+import dev.dubhe.anvilcraft.worldgen.MunSkyMath;
 import dev.dubhe.anvilcraft.worldgen.OverworldSkyState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -43,10 +45,12 @@ public class MunTravelEventListener {
     private static final int RETURN_RADIUS = 128;
     private static final String RETURN_LAUNCH_KEY = "anvilcraft:mun_return_launch";
     private static final Map<ServerPlayer, ArrivalDamage> ARRIVAL_DAMAGE = new WeakHashMap<>();
+    private static final Map<ServerPlayer, MoonVisit> MOON_VISITS = new WeakHashMap<>();
 
     @SubscribeEvent
     public static void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         ARRIVAL_DAMAGE.remove(event.getEntity());
+        MOON_VISITS.remove(event.getEntity());
     }
 
     @SubscribeEvent
@@ -128,6 +132,7 @@ public class MunTravelEventListener {
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        MunTravelEventListener.trackMoonAdvancements(player);
         ArrivalDamage damage = ARRIVAL_DAMAGE.get(player);
         if (damage == null) return;
         if (!player.isAlive() || !player.level().dimension().equals(damage.dimension())) {
@@ -138,6 +143,27 @@ public class MunTravelEventListener {
         if (player.isChangingDimension() || !player.connection.hasClientLoaded()) return;
         ARRIVAL_DAMAGE.remove(player);
         player.hurtServer(player.level(), player.damageSources().fall(), damage.amount());
+    }
+
+    /** 登上月球与跑到月球背面的进度判定。 */
+    private static void trackMoonAdvancements(ServerPlayer player) {
+        if (!player.level().dimension().equals(CelestialTravelManager.MUN_LEVEL)) {
+            MOON_VISITS.remove(player);
+            return;
+        }
+        MoonVisit visit = MOON_VISITS.computeIfAbsent(player, ignored -> new MoonVisit());
+        if (!visit.landed && player.onGround()) {
+            visit.landed = true;
+            ModCriterionTriggers.MOON_LANDING.get().trigger(player);
+        }
+        boolean farSide = MunSkyMath.isFarSide(player.getX(), player.getZ());
+        if (farSide && !visit.farSide) ModCriterionTriggers.MOON_FAR_SIDE.get().trigger(player);
+        visit.farSide = farSide;
+    }
+
+    private static final class MoonVisit {
+        private boolean landed;
+        private boolean farSide;
     }
 
     private record ArrivalDamage(ResourceKey<Level> dimension, float amount) {

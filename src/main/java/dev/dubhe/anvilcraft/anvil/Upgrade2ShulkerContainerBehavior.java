@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.OpenedCube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.saved.storage.BaseStorage;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import dev.dubhe.anvilcraft.saved.storage.ShulkerContainerStorage;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
 import dev.dubhe.anvilcraft.util.AabbUtil;
@@ -95,6 +96,7 @@ public class Upgrade2ShulkerContainerBehavior implements IAnvilBehavior {
         );
         BlockState placedState = serverLevel.getBlockState(mainPart);
         placedState.getBlock().setPlacedBy(serverLevel, mainPart, placedState, null, ItemStack.EMPTY);
+        TriggerUtil.shulkerContainerUpgrade(serverLevel, mainPart);
         if (be.getId() == null) {
             return true;
         }

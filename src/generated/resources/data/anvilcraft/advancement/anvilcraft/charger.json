@@ -1,0 +1,42 @@
+{
+  "parent": "anvilcraft:anvilcraft/hearts_of_iron",
+  "criteria": {
+    "craft_charger": {
+      "conditions": {
+        "recipe_id": "anvilcraft:charger"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "place_charger": {
+      "conditions": {
+        "location": [
+          {
+            "block": "anvilcraft:charger",
+            "condition": "minecraft:block_state_property"
+          }
+        ]
+      },
+      "trigger": "minecraft:placed_block"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.charger.description"
+    },
+    "icon": {
+      "id": "anvilcraft:charger"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.charger.title"
+    }
+  },
+  "requirements": [
+    [
+      "craft_charger"
+    ],
+    [
+      "place_charger"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

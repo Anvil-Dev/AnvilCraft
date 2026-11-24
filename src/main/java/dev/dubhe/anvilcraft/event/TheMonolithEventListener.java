@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
+import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModVillagers;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -138,6 +139,7 @@ public class TheMonolithEventListener {
                 key = KNOWLEDGE[event.getLevel().getRandom().nextInt(KNOWLEDGE.length)];
             }
             player.sendSystemMessage(Component.translatable(key));
+            ModCriterionTriggers.MONOLITH_TOUCH.get().trigger(player);
             return;
         }
         long now = player.level().getGameTime();

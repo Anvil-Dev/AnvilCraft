@@ -1,9 +1,11 @@
 package dev.dubhe.anvilcraft.item.utility;
 
+import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.BundleLikeItem;
 import dev.dubhe.anvilcraft.item.property.component.PillBoxContents;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -11,6 +13,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 public class PillBoxItem extends BundleLikeItem {
+    public static final int PILL_BOX_SIZE = 8;
+
     public PillBoxItem(Properties properties) {
         super(
             properties
@@ -37,6 +41,9 @@ public class PillBoxItem extends BundleLikeItem {
         mutable.useAll(player);
         pillBox.set(ModComponents.PILL_BOX_CONTENTS, mutable.immutable());
         player.getCooldowns().addCooldown(pillBox, 40);
+        if (contents.pills().size() >= PILL_BOX_SIZE && player instanceof ServerPlayer serverPlayer) {
+            ModCriterionTriggers.PILL_BOX_EIGHT.get().trigger(serverPlayer);
+        }
         return InteractionResult.SUCCESS;
     }
 

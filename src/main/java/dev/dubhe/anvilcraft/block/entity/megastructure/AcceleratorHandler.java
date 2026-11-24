@@ -56,6 +56,8 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
     private long dysonDestroyTick = -1L;
     /** 增幅器断开时记录暂停起点，恢复后平移时间轴。 */
     private long pausedSinceGameTime = -1L;
+    /// 本轮演化内是否已派发过无限发电判据，避免每刻重复触发。
+    private boolean infinitePowerAwarded;
 
     @Nullable
     private StellarEvolutionState evolutionState;
@@ -451,6 +453,11 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
             this.syncProgress(gameTime);
             if (phaseChanged || gameTime % 20L == 0L) this.syncToClient(be);
         }
+        /// 戴森球进入无限发电状态（主序星期 + 增幅器）时派发「取之不尽」的无限发电判据
+        if (!this.infinitePowerAwarded && be.isInfinitePower()) {
+            this.infinitePowerAwarded = true;
+            TriggerUtil.infinitePower(be.getLevel(), be.getBlockPos());
+        }
     }
 
     @Override
@@ -464,6 +471,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         this.originalEnergy = star.energy();
         this.originalSize = star.size();
         this.dysonDestroyed = false;
+        this.infinitePowerAwarded = false;
         this.dysonDestroyTick = -1L;
         this.pausedSinceGameTime = -1L;
         this.quenchedSupernovaFired = false;
@@ -474,6 +482,9 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         this.syncProgress(be.getLevel().getGameTime());
         this.scheduleQuenchedOut(be);
         this.syncToClient(be);
+        if (this.isDysonSphereBuilt(be)) {
+            TriggerUtil.inexhaustible(be.getLevel(), be.getBlockPos());
+        }
     }
 
     /** 根据天体图中的年龄和温度计算轨道总时长。 */
@@ -688,6 +699,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         this.ticksRemaining = 0;
         this.ticksTotal = 0;
         this.dysonDestroyed = false;
+        this.infinitePowerAwarded = false;
         this.dysonDestroyTick = -1L;
         this.pausedSinceGameTime = -1L;
         this.quenchedScheduled = false;
@@ -746,6 +758,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         this.evolutionState = null;
         this.evolutionTrack = null;
         this.dysonDestroyed = false;
+        this.infinitePowerAwarded = false;
         this.dysonDestroyTick = -1L;
         this.pausedSinceGameTime = -1L;
         if (this.quenchedSupernovaFired) {
@@ -824,6 +837,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
             this.ticksRemaining = 0;
             this.ticksTotal = 0;
             this.dysonDestroyed = false;
+        this.infinitePowerAwarded = false;
             this.dysonDestroyTick = -1L;
             this.pausedSinceGameTime = -1L;
             this.quenchedScheduled = false;

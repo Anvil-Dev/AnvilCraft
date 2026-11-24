@@ -31,6 +31,7 @@ import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import dev.dubhe.anvilcraft.recipe.LiquidEnchantmentCauldronRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.DamageAnvil;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasAnvil;
@@ -70,6 +71,7 @@ import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.TagValueOutput;
@@ -281,6 +283,20 @@ public class LargeCauldronBlockEntity extends BlockEntity
         if (main.ignited == next) return;
         main.ignited = next;
         main.contentsChanged();
+        if (next && main.level != null && main.hasEightDistinctFluids()) {
+            TriggerUtil.largeCauldronCocktail(main.level, main.worldPosition);
+        }
+    }
+
+    /** 八个储罐全部非空且流体种类互不相同。 */
+    private boolean hasEightDistinctFluids() {
+        Set<Fluid> fluids = new HashSet<>();
+        for (int tank = 0; tank < LargeCauldronFluidHandler.TANK_COUNT; tank++) {
+            FluidStack stack = this.fluids.getFluidInTank(tank);
+            if (stack.isEmpty()) return false;
+            fluids.add(stack.getFluid());
+        }
+        return fluids.size() == LargeCauldronFluidHandler.TANK_COUNT;
     }
 
     public ResourceHandler<ItemResource> getAutomationItemHandler(@Nullable Direction side) {

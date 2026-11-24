@@ -1,0 +1,26 @@
+{
+  "parent": "anvilcraft:anvilcraft/electric_filed_rhythm",
+  "criteria": {
+    "high_voltage_tower": {
+      "trigger": "anvilcraft:high_voltage_tower"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.high_voltage_tower.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "id": "anvilcraft:transmission_pole"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.high_voltage_tower.title"
+    }
+  },
+  "requirements": [
+    [
+      "high_voltage_tower"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

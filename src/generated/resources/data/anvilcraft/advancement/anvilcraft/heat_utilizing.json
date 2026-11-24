@@ -1,15 +1,22 @@
 {
   "parent": "anvilcraft:anvilcraft/gem_transform",
   "criteria": {
-    "has_heat_collector": {
+    "craft_heat_collector": {
       "conditions": {
-        "items": [
+        "recipe_id": "anvilcraft:heat_collector"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "place_heat_collector": {
+      "conditions": {
+        "location": [
           {
-            "items": "anvilcraft:heat_collector"
+            "block": "anvilcraft:heat_collector",
+            "condition": "minecraft:block_state_property"
           }
         ]
       },
-      "trigger": "minecraft:inventory_changed"
+      "trigger": "minecraft:placed_block"
     }
   },
   "display": {
@@ -25,7 +32,10 @@
   },
   "requirements": [
     [
-      "has_heat_collector"
+      "craft_heat_collector"
+    ],
+    [
+      "place_heat_collector"
     ]
   ],
   "sends_telemetry_event": true
