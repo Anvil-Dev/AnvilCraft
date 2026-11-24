@@ -111,7 +111,7 @@ public class FallingBlockCollisionEventListener {
             && railgun.getOwnerEntity() instanceof ServerPlayer directOwner) {
             railgunOwner = directOwner;
         } else {
-            /// 经加速区转换的弹丸已变成普通掉落方块，发射者记录在持久数据里。
+            // 经加速区转换的弹丸已变成普通掉落方块，发射者记录在持久数据里。
             UUID ownerId = RailgunAnvilEntity.getRailgunOwner(event.getEntity());
             if (ownerId != null) railgunOwner = level.getServer().getPlayerList().getPlayer(ownerId);
         }
