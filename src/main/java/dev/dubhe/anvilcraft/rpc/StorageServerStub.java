@@ -35,6 +35,7 @@ import dev.dubhe.anvilcraft.saved.setting.mode.OrderMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SortMode;
 import dev.dubhe.anvilcraft.saved.storage.BaseStorage;
 import dev.dubhe.anvilcraft.saved.storage.CraftingStorage;
+import dev.dubhe.anvilcraft.saved.storage.CrateStorage;
 import dev.dubhe.anvilcraft.saved.storage.HyperdimensionStorage;
 import dev.dubhe.anvilcraft.saved.storage.ShulkerContainerStorage;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
@@ -158,7 +159,9 @@ public final class StorageServerStub {
     private long version;
     private long orderVersion;
     private List<BaseStorage<?>> viewedStorages = List.of();
+    private boolean localContents;
     private @Nullable StorageView view;
+    private @Nullable StorageView craftingView;
     private @Nullable TerminalContentsSnapshot terminalContents;
     private @Nullable ContentsPage craftingContents;
     private final Map<SortOptions, IntList> orders = new HashMap<>();
@@ -171,9 +174,11 @@ public final class StorageServerStub {
 
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static Metadata load(UUID playerId, long sourcePos) {
-        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos, true);
         StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
-        return new Metadata(stub.version, stub.orderVersion, view.fullness(), view.capacity(), view.primary().getId());
+        return new Metadata(
+            stub.version, stub.orderVersion, view.fullness(), view.capacity(), view.craftingAvailable(), view.primary().getId()
+        );
     }
 
     @RemoteCallable(validator = StorageOpenStateValidator.class)
@@ -234,7 +239,7 @@ public final class StorageServerStub {
 
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static ContentsPage craftingStorageContents(UUID playerId, long sourcePos, int offset) {
-        StorageView view = getView(getAndClear(), playerId, sourcePos);
+        StorageView view = getView(getAndClear(), playerId, sourcePos, true);
         UUID storageId = view.primary().getId();
         StorageServerStub stub = get(playerId, storageId);
         if (offset < 0) {
@@ -485,7 +490,7 @@ public final class StorageServerStub {
     }
 
     private static CraftingTarget resolveCraftingTarget(ServerPlayer player, long sourcePos) {
-        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), player.getGameProfile().id(), sourcePos);
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), player.getGameProfile().id(), sourcePos, true);
         ItemStack terminal = TerminalSessions.contains(player.getUUID(), sourcePos) ? TerminalSessions.terminal(player, sourcePos) : null;
         return new CraftingTarget(view, player, terminal);
     }
@@ -499,7 +504,7 @@ public final class StorageServerStub {
         return slot == 0 ? state.stonecutterInput() : state.craftingInput().get(slot - 1);
     }
 
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static InteractionResult craftingQuickCraft(
         UUID playerId, long sourcePos, int button,
         @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC") IntList craftingSlots,
@@ -555,7 +560,7 @@ public final class StorageServerStub {
         return new InteractionResult(remaining, true);
     }
 
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static InteractionResult craftingPickupAll(
         UUID playerId, long sourcePos, int slot,
         @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack clientCarried
@@ -572,7 +577,7 @@ public final class StorageServerStub {
         return collectCraftingInputs(target, slot, true);
     }
 
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static InteractionResult craftingPickupIntoCarried(
         UUID playerId, long sourcePos,
         @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack clientCarried
@@ -626,7 +631,7 @@ public final class StorageServerStub {
         return slot == 0 ? state.withStonecutterInput(stack) : state.withCraftingSlot(slot - 1, stack);
     }
 
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static boolean craftingQuickMoveOut(UUID playerId, long sourcePos, int slot) {
         ServerPlayer player = getServerPlayer(playerId);
         CraftingTarget target = resolveCraftingTarget(player, sourcePos);
@@ -646,7 +651,7 @@ public final class StorageServerStub {
         return true;
     }
 
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static InteractionResult craftingThrowSlot(UUID playerId, long sourcePos, int slot, boolean stack) {
         ServerPlayer player = getServerPlayer(playerId);
         CraftingTarget target = resolveCraftingTarget(player, sourcePos);
@@ -663,7 +668,7 @@ public final class StorageServerStub {
         return new InteractionResult(carried, true);
     }
 
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static InteractionResult craftingCloneSlot(UUID playerId, long sourcePos, int slot) {
         ServerPlayer player = getServerPlayer(playerId);
         CraftingTarget target = resolveCraftingTarget(player, sourcePos);
@@ -683,7 +688,7 @@ public final class StorageServerStub {
     ) {
     }
 
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static InteractionResult craftingTakeResult(UUID playerId, long sourcePos, boolean stonecutter, boolean shift) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
@@ -860,7 +865,7 @@ public final class StorageServerStub {
         CRAFTING_BATCHES.remove(new TakeAllKey(player, sourcePos));
     }
 
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static TakeAllResult craftingTakeAll(UUID playerId, long sourcePos, boolean stonecutter, int multiplier) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
@@ -937,7 +942,7 @@ public final class StorageServerStub {
         return result.getCount();
     }
 
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static InteractionResult craftingThrowResult(UUID playerId, long sourcePos, boolean stonecutter, boolean stack) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
@@ -1082,7 +1087,9 @@ public final class StorageServerStub {
     ) {
         ServerPlayer player = getServerPlayer(playerId);
         final CraftingTarget target = resolveCraftingTarget(player, sourcePos);
-        if (!target.view.primary().isCraftingUnlocked()) return false;
+        if (!target.view.craftingAvailable()) {
+            return false;
+        }
         if (inputs.isEmpty() || inputs.size() > CraftingStorage.CRAFTING_GRID_SIZE
             || requestedCounts.size() > CraftingStorage.CRAFTING_GRID_SIZE) return false;
         int rounds = 0;
@@ -1300,7 +1307,7 @@ public final class StorageServerStub {
         ItemStack currentCarried = player.containerMenu.getCarried();
         if (
             StorageServerStub.carriesCraftingTerminal(target)
-            || !target.view.primary().isCraftingUnlocked()
+            || !target.view.craftingAvailable()
             || request.maxBatches() <= 0
         ) {
             return new InteractionResult(currentCarried.copy(), false).withCrafting(target.read());
@@ -1479,7 +1486,7 @@ public final class StorageServerStub {
         return new InteractionResult(player.containerMenu.getCarried().copy(), cleared || crafted).withCrafting(target.read());
     }
 
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static InteractionResult craftingPutStonecutterInput(
         UUID playerId,
         long sourcePos,
@@ -1541,7 +1548,7 @@ public final class StorageServerStub {
         return new InteractionResult(current, true);
     }
 
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static InteractionResult craftingPutCraftingSlot(
         UUID playerId,
         long sourcePos,
@@ -1616,7 +1623,7 @@ public final class StorageServerStub {
             .toList();
     }
 
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static boolean craftingClear(UUID playerId, long sourcePos, boolean toStorage) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
@@ -1654,12 +1661,12 @@ public final class StorageServerStub {
 
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static boolean craftingAvailable(UUID playerId, long sourcePos) {
-        return StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos).primary().isCraftingUnlocked();
+        return StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos, true).craftingAvailable();
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static boolean craftingUnlock(UUID playerId, long sourcePos) {
-        return StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos).primary().unlockCrafting();
+        return StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos, true).unlockCrafting();
     }
 
     public record CraftingSync(CraftingStorage crafting, Optional<Identifier> selectedRecipe) {
@@ -1681,14 +1688,14 @@ public final class StorageServerStub {
         );
     }
 
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static void craftingSelect(UUID playerId, long sourcePos, int index) {
         CraftingTarget target = resolveCraftingTarget(getServerPlayer(playerId), sourcePos);
         cancelCraftingBatch(playerId, sourcePos);
         target.write(target.read().withStonecutterSelected(index));
     }
 
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CraftingAccessValidator.class)
     public static void craftingSetOptions(UUID playerId, long sourcePos, boolean autoFill, boolean toStorage) {
         CraftingTarget target = resolveCraftingTarget(getServerPlayer(playerId), sourcePos);
         cancelCraftingBatch(playerId, sourcePos);
@@ -2060,7 +2067,7 @@ public final class StorageServerStub {
         }
     }
 
-    public static final class StorageAccessValidator implements IRemoteCallableValidator {
+    public static class StorageAccessValidator implements IRemoteCallableValidator {
         @Override
         public boolean validate(IPayloadContext ctx, Method method, Object[] args) {
             boolean valid = this.isValid(ctx, args);
@@ -2070,7 +2077,7 @@ public final class StorageServerStub {
             return valid;
         }
 
-        private boolean isValid(IPayloadContext ctx, Object[] args) {
+        protected boolean isValid(IPayloadContext ctx, Object[] args) {
             if (
                 !(ctx.player() instanceof ServerPlayer player)
                 || args.length < 2
@@ -2091,6 +2098,15 @@ public final class StorageServerStub {
                 player,
                 storage.getBlockState().getBlock()
             );
+        }
+    }
+
+    /** 合成面板的操作需要当前存储仍能访问已安装的工作站。 */
+    public static final class CraftingAccessValidator extends StorageAccessValidator {
+        @Override
+        protected boolean isValid(IPayloadContext ctx, Object[] args) {
+            return super.isValid(ctx, args)
+                && getView(ctx.player().registryAccess(), (UUID) args[0], (long) args[1], true).craftingAvailable();
         }
     }
 
@@ -2118,7 +2134,7 @@ public final class StorageServerStub {
         }
     }
 
-    public record Metadata(long version, long orderVersion, double fullness, Capacity capacity, UUID storageId) {
+    public record Metadata(long version, long orderVersion, double fullness, Capacity capacity, boolean craftingAvailable, UUID storageId) {
         public static final StreamCodec<ByteBuf, Metadata> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.VAR_LONG,
             Metadata::version,
@@ -2128,6 +2144,8 @@ public final class StorageServerStub {
             Metadata::fullness,
             Capacity.STREAM_CODEC,
             Metadata::capacity,
+            ByteBufCodecs.BOOL,
+            Metadata::craftingAvailable,
             UUIDUtil.STREAM_CODEC,
             Metadata::storageId,
             Metadata::new
@@ -2867,6 +2885,10 @@ public final class StorageServerStub {
     }
 
     private static StorageView getView(HolderLookup.Provider registries, UUID playerId, long sourcePos) {
+        return getView(registries, playerId, sourcePos, false);
+    }
+
+    private static StorageView getView(HolderLookup.Provider registries, UUID playerId, long sourcePos, boolean crafting) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         if (TerminalSessions.contains(playerId, sourcePos)) {
             return StorageServerStub.getView(playerId, List.of(TerminalSessions.storage(player, sourcePos)));
@@ -2884,7 +2906,7 @@ public final class StorageServerStub {
         BaseStorage<?> primary = Storages.get().getOrCreate(id, storage.getStorageType().clazz());
         if (storage instanceof CrateBlockEntity crate) crate.refreshDispose();
         String search = PlayerSettings.getSetting(registries, playerId).storage().getSearchContent().strip();
-        if (search.isEmpty() || !(storage instanceof CrateBlockEntity)) {
+        if (!(storage instanceof CrateBlockEntity)) {
             return StorageServerStub.getView(playerId, List.of(primary));
         }
         List<BaseStorage<?>> storages = new ArrayList<>();
@@ -2896,13 +2918,18 @@ public final class StorageServerStub {
                 });
             }
         }
-        return StorageServerStub.getView(playerId, storages);
+        return getView(playerId, storages, search.isEmpty(), crafting);
     }
 
     // 分页请求复用同一份汇总，库存或来源变化时重新构建。
     private static StorageView getView(UUID playerId, List<BaseStorage<?>> storages) {
+        return getView(playerId, storages, false, false);
+    }
+
+    private static StorageView getView(UUID playerId, List<BaseStorage<?>> storages, boolean localContents, boolean crafting) {
         StorageServerStub stub = StorageServerStub.get(playerId, storages.getLast().getId());
-        if (!stub.viewedStorages.equals(storages)) {
+        if (stub.localContents != localContents || !stub.viewedStorages.equals(storages)) {
+            stub.localContents = localContents;
             stub.viewedStorages = List.copyOf(storages);
             stub.view = null;
             stub.version++;
@@ -2910,9 +2937,11 @@ public final class StorageServerStub {
             stub.orders.clear();
         }
         if (stub.view == null) {
-            stub.view = new StorageView(stub.viewedStorages, List.of());
+            List<BaseStorage<?>> displayed = localContents ? List.of(storages.getLast()) : stub.viewedStorages;
+            stub.view = new StorageView(displayed);
+            stub.craftingView = displayed.size() == storages.size() ? stub.view : new StorageView(stub.viewedStorages, displayed);
         }
-        return stub.view;
+        return crafting ? Objects.requireNonNull(stub.craftingView) : stub.view;
     }
 
     @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC")
@@ -3096,7 +3125,7 @@ public final class StorageServerStub {
         try (Transaction transaction = Transaction.openRoot()) {
             List<BaseStorage<?>> storages = boundStorages(player).stream()
                 .filter(storage -> StorageView.canStore(storage, resource)).toList();
-            int taken = new StorageView(storages, List.of()).extractByResource(resource, needed, transaction);
+            int taken = new StorageView(storages).extractByResource(resource, needed, transaction);
             if (taken == 0 || PlayerInventoryWrapper.of(player).insert(inventorySlot, resource, taken, transaction) != taken) return;
             transaction.commit();
         }
@@ -3114,7 +3143,7 @@ public final class StorageServerStub {
                 fit = inventory.insert(resource, wanted.getMaxStackSize(), simulation);
             }
             if (fit <= 0) return false;
-            int taken = new StorageView(boundStorages(player), List.of()).extractByResource(resource, fit, transaction);
+            int taken = new StorageView(boundStorages(player)).extractByResource(resource, fit, transaction);
             if (taken == 0 || inventory.insert(resource, taken, transaction) != taken) return false;
             transaction.commit();
         }
@@ -3153,7 +3182,7 @@ public final class StorageServerStub {
         if (terminal.isEmpty() || stack.isEmpty() || amount <= 0) return 0;
         BaseStorage<?> storage = TerminalSessions.targetStorage(player, terminal, false);
         if (storage == null) return 0;
-        return new StorageView(List.of(storage), List.of()).insert(stack, Math.min(amount, stack.getCount()));
+        return new StorageView(List.of(storage)).insert(stack, Math.min(amount, stack.getCount()));
     }
 
     public static ItemStack extractFromTerminal(ServerPlayer player, UUID targetId, int amount, Slot targetSlot) {
@@ -3171,7 +3200,7 @@ public final class StorageServerStub {
     private static ItemStack extractTerminalItem(
         ServerPlayer player, BaseStorage<?> storage, int amount, Slot slot, Transaction transaction
     ) {
-        var view = new StorageView(List.of(storage), List.of());
+        var view = new StorageView(List.of(storage));
         var setting = PlayerSettings.getSetting(player.registryAccess(), player.getUUID());
         var options = new SortOptions(setting.storage().getSort(), setting.storage().getOrder());
         for (int index : createOrder(view, options, "", setting.listed())) {
@@ -3323,7 +3352,7 @@ public final class StorageServerStub {
             int filled = fillTerminalContainers(player, storages, need.copyWithCount(1), required);
             if (filled > 0) withdrawn.add(need.copyWithCount(filled));
             required -= filled;
-            StorageView view = new StorageView(storages, List.of());
+            StorageView view = new StorageView(storages);
             for (int slot = 0; slot < view.size() && required > 0; slot++) {
                 ItemResource resource = view.resource(slot);
                 if (resource.isEmpty() || view.amount(slot) <= 0
@@ -3381,7 +3410,7 @@ public final class StorageServerStub {
         ItemStack empty = emptyContainerOf(wanted);
         if (empty.isEmpty()) return 0;
         var inventory = PlayerInventoryWrapper.of(player).getMainSlots();
-        var view = new StorageView(storages, List.of());
+        var view = new StorageView(storages);
         int produced = 0;
         while (produced < limit) {
             try (Transaction transaction = Transaction.openRoot()) {
@@ -3504,7 +3533,7 @@ public final class StorageServerStub {
             } else if (storage != null) {
                 ItemStack actual = slot.getItem();
                 ItemResource resource = ItemResource.of(actual);
-                int inserted = new StorageView(List.of(storage), List.of()).insert(resource, actual.getCount(), transaction);
+                int inserted = new StorageView(List.of(storage)).insert(resource, actual.getCount(), transaction);
                 if (inventory.extract(inventorySlot, resource, inserted, transaction) != inserted) {
                     return new InteractionResult(carried, false);
                 }
@@ -3543,10 +3572,16 @@ public final class StorageServerStub {
 
     private static final class StorageView {
         private final List<BaseStorage<?>> storages;
+        private final List<BaseStorage<?>> destinations;
         private @Nullable List<Entry> entries;
 
-        private StorageView(List<BaseStorage<?>> storages, List<Entry> ignored) {
+        private StorageView(List<BaseStorage<?>> storages) {
+            this(storages, storages);
+        }
+
+        private StorageView(List<BaseStorage<?>> storages, List<BaseStorage<?>> destinations) {
             this.storages = storages;
+            this.destinations = destinations;
         }
 
         private List<Entry> entries() {
@@ -3577,6 +3612,21 @@ public final class StorageServerStub {
 
         BaseStorage<?> primary() {
             return this.storages.getLast();
+        }
+
+        boolean craftingAvailable() {
+            if (this.primary() instanceof CrateStorage) {
+                return this.storages.stream().anyMatch(BaseStorage::isCraftingUnlocked);
+            }
+            return this.primary().isCraftingUnlocked();
+        }
+
+        boolean unlockCrafting() {
+            if (this.craftingAvailable()) {
+                return true;
+            }
+            return this.primary() instanceof CrateStorage
+                ? this.primary().unlockCrafting(this.storages.reversed()) : this.primary().unlockCrafting();
         }
 
         int size() {
@@ -3619,18 +3669,20 @@ public final class StorageServerStub {
 
         int insert(ItemResource resource, int amount, Transaction tx) {
             int inserted = 0;
-            for (int i = 0; i < this.storages.size() - 1; i++) {
-                UnlimitedItemStacksResourceHandler items = this.storages.get(i).getAvailableItems();
-                if (!canStore(this.storages.get(i), resource) || !StorageView.contains(items, resource)) continue;
+            for (int i = 0; i < this.destinations.size() - 1; i++) {
+                UnlimitedItemStacksResourceHandler items = this.destinations.get(i).getAvailableItems();
+                if (!canStore(this.destinations.get(i), resource) || !StorageView.contains(items, resource)) {
+                    continue;
+                }
                 inserted += items.insert(resource, amount - inserted, tx);
                 if (inserted == amount) return inserted;
             }
             UnlimitedItemStacksResourceHandler primaryItems = this.primary().getAvailableItems();
             if (canStore(this.primary(), resource)) inserted += primaryItems.insert(resource, amount - inserted, tx);
             if (inserted == amount) return inserted;
-            for (int i = 0; i < this.storages.size() - 1; i++) {
-                if (canStore(this.storages.get(i), resource)) {
-                    inserted += this.storages.get(i).getAvailableItems().insert(resource, amount - inserted, tx);
+            for (int i = 0; i < this.destinations.size() - 1; i++) {
+                if (canStore(this.destinations.get(i), resource)) {
+                    inserted += this.destinations.get(i).getAvailableItems().insert(resource, amount - inserted, tx);
                 }
                 if (inserted == amount) return inserted;
             }

@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.event.StorageUnlockCraftingEvent;
+import dev.dubhe.anvilcraft.api.event.StorageUnlockCraftingEvent.SourceSlot;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.LinkedStorageItemHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
@@ -93,31 +94,57 @@ public abstract class BaseStorage<T extends UnlimitedItemStacksResourceHandler> 
     }
 
     public boolean unlockCrafting() {
-        if (this.isCraftingUnlocked()) return true;
-        UnlimitedItemStacksResourceHandler available = this.getAvailableItems();
-        int workbench = -1;
-        int stonecutter = -1;
-        for (int slot = 0; slot < available.size(); slot++) {
-            ItemResource resource = available.getResource(slot);
-            if (resource.isEmpty() || available.getAmountAsLong(slot) <= 0) continue;
-            if (resource.is(Tags.Items.PLAYER_WORKSTATIONS_CRAFTING_TABLES)) {
-                workbench = slot;
-            } else if (resource.is(ModItemTags.PLAYER_WORKSTATIONS_STONECUTTERS)) {
-                stonecutter = slot;
-            }
-            if (workbench >= 0 && stonecutter >= 0) break;
+        return this.unlockCrafting(List.of(this));
+    }
+
+    /** 从参与合成的存储中扣除工作台和切石机，将安装记录保存在当前存储。 */
+    public boolean unlockCrafting(List<BaseStorage<?>> sources) {
+        if (this.isCraftingUnlocked()) {
+            return true;
         }
-        if (workbench < 0 || stonecutter < 0) return false;
+        SourceSlot workbench = null;
+        SourceSlot stonecutter = null;
+        for (BaseStorage<?> source : sources) {
+            var available = source.getAvailableItems();
+            for (int slot = 0; slot < available.size(); slot++) {
+                var stack = available.getResource(slot);
+                if (stack.isEmpty() || available.getAmountAsLong(slot) <= 0) {
+                    continue;
+                }
+                if (workbench == null && stack.is(Tags.Items.PLAYER_WORKSTATIONS_CRAFTING_TABLES)) {
+                    workbench = new SourceSlot(source, slot);
+                } else if (stonecutter == null && stack.is(ModItemTags.PLAYER_WORKSTATIONS_STONECUTTERS)) {
+                    stonecutter = new SourceSlot(source, slot);
+                }
+                if (workbench != null && stonecutter != null) {
+                    break;
+                }
+            }
+            if (workbench != null && stonecutter != null) {
+                break;
+            }
+        }
+        if (workbench == null || stonecutter == null) {
+            return false;
+        }
         StorageUnlockCraftingEvent event = new StorageUnlockCraftingEvent(this);
-        event.addRecipeBaseSlot(workbench);
-        event.addRecipeBaseSlot(stonecutter);
-        if (NeoForge.EVENT_BUS.post(event).isCanceled()) return false;
+        event.addRecipeBaseSlot(workbench.storage(), workbench.slot());
+        event.addRecipeBaseSlot(stonecutter.storage(), stonecutter.slot());
+        if (NeoForge.EVENT_BUS.post(event).isCanceled()) {
+            return false;
+        }
         List<ItemStack> bases = new ArrayList<>();
         try (Transaction transaction = Transaction.openRoot()) {
-            for (int slot : event.getRecipeBaseSlots()) {
-                if (slot < 0 || slot >= available.size()) return false;
+            for (SourceSlot source : event.getSources()) {
+                var available = source.storage().getAvailableItems();
+                int slot = source.slot();
+                if (!sources.contains(source.storage()) || slot < 0 || slot >= available.size()) {
+                    return false;
+                }
                 ItemResource resource = available.getResource(slot);
-                if (resource.isEmpty() || available.extract(slot, resource, 1, transaction) != 1) return false;
+                if (resource.isEmpty() || available.extract(slot, resource, 1, transaction) != 1) {
+                    return false;
+                }
                 bases.add(resource.toStack());
             }
             transaction.commit();
