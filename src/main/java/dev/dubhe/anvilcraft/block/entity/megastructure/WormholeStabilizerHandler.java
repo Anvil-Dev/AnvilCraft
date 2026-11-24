@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.megastructure;
 
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.api.world.load.LoadChuckData;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
@@ -202,6 +203,10 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
             if (!local.getWormholeInventory().equals(remote.getWormholeInventory())) continue;
             remote.setChanged();
             remote.setEjectCooldown(CelestialForgingAnvilLogisticsInterfaceBlockEntity.EJECT_COOLDOWN);
+            // 远端位于不同维度时，说明货物确实跨维度送达了
+            if (!remote.getLevel().dimension().equals(be.getLevel().dimension())) {
+                TriggerUtil.wormholeDelivery(be.getLevel(), interfacePos);
+            }
         }
     }
 

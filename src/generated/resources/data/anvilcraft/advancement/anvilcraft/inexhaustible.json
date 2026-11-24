@@ -1,0 +1,33 @@
+{
+  "parent": "anvilcraft:anvilcraft/dyson_sphere",
+  "criteria": {
+    "inexhaustible": {
+      "trigger": "anvilcraft:inexhaustible"
+    },
+    "infinite_power": {
+      "trigger": "anvilcraft:infinite_power"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.inexhaustible.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:stellar_evolution_accelerator_component"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.inexhaustible.title"
+    }
+  },
+  "requirements": [
+    [
+      "inexhaustible"
+    ],
+    [
+      "infinite_power"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

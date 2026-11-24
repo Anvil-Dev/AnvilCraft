@@ -1,0 +1,28 @@
+{
+  "parent": "anvilcraft:anvilcraft/superpower",
+  "criteria": {
+    "large_cauldron_cocktail": {
+      "trigger": "anvilcraft:large_cauldron_cocktail"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.cocktail.description"
+    },
+    "frame": "goal",
+    "hidden": true,
+    "icon": {
+      "count": 1,
+      "id": "minecraft:potion"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.cocktail.title"
+    }
+  },
+  "requirements": [
+    [
+      "large_cauldron_cocktail"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

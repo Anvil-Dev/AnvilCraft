@@ -1,0 +1,27 @@
+{
+  "parent": "anvilcraft:anvilcraft/moon_landing",
+  "criteria": {
+    "moon_far_side": {
+      "trigger": "anvilcraft:moon_far_side"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.moon_far_side.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:lunar_soil"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.moon_far_side.title"
+    }
+  },
+  "requirements": [
+    [
+      "moon_far_side"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

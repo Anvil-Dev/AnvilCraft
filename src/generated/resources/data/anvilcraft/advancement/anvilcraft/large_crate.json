@@ -1,0 +1,36 @@
+{
+  "parent": "anvilcraft:anvilcraft/giant_age",
+  "criteria": {
+    "multiblock_conversion_large_crate": {
+      "conditions": {
+        "id": "anvilcraft:multiblock_conversion/large_crate"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "multiblock_large_crate": {
+      "conditions": {
+        "id": "anvilcraft:multiblock/large_crate"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.large_crate.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:large_crate"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.large_crate.title"
+    }
+  },
+  "requirements": [
+    [
+      "multiblock_large_crate",
+      "multiblock_conversion_large_crate"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

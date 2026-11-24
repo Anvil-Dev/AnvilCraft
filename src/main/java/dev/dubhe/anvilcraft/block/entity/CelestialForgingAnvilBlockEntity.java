@@ -28,6 +28,7 @@ import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
 import dev.dubhe.anvilcraft.item.DiskItem;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.ChatFormatting;
@@ -130,9 +131,16 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     private static final int REDSTONE_SIGNAL_CACHE_TICKS = 5;
 
     @Getter
-    @Setter
     @Nullable
     private CelestialBodyData celestialBodyData = null;
+
+    /// 天体数据落地即为「锻造出该天体」，搜索、快照、预设、彩蛋与演化残骸全部经过这里。
+    public void setCelestialBodyData(@Nullable CelestialBodyData data) {
+        this.celestialBodyData = data;
+        if (data != null && this.level != null && !this.level.isClientSide) {
+            TriggerUtil.celestialVisit(this.level, this.worldPosition, data.bodyClass());
+        }
+    }
 
     @Getter
     @Setter
@@ -366,6 +374,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     @Override
     public int getOutputPower() {
         return this.megastructureManager.getOutputPower(this);
+    }
+
+    @Override
+    public boolean isInfinitePower() {
+        return this.megastructureManager.isInfinitePower(this);
     }
 
     @Override

@@ -1,0 +1,26 @@
+{
+  "parent": "anvilcraft:anvilcraft/fish_tank",
+  "criteria": {
+    "wear_breathing_helmet": {
+      "trigger": "anvilcraft:wear_breathing_helmet"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.breathing_helmet.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:breathing_helmet"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.breathing_helmet.title"
+    }
+  },
+  "requirements": [
+    [
+      "wear_breathing_helmet"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

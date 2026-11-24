@@ -83,7 +83,9 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
         this.setData(ModDataAttachments.IN_POWER_GRID, inPowerGrid);
         if (inPowerGrid) {
             this.awardStat(ModStats.ENTER_POWER_GRID);
-            TriggerUtil.enterPowerGrid(this.level(), BlockPos.containing(this.position()));
+            BlockPos pos = BlockPos.containing(this.position());
+            TriggerUtil.enterPowerGrid(this.level(), pos);
+            TriggerUtil.highVoltageTower(this.level(), pos, grid.getComponentCount());
         }
     }
 

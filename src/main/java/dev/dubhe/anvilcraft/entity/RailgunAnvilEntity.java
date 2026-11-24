@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.entity;
 
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import dev.dubhe.anvilcraft.util.AccelerateManager;
 import lombok.Setter;
 import net.minecraft.core.registries.Registries;
@@ -234,6 +235,10 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
                         getDeltaMovement().x * knockback * 0.4, 0.1, getDeltaMovement().z * knockback * 0.4);
                 }
             }
+            // 被自己发射的铁砧砸死
+            if (target instanceof ServerPlayer victim && victim.getUUID().equals(this.owner) && victim.isDeadOrDying()) {
+                TriggerUtil.railgunSelfKill(victim);
+            }
         }
         if (this.hitEntities.size() > entityData.get(PIERCE)) this.startFalling();
     }
@@ -293,7 +298,7 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
     }
 
     @Nullable
-    private Entity getOwnerEntity() {
+    public Entity getOwnerEntity() {
         Entity entity = this.level().getEntity(this.entityData.get(OWNER_ID));
         if (entity != null || !(this.level() instanceof ServerLevel serverLevel)) return entity;
         entity = serverLevel.getEntity(this.owner);

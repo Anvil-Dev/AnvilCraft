@@ -1,0 +1,26 @@
+{
+  "parent": "anvilcraft:anvilcraft/root",
+  "criteria": {
+    "monolith_touch": {
+      "trigger": "anvilcraft:monolith_touch"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.wisdom_tree.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:monolith"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.wisdom_tree.title"
+    }
+  },
+  "requirements": [
+    [
+      "monolith_touch"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

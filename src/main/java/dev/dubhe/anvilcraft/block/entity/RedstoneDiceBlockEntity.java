@@ -1,12 +1,16 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -81,6 +85,19 @@ public class RedstoneDiceBlockEntity extends BlockEntity {
         this.level.updateNeighborsAt(this.worldPosition, this.getBlockState().getBlock());
         this.rolling = false;
         this.sync();
+        this.awardTripleSix();
+    }
+
+    private void awardTripleSix() {
+        if (this.faces != 666 || !(this.level instanceof ServerLevel serverLevel)) return;
+        Player nearest = serverLevel.getNearestPlayer(
+            this.worldPosition.getX() + 0.5,
+            this.worldPosition.getY() + 0.5,
+            this.worldPosition.getZ() + 0.5,
+            16.0,
+            false
+        );
+        if (nearest instanceof ServerPlayer player) ModCriterionTriggers.DICE_TRIPLE_SIX.get().trigger(player);
     }
 
     @Override

@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.api.laser.LaserTypeComponent;
 import dev.dubhe.anvilcraft.api.rendering.CacheableBERenderingPipeline;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.network.LaserEmitPacket;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -473,5 +474,8 @@ public abstract class BaseLaserBlockEntity extends BlockEntity implements ILaser
 
     protected void emitGammaLaserBeam(Direction direction) {
         this.emitLaserComponents(direction, true);
+        if (this.level != null && !this.level.isClientSide()) {
+            TriggerUtil.gammaLaser(this.level, this.getBlockPos());
+        }
     }
 }
