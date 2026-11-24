@@ -3,7 +3,7 @@ minecraft = "1.21.1"
 neoForge = "21.1.238"
 
 anvillib = "2.0.0"
-ageratum = "0.0.1+build.152"
+ageratum = "0.0.1+build.157"
 
 jei = "19.70.0.469"
 jade = "15.10.5+neoforge"

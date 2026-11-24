@@ -2,18 +2,22 @@ package dev.dubhe.anvilcraft.mixin;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.datafixers.util.Pair;
 import dev.dubhe.anvilcraft.api.IHasMultiBlock;
 import dev.dubhe.anvilcraft.api.injection.IExplosionExtension;
+import dev.dubhe.anvilcraft.block.ChutePlateExplosionRay;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.BlockTransform;
 import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
@@ -55,6 +59,27 @@ abstract class ExplosionMixin implements IExplosionExtension {
     @Shadow
     @Final
     private Level level;
+
+    @ModifyExpressionValue(
+        method = "explode",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;isInWorldBounds(Lnet/minecraft/core/BlockPos;)Z")
+    )
+    private boolean stopAtChutePlate(
+        boolean inBounds,
+        @Local BlockPos pos,
+        @Local(ordinal = 4) double x,
+        @Local(ordinal = 5) double y,
+        @Local(ordinal = 6) double z,
+        @Share("plateRay") LocalRef<ChutePlateExplosionRay> plateRay
+    ) {
+        if (!inBounds || !(this.level instanceof ServerLevel server)) {
+            return inBounds;
+        }
+        if (plateRay.get() == null) {
+            plateRay.set(new ChutePlateExplosionRay(server, ((Explosion) (Object) this).center()));
+        }
+        return !plateRay.get().isBlocked(pos, x, y, z);
+    }
 
     @Inject(
         method = "finalizeExplosion",

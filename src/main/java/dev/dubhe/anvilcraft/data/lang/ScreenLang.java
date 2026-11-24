@@ -122,11 +122,11 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.storage_port.storage", "Storage");
         provider.add("tooltip.anvilcraft.storage_port.unmarked", "No item marked");
 
-        provider.add("tooltip.anvilcraft.large_cauldron.inputs", "Input Items:");
-        provider.add("tooltip.anvilcraft.large_cauldron.outputs", "Output Items:");
-        provider.add("tooltip.anvilcraft.large_cauldron.fluids", "Fluids:");
-        provider.add("tooltip.anvilcraft.large_cauldron.burning", " burning");
-        provider.add("tooltip.anvilcraft.large_cauldron.will_process", " will be processed by %s");
+        provider.add("tooltip.anvilcraft.large_cauldron.burning", " (burning)");
+        provider.add("tooltip.anvilcraft.large_cauldron.fluids", "Fluids");
+        provider.add("tooltip.anvilcraft.large_cauldron.inputs", "Inputs");
+        provider.add("tooltip.anvilcraft.large_cauldron.outputs", "Outputs");
+        provider.add("tooltip.anvilcraft.large_cauldron.processing_step", "%1$s → %2$s");
 
         provider.add("tooltip.anvilcraft.redstone.title", "Redstone Stats:");
         provider.add("tooltip.anvilcraft.redstone.power", "  Power: %d");

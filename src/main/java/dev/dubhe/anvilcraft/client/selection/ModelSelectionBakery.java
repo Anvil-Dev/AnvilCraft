@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.selection;
 
+import com.google.common.collect.Iterables;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.anvilcraft.lib.v2.cube.client.SelectionPart;
 import dev.anvilcraft.lib.v2.cube.client.model.ModelSelection;
@@ -9,6 +10,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.GiantMonolithCoreBlock;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.ChutePlateRenderer;
 import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.client.renderer.block.model.MultiVariant;
@@ -87,7 +89,8 @@ final class ModelSelectionBakery {
                     this.bytes - previousBytes);
             }
         }
-        for (Map.Entry<ModelResourceLocation, UnbakedModel> entry : topLevel.entrySet()) {
+        var selectionModels = Iterables.concat(topLevel.entrySet(), ChutePlateRenderer.shortenedModels().entrySet());
+        for (Map.Entry<ModelResourceLocation, UnbakedModel> entry : selectionModels) {
             if (!AnvilCraft.MOD_ID.equals(entry.getKey().id().getNamespace())
                 || !ModelResourceLocation.STANDALONE_VARIANT.equals(entry.getKey().getVariant())) continue;
             if (!(entry.getValue() instanceof BlockModel model)) continue;
@@ -160,15 +163,33 @@ final class ModelSelectionBakery {
 
     private static void appendShapes(ModelSelection selection, Matrix4d transform, List<ConvexShape> output) {
         if (selection instanceof ModelSelection.Fixed(SelectionPart part1)) {
-            PoseStack pose = new PoseStack();
-            part1.apply(pose);
-            Matrix4d matrix = new Matrix4d(transform).scale(ModelCubeGeometry.SCALE).mul(new Matrix4d(pose.last().pose()));
-            part1.geometry().shapes().forEach(shape -> output.add(shape.transform(matrix)));
+            appendShapes(part1, transform, output);
         } else if (selection instanceof ModelSelection.Multipart multipart) {
             for (ModelSelection part : multipart.parts()) appendShapes(part, transform, output);
         } else {
             throw new IllegalArgumentException("Randomized multipart structure");
         }
+    }
+
+    private static void appendShapes(SelectionPart part, Matrix4d transform, List<ConvexShape> output) {
+        PoseStack pose = new PoseStack();
+        part.apply(pose);
+        Matrix4d matrix = new Matrix4d(transform).scale(ModelCubeGeometry.SCALE).mul(new Matrix4d(pose.last().pose()));
+        part.geometry().shapes().forEach(shape -> output.add(shape.transform(matrix)));
+    }
+
+    static @Nullable SelectionPart mergeOutline(List<SelectionPart> parts) {
+        int count = parts.stream().mapToInt(part -> part.geometry().shapes().size()).sum();
+        if (count == 0 || count > SelectionGeometry.MAX_SHAPES) {
+            return null;
+        }
+        List<ConvexShape> shapes = new ArrayList<>(count);
+        Matrix4d identity = new Matrix4d();
+        for (SelectionPart part : parts) {
+            appendShapes(part, identity, shapes);
+        }
+        SelectionGeometry geometry = new SelectionGeometry(shapes, ModelCubeGeometry.SCALE);
+        return new SelectionPart(geometry, new Matrix4f().scaling(1 / ModelCubeGeometry.SCALE));
     }
 
     private <P extends Enum<P>> void multipart(

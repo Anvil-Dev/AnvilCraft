@@ -18,7 +18,7 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
-public class ChuteBlockEntity extends BaseChuteBlockEntity {
+public class ChuteBlockEntity extends FullChuteBlockEntity {
     protected ChuteBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }

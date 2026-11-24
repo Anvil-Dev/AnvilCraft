@@ -22,6 +22,7 @@ public class JadeLang {
         provider.add("config.jade.plugin_anvilcraft.large_laser", "Large Laser");
         provider.add("config.jade.plugin_anvilcraft.load_monitor", "Load Monitor");
         provider.add("config.jade.plugin_anvilcraft.menger_sponge", "Menger Sponge");
+        provider.add("config.jade.plugin_anvilcraft.cauldron_processing_preview", "Processing Preview");
         provider.add("config.jade.plugin_anvilcraft.crab_trap", "Crab Trap");
         provider.add("config.jade.plugin_anvilcraft.collector", "Collector");
         provider.add("config.jade.plugin_anvilcraft.control_valve", "Control Valve");

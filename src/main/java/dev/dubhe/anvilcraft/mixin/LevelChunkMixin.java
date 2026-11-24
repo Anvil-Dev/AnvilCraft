@@ -6,8 +6,10 @@ import com.llamalad7.mixinextras.sugar.Local;
 import dev.dubhe.anvilcraft.api.event.BlockEntityEvent;
 import dev.dubhe.anvilcraft.api.rendering.CacheableBERenderingPipeline;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ChutePlates;
 import dev.dubhe.anvilcraft.building.BuildingRodUndo;
 import dev.dubhe.anvilcraft.util.EnchantedGoldBlockPositions;
+import dev.dubhe.anvilcraft.util.MonolithBlockPositions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -31,6 +33,28 @@ public abstract class LevelChunkMixin {
 
     @Shadow
     public abstract Map<BlockPos, BlockEntity> getBlockEntities();
+
+    @WrapOperation(
+        method = "setBlockState",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;onRemove("
+            + "Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Z)V")
+    )
+    private void transferChutePlates(
+        BlockState previous, Level level, BlockPos pos, BlockState next, boolean moving, Operation<Void> original
+    ) {
+        ChutePlates plates = ChutePlates.isConversion(previous.getBlock(), next.getBlock()) ? ChutePlates.at(level, pos) : null;
+        original.call(previous, level, pos, next, moving);
+        if (plates == null || plates.getPlates().isEmpty()) {
+            return;
+        }
+        LevelChunk chunk = (LevelChunk) (Object) this;
+        if (chunk.getBlockState(pos).is(next.getBlock())
+            && chunk.getBlockEntity(pos, LevelChunk.EntityCreationType.IMMEDIATE) instanceof ChutePlates.Holder target) {
+            plates.transferTo(target);
+        } else {
+            plates.dropAfterFailedConversion();
+        }
+    }
 
     @Inject(method = "setBlockState", at = @At("RETURN"))
     private void trackBuildingRodReplacement(BlockPos pos, BlockState state, boolean moving,
@@ -118,6 +142,8 @@ public abstract class LevelChunkMixin {
         if (!this.getLevel().isClientSide) {
             return;
         }
-        EnchantedGoldBlockPositions.onBlockChanged(pos, this.getBlockState(pos), state);
+        BlockState previous = this.getBlockState(pos);
+        EnchantedGoldBlockPositions.onBlockChanged(pos, previous, state);
+        MonolithBlockPositions.onBlockChanged((LevelChunk) (Object) this, pos, previous, state);
     }
 }

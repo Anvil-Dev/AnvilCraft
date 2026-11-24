@@ -22,7 +22,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 public record HammerChangeBlockPacket(BlockPos pos, BlockState state) implements IServerboundPacket {
@@ -74,10 +73,7 @@ public record HammerChangeBlockPacket(BlockPos pos, BlockState state) implements
             BlockState frontState = level.getBlockState(this.pos.relative(facing));
             if (ChuteBlock.isChuteBlock(frontState)
                 && ChuteBlock.outputsToward(frontState, facing.getOpposite())) {
-                BlockState oldState = level.getBlockState(this.pos);
-                level.levelEvent(2001, this.pos, Block.getId(oldState));
-                level.setBlock(this.pos, Blocks.AIR.defaultBlockState(), 3);
-                Block.dropResources(oldState, level, this.pos);
+                ChuteBlock.destroyFacingConflict(level, this.pos, player);
                 return;
             }
         }

@@ -8,8 +8,10 @@ import dev.anvilcraft.lib.v2.cube.client.OutlineRenderer;
 import dev.anvilcraft.lib.v2.cube.client.SelectionPart;
 import dev.anvilcraft.lib.v2.cube.client.model.ModelSelection;
 import dev.anvilcraft.lib.v2.cube.geometry.ConvexShape;
+import dev.anvilcraft.lib.v2.cube.geometry.PackedOutline;
 import dev.anvilcraft.lib.v2.cube.geometry.SelectionGeometry;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.ChutePlates;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.mixin.accessor.ModelBakeryAccessor;
 import net.minecraft.client.Minecraft;
@@ -19,6 +21,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -41,6 +44,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nullable;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
@@ -61,6 +65,14 @@ public final class ModelBlockSelection {
         .weigher((VoxelShape key, SelectionPart value) -> (int) value.geometry().estimatedBytes() + 512)
         .build();
 
+    private static final Cache<ChuteOutlineKey, SelectionPart> CHUTE_OUTLINES = CacheBuilder.newBuilder()
+        .maximumWeight(2 * 1024 * 1024)
+        .weigher((ChuteOutlineKey key, SelectionPart part) -> (int) part.geometry().estimatedBytes() + 128)
+        .build();
+
+    private record ChuteOutlineKey(BlockState state, BlockPos pos, Set<Direction> plates) {
+    }
+
     /** 预览缓存键：放置位不同则渲染结果可能不同，必须一并入键。 */
     private record PreviewKey(BlockState state, BlockPos pos) {
     }
@@ -78,6 +90,7 @@ public final class ModelBlockSelection {
         snapshot = new ModelSelectionBakery(bakery.getUnbakedCache()).bake(bakery.getTopLevelModels());
         DYNAMIC.clear();
         FALLBACK.invalidateAll();
+        CHUTE_OUTLINES.invalidateAll();
         for (Block block : BuiltInRegistries.BLOCK) {
             if (!AnvilCraft.MOD_ID.equals(BuiltInRegistries.BLOCK.getKey(block).getNamespace())) continue;
             AABB bounds = null;
@@ -273,13 +286,29 @@ public final class ModelBlockSelection {
             !level.tickRateManager().isEntityFrozen(event.getCamera().getEntity())
         );
         List<SelectionPart> outline = multipartOutline ? whole : parts(level, pos, state, tick);
+        ChutePlates plates = state.hasBlockEntity() ? ChutePlates.at(level, pos) : null;
+        SelectionPart merged = null;
+        if (plates != null && !plates.getPlates().isEmpty()) {
+            ChuteOutlineKey key = new ChuteOutlineKey(state, pos.immutable(), plates.getPlates());
+            merged = CHUTE_OUTLINES.asMap().computeIfAbsent(key, ignored -> ModelSelectionBakery.mergeOutline(outline));
+            if (merged == null || CubeSelection.outlines().get(merged.geometry()) == merged.geometry().fallbackOutline()) {
+                return;
+            }
+        }
         if (outline.isEmpty() && !multipartOutline) return;
         PoseStack pose = event.getPoseStack();
         Vec3 camera = event.getCamera().getPosition();
         Vec3 offset = multipartOutline ? Vec3.ZERO : state.getOffset(level, pos);
         pose.pushPose();
         pose.translate(pos.getX() - camera.x + offset.x, pos.getY() - camera.y + offset.y, pos.getZ() - camera.z + offset.z);
-        drawOutline(outline, pose, event);
+        if (merged != null) {
+            Vec3 localCamera = merged.localPosition(camera.subtract(Vec3.atLowerCornerOf(pos)).subtract(offset));
+            PackedOutline visible = CubeSelection.outlines().get(merged.geometry()).forView(localCamera);
+            merged.apply(pose);
+            OutlineRenderer.render(pose, event.getMultiBufferSource().getBuffer(RenderType.lines()), visible, 0, 0, 0, 0.4F);
+        } else {
+            drawOutline(outline, pose, event);
+        }
         if (multipartOutline && block instanceof AbstractMultiPartBlock<?> multipart) {
             drawDynamicParts(multipart, state, pos, level, tick, pose, event);
         }

@@ -25,6 +25,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -35,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
@@ -68,51 +70,61 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IPlanned
 
     @Override
     public List<PlannedItem> plan(InWorldRecipeContext context) {
-        ServerLevel level = context.getLevel();
-        Vec3 pos = context.getPos();
-
-        // 仅皇家钢配方才检查偏好
-        if (!context.get(IS_ROYAL_STEEL_RECIPE)) {
+        if (!context.get(IS_ROYAL_STEEL_RECIPE) || !hasPreferredSource(context.getLevel(), context.getPos(), null, context)) {
             return List.of();
         }
+        return this.planBonus(context);
+    }
 
+    /** 根据配方输入、重叠实体锅和掉落物判断加成。客户端只排除绝不可能被选为偏爱的材料。 */
+    public static boolean hasPreferredSource(Level level, Vec3 pos, @Nullable IItemHandler input) {
+        return hasPreferredSource(level, pos, input, null);
+    }
+
+    private static boolean hasPreferredSource(
+        Level level, Vec3 pos, @Nullable IItemHandler input, @Nullable InWorldRecipeContext context
+    ) {
+        Predicate<ItemStack> preferred = level instanceof ServerLevel server
+            ? stack -> RoyalPreference.isRoyalPreferred(server, stack)
+            : stack -> (stack.is(ModItemTags.GEMS) && !stack.is(Items.EMERALD))
+                || (stack.is(ModItemTags.GEM_BLOCKS) && !stack.is(Items.EMERALD_BLOCK));
         BlockPos belowPos = BlockPos.containing(pos.x, pos.y - 1, pos.z);
 
         BlockEntity blockEntity = level.getBlockEntity(belowPos);
         boolean hasRecipeCache = false;
         if (blockEntity instanceof IItemHandlerCache cache) {
             hasRecipeCache = true;
-            if (hasRoyalPreferred(level, cache.getInput())) {
-                return this.planBonus(context);
+            if (hasRoyalPreferred(preferred, input == null ? cache.getInput() : input)) {
+                return true;
             }
         }
 
-        IItemHandlerCache entityCauldron = findEntityCauldron(context, belowPos);
+        IItemHandlerCache entityCauldron = RoyalPreferenceOutcome.findEntityCauldron(level, belowPos, context);
         if (entityCauldron != null) {
             hasRecipeCache = true;
-            if (hasRoyalPreferred(level, entityCauldron.getInput())) {
-                return this.planBonus(context);
+            if (hasRoyalPreferred(preferred, entityCauldron.getInput())) {
+                return true;
             }
         }
 
+        // 没有配方缓存的容器（如原版容器）退回到直接读能力
         if (!hasRecipeCache) {
-            IItemHandler handler = level.getCapability(
-                Capabilities.ItemHandler.BLOCK, belowPos, null);
-            if (handler != null && hasRoyalPreferred(level, handler)) {
-                return this.planBonus(context);
+            IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, belowPos, null);
+            if (handler != null && hasRoyalPreferred(preferred, handler)) {
+                return true;
             }
         }
 
         // 炼药锅场景：扫描掉落物
-        Vec3 inputCenter = pos.add(INPUT_OFFSET);
+        Vec3 inputCenter = pos.add(RoyalPreferenceOutcome.INPUT_OFFSET);
         AABB inputBox = new AABB(inputCenter, inputCenter).inflate(
-            INPUT_RANGE.x, INPUT_RANGE.y, INPUT_RANGE.z);
+            RoyalPreferenceOutcome.INPUT_RANGE.x, RoyalPreferenceOutcome.INPUT_RANGE.y, RoyalPreferenceOutcome.INPUT_RANGE.z);
         for (ItemEntity itemEntity : level.getEntitiesOfClass(ItemEntity.class, inputBox)) {
-            if (RoyalPreference.isRoyalPreferred(level, itemEntity.getItem())) {
-                return this.planBonus(context);
+            if (preferred.test(itemEntity.getItem())) {
+                return true;
             }
         }
-        return List.of();
+        return false;
     }
 
     private List<PlannedItem> planBonus(InWorldRecipeContext context) {
@@ -120,25 +132,33 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IPlanned
         return bonus.isEmpty() ? List.of() : List.of(new PlannedItem(bonus, context.getPos().add(OUTPUT_OFFSET)));
     }
 
-    private static boolean hasRoyalPreferred(ServerLevel level, IItemHandler handler) {
+    private static boolean hasRoyalPreferred(Predicate<ItemStack> preferred, IItemHandler handler) {
         for (int slot = 0; slot < handler.getSlots(); slot++) {
             ItemStack stack = handler.getStackInSlot(slot);
-            if (!stack.isEmpty() && RoyalPreference.isRoyalPreferred(level, stack)) return true;
+            if (!stack.isEmpty() && preferred.test(stack)) {
+                return true;
+            }
         }
         return false;
     }
 
-    private static @Nullable IItemHandlerCache findEntityCauldron(InWorldRecipeContext context, BlockPos pos) {
+    private static @Nullable IItemHandlerCache findEntityCauldron(Level level, BlockPos pos, @Nullable InWorldRecipeContext context) {
         Vec3 center = pos.getCenter();
         AABB lookupArea = new AABB(pos).inflate(0.0625);
         IItemHandlerCache closest = null;
         double closestDistance = Double.POSITIVE_INFINITY;
-        for (IEntityCauldron candidate : HasCauldron.getEntityCauldronCandidates(context, pos)) {
-            if (!(candidate instanceof IItemHandlerCache cache)) continue;
-            Entity entity = (Entity) candidate;
-            if (!entity.isAlive() || !entity.getBoundingBox().intersects(lookupArea)) continue;
+        Iterable<?> candidates = context == null
+            ? level.getEntitiesOfClass(Entity.class, lookupArea, entity -> entity instanceof IEntityCauldron && entity.isAlive())
+            : HasCauldron.getEntityCauldronCandidates(context, pos);
+        for (Object candidate : candidates) {
+            if (!(candidate instanceof Entity entity) || !(entity instanceof IItemHandlerCache cache)
+                || !entity.isAlive() || !entity.getBoundingBox().intersects(lookupArea)) {
+                continue;
+            }
             double distance = entity.getBoundingBox().getCenter().distanceToSqr(center);
-            if (distance >= closestDistance) continue;
+            if (distance >= closestDistance) {
+                continue;
+            }
             closest = cache;
             closestDistance = distance;
         }
