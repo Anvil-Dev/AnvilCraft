@@ -43,6 +43,8 @@ public class BlockTagLoader {
             .addTag(BlockTags.BUTTONS.location())
             .addTag(BlockTags.PRESSURE_PLATES.location())
             .addTag(BlockTags.FENCE_GATES.location())
+            .addTag(Tags.Blocks.PLAYER_WORKSTATIONS_CRAFTING_TABLES.location())
+            .addTag(Tags.Blocks.VILLAGER_JOB_SITES.location())
             .addElement(BlockTagLoader.findId(Blocks.BELL))
             .addElement(BlockTagLoader.findId(Blocks.REDSTONE_LAMP))
             .addElement(BlockTagLoader.findId(Blocks.RAIL))
