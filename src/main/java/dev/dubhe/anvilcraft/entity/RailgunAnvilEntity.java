@@ -41,6 +41,8 @@ import java.util.UUID;
 
 public class RailgunAnvilEntity extends FallingBlockEntity {
     private static final String GHOST_TAG = "AnvilCraftRailgunGhost";
+    /// 弹丸进入加速区会转成普通掉落方块，转换时把发射者写进来，撞击配方据此派发进度。
+    public static final String RAILGUN_OWNER_TAG = "AnvilCraftRailgunOwner";
     private static final float BASE_DAMAGE_MULTIPLIER = 4.0F;
     private static final EntityDataAccessor<BlockState> DISPLAY_STATE = SynchedEntityData.defineId(
         RailgunAnvilEntity.class, EntityDataSerializers.BLOCK_STATE);
@@ -195,6 +197,18 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
         return new MovementResult(collided, step.scale(steps), false);
     }
 
+    /// 读取转换后的掉落方块上记录的发射者，没有记录时返回 null。
+    @Nullable
+    public static UUID getRailgunOwner(Entity entity) {
+        String raw = entity.getPersistentData().getString(RAILGUN_OWNER_TAG);
+        if (raw.isEmpty()) return null;
+        try {
+            return UUID.fromString(raw);
+        } catch (IllegalArgumentException ignored) {
+            return null;
+        }
+    }
+
     private boolean convertToFallingBlock(AccelerateManager.AccelerationEntry accelerationEntry) {
         if (this.level().isClientSide || !this.isFlying()) return false;
         FallingBlockEntity falling = new FallingBlockEntity(
@@ -207,6 +221,9 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
             falling.dropItem = false;
             falling.disableDrop();
             falling.getPersistentData().putBoolean(GHOST_TAG, true);
+        }
+        if (this.owner != null) {
+            falling.getPersistentData().putString(RAILGUN_OWNER_TAG, this.owner.toString());
         }
         AccelerateManager.applyAcceleration(falling, accelerationEntry);
         if (!this.level().addFreshEntity(falling)) return false;

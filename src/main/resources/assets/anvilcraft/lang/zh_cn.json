@@ -2138,7 +2138,7 @@
   "command.anvilcraft.multiphase.info.summary": "多相空间：%1$s，当前：%2$s",
   "command.anvilcraft.multiphase.info.phase": "[%1$s] %2$s，修复花费：%3$s，附魔空间：%4$s",
   "tooltip.anvilcraft.item.anvil_railgun": "装填铁砧后，按住右键消耗电力蓄力发射高速的铁砧",
-  "tooltip.anvilcraft.item.anvil_railgun.shift": "按住右键把副手的铁砧装入轨道炮\n装填后按住右键蓄力，松开发射铁砧\n蓄力越久发射的铁砧速度越快伤害越高\n给铁砧轨道炮附魔可以增强伤害、缩短蓄力时长或改变发射效果",
+  "tooltip.anvilcraft.item.anvil_railgun.shift": "按住右键把副手的铁砧装入轨道炮\n装填后按住右键蓄力，松开发射铁砧\n蓄力越久发射的铁砧速度越快伤害越高\n给铁砧轨道炮附魔可以增强伤害、缩短蓄力时长或改变发射效果\n附魔力量 VIII 后，发射的铁砧会引发爆炸",
   "tooltip.anvilcraft.item.corrupted_beacon_activator": "按住右键，持续消耗电力发射腐化光束",
   "tooltip.anvilcraft.item.corrupted_beacon_activator.shift": "腐化光束会穿透目标造成伤害和凋零\n光束能穿透玻璃，不会转化生物\n给腐化信标激发器附魔可增强光束的伤害",
   "tooltip.anvilcraft.item.energy_weapon_platform.shift": "已储存640MFE，但只会继承到制成的能量武器中\n可以使用不同材料制作为各种能量武器\n消耗电容器可以为能量武器补充电量",
