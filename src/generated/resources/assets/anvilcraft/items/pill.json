@@ -1,6 +1,12 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "anvilcraft:item/pill"
+    "model": "anvilcraft:item/pill",
+    "tints": [
+      {
+        "type": "minecraft:potion",
+        "default": 16777215
+      }
+    ]
   }
 }
