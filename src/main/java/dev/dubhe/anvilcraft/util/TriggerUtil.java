@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarTerminal;
 import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -112,6 +113,11 @@ public class TriggerUtil {
         }
     }
 
+    /// 感受电网律动：进入电网、放置或获得电网组件任一发生都会推进这个进度。
+    public static void powerGridRhythm(ServerPlayer player) {
+        ModCriterionTriggers.ENTER_POWER_GRID.get().trigger(player);
+    }
+
     public static void enterPowerGrid(Level level, BlockPos pos) {
         if (!level.isClientSide) {
             for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 5)) {
@@ -205,6 +211,91 @@ public class TriggerUtil {
             for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 7)) {
                 ModCriterionTriggers.MULTI_BLOCK_FORM.get().trigger(player);
             }
+        }
+    }
+
+    public static void shulkerContainerUpgrade(Level level, BlockPos pos) {
+        if (!level.isClientSide) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 7)) {
+                ModCriterionTriggers.SHULKER_CONTAINER_UPGRADE.get().trigger(player);
+            }
+        }
+    }
+
+    public static void hyperdimensionStationUpgrade(Level level, BlockPos pos) {
+        if (!level.isClientSide) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 7)) {
+                ModCriterionTriggers.HYPERDIMENSION_STATION_UPGRADE.get().trigger(player);
+            }
+        }
+    }
+
+    public static void largeCauldronCocktail(Level level, BlockPos pos) {
+        if (!level.isClientSide) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 7)) {
+                ModCriterionTriggers.LARGE_CAULDRON_COCKTAIL.get().trigger(player);
+            }
+        }
+    }
+
+    public static void gammaLaser(Level level, BlockPos pos) {
+        if (!level.isClientSide) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 32)) {
+                ModCriterionTriggers.GAMMA_LASER.get().trigger(player);
+            }
+        }
+    }
+
+    public static void dysonSphere(Level level, BlockPos pos) {
+        if (!level.isClientSide) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 32)) {
+                ModCriterionTriggers.DYSON_SPHERE.get().trigger(player);
+            }
+        }
+    }
+
+    public static void infinitePower(Level level, BlockPos pos) {
+        if (!level.isClientSide) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 32)) {
+                ModCriterionTriggers.INFINITE_POWER.get().trigger(player);
+            }
+        }
+    }
+
+    public static void inexhaustible(Level level, BlockPos pos) {
+        if (!level.isClientSide) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 32)) {
+                ModCriterionTriggers.INEXHAUSTIBLE.get().trigger(player);
+            }
+        }
+    }
+
+    public static void railgunSelfKill(ServerPlayer player) {
+        ModCriterionTriggers.RAILGUN_SELF_KILL.get().trigger(player);
+    }
+
+    public static void wormholeDelivery(Level level, BlockPos pos) {
+        if (!level.isClientSide) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 32)) {
+                ModCriterionTriggers.WORMHOLE_DELIVERY.get().trigger(player);
+            }
+        }
+    }
+
+    public static void celestialVisit(Level level, BlockPos pos) {
+        if (!level.isClientSide) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 32)) {
+                ModCriterionTriggers.CELESTIAL_VISIT.get().trigger(player, 1);
+            }
+        }
+    }
+
+    public static void celestialVisit(Level level, BlockPos pos, CelestialBodyClass bodyClass) {
+        if (level.isClientSide || bodyClass == null) {
+            return;
+        }
+        for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 32)) {
+            ModCriterionTriggers.CELESTIAL_VISIT.get().visit(player, bodyClass.category());
         }
     }
 

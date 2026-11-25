@@ -1,0 +1,37 @@
+{
+  "parent": "anvilcraft:anvilcraft/dang",
+  "criteria": {
+    "compressed_biscuit": {
+      "trigger": "anvilcraft:compressed_biscuit"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.compressed_biscuit.description"
+    },
+    "icon": {
+      "components": {
+        "anvilcraft:display_item": {
+          "count": 1,
+          "id": "anvilcraft:beef_mushroom_stew"
+        },
+        "minecraft:food": {
+          "eat_seconds": 0.8,
+          "nutrition": 10,
+          "saturation": 16.0
+        }
+      },
+      "count": 1,
+      "id": "anvilcraft:canned_food"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.compressed_biscuit.title"
+    }
+  },
+  "requirements": [
+    [
+      "compressed_biscuit"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

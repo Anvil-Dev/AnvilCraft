@@ -1,0 +1,27 @@
+{
+  "parent": "anvilcraft:anvilcraft/breathing_helmet",
+  "criteria": {
+    "moon_landing": {
+      "trigger": "anvilcraft:moon_landing"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.moon_landing.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:lunar_rock"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.moon_landing.title"
+    }
+  },
+  "requirements": [
+    [
+      "moon_landing"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

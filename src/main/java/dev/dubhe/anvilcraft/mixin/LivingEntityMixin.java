@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.block.TranscendenceAnvilBlock;
 import dev.dubhe.anvilcraft.event.AmuletAbilitiesEventListener;
 import dev.dubhe.anvilcraft.init.ModMobEffects;
+import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.loot.ModLootTables;
@@ -25,6 +26,7 @@ import dev.dubhe.anvilcraft.item.EquipmentAbilities;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.util.AtmosphereManager;
 import dev.dubhe.anvilcraft.util.GravityManager;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
@@ -237,10 +239,21 @@ public abstract class LivingEntityMixin extends Entity {
             cir.setReturnValue(false);
             return;
         }
+        // 行星坍缩是无豁免伤害（带 BYPASSES_INVULNERABILITY），只对追溯图腾开一个口子：
+        // 其它图腾与创造模式照死不误
+        if (damageSource.is(ModDamageTypes.PLANETARY_COLLAPSE)
+            && !LivingEntityMixin.isRecoveryTotem(totemItem)) {
+            cir.setReturnValue(false);
+            return;
+        }
 
         ItemStack itemStack = totemItem.copy();
         boolean result = handler.execute(damageSource, self, totemItem);
         if (result) {
+            // 行星坍缩原本只有死亡才算「炮灰」；图腾救活也算，否则极限玩家没法做
+            if (damageSource.is(ModDamageTypes.PLANETARY_COLLAPSE) && self instanceof ServerPlayer player) {
+                TriggerUtil.planetaryCollapseDeath(player);
+            }
             handler.shrink(totemItem);
             if (itemStack.is(ModItems.TOTEM_OF_RAGE)) {
                 this.anvilcraft$raged = true;
@@ -383,5 +396,17 @@ public abstract class LivingEntityMixin extends Entity {
     )
     private boolean anvilcraft$allowSupportedWalkingAndJumping(boolean onGround) {
         return onGround || GravityManager.hasFloorSupport(this);
+    }
+
+    /// 是否为追溯图腾（含装在护符盒里的那一枚）。
+    private static boolean isRecoveryTotem(ItemStack stack) {
+        if (stack.is(ModItems.TOTEM_OF_RECOVERY)) {
+            return true;
+        }
+        if (!stack.is(ModItems.AMULET_BOX)) {
+            return false;
+        }
+        return stack.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY).totems().stream()
+            .anyMatch(totem -> totem.is(ModItems.TOTEM_OF_RECOVERY));
     }
 }

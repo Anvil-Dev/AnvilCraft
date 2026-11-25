@@ -1,0 +1,27 @@
+{
+  "parent": "anvilcraft:anvilcraft/the_start",
+  "criteria": {
+    "dyson_sphere": {
+      "trigger": "anvilcraft:dyson_sphere"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.dyson_sphere.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:dyson_sphere_component"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.dyson_sphere.title"
+    }
+  },
+  "requirements": [
+    [
+      "dyson_sphere"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

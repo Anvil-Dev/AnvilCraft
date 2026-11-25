@@ -6,5 +6,6 @@ public class StatLang {
     public static void init(RegistrumLangProvider provider) {
         provider.add("stat.anvilcraft.enter_power_grid", "Power Grid Entries");
         provider.add("stat.anvilcraft.place_power_component", "Power Components Placed");
+        provider.add("stat.anvilcraft.obtain_power_component", "Power Components Obtained");
     }
 }

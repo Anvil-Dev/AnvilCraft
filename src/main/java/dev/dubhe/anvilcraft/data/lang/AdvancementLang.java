@@ -8,8 +8,77 @@ public class AdvancementLang {
         // region root
         provider.add("advancements.anvilcraft.root.title", "Welcome to AnvilCraft");
         provider.add("advancements.anvilcraft.root.description", "Pick up the anvil, start from the vanilla, and enter the world of technology and magic");
+
+        provider.add("advancements.anvilcraft.wisdom_tree.title", "Tree of Wisdom");
+        provider.add("advancements.anvilcraft.wisdom_tree.description", "Touch the Monolith in the Overworld to receive a hint from the ancients");
+
+        provider.add("advancements.anvilcraft.dice_triple_six.title", "Try Your Luck");
+        provider.add("advancements.anvilcraft.dice_triple_six.description", "Roll three sixes on the Redstone Dice");
+
+        provider.add("advancements.anvilcraft.full_spacesuit.title", "Seamless");
+        provider.add("advancements.anvilcraft.full_spacesuit.description", "Wear a full set of Weatherproof Spacesuit");
+
+        provider.add("advancements.anvilcraft.void_walker.title", "Void Walker");
+        provider.add("advancements.anvilcraft.void_walker.description", "Walk 100 meters on the void wearing a full Weatherproof Spacesuit");
+        provider.add("advancements.anvilcraft.fish_tank.title", "Decorative Cauldron");
+        provider.add("advancements.anvilcraft.fish_tank.description", "Craft and place a fish tank");
+
+        provider.add("advancements.anvilcraft.breathing_helmet.title", "Free Breathing");
+        provider.add("advancements.anvilcraft.breathing_helmet.description", "Wear a Breathing Helmet");
+
+        provider.add("advancements.anvilcraft.moon_landing.title", "§oA Trip to the Moon§r");
+        provider.add("advancements.anvilcraft.moon_landing.description", "Land on the Mun");
+
+        provider.add("advancements.anvilcraft.moon_far_side.title", "The Dark Side of the Moon");
+        provider.add("advancements.anvilcraft.moon_far_side.description", "Reach the far side of the Mun, where the Earth is no longer visible");
+
+        provider.add("advancements.anvilcraft.compressed_biscuit.title", "Compressed Biscuit");
+        provider.add("advancements.anvilcraft.compressed_biscuit.description", "Eat a can compressed from five cookies");
+
+        provider.add("advancements.anvilcraft.big_stomach.title", "Big Stomach");
+        provider.add("advancements.anvilcraft.big_stomach.description", "Eat a can worth 30 nutrition");
+
+        provider.add("advancements.anvilcraft.pill_box_eight.title", "Booster");
+        provider.add("advancements.anvilcraft.pill_box_eight.description", "Use a pill box filled with eight different pills");
+
+        provider.add("advancements.anvilcraft.charger.title", "Supercharged");
+        provider.add("advancements.anvilcraft.charger.description", "Craft and place a Charger");
+
+        provider.add("advancements.anvilcraft.supercapacitor.title", "Creeper Energy Utilization");
+        provider.add("advancements.anvilcraft.supercapacitor.description", "Obtain a fully charged Supercapacitor");
+
+        provider.add("advancements.anvilcraft.railgun_collision.title", "Handheld Collider");
+        provider.add("advancements.anvilcraft.railgun_collision.description", "Execute any impact recipe with the Anvil Railgun");
+
+        provider.add("advancements.anvilcraft.railgun_self_kill.title", "Own Goal");
+        provider.add("advancements.anvilcraft.railgun_self_kill.description", "Take lethal damage from an anvil you fired from your own Anvil Railgun");
+
+        provider.add("advancements.anvilcraft.not_enough_firepower.title", "Not Enough Firepower");
+        provider.add("advancements.anvilcraft.not_enough_firepower.description", "Own all five energy weapons");
         // endregion
 
+        provider.add("advancements.anvilcraft.superpower.title", "Superpot");
+        provider.add("advancements.anvilcraft.superpower.description", "Craft a Large Cauldron");
+
+        provider.add("advancements.anvilcraft.circular_economy.title", "Circular Economy");
+        provider.add("advancements.anvilcraft.circular_economy.description", "Smash one piece of gear of each of the 5 materials back into raw materials");
+
+
+        provider.add("advancements.anvilcraft.wormhole_delivery.title", "Interdimensional Delivery");
+        provider.add("advancements.anvilcraft.wormhole_delivery.description", "Deliver items to another dimension through a wormhole using a logistics interface");
+
+        provider.add("advancements.anvilcraft.hitchhiker_guide.title", "§oThe Hitchhiker's Guide to the Galaxy§r");
+        provider.add("advancements.anvilcraft.hitchhiker_guide.description", "Forge 11 kinds of celestial bodies: moon, rocky planet, gas giant, ice giant, brown dwarf, main-sequence star, giant, supergiant, white dwarf, neutron star, black hole");
+        provider.add("advancements.anvilcraft.cocktail.title", "Let's Have a Cocktail");
+        provider.add("advancements.anvilcraft.cocktail.description", "Fill a Large Cauldron with eight different fluids, then ignite it");
+        provider.add("advancements.anvilcraft.large_crate.title", "Good Enough for Now");
+        provider.add("advancements.anvilcraft.large_crate.description", "Craft a Large Crate");
+
+        provider.add("advancements.anvilcraft.shulker_container.title", "Shulker Box.zip");
+        provider.add("advancements.anvilcraft.shulker_container.description", "Upgrade a Large Crate into a Shulker Container");
+
+        provider.add("advancements.anvilcraft.hyperdimension_station.title", "Dimensional Pocket");
+        provider.add("advancements.anvilcraft.hyperdimension_station.description", "Upgrade a Shulker Container into a Hyperdimensional Storage Station");
         // region crab claw line
         provider.add("advancements.anvilcraft.crab_claw.title", "Win half of the resurrection race");
         provider.add("advancements.anvilcraft.crab_claw.description", "Obtain crab claws");
@@ -81,11 +150,13 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.networking.title", "Networking");
         provider.add("advancements.anvilcraft.networking.description", "Craft and place transmission pole");
 
+        provider.add("advancements.anvilcraft.high_voltage_tower.title", "High Voltage Tower");
+        provider.add("advancements.anvilcraft.high_voltage_tower.description", "Hook 16 components into a single power grid");
         provider.add("advancements.anvilcraft.electric_filed_rhythm.title", "Feel the rhythm of the electric field");
         provider.add("advancements.anvilcraft.electric_filed_rhythm.description", "Step in the scope of the power grid");
 
         provider.add("advancements.anvilcraft.electric_allergy.title", "Electric allergy");
-        provider.add("advancements.anvilcraft.electric_allergy.description", "Obtain celestial forging anvil without power system");
+        provider.add("advancements.anvilcraft.electric_allergy.description", "Obtain transcendence anvil without power system");
 
         provider.add("advancements.anvilcraft.industrial_grade_smelting.title", "Industrial grade smelting");
         provider.add("advancements.anvilcraft.industrial_grade_smelting.description", "Use super heating to melt any item");
@@ -106,7 +177,7 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.durable_goods.description", "Upgrade any tool to Royal steel grade");
 
         provider.add("advancements.anvilcraft.royal_blacksmith.title", "Royal blacksmith");
-        provider.add("advancements.anvilcraft.royal_blacksmith.description", "Obtain the royal anvil, royal smithing table, and royal grindstone");
+        provider.add("advancements.anvilcraft.royal_blacksmith.description", "Craft and place the royal anvil, royal smithing table, and royal grindstone");
 
         provider.add("advancements.anvilcraft.wither.title", "Liberate the power of wither");
         provider.add("advancements.anvilcraft.wither.description", "Use curse gold to convert a beacon");
@@ -127,16 +198,24 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.forged_over_eons.description", "Obtain any ember metal");
 
         provider.add("advancements.anvilcraft.ice_and_fire.title", "Ice and Fire");
-        provider.add("advancements.anvilcraft.ice_and_fire.description", "Obtain ember workstations and frost workstations");
+        provider.add("advancements.anvilcraft.ice_and_fire.description", "Craft and place all ember and frost workstations");
 
         provider.add("advancements.anvilcraft.self_in_flaming.title", "Self in flaming");
         provider.add("advancements.anvilcraft.self_in_flaming.description", "Using fire reforge to repair any ember metal tools or weapons");
 
+        provider.add("advancements.anvilcraft.gamma_laser.title", "Angular Momentum Theft");
+        provider.add("advancements.anvilcraft.gamma_laser.description", "Obtain a beam of gamma laser");
+
+        provider.add("advancements.anvilcraft.dyson_sphere.title", "Wrap the Sun");
+        provider.add("advancements.anvilcraft.dyson_sphere.description", "Build a Dyson Sphere");
+
+        provider.add("advancements.anvilcraft.inexhaustible.title", "Inexhaustible");
+        provider.add("advancements.anvilcraft.inexhaustible.description", "Start an evolution on a star that already has a Dyson Sphere and make it produce infinite power");
         provider.add("advancements.anvilcraft.giant_age.title", "The Age of Giants");
         provider.add("advancements.anvilcraft.giant_age.description", "Convert a zombie holding anvil to a giant using the beam of corruption beacon to get giant anvil");
 
         provider.add("advancements.anvilcraft.anvil_accelerator.title", "Anvil accelerator");
-        provider.add("advancements.anvilcraft.anvil_accelerator.description", "Craft acceleration ring and deflection ring");
+        provider.add("advancements.anvilcraft.anvil_accelerator.description", "Craft the acceleration ring and deflection ring");
 
         provider.add("advancements.anvilcraft.new_matter.title", "New Matter");
         provider.add("advancements.anvilcraft.new_matter.description", "Using anvil collision to craft uranium, multiphase matter or negative matter");
@@ -154,7 +233,7 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.the_end.description", "Obtain transcendence anvil, and lift all enchantment limits");
 
         provider.add("advancements.anvilcraft.the_start.title", "The start");
-        provider.add("advancements.anvilcraft.the_start.description", "Obtain celestial forging anvil");
+        provider.add("advancements.anvilcraft.the_start.description", "Craft the celestial forging anvil");
 
         provider.add("advancements.anvilcraft.no_remnant.title", "Nothing Left Behind");
         provider.add("advancements.anvilcraft.no_remnant.description", "Evolve a celestial body forged with 64 mass anvils to the end and watch it leave no remnant");
@@ -163,7 +242,7 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.efficiency.description", "Feed a gamma laser into the planet excavator and blow the planet apart");
 
         provider.add("advancements.anvilcraft.cannon_fodder.title", "Cannon Fodder");
-        provider.add("advancements.anvilcraft.cannon_fodder.description", "Die to a planetary collapse inside an Overworld-Like planet");
+        provider.add("advancements.anvilcraft.cannon_fodder.description", "Take lethal damage from a planetary collapse inside an Overworld-Like planet");
 
         provider.add("advancements.anvilcraft.come_at_night.title", "You Should Come At Night");
         provider.add("advancements.anvilcraft.come_at_night.description", "Get killed by a star");
@@ -183,7 +262,7 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.gem_transform.description", "Dropping gem into melt gem cauldron and using time warp to make gem block");
 
         provider.add("advancements.anvilcraft.laser.title", "Lazer");
-        provider.add("advancements.anvilcraft.laser.description", "Craft ruby laser");
+        provider.add("advancements.anvilcraft.laser.description", "Craft and place a ruby laser");
 
         provider.add("advancements.anvilcraft.ore_point.title", "Ore point");
         provider.add("advancements.anvilcraft.ore_point.description", "Create a mineral fountain, and start producing ores continually");
@@ -195,7 +274,7 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.void_generate_energy.description", "Use void collector to generate energy");
 
         provider.add("advancements.anvilcraft.saikou_scrubber.title", "Saikou scrubber");
-        provider.add("advancements.anvilcraft.saikou_scrubber.description", "Obtain menger sponge");
+        provider.add("advancements.anvilcraft.saikou_scrubber.description", "Craft a Menger sponge through multiblock crafting");
 
         provider.add("advancements.anvilcraft.understand_fractals.title", "Understand Fractals");
         provider.add("advancements.anvilcraft.understand_fractals.description", "400 = 1 ?");
@@ -210,7 +289,7 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.spoon_of_neutron_star.description", "Obtain neutronium ingot");
 
         provider.add("advancements.anvilcraft.heat_utilizing.title", "Heat utilizing");
-        provider.add("advancements.anvilcraft.heat_utilizing.description", "Craft heat collector");
+        provider.add("advancements.anvilcraft.heat_utilizing.description", "Craft and place a heat collector");
 
         provider.add("advancements.anvilcraft.isotope_decay_battery.title", "Isotope decay battery");
         provider.add("advancements.anvilcraft.isotope_decay_battery.description", "Using heat collector to collect uranium or plutonium blocks' heat");

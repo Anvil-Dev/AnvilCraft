@@ -8,6 +8,16 @@ public class MessageLang {
         provider.add("message.anvilcraft.buffer_boots.charged", "Press %1$s to jump");
         provider.add("hud.anvilcraft.weatherproof_chestplate_power", "%s%%");
         provider.add("screen.anvilcraft.pockets.empty", "Empty pocket");
+        provider.add("message.anvilcraft.no_power_challenge.header", "No Power Challenge Notice:");
+        provider.add("message.anvilcraft.no_power_challenge.view", "[Click to view]");
+        provider.add("message.anvilcraft.no_power_challenge.view.hover", "Expand the full notice");
+        provider.add("message.anvilcraft.no_power_challenge.ignore", "[Click to ignore] (recommended for new players and modpack players)");
+        provider.add("message.anvilcraft.no_power_challenge.ignore.hover", "Do not show this notice again in this world");
+        provider.add("message.anvilcraft.no_power_challenge.ignored", "No power challenge notice ignored");
+        provider.add("message.anvilcraft.no_power_challenge.body.1", "This is an extremely hard self-imposed challenge aimed at veteran AnvilCraft players. Ordinary players are not advised to attempt it.");
+        provider.add("message.anvilcraft.no_power_challenge.body.2", "Do not approach a power grid, and do not hold or place any power component (all power generation, transmission and consumption blocks; non-placeable items such as capacitors are excluded), until you obtain the Transcendence Anvil. Only then is the restriction lifted.");
+        provider.add("message.anvilcraft.no_power_challenge.body.3", "Obtaining the \"Feel the rhythm of the electric field\" advancement at any point means the challenge has failed. Players who need it are advised to back up their world regularly, or to disable the relevant recipes with a datapack.");
+        provider.add("message.anvilcraft.no_power_challenge.body.4", "(This is close to the earliest AnvilCraft progression design. Power-related content was added over time to make the mod easier to play, so this challenge lets you experience the original, far harder progression.)");
         provider.add("message.anvilcraft.monolith.return_confirmation", "The monolith can help you return. Touch it again within 3 seconds to travel back.");
         provider.add("message.anvilcraft.monolith.offering", "Offer an anvil to the monolith to gain knowledge");
         provider.add("message.anvilcraft.monolith.giant_offering", "Offer a giant anvil to the monolith to gain knowledge");

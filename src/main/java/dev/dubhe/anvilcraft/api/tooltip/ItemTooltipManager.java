@@ -983,7 +983,9 @@ public class ItemTooltipManager {
                                           Uses the anvils in your inventory as ammo, no loading needed
                                           Hold right-click to charge, then release to launch an anvil
                                           Longer charging results in higher speed and damage
-                                          Quick Charge shortens the charge time by 10% per level"""
+                                          Quick Charge shortens the charge time by 10% per level
+                                          A real anvil explodes when it hits a block above the impact speed threshold
+                                          At the default threshold, a fully charged Power VIII shot can explode at close range"""
         );
         ItemTooltipManager.SHIFT.put(
             ModItems.SPECTRAL_WEAPON_LAUNCHER.get(), """

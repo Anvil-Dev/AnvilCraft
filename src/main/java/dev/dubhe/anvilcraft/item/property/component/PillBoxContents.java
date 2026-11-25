@@ -12,11 +12,13 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackLinkedSet;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public record PillBoxContents(int index, List<ItemStack> pills) {
     public static final PillBoxContents EMPTY = new PillBoxContents(ImmutableList.of());
@@ -113,11 +115,18 @@ public record PillBoxContents(int index, List<ItemStack> pills) {
         }
 
         public void useAll(Player player) {
+            this.useAllAndCountTypes(player);
+        }
+
+        /** 返回实际服用的不同药片种数，同一种药片可占多个槽位。 */
+        public int useAllAndCountTypes(Player player) {
+            Set<ItemStack> used = ItemStackLinkedSet.createTypeAndComponentsSet();
             ObjectArrayList<ItemStack> pillList = new ObjectArrayList<>(8);
             Iterator<ItemStack> iterator = this.pills.iterator();
             while (iterator.hasNext()) {
                 ItemStack pill = iterator.next();
                 if (pill.is(ModFoodItems.PILL)) {
+                    used.add(pill.copyWithCount(1));
                     PillItem.use(pill, player);
                     pill.shrink(1);
                     if (pill.getCount() <= 0) {
@@ -128,6 +137,7 @@ public record PillBoxContents(int index, List<ItemStack> pills) {
                 }
             }
             this.pills = pillList;
+            return used.size();
         }
 
         public PillBoxContents immutable() {

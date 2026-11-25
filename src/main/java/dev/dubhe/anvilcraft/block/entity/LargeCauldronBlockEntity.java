@@ -37,6 +37,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.wrap.SuperHeatingRecipe;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
 import dev.dubhe.anvilcraft.util.ExperienceMending;
 import dev.dubhe.anvilcraft.util.FireReforgingUtil;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -284,6 +285,20 @@ public class LargeCauldronBlockEntity extends BlockEntity
         }
         main.ignited = next;
         main.contentsChanged();
+        if (next && main.level != null && main.hasEightDistinctFluids()) {
+            TriggerUtil.largeCauldronCocktail(main.level, main.worldPosition);
+        }
+    }
+
+    /** 八个储罐全部非空且流体种类互不相同。 */
+    private boolean hasEightDistinctFluids() {
+        Set<Fluid> fluids = new HashSet<>();
+        for (int tank = 0; tank < LargeCauldronFluidHandler.TANK_COUNT; tank++) {
+            FluidStack stack = this.fluids.getFluidInTank(tank);
+            if (stack.isEmpty()) return false;
+            fluids.add(stack.getFluid());
+        }
+        return fluids.size() == LargeCauldronFluidHandler.TANK_COUNT;
     }
 
     public void extinguish() {
