@@ -14,6 +14,7 @@ public class ModStats {
 
     public static final ResourceLocation PLACE_POWER_COMPONENT = ModStats.register("place_power_component");
     public static final ResourceLocation ENTER_POWER_GRID = ModStats.register("enter_power_grid");
+    public static final ResourceLocation OBTAIN_POWER_COMPONENT = ModStats.register("obtain_power_component");
 
     public static void register(IEventBus modEventBus) {
         ModStats.REGISTER.register(modEventBus);

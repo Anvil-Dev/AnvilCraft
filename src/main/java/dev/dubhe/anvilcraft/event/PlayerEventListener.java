@@ -29,6 +29,7 @@ import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import dev.dubhe.anvilcraft.util.DevourUtil;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import dev.dubhe.anvilcraft.util.InfiniteFluidTankBreakProtection;
+import dev.dubhe.anvilcraft.util.NoPowerChallengeNotice;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -202,6 +203,7 @@ public class PlayerEventListener {
             SpacetimeSupercomputerBlockEntity.cancelPendingTickSprints(Objects.requireNonNull(serverPlayer.getServer()));
             RecipeCaches.sync(serverPlayer);
             LevelLoadManager.syncOverseers(serverPlayer);
+            NoPowerChallengeNotice.onPlayerLogin(serverPlayer);
         }
     }
 
@@ -272,5 +274,8 @@ public class PlayerEventListener {
         BlockEntity be = event.getLevel().getBlockEntity(event.getPos());
         if (!(be instanceof IPowerComponent)) return;
         player.awardStat(ModStats.PLACE_POWER_COMPONENT);
+        if (player instanceof ServerPlayer serverPlayer) {
+            TriggerUtil.powerGridRhythm(serverPlayer);
+        }
     }
 }

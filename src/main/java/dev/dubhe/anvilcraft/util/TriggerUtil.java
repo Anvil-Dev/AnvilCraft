@@ -113,6 +113,11 @@ public class TriggerUtil {
         }
     }
 
+    /// 感受电网律动：进入电网、放置或获得电网组件任一发生都会推进这个进度。
+    public static void powerGridRhythm(ServerPlayer player) {
+        ModCriterionTriggers.ENTER_POWER_GRID.get().trigger(player);
+    }
+
     public static void enterPowerGrid(Level level, BlockPos pos) {
         if (!level.isClientSide) {
             for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 5)) {

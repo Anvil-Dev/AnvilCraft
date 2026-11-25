@@ -627,7 +627,7 @@ public class AnvilCraftAdvancement {
             .hasItemAny("has_", ModBlocks.TRANSCENDIUM_BLOCK, ModItems.TRANSCENDIUM_INGOT, ModItems.TRANSCENDIUM_NUGGET)
             .save("transcendence");
         industrialLine.createBranch().next()
-            .challenge(ModBlocks.CELESTIAL_FORGING_ANVIL, "electric_allergy", true)
+            .challenge(ModBlocks.TRANSCENDENCE_ANVIL, "electric_allergy", true)
             .requireAny()
             .electricAllergy("electric_allergy")
             .save("electric_allergy");
