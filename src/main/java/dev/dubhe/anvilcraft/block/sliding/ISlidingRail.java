@@ -76,9 +76,15 @@ public interface ISlidingRail extends IBlockExtension {
     }
 
     static void whenOnNeighborChange(LevelReader level, BlockPos pos, BlockPos neighbor) {
-        if (!level.getBlockState(neighbor).is(Blocks.MOVING_PISTON)) return;
-        Direction dir = level.getBlockState(neighbor).getValue(BlockStateProperties.FACING);
-        if (dir.getAxis() == Direction.Axis.Y || !neighbor.equals(pos.above())) {
+        if (!neighbor.equals(pos.above())) {
+            return;
+        }
+        BlockState moving = level.getBlockState(neighbor);
+        if (!moving.is(Blocks.MOVING_PISTON)) {
+            return;
+        }
+        Direction dir = moving.getValue(BlockStateProperties.FACING);
+        if (dir.getAxis() == Direction.Axis.Y) {
             MOVING_PISTON_MAP.remove(pos);
             return;
         }

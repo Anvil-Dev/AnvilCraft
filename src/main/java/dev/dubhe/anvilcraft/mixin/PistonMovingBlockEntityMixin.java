@@ -23,14 +23,14 @@ abstract class PistonMovingBlockEntityMixin {
     public abstract Direction getDirection();
 
     @SuppressWarnings("checkstyle:MissingSwitchDefault")
+    // 活塞还原非空气方块时会同步通知下方滑轨，滑轨需要在通知中读到本次推送的方向。
     @Inject(
         method = "tick",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/level/Level;"
-                     + "neighborChanged(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;"
-                     + "Lnet/minecraft/core/BlockPos;)V",
-            shift = At.Shift.AFTER
+            target = "Lnet/minecraft/world/level/Level;setBlock("
+                + "Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z",
+            ordinal = 1
         )
     )
     private static void slidingRail(Level level, BlockPos pos, BlockState state, PistonMovingBlockEntity blockEntity, CallbackInfo ci) {
