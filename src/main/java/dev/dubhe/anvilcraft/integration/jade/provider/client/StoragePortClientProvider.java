@@ -32,7 +32,8 @@ public enum StoragePortClientProvider implements IClientExtensionProvider<ItemSt
                 views.add(view);
             }
             ClientViewGroup<ItemView> client = new ClientViewGroup<>(views);
-            client.title = "storage".equals(group.id) && !group.views.isEmpty()
+            boolean marked = group.getExtraData().getBooleanOr(StoragePortProvider.MARKED_KEY, false);
+            client.title = marked && !group.views.isEmpty()
                 // 标记那一栏直接写标记的物品，与流体端口一致
                 ? Component.translatable(
                     "tooltip.anvilcraft.storage_port.marked", group.views.getFirst().getHoverName())
