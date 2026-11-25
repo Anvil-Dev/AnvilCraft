@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.SectionPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
@@ -92,12 +93,16 @@ public final class MonolithSurfaceRenderer {
                     continue;
                 }
                 List<Face> faces = BLOCK_FACES.computeIfAbsent(state, key -> faces(mc.getBlockRenderer().getBlockModel(key), key));
+                // 与地形网格按相同顺序组合区段内坐标和相机偏移，避免共面顶点的深度因浮点舍入而分离。
+                int x = SectionPos.sectionRelative(pos.getX());
+                int y = SectionPos.sectionRelative(pos.getY());
+                int z = SectionPos.sectionRelative(pos.getZ());
                 pose.pushPose();
-                pose.translate(pos.getX() - camera.x, pos.getY() - camera.y, pos.getZ() - camera.z);
+                pose.translate(pos.getX() - x - camera.x, pos.getY() - y - camera.y, pos.getZ() - z - camera.z);
                 for (Face face : faces) {
                     Direction side = face.side();
                     if (side == null || Block.shouldRenderFace(state, level, pos, side, pos.relative(side))) {
-                        face.render(pose, buffers);
+                        face.render(pose, buffers, x, y, z);
                     }
                 }
                 pose.popPose();
@@ -108,18 +113,18 @@ public final class MonolithSurfaceRenderer {
 
     public static void renderItem(BakedModel model, PoseStack pose, MultiBufferSource buffers) {
         for (Face face : ITEM_FACES.computeIfAbsent(model, key -> faces(key, null))) {
-            face.render(pose, buffers);
+            face.render(pose, buffers, 0, 0, 0);
         }
     }
 
     private record Face(BakedQuad quad, @Nullable Direction side) {
-        private void render(PoseStack pose, MultiBufferSource buffers) {
+        private void render(PoseStack pose, MultiBufferSource buffers, int x, int y, int z) {
             VertexConsumer vertices = buffers.getBuffer(ModRenderTypes.MONOLITH_SURFACE);
             int[] data = this.quad.getVertices();
             int stride = DefaultVertexFormat.BLOCK.getVertexSize() / Integer.BYTES;
             for (int offset = 0; offset < data.length; offset += stride) {
-                vertices.addVertex(pose.last().pose(), Float.intBitsToFloat(data[offset]),
-                    Float.intBitsToFloat(data[offset + 1]), Float.intBitsToFloat(data[offset + 2]));
+                vertices.addVertex(pose.last().pose(), x + Float.intBitsToFloat(data[offset]),
+                    y + Float.intBitsToFloat(data[offset + 1]), z + Float.intBitsToFloat(data[offset + 2]));
             }
         }
     }
