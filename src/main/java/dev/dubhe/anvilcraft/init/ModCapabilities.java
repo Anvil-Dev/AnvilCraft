@@ -5,8 +5,11 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.energy.IEnergyHandlerHolder;
 import dev.dubhe.anvilcraft.api.energy.ItemFEStorage;
 import dev.dubhe.anvilcraft.api.fluid.FireCauldronWrapper;
+import dev.dubhe.anvilcraft.api.fluid.FluidTankItemHandler;
 import dev.dubhe.anvilcraft.api.fluid.HoneyBottleResourceHandler;
 import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
+import dev.dubhe.anvilcraft.api.fluid.LargeFluidTankItemHandler;
+import dev.dubhe.anvilcraft.api.fluid.StorageFluidPortItemHandler;
 import dev.dubhe.anvilcraft.api.fluid.VoidFluidHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ReadOnlyItemResourceHandler;
@@ -172,6 +175,27 @@ public class ModCapabilities {
             Capabilities.Fluid.ENTITY,
             ModEntities.FLUID_TANK_MINECART.get(),
             (cart, side) -> cart.getFluidHandler()
+        );
+
+        // 储罐与仓储流体端口也接入物品流体能力，仓储界面等通用逻辑才能统一处理
+        AnvilCraft.LOGGER.info(
+            "[储罐能力] 注册流体系能力: 储罐={} 大储罐={} 流体端口={}",
+            ModBlocks.FLUID_TANK.asItem(), ModBlocks.LARGE_FLUID_TANK.asItem(), ModBlocks.STORAGE_FLUID_PORT.asItem()
+        );
+        event.registerItem(
+            Capabilities.Fluid.ITEM,
+            (_, ctx) -> new FluidTankItemHandler(ctx),
+            ModBlocks.FLUID_TANK.asItem()
+        );
+        event.registerItem(
+            Capabilities.Fluid.ITEM,
+            (_, ctx) -> new LargeFluidTankItemHandler(ctx),
+            ModBlocks.LARGE_FLUID_TANK.asItem()
+        );
+        event.registerItem(
+            Capabilities.Fluid.ITEM,
+            (_, ctx) -> new StorageFluidPortItemHandler(ctx),
+            ModBlocks.STORAGE_FLUID_PORT.asItem()
         );
 
         event.registerItem(Capabilities.Fluid.ITEM, (_, ctx) -> new BucketResourceHandler(ctx), Items.POWDER_SNOW_BUCKET);

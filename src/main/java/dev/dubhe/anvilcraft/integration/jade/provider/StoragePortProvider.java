@@ -41,6 +41,8 @@ public enum StoragePortProvider implements IServerExtensionProvider<ItemStack> {
 
     public static final Identifier UID = AnvilCraft.of("storage_port");
     public static final String COUNTS_KEY = "Counts";
+    /** 标记分组额外数据：该组表示端口上标记的物品。 */
+    public static final String MARKED_KEY = "Marked";
 
     @Override
     public @Nullable List<ViewGroup<ItemStack>> getGroups(Accessor<?> accessor) {
@@ -66,6 +68,8 @@ public enum StoragePortProvider implements IServerExtensionProvider<ItemStack> {
             ViewGroup<ItemStack> storage = new ViewGroup<>(List.of(port.getMarkedItem().copyWithCount(1)));
             storage.id = "storage";
             storage.getExtraData().putLongArray(COUNTS_KEY, new long[]{port.getMarkedStorageCount()});
+            // 只有「端口上标记的物品」这一组要改标题，板条箱等本体库存也用 storage 这个 id
+            storage.getExtraData().putBoolean(MARKED_KEY, true);
             groups.add(storage);
         }
         return groups;

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.network;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.anvilcraft.lib.v2.network.packet.IServerboundPacket;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.StorageFluidPortBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
 import dev.dubhe.anvilcraft.block.logistics.storage.StoragePortBlock;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
@@ -12,6 +13,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 /**
  * 客户端「铁砧锤长按右键并滑动」手势触发：请求移除仓储端口的标记。
@@ -38,6 +40,11 @@ public record StoragePortUnmarkPacket(BlockPos pos) implements IServerboundPacke
             return;
         }
         if (player.distanceToSqr(this.pos.getCenter()) > 64.0) {
+            return;
+        }
+        if (player.level().getBlockEntity(this.pos) instanceof StorageFluidPortBlockEntity fluidPort) {
+            // 流体端口没有 MARKED 状态，标记只存在于方块实体里
+            fluidPort.markFluid(FluidStack.EMPTY);
             return;
         }
         if (!(player.level().getBlockEntity(this.pos) instanceof StoragePortBlockEntity port)) {

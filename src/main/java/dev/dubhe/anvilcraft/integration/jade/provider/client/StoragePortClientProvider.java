@@ -27,12 +27,17 @@ public enum StoragePortClientProvider implements IClientExtensionProvider<ItemSt
             for (int index = 0; index < group.views.size(); index++) {
                 ItemStack stack = group.views.get(index);
                 long amount = index < counts.length ? counts[index] : stack.getCount();
-                ItemView view = new ItemView(stack.copyWithCount((int) Math.clamp(amount, 1, Integer.MAX_VALUE)));
+                ItemView view = new ItemView(stack.copyWithCount(Math.clamp(amount, 1, Integer.MAX_VALUE)));
                 view.amountText = accessor.showDetails() ? Long.toString(amount) : FormattingUtil.toAbbrNum(amount);
                 views.add(view);
             }
             ClientViewGroup<ItemView> client = new ClientViewGroup<>(views);
-            client.title = Component.translatable("tooltip.anvilcraft.storage_port." + group.id);
+            boolean marked = group.getExtraData().getBooleanOr(StoragePortProvider.MARKED_KEY, false);
+            client.title = marked && !group.views.isEmpty()
+                // 标记那一栏直接写标记的物品，与流体端口一致
+                ? Component.translatable(
+                    "tooltip.anvilcraft.storage_port.marked", group.views.getFirst().getHoverName())
+                : Component.translatable("tooltip.anvilcraft.storage_port." + group.id);
             result.add(client);
         }
         return result;

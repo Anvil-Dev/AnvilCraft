@@ -10,6 +10,8 @@ import org.jspecify.annotations.Nullable;
 @Setter
 public class FluidHandlerRenderState extends BlockEntityRenderState {
     private @Nullable FluidResource resource;
+    /// 端口上被标记的流体；与 resource 独立，罐里有流体时也要画标记图标
+    private @Nullable FluidResource markedResource;
     private float fill;
     private int amount;
     private float minX;

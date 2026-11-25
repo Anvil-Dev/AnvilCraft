@@ -229,6 +229,43 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidResourceH
         return amount;
     }
 
+    /**
+     * 直接把物品里的流体改写为目标值。
+     *
+     * <p>纯数据写入，不开事务：物品流体能力是在调用方的事务里执行的，
+     * 这里再开根事务会触发 NeoForge 的「同一线程只能有一个根事务」。</p>
+     *
+     * @param stack      储罐物品（数量必须为 1）
+     * @param fluid      目标内容物；空栈表示清空
+     * @param registries 注册表
+     */
+    public static void writeItemFluid(ItemStack stack, FluidStack fluid, HolderLookup.Provider registries) {
+        if (stack.getCount() != 1 || !stack.is(ModBlocks.FLUID_TANK.asItem())) {
+            return;
+        }
+        TypedEntityData<?> existing = stack.get(DataComponents.BLOCK_ENTITY_DATA);
+        CompoundTag data = existing == null ? new CompoundTag() : existing.copyTagWithoutId();
+        CompoundTag tank = data.getCompoundOrEmpty("Tank");
+        boolean enhanced = tank.getBooleanOr("Enhanced", false);
+        data.remove("Tank");
+        if (!fluid.isEmpty()) {
+            TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
+            output.store("Fluid", FluidStack.OPTIONAL_CODEC, fluid);
+            output.putBoolean("Enhanced", enhanced);
+            output.putBoolean("Infinite", tank.getBooleanOr("Infinite", false)
+                && fluid.getAmount() == FluidTankBlockEntity.infinityThreshold());
+            data.put("Tank", output.buildResult());
+        }
+        if (data.isEmpty()) {
+            stack.remove(DataComponents.BLOCK_ENTITY_DATA);
+        } else {
+            stack.set(
+                DataComponents.BLOCK_ENTITY_DATA,
+                TypedEntityData.of(ModBlockEntities.FLUID_TANK.get(), data)
+            );
+        }
+    }
+
     private static void saveItemTank(ItemStack stack, SingleFluidTankHandler itemTank, HolderLookup.Provider registries) {
         TypedEntityData<?> existing = stack.get(DataComponents.BLOCK_ENTITY_DATA);
         CompoundTag data = existing == null ? new CompoundTag() : existing.copyTagWithoutId();

@@ -46,6 +46,15 @@ public enum LargeFluidTankClientProvider implements IClientExtensionProvider<Flu
             ClientViewGroup<FluidView> client = new ClientViewGroup<>(views);
             if (largeTank) {
                 client.title = largeTankTitle(group);
+            } else if (LargeFluidTankProvider.FLUID_PORT_GROUP.equals(group.id)) {
+                // 仓储端口：与物品端口一致，标记写在前面，原来的总存量/容量文本保留在后面
+                Component markedName = Component.literal(group.getExtraData().getStringOr("marked_fluid", ""));
+                Component total = singleFluidTitle(group);
+                client.title = markedName.getString().isEmpty()
+                    ? total
+                    : Component.translatable("tooltip.anvilcraft.storage_port.marked", markedName)
+                        .append(" ")
+                        .append(total);
             } else if (singleFluid) {
                 client.title = singleFluidTitle(group);
             }

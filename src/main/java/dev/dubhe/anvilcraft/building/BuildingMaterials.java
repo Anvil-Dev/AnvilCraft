@@ -3,8 +3,6 @@ package dev.dubhe.anvilcraft.building;
 import dev.anvilcraft.lib.v2.util.InventoryUtil;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
-import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -486,7 +484,7 @@ public final class BuildingMaterials {
             if (remaining <= 0) {
                 break;
             }
-            remaining -= this.drainTankItem(container, fluid.copyWithAmount(remaining));
+            remaining -= BuildingMaterials.drainContainerInto(container, fluid.copyWithAmount(remaining));
         }
         for (Source source : this.sources) {
             if (source == this.offhand) continue;
@@ -582,16 +580,15 @@ public final class BuildingMaterials {
             items.set(0, ItemResource.of(container), 1);
             var access = ItemAccess.forHandlerIndexStrict(items, 0);
             var handler = access.getCapability(Capabilities.Fluid.ITEM);
-            int drained;
             if (handler == null) {
-                drained = this.drainTankItem(container, fluid.copyWithAmount(remaining));
-            } else {
-                try (Transaction transaction = Transaction.openRoot()) {
-                    drained = handler.extract(FluidResource.of(fluid), remaining, transaction);
-                    transaction.commit();
-                }
-                container = items.getResource(0).toStack(items.getAmountAsInt(0));
+                break;
             }
+            int drained;
+            try (Transaction transaction = Transaction.openRoot()) {
+                drained = handler.extract(FluidResource.of(fluid), remaining, transaction);
+                transaction.commit();
+            }
+            container = items.getResource(0).toStack(items.getAmountAsInt(0));
             if (drained <= 0) {
                 break;
             }
@@ -602,16 +599,48 @@ public final class BuildingMaterials {
         return remaining;
     }
 
-    private int drainTankItem(ItemStack stack, FluidStack fluid) {
-        return stack.is(ModBlocks.LARGE_FLUID_TANK.asItem())
-            ? LargeFluidTankBlockEntity.drainItem(stack, fluid, this.player.registryAccess())
-            : FluidTankBlockEntity.drainItem(stack, fluid, this.player.registryAccess());
+    /// 从物品态容器中抽出流体并写回该物品，返回抽出量。
+    private static int drainContainerInto(ItemStack stack, FluidStack fluid) {
+        ItemStack single = stack.copyWithCount(1);
+        ItemStacksResourceHandler items = new ItemStacksResourceHandler(1);
+        items.set(0, ItemResource.of(single), 1);
+        var handler = ItemAccess.forHandlerIndexStrict(items, 0).getCapability(Capabilities.Fluid.ITEM);
+        if (handler == null) {
+            return 0;
+        }
+        int drained;
+        try (Transaction transaction = Transaction.openRoot()) {
+            drained = handler.extract(FluidResource.of(fluid), fluid.getAmount(), transaction);
+            if (drained > 0) {
+                transaction.commit();
+            }
+        }
+        if (drained > 0) {
+            stack.applyComponents(items.getResource(0).toStack(items.getAmountAsInt(0)).getComponentsPatch());
+        }
+        return drained;
     }
 
-    private int fillTankItem(ItemStack stack, FluidStack fluid) {
-        return stack.is(ModBlocks.LARGE_FLUID_TANK.asItem())
-            ? LargeFluidTankBlockEntity.insertIntoItem(stack, fluid, this.player.registryAccess())
-            : FluidTankBlockEntity.insertIntoItem(stack, fluid, this.player.registryAccess());
+    /// 向物品态容器灌入流体并写回该物品，返回接收量。
+    private static int fillContainerInto(ItemStack stack, FluidStack fluid) {
+        ItemStack single = stack.copyWithCount(1);
+        ItemStacksResourceHandler items = new ItemStacksResourceHandler(1);
+        items.set(0, ItemResource.of(single), 1);
+        var handler = ItemAccess.forHandlerIndexStrict(items, 0).getCapability(Capabilities.Fluid.ITEM);
+        if (handler == null) {
+            return 0;
+        }
+        int accepted;
+        try (Transaction transaction = Transaction.openRoot()) {
+            accepted = handler.insert(FluidResource.of(fluid), fluid.getAmount(), transaction);
+            if (accepted > 0) {
+                transaction.commit();
+            }
+        }
+        if (accepted > 0) {
+            stack.applyComponents(items.getResource(0).toStack(items.getAmountAsInt(0)).getComponentsPatch());
+        }
+        return accepted;
     }
 
     void excludeFluidSources(Predicate<BlockPos> excluded) {
@@ -622,7 +651,7 @@ public final class BuildingMaterials {
         List<ItemStack> filled = new ArrayList<>();
         for (FluidStack fluid : fluids) {
             for (ItemStack stack : filled) {
-                fluid.shrink(this.fillTankItem(stack, fluid));
+                fluid.shrink(BuildingMaterials.fillContainerInto(stack, fluid));
             }
             for (ItemStack stack : refunds) this.fillRefundContainer(stack, fluid, filled);
             for (ItemStack stack : this.returned) this.fillRefundContainer(stack, fluid, filled);
@@ -645,18 +674,15 @@ public final class BuildingMaterials {
             var items = new ItemStacksResourceHandler(1);
             items.set(0, ItemResource.of(container), 1);
             var handler = ItemAccess.forHandlerIndexStrict(items, 0).getCapability(Capabilities.Fluid.ITEM);
-            int amount;
-            ItemStack result;
-            if (handler != null) {
-                try (Transaction transaction = Transaction.openRoot()) {
-                    amount = handler.insert(FluidResource.of(fluid), fluid.getAmount(), transaction);
-                    transaction.commit();
-                }
-                result = items.getResource(0).toStack(items.getAmountAsInt(0));
-            } else {
-                amount = this.fillTankItem(container, fluid);
-                result = container;
+            if (handler == null) {
+                break;
             }
+            int amount;
+            try (Transaction transaction = Transaction.openRoot()) {
+                amount = handler.insert(FluidResource.of(fluid), fluid.getAmount(), transaction);
+                transaction.commit();
+            }
+            ItemStack result = items.getResource(0).toStack(items.getAmountAsInt(0));
             if (result.isEmpty()) break;
             if (amount <= 0) break;
             fluid.shrink(amount);
