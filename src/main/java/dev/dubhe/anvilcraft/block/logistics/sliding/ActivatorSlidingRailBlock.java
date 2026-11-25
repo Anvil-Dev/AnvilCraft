@@ -175,10 +175,15 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
 
     @Override
     public void onNeighborChange(BlockState state, LevelReader level, BlockPos pos, BlockPos neighbor) {
-        if (!level.getBlockState(neighbor).is(Blocks.MOVING_PISTON)) return;
-        Direction dir = level.getBlockState(neighbor).getValue(BlockStateProperties.FACING);
+        if (!neighbor.equals(pos.above())) {
+            return;
+        }
+        BlockState moving = level.getBlockState(neighbor);
+        if (!moving.is(Blocks.MOVING_PISTON)) {
+            return;
+        }
+        Direction dir = moving.getValue(BlockStateProperties.FACING);
         if (dir.getAxis() == Direction.Axis.Y
-            || !neighbor.equals(pos.above())
             || level.getBlockEntity(pos.above(), BlockEntityType.PISTON).map(PistonMovingBlockEntity::isSourcePiston).orElse(true)
         ) {
             ISlidingRail.MOVING_PISTON_MAP.remove(pos);
@@ -192,7 +197,6 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
         if (level instanceof Level world) {
             this.updatePower(world, pos, state);
             Optional<ActivatorSlidingRailBlockEntity> beOp = world.getBlockEntity(pos, ModBlockEntities.ACTIVATOR_SLIDING_RAIL.get());
-            if (!neighbor.equals(pos.above())) return;
             if (
                 state.getValue(ActivatorSlidingRailBlock.POWERED)
                     && !beOp.map(ActivatorSlidingRailBlockEntity::shouldPower).orElse(false)
