@@ -55,30 +55,27 @@ public class StorageFluidPortBlockEntityRenderer
     ) {
         super.extractRenderState(port, state, partialTick, cameraPosition, breakProgress);
         FluidStack stored = port.getFluid();
+        // 标记与罐内内容彼此独立：罐里有流体时也要画出标记图标，与 1.21.1 一致
         FluidStack marked = port.getMarkedFluid();
-        if (stored.isEmpty() && !marked.isEmpty()) {
-            // 取空但仍有标记：填充量记 0，渲染时按「只有标记」画贴面图标
-            state.setResource(FluidResource.of(marked));
-            state.setAmount(marked.getAmount());
-            state.setFill(0.0F);
-            return;
-        }
+        state.setMarkedResource(marked.isEmpty() ? null : FluidResource.of(marked));
         state.setFill(Mth.clamp((float) stored.getAmount() / StorageFluidPortBlockEntity.CAPACITY_MB, 0, 1));
     }
 
     @Override
     public void submit(FluidHandlerRenderState state, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
         var fluid = state.getResource();
-        if (fluid == null) return;
-        if (state.getFill() <= 0) {
-            // 罐里没有流体，但端口认这一种：每个面都画一枚扁平流体图标
+        if (fluid != null && state.getFill() > 0) {
+            FluidTankRenderUtil.submit(
+                fluid, state.getAmount(), state.getFill(), 2, pose, collector, state.lightCoords, FLUID_RENDER_TYPE);
+        }
+        var marked = state.getMarkedResource();
+        if (marked != null) {
+            // 端口认的流体：无论罐里有没有流体，每个面都画一枚扁平图标
             for (Direction direction : Direction.values()) {
                 StorageFluidPortBlockEntityRenderer.submitMarkedIcon(
-                    fluid, state.getAmount(), direction, pose, collector, state.lightCoords);
+                    marked, state.getAmount(), direction, pose, collector, state.lightCoords);
             }
-            return;
         }
-        FluidTankRenderUtil.submit(fluid, state.getAmount(), state.getFill(), 2, pose, collector, state.lightCoords, FLUID_RENDER_TYPE);
     }
 
     /// 在指定面画一枚贴面的扁平流体图标，位置在玻璃窗口上方。
