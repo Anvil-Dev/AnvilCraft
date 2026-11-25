@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.block.logistics.chute;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.ChutePlates;
 import dev.dubhe.anvilcraft.block.entity.MagneticChuteBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
@@ -56,7 +55,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerRotateBehavior, IHammerRemovable {
+public class MagneticChuteBlock extends WaterloggedChuteBlock implements HammerRotateBehavior, IHammerRemovable {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
     public static final BooleanProperty HEAD = BooleanProperty.create("head");
@@ -91,9 +90,11 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
     /// @param properties 方块属性
     public MagneticChuteBlock(Properties properties) {
         super(properties.dynamicShape());
-        this.registerDefaultState(
-            this.stateDefinition.any().setValue(MagneticChuteBlock.FACING, Direction.DOWN).setValue(MagneticChuteBlock.ENABLED, true)
-                .setValue(MagneticChuteBlock.HEAD, false));
+        this.registerDefaultState(this.stateDefinition.any()
+            .setValue(WATERLOGGED, false)
+            .setValue(MagneticChuteBlock.FACING, Direction.DOWN)
+            .setValue(MagneticChuteBlock.ENABLED, true)
+            .setValue(MagneticChuteBlock.HEAD, false));
     }
 
     @Override
@@ -185,6 +186,7 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
                 .setValue(SimpleMagneticChuteBlock.WATERLOGGED, level.getFluidState(pos).getType() == Fluids.WATER);
         }
         return this.defaultBlockState()
+            .setValue(WATERLOGGED, level.getFluidState(pos).getType() == Fluids.WATER)
             .setValue(MagneticChuteBlock.FACING, facing)
             .setValue(MagneticChuteBlock.ENABLED, !context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
@@ -225,6 +227,7 @@ public Property<?> getChangeableProperty(BlockState blockState) {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
         builder.add(MagneticChuteBlock.FACING, MagneticChuteBlock.ENABLED, MagneticChuteBlock.HEAD);
     }
 

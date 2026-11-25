@@ -149,6 +149,7 @@ public class SimpleMagneticChuteBlock
             if (!isPointedByChute(level, pos)) {
                 level.setBlockAndUpdate(
                     pos, ModBlocks.MAGNETIC_CHUTE.get().defaultBlockState()
+                        .setValue(SimpleMagneticChuteBlock.WATERLOGGED, state.getValue(SimpleMagneticChuteBlock.WATERLOGGED))
                         .setValue(MagneticChuteBlock.FACING, state.getValue(SimpleMagneticChuteBlock.FACING))
                 );
                 return;
