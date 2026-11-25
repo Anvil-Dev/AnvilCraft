@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
-import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock;
 import dev.dubhe.anvilcraft.block.entity.BaseChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
@@ -41,7 +40,6 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
@@ -70,7 +68,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBehavior, IHammerRemovable {
+public class ChuteBlock extends WaterloggedChuteBlock implements HammerRotateBehavior, IHammerRemovable {
     public static final DirectionProperty FACING = BlockStateProperties.FACING_HOPPER;
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
 
@@ -113,7 +111,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
     public ChuteBlock(Properties properties) {
         super(properties.dynamicShape());
         this.registerDefaultState(
-            this.stateDefinition.any()
+            this.stateDefinition.any().setValue(WATERLOGGED, false)
                 .setValue(FACING, Direction.DOWN)
                 .setValue(ENABLED, Boolean.TRUE)
         );
@@ -254,7 +252,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         BlockState state = level.getBlockState(pos);
         BlockEntity entity = level.getBlockEntity(pos);
         BlockEntity plates = !player.isCreative() && entity instanceof ChutePlates.Holder ? entity : null;
-        level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+        level.setBlock(pos, state.getFluidState().createLegacyBlock(), Block.UPDATE_ALL);
         level.levelEvent(2001, pos, Block.getId(state));
         Block.dropResources(state, level, pos, plates);
     }
@@ -276,6 +274,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
         builder.add(FACING, ENABLED);
     }
 
@@ -478,6 +477,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         boolean success = false;
         boolean tall = false;
         BlockState result = this.defaultBlockState()
+            .setValue(WATERLOGGED, level.getFluidState(pos).getType() == Fluids.WATER)
             .setValue(FACING, facing)
             .setValue(ENABLED, !level.hasNeighborSignal(pos));
         // 遍历六个方向 获取指向自己的溜槽

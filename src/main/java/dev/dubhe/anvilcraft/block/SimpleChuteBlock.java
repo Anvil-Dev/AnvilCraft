@@ -315,6 +315,7 @@ public class SimpleChuteBlock
         }
         if (!success) {
             result = ModBlocks.CHUTE.getDefaultState()
+                .setValue(WATERLOGGED, level.getFluidState(pos).getType() == Fluids.WATER)
                 .setValue(FACING, facing)
                 .setValue(ENABLED, !level.hasNeighborSignal(pos));
         } else {

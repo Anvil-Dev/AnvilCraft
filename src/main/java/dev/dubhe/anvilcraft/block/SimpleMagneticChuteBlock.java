@@ -147,6 +147,7 @@ public class SimpleMagneticChuteBlock
             // 不再被任意磁性溜槽指向时，升级回正常磁性溜槽
             if (!isPointedByChute(level, pos)) {
                 level.setBlockAndUpdate(pos, ModBlocks.MAGNETIC_CHUTE.get().defaultBlockState()
+                    .setValue(WATERLOGGED, state.getValue(WATERLOGGED))
                     .setValue(MagneticChuteBlock.FACING, state.getValue(FACING)));
                 return;
             }
