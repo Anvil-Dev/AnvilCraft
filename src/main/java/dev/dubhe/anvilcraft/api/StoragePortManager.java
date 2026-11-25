@@ -197,8 +197,8 @@ public final class StoragePortManager {
             FluidStack fluid = port.getFluid();
             boolean drained = fluid.isEmpty();
             if (drained) {
-                // 取空：用记忆的流体类型占位，数量记 0
-                fluid = port.getRememberedFluid();
+                // 取空：只有被标记过的端口才以 0 数量占位，否则空端口会在 UI 里凭空多出一条 0 mB
+                fluid = port.getMarkedFluid();
                 if (fluid.isEmpty()) {
                     continue;
                 }
@@ -300,8 +300,20 @@ public final class StoragePortManager {
     @Nullable
     public static IFluidHandler findAcceptor(UUID storageId, FluidStack fluid) {
         for (StorageFluidPortBlockEntity port : StoragePortManager.liveFluidPorts(storageId)) {
+            FluidStack marked = port.getMarkedFluid();
+            if (!marked.isEmpty() && !FluidStack.isSameFluidSameComponents(marked, fluid)) {
+                // 已标记的端口只接收标记的那一种流体
+                continue;
+            }
             FluidStack stored = port.getFluid();
-            if (!stored.isEmpty() && FluidStack.isSameFluidSameComponents(stored, fluid)) {
+            if (!stored.isEmpty()) {
+                if (FluidStack.isSameFluidSameComponents(stored, fluid)) {
+                    return port.getFluidHandler();
+                }
+                continue;
+            }
+            // 空端口只有已被标记成该流体时才接收，否则无法从 UI 灌入
+            if (!marked.isEmpty()) {
                 return port.getFluidHandler();
             }
         }

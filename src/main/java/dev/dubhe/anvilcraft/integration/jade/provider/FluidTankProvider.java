@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StorageFluidPortBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StoragePortConsolidatorBlockEntity;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -30,6 +31,8 @@ public class FluidTankProvider implements IServerExtensionProvider<CompoundTag> 
     public static final String LARGE_TANK_GROUP = "large_tank";
     public static final String FLUID_TANK_GROUP = "fluid_tank";
     public static final String FLUID_PORT_GROUP = "fluid_port";
+    /// 空端口时供标题取名的标记流体（数量 1，避免被当成空）
+    public static final String MARKED_FLUID_KEY = "marked_fluid";
     public static final String FLUID_CONSOLIDATOR_GROUP = "fluid_consolidator";
     public static final String TOTAL_KEY = "Total";
     public static final String CAPACITY_KEY = "Capacity";
@@ -57,17 +60,29 @@ public class FluidTankProvider implements IServerExtensionProvider<CompoundTag> 
             ));
         }
         if (blockAccessor.getBlockEntity() instanceof StorageFluidPortBlockEntity port) {
-            FluidStack fluid = port.getFluid();
-            if (fluid.isEmpty()) {
-                fluid = port.getRememberedFluid().copyWithAmount(0);
-            }
             boolean infinite = port.isInfinite();
-            return List.of(singleGroup(
-                FluidTankProvider.FLUID_PORT_GROUP,
-                fluid,
-                infinite ? Integer.MAX_VALUE : StorageFluidPortBlockEntity.CAPACITY_MB,
-                infinite
-            ));
+            long capacity = infinite ? Integer.MAX_VALUE : StorageFluidPortBlockEntity.CAPACITY_MB;
+            FluidStack fluid = port.getFluid();
+            if (!fluid.isEmpty()) {
+                return List.of(FluidTankProvider.singleGroup(
+                    FluidTankProvider.FLUID_PORT_GROUP, fluid, fluid.getAmount(), capacity, infinite));
+            }
+            // 取空后按标记流体占位：保留流体类型，数量显示 0，而不是变成「空」
+            FluidStack marked = port.getMarkedFluid();
+            ViewGroup<CompoundTag> group = FluidTankProvider.singleGroup(
+                FluidTankProvider.FLUID_PORT_GROUP, marked, 0, capacity, infinite);
+            if (!marked.isEmpty()) {
+                // 数量 0 的流体在 Jade 里等同于空，客户端取不到名字；
+                // 另存一份数量 1 的副本专门给标题用
+                group.getExtraData().put(
+                    FluidTankProvider.MARKED_FLUID_KEY,
+                    JadeFluidObject.CODEC.encodeStart(
+                        NbtOps.INSTANCE,
+                        JadeFluidObject.of(marked.getFluid(), 1, marked.getComponentsPatch())
+                    ).getOrThrow()
+                );
+            }
+            return List.of(group);
         }
         if (blockAccessor.getBlockEntity() instanceof StoragePortConsolidatorBlockEntity consolidator) {
             return consolidatorGroups(consolidator);
@@ -208,14 +223,25 @@ public class FluidTankProvider implements IServerExtensionProvider<CompoundTag> 
         long capacity,
         boolean infinite
     ) {
+        return FluidTankProvider.singleGroup(id, fluid, fluid.getAmount(), capacity, infinite);
+    }
+
+    /// 单条目流体分组；{@code displayAmount} 用于「取空但仍显示」的情形，可小于流体的真实量。
+    private static ViewGroup<CompoundTag> singleGroup(
+        String id,
+        FluidStack fluid,
+        long displayAmount,
+        long capacity,
+        boolean infinite
+    ) {
         JadeFluidObject fluidObject = fluid.isEmpty()
             ? JadeFluidObject.empty()
-            : JadeFluidObject.of(fluid.getFluid(), fluid.getAmount(), fluid.getComponentsPatch());
+            : JadeFluidObject.of(fluid.getFluid(), (int) displayAmount, fluid.getComponentsPatch());
         ViewGroup<CompoundTag> group = new ViewGroup<>(List.of(
             FluidView.writeDefault(fluidObject, capacity)
         ));
         group.id = id;
-        group.getExtraData().putLong(FluidTankProvider.TOTAL_KEY, infinite ? 0L : fluid.getAmount());
+        group.getExtraData().putLong(FluidTankProvider.TOTAL_KEY, infinite ? 0L : displayAmount);
         group.getExtraData().putLong(FluidTankProvider.CAPACITY_KEY, capacity);
         group.getExtraData().putInt(FluidTankProvider.INFINITE_KEY, infinite ? 1 : 0);
         return group;

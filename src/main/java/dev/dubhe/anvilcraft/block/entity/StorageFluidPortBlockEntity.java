@@ -8,12 +8,14 @@ import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkScanner;
 import dev.dubhe.anvilcraft.block.AbstractStoragePortBlock;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
+import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -23,6 +25,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -141,7 +144,6 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
 
         @Override
         protected void onContentsChanged() {
-            StorageFluidPortBlockEntity.this.rememberFluid();
             StorageFluidPortBlockEntity.this.setChanged();
             if (StorageFluidPortBlockEntity.this.level != null) {
                 StorageFluidPortBlockEntity.this.level.sendBlockUpdated(
@@ -159,31 +161,35 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
         }
     };
 
-    /**
-     * 最后一次盛放的流体。
-     *
-     * <p>取空后 {@code getFluid()} 会变成空栈、连流体类型都读不到，导致 UI 里的条目直接消失；
-     * 保留它可以让条目像物品一样留在列表里显示 0。仅运行时记忆，不写入 NBT，
-     * 因此重载后与物品一致地不再显示已清空的条目。</p>
-     */
-    private FluidStack rememberedFluid = FluidStack.EMPTY;
+    /// 玩家用桶倒入时打上的标记；管道输入不会写这里，也不会渲染标记图标。
+    /// 取空后 UI 里的 0 mB 条目也以它为准，未标记的空端口不会占位。
+    private FluidStack markedFluid = FluidStack.EMPTY;
 
-    /** 记录当前流体类型，供取空后继续占位显示。 */
-    private void rememberFluid() {
-        FluidStack current = this.tank.getFluid();
-        if (!current.isEmpty()) {
-            this.rememberedFluid = current.copy();
+    /**
+     * 标记本端口只接收该流体。
+     *
+     * @param fluid 要标记的流体；空栈表示清除标记
+     */
+    public void markFluid(FluidStack fluid) {
+        if (FluidStack.isSameFluidSameComponents(this.markedFluid, fluid)) {
+            return;
+        }
+        this.markedFluid = fluid.copy();
+        this.setChanged();
+        if (this.level != null && !this.level.isClientSide) {
+            this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
         }
     }
 
     /**
-     * 取空后仍可用于占位的流体类型。
+     * 本端口被标记的流体；未标记时为空栈。
      *
-     * @return 最后盛放过的流体；从未装过流体时为空
+     * @return 标记的流体
      */
-    public FluidStack getRememberedFluid() {
-        return this.tank.getFluid().isEmpty() ? this.rememberedFluid : this.tank.getFluid();
+    public FluidStack getMarkedFluid() {
+        return this.markedFluid;
     }
+
 
     /**
      * 自身等效高度的调整量（格）：负值降低高度以便进液，正值提高高度以便排液。
@@ -226,9 +232,6 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
         }
         if (this.validateCountdown-- <= 0) {
             this.validateCountdown = StorageFluidPortBlockEntity.VALIDATE_INTERVAL;
-            // 存档载入的存量不会触发 onContentsChanged，这里补记一次，
-            // 否则载入后直接取空会没有可供占位显示的流体类型
-            this.rememberFluid();
             this.validateLink();
         }
         if (this.adjustCountdown-- <= 0) {
@@ -485,11 +488,24 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
      * @return 是否发生了流体交换
      */
     public boolean onPlayerUse(Player player, InteractionHand hand) {
+        int amountBefore = this.tank.getFluidAmount();
         if (this.level != null
             && FluidHandlerWrapper.tryInteractWithBottle(player, hand, this.tank, this.level, this.getBlockPos())) {
+            this.markIfFilled(amountBefore);
             return true;
         }
-        return FluidUtil.interactWithFluidHandler(player, hand, this.tank);
+        if (!FluidUtil.interactWithFluidHandler(player, hand, this.tank)) {
+            return false;
+        }
+        this.markIfFilled(amountBefore);
+        return true;
+    }
+
+    /// 玩家往端口里倒入流体时打标记；抽出流体不算，管道输入也不经过这里。
+    private void markIfFilled(int amountBefore) {
+        if (this.tank.getFluidAmount() > amountBefore && !this.tank.getFluid().isEmpty()) {
+            this.markFluid(this.tank.getFluid());
+        }
     }
 
     /**
@@ -526,6 +542,106 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
         return fluid;
     }
 
+    /**
+     * 读取端口物品里保存的流体。
+     *
+     * @param stack      端口物品
+     * @param registries 注册表
+     * @return 内部流体；没有时为空栈
+     */
+    public static FluidStack containedFluid(ItemStack stack, HolderLookup.Provider registries) {
+        return StorageFluidPortBlockEntity.readItemTank(stack, registries).getFluid();
+    }
+
+    /**
+     * 端口物品还能装入的流体量。
+     *
+     * @param stack      端口物品
+     * @param registries 注册表
+     * @return 剩余容量（mB）
+     */
+    public static int remainingCapacity(ItemStack stack, HolderLookup.Provider registries) {
+        return Math.max(
+            0,
+            StorageFluidPortBlockEntity.CAPACITY_MB
+                - StorageFluidPortBlockEntity.readItemTank(stack, registries).getFluidAmount()
+        );
+    }
+
+    /**
+     * 向端口物品灌入流体并写回，返回实际接收量。
+     *
+     * @param stack      端口物品（数量必须为 1）
+     * @param fluid      待灌入流体
+     * @param registries 注册表
+     * @return 实际接收量
+     */
+    public static int insertIntoItem(ItemStack stack, FluidStack fluid, HolderLookup.Provider registries) {
+        if (stack.getCount() != 1 || fluid.isEmpty()) {
+            return 0;
+        }
+        FluidTank itemTank = StorageFluidPortBlockEntity.readItemTank(stack, registries);
+        int amount = itemTank.fill(fluid, IFluidHandler.FluidAction.EXECUTE);
+        if (amount > 0) {
+            StorageFluidPortBlockEntity.saveItemTank(stack, itemTank, registries);
+        }
+        return amount;
+    }
+
+    /**
+     * 从端口物品抽出流体并写回，返回实际抽出量。
+     *
+     * @param stack      端口物品（数量必须为 1）
+     * @param fluid      待抽出的流体
+     * @param registries 注册表
+     * @return 实际抽出量
+     */
+    public static int drainItem(ItemStack stack, FluidStack fluid, HolderLookup.Provider registries) {
+        if (stack.getCount() != 1 || fluid.isEmpty()) {
+            return 0;
+        }
+        FluidTank itemTank = StorageFluidPortBlockEntity.readItemTank(stack, registries);
+        FluidStack stored = itemTank.getFluid();
+        if (stored.isEmpty() || !FluidStack.isSameFluidSameComponents(stored, fluid)) {
+            return 0;
+        }
+        int amount = itemTank.drain(
+            fluid.copyWithAmount(Math.min(fluid.getAmount(), stored.getAmount())),
+            IFluidHandler.FluidAction.EXECUTE
+        ).getAmount();
+        if (amount > 0) {
+            StorageFluidPortBlockEntity.saveItemTank(stack, itemTank, registries);
+        }
+        return amount;
+    }
+
+    private static FluidTank readItemTank(ItemStack stack, HolderLookup.Provider registries) {
+        FluidTank itemTank = new FluidTank(StorageFluidPortBlockEntity.CAPACITY_MB);
+        CustomData data = stack.get(DataComponents.BLOCK_ENTITY_DATA);
+        if (data == null) {
+            return itemTank;
+        }
+        CompoundTag tag = data.copyTag();
+        if (tag.contains(StorageFluidPortBlockEntity.TAG_TANK)) {
+            itemTank.readFromNBT(registries, tag.getCompound(StorageFluidPortBlockEntity.TAG_TANK));
+        }
+        return itemTank;
+    }
+
+    private static void saveItemTank(ItemStack stack, FluidTank itemTank, HolderLookup.Provider registries) {
+        CustomData data = stack.get(DataComponents.BLOCK_ENTITY_DATA);
+        CompoundTag tag = data == null ? new CompoundTag() : data.copyTag();
+        tag.remove(StorageFluidPortBlockEntity.TAG_TANK);
+        if (!itemTank.isEmpty()) {
+            tag.put(StorageFluidPortBlockEntity.TAG_TANK, itemTank.writeToNBT(registries, new CompoundTag()));
+        }
+        if (tag.isEmpty()) {
+            stack.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY);
+        } else {
+            BlockItem.setBlockEntityData(stack, ModBlockEntities.STORAGE_FLUID_PORT.get(), tag);
+        }
+    }
+
     /** 用有限容量副本写出 tank 数据，避免把无限状态的 {@code Integer.MAX_VALUE} 落盘。 */
     private CompoundTag writeTank(HolderLookup.Provider registries) {
         FluidTank copy = new FluidTank(StorageFluidPortBlockEntity.CAPACITY_MB);
@@ -539,7 +655,8 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
      * <p>空端口不写入方块实体数据，否则拆下来会多出一个空 tank 组件，无法与未放置过的物品堆叠。</p>
      */
     public void saveToDrop(ItemStack stack, HolderLookup.Provider registries) {
-        if (this.tank.isEmpty()) {
+        // 罐是空的但仍有标记时也要存下来：标记本身要跟着物品走
+        if (this.tank.isEmpty() && this.markedFluid.isEmpty()) {
             return;
         }
         CompoundTag tag = this.saveCustomOnly(registries);
@@ -563,6 +680,10 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
         // 同步流体，保证客户端渲染与 UI 读取一致；为空也要写，否则客户端会残留旧流体
         tag.put(StorageFluidPortBlockEntity.TAG_TANK, this.writeTank(registries));
         tag.putBoolean(StorageFluidPortBlockEntity.TAG_INFINITE, this.infinite);
+        // 标记也要同步，否则客户端的标记图标只在收到更新的那一瞬间出现
+        if (!this.markedFluid.isEmpty()) {
+            tag.put("marked_fluid", this.markedFluid.save(registries, new CompoundTag()));
+        }
         return tag;
     }
 
@@ -572,6 +693,9 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
         // 空槽时不写流体数据：空端口被存成物品不该多出一个空 tank 组件，否则会与未放置过的端口无法堆叠
         if (!this.tank.isEmpty()) {
             tag.put(StorageFluidPortBlockEntity.TAG_TANK, this.writeTank(registries));
+        }
+        if (!this.markedFluid.isEmpty()) {
+            tag.put("marked_fluid", this.markedFluid.save(registries, new CompoundTag()));
         }
     }
 
@@ -585,6 +709,7 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         this.infinite = tag.getBoolean(StorageFluidPortBlockEntity.TAG_INFINITE);
+        this.markedFluid = FluidStack.parseOptional(registries, tag.getCompound("marked_fluid"));
         if (tag.contains(StorageFluidPortBlockEntity.TAG_TANK)) {
             this.tank.readFromNBT(registries, tag.getCompound(StorageFluidPortBlockEntity.TAG_TANK));
             FluidStack fluid = this.tank.getFluid();

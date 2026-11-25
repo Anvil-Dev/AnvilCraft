@@ -86,12 +86,14 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.client.ItemDecoratorHandler;
 import net.neoforged.neoforge.client.event.ContainerScreenEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import org.joml.Vector2i;
 import org.jspecify.annotations.Nullable;
 
@@ -1341,6 +1343,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
         this.renderCarriedItem(graphics, mouseX, mouseY);
         this.renderFlyout(graphics);
+        // 放在最后：流体格循环会直接覆盖 tooltip 内容，先设置的提示会被冲掉
+        this.updateCarriedContainerTooltip(mouseX, mouseY);
         this.renderStorageTooltip(graphics, mouseX, mouseY);
     }
 
@@ -1953,6 +1957,79 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             );
             this.renderingTooltipImage = stack.getTooltipImage();
         }
+    }
+
+    /**
+     * 手持桶或其它流体容器时，悬停在仓储格或流体格上给出左右键功能提示。
+     *
+     * <p>键位跟随 {@code invertFluidPortBucketActions} 配置，翻转后提示同步互换。</p>
+     */
+    private void updateCarriedContainerTooltip(int mouseX, int mouseY) {
+        if (this.carried.isEmpty()) {
+            return;
+        }
+        boolean overFluid = this.getFluidSlotAt(mouseX, mouseY) != null;
+        if (!overFluid && this.getStorageSlot(mouseX, mouseY) == null) {
+            return;
+        }
+        // 只提示这一下真正会发生的动作：空容器没东西可倒，满容器没空间可取
+        List<Component> hint;
+        if (overFluid) {
+            if (StorageScreen.carriedSpace(this.carried) <= 0) {
+                return;
+            }
+            hint = StorageScreen.containerHints("take", "take_all", true);
+        } else {
+            if (!StorageScreen.carriedHasFluid(this.carried)) {
+                return;
+            }
+            hint = StorageScreen.containerHints("pour", "pour_all", false);
+        }
+        List<Component> lines = this.renderingTooltips == null
+                                ? new ArrayList<>() : new ArrayList<>(this.renderingTooltips);
+        lines.addAll(hint);
+        this.renderingTooltips = lines;
+        this.renderingTooltipImage = Optional.empty();
+    }
+
+    private static List<Component> containerHints(String action, String shiftAction, boolean fluidSlot) {
+        int fluidButton = StorageScreen.bucketActionButton();
+        Component fluidKey = Component.translatable(fluidButton == 0 ? "key.mouse.left" : "key.mouse.right");
+        List<Component> lines = new ArrayList<>();
+        lines.add(Component.translatable("tooltip.anvilcraft.storage.container." + action, fluidKey));
+        lines.add(Component.translatable("tooltip.anvilcraft.storage.container." + shiftAction, fluidKey));
+        if (!fluidSlot) {
+            Component otherKey = Component.translatable(fluidButton == 0 ? "key.mouse.right" : "key.mouse.left");
+            lines.add(Component.translatable("tooltip.anvilcraft.storage.container.store", otherKey));
+        }
+        return lines;
+    }
+
+    /// 指针上的容器还能装多少流体；不是容器时为 0。
+    private static int carriedSpace(ItemStack carried) {
+        IFluidHandlerItem handler = carried.copyWithCount(1).getCapability(Capabilities.FluidHandler.ITEM);
+        if (handler == null) {
+            return 0;
+        }
+        int space = 0;
+        for (int tank = 0; tank < handler.getTanks(); tank++) {
+            space += Math.max(0, handler.getTankCapacity(tank) - handler.getFluidInTank(tank).getAmount());
+        }
+        return space;
+    }
+
+    /// 指针上的容器里是否装着流体。
+    private static boolean carriedHasFluid(ItemStack carried) {
+        IFluidHandlerItem handler = carried.copyWithCount(1).getCapability(Capabilities.FluidHandler.ITEM);
+        if (handler == null) {
+            return false;
+        }
+        for (int tank = 0; tank < handler.getTanks(); tank++) {
+            if (!handler.getFluidInTank(tank).isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void renderStorageTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
@@ -4398,6 +4475,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.version = result.version();
         this.fullness = result.fullness();
         this.fluids = result.fluids();
+        this.appendMissingFluidSlots();
         for (StorageServerStub.StackUpdate update : result.updates()) {
             if (update.stack().isEmpty()) {
                 if (this.contents.containsKey(update.index())) {
@@ -4459,6 +4537,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             // 与 applySyncResult 一致：保持排序的同步路径同样要刷新流体列表，
             // 否则按住 Shift 取液后界面上的储量会停留在旧值
             this.fluids = result.fluids();
+            this.appendMissingFluidSlots();
             for (StorageServerStub.StackUpdate update : result.updates()) {
                 if (update.stack().isEmpty()) {
                     continue;
@@ -4552,6 +4631,25 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
 
         this.rebuildFoldedGroups(false);
+    }
+
+    /**
+     * 把新出现的流体补进显示顺序。
+     *
+     * <p>流体伪槽位只在首次全量快照里写进 {@code order}，之后新增的流体若只更新
+     * {@code fluids}，{@link #appendFluidSlots} 会因为 {@code order} 里没有该槽位而跳过，
+     * 表现为按住 Shift 连续倒液时界面要等下一次整体重排才显示。</p>
+     */
+    private void appendMissingFluidSlots() {
+        for (int fluid = 0; fluid < this.fluids.size(); fluid++) {
+            int slot = StorageScreen.FLUID_SLOT_BASE + fluid;
+            if (!this.order.contains(slot)) {
+                this.order.add(slot);
+            }
+            if (!this.displayOrder.contains(slot)) {
+                this.displayOrder.add(slot);
+            }
+        }
     }
 
     /**

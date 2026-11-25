@@ -3,8 +3,6 @@ package dev.dubhe.anvilcraft.building;
 import dev.anvilcraft.lib.v2.util.InventoryUtil;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
-import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
@@ -459,7 +457,7 @@ public final class BuildingMaterials {
             if (remaining <= 0) {
                 break;
             }
-            remaining -= this.drainTankItem(container, fluid.copyWithAmount(remaining));
+            remaining -= BuildingMaterials.drainContainerInto(container, fluid.copyWithAmount(remaining));
         }
         for (Source source : this.sources) {
             if (source == this.offhand) continue;
@@ -552,17 +550,15 @@ public final class BuildingMaterials {
         while (remaining > 0 && source.available() > source.reserved + (source.retainedTool ? 1 : 0)) {
             ItemStack container = source.resource.copyWithCount(1);
             IFluidHandlerItem handler = container.getCapability(Capabilities.FluidHandler.ITEM);
-            int amount;
             if (handler == null) {
-                amount = this.drainTankItem(container, fluid.copyWithAmount(remaining));
-            } else {
-                FluidStack drained = handler.drain(fluid.copyWithAmount(remaining), IFluidHandler.FluidAction.EXECUTE);
-                if (!drained.isEmpty() && !FluidStack.isSameFluidSameComponents(drained, fluid)) {
-                    break;
-                }
-                amount = drained.getAmount();
-                container = handler.getContainer().copy();
+                break;
             }
+            FluidStack drained = handler.drain(fluid.copyWithAmount(remaining), IFluidHandler.FluidAction.EXECUTE);
+            if (!drained.isEmpty() && !FluidStack.isSameFluidSameComponents(drained, fluid)) {
+                break;
+            }
+            int amount = drained.getAmount();
+            container = handler.getContainer().copy();
             if (amount <= 0) {
                 break;
             }
@@ -573,16 +569,34 @@ public final class BuildingMaterials {
         return remaining;
     }
 
-    private int drainTankItem(ItemStack stack, FluidStack fluid) {
-        return stack.is(ModBlocks.LARGE_FLUID_TANK.asItem())
-            ? LargeFluidTankBlockEntity.drainItem(stack, fluid, this.player.registryAccess())
-            : FluidTankBlockEntity.drainItem(stack, fluid, this.player.registryAccess());
+    /// 从物品态容器中抽出流体并写回该物品，返回抽出量。
+    private static int drainContainerInto(ItemStack stack, FluidStack fluid) {
+        ItemStack single = stack.copyWithCount(1);
+        IFluidHandlerItem handler = single.getCapability(Capabilities.FluidHandler.ITEM);
+        if (handler == null) {
+            return 0;
+        }
+        FluidStack drained = handler.drain(fluid, IFluidHandler.FluidAction.EXECUTE);
+        if (drained.isEmpty()) {
+            return 0;
+        }
+        stack.applyComponents(handler.getContainer().getComponentsPatch());
+        return drained.getAmount();
     }
 
-    private int fillTankItem(ItemStack stack, FluidStack fluid) {
-        return stack.is(ModBlocks.LARGE_FLUID_TANK.asItem())
-            ? LargeFluidTankBlockEntity.insertIntoItem(stack, fluid, this.player.registryAccess())
-            : FluidTankBlockEntity.insertIntoItem(stack, fluid, this.player.registryAccess());
+    /// 向物品态容器灌入流体并写回该物品，返回接收量。
+    private static int fillContainerInto(ItemStack stack, FluidStack fluid) {
+        ItemStack single = stack.copyWithCount(1);
+        IFluidHandlerItem handler = single.getCapability(Capabilities.FluidHandler.ITEM);
+        if (handler == null) {
+            return 0;
+        }
+        int accepted = handler.fill(fluid, IFluidHandler.FluidAction.EXECUTE);
+        if (accepted <= 0) {
+            return 0;
+        }
+        stack.applyComponents(handler.getContainer().getComponentsPatch());
+        return accepted;
     }
 
     void excludeFluidSources(Predicate<BlockPos> excluded) {
@@ -593,7 +607,7 @@ public final class BuildingMaterials {
         List<ItemStack> filled = new ArrayList<>();
         for (FluidStack fluid : fluids) {
             for (ItemStack stack : filled) {
-                fluid.shrink(this.fillTankItem(stack, fluid));
+                fluid.shrink(BuildingMaterials.fillContainerInto(stack, fluid));
             }
             for (ItemStack stack : refunds) this.fillRefundContainer(stack, fluid, filled);
             for (ItemStack stack : this.returned) this.fillRefundContainer(stack, fluid, filled);
@@ -614,15 +628,11 @@ public final class BuildingMaterials {
         while (!stack.isEmpty() && !fluid.isEmpty()) {
             ItemStack container = stack.copyWithCount(1);
             IFluidHandlerItem handler = container.getCapability(Capabilities.FluidHandler.ITEM);
-            int amount;
-            ItemStack result;
-            if (handler != null) {
-                amount = handler.fill(fluid.copy(), IFluidHandler.FluidAction.EXECUTE);
-                result = handler.getContainer().copy();
-            } else {
-                amount = this.fillTankItem(container, fluid);
-                result = container;
+            if (handler == null) {
+                break;
             }
+            int amount = handler.fill(fluid.copy(), IFluidHandler.FluidAction.EXECUTE);
+            ItemStack result = handler.getContainer().copy();
             if (result.isEmpty()) break;
             if (amount <= 0) break;
             fluid.shrink(amount);
