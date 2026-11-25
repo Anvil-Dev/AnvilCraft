@@ -4,7 +4,6 @@ import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 
 /// 流体储罐物品的 {@link IFluidHandlerItem} 实现。
@@ -30,27 +29,24 @@ public class FluidTankItemHandler implements IFluidHandlerItem {
     @Override
     public FluidStack getFluidInTank(int tank) {
         HolderLookup.Provider registries = FluidItemRegistryAccess.get();
-        return registries == null ? FluidStack.EMPTY : FluidTankBlockEntity.containedFluid(this.container, registries);
+        return FluidTankBlockEntity.containedFluid(this.container, registries);
     }
 
     @Override
     public int getTankCapacity(int tank) {
         HolderLookup.Provider registries = FluidItemRegistryAccess.get();
-        return registries == null ? 0 : FluidTankBlockEntity.capacityOf(this.container, registries);
+        return FluidTankBlockEntity.capacityOf(this.container, registries);
     }
 
     @Override
     public boolean isFluidValid(int tank, FluidStack stack) {
         HolderLookup.Provider registries = FluidItemRegistryAccess.get();
-        return registries != null && FluidTankBlockEntity.isFluidValid(this.container, stack, registries);
+        return FluidTankBlockEntity.isFluidValid(this.container, stack, registries);
     }
 
     @Override
     public int fill(FluidStack resource, FluidAction action) {
         HolderLookup.Provider registries = FluidItemRegistryAccess.get();
-        if (registries == null) {
-            return 0;
-        }
         // 模拟时不能动到真正的容器物品，只能在一件的副本上试
         ItemStack target = action.execute() ? this.container : this.container.copyWithCount(1);
         return FluidTankBlockEntity.insertIntoItem(target, resource, registries);
@@ -59,7 +55,7 @@ public class FluidTankItemHandler implements IFluidHandlerItem {
     @Override
     public FluidStack drain(FluidStack resource, FluidAction action) {
         HolderLookup.Provider registries = FluidItemRegistryAccess.get();
-        if (registries == null || resource.isEmpty()) {
+        if (resource.isEmpty()) {
             return FluidStack.EMPTY;
         }
         ItemStack target = action.execute() ? this.container : this.container.copyWithCount(1);

@@ -9,12 +9,9 @@ import dev.dubhe.anvilcraft.inventory.tooltip.FluidTankTooltip;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.api.distmarker.Dist;
@@ -22,7 +19,6 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -47,13 +43,11 @@ public class StorageFluidPortBlockItem extends BlockItem {
             if (!marked.isEmpty()) {
                 // 取空但仍有标记：把标记流体当作内容注入，数量固定显示 0
                 HolderLookup.Provider registries = FluidItemRegistryAccess.get();
-                if (registries != null) {
-                    CompoundTag injected = new CompoundTag();
-                    injected.put("Fluid", marked.save(registries, new CompoundTag()));
-                    injected.putBoolean("Marked", true);
-                    return Optional.of(new FluidTankTooltip(
-                        injected, false, StorageFluidPortBlockEntity.CAPACITY_MB, false));
-                }
+                CompoundTag injected = new CompoundTag();
+                injected.put("Fluid", marked.save(registries, new CompoundTag()));
+                injected.putBoolean("Marked", true);
+                return Optional.of(new FluidTankTooltip(
+                    injected, false, StorageFluidPortBlockEntity.CAPACITY_MB, false));
             }
         }
         // 无增强形态，基础容量与增强容量取同一值
@@ -77,8 +71,7 @@ public class StorageFluidPortBlockItem extends BlockItem {
             return FluidStack.EMPTY;
         }
         HolderLookup.Provider registries = FluidItemRegistryAccess.get();
-        return registries == null
-            ? FluidStack.EMPTY : FluidStack.parseOptional(registries, data.copyTag().getCompound("marked_fluid"));
+        return FluidStack.parseOptional(registries, data.copyTag().getCompound("marked_fluid"));
     }
 
     @Override

@@ -24,20 +24,19 @@ public class LargeFluidTankItemHandler implements IFluidHandlerItem {
     @Override
     public int getTanks() {
         HolderLookup.Provider registries = FluidItemRegistryAccess.get();
-        return registries == null ? 1 : Math.max(1, LargeFluidTankBlockEntity.tankCountOf(this.container, registries));
+        return Math.max(1, LargeFluidTankBlockEntity.tankCountOf(this.container, registries));
     }
 
     @Override
     public FluidStack getFluidInTank(int tank) {
         HolderLookup.Provider registries = FluidItemRegistryAccess.get();
-        return registries == null
-            ? FluidStack.EMPTY : LargeFluidTankBlockEntity.fluidInTank(this.container, tank, registries);
+        return LargeFluidTankBlockEntity.fluidInTank(this.container, tank, registries);
     }
 
     @Override
     public int getTankCapacity(int tank) {
         HolderLookup.Provider registries = FluidItemRegistryAccess.get();
-        return registries == null ? 0 : LargeFluidTankBlockEntity.tankCapacityOf(this.container, tank, registries);
+        return LargeFluidTankBlockEntity.tankCapacityOf(this.container, tank, registries);
     }
 
     @Override
@@ -48,9 +47,6 @@ public class LargeFluidTankItemHandler implements IFluidHandlerItem {
     @Override
     public int fill(FluidStack resource, FluidAction action) {
         HolderLookup.Provider registries = FluidItemRegistryAccess.get();
-        if (registries == null) {
-            return 0;
-        }
         // 模拟时不能动到真正的容器物品，只能在一件的副本上试
         ItemStack target = action.execute() ? this.container : this.container.copyWithCount(1);
         return LargeFluidTankBlockEntity.insertIntoItem(target, resource, registries);
@@ -59,7 +55,7 @@ public class LargeFluidTankItemHandler implements IFluidHandlerItem {
     @Override
     public FluidStack drain(FluidStack resource, FluidAction action) {
         HolderLookup.Provider registries = FluidItemRegistryAccess.get();
-        if (registries == null || resource.isEmpty()) {
+        if (resource.isEmpty()) {
             return FluidStack.EMPTY;
         }
         ItemStack target = action.execute() ? this.container : this.container.copyWithCount(1);

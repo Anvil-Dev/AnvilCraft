@@ -27,8 +27,7 @@ public class StorageFluidPortItemHandler implements IFluidHandlerItem {
     @Override
     public FluidStack getFluidInTank(int tank) {
         HolderLookup.Provider registries = FluidItemRegistryAccess.get();
-        return registries == null
-            ? FluidStack.EMPTY : StorageFluidPortBlockEntity.containedFluid(this.container, registries);
+        return StorageFluidPortBlockEntity.containedFluid(this.container, registries);
     }
 
     @Override
@@ -44,9 +43,6 @@ public class StorageFluidPortItemHandler implements IFluidHandlerItem {
     @Override
     public int fill(FluidStack resource, FluidAction action) {
         HolderLookup.Provider registries = FluidItemRegistryAccess.get();
-        if (registries == null) {
-            return 0;
-        }
         // 模拟时不能动到真正的容器物品，只能在一件的副本上试
         ItemStack target = action.execute() ? this.container : this.container.copyWithCount(1);
         return StorageFluidPortBlockEntity.insertIntoItem(target, resource, registries);
@@ -55,7 +51,7 @@ public class StorageFluidPortItemHandler implements IFluidHandlerItem {
     @Override
     public FluidStack drain(FluidStack resource, FluidAction action) {
         HolderLookup.Provider registries = FluidItemRegistryAccess.get();
-        if (registries == null || resource.isEmpty()) {
+        if (resource.isEmpty()) {
             return FluidStack.EMPTY;
         }
         ItemStack target = action.execute() ? this.container : this.container.copyWithCount(1);

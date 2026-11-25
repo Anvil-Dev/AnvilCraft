@@ -163,6 +163,7 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
 
     /// 玩家用桶倒入时打上的标记；管道输入不会写这里，也不会渲染标记图标。
     /// 取空后 UI 里的 0 mB 条目也以它为准，未标记的空端口不会占位。
+    @Getter
     private FluidStack markedFluid = FluidStack.EMPTY;
 
     /**
@@ -181,15 +182,6 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
         }
     }
 
-    /**
-     * 本端口被标记的流体；未标记时为空栈。
-     *
-     * @return 标记的流体
-     */
-    public FluidStack getMarkedFluid() {
-        return this.markedFluid;
-    }
-
 
     /**
      * 自身等效高度的调整量（格）：负值降低高度以便进液，正值提高高度以便排液。
@@ -205,6 +197,7 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
      */
     private boolean drawing = false;
     /** 是否因通过管道接入无限储罐而处于无限存量状态；断开后重算，不持久化 */
+    @Getter
     private boolean infinite = false;
     /**
      * 排出方向的施密特锁存位：水位高于 {@link #ADJUST_DRAIN_START} 时置位并保持，
@@ -282,11 +275,6 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
                 StorageServerStub.onContentsChanged(this.storageId);
             }
         }
-    }
-
-    /** 当前是否因接入无限储罐而无限供给。 */
-    public boolean isInfinite() {
-        return this.infinite;
     }
 
     /**
