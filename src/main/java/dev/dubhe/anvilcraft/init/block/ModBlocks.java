@@ -382,6 +382,7 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::autoEnchantingTable)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .initialProperties(() -> Blocks.ENCHANTING_TABLE)
+        .properties(p -> p.mapColor(MapColor.COLOR_CYAN))
         .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item().transform(PropertiesProviderUtil::blockItem).build()
@@ -390,6 +391,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> MAGNET_BLOCK = REGISTRUM.block("magnet_block", MagnetBlock::new)
         .lang("Block of Magnet")
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
         .properties(PropertiesProviderUtil::metalSound)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
@@ -409,6 +411,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> HOLLOW_MAGNET_BLOCK = REGISTRUM.block("hollow_magnet_block", HollowMagnetBlock::new)
         .lang("Hollowed Block of Magnet")
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
         .properties(PropertiesProviderUtil::metalSound)
         .properties(p -> p.isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -433,6 +436,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> STAMPING_PLATFORM = REGISTRUM.block("stamping_platform", StampingPlatformBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
         .properties(PropertiesProviderUtil::metalSound)
         .lang("Processing Table - Stamping")
         .properties(properties -> properties.isValidSpawn(Blocks::never))
@@ -461,6 +465,7 @@ public class ModBlocks {
 
     public static final BlockEntry<SiftingTableBlock> SIFTING_TABLE = REGISTRUM.block("sifting_table", SiftingTableBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.mapColor(MapColor.WOOD))
         .properties(PropertiesProviderUtil::metalSound)
         .lang("Processing Table - Sifting")
         .properties(properties -> properties.isValidSpawn(Blocks::never))
@@ -843,6 +848,7 @@ public class ModBlocks {
 
     public static final BlockEntry<CorruptedBeaconBlock> CORRUPTED_BEACON = REGISTRUM.block("corrupted_beacon", CorruptedBeaconBlock::new)
         .initialProperties(() -> Blocks.BEACON)
+        .properties(p -> p.mapColor(MapColor.COLOR_PURPLE))
         .properties(p -> p.isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item().transform(PropertiesProviderUtil::blockItem).build()
@@ -851,6 +857,7 @@ public class ModBlocks {
 
     public static final BlockEntry<GiantAnvilBlock> GIANT_ANVIL = REGISTRUM.block("giant_anvil", GiantAnvilBlock::new)
         .initialProperties(() -> Blocks.ANVIL)
+        .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
         .properties(p -> p
             .noOcclusion()
             .isValidSpawn(Blocks::never)
@@ -892,7 +899,7 @@ public class ModBlocks {
             SpectralAnvilBlock::new
         )
         .initialProperties(() -> Blocks.GLASS)
-        .properties(p -> p.mapColor(MapColor.METAL)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_BLUE)
             .isValidSpawn(Blocks::never)
             .requiresCorrectToolForDrops()
             .strength(5.0F, 1200.0F)
@@ -908,6 +915,7 @@ public class ModBlocks {
     public static final BlockEntry<NeoforgeBlock> NEOFORGE = REGISTRUM
         .block("neoforge", NeoforgeBlock::new)
         .initialProperties(() -> Blocks.CAKE)
+        .properties(p -> p.mapColor(MapColor.COLOR_ORANGE))
         .lang("NeoForge")
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
@@ -957,6 +965,7 @@ public class ModBlocks {
         .block("frost_anvil", FrostAnvilBlock::new)
         .recipe(RegistrumBlockRecipeLoader::frostAnvil)
         .initialProperties(() -> Blocks.ANVIL)
+        .properties(p -> p.mapColor(MapColor.CLAY))
         .tag(
             BlockTags.ANVIL,
             ModBlockTags.CANT_BROKEN_ANVIL,
@@ -985,6 +994,7 @@ public class ModBlocks {
             BlockTags.NEEDS_DIAMOND_TOOL
         )
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.CLAY))
         .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item().transform(PropertiesProviderUtil::blockItem).build()
@@ -998,6 +1008,7 @@ public class ModBlocks {
             BlockTags.NEEDS_DIAMOND_TOOL
         )
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.CLAY))
         .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item().transform(PropertiesProviderUtil::blockItem).build()
@@ -1006,6 +1017,7 @@ public class ModBlocks {
     public static final BlockEntry<EmberAnvilBlock> EMBER_ANVIL = REGISTRUM.block("ember_anvil", EmberAnvilBlock::new)
         .recipe(RegistrumBlockRecipeLoader::emberAnvil)
         .initialProperties(() -> Blocks.ANVIL)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_YELLOW))
         .tag(
             BlockTags.WITHER_IMMUNE,
             BlockTags.DRAGON_IMMUNE,
@@ -1033,6 +1045,7 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::emberGrindstone)
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_YELLOW))
         .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
@@ -1048,6 +1061,7 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::emberSmithingTable)
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_YELLOW))
         .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
@@ -1061,6 +1075,7 @@ public class ModBlocks {
             TranscendenceAnvilBlock::new
         )
         .initialProperties(() -> Blocks.ANVIL)
+        .properties(p -> p.mapColor(MapColor.COLOR_PURPLE))
         .tag(
             BlockTags.WITHER_IMMUNE,
             BlockTags.DRAGON_IMMUNE,
@@ -1095,6 +1110,7 @@ public class ModBlocks {
             TranscendenceGrindstoneBlock::new
         )
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_PURPLE))
         .tag(
             BlockTags.WITHER_IMMUNE,
             BlockTags.DRAGON_IMMUNE,
@@ -1127,6 +1143,7 @@ public class ModBlocks {
         )
         .lang("Transcendence Smithing Table")
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_PURPLE))
         .tag(
             BlockTags.WITHER_IMMUNE,
             BlockTags.DRAGON_IMMUNE,
@@ -1167,6 +1184,7 @@ public class ModBlocks {
 
     public static final BlockEntry<BurningHeaterBlock> BURNING_HEATER = REGISTRUM.block("burning_heater", BurningHeaterBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_BROWN))
         .properties(properties -> properties
             .isValidSpawn(Blocks::never)
             .lightLevel(state -> state.getValue(BurningHeaterBlock.LEVEL) > 0 ? 15 : 0)
@@ -1189,6 +1207,7 @@ public class ModBlocks {
             TransmissionPoleBlock::new
         )
         .initialProperties(ModBlocks.MAGNET_BLOCK)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_LIGHT_GRAY))
         .properties(properties -> properties.isValidSpawn(Blocks::never).noOcclusion().lightLevel(state -> {
             if (state.getValue(TransmissionPoleBlock.HALF) != Vertical3PartHalf.TOP) return 0;
             if (state.getValue(IPowerConsumer.SWITCH) == Switch.OFF) return 0;
@@ -1208,6 +1227,7 @@ public class ModBlocks {
     public static final BlockEntry<RemoteTransmissionPoleBlock> REMOTE_TRANSMISSION_POLE = REGISTRUM
         .block("remote_transmission_pole", RemoteTransmissionPoleBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)
+        .properties(p -> p.mapColor(MapColor.STONE))
         .loot(SimpleMultiPartBlock::loot)
         .properties(properties -> properties.isValidSpawn(Blocks::never).noOcclusion().lightLevel(state -> {
             if (state.getValue(RemoteTransmissionPoleBlock.HALF) != Vertical4PartHalf.TOP) return 0;
@@ -1226,6 +1246,7 @@ public class ModBlocks {
 
     public static final BlockEntry<TeslaTowerBlock> TESLA_TOWER = REGISTRUM.block("tesla_tower", TeslaTowerBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)
+        .properties(p -> p.mapColor(MapColor.WOOD))
         .loot(SimpleMultiPartBlock::loot)
         .properties(properties -> properties.isValidSpawn(Blocks::never).noOcclusion().lightLevel(state -> {
             if (state.getValue(TeslaTowerBlock.HALF) != Vertical4PartHalf.TOP) return 0;
@@ -1256,6 +1277,7 @@ public class ModBlocks {
 
     public static final BlockEntry<InductionLightBlock> INDUCTION_LIGHT = REGISTRUM.block("induction_light", InductionLightBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_LIGHT_GRAY))
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never).lightLevel(state -> {
             if (state.getValue(InductionLightBlock.POWERED)) return 0;
             if (state.getValue(InductionLightBlock.OVERLOAD)) return 7;
@@ -1281,6 +1303,7 @@ public class ModBlocks {
 
     public static final BlockEntry<CreativeLaserBlock> CREATIVE_LASER = REGISTRUM.block("creative_laser", CreativeLaserBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_PURPLE))
         .properties(PropertiesProviderUtil::metalSound)
         .properties(properties -> properties
             .explosionResistance(Float.MAX_VALUE)
@@ -1298,6 +1321,7 @@ public class ModBlocks {
     public static final BlockEntry<CreativeGeneratorBlock> CREATIVE_GENERATOR = REGISTRUM
         .block("creative_generator", CreativeGeneratorBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_PURPLE))
         .properties(p -> p.noOcclusion().explosionResistance(Float.MAX_VALUE).isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
@@ -1369,6 +1393,7 @@ public class ModBlocks {
             InfiniteCollectorBlock::new
         )
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_PURPLE))
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never)
             .lightLevel(state -> 7).emissiveRendering(ModBlocks::always).strength(50.0F, 1200.0F))
         .blockstate(() -> (ctx, generator) -> generator.blockStateOutput.accept(
@@ -1393,6 +1418,7 @@ public class ModBlocks {
 
     public static final BlockEntry<HeliostatsBlock> HELIOSTATS = REGISTRUM.block("heliostats", HeliostatsBlock::new)
         .initialProperties(() -> Blocks.GLASS)
+        .properties(p -> p.mapColor(MapColor.METAL))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .defaultLoot()
         .item(HeliostatsItem::new)
@@ -1607,6 +1633,7 @@ public class ModBlocks {
 
     public static final BlockEntry<ItemCollectorBlock> ITEM_COLLECTOR = REGISTRUM.block("item_collector", ItemCollectorBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
         .properties(PropertiesProviderUtil::metalSound)
         .properties(p -> p.isValidSpawn(Blocks::never).explosionResistance(15F))
         .item().transform(PropertiesProviderUtil::blockItem).build()
@@ -1671,6 +1698,7 @@ public class ModBlocks {
     public static final BlockEntry<SmartBlockPlacerBlock> SMART_BLOCK_PLACER = REGISTRUM
         .block("smart_block_placer", SmartBlockPlacerBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
         .properties(PropertiesProviderUtil::metalSound)
         .properties(p -> p.strength(1.5F, 6.0F).noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(() -> (ctx, generator) -> {
@@ -1834,6 +1862,7 @@ public class ModBlocks {
 
     public static final BlockEntry<ItemDetectorBlock> ITEM_DETECTOR = REGISTRUM.block("item_detector", ItemDetectorBlock::new)
         .initialProperties(() -> Blocks.DAYLIGHT_DETECTOR)
+        .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::itemDetector)
@@ -1843,6 +1872,7 @@ public class ModBlocks {
 
     public static final BlockEntry<ImpactPileBlock> IMPACT_PILE = REGISTRUM.block("impact_pile", ImpactPileBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.mapColor(MapColor.DEEPSLATE))
         .properties(PropertiesProviderUtil::metalSound)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL)
         .blockstate(DataGenUtil::onlyState)
@@ -1908,6 +1938,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<CrabTrapBlock> CRAB_TRAP = REGISTRUM.block("crab_trap", CrabTrapBlock::new)
+        .properties(p -> p.mapColor(MapColor.WOOD))
         .properties(p -> p.sound(SoundType.SCAFFOLDING).strength(2))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .properties(BlockBehaviour.Properties::noOcclusion)
@@ -1929,6 +1960,7 @@ public class ModBlocks {
         .register();
     public static final BlockEntry<? extends Block> CHUTE = REGISTRUM.block("chute", ChuteBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
         .properties(PropertiesProviderUtil::metalSound)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -1942,6 +1974,7 @@ public class ModBlocks {
 
     public static final BlockEntry<MagneticChuteBlock> MAGNETIC_CHUTE = REGISTRUM.block("magnetic_chute", MagneticChuteBlock::new)
         .initialProperties(ModBlocks.CHUTE)
+        .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(ChuteBlockItem::new)
@@ -1953,6 +1986,7 @@ public class ModBlocks {
 
     public static final BlockEntry<SimpleChuteBlock> SIMPLE_CHUTE = REGISTRUM.block("simple_chute", SimpleChuteBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
         .properties(PropertiesProviderUtil::metalSound)
         .properties(p -> p.dynamicShape().noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -1963,6 +1997,7 @@ public class ModBlocks {
     public static final BlockEntry<SimpleMagneticChuteBlock> SIMPLE_MAGNETIC_CHUTE = REGISTRUM
         .block("simple_magnetic_chute", SimpleMagneticChuteBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
         .properties(PropertiesProviderUtil::metalSound)
         .properties(p -> p.dynamicShape().noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -2010,7 +2045,7 @@ public class ModBlocks {
     public static BlockEntry<SlidingRailBlock> SLIDING_RAIL = REGISTRUM.block("sliding_rail", SlidingRailBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(PropertiesProviderUtil::metalSound)
-        .properties(it -> it.noOcclusion().isValidSpawn(Blocks::never).mapColor(MapColor.COLOR_GRAY))
+        .properties(it -> it.noOcclusion().isValidSpawn(Blocks::never).mapColor(MapColor.COLOR_LIGHT_BLUE))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.SLIDING_RAILS)
         .blockstate(() -> new NonNullBiConsumer<>() {
             @Override
@@ -2052,7 +2087,7 @@ public class ModBlocks {
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(PropertiesProviderUtil::metalSound)
-        .properties(it -> it.noOcclusion().isValidSpawn(Blocks::never).mapColor(MapColor.COLOR_GRAY))
+        .properties(it -> it.noOcclusion().isValidSpawn(Blocks::never).mapColor(MapColor.COLOR_LIGHT_BLUE))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.SLIDING_RAILS)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
@@ -2068,7 +2103,7 @@ public class ModBlocks {
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(PropertiesProviderUtil::metalSound)
-        .properties(it -> it.noOcclusion().isValidSpawn(Blocks::never).mapColor(MapColor.COLOR_GRAY))
+        .properties(it -> it.noOcclusion().isValidSpawn(Blocks::never).mapColor(MapColor.COLOR_LIGHT_BLUE))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.SLIDING_RAILS)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
@@ -2084,7 +2119,7 @@ public class ModBlocks {
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(PropertiesProviderUtil::metalSound)
-        .properties(it -> it.mapColor(MapColor.COLOR_GRAY).noOcclusion().isValidSpawn(Blocks::never))
+        .properties(it -> it.mapColor(MapColor.COLOR_LIGHT_BLUE).noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.SLIDING_RAILS)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
@@ -2141,6 +2176,7 @@ public class ModBlocks {
     public static final BlockEntry<CelestialForgingAnvilBlock> CELESTIAL_FORGING_ANVIL = REGISTRUM
         .block("celestial_forging_anvil", CelestialForgingAnvilBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_BLUE))
         .properties(PropertiesProviderUtil::metalSound)
         .loot(SimpleMultiPartBlock::loot)
         .properties(properties -> properties
@@ -2165,6 +2201,7 @@ public class ModBlocks {
         .block("celestial_forging_anvil_amplifier", CelestialForgingAnvilAmplifierBlock::new)
         .recipe(RegistrumBlockRecipeLoader::cfaAmplifier)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_BLUE))
         .properties(PropertiesProviderUtil::metalSound)
         .loot(FlexibleMultiPartBlock::loot)
         .properties(properties -> properties
@@ -2192,6 +2229,7 @@ public class ModBlocks {
         .block("celestial_forging_anvil_logistics_interface", CelestialForgingAnvilLogisticsInterfaceBlock::new)
         .recipe(RegistrumBlockRecipeLoader::cfaLogisticsInterface)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_BLUE))
         .properties(PropertiesProviderUtil::metalSound)
         .blockstate(() -> DataGenUtil.horizontalFacingBlock(
             BlockStateProperties.ENABLED,
@@ -2217,6 +2255,7 @@ public class ModBlocks {
         .block("celestial_forging_anvil_fluid_interface", CelestialForgingAnvilFluidInterfaceBlock::new)
         .recipe(RegistrumBlockRecipeLoader::cfaFluidInterface)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_BLUE))
         .properties(PropertiesProviderUtil::metalSound)
         .blockstate(() -> DataGenUtil.horizontalFacingBlock(
             BlockStateProperties.ENABLED,
@@ -2242,6 +2281,7 @@ public class ModBlocks {
         .block("celestial_forging_anvil_laser_interface", CelestialForgingAnvilLaserInterfaceBlock::new)
         .recipe(RegistrumBlockRecipeLoader::cfaLaserInterface)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_BLUE))
         .properties(PropertiesProviderUtil::metalSound)
         .blockstate(() -> DataGenUtil.horizontalFacingBlock(
             BlockStateProperties.ENABLED,
@@ -2268,6 +2308,7 @@ public class ModBlocks {
         .block("celestial_forging_anvil_interface_placeholder", CelestialForgingAnvilInterfacePlaceholderBlock::new)
         .recipe(RegistrumBlockRecipeLoader::cfaInterfacePlaceholder)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_BLUE))
         .properties(PropertiesProviderUtil::metalSound)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .properties(properties -> properties
@@ -2290,6 +2331,7 @@ public class ModBlocks {
         .block("celestial_back_gate", CelestialBackGateBlock::new)
         .lang("Celestial Back Gate")
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_BLUE))
         .properties(PropertiesProviderUtil::metalSound)
         .properties(properties -> properties
             .noOcclusion()
@@ -2307,6 +2349,7 @@ public class ModBlocks {
     public static final BlockEntry<CelestialForgingAnvilPortalBlock> CELESTIAL_FORGING_ANVIL_PORTAL = REGISTRUM
         .block("celestial_forging_anvil_portal", CelestialForgingAnvilPortalBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_BLUE))
         .properties(PropertiesProviderUtil::metalSound)
         .loot(FlexibleMultiPartBlock::loot)
         .properties(properties -> properties
@@ -2680,6 +2723,7 @@ public class ModBlocks {
         .block("frost_deco_outline", (properties) -> new StainedGlassBlock(DyeColor.WHITE, properties))
         .properties((properties) -> properties.noOcclusion().lightLevel((state) -> 10))
         .initialProperties(() -> Blocks.STONE)
+        .properties(p -> p.mapColor(MapColor.QUARTZ))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item().transform(PropertiesProviderUtil::blockItem).build()
@@ -2691,6 +2735,7 @@ public class ModBlocks {
         )
         .lang("Block of Ember Metal")
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_YELLOW))
         .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
         .tag(
             BlockTags.BEACON_BASE_BLOCKS,
@@ -2717,6 +2762,7 @@ public class ModBlocks {
         )
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL, BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_YELLOW))
         .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::onlyState)
         .item()
@@ -2733,6 +2779,7 @@ public class ModBlocks {
         )
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL, BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_YELLOW))
         .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
@@ -2755,6 +2802,7 @@ public class ModBlocks {
             BlockTags.DRAGON_IMMUNE
         )
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_YELLOW))
         .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
@@ -2778,6 +2826,7 @@ public class ModBlocks {
             BlockTags.DRAGON_IMMUNE
         )
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_YELLOW))
         .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
@@ -2791,6 +2840,7 @@ public class ModBlocks {
     public static final BlockEntry<Block> EMBER_DECO_BLOCK = REGISTRUM
         .block("ember_deco_block", Block::new)
         .initialProperties(() -> Blocks.STONE)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_BLACK))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .item().transform(PropertiesProviderUtil::blockItem).build()
         .register();
@@ -2799,6 +2849,7 @@ public class ModBlocks {
         .block("ember_deco_outline", (properties) -> new StainedGlassBlock(DyeColor.YELLOW, properties))
         .properties((properties) -> properties.noOcclusion().lightLevel((state) -> 10))
         .initialProperties(() -> Blocks.STONE)
+        .properties(p -> p.mapColor(MapColor.GOLD))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item().transform(PropertiesProviderUtil::blockItem).build()
@@ -2807,6 +2858,7 @@ public class ModBlocks {
     public static final BlockEntry<TranscendiumBlock> TRANSCENDIUM_BLOCK = REGISTRUM.block("transcendium_block", TranscendiumBlock::new)
         .lang("Block of Transcendium")
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_PURPLE))
         .properties(properties -> properties.lightLevel(state -> 7).noOcclusion().emissiveRendering(ModBlocks::always))
         .tag(
             BlockTags.BEACON_BASE_BLOCKS,
@@ -2834,6 +2886,7 @@ public class ModBlocks {
     public static final BlockEntry<Block> TRANSCENDENCE_DECO_BLOCK = REGISTRUM
         .block("transcendence_deco_block", Block::new)
         .initialProperties(() -> Blocks.STONE)
+        .properties(p -> p.mapColor(MapColor.COLOR_BLACK))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .item().transform(PropertiesProviderUtil::blockItem).build()
         .register();
@@ -2842,6 +2895,7 @@ public class ModBlocks {
         .block("transcendence_deco_outline", (properties) -> new StainedGlassBlock(DyeColor.PURPLE, properties))
         .properties((properties) -> properties.noOcclusion().lightLevel((state) -> 10))
         .initialProperties(() -> Blocks.STONE)
+        .properties(p -> p.mapColor(MapColor.COLOR_MAGENTA))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item().transform(PropertiesProviderUtil::blockItem).build()
@@ -2849,6 +2903,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> HEAVY_IRON_BLOCK = REGISTRUM.block("heavy_iron_block", Block::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
         .properties(p -> p.noOcclusion().strength(5.0F, 1200F))
         .blockstate(DataGenUtil::onlyState)
         .item().transform(PropertiesProviderUtil::blockItem).build()
@@ -2858,6 +2913,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> POLISHED_HEAVY_IRON_BLOCK = REGISTRUM.block("polished_heavy_iron_block", Block::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
         .properties(p -> p.strength(5.0F, 1200F))
         .item().transform(PropertiesProviderUtil::blockItem).build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
@@ -2866,6 +2922,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> POLISHED_HEAVY_IRON_SLAB = REGISTRUM.block("polished_heavy_iron_slab", SlabBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
         .properties(p -> p.strength(5.0F, 1200F))
         .blockstate(() -> DataGenUtil.slabBlock(
             _ -> new Material(AnvilCraft.of("block/polished_heavy_iron_block")),
@@ -2887,6 +2944,7 @@ public class ModBlocks {
             properties -> new StairBlock(ModBlocks.POLISHED_HEAVY_IRON_BLOCK.getDefaultState(), properties)
         )
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
         .properties(p -> p.strength(5.0F, 1200F))
         .blockstate(() -> DataGenUtil.stairsBlock(AnvilCraft.of("block/polished_heavy_iron_block")))
         .item()
@@ -2899,6 +2957,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> CUT_HEAVY_IRON_BLOCK = REGISTRUM.block("cut_heavy_iron_block", Block::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
         .properties(p -> p.strength(5.0F, 1200F))
         .item().transform(PropertiesProviderUtil::blockItem).build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
@@ -2907,6 +2966,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> CUT_HEAVY_IRON_SLAB = REGISTRUM.block("cut_heavy_iron_slab", SlabBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
         .properties(p -> p.strength(5.0F, 1200F))
         .blockstate(() -> DataGenUtil.slabBlock(
             _ -> new Material(AnvilCraft.of("block/cut_heavy_iron_block")),
@@ -2928,6 +2988,7 @@ public class ModBlocks {
             properties -> new StairBlock(ModBlocks.CUT_HEAVY_IRON_BLOCK.getDefaultState(), properties)
         )
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
         .properties(p -> p.strength(5.0F, 1200F))
         .blockstate(() -> DataGenUtil.stairsBlock(AnvilCraft.of("block/cut_heavy_iron_block")))
         .item()
@@ -2940,6 +3001,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> HEAVY_IRON_PLATE = REGISTRUM.block("heavy_iron_plate", HeavyIronPlateBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
         .properties(p -> p.strength(5.0F, 1200F))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(HeavyIronPlateBlockItem::new).transform(PropertiesProviderUtil::blockItem).build()
@@ -2949,6 +3011,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> HEAVY_IRON_COLUMN = REGISTRUM.block("heavy_iron_column", Block::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
         .properties(p -> p.strength(5.0F, 1200F))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item().transform(PropertiesProviderUtil::blockItem).build()
@@ -2958,6 +3021,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> HEAVY_IRON_BEAM = REGISTRUM.block("heavy_iron_beam", HeavyIronBeamBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
         .properties(p -> p.strength(5.0F, 1200F))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
@@ -2970,6 +3034,7 @@ public class ModBlocks {
 
     public static final BlockEntry<HeavyIronWallBlock> HEAVY_IRON_WALL = REGISTRUM.block("heavy_iron_wall", HeavyIronWallBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
         .properties(PropertiesProviderUtil::metalSound)
         .properties(properties -> properties.strength(5.0F, 1200F).noOcclusion())
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -2989,6 +3054,7 @@ public class ModBlocks {
 
     public static final BlockEntry<HeavyIronDoorBlock> HEAVY_IRON_DOOR = REGISTRUM.block("heavy_iron_door", HeavyIronDoorBlock::new)
         .initialProperties(() -> Blocks.IRON_DOOR)
+        .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
         .properties(properties -> properties.strength(5.0F, 1200F).requiresCorrectToolForDrops())
         .loot((l, b) -> {
             l.add(b, l.createDoorTable(b));
@@ -3008,6 +3074,7 @@ public class ModBlocks {
             HeavyIronTrapdoorBlock::new
         )
         .initialProperties(() -> Blocks.IRON_TRAPDOOR)
+        .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
         .properties(properties -> properties.strength(5.0F, 1200F))
         .defaultLoot()
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -3023,6 +3090,7 @@ public class ModBlocks {
     public static final BlockEntry<CursedGoldBlock> CURSED_GOLD_BLOCK = REGISTRUM.block("cursed_gold_block", CursedGoldBlock::new)
         .lang("Block of Cursed Gold")
         .initialProperties(() -> Blocks.GOLD_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_ORANGE))
         .item(CursedBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
         .tag(ItemTags.PIGLIN_LOVED, Tags.Items.STORAGE_BLOCKS)
@@ -3106,6 +3174,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> LEAD_BLOCK = REGISTRUM.block("lead_block", Block::new)
         .lang("Block of Lead")
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
         .properties(PropertiesProviderUtil::metalSound)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS, Tags.Blocks.STORAGE_BLOCKS, ModBlockTags.STORAGE_BLOCKS_LEAD)
         .item()
@@ -3131,6 +3200,7 @@ public class ModBlocks {
         .block("uranium_block", properties -> new RadioactiveBlock(properties, false))
         .lang("Block of Uranium")
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_GREEN))
         .properties(PropertiesProviderUtil::metalSound)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS, Tags.Blocks.STORAGE_BLOCKS, ModBlockTags.STORAGE_BLOCKS_URANIUM)
         .item(RadiationBlockItem::new)
@@ -3161,6 +3231,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> BRONZE_BLOCK = REGISTRUM.block("bronze_block", Block::new)
         .lang("Block of Bronze")
         .initialProperties(() -> Blocks.COPPER_BLOCK)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_LIGHT_GRAY))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS, Tags.Blocks.STORAGE_BLOCKS, ModBlockTags.STORAGE_BLOCKS_BRONZE)
         .item()
         .transform(PropertiesProviderUtil::blockItem)
@@ -3210,6 +3281,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> BRASS_BLOCK = REGISTRUM.block("brass_block", Block::new)
         .lang("Block of Brass")
         .initialProperties(() -> Blocks.COPPER_BLOCK)
+        .properties(p -> p.mapColor(MapColor.RAW_IRON))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS, Tags.Blocks.STORAGE_BLOCKS, ModBlockTags.STORAGE_BLOCKS_BRASS)
         .item()
         .transform(PropertiesProviderUtil::blockItem)
@@ -3259,6 +3331,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> TOPAZ_BLOCK = REGISTRUM.block("topaz_block", Block::new)
         .lang("Block of Topaz")
         .initialProperties(() -> Blocks.EMERALD_BLOCK)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_YELLOW))
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_TOPAZ)
@@ -3276,6 +3349,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> RUBY_BLOCK = REGISTRUM.block("ruby_block", Block::new)
         .lang("Block of Ruby")
         .initialProperties(() -> Blocks.EMERALD_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_RED))
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_RUBY)
@@ -3293,6 +3367,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> SAPPHIRE_BLOCK = REGISTRUM.block("sapphire_block", Block::new)
         .lang("Block of Sapphire")
         .initialProperties(() -> Blocks.EMERALD_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_BLUE))
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_SAPPHIRE)
@@ -3317,6 +3392,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> EXP_GEM_BLOCK = REGISTRUM.block("exp_gem_block", Block::new)
         .lang("Block of Experience Gem")
         .initialProperties(() -> Blocks.EMERALD_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_LIGHT_GREEN))
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_EXP_GEM)
@@ -3334,6 +3410,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> RESIN_BLOCK = REGISTRUM.block("resin_block", ResinBlock::new)
         .lang("Block of Resin")
         .initialProperties(() -> Blocks.SLIME_BLOCK)
+        .properties(p -> p.mapColor(MapColor.SAND))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .properties(properties -> properties.sound(SoundType.HONEY_BLOCK))
         .item(ResinBlockItem::new)
@@ -3354,6 +3431,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> AMBER_BLOCK = REGISTRUM.block("amber_block", AmberBlock::new)
         .lang("Block of Amber")
         .initialProperties(() -> Blocks.EMERALD_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_ORANGE))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .properties(properties -> properties.noOcclusion().pushReaction(PushReaction.DESTROY))
         .item()
@@ -3445,6 +3523,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> FROST_GLASS = REGISTRUM.block("frost_glass", TransparentBlock::new)
         .initialProperties(() -> Blocks.GLASS)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_BLUE))
         .properties(properties -> properties.explosionResistance(1200)
             .noOcclusion()
             .isValidSpawn(ModBlocks::never)
@@ -3461,6 +3540,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> EMBER_GLASS = REGISTRUM.block("ember_glass", TransparentBlock::new)
         .initialProperties(() -> Blocks.GLASS)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_GRAY))
         .properties(properties -> properties.explosionResistance(1200)
             .noOcclusion()
             .isValidSpawn(ModBlocks::never)
@@ -3481,6 +3561,7 @@ public class ModBlocks {
             b -> new ColoredFallingBlock(new ColorRGBA(0xDEDEDE), b)
         )
         .initialProperties(() -> Blocks.SAND)
+        .properties(p -> p.mapColor(MapColor.STONE))
         .item().transform(PropertiesProviderUtil::blockItem).build()
         .tag(BlockTags.MINEABLE_WITH_SHOVEL)
         .register();
@@ -3530,6 +3611,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<EndDustBlock> END_DUST = REGISTRUM.block("end_dust", EndDustBlock::new)
+        .properties(p -> p.mapColor(MapColor.SAND))
         .item(EndDustBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
         .build()
@@ -3584,6 +3666,7 @@ public class ModBlocks {
 
     public static final BlockEntry<CakeBaseBlock> CAKE_BASE_BLOCK = REGISTRUM.block("cake_base_block", CakeBaseBlock::new)
         .initialProperties(() -> Blocks.CAKE)
+        .properties(p -> p.mapColor(MapColor.COLOR_ORANGE))
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(Tags.Items.FOODS, Tags.Items.FOODS_EDIBLE_WHEN_PLACED)
@@ -3593,6 +3676,7 @@ public class ModBlocks {
 
     public static final BlockEntry<CreamBlock> CREAM_BLOCK = REGISTRUM.block("cream_block", CreamBlock::new)
         .initialProperties(() -> Blocks.CAKE)
+        .properties(p -> p.mapColor(MapColor.QUARTZ))
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(Tags.Items.FOODS, Tags.Items.FOODS_EDIBLE_WHEN_PLACED)
@@ -3602,6 +3686,7 @@ public class ModBlocks {
 
     public static final BlockEntry<BerryCreamBlock> BERRY_CREAM_BLOCK = REGISTRUM.block("berry_cream_block", BerryCreamBlock::new)
         .initialProperties(() -> Blocks.CAKE)
+        .properties(p -> p.mapColor(MapColor.COLOR_PINK))
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(Tags.Items.FOODS, Tags.Items.FOODS_EDIBLE_WHEN_PLACED)
@@ -3614,6 +3699,7 @@ public class ModBlocks {
             ChocolateCreamBlock::new
         )
         .initialProperties(() -> Blocks.CAKE)
+        .properties(p -> p.mapColor(MapColor.COLOR_BROWN))
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(Tags.Items.FOODS, Tags.Items.FOODS_EDIBLE_WHEN_PLACED)
@@ -3623,6 +3709,7 @@ public class ModBlocks {
 
     public static final BlockEntry<CakeBlock> CAKE_BLOCK = REGISTRUM.block("cake_block", CakeBlock::new)
         .initialProperties(() -> Blocks.CAKE)
+        .properties(p -> p.mapColor(MapColor.QUARTZ))
         .blockstate(DataGenUtil::onlyState)
         .item()
         .transform(PropertiesProviderUtil::blockItem)
@@ -3633,6 +3720,7 @@ public class ModBlocks {
 
     public static final BlockEntry<BerryCakeBlock> BERRY_CAKE_BLOCK = REGISTRUM.block("berry_cake_block", BerryCakeBlock::new)
         .initialProperties(() -> Blocks.CAKE)
+        .properties(p -> p.mapColor(MapColor.COLOR_PINK))
         .blockstate(DataGenUtil::onlyState)
         .item()
         .transform(PropertiesProviderUtil::blockItem)
@@ -3646,6 +3734,7 @@ public class ModBlocks {
             ChocolateCakeBlock::new
         )
         .initialProperties(() -> Blocks.CAKE)
+        .properties(p -> p.mapColor(MapColor.COLOR_BROWN))
         .blockstate(DataGenUtil::onlyState)
         .item()
         .transform(PropertiesProviderUtil::blockItem)
@@ -3656,6 +3745,7 @@ public class ModBlocks {
 
     public static final BlockEntry<LargeCakeBlock> LARGE_CAKE = REGISTRUM.block("large_cake", LargeCakeBlock::new)
         .initialProperties(() -> Blocks.CAKE)
+        .properties(p -> p.mapColor(MapColor.QUARTZ))
         .properties(BlockBehaviour.Properties::noOcclusion)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((ctx, prov) -> {
@@ -3674,6 +3764,7 @@ public class ModBlocks {
             HoneyCreamBlock::new
         )
         .initialProperties(() -> Blocks.CAKE)
+        .properties(p -> p.mapColor(MapColor.SAND))
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(Tags.Items.FOODS, Tags.Items.FOODS_EDIBLE_WHEN_PLACED)
@@ -3686,6 +3777,7 @@ public class ModBlocks {
             HoneyCakeBlock::new
         )
         .initialProperties(() -> Blocks.CAKE)
+        .properties(p -> p.mapColor(MapColor.SAND))
         .blockstate(DataGenUtil::onlyState)
         .item()
         .transform(PropertiesProviderUtil::blockItem)
@@ -3699,6 +3791,7 @@ public class ModBlocks {
             MatchaCreamBlock::new
         )
         .initialProperties(() -> Blocks.CAKE)
+        .properties(p -> p.mapColor(MapColor.COLOR_GREEN))
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(Tags.Items.FOODS, Tags.Items.FOODS_EDIBLE_WHEN_PLACED)
@@ -3711,6 +3804,7 @@ public class ModBlocks {
             MatchaCakeBlock::new
         )
         .initialProperties(() -> Blocks.CAKE)
+        .properties(p -> p.mapColor(MapColor.COLOR_GREEN))
         .blockstate(DataGenUtil::onlyState)
         .item()
         .transform(PropertiesProviderUtil::blockItem)
@@ -3724,7 +3818,7 @@ public class ModBlocks {
             CookieBlock::new
         )
         .properties(properties -> properties
-            .mapColor(MapColor.NETHER)
+            .mapColor(MapColor.DIRT)
             .instrument(NoteBlockInstrument.BASEDRUM)
             .strength(0.4F)
             .sound(SoundType.NETHERRACK))
@@ -3740,7 +3834,7 @@ public class ModBlocks {
             CookiePillarBlock::new
         )
         .properties(properties -> properties
-            .mapColor(MapColor.NETHER)
+            .mapColor(MapColor.DIRT)
             .instrument(NoteBlockInstrument.BASEDRUM)
             .strength(0.4F)
             .sound(SoundType.NETHERRACK))
@@ -3758,6 +3852,7 @@ public class ModBlocks {
         )
         .lang("Block of Chocolate")
         .initialProperties(() -> Blocks.STONE)
+        .properties(p -> p.mapColor(MapColor.COLOR_BROWN))
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(Tags.Items.STORAGE_BLOCKS)
@@ -3772,6 +3867,7 @@ public class ModBlocks {
         )
         .lang("Block of Black Chocolate")
         .initialProperties(() -> Blocks.STONE)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_BLACK))
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(Tags.Items.STORAGE_BLOCKS)
@@ -3786,6 +3882,7 @@ public class ModBlocks {
         )
         .lang("Block of White Chocolate")
         .initialProperties(() -> Blocks.STONE)
+        .properties(p -> p.mapColor(MapColor.QUARTZ))
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(Tags.Items.STORAGE_BLOCKS)
@@ -3814,6 +3911,7 @@ public class ModBlocks {
             p -> new StepEffectSlabBlock(p, StepEffectBlock::stepOnChocolateBlock)
         )
         .initialProperties(() -> Blocks.STONE)
+        .properties(p -> p.mapColor(MapColor.COLOR_BROWN))
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(ItemTags.SLABS)
@@ -3828,6 +3926,7 @@ public class ModBlocks {
             p -> new StepEffectSlabBlock(p, StepEffectBlock::stepOnBlackChocolateBlock)
         )
         .initialProperties(() -> Blocks.STONE)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_BLACK))
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(ItemTags.SLABS)
@@ -3842,6 +3941,7 @@ public class ModBlocks {
             p -> new StepEffectSlabBlock(p, StepEffectBlock::stepOnWhiteChocolateBlock)
         )
         .initialProperties(() -> Blocks.STONE)
+        .properties(p -> p.mapColor(MapColor.QUARTZ))
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(ItemTags.SLABS)
@@ -3856,6 +3956,7 @@ public class ModBlocks {
             p -> new StepEffectStairBlock(ModBlocks.CHOCOLATE_BLOCK.getDefaultState(), p, StepEffectBlock::stepOnChocolateBlock)
         )
         .initialProperties(() -> Blocks.STONE)
+        .properties(p -> p.mapColor(MapColor.COLOR_BROWN))
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(ItemTags.STAIRS)
@@ -3870,6 +3971,7 @@ public class ModBlocks {
             p -> new StepEffectStairBlock(ModBlocks.BLACK_CHOCOLATE_BLOCK.getDefaultState(), p, StepEffectBlock::stepOnBlackChocolateBlock)
         )
         .initialProperties(() -> Blocks.STONE)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_BLACK))
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(ItemTags.STAIRS)
@@ -3884,6 +3986,7 @@ public class ModBlocks {
             p -> new StepEffectStairBlock(ModBlocks.WHITE_CHOCOLATE_BLOCK.getDefaultState(), p, StepEffectBlock::stepOnWhiteChocolateBlock)
         )
         .initialProperties(() -> Blocks.STONE)
+        .properties(p -> p.mapColor(MapColor.QUARTZ))
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(ItemTags.STAIRS)
@@ -3927,7 +4030,9 @@ public class ModBlocks {
             .block(color + "_reinforced_concrete", p -> new ReinforcedConcreteBlock(p, color))
             .initialProperties(() -> Blocks.TERRACOTTA)
             .aliasFrom(AnvilCraft.of("reinforced_concrete_" + color))
-            .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
+            .properties(properties -> properties
+                .mapColor(color.color())
+                .destroyTime(2.0F).explosionResistance(15.0F))
             .item()
             .transform(PropertiesProviderUtil::blockItem)
             .tag(ModItemTags.REINFORCED_CONCRETE, Tags.Items.DYED, ModItemTags.DYED_COLORS.get(color))
@@ -3978,7 +4083,9 @@ public class ModBlocks {
         return REGISTRUM.block(color + "_reinforced_concrete_slab", SlabBlock::new)
             .initialProperties(() -> Blocks.TERRACOTTA)
             .aliasFrom(AnvilCraft.of("reinforced_concrete_" + color + "_slab"))
-            .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
+            .properties(properties -> properties
+                .mapColor(color.color())
+                .destroyTime(2.0F).explosionResistance(15.0F))
             .item()
             .transform(PropertiesProviderUtil::blockItem)
             .tag(ModItemTags.REINFORCED_CONCRETE, ItemTags.SLABS, Tags.Items.DYED, ModItemTags.DYED_COLORS.get(color))
@@ -3997,7 +4104,9 @@ public class ModBlocks {
             )
             .initialProperties(() -> Blocks.TERRACOTTA)
             .aliasFrom(AnvilCraft.of("reinforced_concrete_" + color + "_stair"))
-            .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
+            .properties(properties -> properties
+                .mapColor(color.color())
+                .destroyTime(2.0F).explosionResistance(15.0F))
             .item()
             .transform(PropertiesProviderUtil::blockItem)
             .tag(ModItemTags.REINFORCED_CONCRETE, ItemTags.STAIRS, Tags.Items.DYED, ModItemTags.DYED_COLORS.get(color))
@@ -4012,7 +4121,9 @@ public class ModBlocks {
         return REGISTRUM.block(color + "_reinforced_concrete_wall", WallBlock::new)
             .initialProperties(() -> Blocks.TERRACOTTA)
             .aliasFrom(AnvilCraft.of("reinforced_concrete_" + color + "_wall"))
-            .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
+            .properties(properties -> properties
+                .mapColor(color.color())
+                .destroyTime(2.0F).explosionResistance(15.0F))
             .blockstate(() -> DataGenUtil.wallBlock(AnvilCraft.of("block/%s_reinforced_concrete_wall".formatted(color))))
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WALLS, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
             .recipe(RegistrumBlockRecipeLoader.reinforcedConcreteWall(parent))
@@ -4026,6 +4137,7 @@ public class ModBlocks {
     public static final BlockEntry<HeatedBlock> HEATED_NETHERITE_BLOCK = REGISTRUM.block("heated_netherite_block", HeatedBlock::new)
         .lang("Heated Block of Netherite")
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_RED))
         .item(HeatableBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
         .initialProperties(() -> new Item.Properties().fireResistant())
@@ -4038,6 +4150,7 @@ public class ModBlocks {
     public static final BlockEntry<HeatedBlock> HEATED_TUNGSTEN_BLOCK = REGISTRUM.block("heated_tungsten_block", HeatedBlock::new)
         .lang("Heated Block of Tungsten")
         .initialProperties(ModBlocks.TUNGSTEN_BLOCK)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_RED))
         .item(HeatableBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
         .initialProperties(() -> new Item.Properties().fireResistant())
@@ -4050,6 +4163,7 @@ public class ModBlocks {
     public static final BlockEntry<RedhotBlock> REDHOT_NETHERITE_BLOCK = REGISTRUM.block("redhot_netherite_block", RedhotBlock::new)
         .lang("Redhot Block of Netherite")
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.FIRE))
         .properties(p -> p.lightLevel(it -> 3))
         .item(HeatableBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
@@ -4063,6 +4177,7 @@ public class ModBlocks {
     public static final BlockEntry<RedhotBlock> REDHOT_TUNGSTEN_BLOCK = REGISTRUM.block("redhot_tungsten_block", RedhotBlock::new)
         .lang("Redhot Block of Tungsten")
         .initialProperties(ModBlocks.TUNGSTEN_BLOCK)
+        .properties(p -> p.mapColor(MapColor.FIRE))
         .properties(p -> p.lightLevel(it -> 3))
         .item(HeatableBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
@@ -4076,6 +4191,7 @@ public class ModBlocks {
     public static final BlockEntry<GlowingBlock> GLOWING_NETHERITE_BLOCK = REGISTRUM.block("glowing_netherite_block", GlowingBlock::new)
         .lang("Glowing Block of Netherite")
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.GOLD))
         .properties(p -> p.lightLevel(it -> 7))
         .item(HeatableBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
@@ -4089,6 +4205,7 @@ public class ModBlocks {
     public static final BlockEntry<GlowingBlock> GLOWING_TUNGSTEN_BLOCK = REGISTRUM.block("glowing_tungsten_block", GlowingBlock::new)
         .lang("Glowing Block of Tungsten")
         .initialProperties(ModBlocks.TUNGSTEN_BLOCK)
+        .properties(p -> p.mapColor(MapColor.GOLD))
         .properties(p -> p.lightLevel(it -> 7))
         .item(HeatableBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
@@ -4105,6 +4222,7 @@ public class ModBlocks {
         )
         .lang("Incandescent Block of Netherite")
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.QUARTZ))
         .properties(p -> p.lightLevel(it -> 15).emissiveRendering(ModBlocks::always))
         .item(HeatableBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
@@ -4121,6 +4239,7 @@ public class ModBlocks {
         )
         .lang("Incandescent Block of Tungsten")
         .initialProperties(ModBlocks.TUNGSTEN_BLOCK)
+        .properties(p -> p.mapColor(MapColor.QUARTZ))
         .properties(p -> p.lightLevel(it -> 15).emissiveRendering(ModBlocks::always))
         .item(HeatableBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
@@ -4137,6 +4256,7 @@ public class ModBlocks {
         )
         .lang("Overheated Block of Ember Metal")
         .initialProperties(ModBlocks.EMBER_METAL_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_LIGHT_BLUE))
         .blockstate(DataGenUtil::onlyState)
         .item(HeatableBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
@@ -4179,6 +4299,7 @@ public class ModBlocks {
     public static final BlockEntry<Block> RAW_TITANIUM_BLOCK = REGISTRUM.block("raw_titanium_block", Block::new)
         .lang("Block of Raw Titanium")
         .initialProperties(() -> Blocks.RAW_IRON_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_LIGHT_GRAY))
         .recipe(RegistrumBlockRecipeLoader::rawTitaniumBlock)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.STORAGE_BLOCKS_RAW_TITANIUM)
         .item()
@@ -4202,6 +4323,7 @@ public class ModBlocks {
     public static final BlockEntry<Block> RAW_LEAD_BLOCK = REGISTRUM.block("raw_lead_block", Block::new)
         .lang("Block of Raw Lead")
         .initialProperties(() -> Blocks.RAW_IRON_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_LIGHT_GRAY))
         .recipe(RegistrumBlockRecipeLoader::rawLeadBlock)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.STORAGE_BLOCKS_RAW_LEAD)
         .item()
@@ -4213,6 +4335,7 @@ public class ModBlocks {
     public static final BlockEntry<Block> RAW_SILVER_BLOCK = REGISTRUM.block("raw_silver_block", Block::new)
         .lang("Block of Raw Silver")
         .initialProperties(() -> Blocks.RAW_IRON_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_LIGHT_GRAY))
         .recipe(RegistrumBlockRecipeLoader::rawSilverBlock)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.STORAGE_BLOCKS_RAW_SILVER)
         .item()
@@ -4224,6 +4347,7 @@ public class ModBlocks {
     public static final BlockEntry<Block> RAW_URANIUM_BLOCK = REGISTRUM.block("raw_uranium_block", Block::new)
         .lang("Block of Raw Uranium")
         .initialProperties(() -> Blocks.RAW_IRON_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_GREEN))
         .recipe(RegistrumBlockRecipeLoader::rawUraniumBlock)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.STORAGE_BLOCKS_RAW_URANIUM)
         .item(RadiationBlockItem::new)
@@ -4248,6 +4372,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> LUNAR_SOIL = REGISTRUM.block("lunar_soil", Block::new)
         .initialProperties(() -> Blocks.DIRT)
+        .properties(p -> p.mapColor(MapColor.DEEPSLATE))
         .lang("Mun Soil")
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
@@ -4348,6 +4473,7 @@ public class ModBlocks {
 
     public static final BlockEntry<Block> VOID_STONE = REGISTRUM.block("void_stone", Block::new)
         .initialProperties(() -> Blocks.DIAMOND_BLOCK)
+        .properties(p -> p.mapColor(MapColor.DEEPSLATE))
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .tag(Tags.Items.ORES, ModItemTags.VOID_RESISTANT, ModItemTags.VOID_MATTER_ORES)
@@ -4365,6 +4491,7 @@ public class ModBlocks {
 
     public static final BlockEntry<Block> EARTH_CORE_SHARD_ORE = REGISTRUM.block("earth_core_shard_ore", Block::new)
         .initialProperties(() -> Blocks.DIAMOND_BLOCK)
+        .properties(p -> p.mapColor(MapColor.DEEPSLATE))
         .properties(properties -> properties.explosionResistance(1200))
         .item()
         .transform(PropertiesProviderUtil::blockItem)
@@ -4393,6 +4520,7 @@ public class ModBlocks {
     public static final BlockEntry<VoidMatterBlock> VOID_MATTER_BLOCK = REGISTRUM.block("void_matter_block", VoidMatterBlock::new)
         .lang("Block of Void Matter")
         .initialProperties(() -> Blocks.DIAMOND_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_BLACK))
         .properties(BlockBehaviour.Properties::noOcclusion)
         .blockstate(DataGenUtil::onlyState)
         .recipe(RegistrumBlockRecipeLoader::voidMatterBlock)
@@ -4412,6 +4540,7 @@ public class ModBlocks {
         .block("excited_state_void_matter_block", ExcitedStateVoidMatterBlock::new)
         .lang("Excited State Void Matter Block")
         .initialProperties(() -> Blocks.DIAMOND_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_BLACK))
         .properties(BlockBehaviour.Properties::noOcclusion)
         .blockstate(DataGenUtil::onlyState)
         .recipe(RegistrumBlockRecipeLoader::excitedStateVoidMatterBlock)
@@ -4431,6 +4560,7 @@ public class ModBlocks {
     public static final BlockEntry<Block> EARTH_CORE_SHARD_BLOCK = REGISTRUM.block("earth_core_shard_block", Block::new)
         .lang("Block of Earth Core Shard")
         .initialProperties(() -> Blocks.DIAMOND_BLOCK)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_RED))
         .properties(properties -> properties.explosionResistance(1200))
         .recipe(RegistrumBlockRecipeLoader::earthCoreShardBlock)
         .item()
@@ -4450,6 +4580,7 @@ public class ModBlocks {
         .block("multiphase_matter_block", Block::new)
         .lang("Block of Multiphase Matter")
         .initialProperties(() -> Blocks.DIAMOND_BLOCK)
+        .properties(p -> p.mapColor(MapColor.TERRACOTTA_LIGHT_GRAY))
         .blockstate(DataGenUtil::onlyState)
         .item(MultiphaseMatterBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
@@ -4471,6 +4602,7 @@ public class ModBlocks {
         )
         .lang("Block of Negative Matter")
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.mapColor(MapColor.QUARTZ))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL, Tags.Blocks.STORAGE_BLOCKS)
         .properties(properties -> properties.lightLevel(state -> 7).noOcclusion().emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::onlyState)
@@ -4485,6 +4617,7 @@ public class ModBlocks {
 
     public static final BlockEntry<LavaCauldronBlock> LAVA_CAULDRON = REGISTRUM.block("lava_cauldron", LavaCauldronBlock::new)
         .initialProperties(() -> Blocks.LAVA_CAULDRON)
+        .properties(p -> p.mapColor(MapColor.COLOR_ORANGE))
         .properties(properties -> properties.lightLevel(blockState -> blockState.getValue(LavaCauldronBlock.LEVEL) * 4))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
@@ -4503,6 +4636,7 @@ public class ModBlocks {
 
     public static final BlockEntry<HoneyCauldronBlock> HONEY_CAULDRON = REGISTRUM.block("honey_cauldron", HoneyCauldronBlock::new)
         .initialProperties(() -> Blocks.CAULDRON)
+        .properties(p -> p.mapColor(MapColor.PODZOL))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.CAULDRONS)
@@ -4511,6 +4645,7 @@ public class ModBlocks {
 
     public static final BlockEntry<MilkCauldronBlock> MILK_CAULDRON = REGISTRUM.block("milk_cauldron", MilkCauldronBlock::new)
         .initialProperties(() -> Blocks.CAULDRON)
+        .properties(p -> p.mapColor(MapColor.QUARTZ))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.CAULDRONS)
@@ -4530,6 +4665,7 @@ public class ModBlocks {
     public static final BlockEntry<ExpFluidCauldronBlock> EXP_FLUID_CAULDRON = REGISTRUM
         .block("exp_fluid_cauldron", ExpFluidCauldronBlock::new)
         .initialProperties(() -> Blocks.CAULDRON)
+        .properties(p -> p.mapColor(MapColor.COLOR_LIGHT_GREEN))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.CAULDRONS)
@@ -4538,6 +4674,7 @@ public class ModBlocks {
 
     public static final BlockEntry<OilCauldronBlock> OIL_CAULDRON = REGISTRUM.block("oil_cauldron", OilCauldronBlock::new)
         .initialProperties(() -> Blocks.CAULDRON)
+        .properties(p -> p.mapColor(MapColor.COLOR_BLACK))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.CAULDRONS)
@@ -4546,6 +4683,7 @@ public class ModBlocks {
 
     public static final BlockEntry<FireCauldronBlock> FIRE_CAULDRON = REGISTRUM.block("fire_cauldron", FireCauldronBlock::new)
         .initialProperties(() -> Blocks.CAULDRON)
+        .properties(p -> p.mapColor(MapColor.COLOR_ORANGE))
         .properties(properties -> properties.lightLevel(state -> 15))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
@@ -4567,6 +4705,7 @@ public class ModBlocks {
     private static BlockEntry<CementCauldronBlock> registerCementCauldron(Color color) {
         return REGISTRUM.block(color + "_cement_cauldron", p -> new CementCauldronBlock(p, color))
             .initialProperties(() -> Blocks.CAULDRON)
+            .properties(p -> p.mapColor(color.color()))
             .blockstate(() -> new NonNullBiConsumer<>() {
                 @Override
                 public void accept(
@@ -4876,6 +5015,7 @@ public class ModBlocks {
 
     public static final BlockEntry<SugarBlock> SUGAR_BLOCK = REGISTRUM.block("sugar_block", SugarBlock::new)
         .initialProperties(() -> Blocks.LAPIS_BLOCK)
+        .properties(p -> p.mapColor(MapColor.QUARTZ))
         .loot(SugarBlock::loot)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.STORAGE_BLOCKS_SUGAR, Tags.Blocks.STORAGE_BLOCKS)
         .blockstate(() -> new NonNullBiConsumer<>() {
@@ -4921,6 +5061,7 @@ public class ModBlocks {
 
     public static final BlockEntry<GunpowderBlock> GUNPOWER_BLOCK = REGISTRUM.block("gunpowder_block", GunpowderBlock::new)
         .initialProperties(() -> Blocks.LAPIS_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_LIGHT_GRAY))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.STORAGE_BLOCKS_GUNPOWDER, Tags.Blocks.STORAGE_BLOCKS)
         .item()
         .transform(PropertiesProviderUtil::blockItem)
@@ -4941,6 +5082,7 @@ public class ModBlocks {
 
     public static final BlockEntry<FlintBlock> FLINT_BLOCK = REGISTRUM.block("flint_block", FlintBlock::new)
         .initialProperties(() -> Blocks.QUARTZ_BLOCK)
+        .properties(p -> p.mapColor(MapColor.DEEPSLATE))
         .tag(
             BlockTags.MINEABLE_WITH_PICKAXE,
             ModBlockTags.STORAGE_BLOCKS_FLINT,
@@ -5133,6 +5275,7 @@ public class ModBlocks {
 
     public static final BlockEntry<ItemSplitterBlock> ITEM_SPLITTER = REGISTRUM.block("item_splitter", ItemSplitterBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.mapColor(MapColor.COLOR_GRAY))
         .properties(PropertiesProviderUtil::metalSound)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(ChuteBlockItem::new)
@@ -5143,6 +5286,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<RedstoneDiceBlock> REDSTONE_DICE = REGISTRUM.block("redstone_dice", RedstoneDiceBlock::new)
+        .properties(p -> p.mapColor(MapColor.COLOR_LIGHT_GRAY))
         .properties(properties -> properties.strength(0.5f).sound(SoundType.METAL).noOcclusion())
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -5151,6 +5295,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<BigRedButtonBlock> BIG_RED_BUTTON = REGISTRUM.block("big_red_button", BigRedButtonBlock::new)
+        .properties(p -> p.mapColor(MapColor.COLOR_RED))
         .properties(properties -> properties.strength(0.5f).sound(SoundType.METAL).noOcclusion())
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((tables, block) -> tables.add(block, tables.createSingleItemTable(block)
@@ -5372,6 +5517,7 @@ public class ModBlocks {
 
     public static final BlockEntry<WhiteHoleBlock> WHITE_HOLE = REGISTRUM.block("white_hole", WhiteHoleBlock::new)
         .initialProperties(() -> Blocks.OBSIDIAN)
+        .properties(p -> p.mapColor(MapColor.QUARTZ))
         .properties(p -> p.strength(10000.0F, 10000.0F).lightLevel(state -> 15).emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
@@ -5384,6 +5530,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> MONOLITH = REGISTRUM.block("monolith", MonolithBlock::new)
         .initialProperties(() -> Blocks.REINFORCED_DEEPSLATE)
+        .properties(p -> p.mapColor(MapColor.COLOR_BLACK))
         .properties(properties -> properties.pushReaction(PushReaction.BLOCK))
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .properties(properties -> properties.overrideLootTable(Optional.of(ResourceKey.create(
@@ -5407,6 +5554,7 @@ public class ModBlocks {
 
     public static final BlockEntry<MonolithCoreBlock> MONOLITH_CORE = REGISTRUM.block("monolith_core", MonolithCoreBlock::new)
         .initialProperties(() -> Blocks.REINFORCED_DEEPSLATE)
+        .properties(p -> p.mapColor(MapColor.SNOW))
         .properties(properties -> properties.pushReaction(PushReaction.BLOCK))
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .properties(properties -> properties.lightLevel(state -> 10).noOcclusion())
@@ -5434,6 +5582,7 @@ public class ModBlocks {
 
     public static final BlockEntry<MonolithLineBlock> MONOLITH_LINE = REGISTRUM.block("monolith_line", MonolithLineBlock::new)
         .initialProperties(() -> Blocks.REINFORCED_DEEPSLATE)
+        .properties(p -> p.mapColor(MapColor.COLOR_BLACK))
         .properties(properties -> properties.pushReaction(PushReaction.BLOCK))
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .properties(properties -> properties.lightLevel(state -> 10).noOcclusion())
@@ -5499,6 +5648,7 @@ public class ModBlocks {
 
     public static final BlockEntry<MonolithLineBlock> GIANT_MONOLITH_LINE = REGISTRUM.block("giant_monolith_line", MonolithLineBlock::new)
         .initialProperties(() -> Blocks.REINFORCED_DEEPSLATE)
+        .properties(p -> p.mapColor(MapColor.COLOR_BLACK))
         .properties(properties -> properties
             .pushReaction(PushReaction.BLOCK)
             .lightLevel(state -> 10)

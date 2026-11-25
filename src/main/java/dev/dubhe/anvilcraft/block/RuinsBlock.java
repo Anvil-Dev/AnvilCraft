@@ -24,6 +24,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -135,6 +136,12 @@ public class RuinsBlock extends BaseEntityBlock implements IMoveableEntityBlock 
             return ((RedStoneWireBlockAccessor) wire).anvilcraft$getConnectionState(level, state, pos);
         }
         return state;
+    }
+
+    @Override
+    public MapColor getMapColor(BlockState state, BlockGetter level, BlockPos pos, MapColor defaultColor) {
+        return level.getBlockEntity(pos) instanceof RuinsBlockEntity ruins
+            ? ruins.getDisplayState().getMapColor(new RuinsBlockView(level), pos) : defaultColor;
     }
 
     @Override
