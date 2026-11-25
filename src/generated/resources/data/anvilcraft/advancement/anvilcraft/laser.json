@@ -1,15 +1,22 @@
 {
   "parent": "anvilcraft:anvilcraft/gem_transform",
   "criteria": {
-    "has_ruby_laser": {
+    "craft_ruby_laser": {
       "conditions": {
-        "items": [
+        "recipe_id": "anvilcraft:ruby_laser"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "place_ruby_laser": {
+      "conditions": {
+        "location": [
           {
-            "items": "anvilcraft:ruby_laser"
+            "block": "anvilcraft:ruby_laser",
+            "condition": "minecraft:block_state_property"
           }
         ]
       },
-      "trigger": "minecraft:inventory_changed"
+      "trigger": "minecraft:placed_block"
     }
   },
   "display": {
@@ -26,7 +33,10 @@
   },
   "requirements": [
     [
-      "has_ruby_laser"
+      "craft_ruby_laser"
+    ],
+    [
+      "place_ruby_laser"
     ]
   ],
   "sends_telemetry_event": true

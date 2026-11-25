@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.saved.storage.HyperdimensionStorage;
 import dev.dubhe.anvilcraft.saved.storage.ShulkerContainerStorage;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
 import dev.dubhe.anvilcraft.util.AabbUtil;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -139,6 +140,7 @@ public class Upgrade2HyperdimensionStationBehavior implements IAnvilBehavior {
         );
         BlockState placedState = serverLevel.getBlockState(mainPart);
         placedState.getBlock().setPlacedBy(serverLevel, mainPart, placedState, null, ItemStack.EMPTY);
+        TriggerUtil.hyperdimensionStationUpgrade(serverLevel, mainPart);
 
         Storages.get().remove(id);
 

@@ -28,6 +28,12 @@ public class ModDataAttachments {
     public static final Supplier<AttachmentType<Vec3>> MAGNETIZED_ITEM_POSITION = ATTACHMENT_TYPES.register(
         "magnetized_item_position", () -> AttachmentType.builder(() -> Vec3.ZERO).sync(StreamCodecUtil.VEC3).build());
 
+    public static final Supplier<AttachmentType<Double>> VOID_WALK_DISTANCE = ATTACHMENT_TYPES.register(
+        "void_walk_distance", () -> AttachmentType.builder(() -> 0d).serialize(Codec.DOUBLE).copyOnDeath().build());
+
+    public static final Supplier<AttachmentType<Vec3>> LAST_VOID_POSITION = ATTACHMENT_TYPES.register(
+        "last_void_position", () -> AttachmentType.builder(() -> Vec3.ZERO).build());
+
     public static final Supplier<AttachmentType<Boolean>> IN_POWER_GRID = ATTACHMENT_TYPES.register(
         "in_power_grid", () -> AttachmentType.builder(() -> false).sync(ByteBufCodecs.BOOL).build());
 

@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.block.entity.megastructure.PenroseSphereHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.TempleHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.WormholeStabilizerHandler;
 import dev.dubhe.anvilcraft.init.registry.ModRegistries;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -308,6 +309,9 @@ public class CfaMegastructureManager {
         this.legacyActiveMegastructureName = null;
         this.legacyActiveMegastructureRing = -1;
         if (handler != null) handler.onBuild(be);
+        if (option.megastructure().startsWith("dyson_sphere") && be.getLevel() != null) {
+            TriggerUtil.dysonSphere(be.getLevel(), be.getBlockPos());
+        }
     }
 
     public void clearMegastructure(CelestialForgingAnvilBlockEntity be) {

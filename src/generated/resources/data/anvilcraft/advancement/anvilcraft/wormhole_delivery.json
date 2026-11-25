@@ -1,0 +1,27 @@
+{
+  "parent": "anvilcraft:anvilcraft/the_start",
+  "criteria": {
+    "wormhole_delivery": {
+      "trigger": "anvilcraft:wormhole_delivery"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.wormhole_delivery.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:celestial_forging_anvil_logistics_interface"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.wormhole_delivery.title"
+    }
+  },
+  "requirements": [
+    [
+      "wormhole_delivery"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

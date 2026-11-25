@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.entity.RailgunAnvilEntity;
+import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
@@ -37,6 +38,7 @@ import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class FallingBlockCollisionEventListener {
@@ -100,6 +102,13 @@ public class FallingBlockCollisionEventListener {
         AnvilCollisionCraftRecipe recipe = recipeHolder.value();
         if (recipe.consume()) {
             event.getEntity().kill();
+        }
+        UUID ownerId = RailgunAnvilEntity.getRailgunOwner(event.getEntity());
+        if (ownerId != null) {
+            ServerPlayer shooter = serverLevel.getServer().getPlayerList().getPlayer(ownerId);
+            if (shooter != null) {
+                ModCriterionTriggers.RAILGUN_COLLISION.get().trigger(shooter);
+            }
         }
 
         DamageSource damageSource = Explosion.getDefaultDamageSource(level, null);

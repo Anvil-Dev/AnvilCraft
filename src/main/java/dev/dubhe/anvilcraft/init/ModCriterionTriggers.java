@@ -6,20 +6,36 @@ import dev.dubhe.anvilcraft.advancements.criterion.AnvilHammerHurtEntityTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilHitPiezoelectricCrystalTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilLootingTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilOnGroundTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.BigStomachTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.BlockComparatorTurnOverTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.CelestialEvolutionTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.CelestialVisitTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.CompressedBiscuitTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.ConvertBeaconTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.DevourerDevourTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.DiceTripleSixTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.DispenserRepairIronGolem;
+import dev.dubhe.anvilcraft.advancements.criterion.DysonSphereTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.ElectricAllergyTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.EnterPowerGridTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.FireReforgeTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.FullSpacesuitTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.GammaLaserTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.HeatCollectorTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.HighVoltageTowerTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.HyperdimensionStationUpgradeTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.InWorldRecipeTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.InexhaustibleTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.InfinitePowerTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.LargeCauldronCocktailTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MagnetLiftingAnvilTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MilkTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MineralFountainCreateTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.MonolithTouchTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.MoonFarSideTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.MoonLandingTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MultiBlockFormTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.PillBoxEightTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PipeConnectContainersTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerPlaceTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerShuttleTrigger;
@@ -27,9 +43,15 @@ import dev.dubhe.anvilcraft.advancements.criterion.PlanetDetonationTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlanetaryCollapseDeathTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerKilledEntityByAnvilHammerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerWearAnvilHammerTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.RailgunCollisionTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.RailgunSelfKillTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.ShulkerContainerUpgradeTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.StarContactDeathTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.UseItemTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.VoidEnergyCollectorWorkingTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.VoidWalkerTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.WearBreathingHelmetTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.WormholeDeliveryTrigger;
 import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.core.registries.Registries;
 import net.neoforged.bus.api.IEventBus;
@@ -155,6 +177,69 @@ public class ModCriterionTriggers {
     public static final DeferredHolder<CriterionTrigger<?>, StarContactDeathTrigger> STAR_CONTACT_DEATH =
         REGISTER.register("star_contact_death", StarContactDeathTrigger::new);
 
+    public static final DeferredHolder<CriterionTrigger<?>, MonolithTouchTrigger> MONOLITH_TOUCH =
+        REGISTER.register("monolith_touch", MonolithTouchTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, DiceTripleSixTrigger> DICE_TRIPLE_SIX =
+        REGISTER.register("dice_triple_six", DiceTripleSixTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, MoonLandingTrigger> MOON_LANDING =
+        REGISTER.register("moon_landing", MoonLandingTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, MoonFarSideTrigger> MOON_FAR_SIDE =
+        REGISTER.register("moon_far_side", MoonFarSideTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, CompressedBiscuitTrigger> COMPRESSED_BISCUIT =
+        REGISTER.register("compressed_biscuit", CompressedBiscuitTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, BigStomachTrigger> BIG_STOMACH =
+        REGISTER.register("big_stomach", BigStomachTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, PillBoxEightTrigger> PILL_BOX_EIGHT =
+        REGISTER.register("pill_box_eight", PillBoxEightTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, RailgunCollisionTrigger> RAILGUN_COLLISION =
+        REGISTER.register("railgun_collision", RailgunCollisionTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, WearBreathingHelmetTrigger> WEAR_BREATHING_HELMET =
+        REGISTER.register("wear_breathing_helmet", WearBreathingHelmetTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, ShulkerContainerUpgradeTrigger> SHULKER_CONTAINER_UPGRADE =
+        REGISTER.register("shulker_container_upgrade", ShulkerContainerUpgradeTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, HyperdimensionStationUpgradeTrigger> HYPERDIMENSION_STATION_UPGRADE =
+        REGISTER.register("hyperdimension_station_upgrade", HyperdimensionStationUpgradeTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, LargeCauldronCocktailTrigger> LARGE_CAULDRON_COCKTAIL =
+        REGISTER.register("large_cauldron_cocktail", LargeCauldronCocktailTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, FullSpacesuitTrigger> FULL_SPACESUIT =
+        REGISTER.register("full_spacesuit", FullSpacesuitTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, VoidWalkerTrigger> VOID_WALKER =
+        REGISTER.register("void_walker", VoidWalkerTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, GammaLaserTrigger> GAMMA_LASER =
+        REGISTER.register("gamma_laser", GammaLaserTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, DysonSphereTrigger> DYSON_SPHERE =
+        REGISTER.register("dyson_sphere", DysonSphereTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, InexhaustibleTrigger> INEXHAUSTIBLE =
+        REGISTER.register("inexhaustible", InexhaustibleTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, RailgunSelfKillTrigger> RAILGUN_SELF_KILL =
+        REGISTER.register("railgun_self_kill", RailgunSelfKillTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, WormholeDeliveryTrigger> WORMHOLE_DELIVERY =
+        REGISTER.register("wormhole_delivery", WormholeDeliveryTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, CelestialVisitTrigger> CELESTIAL_VISIT =
+        REGISTER.register("celestial_visit", CelestialVisitTrigger::new);
+    public static final DeferredHolder<CriterionTrigger<?>, HighVoltageTowerTrigger> HIGH_VOLTAGE_TOWER =
+        REGISTER.register("high_voltage_tower", HighVoltageTowerTrigger::new);
+    public static final DeferredHolder<CriterionTrigger<?>, InfinitePowerTrigger> INFINITE_POWER =
+        REGISTER.register("infinite_power", InfinitePowerTrigger::new);
     public static void register(IEventBus eventBus) {
         REGISTER.register(eventBus);
     }

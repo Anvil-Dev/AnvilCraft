@@ -1,0 +1,27 @@
+{
+  "parent": "anvilcraft:anvilcraft/shulker_container",
+  "criteria": {
+    "hyperdimension_station_upgrade": {
+      "trigger": "anvilcraft:hyperdimension_station_upgrade"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.hyperdimension_station.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:hyperdimension_storage_station"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.hyperdimension_station.title"
+    }
+  },
+  "requirements": [
+    [
+      "hyperdimension_station_upgrade"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

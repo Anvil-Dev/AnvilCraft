@@ -1,0 +1,27 @@
+{
+  "parent": "anvilcraft:anvilcraft/root",
+  "criteria": {
+    "dice_triple_six": {
+      "trigger": "anvilcraft:dice_triple_six"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.dice_triple_six.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:redstone_dice"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.dice_triple_six.title"
+    }
+  },
+  "requirements": [
+    [
+      "dice_triple_six"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

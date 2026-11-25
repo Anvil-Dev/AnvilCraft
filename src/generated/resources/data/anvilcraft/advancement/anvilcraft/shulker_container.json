@@ -1,0 +1,27 @@
+{
+  "parent": "anvilcraft:anvilcraft/large_crate",
+  "criteria": {
+    "shulker_container_upgrade": {
+      "trigger": "anvilcraft:shulker_container_upgrade"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.shulker_container.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:shulker_container"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.shulker_container.title"
+    }
+  },
+  "requirements": [
+    [
+      "shulker_container_upgrade"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

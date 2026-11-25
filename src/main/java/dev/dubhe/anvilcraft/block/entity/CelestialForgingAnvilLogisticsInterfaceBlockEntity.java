@@ -106,7 +106,7 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
             ItemStack remainder = CelestialForgingAnvilLogisticsInterfaceBlockEntity.this.resolveItemHandler()
                 .insertItem(slot, stack, simulate);
             if (!simulate && remainder.getCount() != stack.getCount()) {
-                CelestialForgingAnvilLogisticsInterfaceBlockEntity.this.inventoryChanged(slot);
+                CelestialForgingAnvilLogisticsInterfaceBlockEntity.this.inventoryChanged(slot, true);
             }
             return remainder;
         }
@@ -116,7 +116,9 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
             if (isRemoved() || amount <= 0) return ItemStack.EMPTY;
             ItemStack extracted = CelestialForgingAnvilLogisticsInterfaceBlockEntity.this.resolveItemHandler()
                 .extractItem(slot, amount, simulate);
-            if (!simulate && !extracted.isEmpty()) CelestialForgingAnvilLogisticsInterfaceBlockEntity.this.inventoryChanged(slot);
+            if (!simulate && !extracted.isEmpty()) {
+                CelestialForgingAnvilLogisticsInterfaceBlockEntity.this.inventoryChanged(slot, false);
+            }
             return extracted;
         }
 
@@ -133,8 +135,12 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         @Override
         public void setStackInSlot(int slot, ItemStack stack) {
             if (isRemoved()) return;
-            CelestialForgingAnvilLogisticsInterfaceBlockEntity.this.resolveItemHandler().setStackInSlot(slot, stack);
-            CelestialForgingAnvilLogisticsInterfaceBlockEntity.this.inventoryChanged(slot);
+            IItemHandlerModifiable handler = CelestialForgingAnvilLogisticsInterfaceBlockEntity.this.resolveItemHandler();
+            ItemStack previous = handler.getStackInSlot(slot);
+            boolean deposited = !stack.isEmpty()
+                && (!ItemStack.isSameItemSameComponents(stack, previous) || stack.getCount() > previous.getCount());
+            handler.setStackInSlot(slot, stack);
+            CelestialForgingAnvilLogisticsInterfaceBlockEntity.this.inventoryChanged(slot, deposited);
         }
     };
 
@@ -179,9 +185,11 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         this.setChanged();
     }
 
-    private void inventoryChanged(int slot) {
+    private void inventoryChanged(int slot, boolean deposited) {
         this.setChanged();
-        if (!this.syncing) this.triggerWormholeSync(slot);
+        if (!this.syncing) {
+            this.triggerWormholeSync(slot, deposited);
+        }
     }
 
     public CelestialForgingAnvilLogisticsInterfaceBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
@@ -209,12 +217,12 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
     }
 
     /// 当玩家放入或取出物品时从 onContentsChanged 调用。立即触发父 CFA 对此特定接口的虫洞同步，在同一 tick 内将更改推送到规范存储和其它 CFA。
-    private void triggerWormholeSync(int changedSlot) {
+    private void triggerWormholeSync(int changedSlot, boolean deposited) {
         if (level == null || level.isClientSide()) return;
         BlockPos cfaPos = this.findParentCfa();
         if (cfaPos == null) return;
         if (level.getBlockEntity(cfaPos) instanceof CelestialForgingAnvilBlockEntity cfa) {
-            cfa.syncLogisticsOnChange(worldPosition, changedSlot);
+            cfa.syncLogisticsOnChange(worldPosition, changedSlot, deposited);
         }
     }
 
@@ -296,7 +304,9 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
                 if (targetHandler != null) {
                     ItemStack remainder = ItemHandlerHelper.insertItem(targetHandler, extracted, false);
                     if (!remainder.isEmpty()) {
-                        handler.insertItem(slot, remainder, false);
+                        // 输出容器拒收的余量属于原库存，退回时只同步数量。
+                        this.resolveItemHandler().insertItem(slot, remainder, false);
+                        this.inventoryChanged(slot, false);
                     }
                     if (remainder.getCount() < extracted.getCount()) {
                         ejected = true;

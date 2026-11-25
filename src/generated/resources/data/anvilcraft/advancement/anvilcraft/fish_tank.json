@@ -1,0 +1,43 @@
+{
+  "parent": "anvilcraft:anvilcraft/root",
+  "criteria": {
+    "craft_fish_tank": {
+      "conditions": {
+        "recipe_id": "anvilcraft:fish_tank"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "place_fish_tank": {
+      "conditions": {
+        "location": [
+          {
+            "block": "anvilcraft:fish_tank",
+            "condition": "minecraft:block_state_property"
+          }
+        ]
+      },
+      "trigger": "minecraft:placed_block"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.fish_tank.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:fish_tank"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.fish_tank.title"
+    }
+  },
+  "requirements": [
+    [
+      "craft_fish_tank"
+    ],
+    [
+      "place_fish_tank"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

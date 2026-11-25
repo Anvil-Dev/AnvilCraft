@@ -10,8 +10,10 @@ import dev.dubhe.anvilcraft.block.entity.celestial.StellarTerminal;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.loot.ModLootTables;
+import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.advancements.critereon.ImpossibleTrigger;
@@ -30,6 +32,38 @@ public class AnvilCraftAdvancement {
             .playerFirstDetected("join")
             .rewardLoot(ModLootTables.ADVANCEMENT_ROOT)
             .save("root");
+
+        AdvancementLineHelper wisdomLine = mainLine.createBranch();
+        wisdomLine.next()
+            .task(ModBlocks.MONOLITH, "wisdom_tree")
+            .monolithTouch("monolith_touch")
+            .save("wisdom_tree");
+
+        AdvancementLineHelper diceLine = mainLine.createBranch();
+        diceLine.next()
+            .goal(ModBlocks.REDSTONE_DICE, "dice_triple_six")
+            .diceTripleSix("dice_triple_six")
+            .save("dice_triple_six");
+
+        AdvancementLineHelper tankLine = mainLine.createBranch();
+        tankLine.next()
+            .task(ModBlocks.FISH_TANK, "fish_tank")
+            .recipeAnc("craft_fish_tank", "fish_tank")
+            .playerPlace("place_fish_tank", ModBlocks.FISH_TANK)
+            .requireAll()
+            .save("fish_tank");
+        tankLine.next()
+            .task(ModItems.BREATHING_HELMET, "breathing_helmet")
+            .wearBreathingHelmet("wear_breathing_helmet")
+            .save("breathing_helmet");
+        tankLine.next()
+            .goal(ModBlocks.LUNAR_ROCK, "moon_landing")
+            .moonLanding("moon_landing")
+            .save("moon_landing");
+        tankLine.next()
+            .challenge(ModBlocks.LUNAR_SOIL, "moon_far_side")
+            .moonFarSide("moon_far_side")
+            .save("moon_far_side");
 
         AdvancementLineHelper clawLine = mainLine.createBranch();
         clawLine.next()
@@ -88,6 +122,21 @@ public class AnvilCraftAdvancement {
             .inWorldRecipe("anything_anvil_crafting")
             .save("dang");
 
+        AdvancementLineHelper foodLine = mainLine.createBranch();
+        foodLine.next()
+            .task(ModFoodItems.CANNED_FOOD, "compressed_biscuit")
+            .compressedBiscuit("compressed_biscuit")
+            .save("compressed_biscuit");
+        foodLine.next()
+            .challenge(ModItems.TIN_CAN, "big_stomach")
+            .bigStomach("big_stomach")
+            .save("big_stomach");
+
+        mainLine.createBranch().next()
+            .goal(ModItems.PILL_BOX, "pill_box_eight")
+            .pillBoxEight("pill_box_eight")
+            .save("pill_box_eight");
+
         AdvancementLineHelper stoneLine = mainLine.createBranch();
         stoneLine.next()
             .task(Blocks.SAND, "stone_crusher")
@@ -129,6 +178,59 @@ public class AnvilCraftAdvancement {
             .inWorldRecipeAnc("diamond_boots", "item_crush/armor/diamond_boots_2_diamond")
             .inWorldRecipeAnc("diamond_horse_armor", "item_crush/armor/diamond_horse_armor_2_diamond")
             .save("recycling_diamonds");
+
+        stampingLine.next()
+            .goal(Items.IRON_INGOT, "circular_economy")
+            .inWorldRecipeAnc("chainmail_boots", "item_crush/armor/chainmail_boots_2_chain")
+            .inWorldRecipeAnc("chainmail_chestplate", "item_crush/armor/chainmail_chestplate_2_chain")
+            .inWorldRecipeAnc("chainmail_helmet", "item_crush/armor/chainmail_helmet_2_chain")
+            .inWorldRecipeAnc("chainmail_leggings", "item_crush/armor/chainmail_leggings_2_chain")
+            .inWorldRecipeAnc("leather_boots", "item_crush/armor/leather_boots_2_leather")
+            .inWorldRecipeAnc("leather_chestplate", "item_crush/armor/leather_chestplate_2_leather")
+            .inWorldRecipeAnc("leather_helmet", "item_crush/armor/leather_helmet_2_leather")
+            .inWorldRecipeAnc("leather_leggings", "item_crush/armor/leather_leggings_2_leather")
+            .inWorldRecipeAnc("leather_horse_armor", "item_crush/armor/leather_horse_armor_2_leather")
+            .inWorldRecipeAnc("golden_boots", "item_crush/armor/golden_boots_2_gold_ingot")
+            .inWorldRecipeAnc("golden_chestplate", "item_crush/armor/golden_chestplate_2_gold_ingot")
+            .inWorldRecipeAnc("golden_helmet", "item_crush/armor/golden_helmet_2_gold_ingot")
+            .inWorldRecipeAnc("golden_leggings", "item_crush/armor/golden_leggings_2_gold_ingot")
+            .inWorldRecipeAnc("golden_horse_armor", "item_crush/armor/golden_horse_armor_2_gold_ingot")
+            .inWorldRecipeAnc("golden_axe", "item_crush/tool/golden_axe_2_gold_ingot")
+            .inWorldRecipeAnc("golden_hoe", "item_crush/tool/golden_hoe_2_gold_ingot")
+            .inWorldRecipeAnc("golden_pickaxe", "item_crush/tool/golden_pickaxe_2_gold_ingot")
+            .inWorldRecipeAnc("golden_shovel", "item_crush/tool/golden_shovel_2_gold_ingot")
+            .inWorldRecipeAnc("golden_sword", "item_crush/tool/golden_sword_2_gold_ingot")
+            .inWorldRecipeAnc("iron_boots", "item_crush/armor/iron_boots_2_iron_ingot")
+            .inWorldRecipeAnc("iron_chestplate", "item_crush/armor/iron_chestplate_2_iron_ingot")
+            .inWorldRecipeAnc("iron_helmet", "item_crush/armor/iron_helmet_2_iron_ingot")
+            .inWorldRecipeAnc("iron_leggings", "item_crush/armor/iron_leggings_2_iron_ingot")
+            .inWorldRecipeAnc("iron_horse_armor", "item_crush/armor/iron_horse_armor_2_iron_ingot")
+            .inWorldRecipeAnc("iron_axe", "item_crush/tool/iron_axe_2_iron_ingot")
+            .inWorldRecipeAnc("iron_hoe", "item_crush/tool/iron_hoe_2_iron_ingot")
+            .inWorldRecipeAnc("iron_pickaxe", "item_crush/tool/iron_pickaxe_2_iron_ingot")
+            .inWorldRecipeAnc("iron_shovel", "item_crush/tool/iron_shovel_2_iron_ingot")
+            .inWorldRecipeAnc("iron_sword", "item_crush/tool/iron_sword_2_iron_ingot")
+            .inWorldRecipeAnc("diamond_boots", "item_crush/armor/diamond_boots_2_diamond")
+            .inWorldRecipeAnc("diamond_chestplate", "item_crush/armor/diamond_chestplate_2_diamond")
+            .inWorldRecipeAnc("diamond_helmet", "item_crush/armor/diamond_helmet_2_diamond")
+            .inWorldRecipeAnc("diamond_leggings", "item_crush/armor/diamond_leggings_2_diamond")
+            .inWorldRecipeAnc("diamond_horse_armor", "item_crush/armor/diamond_horse_armor_2_diamond")
+            .inWorldRecipeAnc("diamond_axe", "item_crush/tool/diamond_axe_2_diamond")
+            .inWorldRecipeAnc("diamond_hoe", "item_crush/tool/diamond_hoe_2_diamond")
+            .inWorldRecipeAnc("diamond_pickaxe", "item_crush/tool/diamond_pickaxe_2_diamond")
+            .inWorldRecipeAnc("diamond_shovel", "item_crush/tool/diamond_shovel_2_diamond")
+            .inWorldRecipeAnc("diamond_sword", "item_crush/tool/diamond_sword_2_diamond")
+            .requirements(new AdvancementRequirements(List.of(
+                List.of("chainmail_boots", "chainmail_chestplate", "chainmail_helmet", "chainmail_leggings"),
+                List.of("leather_boots", "leather_chestplate", "leather_helmet", "leather_leggings", "leather_horse_armor"),
+                List.of("golden_boots", "golden_chestplate", "golden_helmet", "golden_leggings", "golden_horse_armor",
+                    "golden_axe", "golden_hoe", "golden_pickaxe", "golden_shovel", "golden_sword"),
+                List.of("iron_boots", "iron_chestplate", "iron_helmet", "iron_leggings", "iron_horse_armor",
+                    "iron_axe", "iron_hoe", "iron_pickaxe", "iron_shovel", "iron_sword"),
+                List.of("diamond_boots", "diamond_chestplate", "diamond_helmet", "diamond_leggings", "diamond_horse_armor",
+                    "diamond_axe", "diamond_hoe", "diamond_pickaxe", "diamond_shovel", "diamond_sword")
+            )))
+            .save("circular_economy");
 
         mainLine.next()
             .task(ModItems.ANVIL_HAMMER, "all_in_one")
@@ -172,6 +274,39 @@ public class AnvilCraftAdvancement {
             .recipeAnc("craft_magnetoelectric_core", "magnetoelectric_core")
             .save("hearts_of_iron");
 
+        AdvancementLineHelper firepowerLine = elecLine.createBranch();
+        firepowerLine.next()
+            .task(ModBlocks.CHARGER, "charger")
+            .recipeAnc("craft_charger", "charger")
+            .recipeAnc("convert_discharger", "charger_from_discharger")
+            .playerPlace("place_charger", ModBlocks.CHARGER)
+            .requireAdvs(List.of("craft_charger", "convert_discharger"), List.of("place_charger"))
+            .save("charger");
+        firepowerLine.next()
+            .task(ModItems.SUPER_CAPACITOR, "supercapacitor")
+            .hasItems("has_supercapacitor", ModItems.SUPER_CAPACITOR)
+            .save("supercapacitor");
+
+        AdvancementLineHelper armoryLine = firepowerLine.createBranch();
+        armoryLine.next()
+            .challenge(ModItems.ENERGY_WEAPON_PLATFORM, "not_enough_firepower")
+            .hasItems("has_anvil_railgun", ModItems.ANVIL_RAILGUN)
+            .hasItems("has_laser_gun", ModItems.LASER_GUN)
+            .hasItems("has_tesla_gun", ModItems.TESLA_GUN)
+            .hasItems("has_corrupted_beacon_activator", ModItems.CORRUPTED_BEACON_ACTIVATOR)
+            .hasItems("has_spectral_weapon_launcher", ModItems.SPECTRAL_WEAPON_LAUNCHER)
+            .requireAll()
+            .save("not_enough_firepower");
+
+        firepowerLine.next()
+            .challenge(ModItems.ANVIL_RAILGUN, "railgun_collision")
+            .railgunCollision("railgun_collision")
+            .save("railgun_collision");
+        firepowerLine.next()
+            .challenge(ModItems.ANVIL_RAILGUN, "railgun_self_kill", true)
+            .railgunSelfKill("railgun_self_kill")
+            .save("railgun_self_kill");
+
         AdvancementLineHelper genelecLine = elecLine.createBranch();
 
         elecLine.next()
@@ -193,6 +328,13 @@ public class AnvilCraftAdvancement {
             .task(ModItems.ANVIL_HAMMER, "electric_filed_rhythm")
             .enterPowerGrid("enter_power_grid")
             .save("electric_filed_rhythm");
+
+        AdvancementLineHelper voltageLine = genelecLine.createBranch();
+        voltageLine.next()
+            .goal(ModBlocks.TRANSMISSION_POLE, "high_voltage_tower")
+            .highVoltageTower("high_voltage_tower")
+            .save("high_voltage_tower");
+
         mainLine.createBranch().next()
             .task(ModBlocks.BLOCK_COMPARATOR, "salted_fish_turns_over", true)
             .blockComparatorTurnOver("block_comparator_turn_over")
@@ -235,9 +377,13 @@ public class AnvilCraftAdvancement {
 
         industrialLine.next()
             .task(ModBlocks.ROYAL_ANVIL, "royal_blacksmith")
-            .hasItems("has_royal_anvil", ModBlocks.ROYAL_ANVIL)
-            .hasItems("has_royal_smithing_table", ModBlocks.ROYAL_SMITHING_TABLE)
-            .hasItems("has_royal_grindstone", ModBlocks.ROYAL_GRINDSTONE)
+            .recipeAnc("craft_royal_anvil", "smithing/royal_anvil")
+            .recipeAnc("craft_royal_smithing_table", "smithing/royal_smithing_table")
+            .recipeAnc("craft_royal_grindstone", "smithing/royal_grindstone")
+            .playerPlace("place_royal_anvil", ModBlocks.ROYAL_ANVIL)
+            .playerPlace("place_royal_smithing_table", ModBlocks.ROYAL_SMITHING_TABLE)
+            .playerPlace("place_royal_grindstone", ModBlocks.ROYAL_GRINDSTONE)
+            .requireAll()
             .save("royal_blacksmith");
         industrialLine.next()
             .task(ModBlocks.CORRUPTED_BEACON, "wither")
@@ -293,12 +439,18 @@ public class AnvilCraftAdvancement {
         emberLine.createBranch().next()
             .challenge(ModBlocks.EMBER_ANVIL, "ice_and_fire")
             .requireAll()
-            .hasItems("has_ember_smithing_table", ModBlocks.EMBER_SMITHING_TABLE)
-            .hasItems("has_ember_anvil", ModBlocks.EMBER_ANVIL)
-            .hasItems("has_ember_grindstone", ModBlocks.EMBER_GRINDSTONE)
-            .hasItems("has_frost_smithing_table", ModBlocks.FROST_SMITHING_TABLE)
-            .hasItems("has_frost_anvil", ModBlocks.FROST_ANVIL)
-            .hasItems("has_frost_grindstone", ModBlocks.FROST_GRINDSTONE)
+            .recipeAnc("craft_ember_smithing_table", "smithing/ember_smithing_table")
+            .recipeAnc("craft_ember_anvil", "smithing/ember_anvil")
+            .recipeAnc("craft_ember_grindstone", "smithing/ember_grindstone")
+            .recipeAnc("craft_frost_smithing_table", "smithing/frost_smithing_table")
+            .recipeAnc("craft_frost_anvil", "smithing/frost_anvil")
+            .recipeAnc("craft_frost_grindstone", "smithing/frost_grindstone")
+            .playerPlace("place_ember_smithing_table", ModBlocks.EMBER_SMITHING_TABLE)
+            .playerPlace("place_ember_anvil", ModBlocks.EMBER_ANVIL)
+            .playerPlace("place_ember_grindstone", ModBlocks.EMBER_GRINDSTONE)
+            .playerPlace("place_frost_smithing_table", ModBlocks.FROST_SMITHING_TABLE)
+            .playerPlace("place_frost_anvil", ModBlocks.FROST_ANVIL)
+            .playerPlace("place_frost_grindstone", ModBlocks.FROST_GRINDSTONE)
             .save("ice_and_fire");
         emberLine.next()
             .task(ModItems.EMBER_METAL_PICKAXE, "self_in_flaming")
@@ -324,7 +476,9 @@ public class AnvilCraftAdvancement {
         AdvancementLineHelper spongeLine = voidLine.createBranch();
         spongeLine.next()
             .task(ModBlocks.MENGER_SPONGE, "saikou_scrubber")
-            .hasItems("has_menger_sponge", ModBlocks.MENGER_SPONGE)
+            .inWorldRecipeAnc("multiblock_menger_sponge", "multiblock/menger_sponge")
+            .inWorldRecipeAnc("multiblock_menger_sponge_2", "multiblock/menger_sponge_2")
+            .requireAny()
             .save("saikou_scrubber");
         spongeLine.createBranch().next()
             .task(ModBlocks.MENGER_SPONGE, "understand_fractals", true)
@@ -358,11 +512,15 @@ public class AnvilCraftAdvancement {
         AdvancementLineHelper laserLine = gemLine.createBranch();
         laserLine.next()
             .task(ModBlocks.RUBY_LASER, "laser")
-            .hasItems("has_ruby_laser", ModBlocks.RUBY_LASER)
+            .recipeAnc("craft_ruby_laser", "ruby_laser")
+            .playerPlace("place_ruby_laser", ModBlocks.RUBY_LASER)
+            .requireAll()
             .save("laser");
         gemLine.next()
             .task(ModBlocks.HEAT_COLLECTOR, "heat_utilizing")
-            .hasItems("has_heat_collector", ModBlocks.HEAT_COLLECTOR)
+            .recipeAnc("craft_heat_collector", "heat_collector")
+            .playerPlace("place_heat_collector", ModBlocks.HEAT_COLLECTOR)
+            .requireAll()
             .save("heat_utilizing");
 
         AdvancementLineHelper nuclearLine = gemLine.createBranch();
@@ -385,11 +543,45 @@ public class AnvilCraftAdvancement {
             .task(ModBlocks.GIANT_ANVIL, "giant_age")
             .hasItems("has_giant_anvil", ModBlocks.GIANT_ANVIL)
             .save("giant_age");
+
+        AdvancementLineHelper storageLine = industrialLine.createBranch();
+        storageLine.next()
+            .task(ModBlocks.LARGE_CRATE, "large_crate")
+            .inWorldRecipeAnc("multiblock_large_crate", "multiblock/large_crate")
+            .inWorldRecipeAnc("multiblock_conversion_large_crate", "multiblock_conversion/large_crate")
+            .requireAny()
+            .save("large_crate");
+        storageLine.next()
+            .goal(ModBlocks.SHULKER_CONTAINER, "shulker_container")
+            .shulkerContainerUpgrade("shulker_container_upgrade")
+            .save("shulker_container");
+        storageLine.next()
+            .challenge(ModBlocks.HYPERDIMENSION_STORAGE_STATION, "hyperdimension_station")
+            .hyperdimensionStationUpgrade("hyperdimension_station_upgrade")
+            .save("hyperdimension_station");
+
+        AdvancementLineHelper cauldronLine = industrialLine.createBranch();
+        cauldronLine.next()
+            .task(ModBlocks.LARGE_CAULDRON, "superpower")
+            .inWorldRecipeAnc("multiblock_large_cauldron", "multiblock/large_cauldron")
+            .inWorldRecipeAnc("multiblock_conversion_large_cauldron", "multiblock_conversion/large_cauldron")
+            .requireAny()
+            .save("superpower");
+        cauldronLine.next()
+            .goal(Items.POTION, "cocktail", true)
+            .largeCauldronCocktail("large_cauldron_cocktail")
+            .save("cocktail");
+
         industrialLine.createBranch().next()
             .task(ModBlocks.ACCELERATION_RING, "anvil_accelerator")
-            .requireAll()
-            .hasItems("has_acceleration_ring", ModBlocks.ACCELERATION_RING)
-            .hasItems("has_deflection_ring", ModBlocks.DEFLECTION_RING)
+            .inWorldRecipeAnc("multiblock_acceleration_ring", "multiblock/acceleration_ring")
+            .inWorldRecipeAnc("multiblock_conversion_acceleration_ring", "multiblock_conversion/acceleration_ring")
+            .inWorldRecipeAnc("multiblock_deflection_ring", "multiblock/deflection_ring")
+            .inWorldRecipeAnc("multiblock_conversion_deflection_ring", "multiblock_conversion/deflection_ring")
+            .requirements(new AdvancementRequirements(List.of(
+                List.of("multiblock_acceleration_ring", "multiblock_conversion_acceleration_ring"),
+                List.of("multiblock_deflection_ring", "multiblock_conversion_deflection_ring")
+            )))
             .save("anvil_accelerator");
 
         AdvancementLineHelper sideLine1 = industrialLine.createBranch();
@@ -400,6 +592,17 @@ public class AnvilCraftAdvancement {
             .recipeAnc("multiphase_matter", "anvil_collision/ember_anvil_and_frost_metal_block_32")
             .recipeAnc("negative_matter", "anvil_collision/anvil_tier_1_and_levitation_powder_block_32")
             .save("new_matter");
+
+        AdvancementLineHelper spacesuitLine = sideLine1.createBranch();
+        spacesuitLine.next()
+            .challenge(ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE, "full_spacesuit")
+            .fullSpacesuit("full_spacesuit")
+            .save("full_spacesuit");
+        spacesuitLine.next()
+            .challenge(ModItems.WEATHERPROOF_SPACESUIT_BOOTS, "void_walker")
+            .voidWalker("void_walker")
+            .save("void_walker");
+
         sideLine1.next()
             .challenge(ModBlocks.CONFINED_SPACE_ANVILON, "anvilon")
             .requireAny()
@@ -424,7 +627,7 @@ public class AnvilCraftAdvancement {
             .hasItemAny("has_", ModBlocks.TRANSCENDIUM_BLOCK, ModItems.TRANSCENDIUM_INGOT, ModItems.TRANSCENDIUM_NUGGET)
             .save("transcendence");
         industrialLine.createBranch().next()
-            .challenge(ModBlocks.CELESTIAL_FORGING_ANVIL, "electric_allergy", true)
+            .challenge(ModBlocks.TRANSCENDENCE_ANVIL, "electric_allergy", true)
             .requireAny()
             .electricAllergy("electric_allergy")
             .save("electric_allergy");
@@ -434,8 +637,43 @@ public class AnvilCraftAdvancement {
             .save("the_end");
         industrialLine.next()
             .challenge(ModBlocks.CELESTIAL_FORGING_ANVIL, "the_start")
-            .hasItems("has_celestial_forging_anvil", ModBlocks.CELESTIAL_FORGING_ANVIL)
+            .inWorldRecipeAnc("multiblock_celestial_forging_anvil", "multiblock/celestial_forging_anvil")
             .save("the_start");
+
+        industrialLine.createBranch().next()
+            .challenge(ModItems.DYSON_SPHERE_COMPONENT, "hitchhiker_guide")
+            .celestialVisit("visited_1", 1)
+            .celestialVisit("visited_2", 2)
+            .celestialVisit("visited_3", 3)
+            .celestialVisit("visited_4", 4)
+            .celestialVisit("visited_5", 5)
+            .celestialVisit("visited_6", 6)
+            .celestialVisit("visited_7", 7)
+            .celestialVisit("visited_8", 8)
+            .celestialVisit("visited_9", 9)
+            .celestialVisit("visited_10", 10)
+            .celestialVisit("visited_11", 11)
+            .requireAll()
+            .save("hitchhiker_guide");
+
+        AdvancementLineHelper deliveryLine = industrialLine.createBranch();
+        deliveryLine.next()
+            .goal(ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE, "wormhole_delivery")
+            .wormholeDelivery("wormhole_delivery")
+            .save("wormhole_delivery");
+
+        AdvancementLineHelper dysonLine = industrialLine.createBranch();
+        dysonLine.next()
+            .challenge(ModItems.DYSON_SPHERE_COMPONENT, "dyson_sphere")
+            .dysonSphere("dyson_sphere")
+            .save("dyson_sphere");
+        dysonLine.next()
+            .challenge(ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT, "inexhaustible")
+            .inexhaustible("inexhaustible")
+            .infinitePower("infinite_power")
+            .requireAll()
+            .save("inexhaustible");
+
         industrialLine.createBranch().next()
             .challenge(ModItems.EARTH_CORE_SHARD, "efficiency", true)
             .planetDetonation("efficiency")
@@ -444,10 +682,15 @@ public class AnvilCraftAdvancement {
             .challenge(Items.PLAYER_HEAD, "cannon_fodder", true)
             .planetaryCollapseDeath("cannon_fodder")
             .save("cannon_fodder");
-        industrialLine.createBranch().next()
+        AdvancementLineHelper blackHoleLine = industrialLine.createBranch();
+        blackHoleLine.next()
             .challenge(ModBlocks.BLACK_HOLE, "black_hole")
             .celestialEvolution("black_hole", StellarTerminal.Kind.BLACK_HOLE)
             .save("black_hole");
+        blackHoleLine.next()
+            .task(ModItems.PENROSE_SPHERE_COMPONENT, "gamma_laser")
+            .gammaLaser("gamma_laser")
+            .save("gamma_laser");
         industrialLine.createBranch().next()
             .challenge(ModItems.MAGNETAR_COIL_COMPONENT, "neutron_star")
             .celestialEvolution("neutron_star", StellarTerminal.Kind.NEUTRON_STAR)

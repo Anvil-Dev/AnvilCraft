@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.totem.handler;
 
+import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.RecoveryPearl;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -29,7 +30,10 @@ public class TotemOfRecoveryHandler implements TotemHandler {
                 player.awardStat(Stats.ITEM_USED.get(ModItems.TOTEM_OF_RECOVERY.get()), 1);
                 CriteriaTriggers.USED_TOTEM.trigger(player, ModItems.TOTEM_OF_RECOVERY.asStack());
                 entity.gameEvent(GameEvent.ITEM_INTERACT_FINISH);
-                player.getInventory().add(ModItems.RECOVERY_PEARL.asStack());
+                // 世界崩解后那个维度已经没了，发追溯珍珠也没有意义
+                if (!damageSource.is(ModDamageTypes.PLANETARY_COLLAPSE)) {
+                    player.getInventory().add(ModItems.RECOVERY_PEARL.asStack());
+                }
                 ResourceKey<Level> deathDimension = player.level().dimension();
                 BlockPos deathPos = player.getOnPos();
                 if (deathDimension == Level.OVERWORLD) {
