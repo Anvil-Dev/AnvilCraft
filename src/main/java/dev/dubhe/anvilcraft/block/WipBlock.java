@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import org.jetbrains.annotations.Nullable;
@@ -56,6 +57,12 @@ public class WipBlock extends BaseEntityBlock implements IMoveableEntityBlock {
         BlockState initialBlock = wip.getInitialBlock();
         if (initialBlock.isAir() || initialBlock.getBlock() instanceof WipBlock) return null;
         return initialBlock;
+    }
+
+    @Override
+    public MapColor getMapColor(BlockState state, BlockGetter level, BlockPos pos, MapColor defaultColor) {
+        BlockState initialBlock = WipBlock.getInheritedBlock(level, pos);
+        return initialBlock == null ? defaultColor : initialBlock.getMapColor(level, pos);
     }
 
     @Override
