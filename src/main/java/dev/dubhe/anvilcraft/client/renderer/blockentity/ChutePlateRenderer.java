@@ -23,6 +23,7 @@ import net.neoforged.neoforge.client.event.ModelEvent;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,25 +34,29 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class ChutePlateRenderer<T extends BlockEntity & ChutePlates.Holder> implements BlockEntityRenderer<T>, ModelSelectionRenderer<T> {
-    private record Part(String model, OctahedralGroup rotation, Predicate<Set<Direction>> visible,
+    private record Part(String model, Predicate<Set<Direction>> visible,
                         Quaternionf orientation, ModelResourceLocation key, Map<ChutePlateFit, ModelResourceLocation> shortened) {
-        Part(String model, OctahedralGroup rotation, Quaternionf orientation, Predicate<Set<Direction>> visible) {
-            this(model, rotation, visible, orientation, key(model),
-                shortenedKeys(model, rotation));
+        Part(String model, Quaternionf orientation, Predicate<Set<Direction>> visible) {
+            this(model, visible, orientation, key(model), shortenedKeys(model, orientation));
         }
 
         private static ModelResourceLocation key(String model) {
             return ModelResourceLocation.standalone(AnvilCraft.of("block/" + model));
         }
 
-        private static Map<ChutePlateFit, ModelResourceLocation> shortenedKeys(String model, OctahedralGroup rotation) {
+        private static Direction localDirection(Quaternionf orientation, Direction inlet) {
+            Vector3f direction = orientation.transformInverse(inlet.step());
+            return Direction.getNearest(direction.x, direction.y, direction.z);
+        }
+
+        private static Map<ChutePlateFit, ModelResourceLocation> shortenedKeys(String model, Quaternionf orientation) {
             Map<ChutePlateFit, ModelResourceLocation> keys = new HashMap<>();
             for (ChutePlateFit fit : ChutePlateFit.shortenedFits()) {
                 Direction inlet = fit.inlet();
                 if (inlet == null) {
                     continue;
                 }
-                Direction local = rotation.inverse().rotate(inlet);
+                Direction local = localDirection(orientation, inlet);
                 if (local.getAxis().isHorizontal() && (model.equals(PLATE) || local != Direction.SOUTH)) {
                     keys.put(fit, key(model + "/" + local.getSerializedName() + "_" + fit.cut()));
                 }
@@ -89,7 +94,7 @@ public class ChutePlateRenderer<T extends BlockEntity & ChutePlates.Holder> impl
             Direction plate = rotation.rotate(Direction.UP);
             Direction edge = rotation.rotate(Direction.NORTH);
             if (edge == Direction.rotate(new Matrix4f().rotation(plate.getRotation()), Direction.NORTH)) {
-                parts.add(new Part(PLATE, rotation, orientation, faces -> faces.contains(plate)));
+                parts.add(new Part(PLATE, orientation, faces -> faces.contains(plate)));
             }
             Direction west = rotation.rotate(Direction.WEST);
             Direction east = rotation.rotate(Direction.EAST);
@@ -97,7 +102,7 @@ public class ChutePlateRenderer<T extends BlockEntity & ChutePlates.Holder> impl
             for (boolean cutWest : List.of(false, true)) {
                 for (boolean cutEast : List.of(false, true)) {
                     String model = "chute_plate_edge" + (cutWest ? "_west" : "") + (cutEast ? "_east" : "");
-                    parts.add(new Part(model, rotation, orientation, faces -> faces.contains(plate) && !faces.contains(edge)
+                    parts.add(new Part(model, orientation, faces -> faces.contains(plate) && !faces.contains(edge)
                         && faces.contains(west) == cutWest && faces.contains(east) == cutEast));
                 }
             }
@@ -123,7 +128,7 @@ public class ChutePlateRenderer<T extends BlockEntity & ChutePlates.Holder> impl
                     return;
                 }
                 if (source instanceof BlockModel model && !model.customData.hasCustomGeometry()) {
-                    var cut = ChutePlateModel.shortened(model, part.rotation.inverse().rotate(inlet), fit.cut());
+                    var cut = ChutePlateModel.shortened(model, Part.localDirection(part.orientation, inlet), fit.cut());
                     shortened.put(key, cut);
                     event.getModels().put(key, ChutePlateModel.bake(cut, model, event.getTextureGetter()));
                 } else {
