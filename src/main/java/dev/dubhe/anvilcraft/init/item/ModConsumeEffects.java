@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.item.property.consume.PreventShrinkingConsumeEffect;
 import dev.dubhe.anvilcraft.item.property.consume.SetFoodLevelConsumeEffect;
 import dev.dubhe.anvilcraft.item.property.consume.SetRagedConsumeEffect;
+import dev.dubhe.anvilcraft.item.property.consume.TeleportToDeathPointConsumeEffect;
 import dev.dubhe.anvilcraft.item.property.consume.TeleportToRespawnPointConsumeEffect;
 import dev.dubhe.anvilcraft.item.property.consume.TryTotemsInBoxConsumeEffect;
 import net.minecraft.core.registries.Registries;
@@ -24,6 +25,11 @@ public class ModConsumeEffects {
             TeleportToRespawnPointConsumeEffect.STREAM_CODEC.cast()
         ));
 
+    public static final DeferredHolder<ConsumeEffect.Type<?>, ConsumeEffect.Type<TeleportToDeathPointConsumeEffect>>
+        TP_TO_DEATH_POINT = ModConsumeEffects.DF.register("tp_to_death_point", () -> new ConsumeEffect.Type<>(
+            TeleportToDeathPointConsumeEffect.CODEC,
+            TeleportToDeathPointConsumeEffect.STREAM_CODEC.cast()
+        ));
     public static final DeferredHolder<ConsumeEffect.Type<?>, ConsumeEffect.Type<SetFoodLevelConsumeEffect>>
         SET_FOOD_LEVEL = ModConsumeEffects.DF.register("set_food_level", () -> new ConsumeEffect.Type<>(
             SetFoodLevelConsumeEffect.CODEC,

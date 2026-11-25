@@ -6,15 +6,23 @@ import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelData;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
+import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.property.consume.TeleportToRespawnPointConsumeEffect;
 import dev.dubhe.anvilcraft.network.OverworldLikeCollapsePacket;
 import dev.dubhe.anvilcraft.network.OverworldLikeSkyStatePacket;
 import dev.dubhe.anvilcraft.saved.OverworldLikeWorldState;
 import dev.dubhe.anvilcraft.saved.WormholeNetwork;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DeathProtection;
+import net.minecraft.world.item.consume_effects.ConsumeEffect;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
@@ -101,6 +109,11 @@ public final class OverworldLikeResetManager {
                 for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                     if (!CelestialTravelManager.isOverworldLike(player.level().dimension())) continue;
                     state.addPendingForcedRespawn(player.getUUID());
+                    if (OverworldLikeResetManager.tryRecoveryTotem(player)) {
+                        // 追溯图腾把人生还了，这次坍缩伤害不再落下
+                        state.removePendingForcedRespawn(player.getUUID());
+                        continue;
+                    }
                     player.hurtServer(player.level(), ModDamageTypes.planetaryCollapse(player.level()), Float.MAX_VALUE);
                 }
                 state.markCollapseDamageIssued();
@@ -250,5 +263,28 @@ public final class OverworldLikeResetManager {
             long elapsed = Math.max(0L, player.level().getGameTime() - state.collapseStartedAt());
             PacketDistributor.sendToPlayer(player, new OverworldLikeCollapsePacket((int) Math.min(Integer.MAX_VALUE, elapsed)));
         }
+    }
+
+    private static boolean tryRecoveryTotem(ServerPlayer player) {
+        for (InteractionHand hand : InteractionHand.values()) {
+            ItemStack stack = player.getItemInHand(hand);
+            if (!stack.is(ModItems.TOTEM_OF_RECOVERY)) continue;
+            DeathProtection protection = stack.get(DataComponents.DEATH_PROTECTION);
+            if (protection == null) continue;
+            ItemStack totem = stack.copy();
+            stack.shrink(1);
+            player.setHealth(1.0F);
+            // 逐条应用：世界崩解后那个维度已经没了，传送效果不发追溯珍珠
+            for (ConsumeEffect effect : protection.deathEffects()) {
+                if (effect instanceof TeleportToRespawnPointConsumeEffect teleport) {
+                    teleport.apply(player.level(), totem, player, false);
+                } else {
+                    effect.apply(player.level(), totem, player);
+                }
+            }
+            TriggerUtil.planetaryCollapseDeath(player);
+            return true;
+        }
+        return false;
     }
 }
