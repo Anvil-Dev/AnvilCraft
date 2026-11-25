@@ -51,7 +51,7 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.railgun_collision.description", "Execute any impact recipe with the Anvil Railgun");
 
         provider.add("advancements.anvilcraft.railgun_self_kill.title", "Own Goal");
-        provider.add("advancements.anvilcraft.railgun_self_kill.description", "Be killed by an anvil you fired from your own Anvil Railgun");
+        provider.add("advancements.anvilcraft.railgun_self_kill.description", "Take lethal damage from an anvil you fired from your own Anvil Railgun");
 
         provider.add("advancements.anvilcraft.not_enough_firepower.title", "Not Enough Firepower");
         provider.add("advancements.anvilcraft.not_enough_firepower.description", "Own all five energy weapons");
@@ -242,7 +242,7 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.efficiency.description", "Feed a gamma laser into the planet excavator and blow the planet apart");
 
         provider.add("advancements.anvilcraft.cannon_fodder.title", "Cannon Fodder");
-        provider.add("advancements.anvilcraft.cannon_fodder.description", "Die to a planetary collapse inside an Overworld-Like planet");
+        provider.add("advancements.anvilcraft.cannon_fodder.description", "Take lethal damage from a planetary collapse inside an Overworld-Like planet");
 
         provider.add("advancements.anvilcraft.come_at_night.title", "You Should Come At Night");
         provider.add("advancements.anvilcraft.come_at_night.description", "Get killed by a star");

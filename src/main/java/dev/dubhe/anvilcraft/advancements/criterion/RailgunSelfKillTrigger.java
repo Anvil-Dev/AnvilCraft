@@ -12,7 +12,7 @@ import net.minecraft.server.level.ServerPlayer;
 import java.util.Optional;
 
 /**
- * 被自己发射的铁砧轨道炮弹丸砸死时触发。
+ * 被自己发射的铁砧轨道炮弹丸打出致命伤害时触发，被不死图腾救活同样计数。
  */
 public class RailgunSelfKillTrigger extends SimpleCriterionTrigger<RailgunSelfKillTrigger.TriggerInstance> {
     @Override

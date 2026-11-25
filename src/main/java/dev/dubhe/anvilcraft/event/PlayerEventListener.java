@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.block.entity.SpacetimeSupercomputerBlockEntity;
 import dev.dubhe.anvilcraft.block.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.entity.MagnetizedNodeEntity;
+import dev.dubhe.anvilcraft.entity.RailgunAnvilEntity;
 import dev.dubhe.anvilcraft.init.ModStats;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModAmulets;
@@ -28,6 +29,7 @@ import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import dev.dubhe.anvilcraft.util.DevourUtil;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import dev.dubhe.anvilcraft.util.InfiniteFluidTankBreakProtection;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -35,6 +37,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -200,6 +203,14 @@ public class PlayerEventListener {
             RecipeCaches.sync(serverPlayer);
             LevelLoadManager.syncOverseers(serverPlayer);
         }
+    }
+
+    @SubscribeEvent
+    public static void onRailgunSelfKillTotem(LivingUseTotemEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!(event.getSource().getDirectEntity() instanceof FallingBlockEntity falling)) return;
+        if (!player.getUUID().equals(RailgunAnvilEntity.getRailgunOwner(falling))) return;
+        TriggerUtil.railgunSelfKill(player);
     }
 
     @SubscribeEvent
