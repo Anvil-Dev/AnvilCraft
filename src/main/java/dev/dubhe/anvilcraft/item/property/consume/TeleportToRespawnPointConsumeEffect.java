@@ -37,12 +37,23 @@ public class TeleportToRespawnPointConsumeEffect implements ConsumeEffect {
 
     @Override
     public boolean apply(Level level, ItemStack stack, LivingEntity user) {
+        return this.apply(level, stack, user, true);
+    }
+
+    /// 传送回重生点，可指定是否发放追溯珍珠。
+    ///
+    /// <p>{@code grantPearl} 为 {@code false} 时不发追溯珍珠：世界崩解后那个维度已经没了，回去没有意义。</p>
+    public boolean apply(Level level, ItemStack stack, LivingEntity user, boolean grantPearl) {
         if (!(user instanceof ServerPlayer player)) return true;
         player.fallDistance = 0;
         player.awardStat(Stats.ITEM_USED.get(ModItems.TOTEM_OF_RECOVERY.get()), 1);
         CriteriaTriggers.USED_TOTEM.trigger(player, ModItems.TOTEM_OF_RECOVERY.asStack());
         user.gameEvent(GameEvent.ITEM_INTERACT_FINISH);
-        player.getInventory().add(ModItems.RECOVERY_PEARL.asStack());
+        // 事件 36：客户端据此播放不死图腾同款的粒子爆发、音效与物品激活动画
+        player.level().broadcastEntityEvent(player, (byte) 36);
+        if (grantPearl) {
+            player.getInventory().add(ModItems.RECOVERY_PEARL.asStack());
+        }
         ResourceKey<Level> deathDimension = player.level().dimension();
         BlockPos deathPos = player.getOnPos();
         if (deathDimension == Level.OVERWORLD) {

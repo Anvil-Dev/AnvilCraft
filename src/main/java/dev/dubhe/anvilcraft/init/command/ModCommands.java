@@ -5,6 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.dubhe.anvilcraft.command.BlueprintCommand;
 import dev.dubhe.anvilcraft.command.MultiBlockCommand;
 import dev.dubhe.anvilcraft.command.MultiphaseCommand;
+import dev.dubhe.anvilcraft.command.NoPowerChallengeCommand;
 import dev.dubhe.anvilcraft.command.OverseerCommand;
 import dev.dubhe.anvilcraft.command.PowerGridCommand;
 import dev.dubhe.anvilcraft.command.StorageCommand;
@@ -24,6 +25,7 @@ public class ModCommands {
         OverseerCommand.registerCommand(root);
         TickSprintVoteCommand.registerCommand(root);
         StorageCommand.registerCommand(root);
+        NoPowerChallengeCommand.registerCommand(root);
         dispatcher.register(root);
     }
 }

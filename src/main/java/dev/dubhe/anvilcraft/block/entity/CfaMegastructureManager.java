@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import com.mojang.serialization.Codec;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
@@ -227,6 +228,9 @@ public class CfaMegastructureManager {
         this.clearLegacyIdentity();
         if (handler != null) {
             handler.onBuild(be);
+        }
+        if (option.megastructure().startsWith("dyson_sphere") && be.getLevel() != null) {
+            TriggerUtil.dysonSphere(be.getLevel(), be.getBlockPos());
         }
     }
 

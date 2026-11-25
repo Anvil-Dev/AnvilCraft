@@ -1,25 +1,29 @@
 {
   "parent": "anvilcraft:anvilcraft/giant_age",
   "criteria": {
-    "has_acceleration_ring": {
+    "multiblock_acceleration_ring": {
       "conditions": {
-        "items": [
-          {
-            "items": "anvilcraft:acceleration_ring"
-          }
-        ]
+        "id": "anvilcraft:multiblock/acceleration_ring"
       },
-      "trigger": "minecraft:inventory_changed"
+      "trigger": "anvilcraft:in_world_recipe"
     },
-    "has_deflection_ring": {
+    "multiblock_conversion_acceleration_ring": {
       "conditions": {
-        "items": [
-          {
-            "items": "anvilcraft:deflection_ring"
-          }
-        ]
+        "id": "anvilcraft:multiblock_conversion/acceleration_ring"
       },
-      "trigger": "minecraft:inventory_changed"
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "multiblock_conversion_deflection_ring": {
+      "conditions": {
+        "id": "anvilcraft:multiblock_conversion/deflection_ring"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "multiblock_deflection_ring": {
+      "conditions": {
+        "id": "anvilcraft:multiblock/deflection_ring"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
     }
   },
   "display": {
@@ -35,10 +39,12 @@
   },
   "requirements": [
     [
-      "has_acceleration_ring"
+      "multiblock_acceleration_ring",
+      "multiblock_conversion_acceleration_ring"
     ],
     [
-      "has_deflection_ring"
+      "multiblock_deflection_ring",
+      "multiblock_conversion_deflection_ring"
     ]
   ],
   "sends_telemetry_event": true

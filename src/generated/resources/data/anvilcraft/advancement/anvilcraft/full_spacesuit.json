@@ -1,0 +1,26 @@
+{
+  "parent": "anvilcraft:anvilcraft/new_matter",
+  "criteria": {
+    "full_spacesuit": {
+      "trigger": "anvilcraft:full_spacesuit"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.full_spacesuit.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "id": "anvilcraft:weatherproof_spacesuit_chestplate"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.full_spacesuit.title"
+    }
+  },
+  "requirements": [
+    [
+      "full_spacesuit"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

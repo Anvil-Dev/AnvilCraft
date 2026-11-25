@@ -1,0 +1,119 @@
+{
+  "parent": "anvilcraft:anvilcraft/the_start",
+  "criteria": {
+    "visited_1": {
+      "conditions": {
+        "count": 1
+      },
+      "trigger": "anvilcraft:celestial_visit"
+    },
+    "visited_10": {
+      "conditions": {
+        "count": 10
+      },
+      "trigger": "anvilcraft:celestial_visit"
+    },
+    "visited_11": {
+      "conditions": {
+        "count": 11
+      },
+      "trigger": "anvilcraft:celestial_visit"
+    },
+    "visited_2": {
+      "conditions": {
+        "count": 2
+      },
+      "trigger": "anvilcraft:celestial_visit"
+    },
+    "visited_3": {
+      "conditions": {
+        "count": 3
+      },
+      "trigger": "anvilcraft:celestial_visit"
+    },
+    "visited_4": {
+      "conditions": {
+        "count": 4
+      },
+      "trigger": "anvilcraft:celestial_visit"
+    },
+    "visited_5": {
+      "conditions": {
+        "count": 5
+      },
+      "trigger": "anvilcraft:celestial_visit"
+    },
+    "visited_6": {
+      "conditions": {
+        "count": 6
+      },
+      "trigger": "anvilcraft:celestial_visit"
+    },
+    "visited_7": {
+      "conditions": {
+        "count": 7
+      },
+      "trigger": "anvilcraft:celestial_visit"
+    },
+    "visited_8": {
+      "conditions": {
+        "count": 8
+      },
+      "trigger": "anvilcraft:celestial_visit"
+    },
+    "visited_9": {
+      "conditions": {
+        "count": 9
+      },
+      "trigger": "anvilcraft:celestial_visit"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.hitchhiker_guide.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "id": "anvilcraft:dyson_sphere_component"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.hitchhiker_guide.title"
+    }
+  },
+  "requirements": [
+    [
+      "visited_1"
+    ],
+    [
+      "visited_2"
+    ],
+    [
+      "visited_3"
+    ],
+    [
+      "visited_4"
+    ],
+    [
+      "visited_5"
+    ],
+    [
+      "visited_6"
+    ],
+    [
+      "visited_7"
+    ],
+    [
+      "visited_8"
+    ],
+    [
+      "visited_9"
+    ],
+    [
+      "visited_10"
+    ],
+    [
+      "visited_11"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

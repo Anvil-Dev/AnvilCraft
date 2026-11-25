@@ -10,6 +10,8 @@ import dev.dubhe.anvilcraft.api.power.IDynamicPowerComponentHolder;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.workstation.TranscendenceAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.ember.EmberAnvilBlock;
+import dev.dubhe.anvilcraft.entity.RailgunAnvilEntity;
+import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.init.ModStats;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
@@ -22,7 +24,6 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import org.jspecify.annotations.Nullable;
@@ -38,6 +39,8 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
     @SuppressWarnings("NotNullFieldNotInitialized")
     @Unique
     private DynamicPowerComponent anvilcraft$component;
+    @Unique
+    private boolean anvilcraft$inLargeGrid;
 
     public ServerPlayerMixin(Level level, GameProfile gameProfile) {
         super(level, gameProfile);
@@ -65,6 +68,11 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
     @Override
     public void anvilcraft$gridTick() {
         PowerGrid grid = this.anvilcraft$component.getPowerGrid();
+        boolean inLargeGrid = grid != null && grid.getComponentCount() >= 16;
+        if (inLargeGrid && !this.anvilcraft$inLargeGrid) {
+            ModCriterionTriggers.HIGH_VOLTAGE_TOWER.get().trigger((ServerPlayer) (Object) this);
+        }
+        this.anvilcraft$inLargeGrid = inLargeGrid;
         boolean overloaded = grid != null && !grid.isWorking();
         if (this.getData(ModDataAttachments.POWER_GRID_OVERLOADED) != overloaded) {
             this.setData(ModDataAttachments.POWER_GRID_OVERLOADED, overloaded);
@@ -103,6 +111,14 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
             return newSource;
         }
         return source;
+    }
+
+    @Inject(method = "die", at = @At("TAIL"))
+    private void anvilcraft$onRailgunDeath(DamageSource cause, CallbackInfo ci) {
+        if (cause.getDirectEntity() instanceof FallingBlockEntity falling
+            && this.getUUID().equals(RailgunAnvilEntity.getRailgunOwner(falling))) {
+            TriggerUtil.railgunSelfKill((ServerPlayer) (Object) this);
+        }
     }
 
     @Inject(method = "die", at = @At("RETURN"))

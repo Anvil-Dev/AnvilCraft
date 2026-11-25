@@ -1,0 +1,26 @@
+{
+  "parent": "anvilcraft:anvilcraft/full_spacesuit",
+  "criteria": {
+    "void_walker": {
+      "trigger": "anvilcraft:void_walker"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.void_walker.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "id": "anvilcraft:weatherproof_spacesuit_boots"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.void_walker.title"
+    }
+  },
+  "requirements": [
+    [
+      "void_walker"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

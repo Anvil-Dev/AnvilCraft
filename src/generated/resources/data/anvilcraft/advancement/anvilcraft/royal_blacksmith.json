@@ -1,35 +1,56 @@
 {
   "parent": "anvilcraft:anvilcraft/smithing_table",
   "criteria": {
-    "has_royal_anvil": {
+    "craft_royal_anvil": {
       "conditions": {
-        "items": [
-          {
-            "items": "anvilcraft:royal_anvil"
-          }
-        ]
+        "recipe_id": "anvilcraft:smithing/royal_anvil"
       },
-      "trigger": "minecraft:inventory_changed"
+      "trigger": "minecraft:recipe_crafted"
     },
-    "has_royal_grindstone": {
+    "craft_royal_grindstone": {
       "conditions": {
-        "items": [
-          {
-            "items": "anvilcraft:royal_grindstone"
-          }
-        ]
+        "recipe_id": "anvilcraft:smithing/royal_grindstone"
       },
-      "trigger": "minecraft:inventory_changed"
+      "trigger": "minecraft:recipe_crafted"
     },
-    "has_royal_smithing_table": {
+    "craft_royal_smithing_table": {
       "conditions": {
-        "items": [
+        "recipe_id": "anvilcraft:smithing/royal_smithing_table"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "place_royal_anvil": {
+      "conditions": {
+        "location": [
           {
-            "items": "anvilcraft:royal_smithing_table"
+            "block": "anvilcraft:royal_anvil",
+            "condition": "minecraft:block_state_property"
           }
         ]
       },
-      "trigger": "minecraft:inventory_changed"
+      "trigger": "minecraft:placed_block"
+    },
+    "place_royal_grindstone": {
+      "conditions": {
+        "location": [
+          {
+            "block": "anvilcraft:royal_grindstone",
+            "condition": "minecraft:block_state_property"
+          }
+        ]
+      },
+      "trigger": "minecraft:placed_block"
+    },
+    "place_royal_smithing_table": {
+      "conditions": {
+        "location": [
+          {
+            "block": "anvilcraft:royal_smithing_table",
+            "condition": "minecraft:block_state_property"
+          }
+        ]
+      },
+      "trigger": "minecraft:placed_block"
     }
   },
   "display": {
@@ -45,13 +66,22 @@
   },
   "requirements": [
     [
-      "has_royal_anvil"
+      "craft_royal_anvil"
     ],
     [
-      "has_royal_smithing_table"
+      "craft_royal_smithing_table"
     ],
     [
-      "has_royal_grindstone"
+      "craft_royal_grindstone"
+    ],
+    [
+      "place_royal_anvil"
+    ],
+    [
+      "place_royal_smithing_table"
+    ],
+    [
+      "place_royal_grindstone"
     ]
   ],
   "sends_telemetry_event": true

@@ -1,0 +1,25 @@
+{
+  "parent": "anvilcraft:anvilcraft/dang",
+  "criteria": {
+    "compressed_biscuit": {
+      "trigger": "anvilcraft:compressed_biscuit"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.compressed_biscuit.description"
+    },
+    "icon": {
+      "id": "anvilcraft:canned_food"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.compressed_biscuit.title"
+    }
+  },
+  "requirements": [
+    [
+      "compressed_biscuit"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

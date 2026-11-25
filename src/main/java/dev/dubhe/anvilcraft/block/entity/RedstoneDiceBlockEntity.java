@@ -1,17 +1,24 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import org.jspecify.annotations.Nullable;
+
+import java.util.UUID;
 
 public class RedstoneDiceBlockEntity extends BlockEntity {
     public static final int ROLL_TICKS = 8;
@@ -27,6 +34,7 @@ public class RedstoneDiceBlockEntity extends BlockEntity {
     @Getter
     private int output;
     private long rollStart = -1;
+    private @Nullable UUID roller;
 
     public RedstoneDiceBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.REDSTONE_DICE.get(), pos, state);
@@ -62,7 +70,12 @@ public class RedstoneDiceBlockEntity extends BlockEntity {
     }
 
     public void roll() {
+        this.roll(null);
+    }
+
+    public void roll(@Nullable ServerPlayer player) {
         if (this.level == null || this.level.isClientSide() || this.rolling) return;
+        this.roller = player == null ? null : player.getUUID();
         this.previousFaces = this.faces;
         if (this.uniform) {
             this.faces = UNIFORM_OUTCOMES[this.level.getRandom().nextInt(16)];
@@ -88,6 +101,13 @@ public class RedstoneDiceBlockEntity extends BlockEntity {
         this.level.updateNeighborsAt(this.worldPosition, this.getBlockState().getBlock());
         this.checkInput();
         this.rolling = false;
+        if (this.faces == 666 && this.roller != null && this.level instanceof ServerLevel serverLevel) {
+            ServerPlayer player = serverLevel.getServer().getPlayerList().getPlayer(this.roller);
+            if (player != null) {
+                ModCriterionTriggers.DICE_TRIPLE_SIX.get().trigger(player);
+            }
+        }
+        this.roller = null;
         this.sync();
     }
 
@@ -119,6 +139,9 @@ public class RedstoneDiceBlockEntity extends BlockEntity {
         tag.putInt("Faces", this.faces);
         tag.putInt("Output", this.output);
         tag.putLong("RollStart", this.rollStart);
+        if (this.roller != null) {
+            tag.store("Roller", UUIDUtil.CODEC, this.roller);
+        }
     }
 
     @Override
@@ -131,6 +154,7 @@ public class RedstoneDiceBlockEntity extends BlockEntity {
         this.faces = validFaces(tag.getIntOr("Faces", 0));
         this.output = Mth.clamp(tag.getIntOr("Output", 0), 0, 15);
         this.rollStart = tag.getLongOr("RollStart", -1L);
+        this.roller = tag.read("Roller", UUIDUtil.CODEC).orElse(null);
     }
 
     private static int validFaces(int value) {

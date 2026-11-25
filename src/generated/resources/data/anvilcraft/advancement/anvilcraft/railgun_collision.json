@@ -1,0 +1,26 @@
+{
+  "parent": "anvilcraft:anvilcraft/supercapacitor",
+  "criteria": {
+    "railgun_collision": {
+      "trigger": "anvilcraft:railgun_collision"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.railgun_collision.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "id": "anvilcraft:anvil_railgun"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.railgun_collision.title"
+    }
+  },
+  "requirements": [
+    [
+      "railgun_collision"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

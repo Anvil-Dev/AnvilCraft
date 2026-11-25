@@ -118,6 +118,24 @@ public enum CelestialBodyClass {
         return this.isRockyPlanet() ? CelestialBodyClass.ROCKY_LOW_LIQUID.rgb : this.rgb;
     }
 
+    /// 天体大类，用于「银河系漫游指南」等需要按形态归类的场合。
+    public CelestialBodyCategory category() {
+        return switch (this) {
+            case LARGE_MOON -> CelestialBodyCategory.MOON;
+            case ROCKY_NO_LIQUID, ROCKY_LOW_LIQUID, ROCKY_MED_LIQUID, ROCKY_HIGH_LIQUID -> CelestialBodyCategory.ROCKY_PLANET;
+            case GAS_GIANT -> CelestialBodyCategory.GAS_GIANT;
+            case ICE_GIANT -> CelestialBodyCategory.ICE_GIANT;
+            case BROWN_DWARF -> CelestialBodyCategory.BROWN_DWARF;
+            case WHITE_DWARF -> CelestialBodyCategory.WHITE_DWARF;
+            case NEUTRON_STAR -> CelestialBodyCategory.NEUTRON_STAR;
+            case BLACK_HOLE -> CelestialBodyCategory.BLACK_HOLE;
+            case M_SUPERGIANT, K_SUPERGIANT, G_SUPERGIANT, F_SUPERGIANT, A_SUPERGIANT, B_SUPERGIANT, O_SUPERGIANT ->
+            CelestialBodyCategory.SUPERGIANT;
+            case M_GIANT, K_GIANT, G_GIANT, F_GIANT, A_GIANT, B_GIANT, O_GIANT -> CelestialBodyCategory.GIANT;
+            case M_MAIN, K_MAIN, G_MAIN, F_MAIN, A_MAIN, B_MAIN, O_MAIN -> CelestialBodyCategory.MAIN_SEQUENCE;
+        };
+    }
+
     @Nullable
     public static CelestialBodyClass fromRgb(int rgb) {
         return CelestialBodyClass.BY_RGB.get(rgb);

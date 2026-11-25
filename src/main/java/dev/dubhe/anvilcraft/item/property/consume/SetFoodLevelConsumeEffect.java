@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.item.ModConsumeEffects;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -34,6 +35,10 @@ public record SetFoodLevelConsumeEffect(int level) implements ConsumeEffect {
     public boolean apply(Level level, ItemStack stack, LivingEntity user) {
         if (!(user instanceof ServerPlayer player)) return false;
         player.getFoodData().setFoodLevel(this.level);
+        if (stack.is(ModItems.TOTEM_OF_RAGE)) {
+            // 事件 37：客户端据此播放愤怒图腾的粒子爆发与音效
+            player.level().broadcastEntityEvent(player, (byte) 37);
+        }
         return true;
     }
 }

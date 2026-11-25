@@ -993,7 +993,11 @@ public class ModItems {
         .register();
 
     public static final ItemEntry<Item> RECOVERY_PEARL = REGISTRUM.item("recovery_pearl", Item::new)
-        .properties(properties -> properties.stacksTo(16).useCooldown(1))
+        .properties(properties -> properties
+            .stacksTo(16)
+            .useCooldown(1)
+            .component(DataComponents.CONSUMABLE, ModConsumables.RECOVERY_PEARL)
+        )
         .recipe(RegistrumItemRecipeLoader::recoveryPearl)
         .register();
 
