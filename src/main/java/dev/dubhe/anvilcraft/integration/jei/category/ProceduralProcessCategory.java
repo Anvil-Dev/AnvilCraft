@@ -199,7 +199,8 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
 
         // input
         List<BlockState> initialStates = recipe.initialBlock().constructStatesForRender();
-        JeiBlockIngredientUtil.getDisplayedState(recipeSlotsView, INITIAL_BLOCK, initialStates).ifPresent(blockState ->
+        var initialState = JeiBlockIngredientUtil.getDisplayedState(recipeSlotsView, INITIAL_BLOCK, initialStates);
+        initialState.ifPresent(blockState ->
             RenderSupport.renderBlockAt(guiGraphics, blockState, STEP_X - 20, BLOCK_Y, BLOCK_SCALE)
         );
 
@@ -218,6 +219,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
             // 主体（产出方块落点所在的那个输入）固定占主线行，其余输入按与它的世界上下
             // 关系向上/下偏移，使各步的主线始终对齐。
             int anchor = RenderSupport.processAnchorIndex(stepRecipe);
+            var displayedModel = recipe.getDisplayedModelForStep(displayedLoop * recipe.steps().size() + i).orElse(null);
             List<ProcessOverlayRenderer.PreviewBlock> blocks = new ArrayList<>();
             for (int j = stepRecipe.getInputBlocks().size() - 1; j >= 0; j--) {
                 List<BlockState> input = stepRecipe.getInputBlocks().get(j).constructStatesForRender();
@@ -225,7 +227,9 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
                 BlockState renderedState = JeiBlockIngredientUtil
                     .getDisplayedState(recipeSlotsView, stepBlockSlotName(i, j), input)
                     .orElse(input.getFirst());
-                var displayedModel = recipe.getDisplayedModelForStep(displayedLoop * recipe.steps().size() + i).orElse(null);
+                if (renderedState.getBlock() instanceof WipBlock && displayedModel == null) {
+                    renderedState = initialState.orElse(renderedState);
+                }
                 float height = (float) (-BLOCK_ROW_DY * j / (BLOCK_SCALE * Math.cos(Math.toRadians(30))));
                 blocks.add(new ProcessOverlayRenderer.PreviewBlock(
                     height, RenderSupport.extractProcessBlock(renderedState, displayedModel)));
