@@ -558,7 +558,7 @@ public final class RedstoneWireNetworkManager {
             int visibleMask = connectionMask(connectedState);
             int activeMask = visibleMask;
             for (int index = 0; index < 4; index++) {
-                if (RedstoneWireBlock.isManuallyHidden(this.level, pos, connectedState, index)) {
+                if (RedstoneWireBlock.isPortHidden(this.level, pos, index)) {
                     activeMask &= ~(1 << index);
                 }
             }
@@ -986,7 +986,7 @@ public final class RedstoneWireNetworkManager {
                 for (int index = 0; index < 4; index++) {
                     if (state.getValue(RedstoneWireBlock.CONNECTION_PROPERTIES.get(index)).isConnected()
                         && entry.getValue().connections[index] == null
-                        && !RedstoneWireBlock.isManuallyHidden(this.level, pos, state, index)) {
+                        && !RedstoneWireBlock.isPortHidden(this.level, pos, index)) {
                         // 有可见连接形状但没有内部导线的位置才是对外采样和输出的电气端子。
                         network.terminalWires.add(entry.getLongKey());
                         Direction terminalDirection = RedstoneWireBlock.getLocalDirection(attachment, index);
