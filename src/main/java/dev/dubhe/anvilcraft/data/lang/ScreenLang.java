@@ -122,7 +122,7 @@ public class ScreenLang {
         provider.add(
             "screen.anvilcraft.transcendence_grindstone.modifier_slot.tooltip",
             "Accepts gold ingots or blocks, books, weapons or tools, and fluid containers. "
-                + "Take the disenchanted item to fill a third-party container. Leave empty to disenchant"
+                    + "Leave empty to disenchant"
         );
 
         provider.add("screen.anvilcraft.royal_steel_upgrade_smithing_template", "Royal Steel Upgrade");
