@@ -1245,5 +1245,6 @@
   "item.anvilcraft.white_chocolate_stairs": "White Chocolate Stairs",
   "item.anvilcraft.zinc_pressure_plate": "Plaque de pression en zinc",
   "key.category.anvilcraft.all": "AnvilCraft",
-  "tooltip.anvilcraft.property.box_contents": "Fullness: %d / %d"
+  "tooltip.anvilcraft.property.box_contents": "Fullness: %d / %d",
+  "advancements.anvilcraft.moon_landing.title": "§oLe Voyage dans la Lune§r"
 }
