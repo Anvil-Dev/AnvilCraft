@@ -34,9 +34,6 @@ public class StorageFluidPortItemHandler extends ItemAccessResourceHandler<Fluid
         int newAmount
     ) {
         HolderLookup.Provider registries = FluidItemRegistryAccess.get();
-        if (registries == null) {
-            return ItemResource.EMPTY;
-        }
         ItemStack stack = accessResource.toStack(1);
         int current = StorageFluidPortBlockEntity.containedFluid(stack, registries).getAmount();
         int delta = newAmount - current;
@@ -55,9 +52,6 @@ public class StorageFluidPortItemHandler extends ItemAccessResourceHandler<Fluid
 
     private static FluidStack storedFluid(ItemResource accessResource) {
         HolderLookup.Provider registries = FluidItemRegistryAccess.get();
-        if (registries == null) {
-            return FluidStack.EMPTY;
-        }
         return StorageFluidPortBlockEntity.containedFluid(accessResource.toStack(1), registries);
     }
 }

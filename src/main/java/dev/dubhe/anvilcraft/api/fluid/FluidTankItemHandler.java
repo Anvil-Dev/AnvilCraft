@@ -36,9 +36,6 @@ public class FluidTankItemHandler extends ItemAccessResourceHandler<FluidResourc
         int newAmount
     ) {
         HolderLookup.Provider registries = FluidItemRegistryAccess.get();
-        if (registries == null) {
-            return ItemResource.EMPTY;
-        }
         // 只改物品数据：这里可能位于调用方的事务中，走静态方法会再开根事务
         ItemStack stack = accessResource.toStack(1);
         FluidTankBlockEntity.writeItemFluid(stack, newResource.toStack(newAmount), registries);
@@ -52,9 +49,6 @@ public class FluidTankItemHandler extends ItemAccessResourceHandler<FluidResourc
 
     private static FluidStack storedFluid(ItemResource accessResource) {
         HolderLookup.Provider registries = FluidItemRegistryAccess.get();
-        if (registries == null) {
-            return FluidStack.EMPTY;
-        }
         return FluidTankBlockEntity.containedFluid(accessResource.toStack(1), registries);
     }
 }

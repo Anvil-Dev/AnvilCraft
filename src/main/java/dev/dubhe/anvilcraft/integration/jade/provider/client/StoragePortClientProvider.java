@@ -27,7 +27,7 @@ public enum StoragePortClientProvider implements IClientExtensionProvider<ItemSt
             for (int index = 0; index < group.views.size(); index++) {
                 ItemStack stack = group.views.get(index);
                 long amount = index < counts.length ? counts[index] : stack.getCount();
-                ItemView view = new ItemView(stack.copyWithCount((int) Math.clamp(amount, 1, Integer.MAX_VALUE)));
+                ItemView view = new ItemView(stack.copyWithCount(Math.clamp(amount, 1, Integer.MAX_VALUE)));
                 view.amountText = accessor.showDetails() ? Long.toString(amount) : FormattingUtil.toAbbrNum(amount);
                 views.add(view);
             }

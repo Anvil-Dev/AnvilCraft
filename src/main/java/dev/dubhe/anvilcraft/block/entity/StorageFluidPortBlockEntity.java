@@ -144,6 +144,7 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidRe
 
     /// 玩家用桶倒入时打上的标记；管道输入不会写这里，也不会渲染标记图标。
     /// 取空后 UI 里的 0 mB 条目也以它为准，未标记的空端口不会占位。
+    @Getter
     private FluidStack markedFluid = FluidStack.EMPTY;
 
     /**
@@ -163,15 +164,6 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidRe
     }
 
     /**
-     * 本端口被标记的流体；未标记时为空栈。
-     *
-     * @return 标记的流体
-     */
-    public FluidStack getMarkedFluid() {
-        return this.markedFluid;
-    }
-
-    /**
      * 自身等效高度的调整量（格）：负值降低高度以便进液，正值提高高度以便排液。
      *
      * <p>由内部水位自动调整，同时作用于液体与气体：管道网络用
@@ -188,7 +180,11 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidRe
      * <p>内部储罐恒为真实容量（128 B），无限只在 {@code getFluid}/{@code getCapacity} 等读取
      * 与 {@code extract}/{@code insert} 处放大为 {@link Integer#MAX_VALUE}；
      * 直接读 {@code tank.getAmountAsInt(0)} 仍会看到 128 B。</p>
+     * -- GETTER --
+     * 当前是否因接入无限储罐而无限供给。
+
      */
+    @Getter
     private boolean infinite;
     /** 连接到的存储 ID；未连接时为 null，用于把流体变化通知给仓储 UI */
     @Nullable
@@ -261,11 +257,6 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidRe
                 StorageServerStub.onContentsChanged(this.storageId);
             }
         }
-    }
-
-    /** 当前是否因接入无限储罐而无限供给。 */
-    public boolean isInfinite() {
-        return this.infinite;
     }
 
     /** 水位越过启动阈值后持续抽入或排出，到目标水位时停止。 */

@@ -52,9 +52,6 @@ public class StorageFluidPortBlockItem extends BlockItem {
     /// 读取物品上保存的标记流体；没有标记时返回空栈。
     private static FluidStack readMarkedFluid(ItemStack stack) {
         HolderLookup.Provider registries = FluidItemRegistryAccess.get();
-        if (registries == null) {
-            return FluidStack.EMPTY;
-        }
         TypedEntityData<?> data = stack.get(DataComponents.BLOCK_ENTITY_DATA);
         CompoundTag tag = data == null ? new CompoundTag() : data.copyTagWithoutId();
         return TagValueInput.create(ProblemReporter.DISCARDING, registries, tag)
