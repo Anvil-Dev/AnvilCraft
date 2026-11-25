@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import com.mojang.serialization.Codec;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.fluid.FluidBottleInteraction;
 import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
@@ -260,6 +261,44 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidReso
             saveItemTank(stack, itemTank, registries);
         }
         return amount;
+    }
+
+    /**
+     * 直接把物品里的流体列表改写为目标值。
+     *
+     * <p>纯数据写入，不开事务，原因同 {@link FluidTankBlockEntity#writeItemFluid}。</p>
+     *
+     * @param stack      大储罐物品（数量必须为 1）
+     * @param fluids     目标内容物；空列表表示清空
+     * @param registries 注册表
+     */
+    public static void writeItemFluids(
+        ItemStack stack, List<FluidStack> fluids, HolderLookup.Provider registries
+    ) {
+        if (stack.getCount() != 1 || !stack.is(ModBlocks.LARGE_FLUID_TANK.asItem())) {
+            return;
+        }
+        TypedEntityData<?> existing = stack.get(DataComponents.BLOCK_ENTITY_DATA);
+        CompoundTag data = existing == null ? new CompoundTag() : existing.copyTagWithoutId();
+        CompoundTag tank = data.getCompoundOrEmpty("Tank");
+        boolean enhanced = tank.getBooleanOr("Enhanced", false);
+        List<FluidStack> kept = fluids.stream().filter(fluid -> !fluid.isEmpty()).toList();
+        data.remove("Tank");
+        if (!kept.isEmpty()) {
+            TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
+            output.store("Fluids", FluidStack.OPTIONAL_CODEC.listOf(), kept);
+            output.store("Infinite", Codec.BOOL.listOf(), kept.stream().map(fluid -> false).toList());
+            output.putBoolean("Enhanced", enhanced);
+            data.put("Tank", output.buildResult());
+        }
+        if (data.isEmpty()) {
+            stack.remove(DataComponents.BLOCK_ENTITY_DATA);
+        } else {
+            stack.set(
+                DataComponents.BLOCK_ENTITY_DATA,
+                TypedEntityData.of(ModBlockEntities.LARGE_FLUID_TANK.get(), data)
+            );
+        }
     }
 
     private static void saveItemTank(ItemStack stack, MultiFluidTankHandler itemTank, HolderLookup.Provider registries) {

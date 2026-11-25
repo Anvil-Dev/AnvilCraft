@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.api.StorageComparatorManager;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.TerminalSessions;
 import dev.dubhe.anvilcraft.api.fluid.FluidHandlerWrapper;
+import dev.dubhe.anvilcraft.api.fluid.FluidItemRegistryAccess;
 import dev.dubhe.anvilcraft.api.item.ICannotFitInStationItem;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.SpaceSizeItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.TypeLimitItemStacksResourceHandler;
@@ -94,6 +95,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -339,10 +341,23 @@ public final class StorageServerStub {
             changed = outcome.changed();
             notice = outcome.notice();
         } else if (action == StorageInput.QUICK_MOVE_FROM_STORAGE) {
+            ItemStack shiftCarried = player.containerMenu.getCarried();
             if (slot >= StoragePortManager.FLUID_SLOT_BASE) {
-                FluidOutcome outcome = StorageServerStub.takeFluidBucketIntoInventory(player, view, fluid);
+                // 流体格只负责取出：手持容器时 Shift 一次灌到容器上限，满了则没有可取的空间
+                FluidOutcome outcome;
+                if (StorageServerStub.isFluidTankItem(shiftCarried)) {
+                    outcome = StorageServerStub.hasFluidSpace(shiftCarried)
+                        ? StorageServerStub.fillTankFromStorage(player, view, shiftCarried, fluid, true)
+                        : FluidOutcome.failed(FluidNotice.NONE);
+                } else {
+                    outcome = StorageServerStub.takeFluidBucketIntoInventory(player, view, fluid);
+                }
                 changed = outcome.changed();
                 notice = outcome.notice();
+            } else if ((slot < 0 || slot >= view.size() || view.amount(slot) == 0)
+                       && StorageServerStub.hasFluid(shiftCarried)) {
+                // 空白格上的 Shift 没有可取的物品：手持装有流体的容器时这一下是「倒完」
+                changed = StorageServerStub.pourTankIntoFluidPort(player, view, shiftCarried, true, true) > 0;
             } else {
                 changed = StorageServerStub.moveStorageStackToInventory(player, view, slot);
             }
@@ -358,7 +373,7 @@ public final class StorageServerStub {
             int amount = button == 0 ? carried.getCount() : 1;
             int poured = shouldPourFluid(playerId, button) ? StorageServerStub.pourIntoFluidPort(player, view, carried, amount) : 0;
             if (poured > 0) {
-                if (carried.isEmpty()) player.inventoryMenu.setCarried(ItemStack.EMPTY);
+                // 指针物品由倒液流程自己收尾：倒空的容器已经放回指针，这里再清一次会把它吞掉
                 changed = true;
             } else {
                 try (Transaction transaction = Transaction.openRoot()) {
@@ -1884,7 +1899,10 @@ public final class StorageServerStub {
         if (stack.isEmpty()) {
             return 0;
         }
-        int poured = pour ? StorageServerStub.pourIntoFluidPort(player, view, stack, stack.getCount()) : 0;
+        // Shift 快速转移是「整叠一次处理」：容器一律倒完，并把容器一并收进仓储
+        int poured = pour
+                      ? StorageServerStub.pourIntoFluidPort(player, view, stack, stack.getCount(), true, false)
+                      : 0;
         if (poured > 0) {
             if (stack.isEmpty()) inventory.setItem(slot, ItemStack.EMPTY);
             return poured;
@@ -2430,19 +2448,19 @@ public final class StorageServerStub {
         // 指针上拿着装有流体的容器：这一下是「倒进去」。倒不进去（如仓储没有可接收的
         // 端口）时继续往下走，由取出的分支判断指针是否可接收产物
         ItemStack carried = player.inventoryMenu.getCarried();
-        if (!carried.isEmpty()) {
+        // 手持物品态容器时这一键只负责取液：还有空间就灌一桶，灌满了就什么都不做。
+        // 倒液改由 Shift 触发，否则「想取液」会先被倒液截走
+        if (StorageServerStub.isFluidTankItem(carried)) {
+            return StorageServerStub.hasFluidSpace(carried)
+                ? StorageServerStub.fillTankFromStorage(player, view, carried, fluid, false)
+                : FluidOutcome.failed(FluidNotice.NONE);
+        }
+        if (!carried.isEmpty() && !StorageServerStub.hasFluidSpace(carried)) {
             int amount = button == 0 ? carried.getCount() : 1;
             if (StorageServerStub.pourIntoFluidPort(player, view, carried, amount) > 0) {
-                if (carried.isEmpty()) {
-                    player.inventoryMenu.setCarried(ItemStack.EMPTY);
-                }
+                // 指针物品由倒液流程自己收尾：倒空的容器已放回指针，这里不能再清空它
                 return FluidOutcome.CHANGED;
             }
-        }
-        // 指针上拿着储罐且没倒出东西：这一下的意图是「把流体灌进储罐」。
-        // 储罐按一次倒满处理，与桶固定 1000 mB 的语义不同，故在装桶流程之前分流
-        if (StorageServerStub.isFluidTankItem(carried)) {
-            return StorageServerStub.fillTankFromStorage(player, view, carried, fluid);
         }
         FilledBucket filled = StorageServerStub.fillBucketFromStorage(player, view, fluid, false);
         if (filled.stack().isEmpty()) {
@@ -2686,9 +2704,21 @@ public final class StorageServerStub {
     }
 
     private static int pourIntoFluidPort(ServerPlayer player, StorageView view, ItemStack stack, int maxAmount) {
+        return StorageServerStub.pourIntoFluidPort(player, view, stack, maxAmount, maxAmount > 1, true);
+    }
+
+    private static int pourIntoFluidPort(
+        ServerPlayer player,
+        StorageView view,
+        ItemStack stack,
+        int maxAmount,
+        boolean pourAll,
+        boolean keepContainer
+    ) {
         if (stack.isEmpty() || maxAmount <= 0) return 0;
         if (StorageServerStub.isFluidTankItem(stack)) {
-            return StorageServerStub.pourTankIntoFluidPort(player, view, stack) > 0 ? 1 : 0;
+            // 指针上的容器一律留在指针上（含 Shift 倒完），只有快速转移才把它收进仓储
+            return StorageServerStub.pourTankIntoFluidPort(player, view, stack, pourAll, keepContainer) > 0 ? 1 : 0;
         }
         PotionContents potion = stack.get(DataComponents.POTION_CONTENTS);
         boolean waterBottle = stack.is(Items.POTION) && potion != null && potion.is(Potions.WATER);
@@ -2699,6 +2729,7 @@ public final class StorageServerStub {
         if (acceptor == null) return 0;
         int poured = 0;
         boolean bottle = false;
+        List<ItemStack> emptiedContainers = new ArrayList<>();
         while (poured < maxAmount && !stack.isEmpty()) {
             ItemStack emptied;
             try (Transaction transaction = Transaction.openRoot()) {
@@ -2716,103 +2747,368 @@ public final class StorageServerStub {
                 transaction.commit();
             }
             bottle = emptied.is(Items.GLASS_BOTTLE);
-            StorageServerStub.giveEmptiedContainerToStorage(view, player, emptied);
+            emptiedContainers.add(emptied);
             stack.shrink(1);
             poured++;
         }
-        if (poured > 0) StorageServerStub.playBucketSound(player, content, SoundActions.BUCKET_EMPTY, bottle);
+        if (keepContainer) {
+            // 倒空的容器留在鼠标上：与指针上剩下的物品同类就并进去
+            ItemStack onCursor = player.containerMenu.getCarried();
+            while (!emptiedContainers.isEmpty()) {
+                ItemStack emptied = emptiedContainers.getFirst();
+                if (onCursor.isEmpty()) {
+                    onCursor = emptied.copy();
+                } else if (ItemStack.isSameItemSameComponents(onCursor, emptied)
+                           && onCursor.getCount() < onCursor.getMaxStackSize()) {
+                    onCursor.grow(1);
+                } else {
+                    break;
+                }
+                emptiedContainers.removeFirst();
+            }
+            player.containerMenu.setCarried(onCursor);
+        }
+        for (ItemStack emptied : emptiedContainers) {
+            StorageServerStub.giveEmptiedContainerToStorage(view, player, emptied);
+        }
+        if (poured > 0) {
+            StorageServerStub.playBucketSound(player, content, SoundActions.BUCKET_EMPTY, bottle);
+            // 主动推一次内容变更，让界面立即显示新流体
+            StorageServerStub.onContentsChanged(view.primary().getId());
+        }
         return poured;
     }
 
-    private static boolean isFluidTankItem(ItemStack stack) {
-        return stack.is(ModBlocks.FLUID_TANK.asItem()) || stack.is(ModBlocks.LARGE_FLUID_TANK.asItem());
-    }
-
-    private static List<FluidStack> tankFluids(ItemStack stack, HolderLookup.Provider registries) {
-        return stack.is(ModBlocks.LARGE_FLUID_TANK.asItem())
+    /// 自家储罐：单罐返回一项、大罐返回多项，空项已剔除。
+    private static List<FluidStack> ownTankFluids(ItemStack stack, HolderLookup.Provider registries) {
+        List<FluidStack> fluids = new ArrayList<>(stack.is(ModBlocks.LARGE_FLUID_TANK.asItem())
             ? LargeFluidTankBlockEntity.containedFluids(stack, registries)
-            : List.of(FluidTankBlockEntity.containedFluid(stack, registries));
+            : List.of(FluidTankBlockEntity.containedFluid(stack, registries)));
+        fluids.removeIf(FluidStack::isEmpty);
+        return fluids;
     }
 
-    private static int tankRemainingCapacity(ItemStack stack, HolderLookup.Provider registries) {
+    /// 自家储罐还能装入的流体量。
+    private static int ownTankSpace(ItemStack stack, HolderLookup.Provider registries) {
         return stack.is(ModBlocks.LARGE_FLUID_TANK.asItem())
             ? LargeFluidTankBlockEntity.remainingCapacity(stack, registries)
             : FluidTankBlockEntity.remainingCapacity(stack, registries);
     }
 
-    private static int insertIntoTankItem(ItemStack stack, FluidStack fluid, HolderLookup.Provider registries) {
+    /// 向自家储罐灌入流体并写回，返回实际接收量。
+    private static int ownTankInsert(ItemStack stack, FluidStack fluid, HolderLookup.Provider registries) {
         return stack.is(ModBlocks.LARGE_FLUID_TANK.asItem())
             ? LargeFluidTankBlockEntity.insertIntoItem(stack, fluid, registries)
             : FluidTankBlockEntity.insertIntoItem(stack, fluid, registries);
     }
 
-    private static int drainFromTankItem(ItemStack stack, FluidStack fluid, HolderLookup.Provider registries) {
+    /// 从自家储罐抽出流体并写回，返回实际抽出量。
+    private static int ownTankDrain(ItemStack stack, FluidStack fluid, HolderLookup.Provider registries) {
         return stack.is(ModBlocks.LARGE_FLUID_TANK.asItem())
             ? LargeFluidTankBlockEntity.drainItem(stack, fluid, registries)
             : FluidTankBlockEntity.drainItem(stack, fluid, registries);
     }
 
-    private static int pourTankIntoFluidPort(ServerPlayer player, StorageView view, ItemStack stack) {
-        if (stack.isEmpty()) return 0;
-        UUID storageId = view.primary().getId();
+    /// 自家的两种储罐直接走方块实体的静态方法，避免能力查询异常时整个取液流程失效。
+    private static boolean isOwnFluidTank(ItemStack stack) {
+        return stack.is(ModBlocks.FLUID_TANK.asItem()) || stack.is(ModBlocks.LARGE_FLUID_TANK.asItem());
+    }
+
+    /// 自家储罐的灌装流程。
+    private static FluidOutcome fillOwnTankFromStorage(
+        ServerPlayer player, StorageView view, ItemStack carried, FluidStack fluid, boolean fillAll
+    ) {
         HolderLookup.Provider registries = player.registryAccess();
-        // 整叠储罐共享同一份方块实体数据，只能逐件处理：先拷出其中一件来倒，
-        // 倒完再让整叠减 1 并把倒空的罐按空桶的老规矩还回去
+        UUID storageId = view.primary().getId();
+        FluidEntry entry = StoragePortManager.find(storageId, fluid);
+        if (entry == null) return FluidOutcome.failed(FluidNotice.NONE);
+        int space = StorageServerStub.ownTankSpace(carried, registries);
+        if (space <= 0) return FluidOutcome.failed(FluidNotice.NONE);
+        int available = fillAll ? entry.amount() : FluidType.BUCKET_VOLUME;
+        int amount = Math.min(space, available);
+        if (amount <= 0) return FluidOutcome.failed(FluidNotice.NOT_ENOUGH);
+        ItemStack single = carried.copyWithCount(1);
+        // 静态方法内部自己开根事务，这里不能再包一层；先模拟抽取确定可用量，再按容器实际接收量真抽
+        int availableMb = StoragePortManager.drain(storageId, entry.icon(), amount, true);
+        if (availableMb <= 0) return FluidOutcome.failed(FluidNotice.NONE);
+        int accepted = StorageServerStub.ownTankInsert(
+            single, entry.icon().copyWithAmount(availableMb), registries);
+        if (accepted <= 0) return FluidOutcome.failed(FluidNotice.NOT_ENOUGH);
+        int drained = StoragePortManager.drain(storageId, entry.icon(), accepted, false);
+        if (drained != accepted) {
+            // 端口没能给足：把多抽的部分退回端口，容器不改动
+            var acceptor = StoragePortManager.findAcceptor(storageId, entry.icon());
+            if (acceptor != null) {
+                int refund = Math.min(drained, accepted);
+                try (Transaction transaction = Transaction.openRoot()) {
+                    acceptor.insert(FluidResource.of(entry.icon()), refund, transaction);
+                    transaction.commit();
+                }
+            }
+            return FluidOutcome.failed(FluidNotice.NOT_ENOUGH);
+        }
+        if (carried.getCount() == 1) {
+            player.inventoryMenu.setCarried(single);
+        } else {
+            StorageServerStub.giveBucket(player, view, single);
+            carried.shrink(1);
+        }
+        StorageServerStub.playBucketSound(player, entry.icon(), SoundActions.BUCKET_FILL, false);
+        return FluidOutcome.CHANGED;
+    }
+
+    /// 自家储罐的倒液流程。
+    private static int pourOwnTankIntoFluidPort(
+        ServerPlayer player, StorageView view, ItemStack stack, boolean pourAll, boolean keepContainer
+    ) {
+        HolderLookup.Provider registries = player.registryAccess();
+        UUID storageId = view.primary().getId();
         ItemStack single = stack.copyWithCount(1);
-        List<FluidStack> fluids = StorageServerStub.tankFluids(single, registries);
-        if (fluids.stream().allMatch(FluidStack::isEmpty)) return 0;
-        // 先按流体分别算出可倒量，确认有得倒再整体提交，
-        // 避免端口写入失败却已把罐里的流体扣掉
+        int budget = pourAll ? Integer.MAX_VALUE : FluidType.BUCKET_VOLUME;
+        int poured = 0;
+        FluidStack soundFluid = FluidStack.EMPTY;
+        for (FluidStack fluid : StorageServerStub.ownTankFluids(single, registries)) {
+            if (poured >= budget) break;
+            var acceptor = StoragePortManager.findAcceptor(storageId, fluid);
+            if (acceptor == null) continue;
+            int want = Math.min(fluid.getAmount(), budget - poured);
+            // 端口侧自己开根事务并先提交，物品侧的静态方法随后再开自己的根事务，两者不能嵌套
+            int inserted;
+            try (Transaction transaction = Transaction.openRoot()) {
+                inserted = acceptor.insert(FluidResource.of(fluid), want, transaction);
+                if (inserted <= 0) continue;
+                transaction.commit();
+            }
+            int drained = StorageServerStub.ownTankDrain(single, fluid.copyWithAmount(inserted), registries);
+            if (drained != inserted) {
+                // 物品没抽出这么多：把刚灌进端口的量抽回去，避免凭空产生流体
+                StoragePortManager.drain(storageId, fluid, inserted, false);
+                break;
+            }
+            poured += inserted;
+            if (soundFluid.isEmpty()) {
+                soundFluid = fluid.copyWithAmount(inserted);
+            }
+        }
+        if (poured <= 0) return 0;
+        StorageServerStub.playBucketSound(player, soundFluid, SoundActions.BUCKET_EMPTY, false);
+        StorageServerStub.onContentsChanged(storageId);
+        if (keepContainer) {
+            if (stack.getCount() <= 1) {
+                player.containerMenu.setCarried(single);
+            } else {
+                ItemStack remaining = stack.copyWithCount(stack.getCount() - 1);
+                if (!player.getInventory().add(remaining)) {
+                    StorageServerStub.giveEmptiedContainerToStorage(view, player, remaining);
+                }
+                player.containerMenu.setCarried(single);
+            }
+        } else {
+            StorageServerStub.giveEmptiedContainerToStorage(view, player, single);
+            stack.shrink(1);
+        }
+        return poured;
+    }
+
+    /// 物品是否带 ITEM 流体能力；不是容器时返回 {@code null}。
+    private static @Nullable ResourceHandler<FluidResource> fluidHandlerOf(ItemStack stack) {
+        if (stack.isEmpty()) return null;
+        ItemStack single = stack.copyWithCount(1);
+        ItemStacksResourceHandler holder = new ItemStacksResourceHandler(1);
+        holder.set(0, ItemResource.of(single), 1);
+        ResourceHandler<FluidResource> handler =
+            ItemAccess.forHandlerIndexStrict(holder, 0).getCapability(Capabilities.Fluid.ITEM);
+        if (handler == null) {
+            AnvilCraft.LOGGER.warn("[储罐能力] 物品没有流体能力: {}", stack);
+        }
+        return handler;
+    }
+
+    /// 容器内现有的全部流体。
+    private static List<FluidStack> fluidContentsOf(ResourceHandler<FluidResource> handler) {
+        List<FluidStack> fluids = new ArrayList<>();
+        for (int index = 0; index < handler.size(); index++) {
+            FluidResource resource = handler.getResource(index);
+            int amount = handler.getAmountAsInt(index);
+            if (resource.isEmpty() || amount <= 0) continue;
+            fluids.add(resource.toStack(amount));
+        }
+        return fluids;
+    }
+
+    /// 容器还能装入的流体总量。
+    private static int fluidSpaceOf(ResourceHandler<FluidResource> handler) {
+        int space = 0;
+        for (int index = 0; index < handler.size(); index++) {
+            FluidResource resource = handler.getResource(index);
+            long capacity = handler.getCapacityAsLong(index, resource);
+            space += (int) Math.max(0, capacity - handler.getAmountAsLong(index));
+        }
+        return space;
+    }
+
+    /// 客户端界面用：手持物品是否还能装流体。
+    public static boolean carriedHasFluidSpace(ItemStack stack) {
+        return StorageServerStub.hasFluidSpace(stack);
+    }
+
+    /// 客户端界面用：手持物品是否装着流体。
+    public static boolean carriedHasFluid(ItemStack stack) {
+        return StorageServerStub.hasFluid(stack);
+    }
+
+    /// 物品态容器是否还有空间接收流体；不是容器时返回 {@code false}。
+    private static boolean hasFluidSpace(ItemStack stack) {
+        if (StorageServerStub.isOwnFluidTank(stack)) {
+            HolderLookup.Provider registries = FluidItemRegistryAccess.get();
+            return registries != null && StorageServerStub.ownTankSpace(stack, registries) > 0;
+        }
+        ResourceHandler<FluidResource> handler = StorageServerStub.fluidHandlerOf(stack);
+        return handler != null && StorageServerStub.fluidSpaceOf(handler) > 0;
+    }
+
+    /// 物品态容器里是否装着流体；不是容器或为空时返回 {@code false}。
+    private static boolean hasFluid(ItemStack stack) {
+        if (StorageServerStub.isOwnFluidTank(stack)) {
+            HolderLookup.Provider registries = FluidItemRegistryAccess.get();
+            return registries != null && !StorageServerStub.ownTankFluids(stack, registries).isEmpty();
+        }
+        ResourceHandler<FluidResource> handler = StorageServerStub.fluidHandlerOf(stack);
+        return handler != null && !StorageServerStub.fluidContentsOf(handler).isEmpty();
+    }
+
+    /**
+     * 判断物品是否该走「物品态储罐」流程，而不是「桶」流程。
+     *
+     * <p>两条路径的分界不是模组或物品白名单，而是容器结构：只有一格且容量不超过一桶的物品是桶
+     * （原版桶、玻璃瓶，以及其它模组的流体桶都落在这一侧），容量超过一桶或拥有多格的才是储罐。</p>
+     */
+    private static boolean isFluidTankItem(ItemStack stack) {
+        if (StorageServerStub.isOwnFluidTank(stack)) return true;
+        ResourceHandler<FluidResource> handler = StorageServerStub.fluidHandlerOf(stack);
+        if (handler == null) return false;
+        if (handler.size() > 1) return true;
+        FluidResource resource = handler.getResource(0);
+        return handler.getCapacityAsLong(0, resource) > FluidType.BUCKET_VOLUME;
+    }
+
+    /// 把物品态容器里的流体倒进仓储端口；容器是否留在指针上由 keepContainer 决定。
+    private static int pourTankIntoFluidPort(
+        ServerPlayer player,
+        StorageView view,
+        ItemStack stack,
+        boolean pourAll,
+        boolean keepContainer
+    ) {
+        if (stack.isEmpty()) return 0;
+        if (StorageServerStub.isOwnFluidTank(stack)) {
+            return StorageServerStub.pourOwnTankIntoFluidPort(player, view, stack, pourAll, keepContainer);
+        }
+        UUID storageId = view.primary().getId();
+        ItemStack single = stack.copyWithCount(1);
+        ItemStacksResourceHandler holder = new ItemStacksResourceHandler(1);
+        holder.set(0, ItemResource.of(single), 1);
+        ResourceHandler<FluidResource> source =
+            ItemAccess.forHandlerIndexStrict(holder, 0).getCapability(Capabilities.Fluid.ITEM);
+        if (source == null) return 0;
+        int budget = pourAll ? Integer.MAX_VALUE : FluidType.BUCKET_VOLUME;
+        int poured = 0;
         List<FluidStack> moved = new ArrayList<>();
-        try (Transaction transaction = Transaction.openRoot()) {
-            for (FluidStack fluid : fluids) {
-                if (fluid.isEmpty()) continue;
+        // 部分模组的抽取单次只给一桶，需要反复抽到容器见底或端口存满
+        for (int pass = 0; pass < 64 && poured < budget; pass++) {
+            int before = poured;
+            for (int index = 0; index < source.size() && poured < budget; index++) {
+                FluidResource resource = source.getResource(index);
+                int amount = source.getAmountAsInt(index);
+                if (resource.isEmpty() || amount <= 0) continue;
+                FluidStack fluid = resource.toStack(amount);
                 var acceptor = StoragePortManager.findAcceptor(storageId, fluid);
                 if (acceptor == null) continue;
-                int inserted = acceptor.insert(FluidResource.of(fluid), fluid.getAmount(), transaction);
-                if (inserted <= 0) continue;
-                moved.add(fluid.copyWithAmount(inserted));
+                int want = Math.min(amount, budget - poured);
+                try (Transaction transaction = Transaction.openRoot()) {
+                    int extracted = source.extract(index, resource, want, transaction);
+                    if (extracted <= 0) continue;
+                    int inserted = acceptor.insert(resource, extracted, transaction);
+                    if (inserted != extracted) continue;
+                    transaction.commit();
+                    moved.add(fluid.copyWithAmount(inserted));
+                    poured += inserted;
+                }
             }
-            if (moved.isEmpty()) return 0;
-            transaction.commit();
+            if (poured == before) break;
         }
-        // 提交成功后才把罐内数据扣掉：储罐物品没有 ITEM 流体能力，
-        // 只能借方块实体的静态方法直接改写 Tank 数据
-        for (FluidStack fluid : moved) {
-            StorageServerStub.drainFromTankItem(single, fluid, registries);
-        }
+        if (moved.isEmpty()) return 0;
+        ItemStack result = holder.getResource(0).toStack(holder.getAmountAsInt(0));
         StorageServerStub.playBucketSound(player, moved.getFirst(), SoundActions.BUCKET_EMPTY, false);
-        // 倒空的罐按空容器处理：进仓储或背包，指针上的那一件减少 1
-        StorageServerStub.giveEmptiedContainerToStorage(view, player, single);
-        stack.shrink(1);
+        // 主动推一次内容变更，否则按住 Shift 连续倒时界面要等松手才刷新
+        StorageServerStub.onContentsChanged(storageId);
+        if (keepContainer) {
+            if (stack.getCount() <= 1) {
+                player.containerMenu.setCarried(result);
+            } else {
+                // 整叠容器共用同一份数据，只能拆出被倒的那一件：余下的原样退回背包
+                ItemStack remaining = stack.copyWithCount(stack.getCount() - 1);
+                if (!player.getInventory().add(remaining)) {
+                    StorageServerStub.giveEmptiedContainerToStorage(view, player, remaining);
+                }
+                player.containerMenu.setCarried(result);
+            }
+        } else {
+            StorageServerStub.giveEmptiedContainerToStorage(view, player, result);
+            stack.shrink(1);
+        }
         return moved.size();
     }
 
     private static FluidOutcome fillTankFromStorage(
-        ServerPlayer player, StorageView view, ItemStack carried, FluidStack fluid
+        ServerPlayer player,
+        StorageView view,
+        ItemStack carried,
+        FluidStack fluid,
+        boolean fillAll
     ) {
         if (carried.isEmpty()) return FluidOutcome.failed(FluidNotice.NONE);
-        HolderLookup.Provider registries = player.registryAccess();
-        int space = StorageServerStub.tankRemainingCapacity(carried, registries);
-        if (space <= 0) return FluidOutcome.failed(FluidNotice.NONE);
+        if (StorageServerStub.isOwnFluidTank(carried)) {
+            return StorageServerStub.fillOwnTankFromStorage(player, view, carried, fluid, fillAll);
+        }
+        ItemStack single = carried.copyWithCount(1);
+        ItemStacksResourceHandler holder = new ItemStacksResourceHandler(1);
+        holder.set(0, ItemResource.of(single), 1);
+        ResourceHandler<FluidResource> handler =
+            ItemAccess.forHandlerIndexStrict(holder, 0).getCapability(Capabilities.Fluid.ITEM);
+        if (handler == null) {
+            AnvilCraft.LOGGER.warn("[取液] 容器没有流体能力: {}", carried);
+            return FluidOutcome.failed(FluidNotice.NONE);
+        }
+        int space = StorageServerStub.fluidSpaceOf(handler);
+        if (space <= 0) {
+            AnvilCraft.LOGGER.warn("[取液] 容器没有空间: item={} handler size={} space={}", carried, handler.size(), space);
+            return FluidOutcome.failed(FluidNotice.NONE);
+        }
         UUID storageId = view.primary().getId();
         FluidEntry entry = StoragePortManager.find(storageId, fluid);
-        if (entry == null) return FluidOutcome.failed(FluidNotice.NONE);
-        int amount = Math.min(space, entry.amount());
+        if (entry == null) {
+            AnvilCraft.LOGGER.warn("[取液] 仓储里找不到流体: {}", fluid);
+            return FluidOutcome.failed(FluidNotice.NONE);
+        }
+        // 普通点击灌一桶；Shift 灌满时直接把端口取干，不再保留一桶兜底
+        int available = fillAll ? entry.amount() : FluidType.BUCKET_VOLUME;
+        int amount = Math.min(space, available);
         if (amount <= 0) return FluidOutcome.failed(FluidNotice.NOT_ENOUGH);
-        // 先在一件的副本上灌，拿到真实接收量；罐里已有别种流体且不相容时接收量为 0
-        ItemStack filled = carried.copyWithCount(1);
-        int accepted = StorageServerStub.insertIntoTankItem(filled, entry.icon().copyWithAmount(amount), registries);
-        if (accepted <= 0) return FluidOutcome.failed(FluidNotice.NONE);
+        FluidResource resource = FluidResource.of(entry.icon());
         try (Transaction transaction = Transaction.openRoot()) {
-            if (StoragePortManager.drain(storageId, entry.icon(), accepted, transaction) < accepted) {
-                return FluidOutcome.failed(FluidNotice.NOT_ENOUGH);
+            int extracted = StoragePortManager.drain(storageId, entry.icon(), amount, transaction);
+            if (extracted <= 0) return FluidOutcome.failed(FluidNotice.NONE);
+            int remaining = extracted;
+            for (int index = 0; index < handler.size() && remaining > 0; index++) {
+                remaining -= handler.insert(index, resource, remaining, transaction);
             }
+            if (remaining != 0) return FluidOutcome.failed(FluidNotice.NOT_ENOUGH);
             transaction.commit();
         }
-        // 端口已抽出等量流体，副本也已灌好，直接决定成品去向
+        ItemStack filled = holder.getResource(0).toStack(holder.getAmountAsInt(0));
         if (carried.getCount() == 1) {
-            // 单件时直接把指针上的储罐换成灌好的那件，与装桶时把指针换成满桶一致
+            // 单件时直接把指针上的容器换成灌好的那件，与装桶时把指针换成满桶一致
             player.inventoryMenu.setCarried(filled);
         } else {
             StorageServerStub.giveBucket(player, view, filled);

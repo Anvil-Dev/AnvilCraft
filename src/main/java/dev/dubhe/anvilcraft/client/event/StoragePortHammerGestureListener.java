@@ -6,6 +6,7 @@ import dev.anvilcraft.lib.v2.wheel.api.WheelMenuModel;
 import dev.anvilcraft.lib.v2.wheel.api.WheelSelectionEffect;
 import dev.anvilcraft.lib.v2.wheel.client.input.WheelScreenController;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.StorageFluidPortBlockEntity;
 import dev.dubhe.anvilcraft.block.logistics.storage.StoragePortBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
@@ -161,6 +162,11 @@ public class StoragePortHammerGestureListener {
         }
         BlockPos pos = hitResult.getBlockPos();
         BlockState state = Objects.requireNonNull(client.level).getBlockState(pos);
+        if (state.is(ModBlocks.STORAGE_FLUID_PORT)) {
+            // 流体端口没有 MARKED 状态，标记只存在于方块实体里
+            return client.level.getBlockEntity(pos) instanceof StorageFluidPortBlockEntity fluidPort
+                   && !fluidPort.getMarkedFluid().isEmpty() ? pos : null;
+        }
         if (!state.is(ModBlocks.STORAGE_PORT)) {
             return null;
         }

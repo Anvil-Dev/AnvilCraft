@@ -54,16 +54,32 @@ public enum LargeFluidTankProvider implements IServerExtensionProvider<FluidView
             ));
         }
         if (blockAccessor.getBlockEntity() instanceof StorageFluidPortBlockEntity port) {
-            FluidStack remembered = port.getRememberedFluid();
-            FluidResource resource = FluidResource.of(remembered);
             boolean infinite = port.isInfinite();
-            return List.of(singleFluidGroup(
+            long capacity = infinite ? Integer.MAX_VALUE : StorageFluidPortBlockEntity.CAPACITY_MB;
+            FluidStack stored = port.getFluid();
+            if (!stored.isEmpty()) {
+                return List.of(singleFluidGroup(
+                    LargeFluidTankProvider.FLUID_PORT_GROUP,
+                    FluidResource.of(stored),
+                    stored.getAmount(),
+                    capacity,
+                    infinite
+                ));
+            }
+            // 取空后按标记流体占位：保留流体类型，数量显示 0，而不是变成「空」
+            FluidStack marked = port.getMarkedFluid();
+            ViewGroup<FluidView.Data> group = singleFluidGroup(
                 LargeFluidTankProvider.FLUID_PORT_GROUP,
-                resource,
-                port.getFluidHandler().getAmountAsLong(0),
-                infinite ? Integer.MAX_VALUE : StorageFluidPortBlockEntity.CAPACITY_MB,
+                FluidResource.of(marked),
+                0,
+                capacity,
                 infinite
-            ));
+            );
+            if (!marked.isEmpty()) {
+                // 数量 0 的流体在 Jade 里等同于空，客户端取不到名字；另存一份名字专门给标题用
+                group.getExtraData().putString("marked_fluid", marked.getHoverName().getString());
+            }
+            return List.of(group);
         }
         if (blockAccessor.getBlockEntity() instanceof StoragePortConsolidatorBlockEntity consolidator) {
             return consolidatorGroups(consolidator);
