@@ -49,6 +49,15 @@ public class FluidTankTooltipProvider extends ITooltipProvider.BlockEntityToolti
                 }
                 fluids.add(fluid);
             }
+            // 端口被标记时标出标记的流体：罐里是否还有流体都要看得到
+            if (value instanceof StorageFluidPortBlockEntity port) {
+                FluidStack marked = port.getMarkedFluid();
+                if (!marked.isEmpty()) {
+                    lines.add(Component.translatable(
+                            "tooltip.anvilcraft.storage_port.marked", marked.getHoverName())
+                        .setStyle(Style.EMPTY.applyFormat(ChatFormatting.AQUA)));
+                }
+            }
             if (!fluids.isEmpty()) {
                 lines.add(Component.translatable("tooltip.anvilcraft.fluid_tank.fluid")
                     .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE)));

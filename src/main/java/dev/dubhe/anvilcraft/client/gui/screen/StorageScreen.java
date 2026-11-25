@@ -1355,9 +1355,18 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 if (entry != null) {
                     StorageScreen.renderFluidIcon(graphics, this.font, entry, x, y);
                     if (hovered) {
-                        graphics.setTooltipForNextFrame(this.font, List.of(entry.icon().getHoverName().getVisualOrderText(),
-                            Component.translatable("screen.anvilcraft.storage.fluid_amount",
-                                FluidAmountUtil.formatExactAmount(entry.amount())).getVisualOrderText()), mouseX, mouseY);
+                        List<Component> fluidLines = new ArrayList<>();
+                        fluidLines.add(entry.icon().getHoverName());
+                        fluidLines.add(Component.translatable("screen.anvilcraft.storage.fluid_amount",
+                            FluidAmountUtil.formatExactAmount(entry.amount())));
+                        // 手持容器时补上取液提示，免得玩家不知道这里能直接灌
+                        if (StorageServerStub.carriedHasFluidSpace(this.carried)) {
+                            Component button = Component.translatable("key.mouse.left");
+                            fluidLines.add(Component.translatable("tooltip.anvilcraft.storage.container.take", button));
+                            fluidLines.add(Component.translatable("tooltip.anvilcraft.storage.container.take_all", button));
+                        }
+                        graphics.setTooltipForNextFrame(this.font,
+                            fluidLines.stream().map(Component::getVisualOrderText).toList(), mouseX, mouseY);
                     }
                 }
                 if (hovered) {
@@ -1394,6 +1403,11 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                         } else {
                             lines.add(Component.translatable("screen.anvilcraft.storage.count", count));
                         }
+                        if (StorageServerStub.carriedHasFluid(this.carried)) {
+                            Component button = Component.translatable("key.mouse.left");
+                            lines.add(Component.translatable("tooltip.anvilcraft.storage.container.pour", button));
+                            lines.add(Component.translatable("tooltip.anvilcraft.storage.container.pour_all", button));
+                        }
                         graphics.setTooltipForNextFrame(this.font, lines, itemStack.getTooltipImage(), itemStack,
                             mouseX, mouseY, itemStack.get(DataComponents.TOOLTIP_STYLE));
                     } else {
@@ -1404,6 +1418,27 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
             if (hovered) {
                 graphics.blitSprite(RenderPipelines.GUI_TEXTURED, StorageScreen.SLOT_HIGHLIGHT_FRONT_SPRITE, x - 4, y - 4, 24, 24);
+            }
+        }
+        // 空格子没有物品提示，但手持装有流体的容器时 Shift 能直接倒空，这里补上提示
+        if (StorageServerStub.carriedHasFluid(this.carried)) {
+            for (int displayIndex = 0; displayIndex < StorageScreen.VISIBLE_STORAGE_SLOTS; displayIndex++) {
+                if (firstOrderIndex + displayIndex < this.displayOrder.size()) {
+                    continue;
+                }
+                int x = this.sx(StorageScreen.STORAGE_X)
+                    + displayIndex % StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
+                int y = this.top + StorageScreen.STORAGE_Y
+                    + displayIndex / StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
+                if (!MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
+                    continue;
+                }
+                Component button = Component.translatable("key.mouse.left");
+                graphics.setTooltipForNextFrame(this.font, List.of(
+                    Component.translatable("tooltip.anvilcraft.storage.container.pour", button).getVisualOrderText(),
+                    Component.translatable("tooltip.anvilcraft.storage.container.pour_all", button).getVisualOrderText()
+                ), mouseX, mouseY);
+                break;
             }
         }
         this.extractStorageSlider(graphics);
@@ -2666,6 +2701,25 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         return index >= 0 && index < this.fluids.size() ? this.fluids.get(index) : null;
     }
 
+    /**
+     * 把新出现的流体补进显示顺序。
+     *
+     * <p>流体伪槽位只在首次全量快照里写进 {@code order}，之后新增的流体若只更新
+     * {@code fluids}，{@link #appendFluidSlots} 会因为 {@code order} 里没有该槽位而跳过，
+     * 表现为按住 Shift 连续倒液时界面要等下一次整体重排才显示。</p>
+     */
+    private void appendMissingFluidSlots() {
+        for (int fluid = 0; fluid < this.fluids.size(); fluid++) {
+            int slot = StorageScreen.FLUID_SLOT_BASE + fluid;
+            if (!this.order.contains(slot)) {
+                this.order.add(slot);
+            }
+            if (!this.displayOrder.contains(slot)) {
+                this.displayOrder.add(slot);
+            }
+        }
+    }
+
     private IntList appendFluidSlots(IntList itemsOnly) {
         if (this.fluids.isEmpty()) {
             return itemsOnly;
@@ -3058,6 +3112,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.noticeContentsVersion();
         this.fullness = result.fullness();
         this.fluids = result.fluids();
+        this.appendMissingFluidSlots();
         for (StorageServerStub.StackUpdate update : result.updates()) {
             if (update.stack().isEmpty()) {
                 if (this.contents.containsKey(update.index())) {
@@ -3110,6 +3165,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             this.noticeContentsVersion();
             this.fullness = result.fullness();
             this.fluids = result.fluids();
+            this.appendMissingFluidSlots();
             for (StorageServerStub.StackUpdate update : result.updates()) {
                 if (update.stack().isEmpty()) {
                     continue;

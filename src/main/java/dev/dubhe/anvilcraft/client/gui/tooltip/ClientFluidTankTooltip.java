@@ -29,11 +29,14 @@ public class ClientFluidTankTooltip implements ClientTooltipComponent {
     private final FluidTankTooltip tooltip;
     private final List<Line> lines = new ArrayList<>();
     private final int remaining;
+    /// 端口取空后凭标记占位显示：图标保留，数量固定显示 0
+    private final boolean marked;
 
     public ClientFluidTankTooltip(FluidTankTooltip tooltip) {
         this.tooltip = tooltip;
         CompoundTag tank = tooltip.tankTag();
         int remaining = 0;
+        this.marked = tank.getBooleanOr("Marked", false);
         boolean enhanced = tank.getBooleanOr(ClientFluidTankTooltip.TAG_ENHANCED, false);
         if (tooltip.multi()) {
             var entries = tank.getListOrEmpty(ClientFluidTankTooltip.TAG_FLUIDS);
@@ -44,7 +47,7 @@ public class ClientFluidTankTooltip implements ClientTooltipComponent {
                 FluidStack fluid = ClientFluidTankTooltip.read(entry);
                 if (fluid.isEmpty()) continue;
                 if (this.lines.size() < AnvilCraft.CLIENT_CONFIG.ui.fluidTankTooltipMaxVisibleFluids) {
-                    this.lines.add(new Line(fluid, enhanced && entry.getBooleanOr(
+                    this.lines.add(new Line(fluid, this.marked, enhanced && entry.getBooleanOr(
                         ClientFluidTankTooltip.TAG_INFINITE,
                         index < flags.size() && flags.get(index)
                     )));
@@ -54,7 +57,7 @@ public class ClientFluidTankTooltip implements ClientTooltipComponent {
             }
         } else {
             FluidStack fluid = ClientFluidTankTooltip.read(tank);
-            if (!fluid.isEmpty()) this.lines.add(new Line(fluid, tooltip.infiniteCapacity()));
+            if (!fluid.isEmpty()) this.lines.add(new Line(fluid, this.marked, tooltip.infiniteCapacity()));
         }
         this.remaining = remaining;
     }
@@ -71,10 +74,11 @@ public class ClientFluidTankTooltip implements ClientTooltipComponent {
             .orElse(FluidStack.EMPTY);
     }
 
-    private record Line(FluidStack fluid, boolean infinite) {
+    private record Line(FluidStack fluid, boolean marked, boolean infinite) {
         Component text() {
+            int amount = this.marked ? 0 : this.fluid.getAmount();
             return Component.empty().append(this.fluid.getHoverName()).append(" " + (this.infinite
-                ? UnitUtil.INFINITE_POWER : UnitUtil.fluidUnit(this.fluid.getAmount(), false))).withStyle(ChatFormatting.GRAY);
+                ? UnitUtil.INFINITE_POWER : UnitUtil.fluidUnit(amount, false))).withStyle(ChatFormatting.GRAY);
         }
     }
 
@@ -83,7 +87,7 @@ public class ClientFluidTankTooltip implements ClientTooltipComponent {
     }
 
     private Component capacityLine() {
-        long amount = this.lines.stream().mapToLong(line -> line.fluid().getAmount()).sum();
+        long amount = this.lines.stream().mapToLong(line -> line.marked() ? 0 : line.fluid().getAmount()).sum();
         return (this.tooltip.infiniteCapacity()
             ? Component.translatable("tooltip.anvilcraft.fluid_tank.capacity.value.infinity", UnitUtil.fluidUnit(amount, false))
             : Component.translatable("tooltip.anvilcraft.fluid_tank.capacity.value", UnitUtil.fluidUnit(amount, false),

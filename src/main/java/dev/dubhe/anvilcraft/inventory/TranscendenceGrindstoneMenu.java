@@ -133,7 +133,6 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
             @Override
             public void setChanged() {
                 super.setChanged();
-                TranscendenceGrindstoneMenu.this.restrictSelectionForMode();
                 TranscendenceGrindstoneMenu.this.slotsChanged(this);
             }
         };
@@ -220,8 +219,7 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
     private boolean isValidModifier(ItemStack stack) {
         return TranscendenceGrindstoneMenu.isGold(stack)
                || stack.is(Items.BOOK)
-               || this.isSmallTank(stack)
-               || this.isLargeTank(stack)
+
                || TranscendenceGrindstoneMenu.isFluidContainer(stack)
                || TranscendenceGrindstoneMenu.isTransferTarget(stack);
     }
@@ -252,14 +250,6 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
         return stack.is(Items.GOLD_INGOT) || stack.is(Items.GOLD_BLOCK);
     }
 
-    private boolean isSmallTank(ItemStack stack) {
-        return FluidTankBlockEntity.isEmptyItem(stack, this.registries);
-    }
-
-    private boolean isLargeTank(ItemStack stack) {
-        return LargeFluidTankBlockEntity.isEmptyItem(stack, this.registries);
-    }
-
     private static boolean hasAnyEnchantments(ItemStack stack) {
         for (DataComponentType<ItemEnchantments> type : TranscendenceGrindstoneMenu.getEnchantmentTypes()) {
             if (!stack.getOrDefault(type, ItemEnchantments.EMPTY).isEmpty()) return true;
@@ -281,11 +271,7 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
         if (stack.isEmpty()) return Mode.DISENCHANT;
         if (TranscendenceGrindstoneMenu.isGold(stack)) return Mode.GOLD;
         if (stack.is(Items.BOOK)) return Mode.BOOK;
-        if (this.isSmallTank(stack)) return Mode.SMALL_TANK;
-        if (this.isLargeTank(stack)) return Mode.LARGE_TANK;
-        if (TranscendenceGrindstoneMenu.isFluidContainer(stack)) {
-            return Mode.FLUID_CONTAINER;
-        }
+        if (TranscendenceGrindstoneMenu.isFluidContainer(stack)) return Mode.FLUID_CONTAINER;
         if (TranscendenceGrindstoneMenu.isTransferTarget(stack)) return Mode.ITEM;
         return Mode.UNSUPPORTED;
     }
@@ -308,10 +294,7 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
                 this.resetGoldStats();
                 yield this.createTransferResult();
             }
-            case SMALL_TANK, LARGE_TANK -> {
-                this.resetGoldStats();
-                yield this.createTankResult();
-            }
+
             case FLUID_CONTAINER -> {
                 this.resetGoldStats();
                 yield this.fillFluidContainer(true).isEmpty() ? ItemStack.EMPTY : this.createSourceWithoutSelected();
@@ -405,26 +388,32 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
         return target;
     }
 
+    /// 把选中的魔咒全部灌进指针上的物品态流体容器，返回灌好的容器。
+    ///
+    /// <p>只选一个魔咒时允许按容器剩余容量截断；多选时整批必须全部装下。全程在单件副本上完成。</p>
     private Optional<ItemStack> fillFluidContainer(boolean simulate) {
         List<EnchantmentData> selected = this.getSelectedEnchantments();
-        if (selected.size() != 1 || this.modifier.getItem(0).getCount() != 1) {
+        if (selected.isEmpty() || this.modifier.getItem(0).getCount() != 1) {
             return Optional.empty();
         }
-        EnchantmentData data = selected.getFirst();
-        long amount = LiquidEnchantmentUtil.amountForLevel(data.level());
-        if (amount <= 0 || amount > Integer.MAX_VALUE) {
-            return Optional.empty();
-        }
-        FluidStack fluid = new FluidStack(ModFluids.LIQUID_ENCHANTMENT.get(), (int) amount);
-        fluid.set(ModComponents.LIQUID_ENCHANTMENT, data.enchantment());
         ItemAccess access = TranscendenceGrindstoneMenu.containerAccess(this.modifier.getItem(0));
         var handler = access.getCapability(Capabilities.Fluid.ITEM);
         if (handler == null) {
             return Optional.empty();
         }
         try (var transaction = Transaction.openRoot()) {
-            if (handler.insert(FluidResource.of(fluid), (int) amount, transaction) != amount) {
-                return Optional.empty();
+            for (EnchantmentData data : selected) {
+                long amount = LiquidEnchantmentUtil.amountForLevel(data.level());
+                if (amount <= 0 || amount > Integer.MAX_VALUE) {
+                    return Optional.empty();
+                }
+                FluidStack fluid = new FluidStack(ModFluids.LIQUID_ENCHANTMENT.get(), (int) amount);
+                fluid.set(ModComponents.LIQUID_ENCHANTMENT, data.enchantment());
+                int inserted = handler.insert(FluidResource.of(fluid), (int) amount, transaction);
+                // 多选时不允许截断，否则灌进去的量与魔咒等级对不上
+                if (inserted <= 0 || inserted < amount && selected.size() > 1) {
+                    return Optional.empty();
+                }
             }
             ItemStack filled = access.getResource().toStack(access.getAmount());
             if (!simulate) {
@@ -432,39 +421,6 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
             }
             return Optional.of(filled);
         }
-    }
-
-    private ItemStack createTankResult() {
-        Mode mode = this.getMode();
-        List<EnchantmentData> selected = this.getSelectedEnchantments();
-        if (selected.isEmpty() || mode == Mode.SMALL_TANK && selected.size() != 1) {
-            return ItemStack.EMPTY;
-        }
-
-        int capacity = mode == Mode.SMALL_TANK
-                       ? FluidTankBlockEntity.BASE_CAPACITY
-                       : LargeFluidTankBlockEntity.BASE_CAPACITY;
-        long totalAmount = 0;
-        List<FluidStack> fluids = new ArrayList<>();
-        for (EnchantmentData data : selected) {
-            long amount = LiquidEnchantmentUtil.amountForLevel(data.level());
-            if (amount <= 0) return ItemStack.EMPTY;
-            long remaining = capacity - totalAmount;
-            if (amount > remaining) {
-                if (selected.size() > 1) return ItemStack.EMPTY;
-                amount = remaining;
-            }
-
-            FluidStack fluid = new FluidStack(ModFluids.LIQUID_ENCHANTMENT.get(), (int) amount);
-            fluid.set(ModComponents.LIQUID_ENCHANTMENT, data.enchantment());
-            fluids.add(fluid);
-            totalAmount += amount;
-        }
-
-        ItemStack tank = this.modifier.getItem(0);
-        return mode == Mode.SMALL_TANK
-               ? FluidTankBlockEntity.fillItem(tank, fluids.getFirst(), this.registries)
-               : LargeFluidTankBlockEntity.fillItem(tank, fluids, this.registries);
     }
 
     private ItemStack createSourceWithoutSelected() {
@@ -515,17 +471,6 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
         this.removedCurseCount = 0;
     }
 
-    private boolean isSingleSelection() {
-        Mode mode = this.getMode();
-        return mode == Mode.SMALL_TANK || mode == Mode.FLUID_CONTAINER;
-    }
-
-    private void restrictSelectionForMode() {
-        if (this.isSingleSelection() && this.selectedIndexes.size() > 1) {
-            this.selectedIndexes.clear();
-        }
-    }
-
     @Override
     public void slotsChanged(Container container) {
         super.slotsChanged(container);
@@ -534,12 +479,7 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
 
     public void select(int index) {
         if (index < 0 || index >= this.enchantments.size() || this.isGoldMode()) return;
-        if (this.isSingleSelection()) {
-            this.selectedIndexes.clear();
-            this.selectedIndexes.add(index);
-            this.result.setItem(0, this.createResult());
-            return;
-        }
+
         if (this.selectedIndexes.add(index)) this.result.setItem(0, this.createResult());
     }
 
@@ -573,7 +513,6 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
         switch (mode) {
             case GOLD -> this.takeGoldResult(player);
             case BOOK, ITEM -> this.takeTransferResult(player, output);
-            case SMALL_TANK, LARGE_TANK -> this.takeTankResult();
             case DISENCHANT -> this.takeDisenchantResult();
             case UNSUPPORTED -> {
                 return;
@@ -604,11 +543,6 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
         remainingSource.set(DataComponents.REPAIR_COST, AnvilMenu.calculateIncreasedRepairCost(repairCost));
         if (!player.level().isClientSide()) player.onEnchantmentPerformed(output, cost);
         this.source.setItem(0, remainingSource);
-        this.consumeModifier(1);
-    }
-
-    private void takeTankResult() {
-        this.source.setItem(0, this.createSourceWithoutSelected());
         this.consumeModifier(1);
     }
 
@@ -732,8 +666,6 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
         BOOK,
         ITEM,
         FLUID_CONTAINER,
-        SMALL_TANK,
-        LARGE_TANK,
         UNSUPPORTED
     }
 }
