@@ -5,8 +5,11 @@ import dev.dubhe.anvilcraft.api.energy.ItemFEStorage;
 import dev.dubhe.anvilcraft.api.fluid.BottleFluidHandler;
 import dev.dubhe.anvilcraft.api.fluid.EnchantedBookFluidHandler;
 import dev.dubhe.anvilcraft.api.fluid.FireCauldronWrapper;
+import dev.dubhe.anvilcraft.api.fluid.FluidTankItemHandler;
+import dev.dubhe.anvilcraft.api.fluid.LargeFluidTankItemHandler;
 import dev.dubhe.anvilcraft.api.fluid.MilkCauldronWrapper;
 import dev.dubhe.anvilcraft.api.fluid.PowderSnowWrapper;
+import dev.dubhe.anvilcraft.api.fluid.StorageFluidPortItemHandler;
 import dev.dubhe.anvilcraft.api.fluid.VoidFluidHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.HoneyCauldronWrapper;
 import dev.dubhe.anvilcraft.api.itemhandler.ReadOnlyItemHandlerWrapper;
@@ -247,6 +250,25 @@ public class CapabilitiesEventListener {
             Capabilities.FluidHandler.ITEM,
             (stack, ctx) -> new EnchantedBookFluidHandler(stack),
             Items.BOOK, Items.ENCHANTED_BOOK
+        );
+
+        // 储罐物品也接入 ITEM 流体能力，仓储界面等通用逻辑才能统一处理
+        event.registerItem(
+            Capabilities.FluidHandler.ITEM,
+            (stack, ctx) -> new FluidTankItemHandler(stack),
+            ModBlocks.FLUID_TANK.asItem()
+        );
+
+        event.registerItem(
+            Capabilities.FluidHandler.ITEM,
+            (stack, ctx) -> new LargeFluidTankItemHandler(stack),
+            ModBlocks.LARGE_FLUID_TANK.asItem()
+        );
+
+        event.registerItem(
+            Capabilities.FluidHandler.ITEM,
+            (stack, ctx) -> new StorageFluidPortItemHandler(stack),
+            ModBlocks.STORAGE_FLUID_PORT.asItem()
         );
 
         event.registerBlockEntity(

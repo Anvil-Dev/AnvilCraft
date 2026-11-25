@@ -47,6 +47,8 @@ public class ClientFluidTankTooltip implements ClientTooltipComponent {
     private final List<FluidStack> fluids;
     private final List<Boolean> infiniteFlags;
     private final int remainingFluids;
+    /// 端口取空后凭标记占位显示：图标保留，数量固定显示 0
+    private final boolean marked;
 
     public ClientFluidTankTooltip(FluidTankTooltip tooltip) {
         this.capacity = tooltip.capacity();
@@ -54,6 +56,7 @@ public class ClientFluidTankTooltip implements ClientTooltipComponent {
         this.showCapacity = tooltip.showCapacity();
         CompoundTag tankTag = tooltip.tankTag();
         boolean enhanced = tankTag.getBoolean(TAG_ENHANCED);
+        this.marked = tankTag.getBoolean("Marked");
         List<FluidStack> fluids = new ArrayList<>();
         List<Boolean> infiniteFlags = new ArrayList<>();
         int remainingFluids = 0;
@@ -102,6 +105,9 @@ public class ClientFluidTankTooltip implements ClientTooltipComponent {
     }
 
     private long totalAmount() {
+        if (this.marked) {
+            return 0;
+        }
         long amount = 0;
         for (FluidStack fluid : this.fluids) {
             amount += fluid.getAmount();
@@ -199,7 +205,7 @@ public class ClientFluidTankTooltip implements ClientTooltipComponent {
         FluidStack fluid = this.fluids.get(i);
         String amount = this.infiniteFlags.get(i)
             ? UnitUtil.INFINITE_POWER
-            : UnitUtil.fluidUnit(fluid.getAmount(), false);
+            : UnitUtil.fluidUnit(this.marked ? 0 : fluid.getAmount(), false);
         return Component.literal("")
             .append(fluid.getHoverName())
             .append(Component.literal(" " + amount))

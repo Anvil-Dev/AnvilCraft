@@ -105,6 +105,11 @@ final class SingleFluidTankHandler extends FluidTank implements InfiniteFluidSou
             : this.fluid.copyWithAmount(maxDrain);
     }
 
+    /// 抽走真实存量，不受无限供给影响：物品态容器不该无限往外倒。
+    FluidStack drainStored(int maxDrain, IFluidHandler.FluidAction action) {
+        return super.drain(maxDrain, action);
+    }
+
     void setEnhanced(boolean enhanced) {
         if (this.enhanced == enhanced) return;
         this.enhanced = enhanced;

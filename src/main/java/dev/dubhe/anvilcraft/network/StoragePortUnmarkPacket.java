@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.anvilcraft.lib.v2.network.packet.IServerboundPacket;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.StoragePortBlock;
+import dev.dubhe.anvilcraft.block.entity.StorageFluidPortBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import io.netty.buffer.ByteBuf;
@@ -12,6 +13,8 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 /**
  * 客户端「铁砧锤长按右键并滑动」手势触发：请求移除仓储端口的标记。
@@ -40,12 +43,15 @@ public record StoragePortUnmarkPacket(BlockPos pos) implements IServerboundPacke
         if (player.distanceToSqr(this.pos.getCenter()) > 64.0) {
             return;
         }
-        if (!(player.level().getBlockEntity(this.pos) instanceof StoragePortBlockEntity port)) {
+        BlockEntity blockEntity = player.level().getBlockEntity(this.pos);
+        if (blockEntity instanceof StoragePortBlockEntity port) {
+            if (player.level().getBlockState(this.pos).getValue(StoragePortBlock.MARKED)) {
+                port.setMarkedItem(ItemStack.EMPTY);
+            }
             return;
         }
-        if (!player.level().getBlockState(this.pos).getValue(StoragePortBlock.MARKED)) {
-            return;
+        if (blockEntity instanceof StorageFluidPortBlockEntity fluidPort) {
+            fluidPort.markFluid(FluidStack.EMPTY);
         }
-        port.setMarkedItem(ItemStack.EMPTY);
     }
 }

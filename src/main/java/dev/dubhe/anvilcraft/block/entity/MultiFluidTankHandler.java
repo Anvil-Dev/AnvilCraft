@@ -220,6 +220,24 @@ final class MultiFluidTankHandler implements IFluidHandler, INBTSerializable<Com
         return result;
     }
 
+    /// 抽走真实存量，不受无限供给影响：物品态容器不该无限往外倒。
+    FluidStack drainStored(FluidStack resource, FluidAction action) {
+        int index = this.findFluid(resource);
+        if (index < 0) return FluidStack.EMPTY;
+        StoredFluid stored = this.fluids.get(index);
+        int drained = Math.min(resource.getAmount(), stored.fluid().getAmount());
+        if (drained <= 0) return FluidStack.EMPTY;
+        FluidStack result = stored.fluid().copyWithAmount(drained);
+        if (action.execute()) {
+            stored.fluid().shrink(drained);
+            if (stored.fluid().isEmpty()) {
+                this.fluids.remove(index);
+            }
+            this.changeListener.run();
+        }
+        return result;
+    }
+
     @Override
     public List<FluidStack> getInfiniteFluids() {
         List<FluidStack> result = new ArrayList<>();

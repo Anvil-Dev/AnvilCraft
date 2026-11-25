@@ -177,6 +177,18 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
         return readItemTank(stack, registries).getFluid();
     }
 
+    /// 单件储罐物品的槽位容量；增强为无限供给时为 {@link Integer#MAX_VALUE}。
+    public static int capacityOf(ItemStack stack, HolderLookup.Provider registries) {
+        if (!stack.is(ModBlocks.FLUID_TANK.asItem())) return 0;
+        return readItemTank(stack, registries).getTankCapacity(0);
+    }
+
+    /// 单件储罐物品是否接收该流体。
+    public static boolean isFluidValid(ItemStack stack, FluidStack fluid, HolderLookup.Provider registries) {
+        if (!stack.is(ModBlocks.FLUID_TANK.asItem())) return false;
+        return readItemTank(stack, registries).isFluidValid(0, fluid);
+    }
+
     public static int remainingCapacity(ItemStack stack, HolderLookup.Provider registries) {
         if (!stack.is(ModBlocks.FLUID_TANK.asItem())) return 0;
         return Math.max(0, BASE_CAPACITY - readItemTank(stack, registries).getFluidAmount());
@@ -207,7 +219,13 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
             return 0;
         }
         SingleFluidTankHandler itemTank = readItemTank(stack, registries);
-        int amount = itemTank.drain(fluid, IFluidHandler.FluidAction.EXECUTE).getAmount();
+        FluidStack stored = itemTank.getFluid();
+        if (stored.isEmpty() || !FluidStack.isSameFluidSameComponents(stored, fluid)) {
+            return 0;
+        }
+        // 物品态容器按真实存量抽取：无限供给是方块态的行为，不能让它无限往外倒
+        int amount = itemTank.drainStored(
+            Math.min(fluid.getAmount(), stored.getAmount()), IFluidHandler.FluidAction.EXECUTE).getAmount();
         if (amount > 0) {
             saveItemTank(stack, itemTank, registries);
         }

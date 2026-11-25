@@ -76,6 +76,17 @@ public class FluidTankClientProvider implements IClientExtensionProvider<Compoun
             ClientViewGroup<FluidView> client = new ClientViewGroup<>(views);
             if (largeTank) {
                 client.title = largeTankTitle(group);
+            } else if (FluidTankProvider.FLUID_PORT_GROUP.equals(group.id)) {
+                // 仓储端口：与物品端口一致，标题直接写标记的流体。
+                // 取空后视图里的流体是空的（名字会变成「空气」），只能从额外数据取名
+                // 标记与通用存量标题并存：标记写在前面，原来的总存量/容量文本保留在后面
+                Component markedName = FluidTankClientProvider.markedFluidName(accessor, group);
+                Component total = FluidTankClientProvider.singleFluidTitle(group);
+                client.title = markedName.getString().isEmpty()
+                    ? total
+                    : Component.translatable("tooltip.anvilcraft.storage_port.marked", markedName)
+                        .append(" ")
+                        .append(total);
             } else if (!FluidTankProvider.FLUID_CONSOLIDATOR_GROUP.equals(group.id)) {
                 // 仓储端口整合器只是把各端口的流体列出来，不显示总存量标题
                 client.title = singleFluidTitle(group);
@@ -83,6 +94,17 @@ public class FluidTankClientProvider implements IClientExtensionProvider<Compoun
             result.add(client);
         }
         return result;
+    }
+
+    /// 读取服务端附带的标记流体名字；没有附带时退回视图里的流体名。
+    private static Component markedFluidName(Accessor<?> accessor, ViewGroup<CompoundTag> group) {
+        CompoundTag marked = group.getExtraData().getCompound(FluidTankProvider.MARKED_FLUID_KEY);
+        if (!marked.isEmpty()) {
+            JadeFluidObject fluid = JadeFluidObject.CODEC.parse(accessor.nbtOps(), marked).getOrThrow();
+            return CommonProxy.getFluidName(fluid);
+        }
+        // 没有标记时不回退到视图里的流体：空视图的名字是「空气」，会误显示成标记
+        return Component.empty();
     }
 
     private static boolean hasStoredFluid(CompoundTag tag) {

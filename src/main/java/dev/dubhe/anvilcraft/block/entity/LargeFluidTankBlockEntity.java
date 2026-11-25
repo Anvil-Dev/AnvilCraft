@@ -191,6 +191,24 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
         return readItemTank(stack, registries).copyFluids();
     }
 
+    /// 单件大型储罐物品的槽位数。
+    public static int tankCountOf(ItemStack stack, HolderLookup.Provider registries) {
+        if (!stack.is(ModBlocks.LARGE_FLUID_TANK.asItem())) return 0;
+        return readItemTank(stack, registries).getTanks();
+    }
+
+    /// 单件大型储罐物品指定槽位内的流体。
+    public static FluidStack fluidInTank(ItemStack stack, int tank, HolderLookup.Provider registries) {
+        if (!stack.is(ModBlocks.LARGE_FLUID_TANK.asItem())) return FluidStack.EMPTY;
+        return readItemTank(stack, registries).getFluidInTank(tank);
+    }
+
+    /// 单件大型储罐物品指定槽位的容量。
+    public static int tankCapacityOf(ItemStack stack, int tank, HolderLookup.Provider registries) {
+        if (!stack.is(ModBlocks.LARGE_FLUID_TANK.asItem())) return 0;
+        return readItemTank(stack, registries).getTankCapacity(tank);
+    }
+
     public static int remainingCapacity(ItemStack stack, HolderLookup.Provider registries) {
         if (!stack.is(ModBlocks.LARGE_FLUID_TANK.asItem())) return 0;
         long stored = readItemTank(stack, registries).getTotalAmount();
@@ -229,7 +247,8 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
             return 0;
         }
         MultiFluidTankHandler itemTank = readItemTank(stack, registries);
-        int amount = itemTank.drain(fluid, IFluidHandler.FluidAction.EXECUTE).getAmount();
+        // 物品态容器按真实存量抽取：无限供给是方块态的行为，不能让它无限往外倒
+        int amount = itemTank.drainStored(fluid, IFluidHandler.FluidAction.EXECUTE).getAmount();
         if (amount > 0) {
             saveItemTank(stack, itemTank, registries);
         }
