@@ -1,0 +1,26 @@
+{
+  "parent": "anvilcraft:anvilcraft/compressed_biscuit",
+  "criteria": {
+    "big_stomach": {
+      "trigger": "anvilcraft:big_stomach"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.big_stomach.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "id": "anvilcraft:tin_can"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.big_stomach.title"
+    }
+  },
+  "requirements": [
+    [
+      "big_stomach"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

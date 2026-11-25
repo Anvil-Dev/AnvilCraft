@@ -30,6 +30,7 @@ import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
 import dev.dubhe.anvilcraft.item.utility.DiskItem;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.ChatFormatting;
@@ -142,9 +143,16 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     private static final int REDSTONE_SIGNAL_CACHE_TICKS = 5;
 
     @Getter
-    @Setter
     @Nullable
     private CelestialBodyData celestialBodyData = null;
+
+    /// 天体数据落地即为「锻造出该天体」，搜索、快照、预设、彩蛋与演化残骸全部经过这里。
+    public void setCelestialBodyData(@Nullable CelestialBodyData data) {
+        this.celestialBodyData = data;
+        if (data != null && this.level != null && !this.level.isClientSide()) {
+            TriggerUtil.celestialVisit(this.level, this.worldPosition, data.bodyClass());
+        }
+    }
 
     @Getter
     @Setter
@@ -1400,8 +1408,12 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      * 虫洞稳定器会在同一刻把变更写入权威状态并推送到所有连接的锻星砧。
      */
     public void syncLogisticsOnChange(BlockPos interfacePos, int changedSlot) {
+        this.syncLogisticsOnChange(interfacePos, changedSlot, false);
+    }
+
+    public void syncLogisticsOnChange(BlockPos interfacePos, int changedSlot, boolean deposited) {
         WormholeStabilizerHandler wh = this.megastructureManager.getWormholeHandler();
-        wh.syncLogisticsOnChange(interfacePos, changedSlot, this);
+        wh.syncLogisticsOnChange(interfacePos, changedSlot, this, deposited);
     }
 
     /**

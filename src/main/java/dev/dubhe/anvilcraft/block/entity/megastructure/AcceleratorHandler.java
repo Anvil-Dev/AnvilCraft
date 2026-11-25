@@ -56,6 +56,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
     private long dysonDestroyTick = -1L;
     /** 增幅器断开时记录暂停起点，恢复后平移时间轴。 */
     private long pausedSinceGameTime = -1L;
+    private long nextInfinitePowerCheck;
 
     @Nullable
     private StellarEvolutionState evolutionState;
@@ -451,6 +452,13 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
             this.syncProgress(gameTime);
             if (phaseChanged || gameTime % 20L == 0L) this.syncToClient(be);
         }
+
+        // 戴森球进入无限发电状态（主序星期 + 增幅器）时派发「取之不尽」的无限发电判据
+        if (gameTime >= this.nextInfinitePowerCheck && be.isInfinitePower()) {
+            // 发电期间允许离场的玩家返回后获得判据，限制范围查询频率。
+            this.nextInfinitePowerCheck = gameTime + 20;
+            TriggerUtil.infinitePower(be.getLevel(), be.getBlockPos());
+        }
     }
 
     @Override
@@ -474,6 +482,9 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         this.syncProgress(be.getLevel().getGameTime());
         this.scheduleQuenchedOut(be);
         this.syncToClient(be);
+        if (this.isDysonSphereBuilt(be)) {
+            TriggerUtil.inexhaustible(be.getLevel(), be.getBlockPos());
+        }
     }
 
     /** 根据天体图中的年龄和温度计算轨道总时长。 */
@@ -554,7 +565,8 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
     }
 
     private void triggerDestructiveEvent(CelestialForgingAnvilBlockEntity be, String profileId, long eventSeed) {
-        /// 触发闪光、震动和方块爆炸，残骸在演化结束时生成。
+
+        // 触发闪光、震动和方块爆炸，残骸在演化结束时生成。
         be.startSupernovaFlash(profileId, eventSeed);
         if (be.getLevel() instanceof ServerLevel serverLevel) {
             PacketDistributor.sendToPlayersTrackingChunk(
@@ -571,7 +583,8 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
                 )
             );
         }
-        /// profile 只改变渲染核心、抛射物和发光节奏。
+
+        // profile 只改变渲染核心、抛射物和发光节奏。
         be.getLevel().explode(
             null,
             be.getBlockPos().getX() + 0.5,

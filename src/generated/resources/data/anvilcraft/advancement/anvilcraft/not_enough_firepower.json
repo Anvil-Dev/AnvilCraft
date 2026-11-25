@@ -1,0 +1,85 @@
+{
+  "parent": "anvilcraft:anvilcraft/supercapacitor",
+  "criteria": {
+    "has_anvil_railgun": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:anvil_railgun"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_corrupted_beacon_activator": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:corrupted_beacon_activator"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_laser_gun": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:laser_gun"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_spectral_weapon_launcher": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:spectral_weapon_launcher"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_tesla_gun": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:tesla_gun"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.not_enough_firepower.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "id": "anvilcraft:energy_weapon_platform"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.not_enough_firepower.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_anvil_railgun"
+    ],
+    [
+      "has_laser_gun"
+    ],
+    [
+      "has_tesla_gun"
+    ],
+    [
+      "has_corrupted_beacon_activator"
+    ],
+    [
+      "has_spectral_weapon_launcher"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

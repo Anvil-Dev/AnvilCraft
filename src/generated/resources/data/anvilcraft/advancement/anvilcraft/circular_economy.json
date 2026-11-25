@@ -1,0 +1,303 @@
+{
+  "parent": "anvilcraft:anvilcraft/recycling_diamonds",
+  "criteria": {
+    "chainmail_boots": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/armor/chainmail_boots_2_iron_chain"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "chainmail_chestplate": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/armor/chainmail_chestplate_2_iron_chain"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "chainmail_helmet": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/armor/chainmail_helmet_2_iron_chain"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "chainmail_leggings": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/armor/chainmail_leggings_2_iron_chain"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "diamond_axe": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/tool/diamond_axe_2_diamond"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "diamond_boots": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/armor/diamond_boots_2_diamond"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "diamond_chestplate": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/armor/diamond_chestplate_2_diamond"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "diamond_helmet": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/armor/diamond_helmet_2_diamond"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "diamond_hoe": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/tool/diamond_hoe_2_diamond"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "diamond_horse_armor": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/armor/diamond_horse_armor_2_diamond"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "diamond_leggings": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/armor/diamond_leggings_2_diamond"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "diamond_pickaxe": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/tool/diamond_pickaxe_2_diamond"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "diamond_shovel": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/tool/diamond_shovel_2_diamond"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "diamond_sword": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/tool/diamond_sword_2_diamond"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "golden_axe": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/tool/golden_axe_2_gold_ingot"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "golden_boots": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/armor/golden_boots_2_gold_ingot"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "golden_chestplate": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/armor/golden_chestplate_2_gold_ingot"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "golden_helmet": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/armor/golden_helmet_2_gold_ingot"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "golden_hoe": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/tool/golden_hoe_2_gold_ingot"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "golden_horse_armor": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/armor/golden_horse_armor_2_gold_ingot"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "golden_leggings": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/armor/golden_leggings_2_gold_ingot"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "golden_pickaxe": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/tool/golden_pickaxe_2_gold_ingot"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "golden_shovel": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/tool/golden_shovel_2_gold_ingot"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "golden_sword": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/tool/golden_sword_2_gold_ingot"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "iron_axe": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/tool/iron_axe_2_iron_ingot"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "iron_boots": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/armor/iron_boots_2_iron_ingot"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "iron_chestplate": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/armor/iron_chestplate_2_iron_ingot"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "iron_helmet": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/armor/iron_helmet_2_iron_ingot"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "iron_hoe": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/tool/iron_hoe_2_iron_ingot"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "iron_horse_armor": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/armor/iron_horse_armor_2_iron_ingot"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "iron_leggings": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/armor/iron_leggings_2_iron_ingot"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "iron_pickaxe": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/tool/iron_pickaxe_2_iron_ingot"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "iron_shovel": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/tool/iron_shovel_2_iron_ingot"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "iron_sword": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/tool/iron_sword_2_iron_ingot"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "leather_boots": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/armor/leather_boots_2_leather"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "leather_chestplate": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/armor/leather_chestplate_2_leather"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "leather_helmet": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/armor/leather_helmet_2_leather"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "leather_horse_armor": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/armor/leather_horse_armor_2_leather"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "leather_leggings": {
+      "conditions": {
+        "id": "anvilcraft:item_crush/armor/leather_leggings_2_leather"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.circular_economy.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "id": "minecraft:iron_ingot"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.circular_economy.title"
+    }
+  },
+  "requirements": [
+    [
+      "chainmail_boots",
+      "chainmail_chestplate",
+      "chainmail_helmet",
+      "chainmail_leggings"
+    ],
+    [
+      "leather_boots",
+      "leather_chestplate",
+      "leather_helmet",
+      "leather_leggings",
+      "leather_horse_armor"
+    ],
+    [
+      "golden_boots",
+      "golden_chestplate",
+      "golden_helmet",
+      "golden_leggings",
+      "golden_horse_armor",
+      "golden_axe",
+      "golden_hoe",
+      "golden_pickaxe",
+      "golden_shovel",
+      "golden_sword"
+    ],
+    [
+      "iron_boots",
+      "iron_chestplate",
+      "iron_helmet",
+      "iron_leggings",
+      "iron_horse_armor",
+      "iron_axe",
+      "iron_hoe",
+      "iron_pickaxe",
+      "iron_shovel",
+      "iron_sword"
+    ],
+    [
+      "diamond_boots",
+      "diamond_chestplate",
+      "diamond_helmet",
+      "diamond_leggings",
+      "diamond_horse_armor",
+      "diamond_axe",
+      "diamond_hoe",
+      "diamond_pickaxe",
+      "diamond_shovel",
+      "diamond_sword"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

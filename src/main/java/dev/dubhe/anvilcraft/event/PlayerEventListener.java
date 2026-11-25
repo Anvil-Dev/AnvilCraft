@@ -8,8 +8,10 @@ import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.block.entity.SpacetimeSupercomputerBlockEntity;
 import dev.dubhe.anvilcraft.block.utility.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.entity.MagnetizedNodeEntity;
+import dev.dubhe.anvilcraft.entity.RailgunAnvilEntity;
 import dev.dubhe.anvilcraft.init.ModStats;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.init.item.ModAmulets;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
@@ -27,6 +29,8 @@ import dev.dubhe.anvilcraft.item.tool.MultitoolMode;
 import dev.dubhe.anvilcraft.network.DragonRodDevourPacket;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import dev.dubhe.anvilcraft.util.InfiniteFluidTankBreakProtection;
+import dev.dubhe.anvilcraft.util.NoPowerChallengeNotice;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -34,6 +38,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -66,6 +71,7 @@ public class PlayerEventListener {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             SpacetimeSupercomputerBlockEntity.cancelPendingTickSprints(serverPlayer.level().getServer());
             LevelLoadManager.syncOverseers(serverPlayer);
+            NoPowerChallengeNotice.onPlayerLogin(serverPlayer);
         }
     }
 
@@ -196,6 +202,32 @@ public class PlayerEventListener {
         }
     }
 
+    /**
+     * 铁砧轨道炮的自伤：被自己的弹丸打出致命伤害时记进度。
+     *
+     * <p>死亡那一下由 {@code ServerPlayerMixin} 的 {@code die} 钩子处理，这里补上被不死图腾救活的情况，
+     * 否则极限模式玩家永远做不了这个进度。</p>
+     */
+    @SubscribeEvent
+    public static void onRailgunSelfKillTotem(LivingUseTotemEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!(event.getSource().getDirectEntity() instanceof FallingBlockEntity falling)) return;
+        if (!player.getUUID().equals(RailgunAnvilEntity.getRailgunOwner(falling))) return;
+        TriggerUtil.railgunSelfKill(player);
+    }
+
+    /**
+     * 炮灰：行星坍缩原本只有死亡才算，被不死图腾类物品救活时也补记一次。
+     *
+     * <p>追溯图腾会把人送回重生点，是极限模式下唯一能活下来的办法。</p>
+     */
+    @SubscribeEvent
+    public static void onPlanetaryCollapseTotem(LivingUseTotemEvent event) {
+        if (!event.getSource().is(ModDamageTypes.PLANETARY_COLLAPSE)) return;
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        TriggerUtil.planetaryCollapseDeath(player);
+    }
+
     @SubscribeEvent
     public static void onPlayerUsingTotem(LivingUseTotemEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
@@ -255,5 +287,8 @@ public class PlayerEventListener {
         BlockEntity be = event.getLevel().getBlockEntity(event.getPos());
         if (!(be instanceof IPowerComponent)) return;
         player.awardStat(ModStats.PLACE_POWER_COMPONENT);
+        if (player instanceof ServerPlayer serverPlayer) {
+            TriggerUtil.powerGridRhythm(serverPlayer);
+        }
     }
 }

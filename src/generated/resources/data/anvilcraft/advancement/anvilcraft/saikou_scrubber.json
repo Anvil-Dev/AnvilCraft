@@ -1,15 +1,17 @@
 {
   "parent": "anvilcraft:anvilcraft/mining_void",
   "criteria": {
-    "has_menger_sponge": {
+    "multiblock_menger_sponge": {
       "conditions": {
-        "items": [
-          {
-            "items": "anvilcraft:menger_sponge"
-          }
-        ]
+        "id": "anvilcraft:multiblock/menger_sponge"
       },
-      "trigger": "minecraft:inventory_changed"
+      "trigger": "anvilcraft:in_world_recipe"
+    },
+    "multiblock_menger_sponge_2": {
+      "conditions": {
+        "id": "anvilcraft:multiblock/menger_sponge_2"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
     }
   },
   "display": {
@@ -25,7 +27,8 @@
   },
   "requirements": [
     [
-      "has_menger_sponge"
+      "multiblock_menger_sponge",
+      "multiblock_menger_sponge_2"
     ]
   ],
   "sends_telemetry_event": true

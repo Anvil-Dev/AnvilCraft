@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.anvilcraft.lib.v2.rendering.cachedber.pipeline.CachedBlockEntityRenderingPipeline;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.api.laser.GammaLaserBehavior;
 import dev.dubhe.anvilcraft.api.laser.ILaserComponent;
@@ -58,6 +59,8 @@ public abstract class BaseLaserBlockEntity extends BlockEntity implements ILaser
     protected int irradiatedLaserTargetRevision = -1;
     private BlockMiningEffect lastEmittedMiningEffect = BlockMiningEffect.NORMAL;
     private boolean lastEmittedGamma = false;
+    private long lastGammaEmissionTick = Long.MIN_VALUE;
+    private long nextGammaAdvancementCheck;
     @Getter
     protected int laserLevel = 0;
 
@@ -457,5 +460,13 @@ public abstract class BaseLaserBlockEntity extends BlockEntity implements ILaser
 
     protected void emitGammaLaserBeam(Direction direction) {
         this.emitLaserComponents(direction, true);
+        if (this.level instanceof ServerLevel serverLevel) {
+            long now = serverLevel.getGameTime();
+            if (now != this.lastGammaEmissionTick && (now != this.lastGammaEmissionTick + 1 || now >= this.nextGammaAdvancementCheck)) {
+                TriggerUtil.gammaLaser(serverLevel, this.getBlockPos());
+                this.nextGammaAdvancementCheck = now + 20;
+            }
+            this.lastGammaEmissionTick = now;
+        }
     }
 }

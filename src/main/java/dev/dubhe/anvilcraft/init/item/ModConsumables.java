@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.init.item;
 
-import dev.dubhe.anvilcraft.item.property.consume.TeleportToRespawnPointConsumeEffect;
+import dev.dubhe.anvilcraft.item.property.consume.TeleportToDeathPointConsumeEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.component.Consumable;
@@ -29,8 +29,8 @@ public class ModConsumables {
             new MobEffectInstance(MobEffects.JUMP_BOOST, 600, 3)
         )))
         .build();
-    public static final Consumable RECOVERY_PEARL = Consumable.builder()
-        .onConsume(TeleportToRespawnPointConsumeEffect.INSTANCE)
+    public static final Consumable RECOVERY_PEARL = ModConsumables.instantFood()
+        .onConsume(TeleportToDeathPointConsumeEffect.INSTANCE)
         .build();
 
     public static Consumable.Builder fastFood() {

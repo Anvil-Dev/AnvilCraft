@@ -12,7 +12,7 @@
     "frame": "challenge",
     "hidden": true,
     "icon": {
-      "id": "anvilcraft:celestial_forging_anvil"
+      "id": "anvilcraft:transcendence_anvil"
     },
     "title": {
       "translate": "advancements.anvilcraft.electric_allergy.title"
