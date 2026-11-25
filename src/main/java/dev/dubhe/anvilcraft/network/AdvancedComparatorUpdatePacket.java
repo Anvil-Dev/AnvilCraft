@@ -16,7 +16,8 @@ public record AdvancedComparatorUpdatePacket(
     boolean outputInvert,
     boolean redstoneControl,
     int highLimit,
-    int lowLimit
+    int lowLimit,
+    int windowOutput
 ) implements IServerboundPacket {
     public static final Type<AdvancedComparatorUpdatePacket> TYPE = IPacket.type(AnvilCraft.of("advanced_comparator_update"));
     public static final StreamCodec<ByteBuf, AdvancedComparatorUpdatePacket> STREAM_CODEC = StreamCodec.composite(
@@ -30,6 +31,8 @@ public record AdvancedComparatorUpdatePacket(
         AdvancedComparatorUpdatePacket::highLimit,
         ByteBufCodecs.VAR_INT,
         AdvancedComparatorUpdatePacket::lowLimit,
+        ByteBufCodecs.VAR_INT,
+        AdvancedComparatorUpdatePacket::windowOutput,
         AdvancedComparatorUpdatePacket::new
     );
 
@@ -47,11 +50,25 @@ public record AdvancedComparatorUpdatePacket(
             return;
         }
         AdvancedComparatorBlockEntity comparator = menu.getBlockEntity();
-        comparator.setCompareMode(AdvancedComparatorBlockEntity.Mode.fromIndex(this.compareMode));
-        comparator.setOutputInvert(this.outputInvert);
-        comparator.setRedstoneControl(this.redstoneControl);
-        comparator.setHighLimit(this.highLimit);
-        comparator.setLowLimit(this.lowLimit);
+        // 服务端菜单保留打开时的值，只提交当前玩家改动的字段。
+        if (this.compareMode != menu.getCompareMode().index()) {
+            comparator.setCompareMode(AdvancedComparatorBlockEntity.Mode.fromIndex(this.compareMode));
+        }
+        if (this.outputInvert != menu.isOutputInvert()) {
+            comparator.setOutputInvert(this.outputInvert);
+        }
+        if (this.redstoneControl != menu.isRedstoneControl()) {
+            comparator.setRedstoneControl(this.redstoneControl);
+        }
+        if (this.highLimit != menu.getHighLimit()) {
+            comparator.setHighLimit(this.highLimit);
+        }
+        if (this.lowLimit != menu.getLowLimit()) {
+            comparator.setLowLimit(this.lowLimit);
+        }
+        if (this.windowOutput != menu.getWindowOutput()) {
+            comparator.setWindowOutput(this.windowOutput);
+        }
         comparator.setChanged();
         player.level().scheduleTick(comparator.getBlockPos(), comparator.getBlockState().getBlock(), AdvancedComparatorBlock.getDelay());
     }
