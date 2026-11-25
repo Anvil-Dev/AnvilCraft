@@ -4,7 +4,6 @@ import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
-import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.BaseChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.OverflowChuteBlockEntity;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
@@ -35,6 +34,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -49,7 +49,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * <p>出口可输出时物品走出口，出口堵住时改从溢流口抛出（不带动量）。</p>
  */
-public class OverflowChuteBlock extends BetterBaseEntityBlock implements HammerRotateBehavior, IHammerRemovable {
+public class OverflowChuteBlock extends WaterloggedChuteBlock implements HammerRotateBehavior, IHammerRemovable {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
 
@@ -93,7 +93,7 @@ public class OverflowChuteBlock extends BetterBaseEntityBlock implements HammerR
 
     public OverflowChuteBlock(Properties properties) {
         super(properties);
-        BlockState state = this.stateDefinition.any()
+        BlockState state = this.stateDefinition.any().setValue(WATERLOGGED, false)
             .setValue(FACING, Direction.DOWN)
             .setValue(ENABLED, true);
         for (Direction direction : Direction.values()) {
@@ -250,6 +250,7 @@ public class OverflowChuteBlock extends BetterBaseEntityBlock implements HammerR
             return null;
         }
         return this.defaultBlockState()
+            .setValue(WATERLOGGED, level.getFluidState(pos).getType() == Fluids.WATER)
             .setValue(FACING, facing)
             .setValue(ENABLED, !level.hasNeighborSignal(pos));
     }
@@ -366,6 +367,7 @@ public class OverflowChuteBlock extends BetterBaseEntityBlock implements HammerR
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
         builder.add(
             FACING,
             ENABLED,
