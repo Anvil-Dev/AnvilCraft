@@ -202,7 +202,8 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
 
         // input
         List<BlockState> initialStates = recipe.getInitialBlock().constructStatesForRender();
-        JeiBlockIngredientUtil.getDisplayedState(recipeSlotsView, INITIAL_BLOCK, initialStates).ifPresent(blockState ->
+        var initialState = JeiBlockIngredientUtil.getDisplayedState(recipeSlotsView, INITIAL_BLOCK, initialStates);
+        initialState.ifPresent(blockState ->
             RenderSupport.renderBlock(
                 guiGraphics, blockState, STEP_X - 20, BLOCK_Y, 10, BLOCK_SCALE, RenderSupport.SINGLE_BLOCK
             )
@@ -224,6 +225,8 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
             // 主体（产出方块落点所在的那个输入）固定占主线行，其余输入按与它的世界上下
             // 关系向上/下偏移，使各步的主线始终对齐。
             int anchor = anchorIndex(stepRecipe);
+            int stepCount = displayedLoop * recipe.getSteps().size() + i;
+            boolean hasModel = recipe.getDisplayedModelForStep(stepCount).isPresent();
             for (int j = stepRecipe.getInputBlocks().size() - 1; j >= 0; j--) {
                 List<BlockState> input = stepRecipe.getInputBlocks().get(j).constructStatesForRender();
                 if (input.isEmpty()) continue;
@@ -231,25 +234,16 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
                     .getDisplayedState(recipeSlotsView, stepBlockSlotName(i, j), input)
                     .orElse(input.getFirst());
                 int blockY = BLOCK_Y + BLOCK_ROW_DY * (j - anchor);
+                var renderer = RenderSupport.SINGLE_BLOCK;
                 if (renderedState.getBlock() instanceof WipBlock) {
-                    RenderSupport.renderBlock(
-                        guiGraphics,
-                        renderedState,
-                        stepX + i * stepDx,
-                        blockY,
-                        10 - 10 * j,
-                        BLOCK_SCALE,
-                        RenderSupport.wipDisplay(recipe, displayedLoop * recipe.getSteps().size() + i)
-                    );
+                    if (hasModel) {
+                        renderer = RenderSupport.wipDisplay(recipe, stepCount);
+                    } else {
+                        renderedState = initialState.orElse(renderedState);
+                    }
                 }
                 RenderSupport.renderBlock(
-                    guiGraphics,
-                    renderedState,
-                    stepX + i * stepDx,
-                    blockY,
-                    10 - 10 * j,
-                    BLOCK_SCALE,
-                    RenderSupport.SINGLE_BLOCK
+                    guiGraphics, renderedState, stepX + i * stepDx, blockY, 10 - 10 * j, BLOCK_SCALE, renderer
                 );
             }
             this.drawStepOverlay(
