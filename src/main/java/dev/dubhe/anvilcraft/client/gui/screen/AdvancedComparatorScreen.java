@@ -37,27 +37,22 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
     private boolean scrolling2;
     private boolean draggingOutput;
     private double outputGrabOffset;
-    private AdvancedComparatorUpdatePacket sentSettings;
+    private final AdvancedComparatorUpdatePacket initialSettings;
 
     public AdvancedComparatorScreen(AdvancedComparatorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.minecraft = Minecraft.getInstance();
         this.imageHeight = 166;
-        this.sentSettings = this.settings();
+        this.initialSettings = this.settings();
     }
 
     @Override
     public void onClose() {
-        this.sendSettings();
-        super.onClose();
-    }
-
-    private void sendSettings() {
         var settings = this.settings();
-        if (!settings.equals(this.sentSettings)) {
+        if (!settings.equals(this.initialSettings)) {
             PacketDistributor.sendToServer(settings);
-            this.sentSettings = settings;
         }
+        super.onClose();
     }
 
     private AdvancedComparatorUpdatePacket settings() {
@@ -66,7 +61,8 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
             this.menu.isOutputInvert(),
             this.menu.isRedstoneControl(),
             this.menu.getHighLimit(),
-            this.menu.getLowLimit()
+            this.menu.getLowLimit(),
+            this.menu.getWindowOutput()
         );
     }
 
@@ -185,7 +181,7 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
     }
 
     private int outputSliderY() {
-        return this.sliderY - 1 - this.menu.getBlockEntity().getWindowOutput() * GRID;
+        return this.sliderY - 1 - this.menu.getWindowOutput() * GRID;
     }
 
     private void drawWindow(GuiGraphics graphics, int lowX, int highX, int mouseX, int mouseY) {
@@ -212,18 +208,14 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
         pose.popPose();
         pose.pushPose();
         pose.scale(0.5f, 0.5f, 1);
-        String value = String.valueOf(this.menu.getBlockEntity().getWindowOutput());
+        String value = String.valueOf(this.menu.getWindowOutput());
         graphics.drawString(this.font, value, (x + 7) * 2 - this.font.width(value) / 2, y * 2 - 3, 0xFF404040, false);
         pose.popPose();
     }
 
     private void dragOutput(double mouseY) {
         int strength = Math.clamp(Math.round((this.sliderY - 1 - mouseY + this.outputGrabOffset) / GRID), 0, 15);
-        if (strength != this.menu.getBlockEntity().getWindowOutput() && this.minecraft.gameMode != null) {
-            this.sendSettings();
-            this.menu.getBlockEntity().setWindowOutput(strength);
-            this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId, strength);
-        }
+        this.menu.setWindowOutput(strength);
     }
 
     @Override

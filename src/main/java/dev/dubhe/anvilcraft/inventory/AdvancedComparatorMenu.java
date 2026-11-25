@@ -10,7 +10,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -35,6 +34,9 @@ public class AdvancedComparatorMenu extends AbstractContainerMenu {
     @Getter
     @Setter
     private int lowLimit;
+    @Getter
+    @Setter
+    private int windowOutput;
 
     public AdvancedComparatorMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity machine) {
         super(menuType, containerId);
@@ -45,17 +47,7 @@ public class AdvancedComparatorMenu extends AbstractContainerMenu {
         this.redstoneControl = this.blockEntity.isRedstoneControl();
         this.highLimit = this.blockEntity.getHighLimit();
         this.lowLimit = this.blockEntity.getLowLimit();
-        this.addDataSlot(new DataSlot() {
-            @Override
-            public int get() {
-                return AdvancedComparatorMenu.this.blockEntity.getWindowOutput();
-            }
-
-            @Override
-            public void set(int value) {
-                AdvancedComparatorMenu.this.blockEntity.setWindowOutput(value);
-            }
-        });
+        this.windowOutput = this.blockEntity.getWindowOutput();
     }
 
     public AdvancedComparatorMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
@@ -73,17 +65,6 @@ public class AdvancedComparatorMenu extends AbstractContainerMenu {
                 ? comparator.readDataNbt(Objects.requireNonNull(extraData.readNbt()))
                 : null
         );
-    }
-
-    @Override
-    public boolean clickMenuButton(Player player, int strength) {
-        if (strength < 0 || strength > 15 || player.isSpectator() || !this.stillValid(player)
-            || this.blockEntity.getCompareMode() != AdvancedComparatorBlockEntity.Mode.WINDOW) {
-            return false;
-        }
-        this.blockEntity.setWindowOutput(strength);
-        this.blockEntity.setChanged();
-        return true;
     }
 
     @Override
