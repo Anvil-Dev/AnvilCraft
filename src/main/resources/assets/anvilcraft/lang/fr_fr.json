@@ -1105,5 +1105,6 @@
   "tooltip.anvilcraft.working_progress.title": "Working progress:",
   "config.jade.plugin_anvilcraft.crab_trap": "Casiers à crabes",
   "gui.anvilcraft.category.portal_conversion": "Block Falls Into Portal",
-  "gui.anvilcraft.category.portal_conversion.fall_through": "Converted when fall through %s"
+  "gui.anvilcraft.category.portal_conversion.fall_through": "Converted when fall through %s",
+  "advancements.anvilcraft.moon_landing.title": "§oLe Voyage dans la Lune§r"
 }
