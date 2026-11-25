@@ -293,7 +293,7 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.super_heat.description", "Making a heat collector reach an output of 4096 kW");
 
         provider.add("advancements.anvilcraft.electric_allergy.title", "Electric allergy");
-        provider.add("advancements.anvilcraft.electric_allergy.description", "Obtain celestial forging anvil without power system");
+        provider.add("advancements.anvilcraft.electric_allergy.description", "Obtain transcendence anvil without power system");
 
         provider.add("advancements.anvilcraft.the_end.title", "The end?");
         provider.add("advancements.anvilcraft.the_end.description", "Obtain transcendence anvil, and lift all enchantment limits");

@@ -3,11 +3,13 @@ package dev.dubhe.anvilcraft.advancements.criterion;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
+import dev.dubhe.anvilcraft.init.ModStats;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.criterion.ContextAwarePredicate;
 import net.minecraft.advancements.criterion.EntityPredicate;
 import net.minecraft.advancements.criterion.SimpleCriterionTrigger;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.Stats;
 
 import java.util.Optional;
 
@@ -18,7 +20,7 @@ public class EnterPowerGridTrigger extends SimpleCriterionTrigger<EnterPowerGrid
     }
 
     public void trigger(ServerPlayer player) {
-        this.trigger(player, TriggerInstance::matches);
+        this.trigger(player, instance -> instance.matches(player));
     }
 
     public record TriggerInstance(Optional<ContextAwarePredicate> player) implements SimpleInstance {
@@ -30,8 +32,11 @@ public class EnterPowerGridTrigger extends SimpleCriterionTrigger<EnterPowerGrid
             return ModCriterionTriggers.ENTER_POWER_GRID.get().createCriterion(new TriggerInstance(Optional.empty()));
         }
 
-        public boolean matches() {
-            return true;
+        /// 进入电网、放置电网组件、获得电网组件三者任一不为零都算达成「感受电网律动」。
+        public boolean matches(ServerPlayer player) {
+            return player.getStats().getValue(Stats.CUSTOM, ModStats.ENTER_POWER_GRID) > 0
+                   || player.getStats().getValue(Stats.CUSTOM, ModStats.PLACE_POWER_COMPONENT) > 0
+                   || player.getStats().getValue(Stats.CUSTOM, ModStats.OBTAIN_POWER_COMPONENT) > 0;
         }
     }
 }

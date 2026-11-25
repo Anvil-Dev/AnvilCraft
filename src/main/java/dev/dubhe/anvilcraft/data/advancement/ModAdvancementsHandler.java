@@ -1078,7 +1078,7 @@ public class ModAdvancementsHandler {
 
         AdvancementHolder electricAllergy = mainLine.createBranch().next()
             .display(
-                ModBlocks.CELESTIAL_FORGING_ANVIL,
+                ModBlocks.TRANSCENDENCE_ANVIL,
                 Component.translatable("advancements.anvilcraft.electric_allergy.title"),
                 Component.translatable("advancements.anvilcraft.electric_allergy.description"),
                 AdvancementType.CHALLENGE,
