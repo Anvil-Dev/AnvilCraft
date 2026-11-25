@@ -364,8 +364,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         int index = getLocalIndex(state.getValue(ATTACHMENT), outputDirection);
         if (index < 0
             || !state.getValue(CONNECTION_PROPERTIES.get(index)).isConnected()
-            || isManuallyHidden(level, pos, state, index)
-            || this.hasWireConnection(level, pos, state, index)) {
+            || !this.isOpenTerminal(level, pos, state, index)) {
             return 0;
         }
         BlockState receiver = level.getBlockState(pos.relative(outputDirection));
@@ -406,16 +405,10 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         builder.add(NORTH, EAST, SOUTH, WEST, ATTACHMENT, DOT);
     }
 
-    private boolean hasWireConnection(BlockGetter level, BlockPos pos, BlockState state, int index) {
-        Connection[] cached = RedstoneWireNetworkManager.getConnections(level, pos);
-        // 客户端和缓存尚未建立的服务端仍需即时计算，保证外观与信号查询不会依赖事件执行顺序。
-        return (cached == null ? findConnection(level, pos, state, index) : cached[index]) != null;
-    }
-
     private boolean isOpenTerminal(BlockGetter level, BlockPos pos, BlockState state, int index) {
         Connection[] cached = RedstoneWireNetworkManager.getConnections(level, pos);
         return (cached == null ? findConnection(level, pos, state, index) : cached[index]) == null
-            && !isManuallyHidden(level, pos, state, index);
+            && !isPortHidden(level, pos, index);
     }
 
     /** 导线首次求值完成后会重新通知粉线，初始化期间不能把缓存零值写入粉线功率。 */
@@ -807,7 +800,8 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         return -1;
     }
 
-    private static boolean isPortHidden(BlockGetter level, BlockPos pos, int index) {
+    /** 外部元件读取当前端口的开关，邻线的端口开关只参与两根导线之间的连接判定。 */
+    static boolean isPortHidden(BlockGetter level, BlockPos pos, int index) {
         return (RedstoneWireNetworkManager.getHiddenConnectionMask(level, pos) & (1 << index)) != 0;
     }
 
@@ -822,25 +816,6 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         }
         int neighborIndex = findGeometricConnectionIndex(level, neighborPos, neighborState, pos);
         return neighborIndex >= 0 && (hiddenMask & (1 << neighborIndex)) != 0;
-    }
-
-    /** 当前端口或其几何邻线的对应端口是否被玩家关闭。 */
-    static boolean isManuallyHidden(
-        BlockGetter level, BlockPos pos, BlockState state, int index
-    ) {
-        if (isPortHidden(level, pos, index)) {
-            return true;
-        }
-        Connection geometric = findGeometricConnection(level, pos, state, index);
-        if (geometric == null) {
-            return false;
-        }
-        for (long neighbor : geometric.positions()) {
-            if (isNeighborPortHidden(level, pos, BlockPos.of(neighbor))) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private static boolean hasDirectConnectionAtEndpoint(
