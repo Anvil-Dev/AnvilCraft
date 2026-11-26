@@ -61,6 +61,7 @@ import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
 import net.neoforged.neoforge.common.util.BlockSnapshot;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -68,6 +69,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -250,11 +252,16 @@ public final class BuildingRodService {
                 return;
             }
             List<Group> allGroups = new ArrayList<>();
+            List<Group> deferredGroups = new ArrayList<>();
             Map<BlockPos, BlockState> declared = new LinkedHashMap<>();
             List<BlueprintTicks.Entry> ticks = new ArrayList<>();
             for (BlueprintPlacement copy : placements) {
                 snapshot.ticks().forEach(tick -> ticks.add(tick.at(copy.worldOf(tick.pos()))));
-                if (!planBlueprint(player, snapshot, copy, allGroups, declared, partial)) return;
+                if (!planBlueprint(player, snapshot, copy, allGroups, deferredGroups, declared, partial)) return;
+            }
+            if (!deferredGroups.isEmpty()) {
+                allGroups.sort(Comparator.comparing(group -> group.multipart != null));
+                allGroups.addAll(deferredGroups);
             }
             var undoBounds = placements.getFirst().bounds(snapshot.size());
             undoBounds.encapsulate(placements.getLast().bounds(snapshot.size()));
@@ -265,9 +272,13 @@ public final class BuildingRodService {
         }
     }
 
+    private record BlueprintBlock(BlueprintMultiblocks.PlacedBlock entry, @Nullable Group multipart) {
+    }
+
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     private static boolean planBlueprint(
         ServerPlayer player, StructureSnapshot snapshot, BlueprintPlacement placement,
-        List<Group> allGroups, Map<BlockPos, BlockState> declared, boolean partial
+        List<Group> allGroups, List<Group> deferredGroups, Map<BlockPos, BlockState> declared, boolean partial
     ) {
         final BlockPos sourceOrigin = BlueprintBlockConfiguration.sourceOrigin(snapshot);
         final Map<BlockPos, Group> groups = new LinkedHashMap<>();
@@ -288,23 +299,52 @@ public final class BuildingRodService {
         Map<BlockPos, BlockPos> portalCores = BlueprintIgnition.portalCores(declared);
         Map<BlockPos, BlockPos> localPositions = new LinkedHashMap<>();
         snapshot.blocks().forEach(block -> localPositions.put(placement.worldOf(block.pos()), block.pos()));
-        for (BlueprintMultiblocks.PlacedBlock entry : blueprint) {
+        List<BlueprintBlock> blocks = new ArrayList<>();
+        Map<BlockPos, Group> multipartSupports = new LinkedHashMap<>();
+        for (var partialGroup : BlueprintMultiblocks.partialGroups(snapshot)) {
+            Group group = multipartGroup(partialGroup.parts(), placement, blocks);
+            deferredGroups.add(group);
+            for (var part : partialGroup.parts()) {
+                if (!partialGroup.replacementGroups().containsKey(part.pos())) {
+                    multipartSupports.put(placement.worldOf(part.pos()), group);
+                }
+            }
+            partialGroup.replacementGroups().forEach((seed, parts) -> {
+                if (parts.size() > 1) {
+                    Group replacement = multipartGroup(parts, placement, blocks);
+                    allGroups.add(replacement);
+                    multipartSupports.put(placement.worldOf(seed), replacement);
+                }
+            });
+        }
+        for (var entry : blueprint) {
+            if (!multipartSupports.containsKey(entry.pos())) {
+                blocks.add(new BlueprintBlock(entry, null));
+            }
+        }
+        for (BlueprintBlock block : blocks) {
+            var entry = block.entry();
             BlockState state = entry.state();
             if (OrdinaryBlockAdapter.mapping(state) == OrdinaryBlockAdapter.Mapping.AIR) continue;
             BlockPos pos = entry.pos();
             if (!canModify(player, pos)) {
+                if (block.multipart() != null) {
+                    continue;
+                }
                 message(player, "blocked");
                 return false;
             }
-            if (player.level().getBlockState(pos).equals(state)) continue;
-            if (!player.level().getBlockState(pos).canBeReplaced()) {
+            if (block.multipart() == null && player.level().getBlockState(pos).equals(state)) {
+                continue;
+            }
+            if (block.multipart() == null && !player.level().getBlockState(pos).canBeReplaced()) {
                 message(player, "blocked");
                 return false;
             }
-            BlockPos core = state.getBlock() instanceof LargeCakeBlock
+            BlockPos core = block.multipart() == null && state.getBlock() instanceof LargeCakeBlock
                 ? cakeMaterials.get(LargeCakeBlockItem.origin(pos, state))
                 : portalCores.getOrDefault(pos, BlueprintMultiblocks.core(pos, state));
-            Group group = groups.computeIfAbsent(core, ignored -> new Group());
+            Group group = block.multipart() == null ? groups.computeIfAbsent(core, ignored -> new Group()) : block.multipart();
             group.separateContents = true;
             if (state.is(Blocks.MOVING_PISTON)) {
                 CompoundTag source = entry.nbt().orElseThrow(() -> new IllegalArgumentException("Moving piston has no runtime data"));
@@ -462,7 +502,7 @@ public final class BuildingRodService {
                     message(player, "invalid_structure");
                     return false;
                 }
-                group = groups.get(BlueprintMultiblocks.core(support, state));
+                group = multipartSupports.getOrDefault(support, groups.get(BlueprintMultiblocks.core(support, state)));
             }
             if (group == null) {
                 group = new Group();
@@ -486,6 +526,22 @@ public final class BuildingRodService {
         return true;
     }
 
+    private static Group multipartGroup(
+        List<BlueprintMultiblocks.PlacedBlock> parts, BlueprintPlacement placement, List<BlueprintBlock> blocks
+    ) {
+        Group group = new Group();
+        Group contents = new Group();
+        List<BlueprintMultiblocks.PlacedBlock> footprint = new ArrayList<>(parts.size());
+        for (var part : parts) {
+            var entry = new BlueprintMultiblocks.PlacedBlock(placement.worldOf(part.pos()), placement.stateOf(part.state()), part.nbt());
+            footprint.add(entry);
+            blocks.add(new BlueprintBlock(entry, contents));
+        }
+        group.multipart = new BuildingPlan.Multipart(footprint, contents);
+        group.separateContents = true;
+        return group;
+    }
+
     static int materialCount(BlockState state) {
         return BuildingBlockMaterial.materialCount(state);
     }
@@ -507,7 +563,10 @@ public final class BuildingRodService {
             message(player, "too_many");
             return false;
         }
-        if (BuildingRodObstructions.reject(player, groups.stream().flatMap(group -> group.cells.stream()).toList())) return false;
+        if (BuildingRodObstructions.reject(player, groups.stream().filter(group -> group.multipart == null)
+            .flatMap(group -> group.cells.stream()).toList())) {
+            return false;
+        }
         BuildingMaterials exactMaterials = new BuildingMaterials(player, BuildingRodItem.material(player));
         boolean allowMismatch = groups.stream().anyMatch(group -> exactMaterials.reserve(group, false) == null);
         BuildingMaterials materials = new BuildingMaterials(player, BuildingRodItem.material(player));
@@ -515,25 +574,27 @@ public final class BuildingRodService {
         List<EntityBuildAdapter.Planned> entities = new ArrayList<>();
         boolean missing = false;
         List<Group> placedGroups = new ArrayList<>();
+        boolean hasMultipart = groups.stream().anyMatch(group -> group.multipart != null);
+        Map<BlockPos, Cell> projected = new LinkedHashMap<>();
+        Set<Group> blockedGroups = new HashSet<>();
         for (Group group : groups) {
+            if (group.multipart != null && !planMultipart(player, group, group.multipart, projected)) {
+                blockedGroups.add(group);
+                continue;
+            }
             boolean missingFence = group.entities.stream().map(entity -> BlueprintLeashes.attachment(entity.entityNbt()))
                 .flatMap(Optional::stream).anyMatch(pos -> !player.level().getBlockState(pos).is(BlockTags.FENCES)
                     && cells.stream().noneMatch(cell -> cell.pos().equals(pos) && cell.state().is(BlockTags.FENCES)));
-            Group allocated = missingFence ? null : materials.reserve(group, allowMismatch);
+            Group allocated = missingFence ? null : materials.reserve(group, allowMismatch || group.multipart != null);
             if (allocated == null) {
                 missing = true;
-                if (!partial) {
-                    message(player, "missing_blocks");
-                    if (quiet) {
-                        var missingMaterials = new BuildingMaterials(player, BuildingRodItem.material(player)).missing(groups);
-                        BuildingRodMaterialBook.give(player, missingMaterials);
-                    }
-                    return false;
-                }
                 continue;
             }
             placedGroups.add(allocated);
             cells.addAll(allocated.cells);
+            if (hasMultipart) {
+                allocated.cells.forEach(cell -> projected.put(cell.pos(), cell));
+            }
             entities.addAll(allocated.entities);
         }
         if (!declared.isEmpty()) {
@@ -551,11 +612,21 @@ public final class BuildingRodService {
             placedGroups.removeIf(group -> group.cells.isEmpty() && group.entities.isEmpty());
         }
         List<Component> shortages = missing && quiet
-            ? new BuildingMaterials(player, BuildingRodItem.material(player)).missing(groups) : List.of();
-        if (missing) message(player, "missing_blocks");
+            ? new BuildingMaterials(player, BuildingRodItem.material(player)).missing(groups.stream()
+                .filter(group -> !blockedGroups.contains(group)).toList()) : List.of();
+        if (!blockedGroups.isEmpty()) {
+            message(player, "blocked");
+        }
+        if (missing) {
+            message(player, "missing_blocks");
+            if (!partial) {
+                BuildingRodMaterialBook.give(player, shortages);
+                return false;
+            }
+        }
         if (cells.isEmpty() && entities.isEmpty()) {
             BuildingRodMaterialBook.give(player, shortages);
-            return !missing;
+            return !missing && blockedGroups.isEmpty();
         }
         Confirmation previous = CONFIRMATIONS.remove(player);
         if (placedGroups.stream().anyMatch(group -> group.componentMismatch)) {
@@ -580,6 +651,9 @@ public final class BuildingRodService {
         }
         ItemStack rod = BuildingRodItem.heldRod(player);
         if (!BuildingRodItem.ready(player, rod)) return false;
+        if (hasMultipart && undoBounds != null) {
+            cells.forEach(cell -> undoBounds.encapsulate(cell.pos()));
+        }
         final BuildingRodUndo undo = new BuildingRodUndo(player, placedGroups, undoBounds);
         if (!materials.consume()) {
             message(player, "missing_blocks");
@@ -591,9 +665,10 @@ public final class BuildingRodService {
         Map<BlockPos, ItemStack> placedMaterials = new LinkedHashMap<>();
         placedGroups.forEach(group -> placedMaterials.putAll(group.blockMaterials));
         List<Map.Entry<Entity, CompoundTag>> spawned = new ArrayList<>();
+        List<Cell> finalCells = hasMultipart ? cells.stream().filter(cell -> projected.get(cell.pos()) == cell).toList() : cells;
         Runnable place = () -> {
             for (Cell cell : cells) BuildingCommit.set(player.level(), cell.pos(), cell.state());
-            for (Cell cell : cells) {
+            for (Cell cell : finalCells) {
                 BlockEntity blockEntity = player.level().getBlockEntity(cell.pos());
                 if (blockEntity == null && cell.state().is(Blocks.MOVING_PISTON)) {
                     blockEntity = BlueprintBlockEntities.create(player.level(), cell.pos(), cell.state(), cell.config());
@@ -623,7 +698,7 @@ public final class BuildingRodService {
                 }
             }
             Map<BlockPos, BlockState> wires = new LinkedHashMap<>();
-            for (Cell cell : cells) {
+            for (Cell cell : finalCells) {
                 if (!(cell.state().getBlock() instanceof RedstoneWireBlock)) continue;
                 if (quiet) {
                     wires.put(cell.pos(), cell.state());
@@ -648,12 +723,44 @@ public final class BuildingRodService {
         else place.run();
         BlueprintEntities.link(spawned).forEach(undo::recordAuxiliary);
         undo.finish(player);
-        if (quiet) BuildingCommit.activate(player.level(), cells, ticks);
-        else BuildingCommit.activate(player.level(), cells);
+        if (quiet) BuildingCommit.activate(player.level(), finalCells, ticks);
+        else BuildingCommit.activate(player.level(), finalCells);
         BuildingRodMaterialBook.give(player, shortages);
         finishPlacement(player, cells.size());
         if (quiet || !placedMaterials.isEmpty()) playPlacementSounds(player, cells, quiet);
-        return !missing;
+        return !missing && blockedGroups.isEmpty();
+    }
+
+    private static boolean planMultipart(
+        ServerPlayer player, Group group, BuildingPlan.Multipart multipart, Map<BlockPos, Cell> projected
+    ) {
+        boolean changed = false;
+        boolean occupied = false;
+        for (var part : multipart.parts()) {
+            if (!canModify(player, part.pos())) {
+                return false;
+            }
+            Cell planned = projected.get(part.pos());
+            BlockState existing = planned == null ? player.level().getBlockState(part.pos()) : planned.state();
+            occupied |= !existing.canBeReplaced();
+            changed |= existing != part.state();
+        }
+        if (!changed) {
+            return true;
+        }
+        if (occupied) {
+            return false;
+        }
+        Group blocks = multipart.blocks();
+        if (!BuildingRodObstructions.find(player.level(), blocks.cells, CollisionContext.of(player)).isEmpty()) {
+            return false;
+        }
+        group.cells.addAll(blocks.cells);
+        group.materials.addAll(blocks.materials);
+        group.blockMaterials.putAll(blocks.blockMaterials);
+        group.fluids.addAll(blocks.fluids);
+        group.renewableWater |= blocks.renewableWater;
+        return true;
     }
 
     private static void playPlacementSounds(ServerPlayer player, List<Cell> cells, boolean blueprint) {

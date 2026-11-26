@@ -191,7 +191,14 @@ public final class StructureSnapshotCodec {
             Optional<CompoundTag> nbt = (blockTag.get("nbt") instanceof CompoundTag)
                 ? Optional.of(blockTag.getCompoundOrEmpty("nbt").copy())
                 : Optional.empty();
-            if (byPosition.put(pos.asLong(), new StructureSnapshot.BlockEntry(pos, stateIndex, nbt)) != null) {
+            Optional<BlockState> replacedPart = Optional.empty();
+            if (blockTag.contains("anvilcraft:replaced_part")) {
+                replacedPart = blockTag.read("anvilcraft:replaced_part", BlockState.CODEC);
+                if (replacedPart.isEmpty()) {
+                    throw new ConstructionBlueprintException("corrupt_blocks", "invalid replaced part at " + pos.toShortString());
+                }
+            }
+            if (byPosition.put(pos.asLong(), new StructureSnapshot.BlockEntry(pos, stateIndex, nbt, replacedPart)) != null) {
                 duplicates++;
             }
         }
@@ -285,7 +292,7 @@ public final class StructureSnapshotCodec {
                 paletteIndex.put(state, index);
                 palette.add(state);
             }
-            blocks.add(new StructureSnapshot.BlockEntry(entry.pos(), index, entry.nbt()));
+            blocks.add(new StructureSnapshot.BlockEntry(entry.pos(), index, entry.nbt(), entry.replacedPart()));
         }
 
         List<StructureSnapshot.EntityEntry> entities = new ArrayList<>(BlueprintEntities.flatten(snapshot.entities()));
@@ -329,6 +336,7 @@ public final class StructureSnapshotCodec {
             blockTag.put("pos", posTag);
             blockTag.putInt("state", entry.stateIndex());
             entry.nbt().ifPresent(nbt -> blockTag.put("nbt", nbt));
+            entry.replacedPart().ifPresent(state -> blockTag.store("anvilcraft:replaced_part", BlockState.CODEC, state));
             blocksTag.add(blockTag);
         }
         tag.put("blocks", blocksTag);

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
+import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.item.BuildingRodItem;
 import net.minecraft.core.BlockPos;
@@ -14,12 +15,14 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -31,6 +34,26 @@ public final class BlockPlacementPicking {
     private static final double HIT_EPSILON = 1.0E-5;
 
     private BlockPlacementPicking() {
+    }
+
+    /** 扫描仪编辑以每格的轮廓选取部件，整组外框会让多个部件同时命中。 */
+    public static @Nullable BlockPos pickScannerBlock(BlockGetter level, Vec3 start, Vec3 end) {
+        return BlockGetter.traverseBlocks(start, end, level, (blocks, pos) -> {
+            BlockState state = blocks.getBlockState(pos);
+            if (state.isAir() || state.getRenderShape() == RenderShape.INVISIBLE && state.getFluidState().isEmpty()) {
+                return null;
+            }
+            VoxelShape shape;
+            if (state.getBlock() instanceof AbstractMultiPartBlock<?> multipart) {
+                shape = Shapes.join(multipart.getPartShape(state), Shapes.block(), BooleanOp.AND);
+            } else {
+                shape = state.getShape(blocks, pos);
+                if (shape.isEmpty()) {
+                    shape = Shapes.block();
+                }
+            }
+            return shape.clip(start, end, pos) == null ? null : pos.immutable();
+        }, blocks -> null);
     }
 
     public static boolean hasFullPlacementShape(BlockState state, CollisionContext context) {

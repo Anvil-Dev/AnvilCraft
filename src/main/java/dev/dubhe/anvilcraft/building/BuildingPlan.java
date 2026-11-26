@@ -22,6 +22,9 @@ public final class BuildingPlan {
         implements BuildingCommit.PlacedCell {
     }
 
+    record Multipart(List<BlueprintMultiblocks.PlacedBlock> parts, Group blocks) {
+    }
+
     static final class Group {
         final List<Item> tools = new ArrayList<>();
         final List<BuildingMaterials.FluidPayment> fluidPayments = new ArrayList<>();
@@ -29,6 +32,7 @@ public final class BuildingPlan {
         int leads;
         boolean hammer;
         @Nullable EntityType<?> creature;
+        @Nullable Multipart multipart;
         final List<Cell> cells = new ArrayList<>();
         final List<ItemStack> materials = new ArrayList<>();
         final List<FluidStack> fluids = new ArrayList<>();
