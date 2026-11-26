@@ -61,7 +61,10 @@ public final class StructureBlueprintEdit {
         var changed = new HashSet<BlockPos>();
         for (var entry : snapshot.blocks()) {
             if (entry.pos().equals(selected) || all && snapshot.stateOf(entry) == original) {
-                blocks.add(new StructureSnapshot.BlockEntry(entry.pos(), replacementIndex, Optional.empty()));
+                BlockState oldPart = entry.replacedPart().orElse(snapshot.stateOf(entry));
+                Optional<BlockState> replacedPart = replacement != oldPart && BlueprintMultiblocks.hasParts(oldPart)
+                    ? Optional.of(oldPart) : Optional.empty();
+                blocks.add(new StructureSnapshot.BlockEntry(entry.pos(), replacementIndex, Optional.empty(), replacedPart));
                 changed.add(entry.pos());
             } else {
                 blocks.add(entry);
@@ -115,7 +118,7 @@ public final class StructureBlueprintEdit {
                 copy.putInt("z", pos.getZ());
                 return copy;
             });
-            blocks.add(new StructureSnapshot.BlockEntry(pos, entry.stateIndex(), nbt));
+            blocks.add(new StructureSnapshot.BlockEntry(pos, entry.stateIndex(), nbt, entry.replacedPart().map(placement::stateOf)));
         }
         var entities = new ArrayList<StructureSnapshot.EntityEntry>();
         for (var entry : snapshot.entities()) {

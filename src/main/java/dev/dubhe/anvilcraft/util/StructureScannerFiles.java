@@ -249,7 +249,7 @@ public final class StructureScannerFiles {
         CompoundTag updated = DataFixTypes.STRUCTURE.updateToCurrentVersion(player.level().getServer().getFixerUpper(), tag,
             NbtUtils.getDataVersion(tag, 500));
         StructureSnapshot snapshot = StructureSnapshotCodec.parse(updated, player.registryAccess()).snapshot();
-        return BlueprintNormalizer.normalize(snapshot);
+        return BlueprintNormalizer.normalize(snapshot, tag.getBooleanOr("anvilcraft:world_coordinates", false));
     }
 
     public static byte[] stageImport(ServerPlayer player, StructureScannerMenu menu, CompoundTag tag, String fileName)
