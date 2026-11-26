@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#c:storage_blocks/resin"
+            "items": "#anvilcraft:storage_blocks/resin"
           }
         ]
       },

@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "B": "#c:storage_blocks/resin",
+    "B": "#anvilcraft:storage_blocks/resin",
     "I": "minecraft:iron_boots",
     "R": "anvilcraft:hardened_resin"
   },

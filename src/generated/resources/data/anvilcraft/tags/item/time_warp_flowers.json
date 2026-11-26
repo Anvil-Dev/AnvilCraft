@@ -1,0 +1,8 @@
+{
+  "values": [
+    "#minecraft:flowers"
+  ],
+  "remove": [
+    "minecraft:wither_rose"
+  ]
+}

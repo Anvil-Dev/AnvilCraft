@@ -23,7 +23,7 @@
         "blocks": "#c:stripped_logs"
       },
       "A": {
-        "blocks": "#c:storage_blocks/resin"
+        "blocks": "#anvilcraft:storage_blocks/resin"
       }
     }
   },

@@ -9,6 +9,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagEntry;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -22,6 +23,11 @@ public class ItemTagLoader {
     ///
     /// @param provider 提供器
     public static void init(RegistrumTagsProvider<Item> provider) {
+        // 时移配方用的花：排除凋零玫瑰，否则凋零玫瑰会自我转化并净损失数量
+        provider.rawBuilder(ModItemTags.TIME_WARP_FLOWERS)
+            .addTag(ItemTags.FLOWERS.location())
+            .remove(TagEntry.element(ItemTagLoader.findId(Items.WITHER_ROSE)));
+
         provider.rawBuilder(ModItemTags.AUTO_ENCHANTING_TABLE_PRIMERS)
             .addElement(ModItems.EMERALD_AMULET.getId())
             .addElement(ModBlocks.EMBER_ANVIL.getId())
