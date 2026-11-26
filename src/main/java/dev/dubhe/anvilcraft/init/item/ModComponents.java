@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.Amulet;
+import dev.dubhe.anvilcraft.block.state.ButtonCap;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.item.property.component.CanTakeOutAmmo;
@@ -16,6 +17,7 @@ import dev.dubhe.anvilcraft.item.property.component.FilterContent;
 import dev.dubhe.anvilcraft.item.property.component.FlightTime;
 import dev.dubhe.anvilcraft.item.property.component.HeliostatsData;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
+import dev.dubhe.anvilcraft.item.property.component.MountedButtonBlock;
 import dev.dubhe.anvilcraft.item.property.component.Multiphase;
 import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
 import dev.dubhe.anvilcraft.item.property.component.PillBoxContents;
@@ -52,6 +54,13 @@ import java.util.function.Consumer;
 public class ModComponents {
     public static final DeferredRegister<DataComponentType<?>> DR = DeferredRegister.create(
         Registries.DATA_COMPONENT_TYPE, AnvilCraft.MOD_ID
+    );
+
+    public static final DataComponentType<ButtonCap> BUTTON_CAP = ModComponents.register(
+        "button_cap", b -> b.persistent(ButtonCap.CODEC).networkSynchronized(ButtonCap.STREAM_CODEC)
+    );
+    public static final DataComponentType<MountedButtonBlock> MOUNTED_BLOCK = ModComponents.register(
+        "mounted_block", b -> b.persistent(MountedButtonBlock.CODEC).networkSynchronized(MountedButtonBlock.STREAM_CODEC)
     );
 
     public static final DataComponentType<TerminalBinding> TERMINAL_BINDING = ModComponents.register(

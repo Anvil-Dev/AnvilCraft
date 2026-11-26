@@ -1,0 +1,6 @@
+{
+  "parent": "anvilcraft:block/big_red_button_cap_rgb",
+  "textures": {
+    "0": "anvilcraft:block/big_red_button_rgb_gradient"
+  }
+}

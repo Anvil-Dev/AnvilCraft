@@ -432,6 +432,8 @@ public final class ModBlockPlacementRuleProvider implements DataProvider {
         addRuleIfAbsent(rulesByBlock, Blocks.ATTACHED_PUMPKIN_STEM, "", Items.PUMPKIN_SEEDS, 1);
         addRuleIfAbsent(rulesByBlock, Blocks.BAMBOO_SAPLING, "", Items.BAMBOO, 1);
         addRuleIfAbsent(rulesByBlock, Blocks.BIG_DRIPLEAF_STEM, "", Items.BIG_DRIPLEAF, 1);
+        addRuleIfAbsent(rulesByBlock, Blocks.PISTON, "", Items.PISTON, 1);
+        addRuleIfAbsent(rulesByBlock, Blocks.STICKY_PISTON, "", Items.STICKY_PISTON, 1);
         addRuleIfAbsent(rulesByBlock, Blocks.PISTON_HEAD, "", Items.PISTON, -1);
     }
 

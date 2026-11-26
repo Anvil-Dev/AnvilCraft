@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
@@ -24,9 +25,11 @@ import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.data.recipes.SingleItemRecipeBuilder;
 import net.minecraft.data.recipes.SmithingTransformRecipeBuilder;
+import net.minecraft.data.recipes.TransmuteRecipeBuilder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
@@ -37,6 +40,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.crafting.CompoundIngredient;
+import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
 
 public class RegistrumBlockRecipeLoader {
     public static <T extends Block> void autoEnchantingTable(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
@@ -159,6 +163,20 @@ public class RegistrumBlockRecipeLoader {
                 AnvilCraftDatagen.hasItem(ModItems.HARDENED_RESIN), AnvilCraftDatagen.has(provider.getItems(), ModItems.HARDENED_RESIN)
             )
             .save(provider);
+
+        Item button = ctx.get().asItem();
+        Ingredient plainButton = DataComponentIngredient.of(DataComponentPatch.builder()
+            .remove(ModComponents.BUTTON_CAP)
+            .remove(ModComponents.MOUNTED_BLOCK)
+            .build(), button);
+        for (DyeColor color : DyeColor.values()) {
+            var result = new ItemStackTemplate(button, DataComponentPatch.builder().set(DataComponents.BASE_COLOR, color).build());
+            Ingredient dye = Ingredient.of(provider.getItems().getOrThrow(color.getTag()));
+            TransmuteRecipeBuilder.transmute(RecipeCategory.REDSTONE, plainButton, dye, result)
+                .group(ctx.getId().toString())
+                .unlockedBy(AnvilCraftDatagen.hasItem(button), AnvilCraftDatagen.has(provider.getItems(), button))
+                .save(provider, AnvilCraft.recipe("dyeing/big_button/" + color.getSerializedName()));
+        }
     }
 
     @SuppressWarnings("unused")

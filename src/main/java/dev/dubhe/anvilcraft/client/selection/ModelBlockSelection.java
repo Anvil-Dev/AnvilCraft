@@ -262,6 +262,10 @@ public final class ModelBlockSelection {
         Minecraft minecraft = Minecraft.getInstance();
         CollisionContext context = minecraft.player == null ? CollisionContext.empty() : CollisionContext.of(minecraft.player);
         VoxelShape shape = state.getShape(level, pos, context);
+        return shapeParts(shape);
+    }
+
+    public static List<SelectionPart> shapeParts(VoxelShape shape) {
         if (shape.isEmpty()) return List.of();
         SelectionPart part = FALLBACK.getIfPresent(shape);
         if (part == null) {

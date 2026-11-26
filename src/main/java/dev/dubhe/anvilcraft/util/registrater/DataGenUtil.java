@@ -14,10 +14,12 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.api.item.property.IIntegerComponent;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.plate.PowerLevelPressurePlateBlock;
+import dev.dubhe.anvilcraft.block.state.ButtonCap;
 import dev.dubhe.anvilcraft.block.utility.redstone.MountedRedstone;
 import dev.dubhe.anvilcraft.client.renderer.item.CelestialForgingAnvilItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.EnergyWeaponExhaustedProperty;
 import dev.dubhe.anvilcraft.client.renderer.item.EquipmentPoweredProperty;
+import dev.dubhe.anvilcraft.client.renderer.item.MountedButtonItemModel;
 import dev.dubhe.anvilcraft.client.renderer.item.StoredEnergyEmptyProperty;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModDataComponentPredicates;
@@ -39,6 +41,7 @@ import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
+import net.minecraft.client.data.models.model.ModelTemplate;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TextureSlot;
@@ -47,8 +50,10 @@ import net.minecraft.client.renderer.block.dispatch.Variant;
 import net.minecraft.client.renderer.block.dispatch.VariantMutator;
 import net.minecraft.client.renderer.item.ClientItem;
 import net.minecraft.client.renderer.item.CompositeModel;
+import net.minecraft.client.renderer.item.SelectItemModel;
 import net.minecraft.client.renderer.item.properties.conditional.ComponentMatches;
 import net.minecraft.client.renderer.item.properties.conditional.FishingRodCast;
+import net.minecraft.client.renderer.item.properties.conditional.HasComponent;
 import net.minecraft.client.renderer.item.properties.conditional.IsUsingItem;
 import net.minecraft.client.renderer.item.properties.select.ComponentContents;
 import net.minecraft.client.renderer.item.properties.select.DisplayContext;
@@ -57,6 +62,7 @@ import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.component.predicates.DataComponentPredicate;
 import net.minecraft.core.component.predicates.DataComponentPredicates;
 import net.minecraft.core.component.predicates.EnchantmentsPredicate;
@@ -64,6 +70,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -85,6 +92,7 @@ import net.minecraft.world.level.storage.loot.predicates.MatchTool;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import org.joml.Vector3f;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -159,6 +167,44 @@ public class DataGenUtil {
                 generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/").withSuffix(suffix));
             }
         };
+    }
+
+    public static <T extends BlockItem> void bigRedButton(DataGenContext<Item, T> ctx, RegistrumItemModelGenerator generator) {
+        Identifier button = ctx.getId().withPrefix("block/");
+        Identifier cap = button.withSuffix("_cap");
+        TextureSlot capTexture = TextureSlot.create("0");
+        var baseModel = button.withSuffix("_base");
+        var base = ItemModelUtils.plainModel(baseModel);
+        var capTemplate = new ModelTemplate(Optional.of(cap), Optional.empty(), capTexture);
+        List<SelectItemModel.SwitchCase<DyeColor>> cases = new ArrayList<>();
+        for (DyeColor color : DyeColor.values()) {
+            if (color == DyeColor.RED) {
+                continue;
+            }
+            String suffix = "_" + color.getSerializedName();
+            TextureMapping textures = new TextureMapping().put(capTexture, new Material(button.withSuffix(suffix)));
+            Identifier capModel = capTemplate.create(cap.withSuffix(suffix), textures, generator.modelOutput);
+            cases.add(ItemModelUtils.when(color, ItemModelUtils.composite(base, ItemModelUtils.plainModel(capModel))));
+        }
+        var dyedButton = ItemModelUtils.select(
+            new ComponentContents<>(DataComponents.BASE_COLOR), ItemModelUtils.plainModel(button), cases
+        );
+        var mounted = ItemModelUtils.composite(base, new MountedButtonItemModel.Unbaked(baseModel));
+        List<SelectItemModel.SwitchCase<ButtonCap>> capCases = new ArrayList<>();
+        for (ButtonCap variant : ButtonCap.values()) {
+            if (variant == ButtonCap.BASE) {
+                capCases.add(ItemModelUtils.when(variant, base));
+            } else if (variant.isHammerCap()) {
+                var head = ItemModelUtils.plainModel(cap.withSuffix("_" + variant.getSerializedName()));
+                capCases.add(ItemModelUtils.when(variant, ItemModelUtils.composite(base, head)));
+            } else {
+                capCases.add(ItemModelUtils.when(variant, mounted));
+            }
+        }
+        generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.conditional(
+            new HasComponent(ModComponents.MOUNTED_BLOCK, false), mounted,
+            ItemModelUtils.select(new ComponentContents<>(ModComponents.BUTTON_CAP), dyedButton, capCases)
+        ));
     }
 
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> multitool() {

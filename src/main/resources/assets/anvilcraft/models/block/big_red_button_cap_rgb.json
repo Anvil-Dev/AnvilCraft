@@ -1,0 +1,20 @@
+{
+  "parent": "anvilcraft:block/big_red_button_cap",
+  "textures": {
+    "0": "anvilcraft:block/big_red_button_rgb"
+  },
+  "elements": [
+    {
+      "from": [4, 4.05, 4],
+      "to": [12, 8.05, 12],
+      "faces": {
+        "up":    {"uv": [0, 0, 8, 8], "texture": "#0"},
+        "down":  {"uv": [8, 0, 16, 8], "texture": "#0"},
+        "north": {"uv": [0, 8, 8, 12], "texture": "#0"},
+        "east":  {"uv": [8, 8, 16, 12], "texture": "#0"},
+        "south": {"uv": [0, 12, 8, 16], "texture": "#0"},
+        "west":  {"uv": [8, 12, 16, 16], "texture": "#0"}
+      }
+    }
+  ]
+}

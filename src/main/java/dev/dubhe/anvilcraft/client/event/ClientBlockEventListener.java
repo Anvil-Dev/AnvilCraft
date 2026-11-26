@@ -2,8 +2,8 @@ package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.block.entity.BigRedButtonBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import dev.dubhe.anvilcraft.network.HammerUsePacket;
@@ -11,7 +11,6 @@ import dev.dubhe.anvilcraft.network.InfiniteFluidTankBreakModifierPacket;
 import dev.dubhe.anvilcraft.util.InfiniteFluidTankBreakProtection;
 import dev.dubhe.anvilcraft.util.StateUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -54,6 +53,10 @@ public class ClientBlockEventListener {
         BlockState state = event.getLevel().getBlockState(event.getPos());
         Player entity = event.getEntity();
         if (!entity.getItemInHand(hand).is(ModItemTags.ANVIL_HAMMER)) {
+            return;
+        }
+        if (!entity.isShiftKeyDown() && event.getLevel().getBlockEntity(event.getPos()) instanceof BigRedButtonBlockEntity button
+            && button.isBareBase()) {
             return;
         }
         if (entity.isShiftKeyDown() && !state.is(ModBlockTags.HAMMER_REMOVABLE) && !(state.getBlock() instanceof IHammerRemovable)) {

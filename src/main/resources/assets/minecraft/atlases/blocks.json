@@ -4,6 +4,56 @@
       "type": "minecraft:single",
       "resource": "minecraft:item/bucket",
       "sprite": "anvilcraft:block/bucket"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "anvilcraft:item/anvil_hammer",
+      "sprite": "anvilcraft:block/anvil_hammer"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "anvilcraft:item/royal_anvil_hammer",
+      "sprite": "anvilcraft:block/royal_anvil_hammer"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "anvilcraft:item/ember_anvil_hammer",
+      "sprite": "anvilcraft:block/ember_anvil_hammer"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "anvilcraft:item/transcendence_anvil_hammer",
+      "sprite": "anvilcraft:block/transcendence_anvil_hammer"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "anvilcraft:item/frost_anvil_hammer",
+      "sprite": "anvilcraft:block/frost_anvil_hammer"
+    },
+    {
+      "type": "minecraft:paletted_permutations",
+      "textures": [
+        "anvilcraft:block/big_red_button"
+      ],
+      "palette_key": "anvilcraft:colormap/big_red_button/grayscale",
+      "permutations": {
+        "white": "anvilcraft:colormap/big_red_button/white",
+        "orange": "anvilcraft:colormap/big_red_button/orange",
+        "magenta": "anvilcraft:colormap/big_red_button/magenta",
+        "light_blue": "anvilcraft:colormap/big_red_button/light_blue",
+        "yellow": "anvilcraft:colormap/big_red_button/yellow",
+        "lime": "anvilcraft:colormap/big_red_button/lime",
+        "pink": "anvilcraft:colormap/big_red_button/pink",
+        "gray": "anvilcraft:colormap/big_red_button/gray",
+        "light_gray": "anvilcraft:colormap/big_red_button/light_gray",
+        "cyan": "anvilcraft:colormap/big_red_button/cyan",
+        "purple": "anvilcraft:colormap/big_red_button/purple",
+        "blue": "anvilcraft:colormap/big_red_button/blue",
+        "brown": "anvilcraft:colormap/big_red_button/brown",
+        "green": "anvilcraft:colormap/big_red_button/green",
+        "red": "anvilcraft:colormap/big_red_button/red",
+        "black": "anvilcraft:colormap/big_red_button/black"
+      }
     }
   ]
 }

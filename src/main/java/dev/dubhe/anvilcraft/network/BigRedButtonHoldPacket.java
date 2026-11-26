@@ -6,6 +6,7 @@ import dev.anvilcraft.lib.v2.network.packet.ISensitiveBiPacket;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.BigRedButtonBlockEntity;
+import dev.dubhe.anvilcraft.block.utility.redstone.BigRedButtonBlock;
 import dev.dubhe.anvilcraft.client.event.BigRedButtonInputListener;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -14,11 +15,12 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.jspecify.annotations.Nullable;
 
 public record BigRedButtonHoldPacket(BlockPos pos, Vec3 hitLocation, boolean held, int holdId) implements ISensitiveBiPacket {
     public static final Type<BigRedButtonHoldPacket> TYPE = IPacket.type(AnvilCraft.of("big_red_button_hold"));
@@ -51,22 +53,45 @@ public record BigRedButtonHoldPacket(BlockPos pos, Vec3 hitLocation, boolean hel
     private boolean updateButton(Player player) {
         if (!player.level().hasChunkAt(this.pos)) return false;
         if (!(player.level().getBlockEntity(this.pos) instanceof BigRedButtonBlockEntity button)) return false;
-        if (!this.held || !this.canPress(player)) {
+        if (!this.held || !this.canPress(player, button)) {
             button.release(player);
             return false;
         }
         return button.press(player);
     }
 
-    private boolean canPress(Player player) {
-        if (!player.isAlive() || player.isSpectator() || !player.isWithinBlockInteractionRange(this.pos, 1.0)) return false;
-        if (!Double.isFinite(this.hitLocation.x) || !Double.isFinite(this.hitLocation.y) || !Double.isFinite(this.hitLocation.z)
-            || !new AABB(this.pos).inflate(1.0E-5).contains(this.hitLocation)) return false;
+    private boolean canPress(Player player, BigRedButtonBlockEntity button) {
+        if (!player.isAlive() || player.isSpectator() || button.isBareBase()) {
+            return false;
+        }
+        BlockHitResult hit = visibleHit(player, button, this.hitLocation, button.isCapHeldBy(player));
+        var mounted = button.getMountedBlock();
+        return hit != null && (mounted == null || !mounted.canAdjustWithHammer(player)
+            || !BigRedButtonBlock.isBaseHit(button.getBlockState(), player.level(), hit));
+    }
+
+    static @Nullable BlockHitResult visibleHit(Player player, BigRedButtonBlockEntity button, Vec3 location, boolean followCap) {
         Vec3 eye = player.getEyePosition();
-        Vec3 target = this.hitLocation.add(this.hitLocation.subtract(eye).normalize().scale(1.0E-4));
-        BlockHitResult hit = player.level().clip(new ClipContext(
-            eye, target, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, player
-        ));
-        return hit.getType() == HitResult.Type.BLOCK && hit.getBlockPos().equals(this.pos);
+        double reach = player.blockInteractionRange() + 1;
+        double distance = eye.distanceTo(location);
+        if (!Double.isFinite(distance) || distance < 1E-6 || distance > reach) {
+            return null;
+        }
+        Vec3 direction = location.subtract(eye).scale(1 / distance);
+        // 按下后帽面会移动，续按沿上次的命中方向重新寻找当前帽面。
+        Vec3 end = eye.add(direction.scale(followCap ? reach : distance + 1E-4));
+        var level = player.level();
+        var pos = button.getBlockPos();
+        var shape = button.getBlockState().getShape(level, pos, CollisionContext.of(player));
+        BlockHitResult hit = shape.clip(eye, end, pos);
+        if (hit == null) {
+            return null;
+        }
+        var obstruction = level.clip(new ClipContext(eye, hit.getLocation(), ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, player));
+        if (obstruction.getType() == HitResult.Type.BLOCK && !obstruction.getBlockPos().equals(pos)
+            && eye.distanceToSqr(obstruction.getLocation()) < eye.distanceToSqr(hit.getLocation()) - 1E-6) {
+            return null;
+        }
+        return hit;
     }
 }

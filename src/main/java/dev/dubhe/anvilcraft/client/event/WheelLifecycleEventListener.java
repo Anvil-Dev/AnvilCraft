@@ -6,16 +6,22 @@ import dev.anvilcraft.lib.v2.wheel.api.WheelMenuModel;
 import dev.anvilcraft.lib.v2.wheel.api.WheelSelectionEffect;
 import dev.anvilcraft.lib.v2.wheel.client.input.WheelScreenController;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.BigRedButtonBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder;
 import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder.ModelRenderTarget;
+import dev.dubhe.anvilcraft.block.state.ButtonCap;
 import dev.dubhe.anvilcraft.block.utility.redstone.MountedRedstone;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.support.HammerPreviewState;
 import dev.dubhe.anvilcraft.client.support.HammerWheelIconRenderer;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.armor.EquipmentArmorItem;
+import dev.dubhe.anvilcraft.item.block.BigRedButtonBlockItem;
+import dev.dubhe.anvilcraft.item.property.component.ChromaticButtonMode;
+import dev.dubhe.anvilcraft.item.property.component.MountedButtonBlock;
 import dev.dubhe.anvilcraft.item.property.component.Multiphase;
 import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
@@ -26,9 +32,11 @@ import dev.dubhe.anvilcraft.item.tool.MultitoolItem;
 import dev.dubhe.anvilcraft.item.tool.MultitoolMode;
 import dev.dubhe.anvilcraft.item.tool.ResonateMode;
 import dev.dubhe.anvilcraft.item.tool.ResonatorItem;
+import dev.dubhe.anvilcraft.network.ChangeMountedButtonStatePacket;
 import dev.dubhe.anvilcraft.network.HammerChangeBlockPacket;
 import dev.dubhe.anvilcraft.network.HammerChangeFlexibleMultiPartBlockPacket;
 import dev.dubhe.anvilcraft.network.HammerUsePacket;
+import dev.dubhe.anvilcraft.network.SwitchButtonBasePacket;
 import dev.dubhe.anvilcraft.network.SwitchDragonRodProtectContainersPacket;
 import dev.dubhe.anvilcraft.network.SwitchEquipmentAbilityPacket;
 import dev.dubhe.anvilcraft.network.SwitchHeavyHalberdModePacket;
@@ -37,14 +45,17 @@ import dev.dubhe.anvilcraft.network.SwitchResonateModePacket;
 import dev.dubhe.anvilcraft.network.TerminalBalanceModePacket;
 import dev.dubhe.anvilcraft.network.multiple.MultiphasePackets;
 import dev.dubhe.anvilcraft.saved.setting.mode.BalanceMode;
+import dev.dubhe.anvilcraft.util.StateUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -66,6 +77,7 @@ import org.lwjgl.glfw.GLFW;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 @SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "OptionalAssignedToNull"})
@@ -80,6 +92,8 @@ public class WheelLifecycleEventListener {
     private static long equipmentKeyTime = -1L;
     private static boolean equipmentKeyWasDown;
     private static @Nullable WheelMenuModel equipmentWheelCache;
+    private static @Nullable InteractionHand buttonBaseHand;
+    private static long buttonBaseKeyTime;
 
     private static long balanceKeyTime = -1L;
     private static boolean balanceKeyWasDown;
@@ -125,12 +139,31 @@ public class WheelLifecycleEventListener {
         return WheelLifecycleEventListener.isHammerWheelModel(model) ? WheelLifecycleEventListener.hammerPreview : null;
     }
 
+    public static @Nullable MountedButtonBlock previewMountedBlock(BigRedButtonBlockEntity button) {
+        var mounted = button.getMountedBlock();
+        if (mounted == null) {
+            return null;
+        }
+        if (hammerPreview != null && button.getLevel() != null && button.getLevel() == Minecraft.getInstance().level
+            && button.getLevel().getBlockEntity(button.getBlockPos()) == button) {
+            MountedButtonBlock preview = hammerPreview.mountedBlockAt(button.getBlockPos());
+            if (preview != null) {
+                return preview;
+            }
+        }
+        return mounted;
+    }
+
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft client = Minecraft.getInstance();
         ClientLevel level = client.level;
-        if (level == null) return;
+        if (level == null) {
+            buttonBaseHand = null;
+            return;
+        }
         long gameTime = level.getGameTime();
+        openHeldButtonBaseWheel(client, gameTime);
         WheelLifecycleEventListener.openPendingHammerWheel(client, gameTime);
         WheelLifecycleEventListener.openMultiphaseWheel(gameTime);
         WheelLifecycleEventListener.openResonatorWheel(gameTime);
@@ -167,13 +200,59 @@ public class WheelLifecycleEventListener {
         }
         WheelLifecycleEventListener.hammerWheelCache = Optional.of(WheelLifecycleEventListener.getHammerWheel(
             targetPos,
+            level.getBlockState(targetPos),
             property,
             possibleStates,
-            client.getCameraEntity().getRotationVector()
+            client.getCameraEntity().getRotationVector(),
+            null,
+            state -> sendHammerChangeBlockPacketToServer(state, targetPos)
         ));
         WheelLifecycleEventListener.hammerInteraction = () ->
             WheelLifecycleEventListener.interactWithHammer(player, level, targetPos, hand, hitVec);
         return true;
+    }
+
+    public static void openMountedButtonWheel(BigRedButtonBlockEntity button, BlockHitResult hit) {
+        Minecraft client = Minecraft.getInstance();
+        var mounted = button.getMountedBlock();
+        if (client.level == null || client.player == null || client.getCameraEntity() == null
+            || mounted == null || !mounted.canAdjustWithHammer(client.player) || hammerWheelCache != null) {
+            return;
+        }
+        BlockState initial = mounted.state();
+        BlockPos pos = hit.getBlockPos();
+        hammerKeyTime = client.level.getGameTime();
+        hammerInteraction = null;
+        if (initial.is(ModBlocks.CHROMATIC_STONE)) {
+            var base = new ModelRenderTarget(pos, button.getBlockState());
+            hammerWheelCache = Optional.of(chromaticButtonWheel(base, mounted, client.getCameraEntity().getRotationVector(),
+                mode -> ClientPacketDistributor.sendToServer(new ChangeMountedButtonStatePacket(
+                    pos, hit.getLocation(), initial, initial, Optional.of(mode)
+                ))));
+            return;
+        }
+        Property<?> property = AnvilHammerItem.findModifyableProperty(initial);
+        if (property == null) {
+            return;
+        }
+        hammerWheelCache = Optional.of(getHammerWheel(pos, initial, property, StateUtil.hammerStates(initial, property),
+            client.getCameraEntity().getRotationVector(), mounted, state -> ClientPacketDistributor.sendToServer(
+                new ChangeMountedButtonStatePacket(pos, hit.getLocation(), initial, state))));
+    }
+
+    static WheelMenuModel chromaticButtonWheel(
+        ModelRenderTarget base, MountedButtonBlock mounted, Vec2 camera, Consumer<ChromaticButtonMode> select
+    ) {
+        var choices = List.of(mounted.withMode(ChromaticButtonMode.FLOWING), mounted.withMode(ChromaticButtonMode.GRADIENT));
+        hammerPreview = new HammerPreviewState(base.pos(), mounted, choices);
+        var builder = WheelMenuBuilder.create().slotsPerPage(choices.size());
+        for (var choice : choices) {
+            String name = choice.mode().getSerializedName();
+            var icon = new HammerWheelIconRenderer(base, choice);
+            builder.action(name, Component.translatable("screen.anvilcraft.big_red_button." + name),
+                (graphics, _, _, _) -> icon.render(graphics, camera), _ -> select.accept(choice.mode()));
+        }
+        return builder.build();
     }
 
     private static boolean interactWithHammer(
@@ -194,6 +273,12 @@ public class WheelLifecycleEventListener {
     private static void openPendingHammerWheel(Minecraft client, long gameTime) {
         if (WheelLifecycleEventListener.hammerKeyWasDown || client.screen != null || !client.options.keyUse.isDown()) return;
         if (WheelLifecycleEventListener.hammerWheelCache == null || WheelLifecycleEventListener.hammerWheelCache.isEmpty()) return;
+        if (hammerPreview != null && hammerPreview.isMounted() && !hammerPreview.isValid()) {
+            hammerPreview = null;
+            hammerWheelCache = null;
+            hammerKeyTime = -1;
+            return;
+        }
         if (gameTime - WheelLifecycleEventListener.hammerKeyTime < 3) return;
         WheelLifecycleEventListener.CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.hammerWheelCache.get());
         WheelLifecycleEventListener.hammerKeyWasDown = true;
@@ -281,22 +366,30 @@ public class WheelLifecycleEventListener {
 
     private static WheelMenuModel getHammerWheel(
         BlockPos targetPos,
+        BlockState initialState,
         Property<?> property,
         List<BlockState> possibleStates,
-        Vec2 camera
+        Vec2 camera,
+        @Nullable MountedButtonBlock mounted,
+        Consumer<BlockState> select
     ) {
-        Level level = Objects.requireNonNull(Minecraft.getInstance().level);
-        BlockState initialState = level.getBlockState(targetPos);
-        WheelLifecycleEventListener.hammerPreview = new HammerPreviewState(targetPos, initialState, possibleStates);
+        ClientLevel level = Objects.requireNonNull(Minecraft.getInstance().level);
+        hammerPreview = mounted == null ? new HammerPreviewState(targetPos, initialState, possibleStates)
+            : new HammerPreviewState(targetPos, mounted, possibleStates.stream().map(mounted::withState).toList());
         int slotsPerPage = initialState.getBlock() instanceof MountedRedstone
             ? BlockStateProperties.HORIZONTAL_FACING.getPossibleValues().size() : possibleStates.size();
         WheelMenuBuilder builder = WheelMenuBuilder.create().slotsPerPage(slotsPerPage);
         possibleStates
             .forEach(state -> {
-                ModelRenderTarget modelTarget = state.getBlock() instanceof IMultiPartBlockModelHolder holder
-                                                ? holder.getModelRenderTarget(level, targetPos, initialState, state)
-                                                : new ModelRenderTarget(targetPos, state);
-                HammerWheelIconRenderer icon = new HammerWheelIconRenderer(Minecraft.getInstance().level, modelTarget);
+                HammerWheelIconRenderer icon;
+                if (mounted != null) {
+                    var base = new ModelRenderTarget(targetPos, level.getBlockState(targetPos));
+                    icon = new HammerWheelIconRenderer(base, mounted.withState(state));
+                } else {
+                    ModelRenderTarget modelTarget = state.getBlock() instanceof IMultiPartBlockModelHolder holder
+                        ? holder.getModelRenderTarget(level, targetPos, initialState, state) : new ModelRenderTarget(targetPos, state);
+                    icon = new HammerWheelIconRenderer(level, modelTarget);
+                }
                 String name = property.getName(Util.cast(state.getValue(property)));
                 Component label = Component.literal(name);
                 if (state.getBlock() instanceof MountedRedstone) {
@@ -310,7 +403,7 @@ public class WheelLifecycleEventListener {
                     name,
                     label,
                     (graphics, _, _, _) -> icon.render(graphics, camera),
-                    _ -> WheelLifecycleEventListener.sendHammerChangeBlockPacketToServer(state, targetPos)
+                    _ -> select.accept(state)
                 );
             });
         return builder.build();
@@ -617,6 +710,9 @@ public class WheelLifecycleEventListener {
             WheelLifecycleEventListener.processMultiphasePress(client, event.getAction());
         }
         if (ModKeyMappings.SWITCH_TOOL_MODE.get().matches(event.getKeyEvent())) {
+            if (processButtonBasePress(client, event.getAction())) {
+                return;
+            }
             WheelLifecycleEventListener.processResonatorPress(client, event.getAction());
             WheelLifecycleEventListener.processHeavyHalberdPress(client, event.getAction());
             WheelLifecycleEventListener.processMultitoolPress(client, event.getAction());
@@ -637,6 +733,9 @@ public class WheelLifecycleEventListener {
             WheelLifecycleEventListener.processMultiphasePress(client, event.getAction());
         }
         if (ModKeyMappings.SWITCH_TOOL_MODE.get().matchesMouse(new MouseButtonEvent(0, 0, event.getMouseButtonInfo()))) {
+            if (processButtonBasePress(client, event.getAction())) {
+                return;
+            }
             WheelLifecycleEventListener.processResonatorPress(client, event.getAction());
             WheelLifecycleEventListener.processHeavyHalberdPress(client, event.getAction());
             WheelLifecycleEventListener.processMultitoolPress(client, event.getAction());
@@ -644,6 +743,63 @@ public class WheelLifecycleEventListener {
             WheelLifecycleEventListener.processBalancePress(client, event.getAction());
             WheelLifecycleEventListener.processEquipmentPress(client, event.getAction());
         }
+    }
+
+    private static boolean processButtonBasePress(Minecraft client, int action) {
+        if (action == GLFW.GLFW_RELEASE && buttonBaseHand != null) {
+            InteractionHand hand = buttonBaseHand;
+            buttonBaseHand = null;
+            if (buttonBaseKeyTime < 0) {
+                CONTROLLER.onHoldKeyReleased();
+            } else if (client.screen == null && client.player != null && client.isWindowActive()) {
+                ItemStack held = client.player.getItemInHand(hand);
+                if (BigRedButtonBlockItem.canSwitchBase(held)) {
+                    CONTROLLER.openTap(buttonBaseWheel(hand, held));
+                }
+            }
+            return true;
+        }
+        if (action != GLFW.GLFW_PRESS || client.screen != null || client.level == null || client.player == null
+            || client.player.isSpectator()) {
+            return false;
+        }
+        for (InteractionHand hand : InteractionHand.values()) {
+            ItemStack held = client.player.getItemInHand(hand);
+            if (!BigRedButtonBlockItem.canSwitchBase(held)) {
+                continue;
+            }
+            buttonBaseHand = hand;
+            buttonBaseKeyTime = client.level.getGameTime();
+            return true;
+        }
+        return false;
+    }
+
+    private static void openHeldButtonBaseWheel(Minecraft client, long gameTime) {
+        if (buttonBaseHand == null || buttonBaseKeyTime < 0) {
+            return;
+        }
+        if (client.player == null || client.screen != null || !client.isWindowActive()
+            || !ModKeyMappings.SWITCH_TOOL_MODE.get().isDown()
+            || !BigRedButtonBlockItem.canSwitchBase(client.player.getItemInHand(buttonBaseHand))) {
+            buttonBaseHand = null;
+            return;
+        }
+        if (gameTime - buttonBaseKeyTime > 4) {
+            CONTROLLER.onHoldKeyPressed(buttonBaseWheel(buttonBaseHand, client.player.getItemInHand(buttonBaseHand)));
+            buttonBaseKeyTime = -1;
+        }
+    }
+
+    static WheelMenuModel buttonBaseWheel(InteractionHand hand, ItemStack held) {
+        ItemStack preview = held.copyWithCount(1);
+        BigRedButtonBlockItem.switchBase(preview);
+        var packet = new SwitchButtonBasePacket(hand, held.getOrDefault(DataComponents.BASE_COLOR, DyeColor.RED),
+            held.get(ModComponents.BUTTON_CAP) == ButtonCap.BASE);
+        return WheelMenuBuilder.create().selectionEffect(WheelSelectionEffect.ANNULAR_SECTOR).slotsPerPage(1)
+            .action("switch_button_base", preview.getItemName(), (graphics, _, _, _) -> graphics.fakeItem(preview, -8, -8),
+                context -> ClientPacketDistributor.sendToServer(packet))
+            .build();
     }
 
     private static void processHammerPress(Minecraft client, int action) {

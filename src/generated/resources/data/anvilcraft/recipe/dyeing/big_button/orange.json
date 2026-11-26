@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_transmute",
+  "category": "redstone",
+  "group": "anvilcraft:big_red_button",
+  "input": {
+    "neoforge:ingredient_type": "neoforge:components",
+    "components": {
+      "!anvilcraft:button_cap": {},
+      "!anvilcraft:mounted_block": {}
+    },
+    "items": "anvilcraft:big_red_button"
+  },
+  "material": "#c:dyes/orange",
+  "result": {
+    "components": {
+      "minecraft:base_color": "orange"
+    },
+    "id": "anvilcraft:big_red_button"
+  }
+}

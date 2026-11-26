@@ -4,7 +4,6 @@
   "parent": "minecraft:block/block",
   "ambientocclusion": false,
   "textures": {
-    "0": "anvilcraft:block/big_red_button",
     "1": "anvilcraft:block/big_red_button_bottom",
     "particle": "anvilcraft:block/big_red_button_bottom"
   },

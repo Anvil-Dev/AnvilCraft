@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.api.hammer.HammerManager;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.block.entity.BigRedButtonBlockEntity;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
@@ -147,7 +148,10 @@ public class AnvilHammerItem extends Item {
     /// 检查是否可以使用铁砧锤
     public static boolean ableToUseAnvilHammer(Level level, BlockPos blockPos, Player player) {
         if (player.isShiftKeyDown()) return true;
-        BlockState state = level.getBlockState(blockPos);
+        return canAdjustState(level.getBlockState(blockPos));
+    }
+
+    public static boolean canAdjustState(BlockState state) {
         if (state.is(ModBlockTags.ANVIL_HAMMER_DENYLIST)) return false;
         if (state.getBlock() instanceof IHammerChangeable hammerChangeable) {
             return hammerChangeable.checkBlockState(state);
@@ -166,6 +170,9 @@ public class AnvilHammerItem extends Item {
         if (offhand.isEmpty() || offhand.is(ModItemTags.ANVIL_HAMMER)) return false;
         if (!(offhand.getItem() instanceof BlockItem)) return false;
         BlockState state = level.getBlockState(hit.getBlockPos());
+        if (level.getBlockEntity(hit.getBlockPos()) instanceof BigRedButtonBlockEntity button && button.isBareBase()) {
+            return true;
+        }
         if (state.is(BlockTags.CAULDRONS) || state.is(ModBlockTags.ANVIL_HAMMER_DENYLIST)) return false;
         if (state.is(ModBlockTags.HAMMER_REMOVABLE) || state.getBlock() instanceof IHammerRemovable) return false;
         return findModifyableProperty(state) == null;

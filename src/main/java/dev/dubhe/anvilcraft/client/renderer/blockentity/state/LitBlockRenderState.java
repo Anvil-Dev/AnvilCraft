@@ -23,13 +23,17 @@ public class LitBlockRenderState extends BlockEntityRenderState {
     }
 
     public void addQuad(float x, float y, float z, BakedQuad quad, QuadInstance instance) {
+        this.addQuad(quad.materialInfo().layer(), x, y, z, quad, instance);
+    }
+
+    protected void addQuad(ChunkSectionLayer layer, float x, float y, float z, BakedQuad quad, QuadInstance instance) {
         QuadInstance copy = new QuadInstance();
         for (int vertex = 0; vertex < 4; vertex++) {
             copy.setColor(vertex, instance.getColor(vertex));
             copy.setLightCoords(vertex, instance.getLightCoords(vertex));
         }
         copy.setOverlayCoords(instance.overlayCoords());
-        this.layers.computeIfAbsent(quad.materialInfo().layer(), ignored -> new ArrayList<>())
+        this.layers.computeIfAbsent(layer, ignored -> new ArrayList<>())
             .add(new LitQuad(x, y, z, quad, copy));
     }
 

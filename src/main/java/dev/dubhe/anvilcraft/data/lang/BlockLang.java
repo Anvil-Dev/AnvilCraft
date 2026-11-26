@@ -1,9 +1,23 @@
 package dev.dubhe.anvilcraft.data.lang;
 
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
+import net.minecraft.world.item.DyeColor;
 
 public class BlockLang {
     public static void init(RegistrumLangProvider provider) {
+        String button = "block.anvilcraft.big_red_button.";
+        provider.add(button + "base", "Big Button Base");
+        provider.add(button + "mounted", "%s Button");
+        provider.add("screen.anvilcraft.big_red_button.flowing", "Flowing Rainbow");
+        provider.add("screen.anvilcraft.big_red_button.gradient", "Color Cycle");
+        for (DyeColor color : DyeColor.values()) {
+            if (color != DyeColor.RED) {
+                provider.add(button + color.getName(), "Big " + RegistrumLangProvider.toEnglishName(color.getName()) + " Button");
+            }
+        }
+        provider.add(button + "rgb", "Rainbow RGB Button");
+        provider.add(button + "small", "Small %s Button");
+        provider.add(button + "large", "Large %s Button");
         provider.add("tag.block.anvilcraft.landing_no_recipe",
             "When an anvil lands on one of these blocks, it won't trigger recipe handling.");
         provider.add("block.anvilcraft.overflow_disposal_fluid_tank", "Overflow Disposal Fluid Tank");

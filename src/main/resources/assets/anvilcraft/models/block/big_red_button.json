@@ -4,7 +4,7 @@
 	"parent": "minecraft:block/block",
 	"ambientocclusion": false,
 	"textures": {
-		"0": "anvilcraft:block/big_red_button",
+		"0": "anvilcraft:block/big_red_button_red",
 		"1": "anvilcraft:block/big_red_button_bottom",
 		"particle": "anvilcraft:block/big_red_button_bottom"
 	},
@@ -23,8 +23,8 @@
 			}
 		},
 		{
-			"from": [4, 4, 4],
-			"to": [12, 8, 12],
+			"from": [4, 4.05, 4],
+			"to": [12, 8.05, 12],
 			"rotation": {"angle": 0, "axis": "y", "origin": [2, 4, 2]},
 			"faces": {
 				"north": {"uv": [0, 12, 8, 16], "texture": "#0"},

@@ -1,0 +1,6 @@
+{
+  "parent": "anvilcraft:block/big_red_button_cap_anvil",
+  "textures": {
+    "hammer": "anvilcraft:block/royal_anvil_hammer"
+  }
+}

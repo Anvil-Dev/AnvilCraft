@@ -1,6 +1,477 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "anvilcraft:block/big_red_button"
+    "type": "minecraft:condition",
+    "component": "anvilcraft:mounted_block",
+    "on_false": {
+      "type": "minecraft:select",
+      "cases": [
+        {
+          "model": {
+            "type": "minecraft:composite",
+            "models": [
+              {
+                "type": "minecraft:model",
+                "model": "anvilcraft:block/big_red_button_base"
+              },
+              {
+                "type": "anvilcraft:mounted_button",
+                "base": "anvilcraft:block/big_red_button_base"
+              }
+            ]
+          },
+          "when": "rgb"
+        },
+        {
+          "model": {
+            "type": "minecraft:composite",
+            "models": [
+              {
+                "type": "minecraft:model",
+                "model": "anvilcraft:block/big_red_button_base"
+              },
+              {
+                "type": "minecraft:model",
+                "model": "anvilcraft:block/big_red_button_cap_anvil"
+              }
+            ]
+          },
+          "when": "anvil"
+        },
+        {
+          "model": {
+            "type": "minecraft:composite",
+            "models": [
+              {
+                "type": "minecraft:model",
+                "model": "anvilcraft:block/big_red_button_base"
+              },
+              {
+                "type": "minecraft:model",
+                "model": "anvilcraft:block/big_red_button_cap_royal_anvil"
+              }
+            ]
+          },
+          "when": "royal_anvil"
+        },
+        {
+          "model": {
+            "type": "minecraft:composite",
+            "models": [
+              {
+                "type": "minecraft:model",
+                "model": "anvilcraft:block/big_red_button_base"
+              },
+              {
+                "type": "minecraft:model",
+                "model": "anvilcraft:block/big_red_button_cap_ember_anvil"
+              }
+            ]
+          },
+          "when": "ember_anvil"
+        },
+        {
+          "model": {
+            "type": "minecraft:composite",
+            "models": [
+              {
+                "type": "minecraft:model",
+                "model": "anvilcraft:block/big_red_button_base"
+              },
+              {
+                "type": "minecraft:model",
+                "model": "anvilcraft:block/big_red_button_cap_transcendence_anvil"
+              }
+            ]
+          },
+          "when": "transcendence_anvil"
+        },
+        {
+          "model": {
+            "type": "minecraft:composite",
+            "models": [
+              {
+                "type": "minecraft:model",
+                "model": "anvilcraft:block/big_red_button_base"
+              },
+              {
+                "type": "minecraft:model",
+                "model": "anvilcraft:block/big_red_button_cap_frost_anvil"
+              }
+            ]
+          },
+          "when": "frost_anvil"
+        },
+        {
+          "model": {
+            "type": "minecraft:composite",
+            "models": [
+              {
+                "type": "minecraft:model",
+                "model": "anvilcraft:block/big_red_button_base"
+              },
+              {
+                "type": "anvilcraft:mounted_button",
+                "base": "anvilcraft:block/big_red_button_base"
+              }
+            ]
+          },
+          "when": "large_anvil"
+        },
+        {
+          "model": {
+            "type": "minecraft:composite",
+            "models": [
+              {
+                "type": "minecraft:model",
+                "model": "anvilcraft:block/big_red_button_base"
+              },
+              {
+                "type": "anvilcraft:mounted_button",
+                "base": "anvilcraft:block/big_red_button_base"
+              }
+            ]
+          },
+          "when": "large_royal_anvil"
+        },
+        {
+          "model": {
+            "type": "minecraft:composite",
+            "models": [
+              {
+                "type": "minecraft:model",
+                "model": "anvilcraft:block/big_red_button_base"
+              },
+              {
+                "type": "anvilcraft:mounted_button",
+                "base": "anvilcraft:block/big_red_button_base"
+              }
+            ]
+          },
+          "when": "large_ember_anvil"
+        },
+        {
+          "model": {
+            "type": "minecraft:composite",
+            "models": [
+              {
+                "type": "minecraft:model",
+                "model": "anvilcraft:block/big_red_button_base"
+              },
+              {
+                "type": "anvilcraft:mounted_button",
+                "base": "anvilcraft:block/big_red_button_base"
+              }
+            ]
+          },
+          "when": "large_transcendence_anvil"
+        },
+        {
+          "model": {
+            "type": "minecraft:composite",
+            "models": [
+              {
+                "type": "minecraft:model",
+                "model": "anvilcraft:block/big_red_button_base"
+              },
+              {
+                "type": "anvilcraft:mounted_button",
+                "base": "anvilcraft:block/big_red_button_base"
+              }
+            ]
+          },
+          "when": "large_frost_anvil"
+        },
+        {
+          "model": {
+            "type": "minecraft:composite",
+            "models": [
+              {
+                "type": "minecraft:model",
+                "model": "anvilcraft:block/big_red_button_base"
+              },
+              {
+                "type": "anvilcraft:mounted_button",
+                "base": "anvilcraft:block/big_red_button_base"
+              }
+            ]
+          },
+          "when": "giant_anvil"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "anvilcraft:block/big_red_button_base"
+          },
+          "when": "base"
+        }
+      ],
+      "component": "anvilcraft:button_cap",
+      "fallback": {
+        "type": "minecraft:select",
+        "cases": [
+          {
+            "model": {
+              "type": "minecraft:composite",
+              "models": [
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_base"
+                },
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_cap_white"
+                }
+              ]
+            },
+            "when": "white"
+          },
+          {
+            "model": {
+              "type": "minecraft:composite",
+              "models": [
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_base"
+                },
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_cap_orange"
+                }
+              ]
+            },
+            "when": "orange"
+          },
+          {
+            "model": {
+              "type": "minecraft:composite",
+              "models": [
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_base"
+                },
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_cap_magenta"
+                }
+              ]
+            },
+            "when": "magenta"
+          },
+          {
+            "model": {
+              "type": "minecraft:composite",
+              "models": [
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_base"
+                },
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_cap_light_blue"
+                }
+              ]
+            },
+            "when": "light_blue"
+          },
+          {
+            "model": {
+              "type": "minecraft:composite",
+              "models": [
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_base"
+                },
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_cap_yellow"
+                }
+              ]
+            },
+            "when": "yellow"
+          },
+          {
+            "model": {
+              "type": "minecraft:composite",
+              "models": [
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_base"
+                },
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_cap_lime"
+                }
+              ]
+            },
+            "when": "lime"
+          },
+          {
+            "model": {
+              "type": "minecraft:composite",
+              "models": [
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_base"
+                },
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_cap_pink"
+                }
+              ]
+            },
+            "when": "pink"
+          },
+          {
+            "model": {
+              "type": "minecraft:composite",
+              "models": [
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_base"
+                },
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_cap_gray"
+                }
+              ]
+            },
+            "when": "gray"
+          },
+          {
+            "model": {
+              "type": "minecraft:composite",
+              "models": [
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_base"
+                },
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_cap_light_gray"
+                }
+              ]
+            },
+            "when": "light_gray"
+          },
+          {
+            "model": {
+              "type": "minecraft:composite",
+              "models": [
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_base"
+                },
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_cap_cyan"
+                }
+              ]
+            },
+            "when": "cyan"
+          },
+          {
+            "model": {
+              "type": "minecraft:composite",
+              "models": [
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_base"
+                },
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_cap_purple"
+                }
+              ]
+            },
+            "when": "purple"
+          },
+          {
+            "model": {
+              "type": "minecraft:composite",
+              "models": [
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_base"
+                },
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_cap_blue"
+                }
+              ]
+            },
+            "when": "blue"
+          },
+          {
+            "model": {
+              "type": "minecraft:composite",
+              "models": [
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_base"
+                },
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_cap_brown"
+                }
+              ]
+            },
+            "when": "brown"
+          },
+          {
+            "model": {
+              "type": "minecraft:composite",
+              "models": [
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_base"
+                },
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_cap_green"
+                }
+              ]
+            },
+            "when": "green"
+          },
+          {
+            "model": {
+              "type": "minecraft:composite",
+              "models": [
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_base"
+                },
+                {
+                  "type": "minecraft:model",
+                  "model": "anvilcraft:block/big_red_button_cap_black"
+                }
+              ]
+            },
+            "when": "black"
+          }
+        ],
+        "component": "minecraft:base_color",
+        "fallback": {
+          "type": "minecraft:model",
+          "model": "anvilcraft:block/big_red_button"
+        },
+        "property": "minecraft:component"
+      },
+      "property": "minecraft:component"
+    },
+    "on_true": {
+      "type": "minecraft:composite",
+      "models": [
+        {
+          "type": "minecraft:model",
+          "model": "anvilcraft:block/big_red_button_base"
+        },
+        {
+          "type": "anvilcraft:mounted_button",
+          "base": "anvilcraft:block/big_red_button_base"
+        }
+      ]
+    },
+    "property": "minecraft:has_component"
   }
 }

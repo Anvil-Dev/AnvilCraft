@@ -75,10 +75,7 @@ public class RegisterAdditionalEventListener {
             RedstoneDiceBlockEntityRenderer.DICE,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/redstone_dice_dice"))
         );
-        event.register(
-            BigRedButtonBlockEntityRenderer.CAP,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/big_red_button_cap"))
-        );
+        BigRedButtonBlockEntityRenderer.registerModels(event);
         CrabClawItemInHandRenderer.registerModels(event);
         event.register(
             HeliostatsRenderer.HEAD,

@@ -1,5 +1,15 @@
 {
   "type": "minecraft:block",
+  "functions": [
+    {
+      "function": "minecraft:copy_components",
+      "include": [
+        "minecraft:base_color",
+        "anvilcraft:button_cap"
+      ],
+      "source": "block_entity"
+    }
+  ],
   "pools": [
     {
       "bonus_rolls": 0.0,

@@ -3,9 +3,12 @@ package dev.dubhe.anvilcraft.client.support;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.BigRedButtonBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder.ModelRenderTarget;
 import dev.dubhe.anvilcraft.client.selection.ModelBlockSelection;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.item.property.component.MountedButtonBlock;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -14,6 +17,7 @@ import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.level.CardinalLighting;
 import net.minecraft.world.level.ColorResolver;
@@ -30,11 +34,19 @@ import java.lang.ref.WeakReference;
 
 public final class HammerWheelIconRenderer {
     private final ModelRenderTarget target;
+    private final @Nullable MountedButtonBlock mounted;
     private WeakReference<IconLevel> level;
 
     public HammerWheelIconRenderer(ClientLevel level, ModelRenderTarget target) {
         this.target = target;
-        this.level = new WeakReference<>(new IconLevel(level, target));
+        this.mounted = null;
+        this.level = new WeakReference<>(new IconLevel(level, target, null));
+    }
+
+    public HammerWheelIconRenderer(ModelRenderTarget target, MountedButtonBlock mounted) {
+        this.target = target;
+        this.mounted = mounted;
+        this.level = new WeakReference<>(null);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -44,7 +56,7 @@ public final class HammerWheelIconRenderer {
         final float menuScale = AnvilCraft.CLIENT_CONFIG.ui.anvilHammerWheelScale;
         IconLevel iconLevel = this.level.get();
         if (iconLevel == null || iconLevel.parent != client.level) {
-            iconLevel = new IconLevel(client.level, this.target);
+            iconLevel = new IconLevel(client.level, this.target, this.mounted);
             this.level = new WeakReference<>(iconLevel);
         }
         AABB bounds = iconLevel.bounds;
@@ -52,7 +64,7 @@ public final class HammerWheelIconRenderer {
         pose.mulPose(Axis.XP.rotationDegrees(camera.x));
         pose.mulPose(Axis.YP.rotationDegrees(camera.y + 180));
 
-        BlockEntity entity = client.level.getBlockEntity(this.target.pos());
+        BlockEntity entity = iconLevel.buttonPreview == null ? client.level.getBlockEntity(this.target.pos()) : iconLevel.buttonPreview;
         BlockEntityRenderer renderer = entity != null && entity.getBlockState().is(this.target.state().getBlock())
             ? client.getBlockEntityRenderDispatcher().getRenderer(entity) : null;
         BlockEntityRenderState entityState = renderer == null ? null : renderer.createRenderState();
@@ -101,11 +113,19 @@ public final class HammerWheelIconRenderer {
         private final ClientLevel parent;
         private final ModelRenderTarget target;
         private final AABB bounds;
+        private final @Nullable BigRedButtonBlockEntity buttonPreview;
 
-        private IconLevel(ClientLevel parent, ModelRenderTarget target) {
+        private IconLevel(ClientLevel parent, ModelRenderTarget target, @Nullable MountedButtonBlock mounted) {
             super(parent);
             this.parent = parent;
             this.target = target;
+            if (mounted == null) {
+                this.buttonPreview = null;
+            } else {
+                this.buttonPreview = new BigRedButtonBlockEntity(target.pos(), target.state());
+                this.buttonPreview.setLevel(parent);
+                this.buttonPreview.setComponents(DataComponentMap.builder().set(ModComponents.MOUNTED_BLOCK, mounted).build());
+            }
             if (target.state().getBlock() instanceof AbstractMultiPartBlock<?> block) {
                 this.addParts(block, target.state());
             } else {

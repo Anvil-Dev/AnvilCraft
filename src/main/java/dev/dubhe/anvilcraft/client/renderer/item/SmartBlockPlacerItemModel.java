@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerDance;
 import dev.dubhe.anvilcraft.block.power.consumer.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
@@ -52,7 +53,7 @@ import java.util.function.Consumer;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public final class SmartBlockPlacerItemModel implements ItemModel {
-    private static final Map<LivingEntity, DanceAnimation> ANIMATIONS = new WeakHashMap<>();
+    private static final Map<LivingEntity, SmartBlockPlacerDance> ANIMATIONS = new WeakHashMap<>();
     private final ItemModel ordinaryModel;
     private final ModelRenderProperties properties;
     private final Matrix4fc transformation;
@@ -81,7 +82,7 @@ public final class SmartBlockPlacerItemModel implements ItemModel {
         if (minecraft.isPaused()) return;
         for (var player : minecraft.level.players()) {
             if (!player.getItemBySlot(EquipmentSlot.HEAD).is(ModBlocks.SMART_BLOCK_PLACER.asItem())) continue;
-            ANIMATIONS.computeIfAbsent(player, wearer -> new DanceAnimation()).tick(hasPower(player));
+            ANIMATIONS.computeIfAbsent(player, wearer -> new SmartBlockPlacerDance()).tick(hasPower(player));
         }
     }
 
@@ -105,7 +106,7 @@ public final class SmartBlockPlacerItemModel implements ItemModel {
         }
         LivingEntity wearer = owner == null ? null : owner.asLivingEntity();
         boolean powered = wearer != null && hasPower(wearer);
-        DanceAnimation animation = wearer == null ? null : ANIMATIONS.get(wearer);
+        SmartBlockPlacerDance animation = wearer == null ? null : ANIMATIONS.get(wearer);
         Minecraft minecraft = Minecraft.getInstance();
         float partialTick = minecraft.isPaused() ? 1 : minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(false);
         double renderTick = animation == null ? 0 : animation.getRenderTime(partialTick, powered);
@@ -120,24 +121,11 @@ public final class SmartBlockPlacerItemModel implements ItemModel {
         this.properties.applyToLayer(layer, context);
     }
 
-    private static class DanceAnimation {
-        private long ticks;
-        private boolean playing;
-
-        void tick(boolean powered) {
-            this.playing = powered;
-            if (powered) this.ticks++;
-        }
-
-        double getRenderTime(float partialTick, boolean powered) {
-            return this.ticks - (this.playing && powered ? 1 - partialTick : 0);
-        }
-    }
-
     private record Argument(boolean powered, double renderTick) {
     }
 
     private static class Renderer implements SpecialModelRenderer<Argument> {
+        private static final double HEAD_OFFSET = 0.9;
         private final SmartBlockPlacerBlockEntity preview = new SmartBlockPlacerBlockEntity(
             BlockPos.ZERO, ModBlocks.SMART_BLOCK_PLACER.getDefaultState()
         );
@@ -155,7 +143,7 @@ public final class SmartBlockPlacerItemModel implements ItemModel {
         ) {
             if (argument == null) return;
             pose.pushPose();
-            pose.translate(0, 0.9, 0);
+            pose.translate(0, HEAD_OFFSET, 0);
             BlockState state = this.preview.getBlockState().setValue(SmartBlockPlacerBlock.OVERLOAD, !argument.powered());
             this.model(new SelectionModel.State(state)).submit(pose, collector, light, overlay, outlineColor);
             var renderer = Minecraft.getInstance().getBlockEntityRenderDispatcher()
@@ -184,12 +172,13 @@ public final class SmartBlockPlacerItemModel implements ItemModel {
         }
 
         private static Vector3fc[] extents() {
-            return new Vector3fc[]{
-                new Vector3f(-1, 0.9f, -1), new Vector3f(-1, 0.9f, 2),
-                new Vector3f(-1, 4, -1), new Vector3f(-1, 4, 2),
-                new Vector3f(2, 0.9f, -1), new Vector3f(2, 0.9f, 2),
-                new Vector3f(2, 4, -1), new Vector3f(2, 4, 2)
-            };
+            var bounds = SmartBlockPlacerRenderer.dancingBounds(ModBlocks.SMART_BLOCK_PLACER.getDefaultState()).move(0, HEAD_OFFSET, 0);
+            var corners = new Vector3fc[8];
+            for (int i = 0; i < corners.length; i++) {
+                corners[i] = new Vector3f((float) ((i & 4) == 0 ? bounds.minX : bounds.maxX),
+                    (float) ((i & 2) == 0 ? bounds.minY : bounds.maxY), (float) ((i & 1) == 0 ? bounds.minZ : bounds.maxZ));
+            }
+            return corners;
         }
 
         @Override

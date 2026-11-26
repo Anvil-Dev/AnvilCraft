@@ -4,9 +4,11 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
+import dev.dubhe.anvilcraft.block.entity.BigRedButtonBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
 import dev.dubhe.anvilcraft.block.power.batch.BaseBatchCraftingBlock;
+import dev.dubhe.anvilcraft.block.state.ButtonCap;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
@@ -23,6 +25,7 @@ import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -60,9 +63,25 @@ public class BlockEventListener {
     /// @param event 左键方块事件
     @SubscribeEvent
     public static void anvilHammerAttack(PlayerInteractEvent.LeftClickBlock event) {
-        InteractionHand hand = event.getHand();
-        if (event.getEntity().getItemInHand(hand).getItem() instanceof AnvilHammerItem) {
-            if (!AnvilHammerItem.dropAnvil(event.getEntity(), event.getLevel(), event.getPos())) {
+        Player player = event.getEntity();
+        Level level = event.getLevel();
+        BlockPos pos = event.getPos();
+        if (event.getItemStack().getItem() instanceof AnvilHammerItem) {
+            if (level.getBlockEntity(pos) instanceof BigRedButtonBlockEntity button && !player.isShiftKeyDown()) {
+                ButtonCap cap = ButtonCap.forHammer(event.getItemStack());
+                boolean start = event.getAction() == PlayerInteractEvent.LeftClickBlock.Action.START;
+                if (cap != null && (button.isBareBase() || !start && button.getCap() == cap)) {
+                    event.setCanceled(true);
+                    if (start && !level.isClientSide() && !player.isSpectator() && player.mayBuild() && level.mayInteract(player, pos)
+                        && player.isWithinBlockInteractionRange(pos, 0) && level.getWorldBorder().isWithinBounds(pos)
+                        && player.pick(player.blockInteractionRange(), 1, false) instanceof BlockHitResult target
+                        && target.getType() == HitResult.Type.BLOCK && target.getBlockPos().equals(pos) && button.stampCap(cap)) {
+                        level.playSound(null, pos, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 0.6f, 1.2f);
+                    }
+                    return;
+                }
+            }
+            if (!AnvilHammerItem.dropAnvil(player, level, pos)) {
                 event.setCanceled(true);
             }
         }
@@ -107,6 +126,12 @@ public class BlockEventListener {
         Level level = event.getLevel();
         BlockPos pos = event.getPos();
         BlockState targetState = level.getBlockState(pos);
+        if (!player.isShiftKeyDown() && stack.getItem() instanceof BlockItem && targetState.is(ModBlocks.BIG_RED_BUTTON)
+            && level.getBlockEntity(pos) instanceof BigRedButtonBlockEntity button && button.isBareBase()) {
+            // 先由底盘接收材料，避免遗迹方块等物品的前置使用动作改写真实方块。
+            event.setUseItem(TriState.FALSE);
+            return;
+        }
         if (stack.is(ModItemTags.ANVIL_HAMMER)) {
             if (level.isClientSide() || player.isSpectator()) return;
             if (player.isShiftKeyDown() && !targetState.is(ModBlockTags.HAMMER_REMOVABLE)

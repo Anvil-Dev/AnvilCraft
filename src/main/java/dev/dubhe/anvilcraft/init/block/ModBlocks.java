@@ -261,6 +261,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.SingularityCrystalItem;
+import dev.dubhe.anvilcraft.item.block.BigRedButtonBlockItem;
 import dev.dubhe.anvilcraft.item.block.ChuteBlockItem;
 import dev.dubhe.anvilcraft.item.block.ConfinementChamberItem;
 import dev.dubhe.anvilcraft.item.block.CreativeContainerBlockItem;
@@ -5152,8 +5153,14 @@ public class ModBlocks {
     public static final BlockEntry<BigRedButtonBlock> BIG_RED_BUTTON = REGISTRUM.block("big_red_button", BigRedButtonBlock::new)
         .properties(properties -> properties.strength(0.5f).sound(SoundType.METAL).noOcclusion())
         .blockstate(DataGenUtil::noExtraModelOrState)
+        .loot((tables, block) -> tables.add(block, tables.createSingleItemTable(block)
+            .apply(CopyComponentsFunction.copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)
+                .include(DataComponents.BASE_COLOR).include(ModComponents.BUTTON_CAP))))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.ANVIL_HAMMER_BLACKLIST)
-        .item().transform(PropertiesProviderUtil::blockItem).build()
+        .item(BigRedButtonBlockItem::new)
+        .transform(PropertiesProviderUtil::blockItem)
+        .model(() -> DataGenUtil::bigRedButton)
+        .build()
         .recipe(RegistrumBlockRecipeLoader::bigRedButton)
         .register();
 

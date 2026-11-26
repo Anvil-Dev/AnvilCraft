@@ -75,6 +75,11 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     );
 
     private static final PlacementAnimation PLACEMENT_ANIMATION = new PlacementAnimation();
+    private static final AABB DANCING_BOUNDS = new AABB(-1, 0, -1, 2, 3.1, 2);
+    private static final AABB INVERTED_DANCING_BOUNDS = new AABB(
+        DANCING_BOUNDS.minX, 1 - DANCING_BOUNDS.maxY, DANCING_BOUNDS.minZ,
+        DANCING_BOUNDS.maxX, 1 - DANCING_BOUNDS.minY, DANCING_BOUNDS.maxZ
+    );
     private static final ItemDisplayContext HELD_ITEM_CONTEXT = ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
     private final ItemModelResolver itemModelResolver;
 
@@ -248,8 +253,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     ) {
         BlockEntityRenderer.super.extractRenderState(entity, state, partialTick, cameraPosition, breakProgress);
-        Direction facing = entity.getBlockState().getValue(HorizontalDirectionalBlock.FACING);
-        boolean upsideDown = entity.getBlockState().getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+        prepareArmModels(entity, state);
         Level level = entity.getLevel();
         // 初始化动画变量
         float baseSwingAngle = 0f;
@@ -266,7 +270,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             entity.setClientRetractSoundPlayed(false);
         } else {
             if (animationTargetPos == null) {
-                animationTargetPos = this.getNextTargetPosition(entity, level, facing, upsideDown);
+                animationTargetPos = this.getNextTargetPosition(entity, level, state.facing, state.upsideDown);
                 if (animationTargetPos != null) {
                     level.playLocalSound(
                         entity.getBlockPos(),
@@ -294,7 +298,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                     entity.setClientRetractSoundPlayed(true);
                 }
                 ArmAngles angles = PLACEMENT_ANIMATION.calculateArmAngles(
-                    animationTargetPos, entity.getBlockPos(), facing, upsideDown, animationProgress
+                    animationTargetPos, entity.getBlockPos(), state.facing, state.upsideDown, animationProgress
                 );
                 baseSwingAngle = angles.baseSwing();
                 upperArmAngle = angles.upperArm();
@@ -304,40 +308,72 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         }
 
         state.arm = new ArmRenderState(baseSwingAngle, upperArmAngle, forearmAngle, clawAngle, animationProgress, isAnimationPlaying);
-        state.facing = facing;
-        state.upsideDown = upsideDown;
+        this.extractHeldContent(entity.getCurrentHeldBlock(), state, level, partialTick, cameraPosition);
+    }
+
+    /** 装饰用的方块实体沿用头戴表演的关节姿态和已安装的机器朝向。 */
+    public void extractDancingState(
+        SmartBlockPlacerBlockEntity entity, SmartBlockPlacerRenderState state, float partialTick, Vec3 camera, double renderTick
+    ) {
+        BlockEntityRenderer.super.extractRenderState(entity, state, partialTick, camera, null);
+        prepareArmModels(entity, state);
+        state.arm = dancingPose(renderTick);
+        this.extractHeldContent(null, state, entity.getLevel(), partialTick, camera);
+    }
+
+    private static void prepareArmModels(SmartBlockPlacerBlockEntity entity, SmartBlockPlacerRenderState state) {
+        state.facing = entity.getBlockState().getValue(HorizontalDirectionalBlock.FACING);
+        state.upsideDown = entity.getBlockState().getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
         state.models.clear();
         for (StandaloneModelKey<BlockStateModel> key : List.of(BASE_MODEL, UPPERARM_MODEL, FOREARM_MODEL, CLAW_MODEL, CLAW_OPEN_MODEL)) {
             state.models.put(SelectionModel.standalone(key), FeatureRendererSupport.initialize(key, entity));
         }
-        this.extractHeldContent(entity.getCurrentHeldBlock(), state, level, partialTick, cameraPosition);
     }
 
     @Override
     public void submit(SmartBlockPlacerRenderState state, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
         pose.pushPose();
-        this.applyBaseTransform(pose, state.facing, state.upsideDown);
-        this.visitArmModels(pose, state.arm,
+        applyBaseTransform(pose, state.facing, state.upsideDown);
+        visitArmModels(pose, state.arm,
             (key, modelPose) -> state.models.get(key).submitModel(
                 ModRenderTypes.CUTOUT_BLOCK, modelPose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0),
             () -> this.submitHeldContent(state, pose, collector, camera));
         pose.popPose();
     }
 
-    public void collectDancingModels(double renderTick, PoseStack pose, ModelConsumer consumer) {
+    private static ArmRenderState dancingPose(double renderTick) {
         float lowerArmAngle = Mth.lerp((Mth.sin((float) (renderTick / 4 % (2 * Math.PI))) + 1) / 2, -45, 15);
         float upperArmAngle = Mth.lerp((Mth.sin((float) (renderTick / 8 % (2 * Math.PI))) + 1) / 4, -45, 95);
-        // Create's dancing angles, adjusted for the baked 22.5-degree forearm and claw rest poses.
-        ArmRenderState state = new ArmRenderState(
+        // 前臂与夹爪的烘焙模型有 22.5 度的初始倾角，关节旋转需补偿该角度。
+        return new ArmRenderState(
             (float) (renderTick * 10 % 360), lowerArmAngle, upperArmAngle + 22.5f, -lowerArmAngle + 22.5f, 0, false
         );
+    }
+
+    public void collectDancingModels(double renderTick, PoseStack pose, ModelConsumer consumer) {
+        collectDancingModels(Direction.NORTH, false, renderTick, pose, consumer);
+    }
+
+    public static void collectDancingModels(BlockState state, double renderTick, PoseStack pose, ModelConsumer consumer) {
+        collectDancingModels(state.getValue(HorizontalDirectionalBlock.FACING), state.getValue(SmartBlockPlacerBlock.UPSIDE_DOWN),
+            renderTick, pose, consumer);
+    }
+
+    private static void collectDancingModels(
+        Direction facing, boolean upsideDown, double renderTick, PoseStack pose, ModelConsumer consumer
+    ) {
         pose.pushPose();
-        this.applyBaseTransform(pose, Direction.NORTH, false);
-        this.visitArmModels(pose, state, consumer, () -> {});
+        applyBaseTransform(pose, facing, upsideDown);
+        visitArmModels(pose, dancingPose(renderTick), consumer, () -> {});
         pose.popPose();
     }
 
-    private void visitArmModels(
+    /** 按完整旋转范围包围运动中的机械臂，倒挂时绕方块中心翻转高度边界。 */
+    public static AABB dancingBounds(BlockState state) {
+        return state.getValue(SmartBlockPlacerBlock.UPSIDE_DOWN) ? INVERTED_DANCING_BOUNDS : DANCING_BOUNDS;
+    }
+
+    private static void visitArmModels(
         PoseStack poseStack, ArmRenderState state, ModelConsumer consumer, Runnable heldContent
     ) {
         poseStack.pushPose();
@@ -398,19 +434,19 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             angles.baseSwing(), angles.upperArm(), angles.forearm(), angles.claw(), progress, target != null
         );
         pose.pushPose();
-        this.applyBaseTransform(pose, facing, upsideDown);
-        this.visitArmModels(pose, arm, consumer, () -> {});
+        applyBaseTransform(pose, facing, upsideDown);
+        visitArmModels(pose, arm, consumer, () -> {});
         pose.popPose();
     }
 
-    private void applyBaseTransform(PoseStack poseStack, Direction facing, boolean upsideDown) {
+    private static void applyBaseTransform(PoseStack poseStack, Direction facing, boolean upsideDown) {
         poseStack.translate(0.5, 1.5, 0.5);
         if (upsideDown) poseStack.mulPose(Axis.XP.rotationDegrees(180f));
-        this.applyHorizontalRotation(poseStack, facing, upsideDown);
+        applyHorizontalRotation(poseStack, facing, upsideDown);
         poseStack.translate(0, upsideDown ? 0.5 : -1.5, 0);
     }
 
-    private void applyHorizontalRotation(PoseStack poseStack, Direction facing, boolean upsideDown) {
+    private static void applyHorizontalRotation(PoseStack poseStack, Direction facing, boolean upsideDown) {
         // 局部 -Z 为机械臂正前方；倒置时底座绕 X 轴翻转会让 Z 轴反向，旋转角随之取补角
         float rotation = (float) Math.toDegrees(
             Math.atan2(-facing.getStepX(), upsideDown ? facing.getStepZ() : -facing.getStepZ())

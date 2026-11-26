@@ -79,6 +79,7 @@ import snownee.jade.api.WailaPlugin;
 public class AnvilCraftJadePlugin implements IWailaPlugin {
     @Override
     public void register(IWailaCommonRegistration registration) {
+        registration.blockOperations().pick(ModBlocks.BIG_RED_BUTTON.getKey());
         registration.registerItemStorage(StoragePortProvider.INSTANCE, StoragePortBlockEntity.class);
         registration.registerItemStorage(StoragePortProvider.INSTANCE, StoragePortConsolidatorBlockEntity.class);
         registration.registerItemStorage(StoragePortProvider.INSTANCE, CrateBlock.class);

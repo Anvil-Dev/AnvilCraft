@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.BigRedButtonBlockEntity;
 import dev.dubhe.anvilcraft.block.utility.redstone.BigRedButtonBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.item.BuildingRodItem;
@@ -41,10 +42,17 @@ public class BigRedButtonInputListener {
         if (!event.isUseItem()) return;
         Minecraft minecraft = Minecraft.getInstance();
         BlockHitResult hit = targetedButton(minecraft);
-        if (hit == null) return;
-        BlockPos pos = hit.getBlockPos();
+        if (hit == null || minecraft.level == null || minecraft.player == null
+            || !(minecraft.level.getBlockEntity(hit.getBlockPos()) instanceof BigRedButtonBlockEntity button) || button.isBareBase()) {
+            return;
+        }
         event.setCanceled(true);
         event.setSwingHand(false);
+        if (canAdjustBase(minecraft, button, hit)) {
+            WheelLifecycleEventListener.openMountedButtonWheel(button, hit);
+            return;
+        }
+        BlockPos pos = hit.getBlockPos();
         if (pos.equals(heldPos) && minecraft.level == heldLevel) return;
         release();
         heldPos = pos;
@@ -74,8 +82,10 @@ public class BigRedButtonInputListener {
         if (heldPos == null) return;
         Minecraft minecraft = Minecraft.getInstance();
         BlockHitResult hit = targetedButton(minecraft);
-        if (minecraft.level != heldLevel || !minecraft.options.keyUse.isDown()
-            || hit == null || !heldPos.equals(hit.getBlockPos())) {
+        if (minecraft.level == null || minecraft.level != heldLevel || !minecraft.options.keyUse.isDown()
+            || hit == null || !heldPos.equals(hit.getBlockPos())
+            || !(minecraft.level.getBlockEntity(heldPos) instanceof BigRedButtonBlockEntity button)
+            || button.isBareBase() || canAdjustBase(minecraft, button, hit)) {
             release();
             return;
         }
@@ -120,6 +130,12 @@ public class BigRedButtonInputListener {
             || BuildingRodItem.isHeld(minecraft.player)) return null;
         if (!(minecraft.hitResult instanceof BlockHitResult hit) || hit.getType() != HitResult.Type.BLOCK) return null;
         return minecraft.level.getBlockState(hit.getBlockPos()).is(ModBlocks.BIG_RED_BUTTON) ? hit : null;
+    }
+
+    private static boolean canAdjustBase(Minecraft client, BigRedButtonBlockEntity button, BlockHitResult hit) {
+        var mounted = button.getMountedBlock();
+        return mounted != null && client.level != null && client.player != null && mounted.canAdjustWithHammer(client.player)
+            && BigRedButtonBlock.isBaseHit(button.getBlockState(), client.level, hit);
     }
 
     private static void release() {
