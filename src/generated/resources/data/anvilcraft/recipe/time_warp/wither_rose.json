@@ -2,7 +2,7 @@
   "type": "anvilcraft:time_warp",
   "ingredients": [
     {
-      "items": "#minecraft:flowers"
+      "items": "#anvilcraft:time_warp_flowers"
     }
   ],
   "results": [

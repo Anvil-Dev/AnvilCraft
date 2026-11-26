@@ -11,6 +11,7 @@ import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagEntry;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -26,6 +27,12 @@ public class ItemTagLoader {
      * @param provider 提供器
      */
     public static void init(RegistrumTagsProvider<Item> provider) {
+        // 时移配方用的花：排除凋零玫瑰，否则凋零玫瑰会自我转化并净损失数量
+        provider.addTag(ModItemTags.TIME_WARP_FLOWERS)
+            .addTag(ItemTags.FLOWERS)
+            .getInternalBuilder()
+            .remove(TagEntry.element(BuiltInRegistries.ITEM.getKey(Items.WITHER_ROSE)));
+
         provider.addTag(ModItemTags.PLATES)
             .add(findResourceKey(Items.HEAVY_WEIGHTED_PRESSURE_PLATE))
             .add(findResourceKey(Items.LIGHT_WEIGHTED_PRESSURE_PLATE));
