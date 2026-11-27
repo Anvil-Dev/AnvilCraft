@@ -33,8 +33,11 @@ public record StructureSnapshot(
         ticks = List.copyOf(ticks);
     }
 
-    /** 一个方块条目;nbt 为方块实体的完整数据(saveWithId 语义),无方块实体时为空。 */
-    public record BlockEntry(BlockPos pos, int stateIndex, Optional<CompoundTag> nbt) {
+    /** 单格方块及其方块实体数据。替换多方块部件时记录原状态，供放置工具还原整组。 */
+    public record BlockEntry(BlockPos pos, int stateIndex, Optional<CompoundTag> nbt, Optional<BlockState> replacedPart) {
+        public BlockEntry(BlockPos pos, int stateIndex, Optional<CompoundTag> nbt) {
+            this(pos, stateIndex, nbt, Optional.empty());
+        }
     }
 
     /** 一个实体条目;字段语义与原版结构 entities 条目一致。 */

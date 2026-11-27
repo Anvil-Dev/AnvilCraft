@@ -1,4 +1,10 @@
 {
+  "rules": [
+    {
+      "item": "minecraft:sticky_piston",
+      "properties": ""
+    }
+  ],
   "state": {
     "": "extended=false"
   }

@@ -30,6 +30,13 @@ public final class BuildingCommit {
     private static final ThreadLocal<Level> QUIET_LEVEL = new ThreadLocal<>();
     private static final ThreadLocal<Activation> ACTIVATION = new ThreadLocal<>();
 
+    /** 建筑杖和智能方块放置器共用的激活入口只需要方块的位置和状态。 */
+    public interface PlacedCell {
+        BlockPos pos();
+
+        BlockState state();
+    }
+
     private record Activation(Level level, Map<BlockPos, BlockState> states) {
     }
 
@@ -57,9 +64,9 @@ public final class BuildingCommit {
         return QUIET_LEVEL.get();
     }
 
-    public static void activate(ServerLevel level, List<BuildingRodService.Cell> cells, List<BlueprintTicks.Entry> ticks) {
+    public static void activate(ServerLevel level, List<? extends PlacedCell> cells, List<BlueprintTicks.Entry> ticks) {
         Map<BlockPos, BlockState> states = cells.stream()
-            .collect(Collectors.toMap(BuildingRodService.Cell::pos, BuildingRodService.Cell::state));
+            .collect(Collectors.toMap(PlacedCell::pos, PlacedCell::state));
         Activation previous = ACTIVATION.get();
         ACTIVATION.set(new Activation(level, states));
         try {
@@ -70,7 +77,7 @@ public final class BuildingCommit {
         }
     }
 
-    public static void activate(ServerLevel level, List<BuildingRodService.Cell> cells) {
+    public static void activate(ServerLevel level, List<? extends PlacedCell> cells) {
         activatePlaced(level, cells);
     }
 
@@ -84,7 +91,7 @@ public final class BuildingCommit {
             && activation.states().get(sourcePos) == source && level.getBlockState(sourcePos) == source;
     }
 
-    private static void activatePlaced(ServerLevel level, List<BuildingRodService.Cell> cells,
+    private static void activatePlaced(ServerLevel level, List<? extends PlacedCell> cells,
                                        List<BlueprintTicks.Entry> ticks, Set<BlockPos> placed) {
         for (BlockPos pos : placed) {
             BoundingBox bounds = new BoundingBox(pos);
@@ -95,7 +102,7 @@ public final class BuildingCommit {
         activatePlaced(level, cells);
     }
 
-    private static void activatePlaced(ServerLevel level, List<BuildingRodService.Cell> cells) {
+    private static void activatePlaced(ServerLevel level, List<? extends PlacedCell> cells) {
         for (var cell : cells) {
             BlockPos pos = cell.pos();
             BlockState state = level.getBlockState(pos);

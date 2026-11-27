@@ -12,6 +12,8 @@ import dev.dubhe.anvilcraft.block.item.PipeBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
+import dev.dubhe.anvilcraft.building.BlueprintMultiblocks;
+import dev.dubhe.anvilcraft.building.BuildingCommit;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -37,6 +39,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SkullBlock;
 import net.minecraft.world.level.block.VineBlock;
 import net.minecraft.world.level.block.WallSkullBlock;
+import net.minecraft.world.level.block.piston.PistonBaseBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -219,6 +222,23 @@ public final class BlockPlacementUtil {
     }
 
     public static boolean applyBlueprintStates(ServerLevel level, List<BlueprintPartSnapshot> snapshots) {
+        if (snapshots.size() == 2 && snapshots.getFirst().requiredState().getBlock() instanceof PistonBaseBlock
+            && snapshots.getLast().requiredState().is(Blocks.PISTON_HEAD)) {
+            var base = snapshots.getFirst();
+            var head = snapshots.getLast();
+            BlockState placedHead = level.getBlockState(head.pos());
+            if (!level.getBlockState(base.pos()).is(base.requiredState().getBlock())
+                || !placedHead.canBeReplaced() && !placedHead.is(Blocks.PISTON_HEAD)) {
+                restoreBlueprintSnapshots(level, snapshots);
+                return false;
+            }
+            // 活塞物品只放下底座，头部和伸出状态需同时恢复，再让红石更新决定是否收回。
+            BuildingCommit.set(level, base.pos(), base.requiredState());
+            BuildingCommit.set(level, head.pos(), head.requiredState());
+            BuildingCommit.activate(level, List.of(new MultiblockPart(base.pos(), base.requiredState()),
+                new MultiblockPart(head.pos(), head.requiredState())));
+            return true;
+        }
         List<PlacedBlueprintPart> placedParts = new ArrayList<>();
         for (BlueprintPartSnapshot snapshot : snapshots) {
             BlockState placedState = level.getBlockState(snapshot.pos());
@@ -229,7 +249,7 @@ public final class BlockPlacementUtil {
                 requiredState,
                 requiredState
             );
-            if (!snapshot.previousState().is(requiredState.getBlock())
+            if ((!snapshot.previousState().is(requiredState.getBlock()) || snapshot.previousState().canBeReplaced())
                 && (placedState.is(requiredState.getBlock())
                     || placedState.is(transformedRequired.getBlock()))) {
                 placedParts.add(new PlacedBlueprintPart(snapshot.pos(), requiredState, placedState));
@@ -316,7 +336,7 @@ public final class BlockPlacementUtil {
     }
 
     public static boolean isSecondaryBlueprintPart(BlockState state) {
-        return isSecondaryMultiblockPart(state) || state.getBlock() instanceof LargeCakeBlock
+        return state.is(Blocks.PISTON_HEAD) || isSecondaryMultiblockPart(state) || state.getBlock() instanceof LargeCakeBlock
             && state.getValue(LargeCakeBlock.HALF) != Cube3x3PartHalf.BOTTOM_CENTER;
     }
 
@@ -661,6 +681,14 @@ public final class BlockPlacementUtil {
             int position = storageIndex % positionsPerLayer;
             int row = position / this.gridSize;
             int column = position % this.gridSize;
+            return this.getPosition(column, layer, row, targetFacing, upsideDown);
+        }
+
+        public BlockPos getPosition(BlockPos gridPosition) {
+            return this.getPosition(gridPosition.getX(), gridPosition.getY(), gridPosition.getZ(), this.targetFacing, this.upsideDown);
+        }
+
+        private BlockPos getPosition(int column, int layer, int row, Direction targetFacing, boolean upsideDown) {
             int gridRadius = this.gridSize / 2;
             // 放置范围收缩到蓝图大小：最近的方块与放置器相隔一格，其余方向按蓝图居中
             int forwardIndex = this.getMaxForwardComponent() - this.getForwardComponent(row, column);
@@ -746,10 +774,14 @@ public final class BlockPlacementUtil {
             if (storageIndex < 0 || storageIndex >= this.states.length) {
                 return Blocks.AIR.defaultBlockState();
             }
+            return this.getState(this.getPosition(storageIndex), this.states[storageIndex]);
+        }
+
+        public BlockState getState(BlockPos pos, BlockState storedState) {
             return transformBlueprintState(
-                this.states[storageIndex],
+                storedState,
                 this.level,
-                this.getPosition(storageIndex),
+                pos,
                 this.getLayoutFacing(this.targetFacing),
                 this.scannerFacing,
                 this.upsideDown
@@ -776,14 +808,7 @@ public final class BlockPlacementUtil {
             BlockState requiredState
         ) {
             List<BlueprintPartSnapshot> snapshots = new ArrayList<>();
-            List<MultiblockPart> expected = new ArrayList<>();
-            if (requiredState.getBlock() instanceof LargeCakeBlock) {
-                LargeCakeBlockItem.forEachPlacedBlock(LargeCakeBlockItem.origin(targetPos, requiredState), requiredState,
-                    (pos, state) -> expected.add(new MultiblockPart(pos, state)));
-            } else {
-                expected.addAll(getExpectedMultiblockParts(targetPos, requiredState));
-            }
-            for (MultiblockPart expectedPart : expected) {
+            for (var expectedPart : BlueprintMultiblocks.expectedParts(targetPos, requiredState)) {
                 int storageIndex = this.getStorageIndex(expectedPart.pos());
                 if (storageIndex < 0) {
                     return List.of();
@@ -811,7 +836,7 @@ public final class BlockPlacementUtil {
         }
     }
 
-    public record MultiblockPart(BlockPos pos, BlockState state) {
+    public record MultiblockPart(BlockPos pos, BlockState state) implements BuildingCommit.PlacedCell {
     }
 
     public record BlueprintPartSnapshot(BlockPos pos, BlockState requiredState, BlockState previousState) {

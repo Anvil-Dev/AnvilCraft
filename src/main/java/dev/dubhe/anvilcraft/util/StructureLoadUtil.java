@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.util;
 
 import dev.anvilcraft.lib.v2.util.DistExecutor;
+import dev.dubhe.anvilcraft.building.BlueprintMultiblocks;
 import dev.dubhe.anvilcraft.building.BlueprintNormalizer;
 import dev.dubhe.anvilcraft.building.BlueprintPlacement;
 import dev.dubhe.anvilcraft.building.StructureSnapshot;
@@ -222,9 +223,21 @@ public class StructureLoadUtil {
                 BlueprintPlacement.facingPlayer(structureDiskData.direction(), Direction.SOUTH),
                 Mirror.NONE);
             var bounds = frame.bounds(snapshot.size());
+            var local = new BlueprintPlacement(new BlockPos(-bounds.minX(), -bounds.minY(), -bounds.minZ()),
+                frame.rotation(), frame.mirror());
             for (var entry : snapshot.blocks()) {
-                var pos = frame.localOf(entry.pos()).offset(-bounds.minX(), -bounds.minY(), -bounds.minZ());
-                data.blocks.add(new BlockPosition(pos.getX(), pos.getY(), pos.getZ(), snapshot.stateOf(entry)));
+                data.blocks.add(new BlockPosition(local.worldOf(entry.pos()), snapshot.stateOf(entry)));
+            }
+            var groups = BlueprintMultiblocks.partialGroups(snapshot);
+            for (var group : groups) {
+                for (var replacement : group.replacementGroups().values()) {
+                    if (replacement.size() > 1) {
+                        data.deferredGroups.add(placementGroup(local, replacement));
+                    }
+                }
+            }
+            for (var group : groups) {
+                data.deferredGroups.add(placementGroup(local, group.parts()));
             }
             data.width = bounds.getXSpan();
             data.depth = bounds.getZSpan();
@@ -255,6 +268,19 @@ public class StructureLoadUtil {
             LOGGER.error("Failed to read structure file: {}", e.getMessage(), e);
             return null;
         }
+    }
+
+    private static List<BlockPosition> placementGroup(BlueprintPlacement local, List<BlueprintMultiblocks.PlacedBlock> parts) {
+        var group = new ArrayList<BlockPosition>(parts.size());
+        for (var part : parts) {
+            var cell = new BlockPosition(local.worldOf(part.pos()), part.state());
+            if (BlueprintMultiblocks.core(part.pos(), part.state()).equals(part.pos())) {
+                group.addFirst(cell);
+            } else {
+                group.add(cell);
+            }
+        }
+        return List.copyOf(group);
     }
 
     /**
@@ -353,6 +379,7 @@ public class StructureLoadUtil {
         public int depth;
         public int height;
         public final List<BlockPosition> blocks = new ArrayList<>();
+        public final List<List<BlockPosition>> deferredGroups = new ArrayList<>();
 
         public StructureData(StructureDiskData diskData) {
             this(diskData, null);
@@ -387,6 +414,9 @@ public class StructureLoadUtil {
      * 方块位置数据
      */
     public record BlockPosition(int x, int y, int z, BlockState state) {
+        private BlockPosition(BlockPos pos, BlockState state) {
+            this(pos.getX(), pos.getY(), pos.getZ(), state);
+        }
     }
 
 }
