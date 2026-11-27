@@ -254,6 +254,15 @@ public class AnvilCraftClient {
 
     public static class HeavyHalberdExtensionImpl implements IClientItemExtensions {
         @Override
+        public HumanoidModel.@Nullable ArmPose getArmPose(LivingEntity entity, InteractionHand hand, ItemStack stack) {
+            if (entity.getUsedItemHand() == hand && entity.getUseItemRemainingTicks() > 0) {
+                return null;
+            }
+            return HeavyHalberdItem.getMode(stack) == HeavyHalberdMode.SPEAR
+                ? HumanoidModel.ArmPose.SPEAR : HumanoidModel.ArmPose.ITEM;
+        }
+
+        @Override
         public boolean applyForgeHandTransform(
             PoseStack poseStack,
             LocalPlayer player,
