@@ -13,6 +13,13 @@ public class JadeLang {
         provider.add("config.jade.plugin_anvilcraft.power_provider", "Anvil Craft Power");
         provider.add("config.jade.plugin_anvilcraft.ruby_prism", "Ruby Prism");
         provider.add("config.jade.plugin_anvilcraft.item_detector", "Item Detector");
+        provider.add("config.jade.plugin_anvilcraft.pulse_generator", "Pulse Generator");
+        provider.add("tooltip.anvilcraft.pulse_generator.jade.mode_reverse", "Mode: %s Reverse: %s");
+        provider.add("tooltip.anvilcraft.pulse_generator.jade.mode.rising", "Rising Edge");
+        provider.add("tooltip.anvilcraft.pulse_generator.jade.mode.falling", "Falling Edge");
+        provider.add("tooltip.anvilcraft.pulse_generator.jade.mode.loop", "Loop");
+        provider.add("tooltip.anvilcraft.pulse_generator.jade.reverse.on", "On");
+        provider.add("tooltip.anvilcraft.pulse_generator.jade.reverse.off", "Off");
         provider.add("config.jade.plugin_anvilcraft.space_overcompressor", "Space Overcompressor");
         provider.add("config.jade.plugin_anvilcraft.heatable_block_provider", "Heatable Block");
         provider.add("config.jade.plugin_anvilcraft.burning_heater_provider", "Burning Heater");

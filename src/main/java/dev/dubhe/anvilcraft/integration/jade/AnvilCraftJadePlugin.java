@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.block.logistics.storage.StorageFluidPortBlock;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.production.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.utility.MengerSpongeBlock;
+import dev.dubhe.anvilcraft.block.utility.redstone.PulseGeneratorBlock;
 import dev.dubhe.anvilcraft.block.workstation.FishTankBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.integration.jade.provider.AutoEnchantingTableProvider;
@@ -56,6 +57,7 @@ import dev.dubhe.anvilcraft.integration.jade.provider.client.CreativeFluidTankCl
 import dev.dubhe.anvilcraft.integration.jade.provider.client.DischargerClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.HeatableBlockClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.ItemDetectorClientProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.client.PulseGeneratorClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.LargeFluidTankClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.MengerSpongeClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.OverflowDisposalTankClientProvider;
@@ -133,6 +135,7 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
         registration.registerBlockComponent(BurningHeaterClientProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(RubyPrismClientProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(ItemDetectorClientProvider.INSTANCE, Block.class);
+        registration.registerBlockComponent(PulseGeneratorClientProvider.INSTANCE, PulseGeneratorBlock.class);
         registration.registerBlockComponent(SpaceOvercompressorClientProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(CrabTrapBlockStateClientProvider.INSTANCE, CrabTrapBlock.class);
         registration.registerBlockComponent(HeatableBlockClientProvider.INSTANCE, Block.class);
