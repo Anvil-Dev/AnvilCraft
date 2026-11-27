@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarEventProfile;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarEvolutionState;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarTerminal;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarTrack;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState;
 import dev.dubhe.anvilcraft.block.entity.celestial.Temperature;
@@ -327,7 +328,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         @Nullable StellarEventProfile eventProfile = stellarVisual == null
             ? null
             : blockEntity.getStellarEventProfile();
-        if (stellarVisual != null) {
+        if (stellarVisual != null && evolutionState != null && (evolutionState.isActive()
+            || evolutionTrack != null && evolutionTrack.definition().terminal().kind() == StellarTerminal.Kind.KEEP)) {
             float eventReach = eventProfile == null ? 1.0f : Math.max(1.0f, eventProfile.maxCoreRadius());
             float peakBodyScale = redstoneScaled(structuralBodyScale, redstoneFactor) * eventReach;
             float ringFloor = CelestialBodyData.ringScaleForRenderedBodyScale(peakBodyScale);

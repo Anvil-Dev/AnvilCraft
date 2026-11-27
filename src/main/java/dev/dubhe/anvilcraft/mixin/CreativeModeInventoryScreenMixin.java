@@ -70,7 +70,7 @@ abstract class CreativeModeInventoryScreenMixin
     private void anvilcraft$renderVariantIndicators(GuiGraphics graphics, int mouseX, int mouseY, CallbackInfo ci) {
         if (selectedTab.getType() != CreativeModeTab.Type.CATEGORY) return;
         graphics.pose().pushPose();
-        graphics.pose().translate(0.0F, 0.0F, 200.0F);
+        graphics.pose().translate(0, 0, 300);
         for (Slot slot : this.menu.slots) {
             if (slot.container != CONTAINER || !slot.isActive()
                 || !CreativeVariantPickerRegistry.isCreativePickerEnabled(slot.getItem())) {

@@ -60,6 +60,9 @@ final class CfaGravityController {
         double nextBodyRadius = computeBodyRadius(body, signal);
         int nextRadius = computeGravityRadius(body, amplified, signal);
         double nextStrength = computeStrength(body, stellarMass, nextBodyRadius);
+        if (body instanceof StarData star && star.bodyClass() == CelestialBodyClass.NEUTRON_STAR) {
+            nextBodyRadius *= CelestialBodyData.NEUTRON_STAR_CORE_SCALE;
+        }
         Vec3 nextCenter = computeCenter(controllerPos, body, amplified, signal);
 
         if (!this.active

@@ -4,6 +4,7 @@
   "package": "dev.dubhe.anvilcraft.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "compat.FtbUltimineMixin",
     "AnvilBlockMixin",
     "AnvilMenuMixin",
     "ArmorSlotMixin",
@@ -126,6 +127,7 @@
     "tsmm.SetBlockCommandMixin"
   ],
   "client": [
+    "compat.SodiumMonolithMixin",
     "client.NegativeShapeItemModelMixin",
     "compat.XaeroWorldMapHighlighterRegistryMixin",
     "compat.XaeroWorldMapGuiMixin",

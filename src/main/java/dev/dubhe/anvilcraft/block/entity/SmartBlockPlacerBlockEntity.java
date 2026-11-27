@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.block.BlockPlacementRules;
 import dev.dubhe.anvilcraft.api.event.SmartBlockPlacerFindPointerEvent;
@@ -15,6 +16,7 @@ import dev.dubhe.anvilcraft.block.LensBlock;
 import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.UseItemOnBlock;
 import dev.dubhe.anvilcraft.block.placement.BlueprintMaterialBudget;
+import dev.dubhe.anvilcraft.building.BlueprintMultiblocks;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.ModTargetPointers;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -300,11 +302,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         BlockPlacementUtil.BlueprintLayout layout = this.getBlueprintLayout();
         List<BlockState> required = new ArrayList<>();
         for (int order = 0; order < layout.orderCount(); order++) {
-            int index = layout.getStorageIndexForOrder(order);
-            BlockState state = layout.getState(index);
-            if (!state.isAir() && !BlockPlacementUtil.isSecondaryBlueprintPart(state)
-                && !BlockPlacementUtil.isBlueprintStatePresent(level, layout.getPosition(index), state)) {
-                required.add(state);
+            var target = this.blueprintTarget(layout, order);
+            if (target != null && !this.isBlueprintCellPlaced(level, layout, target.pos(), target.state())) {
+                required.add(target.state());
             }
         }
         if (required.isEmpty()) {
@@ -556,7 +556,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     private void applyToBlueprintPosition(ServerLevel level) {
-        int expectedOrderIndex = Math.floorMod(this.currentPlacementIndex, this.getBlueprintLayout().orderCount());
+        int expectedOrderIndex = this.currentPlacementIndex;
         BlueprintTarget blueprintTarget = this.findNextBlueprintTarget(level);
         ITargetPointer pointer = this.pointer;
         if (blueprintTarget == null || pointer == null || !pointer.isStillValid(level)) {
@@ -576,11 +576,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return;
         }
         BlockPlacementUtil.BlueprintLayout blueprintLayout = this.getBlueprintLayout();
-        List<BlockPlacementUtil.BlueprintPartSnapshot> partSnapshots = blueprintLayout.capturePartSnapshots(
-            level,
-            blueprintTarget.pos(),
-            blueprintTarget.state()
-        );
+        var partSnapshots = blueprintTarget.capture(level, blueprintLayout);
         if (!BlockPlacementUtil.areTargetsAvailable(level, partSnapshots)) {
             this.advanceBlueprintIndex(blueprintTarget.orderIndex());
             this.pointer = null;
@@ -607,7 +603,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
     private @Nullable BlueprintTarget findNextBlueprintTarget(ServerLevel level) {
         BlockPlacementUtil.BlueprintLayout blueprintLayout = this.getBlueprintLayout();
-        int orderCount = blueprintLayout.orderCount();
+        int orderCount = blueprintLayout.orderCount() + this.blueprint.deferredGroups().size();
         if (this.currentPlacementIndex >= orderCount) {
             this.currentPlacementIndex = 0;
             this.setChanged();
@@ -615,21 +611,19 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
         while (this.currentPlacementIndex < orderCount) {
             int orderIndex = this.currentPlacementIndex;
-            int storageIndex = blueprintLayout.getStorageIndexForOrder(orderIndex);
-            BlockState storedState = this.blueprint.states()[storageIndex];
-            if (storedState.isAir()) {
+            var target = this.blueprintTarget(blueprintLayout, orderIndex);
+            if (target == null) {
                 this.advanceBlueprintIndex(orderIndex);
                 continue;
             }
-
-            BlockPos targetPos = blueprintLayout.getPosition(storageIndex);
-            BlockState requiredState = blueprintLayout.getState(storageIndex);
-            if (BlockPlacementUtil.isSecondaryBlueprintPart(requiredState)) {
+            BlockPos targetPos = target.pos();
+            BlockState requiredState = target.state();
+            if (target.blockedGroup(level, blueprintLayout)) {
                 this.advanceBlueprintIndex(orderIndex);
                 continue;
             }
             BlockState worldState = level.getBlockState(targetPos);
-            if (BlockPlacementUtil.isBlueprintStatePresent(level, targetPos, requiredState)) {
+            if (this.isBlueprintTargetPlaced(level, blueprintLayout, target)) {
                 this.advanceBlueprintIndex(orderIndex);
                 continue;
             }
@@ -645,7 +639,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 this.advanceBlueprintIndex(orderIndex);
                 continue;
             }
-            return new BlueprintTarget(orderIndex, targetPos, requiredState);
+            return target;
         }
         this.currentPlacementIndex = 0;
         this.setChanged();
@@ -655,16 +649,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private boolean isCurrentTargetAvailable(ServerLevel level) {
         if (this.target == TargetMode.BLUEPRINT) {
             BlockPlacementUtil.BlueprintLayout blueprintLayout = this.getBlueprintLayout();
-            int orderIndex = Math.floorMod(this.currentPlacementIndex, blueprintLayout.orderCount());
-            int storageIndex = blueprintLayout.getStorageIndexForOrder(orderIndex);
-            if (this.blueprint.states()[storageIndex].isAir()) {
-                return false;
-            }
-            BlockPos targetPos = blueprintLayout.getPosition(storageIndex);
-            BlockState requiredState = blueprintLayout.getState(storageIndex);
-            return !BlockPlacementUtil.isSecondaryBlueprintPart(requiredState)
-                && !BlockPlacementUtil.isBlueprintStatePresent(level, targetPos, requiredState)
-                && BlockPlacementUtil.isTargetAvailable(level, targetPos);
+            var target = this.blueprintTarget(blueprintLayout, this.currentPlacementIndex);
+            return target != null && !this.isBlueprintTargetPlaced(level, blueprintLayout, target)
+                && BlockPlacementUtil.isTargetAvailable(level, target.pos());
         }
 
         List<BlockPos> positions = this.getOrderedPositionTargets();
@@ -677,7 +664,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
     private void skipCurrentTarget() {
         if (this.target == TargetMode.BLUEPRINT) {
-            this.advanceBlueprintIndex(Math.floorMod(this.currentPlacementIndex, this.getBlueprintLayout().orderCount()));
+            this.advanceBlueprintIndex(this.currentPlacementIndex);
             return;
         }
         List<BlockPos> positions = this.getOrderedPositionTargets();
@@ -879,7 +866,97 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             && state.getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
     }
 
-    private record BlueprintTarget(int orderIndex, BlockPos pos, BlockState state) {
+    private boolean isBlueprintCellPlaced(Level level, BlockPlacementUtil.BlueprintLayout layout, BlockPos pos, BlockState state) {
+        return BlockPlacementUtil.isBlueprintStatePresent(level, pos, state) || this.coveredByGroup(level, layout, pos, 0);
+    }
+
+    private boolean isBlueprintTargetPlaced(Level level, BlockPlacementUtil.BlueprintLayout layout, BlueprintTarget target) {
+        if (target.group().isEmpty()) {
+            return this.isBlueprintCellPlaced(level, layout, target.pos(), target.state());
+        }
+        int nextGroup = target.orderIndex() - layout.orderCount() + 1;
+        return groupPlaced(level, layout, target.group()) || target.group().stream()
+            .anyMatch(part -> this.coveredByGroup(level, layout, layout.getPosition(part.gridPos()), nextGroup));
+    }
+
+    private static boolean groupPlaced(Level level, BlockPlacementUtil.BlueprintLayout layout, List<BlueprintPart> group) {
+        return group.stream().allMatch(part -> {
+            BlockPos pos = layout.getPosition(part.gridPos());
+            return BlueprintMultiblocks.matchesPart(level.getBlockState(pos), layout.getState(pos, part.state()));
+        });
+    }
+
+    private boolean coveredByGroup(Level level, BlockPlacementUtil.BlueprintLayout layout, BlockPos pos, int firstGroup) {
+        var groups = this.blueprint.deferredGroups();
+        if (firstGroup >= groups.size()) {
+            return false;
+        }
+        // 可替换的方块在多方块放好后已被覆盖，后续轮次仍应将这一格算作完成。
+        BlockState actual = level.getBlockState(pos);
+        if (BlueprintMultiblocks.hasParts(actual)) {
+            BlockPos corePos = BlueprintMultiblocks.core(pos, actual);
+            for (int i = firstGroup; i < groups.size(); i++) {
+                var group = groups.get(i);
+                var core = group.getFirst();
+                if (layout.getPosition(core.gridPos()).equals(corePos) && groupPlaced(level, layout, group)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private @Nullable BlueprintTarget blueprintTarget(BlockPlacementUtil.BlueprintLayout layout, int orderIndex) {
+        int deferredIndex = orderIndex - layout.orderCount();
+        if (deferredIndex >= 0) {
+            if (deferredIndex >= this.blueprint.deferredGroups().size()) {
+                return null;
+            }
+            var group = this.blueprint.deferredGroups().get(deferredIndex);
+            var core = group.getFirst();
+            BlockPos pos = layout.getPosition(core.gridPos());
+            return new BlueprintTarget(orderIndex, pos, layout.getState(pos, core.state()), group);
+        }
+        int index = layout.getStorageIndexForOrder(orderIndex);
+        BlockState storedState = this.blueprint.states()[index];
+        if (storedState.isAir() || storedState.is(Blocks.STRUCTURE_VOID) || BlockPlacementUtil.isSecondaryBlueprintPart(storedState)) {
+            return null;
+        }
+        for (var group : this.blueprint.deferredGroups()) {
+            var core = group.getFirst();
+            if (core.state() == storedState && blueprintIndex(core.gridPos()) == index) {
+                return null;
+            }
+        }
+        return new BlueprintTarget(orderIndex, layout.getPosition(index), layout.getState(index), List.of());
+    }
+
+    private record BlueprintTarget(int orderIndex, BlockPos pos, BlockState state, List<BlueprintPart> group) {
+        private List<BlockPlacementUtil.BlueprintPartSnapshot> capture(Level level, BlockPlacementUtil.BlueprintLayout layout) {
+            if (this.group.isEmpty()) {
+                return layout.capturePartSnapshots(level, this.pos, this.state);
+            }
+            return this.group.stream().map(part -> {
+                BlockPos worldPos = layout.getPosition(part.gridPos());
+                return new BlockPlacementUtil.BlueprintPartSnapshot(worldPos, layout.getState(worldPos, part.state()),
+                    level.getBlockState(worldPos));
+            }).toList();
+        }
+
+        private boolean blockedGroup(Level level, BlockPlacementUtil.BlueprintLayout layout) {
+            return !this.group.isEmpty() && this.group.stream()
+                .anyMatch(part -> !BlockPlacementUtil.isTargetAvailable(level, layout.getPosition(part.gridPos())));
+        }
+    }
+
+    /** 同一位置可先后放置两个不同部件，各组分别保存完整的坐标和状态。 */
+    public record BlueprintPart(BlockPos gridPos, BlockState state) {
+        private static final Codec<List<List<BlueprintPart>>> GROUPS_CODEC = RecordCodecBuilder.<BlueprintPart>create(instance ->
+            instance.group(
+                BlockPos.CODEC.fieldOf("pos").forGetter(BlueprintPart::gridPos),
+                BlockState.CODEC.fieldOf("state").forGetter(BlueprintPart::state)
+            ).apply(instance, BlueprintPart::new)
+        ).listOf(1, Integer.MAX_VALUE).listOf();
     }
 
     /**
@@ -889,8 +966,13 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         String name,
         BlockState[] states,
         boolean invalid,
-        BlockPlacementUtil.BlueprintExtent extent
+        BlockPlacementUtil.BlueprintExtent extent,
+        List<List<BlueprintPart>> deferredGroups
     ) {
+        public StructureBlueprint(String name, BlockState[] states, boolean invalid, BlockPlacementUtil.BlueprintExtent extent) {
+            this(name, states, invalid, extent, List.of());
+        }
+
         private static StructureBlueprint empty() {
             BlockState[] states = new BlockState[POSITION_COUNT];
             Arrays.fill(states, Blocks.AIR.defaultBlockState());
@@ -1089,26 +1171,36 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         int columnOffset = (POSITION_GRID_SIZE - width) / 2;
         int rowOffset = (POSITION_GRID_SIZE - depth) / 2;
         for (StructureLoadUtil.BlockPosition block : structure.blocks) {
-            int column = columnOffset + width - block.x() - 1;
-            int row = rowOffset + depth - block.z() - 1;
-            int layer = block.y();
-            if (!isValidLayer(layer)
-                || column < 0 || column >= POSITION_GRID_SIZE
-                || row < 0 || row >= POSITION_GRID_SIZE
-                || block.state().isAir()) {
-                continue;
+            int index = blueprintIndex(gridPosition(block, columnOffset + width, rowOffset + depth));
+            if (index >= 0) {
+                this.blueprint.states()[index] = block.state();
             }
-            int position = row * POSITION_GRID_SIZE + column;
-            this.blueprint.states()[getPositionIndex(layer, position)] = block.state();
         }
+        var groups = structure.deferredGroups.stream().map(parts -> parts.stream()
+            .map(part -> new BlueprintPart(gridPosition(part, columnOffset + width, rowOffset + depth), part.state())).toList())
+            .filter(parts -> parts.stream().anyMatch(part -> blueprintIndex(part.gridPos()) >= 0)).toList();
         this.blueprint = new StructureBlueprint(
             diskData.name(),
             this.blueprint.states(),
             false,
             BlockPlacementUtil.BlueprintExtent.fromSize(
                 width, depth, height, columnOffset, rowOffset, 0
-            ).clamp(POSITION_GRID_SIZE)
+            ).clamp(POSITION_GRID_SIZE),
+            groups
         );
+    }
+
+    private static BlockPos gridPosition(StructureLoadUtil.BlockPosition block, int columnEnd, int rowEnd) {
+        return new BlockPos(columnEnd - block.x() - 1, block.y(), rowEnd - block.z() - 1);
+    }
+
+    private static int blueprintIndex(BlockPos gridPos) {
+        int column = gridPos.getX();
+        int row = gridPos.getZ();
+        if (!isValidLayer(gridPos.getY()) || column < 0 || column >= POSITION_GRID_SIZE || row < 0 || row >= POSITION_GRID_SIZE) {
+            return -1;
+        }
+        return getPositionIndex(gridPos.getY(), row * POSITION_GRID_SIZE + column);
     }
 
     private void clearBlueprint() {
@@ -1128,6 +1220,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             states.add(entry);
         }
         tag.put("blueprintStates", states);
+        if (!this.blueprint.deferredGroups().isEmpty()) {
+            var ops = registries.createSerializationContext(NbtOps.INSTANCE);
+            tag.put("deferredBlueprintGroups", BlueprintPart.GROUPS_CODEC.encodeStart(ops, this.blueprint.deferredGroups()).getOrThrow());
+        }
         tag.putString("loadedStructureName", this.blueprint.name());
         tag.putBoolean("invalidStructure", this.blueprint.invalid());
         tag.putIntArray("blueprintExtent", new int[]{
@@ -1160,7 +1256,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             tag.getString("loadedStructureName"),
             blueprintStates,
             tag.getBoolean("invalidStructure"),
-            loadBlueprintExtent(tag, blueprintStates)
+            loadBlueprintExtent(tag, blueprintStates),
+            tag.contains("deferredBlueprintGroups", Tag.TAG_LIST)
+                ? BlueprintPart.GROUPS_CODEC.parse(registries.createSerializationContext(NbtOps.INSTANCE),
+                    tag.get("deferredBlueprintGroups")).result().orElse(List.of()) : List.of()
         );
         this.missingBlock = loadDisplayedBlock(tag, "missingBlock", registries);
         if (this.missingBlock == null) {
@@ -1330,22 +1429,20 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     public @Nullable BlockPos getCurrentBlueprintTargetPosition() {
         Level level = this.getLevel();
         BlockPlacementUtil.BlueprintLayout blueprintLayout = this.getBlueprintLayout();
-        int orderCount = blueprintLayout.orderCount();
+        int orderCount = blueprintLayout.orderCount() + this.blueprint.deferredGroups().size();
         for (int orderIndex = this.currentPlacementIndex; orderIndex < orderCount; orderIndex++) {
-            int storageIndex = blueprintLayout.getStorageIndexForOrder(orderIndex);
-            if (this.blueprint.states()[storageIndex].isAir()) {
+            var target = this.blueprintTarget(blueprintLayout, orderIndex);
+            if (target == null) {
                 continue;
             }
-            BlockPos targetPos = blueprintLayout.getPosition(storageIndex);
+            BlockPos targetPos = target.pos();
             if (level != null) {
-                BlockState requiredState = blueprintLayout.getState(storageIndex);
-                if (BlockPlacementUtil.isSecondaryBlueprintPart(requiredState)) {
-                    continue;
-                }
+                BlockState requiredState = target.state();
                 BlockState worldState = level.getBlockState(targetPos);
-                if (BlockPlacementUtil.isBlueprintStatePresent(level, targetPos, requiredState)
+                if (this.isBlueprintTargetPlaced(level, blueprintLayout, target)
                     || !worldState.canBeReplaced()
-                    || !BlockPlacementUtil.isTargetUnobstructed(level, targetPos)) {
+                    || !BlockPlacementUtil.isTargetUnobstructed(level, targetPos)
+                    || target.blockedGroup(level, blueprintLayout)) {
                     continue;
                 }
             }
@@ -1369,8 +1466,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 }
                 total++;
                 BlockState requiredState = blueprintLayout.getState(index);
-                if (BlockPlacementUtil.isBlueprintStatePresent(
+                if (this.isBlueprintCellPlaced(
                     level,
+                    blueprintLayout,
                     blueprintLayout.getPosition(index),
                     requiredState
                 )) {

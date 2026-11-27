@@ -8,6 +8,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarEventProfile;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState;
@@ -220,7 +221,8 @@ public final class StellarEmissionRenderer {
             if (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR) {
                 // The compact star model occupies only the central 6/16 of its model space.
                 poseStack.translate(0.5, 0.5, 0.5);
-                poseStack.scale(0.375f, 0.375f, 0.375f);
+                float coreScale = CelestialBodyData.NEUTRON_STAR_CORE_SCALE;
+                poseStack.scale(coreScale, coreScale, coreScale);
                 poseStack.translate(-0.5, -0.5, -0.5);
             }
             renderCorona(poseStack, buffers, color, StellarRadiance.haloScale(exposure) - 1.0f,
