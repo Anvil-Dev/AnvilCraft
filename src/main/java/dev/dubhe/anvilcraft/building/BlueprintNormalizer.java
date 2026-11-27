@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,22 +43,43 @@ public final class BlueprintNormalizer {
         StructureSnapshot cached = CACHE.getIfPresent(key);
         if (cached != null) return cached;
         StructureSnapshot parsed = StructureSnapshotCodec.parse(tag, registries).snapshot();
-        StructureSnapshot normalized = normalize(tag.getBoolean("anvilcraft:world_coordinates")
-            ? parsed : ScannerDiskNormalizer.normalize(parsed, facing, upsideDown)).snapshot();
+        boolean worldCoordinates = tag.getBoolean("anvilcraft:world_coordinates");
+        StructureSnapshot normalized = normalize(worldCoordinates ? parsed : ScannerDiskNormalizer.normalize(parsed, facing, upsideDown),
+            worldCoordinates).snapshot();
         CACHE.put(new LoadKey(tag.copy(), registries, facing, upsideDown), normalized);
         return normalized;
     }
 
     public static Result normalize(StructureSnapshot snapshot) {
+        return normalize(snapshot, false);
+    }
+
+    public static Result normalize(StructureSnapshot snapshot, boolean preserveReplacements) {
+        Map<BlockPos, BlueprintMultiblocks.PlacedBlock> editedParts = new LinkedHashMap<>();
+        Map<BlockPos, BlockState> replacedParts = new HashMap<>();
+        if (preserveReplacements) {
+            for (var group : BlueprintMultiblocks.partialGroups(snapshot)) {
+                for (var part : group.parts()) {
+                    editedParts.put(part.pos(), part);
+                    if (group.replacementGroups().containsKey(part.pos())) {
+                        replacedParts.put(part.pos(), part.state());
+                    }
+                }
+            }
+        }
         Map<BlockPos, BlueprintMultiblocks.PlacedBlock> original = new LinkedHashMap<>();
         for (var entry : snapshot.blocks()) {
             BlockState state = snapshot.stateOf(entry);
-            if (OrdinaryBlockAdapter.mapping(state) != OrdinaryBlockAdapter.Mapping.AIR) {
+            if (editedParts.containsKey(entry.pos()) || OrdinaryBlockAdapter.mapping(state) != OrdinaryBlockAdapter.Mapping.AIR) {
                 original.put(entry.pos(), new BlueprintMultiblocks.PlacedBlock(entry.pos(), state, entry.nbt()));
             }
         }
-        Map<BlockPos, BlueprintMultiblocks.PlacedBlock> complete = new LinkedHashMap<>();
+        Map<BlockPos, BlueprintMultiblocks.PlacedBlock> complete = new LinkedHashMap<>(editedParts);
         for (var entry : original.values()) {
+            if (editedParts.containsKey(entry.pos())) {
+                complete.put(entry.pos(), entry);
+                continue;
+            }
             if (!BlueprintMultiblocks.shouldRecord(entry.state())) continue;
             BlueprintMultiblocks.forEachPart(entry.pos(), entry.state(), (pos, generated) -> {
                 var previous = original.get(pos);
@@ -80,7 +102,8 @@ public final class BlueprintNormalizer {
             packed.put(pos.asLong(), block.state());
         });
         var reachable = BlueprintFluids.reachable(states);
-        complete.entrySet().removeIf(entry -> BlueprintFluids.isFlowing(entry.getValue().state()) && !reachable.contains(entry.getKey()));
+        complete.entrySet().removeIf(entry -> !editedParts.containsKey(entry.getKey())
+            && BlueprintFluids.isFlowing(entry.getValue().state()) && !reachable.contains(entry.getKey()));
         complete.replaceAll((pos, block) -> new BlueprintMultiblocks.PlacedBlock(pos,
             OrdinaryBlockAdapter.projectionState(block.state(), pos, packed), block.nbt()));
         BlockPos min = BlockPos.ZERO;
@@ -105,7 +128,7 @@ public final class BlueprintNormalizer {
                 return palette.size() - 1;
             });
             blocks.add(new StructureSnapshot.BlockEntry(block.pos().offset(offset), index,
-                block.nbt().map(CompoundTag::copy)));
+                block.nbt().map(CompoundTag::copy), Optional.ofNullable(replacedParts.get(block.pos()))));
         }
         if (palette.isEmpty()) palette.add(Blocks.AIR.defaultBlockState());
         List<StructureSnapshot.EntityEntry> entities = snapshot.entities().stream().map(entry ->
@@ -118,7 +141,7 @@ public final class BlueprintNormalizer {
             offset, added, removed);
     }
 
-    private static BlockState repair(BlockState recorded, BlockState generated) {
+    static BlockState repair(BlockState recorded, BlockState generated) {
         if (recorded.getBlock() != generated.getBlock()) return generated;
         BlockState result = recorded;
         for (Property<?> property : generated.getProperties()) {

@@ -31,6 +31,7 @@ import dev.dubhe.anvilcraft.inventory.StructureScannerMenu;
 import dev.dubhe.anvilcraft.network.StructureScannerActionPacket;
 import dev.dubhe.anvilcraft.network.StructureScannerEditPacket;
 import dev.dubhe.anvilcraft.network.StructureScannerSavePacket;
+import dev.dubhe.anvilcraft.util.BlockPlacementPicking;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import dev.dubhe.anvilcraft.util.StructureSaveUtil;
 import dev.dubhe.anvilcraft.util.WatchableCyclingValue;
@@ -66,6 +67,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.joml.Matrix3f;
@@ -1189,7 +1191,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             || this.menu.getImportedStructure() == null && !this.cachedIsScanComplete) {
             return;
         }
-        BlockPos picked = this.pickPreviewBlock(mouseX, mouseY);
+        BlockPos picked = this.pickEditableBlock(mouseX, mouseY);
         if (picked == null) {
             return;
         }
@@ -1314,13 +1316,17 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         graphics.disableScissor();
     }
 
-    private @Nullable BlockPos pickPreviewBlock(double mouseX, double mouseY) {
-        if (this.handbookPreview == null || this.blueprintError != null) {
+    private @Nullable BlockPos pickEditableBlock(double mouseX, double mouseY) {
+        if (this.handbookPreview == null || this.previewTemplate == null || this.blueprintError != null) {
             return null;
         }
-        return StructurePreviewScene.pick(this.handbookPreview, this.previewCamera,
-            this.previewWindowWidth, this.previewWindowHeight, mouseX - this.previewWindowX, mouseY - this.previewWindowY,
-            Integer.MIN_VALUE, Integer.MAX_VALUE, this.handbookPanX, this.handbookPanY);
+        float x = (float) (mouseX - this.previewWindowX - this.previewWindowWidth / 2f) - this.handbookPanX;
+        float y = (float) (this.previewWindowHeight / 2f - mouseY + this.previewWindowY) - this.handbookPanY;
+        float depth = (float) (Math.sqrt(this.previewTemplate.getSize().distSqr(Vec3i.ZERO)) + 2) * 10 * this.previewCamera.getZoom();
+        Matrix4f inverse = this.previewCamera.buildViewMatrix().invert();
+        Vec3 start = new Vec3(inverse.transformPosition(new Vector3f(x, y, depth)));
+        Vec3 end = new Vec3(inverse.transformPosition(new Vector3f(x, y, -depth)));
+        return BlockPlacementPicking.pickScannerBlock(this.handbookPreview, start, end);
     }
 
     private org.joml.Vector2f previewBlockCenter(BlockPos pos) {
@@ -1330,8 +1336,13 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     }
 
     private void openPreviewGui(double mouseX, double mouseY) {
-        BlockPos pos = this.pickPreviewBlock(mouseX, mouseY);
-        if (pos == null || this.previewTemplate == null) {
+        if (this.handbookPreview == null || this.previewTemplate == null || this.blueprintError != null) {
+            return;
+        }
+        BlockPos pos = StructurePreviewScene.pick(this.handbookPreview, this.previewCamera,
+            this.previewWindowWidth, this.previewWindowHeight, mouseX - this.previewWindowX, mouseY - this.previewWindowY,
+            Integer.MIN_VALUE, Integer.MAX_VALUE, this.handbookPanX, this.handbookPanY);
+        if (pos == null) {
             return;
         }
         Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1));

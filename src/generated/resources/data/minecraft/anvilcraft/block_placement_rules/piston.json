@@ -1,4 +1,10 @@
 {
+  "rules": [
+    {
+      "item": "minecraft:piston",
+      "properties": ""
+    }
+  ],
   "state": {
     "": "extended=false"
   }
