@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.ItemDetectorMenu;
 import dev.dubhe.anvilcraft.inventory.container.FilterOnlyContainer;
+import dev.dubhe.anvilcraft.item.FilterItem;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -32,7 +33,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -219,17 +219,16 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         for (ItemStack filterStack : this.getFilteredItems()) {
             if (filterStack.isEmpty()) continue;
             hasFilter = true;
-            Item filterItem = filterStack.getItem();
             int matchCount = 0;
             int targetCount = filterStack.getCount();
             for (ItemEntity itemEntity : itemEntities) {
-                if (itemEntity.getItem().is(filterItem)) {
+                if (FilterItem.filter(filterStack, itemEntity.getItem())) {
                     matchCount += itemEntity.getItem().getCount();
                 }
             }
-            for (BlockPos p : containers) matchCount += this.scanContainer(level, p, filterItem);
+            for (BlockPos p : containers) matchCount += this.scanContainer(level, p, filterStack);
             for (IItemHandler handler : entityContainers) {
-                matchCount += this.scanContainer(handler, filterItem);
+                matchCount += this.scanContainer(handler, filterStack);
             }
             int lerpedOutput = lerpOutput(matchCount, targetCount);
             if (lerpedOutput > 0) {
@@ -243,16 +242,16 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         if (!hasFilter) {
             int totalCount = 0;
             for (ItemEntity itemEntity : itemEntities) totalCount += itemEntity.getItem().getCount();
-            for (BlockPos p : containers) totalCount += this.scanContainer(level, p, null);
+            for (BlockPos p : containers) totalCount += this.scanContainer(level, p, ItemStack.EMPTY);
             for (IItemHandler handler : entityContainers) {
-                totalCount += this.scanContainer(handler, null);
+                totalCount += this.scanContainer(handler, ItemStack.EMPTY);
             }
             output = lerpOutput(totalCount, 1);
         }
         return output;
     }
 
-    private int scanContainer(Level level, BlockPos pos, @Nullable Item targetItem) {
+    private int scanContainer(Level level, BlockPos pos, ItemStack filterStack) {
         BlockState state = level.getBlockState(pos);
         if (state.getBlock() instanceof LargeCauldronBlock) {
             LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(level, pos, state);
@@ -260,13 +259,13 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
             int slot = LargeCauldronBlockEntity.inputSlotForPart(state.getValue(LargeCauldronBlock.HALF));
             if (slot >= 0) {
                 ItemStack stack = cauldron.getInputHandler().getStackInSlot(slot);
-                return targetItem == null || stack.is(targetItem) ? stack.getCount() : 0;
+                return FilterItem.filter(filterStack, stack) ? stack.getCount() : 0;
             }
             int count = 0;
             var output = cauldron.getOutputHandler();
             for (int index = 0; index < output.getSlots(); index++) {
                 ItemStack stack = output.getStackInSlot(index);
-                if (targetItem == null || stack.is(targetItem)) count += stack.getCount();
+                if (FilterItem.filter(filterStack, stack)) count += stack.getCount();
             }
             return count;
         }
@@ -274,17 +273,17 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         if (handler == null) {
             return 0;
         }
-        return this.scanContainer(handler, targetItem);
+        return this.scanContainer(handler, filterStack);
     }
 
-    private int scanContainer(IItemHandler handler, @Nullable Item targetItem) {
+    private int scanContainer(IItemHandler handler, ItemStack filterStack) {
         int count = 0;
         for (int i = 0; i < handler.getSlots(); i++) {
             ItemStack stack = handler.getStackInSlot(i);
             if (stack.isEmpty()) {
                 continue;
             }
-            if (targetItem == null || stack.is(targetItem)) {
+            if (FilterItem.filter(filterStack, stack)) {
                 count += stack.getCount();
             }
         }
