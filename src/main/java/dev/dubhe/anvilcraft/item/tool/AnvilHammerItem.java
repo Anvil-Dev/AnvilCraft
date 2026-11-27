@@ -76,6 +76,7 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 public class AnvilHammerItem extends Item {
+    private static final ThreadLocal<BreakBlockEvent> REMOVAL_EVENT = new ThreadLocal<>();
 
     public static final Property<?>[] SUPPORTED_PROPERTIES = {
         BlockStateProperties.FACING,
@@ -116,6 +117,11 @@ public class AnvilHammerItem extends Item {
         ).build();
     }
 
+    public static boolean isRemovingBlock(Player player, BlockPos pos) {
+        BreakBlockEvent event = REMOVAL_EVENT.get();
+        return event != null && event.getPlayer() == player && event.getPos().equals(pos);
+    }
+
     private static void breakBlock(ServerPlayer player, BlockPos pos, ServerLevel level, ItemStack tool) {
         BlockState state = level.getBlockState(pos);
         Block block = state.getBlock();
@@ -129,7 +135,17 @@ public class AnvilHammerItem extends Item {
         block = state.getBlock();
         BlockPos posToRemove = pos;
         BreakBlockEvent breakEvent = new BreakBlockEvent(level, posToRemove, state, player);
-        NeoForge.EVENT_BUS.post(breakEvent);
+        BreakBlockEvent previous = REMOVAL_EVENT.get();
+        REMOVAL_EVENT.set(breakEvent);
+        try {
+            NeoForge.EVENT_BUS.post(breakEvent);
+        } finally {
+            if (previous == null) {
+                REMOVAL_EVENT.remove();
+            } else {
+                REMOVAL_EVENT.set(previous);
+            }
+        }
         if (breakEvent.isCanceled()) return;
         final List<ItemStack> drops = player.isCreative() ? List.of() : BreakBlockUtil.dropSilkTouch(level, pos);
         block.playerWillDestroy(level, posToRemove, state, player);
