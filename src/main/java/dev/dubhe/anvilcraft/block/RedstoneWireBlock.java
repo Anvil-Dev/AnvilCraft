@@ -368,7 +368,10 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
 
     @Override
     protected int getDirectSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
-        // 导线模拟原版红石粉的弱充能，不直接强充能相邻方块。
+        // 原版比较器通过直接信号读取侧输入。
+        if (level.getBlockState(pos.relative(direction.getOpposite())).is(Blocks.COMPARATOR)) {
+            return this.getSignal(state, level, pos, direction);
+        }
         return 0;
     }
 
