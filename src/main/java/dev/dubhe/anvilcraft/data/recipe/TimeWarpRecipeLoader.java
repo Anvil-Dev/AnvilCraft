@@ -267,7 +267,7 @@ public class TimeWarpRecipeLoader {
             .save(provider, "frost_metal_block_3");
 
         TimeWarpRecipe.builder()
-            .requires(provider.getItems(), ItemTags.FLOWERS)
+            .requires(provider.getItems(), ModItemTags.TIME_WARP_FLOWERS)
             .result(Items.WITHER_ROSE, 0.2f)
             .save(provider);
 
