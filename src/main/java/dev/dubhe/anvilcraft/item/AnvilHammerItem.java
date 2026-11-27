@@ -81,6 +81,7 @@ import java.util.function.Predicate;
 import static dev.dubhe.anvilcraft.util.MultiPartBlockUtil.getChainableMainPartPos;
 
 public class AnvilHammerItem extends Item implements Equipable {
+    private static final ThreadLocal<BlockEvent.BreakEvent> REMOVAL_EVENT = new ThreadLocal<>();
     public static final Property<?>[] SUPPORTED_PROPERTIES = {
         BlockStateProperties.FACING,
         BlockStateProperties.FACING_HOPPER,
@@ -116,6 +117,11 @@ public class AnvilHammerItem extends Item implements Equipable {
         ).build();
     }
 
+    public static boolean isRemovingBlock(Player player, BlockPos pos) {
+        BlockEvent.BreakEvent event = REMOVAL_EVENT.get();
+        return event != null && event.getPlayer() == player && event.getPos().equals(pos);
+    }
+
     private static void breakBlock(ServerPlayer player, BlockPos pos, ServerLevel level, ItemStack tool) {
         BlockState state = level.getBlockState(pos);
         Block block = state.getBlock();
@@ -143,7 +149,17 @@ public class AnvilHammerItem extends Item implements Equipable {
         BlockPos posToRemove = pos;
         // Fire BlockEvent.BreakEvent to allow FTB Chunks and other protection mods to cancel
         BlockEvent.BreakEvent breakEvent = new BlockEvent.BreakEvent(level, posToRemove, state, player);
-        NeoForge.EVENT_BUS.post(breakEvent);
+        BlockEvent.BreakEvent previous = REMOVAL_EVENT.get();
+        REMOVAL_EVENT.set(breakEvent);
+        try {
+            NeoForge.EVENT_BUS.post(breakEvent);
+        } finally {
+            if (previous == null) {
+                REMOVAL_EVENT.remove();
+            } else {
+                REMOVAL_EVENT.set(previous);
+            }
+        }
         if (breakEvent.isCanceled()) return;
         block.playerWillDestroy(level, posToRemove, state, player);
         final List<ItemStack> drops = player.isCreative() ? List.of() : BreakBlockUtil.dropSilkTouch(level, pos);
