@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.rendering.BlockStateModelRenderer;
 import dev.dubhe.anvilcraft.api.rendering.BlockStateModelTessellateState;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState;
 import dev.dubhe.anvilcraft.client.init.ModRenderPipelines;
@@ -95,7 +96,8 @@ public final class StellarEmissionRenderer {
         pose.pushPose();
         if (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR) {
             pose.translate(0.5, 0.5, 0.5);
-            pose.scale(0.375F, 0.375F, 0.375F);
+            float coreScale = CelestialBodyData.NEUTRON_STAR_CORE_SCALE;
+            pose.scale(coreScale, coreScale, coreScale);
             pose.translate(-0.5, -0.5, -0.5);
         }
         submitCorona(

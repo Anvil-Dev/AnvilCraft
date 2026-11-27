@@ -51,6 +51,9 @@ final class CfaGravityController {
         double targetBodyRadius = CfaGravityController.calculateBodyRadius(body, signal);
         int targetRadius = CfaGravityController.calculateGravityRadius(body, amplified, signal);
         double targetStrength = CfaGravityController.calculateStrength(body, stellarMass, targetBodyRadius);
+        if (body instanceof StarData star && star.bodyClass() == CelestialBodyClass.NEUTRON_STAR) {
+            targetBodyRadius *= CelestialBodyData.NEUTRON_STAR_CORE_SCALE;
+        }
         Vec3 center = new Vec3(
             controllerPos.getX() + 0.5,
             controllerPos.getY() + CfaGravityController.calculateVisualCenterY(body, amplified, signal),
