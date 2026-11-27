@@ -33,7 +33,7 @@ import java.util.Map;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public final class MonolithSurfaceRenderer {
-    private static final ResourceLocation INNER = AnvilCraft.of("block/monolith_inner");
+    public static final ResourceLocation INNER = AnvilCraft.of("block/monolith_inner");
     private static final Map<BlockState, List<Face>> BLOCK_FACES = new IdentityHashMap<>();
     private static final Map<BakedModel, List<Face>> ITEM_FACES = new IdentityHashMap<>();
 
@@ -78,14 +78,13 @@ public final class MonolithSurfaceRenderer {
         var camera = event.getCamera().getPosition();
         var pose = event.getPoseStack();
         var buffers = mc.renderBuffers().bufferSource();
-        int distance = mc.options.getEffectiveRenderDistance() * 16;
         for (var chunk : MonolithBlockPositions.chunks()) {
             var chunkPos = chunk.getKey().getPos();
             if (level.getChunkSource().getChunkNow(chunkPos.x, chunkPos.z) != chunk.getKey()) {
                 continue;
             }
             for (BlockPos pos : chunk.getValue()) {
-                if (pos.distToCenterSqr(camera) > distance * distance || !event.getFrustum().isVisible(new AABB(pos).inflate(1))) {
+                if (!event.getFrustum().isVisible(new AABB(pos).inflate(1))) {
                     continue;
                 }
                 BlockState state = level.getBlockState(pos);
