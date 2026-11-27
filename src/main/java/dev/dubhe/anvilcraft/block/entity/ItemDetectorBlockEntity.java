@@ -205,9 +205,8 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         Set<BlockPos> containers = new HashSet<>();
         for (BlockPos pos : blocksInRange) {
             BlockState state = level.getBlockState(pos);
-            // 大锅的三层方块对应同一列物品，范围覆盖多层时只统计一次。
             if (state.getBlock() instanceof LargeCauldronBlock block) {
-                containers.add(new BlockPos(pos.getX(), block.getMainPartPos(pos, state).getY(), pos.getZ()));
+                containers.add(block.getMainPartPos(pos, state).immutable());
             } else {
                 containers.add(pos.immutable());
             }
@@ -266,18 +265,8 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         if (state.getBlock() instanceof LargeCauldronBlock) {
             LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(level, pos, state);
             if (cauldron == null) return 0;
-            int slot = LargeCauldronBlockEntity.inputSlotForPart(state.getValue(LargeCauldronBlock.HALF));
-            if (slot >= 0) {
-                ItemStack stack = cauldron.getInputHandler().getStackInSlot(slot);
-                return targetItem == null || stack.is(targetItem) ? stack.getCount() : 0;
-            }
-            int count = 0;
-            var output = cauldron.getOutputHandler();
-            for (int index = 0; index < output.size(); index++) {
-                ItemStack stack = ItemResourceHelper.getStackInSlot(output, index);
-                if (targetItem == null || stack.is(targetItem)) count += stack.getCount();
-            }
-            return count;
+            return this.scanContainer(cauldron.getInputHandler(), targetItem)
+                + this.scanContainer(cauldron.getOutputHandler(), targetItem);
         }
         ResourceHandler<ItemResource> handler = level.getCapability(Capabilities.Item.BLOCK, pos, null);
         if (handler == null) {
