@@ -21,6 +21,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -48,6 +49,7 @@ public class StorageBlockEntity extends BlockEntity {
             return;
         }
         this.id = id;
+        this.invalidateStorageCapabilities();
         this.invalidateItemPorts(this.id);
         this.setChanged();
         TerminalSourceManager.registerIfApplicable(this);
@@ -61,6 +63,7 @@ public class StorageBlockEntity extends BlockEntity {
     public void clearId() {
         final UUID previousId = this.id;
         this.id = null;
+        this.invalidateStorageCapabilities();
         this.invalidateItemPorts(previousId);
         this.setChanged();
     }
@@ -79,6 +82,25 @@ public class StorageBlockEntity extends BlockEntity {
         }
     }
 
+    private void invalidateStorageCapabilities() {
+        if (!(this.level instanceof ServerLevel level)) {
+            return;
+        }
+        BlockState state = this.getBlockState();
+        if (state.getBlock() instanceof AbstractMultiPartBlock<?> block) {
+            this.invalidatePartCapabilities(level, state, block);
+        } else {
+            this.invalidateCapabilities();
+        }
+    }
+
+    private <P extends Enum<P>> void invalidatePartCapabilities(ServerLevel level, BlockState state, AbstractMultiPartBlock<P> block) {
+        // 外部设备在所连接的部件坐标缓存库存，即使该部件自身没有方块实体。
+        for (P part : block.getParts()) {
+            level.invalidateCapabilities(this.getBlockPos().offset(block.offsetFrom(state, part)));
+        }
+    }
+
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         if (this.id != null) {
@@ -93,15 +115,17 @@ public class StorageBlockEntity extends BlockEntity {
             this.id = tag.getUUID("storage_id");
         }
         TerminalSourceManager.registerIfApplicable(this);
-        this.invalidateItemPorts(previousId);
         if (!java.util.Objects.equals(previousId, this.id)) {
+            this.invalidateStorageCapabilities();
             this.invalidateItemPorts(this.id);
         }
+        this.invalidateItemPorts(previousId);
     }
 
     @Override
     public void onLoad() {
         super.onLoad();
+        this.invalidateStorageCapabilities();
         StorageComparatorManager.registerIfApplicable(this);
         this.invalidateItemPorts(this.id);
     }
@@ -123,6 +147,7 @@ public class StorageBlockEntity extends BlockEntity {
     @Override
     public void onChunkUnloaded() {
         super.onChunkUnloaded();
+        this.invalidateStorageCapabilities();
         TerminalSourceManager.unregisterIfApplicable(this);
         StorageComparatorManager.unregisterIfApplicable(this);
         this.invalidateItemPorts(this.id);
@@ -131,6 +156,7 @@ public class StorageBlockEntity extends BlockEntity {
     @Override
     public void setRemoved() {
         super.setRemoved();
+        this.invalidateStorageCapabilities();
         TerminalSourceManager.unregisterIfApplicable(this);
         StorageComparatorManager.unregisterIfApplicable(this);
         this.invalidateItemPorts(this.id);
