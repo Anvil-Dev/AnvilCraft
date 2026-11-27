@@ -39,7 +39,7 @@ import java.util.Map;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public final class MonolithSurfaceRenderer {
-    private static final Identifier INNER = AnvilCraft.of("block/monolith_inner");
+    public static final Identifier INNER = AnvilCraft.of("block/monolith_inner");
     private static final ContextKey<List<Surface>> SURFACES = new ContextKey<>(AnvilCraft.of("monolith_surfaces"));
     private static final Map<BlockStateModel, List<Face>> FACES = new IdentityHashMap<>();
     private static final RenderType SURFACE = RenderType.create("anvilcraft_monolith_surface",
@@ -82,13 +82,12 @@ public final class MonolithSurfaceRenderer {
     @SubscribeEvent
     public static void extract(ExtractLevelRenderStateEvent event) {
         var level = event.getLevel();
-        var camera = event.getRenderState().cameraRenderState.pos;
-        double distance = Minecraft.getInstance().options.getEffectiveRenderDistance() * 16.0;
         List<Surface> surfaces = new ArrayList<>();
         for (var positions : MonolithBlockPositions.chunks()) {
             for (BlockPos pos : positions) {
-                if (pos.distToCenterSqr(camera) > distance * distance
-                    || !event.getFrustum().isVisible(new AABB(pos).inflate(1))) continue;
+                if (!event.getFrustum().isVisible(new AABB(pos).inflate(1))) {
+                    continue;
+                }
                 BlockState state = level.getBlockState(pos);
                 if (!MonolithBlockPositions.isMonolith(state)) continue;
                 List<Face> visible = new ArrayList<>();

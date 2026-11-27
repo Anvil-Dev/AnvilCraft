@@ -4,6 +4,7 @@
   "package": "dev.dubhe.anvilcraft.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "compat.FtbUltimineMixin",
     "compat.LithiumRedstoneWirePowerMixin",
     "compat.SophisticatedItemInventoryMixin",
     "piglin.PiglinAiMixin",
@@ -157,6 +158,7 @@
     "accessor.RedStoneWireBlockAccessor"
   ],
   "client": [
+    "compat.SodiumMonolithMixin",
     "compat.XaeroWorldMapHighlighterRegistryMixin",
     "compat.XaeroWorldMapGuiMixin",
     "compat.XaeroMinimapHighlighterRegistryMixin",

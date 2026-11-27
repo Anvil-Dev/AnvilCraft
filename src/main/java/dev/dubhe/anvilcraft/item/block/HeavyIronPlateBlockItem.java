@@ -23,7 +23,7 @@ public class HeavyIronPlateBlockItem extends BlockItem {
     public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
-        if (!(level.getBlockEntity(pos) instanceof ChutePlates.Holder chute)) {
+        if (context.isSecondaryUseActive() || !(level.getBlockEntity(pos) instanceof ChutePlates.Holder chute)) {
             return super.useOn(context);
         }
         if (context instanceof BlockPlacementPicking.PlacementRejection rejected && rejected.anvilcraft$isPlacementRejected()

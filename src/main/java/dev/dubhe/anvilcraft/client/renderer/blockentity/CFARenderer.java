@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.RingType;
 import dev.dubhe.anvilcraft.block.entity.celestial.RockyPlanetData;
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarTerminal;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
@@ -277,7 +278,8 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
             bodyScaleMultiplier = rawBodyScale + (fullBodyScale - rawBodyScale) * redstoneFactor;
         }
 
-        if (visual != null) {
+        if (visual != null && evolution != null && (evolution.isActive()
+            || be.getEvolutionTrack() != null && be.getEvolutionTrack().definition().terminal().kind() == StellarTerminal.Kind.KEEP)) {
             float eventReach = event == null ? 1.0F : Math.max(1.0F, event.maxCoreRadius());
             float peakBodyScale = structuralBodyScale
                 * (1 + (CelestialBodyData.BODY_SCALE_FACTOR - 1) * redstoneFactor) * eventReach;
@@ -463,7 +465,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
                 if (eventEmission > 0) exposure = StellarRadiance.eventExposure(exposure, eventEmission);
                 factor = Math.max(
                     neutron ? 0.406f : cubeRadius,
-                    cubeRadius * StellarRadiance.haloScale(exposure) * (neutron ? 0.375f : 1)
+                    cubeRadius * StellarRadiance.haloScale(exposure) * (neutron ? CelestialBodyData.NEUTRON_STAR_CORE_SCALE : 1)
                 );
             }
             if (neutron) return star.rotationSpeed() >= 5 ? Math.max(factor, 1.503f) : factor;
