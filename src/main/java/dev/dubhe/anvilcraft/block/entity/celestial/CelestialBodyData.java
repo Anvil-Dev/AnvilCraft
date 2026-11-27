@@ -77,6 +77,8 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
 
     /** 天体完整视觉缩放倍率。 */
     float BODY_SCALE_FACTOR = 10.0f / 1.5f;
+    /** 中子星实体核心在模型中占据中央六个像素。 */
+    float NEUTRON_STAR_CORE_SCALE = 6f / 16;
     /** 束星环系统缩放与天体缩放的比值。 */
     float RING_TO_BODY_RATIO = 1.8f;
     /** 非增幅 R1-R3 内半径较小，用此补偿系数保持与 R4-R6 一致的天体间距。 */
