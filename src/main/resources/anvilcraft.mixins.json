@@ -158,6 +158,7 @@
     "accessor.RedStoneWireBlockAccessor"
   ],
   "client": [
+    "compat.SodiumMonolithMixin",
     "compat.XaeroWorldMapHighlighterRegistryMixin",
     "compat.XaeroWorldMapGuiMixin",
     "compat.XaeroMinimapHighlighterRegistryMixin",
