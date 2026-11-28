@@ -246,14 +246,24 @@ public class StorageBlockEntity extends BlockEntity {
                     remaining -= count;
                 }
             }
+            var crafting = storage.getCrafting();
+            StorageBlockEntity.dropStack(level, pos, crafting.stonecutterInput().copy());
+            for (ItemStack input : crafting.craftingInput()) {
+                StorageBlockEntity.dropStack(level, pos, input.copy());
+            }
             if (storage.getRecipeBases() != null) {
                 for (ItemStack base : storage.getRecipeBases()) {
-                    ItemStack remaining = base.copy();
-                    while (!remaining.isEmpty()) Block.popResource(level, pos, remaining.split(Math.min(64, remaining.getCount())));
+                    StorageBlockEntity.dropStack(level, pos, base.copy());
                 }
             }
             Storages.get().remove(storageId);
         });
+    }
+
+    private static void dropStack(Level level, BlockPos pos, ItemStack stack) {
+        while (!stack.isEmpty()) {
+            Block.popResource(level, pos, stack.split(Math.min(64, stack.getCount())));
+        }
     }
 
     public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
