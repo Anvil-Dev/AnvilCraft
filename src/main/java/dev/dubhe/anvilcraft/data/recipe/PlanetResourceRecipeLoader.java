@@ -136,6 +136,7 @@ public class PlanetResourceRecipeLoader {
                             .id("anvilcraft:ruby_block", 1)
                             .id("anvilcraft:sapphire_block", 1))
                         .id("minecraft:experience_bottle", 40)
+                        .id("minecraft:lapis_lazuli", 25)
                         .id("anvilcraft:royal_steel_ingot", 5)
                         .id("minecraft:totem_of_undying", 2)
                         .chooseOne(2, choices -> choices
