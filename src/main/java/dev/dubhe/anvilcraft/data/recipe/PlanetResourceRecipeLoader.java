@@ -145,6 +145,7 @@ public class PlanetResourceRecipeLoader {
                             .item(ModBlocks.RUBY_BLOCK.asItem(), 1)
                             .item(ModBlocks.SAPPHIRE_BLOCK.asItem(), 1))
                         .item(Items.EXPERIENCE_BOTTLE, 40)
+                        .item(Items.LAPIS_LAZULI, 25)
                         .item(ModItems.ROYAL_STEEL_INGOT, 5)
                         .item(Items.TOTEM_OF_UNDYING, 2)
                         .chooseOne(2, choices -> choices
