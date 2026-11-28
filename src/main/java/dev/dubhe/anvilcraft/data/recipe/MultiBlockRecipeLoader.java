@@ -220,7 +220,7 @@ public class MultiBlockRecipeLoader {
             .layer("ABA", "B B", "ABA")
             .layer("CDC", "D D", "CDC")
             .layer("ABA", "B B", "ABA")
-            .symbol('A', Tags.Blocks.STORAGE_BLOCKS_COPPER)
+            .symbol('A', ModBlockTags.COPPER_BLOCKS)
             .symbol('B', "anvilcraft:heavy_iron_block")
             .symbol('C', "anvilcraft:magnetoelectric_core")
             .symbol('D', ModBlockTags.STORAGE_BLOCKS_TUNGSTEN)

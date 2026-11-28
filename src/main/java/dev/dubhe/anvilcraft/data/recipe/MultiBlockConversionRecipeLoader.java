@@ -596,7 +596,7 @@ public class MultiBlockConversionRecipeLoader {
             .inputLayer("ABA", "B B", "ABA")
             .inputLayer("CDC", "D D", "CDC")
             .inputLayer("ABA", "B B", "ABA")
-            .inputSymbol('A', Tags.Blocks.STORAGE_BLOCKS_COPPER)
+            .inputSymbol('A', ModBlockTags.COPPER_BLOCKS)
             .inputSymbol('B', ModBlocks.HEAVY_IRON_BLOCK)
             .inputSymbol('C', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
             .inputSymbol('D', ModBlockTags.STORAGE_BLOCKS_TUNGSTEN)

@@ -193,7 +193,7 @@ public class ModItemTags {
     public static final TagKey<Item> CURIOS_CHARM = bindCurios("charm");
 
     public static final TagKey<Item> TOTEM = bind("totem");
-    /// 时移配方里可转化为凋零玫瑰的花，排除凋零玫瑰本身（否则会自我转化并净损失）
+    public static final TagKey<Item> COPPER_BLOCKS = bind("copper_blocks");
     public static final TagKey<Item> TIME_WARP_FLOWERS = bind("time_warp_flowers");
 
     // Planet resource tags

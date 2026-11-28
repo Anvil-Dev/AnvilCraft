@@ -23,6 +23,15 @@ public class BlockTagLoader {
      * @param provider 提供器
      */
     public static void init(RegistrumTagsProvider<Block> provider) {
+        provider.addTag(ModBlockTags.COPPER_BLOCKS)
+            .add(findResourceKey(Blocks.COPPER_BLOCK))
+            .add(findResourceKey(Blocks.EXPOSED_COPPER))
+            .add(findResourceKey(Blocks.WEATHERED_COPPER))
+            .add(findResourceKey(Blocks.OXIDIZED_COPPER))
+            .add(findResourceKey(Blocks.WAXED_COPPER_BLOCK))
+            .add(findResourceKey(Blocks.WAXED_EXPOSED_COPPER))
+            .add(findResourceKey(Blocks.WAXED_WEATHERED_COPPER))
+            .add(findResourceKey(Blocks.WAXED_OXIDIZED_COPPER));
         provider.addTag(ModBlockTags.REDSTONE_TORCH)
             .add(findResourceKey(Blocks.REDSTONE_WALL_TORCH))
             .add(findResourceKey(Blocks.REDSTONE_TORCH));
