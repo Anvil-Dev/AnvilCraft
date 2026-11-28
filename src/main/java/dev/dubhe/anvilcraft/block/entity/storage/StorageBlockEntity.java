@@ -242,6 +242,11 @@ public class StorageBlockEntity extends BlockEntity {
                 for (int i = 0; i < items.size(); i++) {
                     StorageBlockEntity.dropStack(level, pos, items.getUnlimitedStackInSlot(i).toStack());
                 }
+                var crafting = storage.getCrafting();
+                StorageBlockEntity.dropStack(level, pos, crafting.stonecutterInput().copy());
+                for (ItemStack input : crafting.craftingInput()) {
+                    StorageBlockEntity.dropStack(level, pos, input.copy());
+                }
                 List<ItemStack> recipeBases = storage.getRecipeBases();
                 if (recipeBases != null) {
                     for (ItemStack base : recipeBases) {
