@@ -31,7 +31,7 @@ public final class BuildingRodFluids {
         return FluidUtil.getFirstStackContained(stack).getFluid().isSame(Fluids.WATER);
     }
 
-    static void place(ServerPlayer player, BlockPos first, BlockPos last) {
+    static void place(ServerPlayer player, BlockPos first, BlockPos last, long seed) {
         Plan plan = plan(player, first, last);
         if (plan == null || plan.group.cells.isEmpty()) return;
         var level = player.level();
@@ -45,10 +45,12 @@ public final class BuildingRodFluids {
             plan.fluid.getFluidType().onVaporize(null, level, first, plan.fluid);
             level.sendParticles(ParticleTypes.LARGE_SMOKE, first.getX() + 0.5, first.getY() + 0.5, first.getZ() + 0.5,
                 8, 0.4, 0.4, 0.4, 0);
-            BuildingRodService.finishPlacement(player, plan.group.cells.size());
+            BuildingRodService.finishPlacement(player, plan.group.cells.size(), seed, List.of());
             return;
         }
-        if (!BuildingRodService.commit(player, List.of(plan.group), false, false)) return;
+        if (!BuildingRodService.commit(player, List.of(plan.group), seed)) {
+            return;
+        }
         for (var cell : plan.group.cells) {
             var placed = cell.state().getFluidState().getType();
             level.scheduleTick(cell.pos(), placed, placed.getTickDelay(level));

@@ -14,10 +14,12 @@ public class ModSoundDefinitionsProvider extends SoundDefinitionsProvider {
 
     @Override
     public void registerSounds() {
-        this.add(ModSoundEvents.ABOVE_THE_MOON_DUST.get(), SoundDefinitionsProvider.definition()
-            .with(SoundDefinitionsProvider.sound(AnvilCraft.of("music/mun/above_the_moon_dust_loop")).stream()));
+        this.add(ModSoundEvents.ABOVE_THE_MUN_DUST.get(), SoundDefinitionsProvider.definition()
+            .with(SoundDefinitionsProvider.sound(AnvilCraft.of("music/mun/above_the_mun_dust")).stream()));
         this.add(ModSoundEvents.FAR_SIDE_GLOW.get(), SoundDefinitionsProvider.definition()
-            .with(SoundDefinitionsProvider.sound(AnvilCraft.of("music/mun/far_side_glow_loop")).stream()));
+            .with(SoundDefinitionsProvider.sound(AnvilCraft.of("music/mun/far_side_glow")).stream()));
+        this.add(ModSoundEvents.BEYOND_THE_HORIZON.get(), SoundDefinitionsProvider.definition()
+            .with(SoundDefinitionsProvider.sound(AnvilCraft.of("music/mun/beyond_the_horizon")).stream()));
         this.add(ModSoundEvents.MUNLIGHT.get(), SoundDefinitionsProvider.definition()
             .with(SoundDefinitionsProvider.sound(AnvilCraft.of("music/mun/munlight")).stream()));
 

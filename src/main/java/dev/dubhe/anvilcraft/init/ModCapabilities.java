@@ -57,7 +57,6 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
 
-import java.util.UUID;
 import java.util.function.IntSupplier;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
@@ -256,15 +255,22 @@ public class ModCapabilities {
     }
 
     /// 存储容器的物品
-    private static <T extends StorageBlockEntity, S> ResourceHandler<ItemResource> item(T be, @Nullable S ignored) {
-        if (be.getId() == null) be.setId(UUID.randomUUID());
-        var handler = Storages.get().getOrCreate(be.getId(), be.getStorageType().clazz()).getAvailableItems();
-        if (be instanceof CrateBlockEntity crate) crate.refreshDispose();
+    private static <T extends StorageBlockEntity, S> @Nullable ResourceHandler<ItemResource> item(T be, @Nullable S ignored) {
+        var id = be.getId();
+        if (id == null) {
+            // 放置过程可能还在恢复物品携带的库存编号。
+            return null;
+        }
+        var handler = Storages.get().getOrCreate(id, be.getStorageType().clazz()).getAvailableItems();
+        if (be instanceof CrateBlockEntity crate) {
+            crate.refreshDispose();
+        }
         return handler;
     }
 
-    private static <T extends StorageBlockEntity, S> ResourceHandler<ItemResource> readOnlyStorageItem(T be, @Nullable S side) {
-        return new ReadOnlyItemResourceHandler(ModCapabilities.item(be, side));
+    private static <T extends StorageBlockEntity, S> @Nullable ResourceHandler<ItemResource> readOnlyStorageItem(T be, @Nullable S side) {
+        var handler = ModCapabilities.item(be, side);
+        return handler == null ? null : new ReadOnlyItemResourceHandler(handler);
     }
 
     /// 流体

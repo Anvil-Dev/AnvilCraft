@@ -65,11 +65,6 @@ public class StructureSaveUtil {
         }
 
         List<StructureScannerBlockEntity.CachedBlockData> scannedBlocks = blockEntity.getScannedBlocks();
-        if (scannedBlocks.isEmpty()) {
-            LOGGER.warn("Cannot save structure: no blocks scanned");
-            return;
-        }
-
         try {
             // 构建结构NBT
             final CompoundTag structureTag = buildStructureNBT(blockEntity, scannedBlocks);
@@ -97,7 +92,7 @@ public class StructureSaveUtil {
             saveNbtFile(structureTag, structureFile);
 
             // 获取扫描器的朝向
-            Direction scannerFacing = blockEntity.getDirection();
+            Direction scannerFacing = blockEntity.getScanDirection();
             var size = structureTag.getListOrEmpty("size");
 
             // 创建磁盘副本并附加结构信息
@@ -120,9 +115,10 @@ public class StructureSaveUtil {
             // 放入输出槽，清空输入槽和扫描结果
             blockEntity.getOutputInventory().setItem(0, outputDisk);
             blockEntity.getDiskInventory().removeItem(0, 1);
+            int blockCount = scannedBlocks.size();
             blockEntity.clearScan();
 
-            LOGGER.info("Structure saved to disk: {} -> {} ({} blocks)", structureName, fileName, scannedBlocks.size());
+            LOGGER.info("Structure saved to disk: {} -> {} ({} blocks)", structureName, fileName, blockCount);
 
         } catch (IOException e) {
             LOGGER.error("Failed to save structure to disk: {}", e.getMessage(), e);
@@ -142,7 +138,7 @@ public class StructureSaveUtil {
     public static BlueprintNormalizer.Result buildSnapshot(
         StructureScannerBlockEntity blockEntity, List<StructureScannerBlockEntity.CachedBlockData> scannedBlocks
     ) {
-        if (blockEntity.getLevel() instanceof ServerLevel serverLevel) {
+        if (blockEntity.getSignalScan() == null && blockEntity.getLevel() instanceof ServerLevel serverLevel) {
             return BlueprintCapture.capture(serverLevel, blockEntity.getScanBounds());
         }
         return buildCachedSnapshot(blockEntity, scannedBlocks);
@@ -163,8 +159,13 @@ public class StructureSaveUtil {
             new StructureSnapshot.EntityEntry(entity.pos(), entity.blockPos(), entity.nbt())).toList();
         Vec3i size = new Vec3i(blockEntity.getRangeX().get(), blockEntity.getRangeY().get(), blockEntity.getRangeZ().get());
         StructureSnapshot raw = new StructureSnapshot(size, palette, blocks, entities);
-        var result = BlueprintNormalizer.normalize(ScannerDiskNormalizer.normalize(raw,
-            blockEntity.getDirection(), blockEntity.isScannerUpsideDown()));
+        var signal = blockEntity.getSignalScan();
+        var normalized = ScannerDiskNormalizer.normalize(raw, blockEntity.getScanDirection(), blockEntity.isScanUpsideDown());
+        if (signal != null) {
+            return BlueprintNormalizer.normalize(new StructureSnapshot(normalized.size(), normalized.palette(), normalized.blocks(),
+                normalized.entities(), signal.ticks(), signal.time()));
+        }
+        var result = BlueprintNormalizer.normalize(normalized);
         if (!(blockEntity.getLevel() instanceof ServerLevel serverLevel)) {
             return result;
         }

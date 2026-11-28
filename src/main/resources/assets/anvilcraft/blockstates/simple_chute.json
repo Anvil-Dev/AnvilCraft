@@ -1,39 +1,58 @@
 {
     "variants": {
-        "facing=down,tall=false": {
+        "facing=down,tall=false,narrow_inlet=false": {
             "model": "anvilcraft:block/simple_chute"
         },
-        "facing=east,tall=false": {
+        "facing=east,tall=false,narrow_inlet=false": {
             "model": "anvilcraft:block/simple_chute_side",
             "y": 90
         },
-        "facing=north,tall=false": {
+        "facing=north,tall=false,narrow_inlet=false": {
             "model": "anvilcraft:block/simple_chute_side"
         },
-        "facing=south,tall=false": {
+        "facing=south,tall=false,narrow_inlet=false": {
             "model": "anvilcraft:block/simple_chute_side",
             "y": 180
         },
-        "facing=west,tall=false": {
+        "facing=west,tall=false,narrow_inlet=false": {
             "model": "anvilcraft:block/simple_chute_side",
             "y": 270
         },
-        "facing=down,tall=true": {
+        "facing=down,tall=true,narrow_inlet=false": {
             "model": "anvilcraft:block/simple_chute_tall"
         },
-        "facing=east,tall=true": {
+        "facing=east,tall=true,narrow_inlet=false": {
             "model": "anvilcraft:block/simple_chute_side_tall",
             "y": 90
         },
-        "facing=north,tall=true": {
+        "facing=north,tall=true,narrow_inlet=false": {
             "model": "anvilcraft:block/simple_chute_side_tall"
         },
-        "facing=south,tall=true": {
+        "facing=south,tall=true,narrow_inlet=false": {
             "model": "anvilcraft:block/simple_chute_side_tall",
             "y": 180
         },
-        "facing=west,tall=true": {
+        "facing=west,tall=true,narrow_inlet=false": {
             "model": "anvilcraft:block/simple_chute_side_tall",
+            "y": 270
+        },
+        "facing=down,narrow_inlet=true": {
+            "model": "anvilcraft:block/simple_chute_side",
+            "x": 90
+        },
+        "facing=east,narrow_inlet=true": {
+            "model": "anvilcraft:block/simple_chute_side",
+            "y": 90
+        },
+        "facing=north,narrow_inlet=true": {
+            "model": "anvilcraft:block/simple_chute_side"
+        },
+        "facing=south,narrow_inlet=true": {
+            "model": "anvilcraft:block/simple_chute_side",
+            "y": 180
+        },
+        "facing=west,narrow_inlet=true": {
+            "model": "anvilcraft:block/simple_chute_side",
             "y": 270
         }
     }

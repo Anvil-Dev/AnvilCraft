@@ -20,12 +20,15 @@ out vec4 fragColor;
 
 void main() {
     vec4 color = texture(Sampler0, texCoord0) * vertexColor * ColorModulator;
+    if (color.a == 0) {
+        discard;
+    }
     #ifdef ALPHA_CUTOUT
     if (color.a < ALPHA_CUTOUT) {
         discard;
     }
     #endif
     color = apply_fog(color, sphericalVertexDistance, cylindricalVertexDistance, FogEnvironmentalStart, FogEnvironmentalEnd, FogRenderDistanceStart, FogRenderDistanceEnd, FogColor);
-    color = mix(color, overlayColor, 0.3);
+    color.rgb = mix(color.rgb, overlayColor.rgb, 0.3);
     fragColor = color;
 }

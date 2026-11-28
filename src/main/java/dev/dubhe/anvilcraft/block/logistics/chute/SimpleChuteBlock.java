@@ -58,6 +58,8 @@ public class SimpleChuteBlock
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final BooleanProperty TALL = BooleanProperty.create("tall");
 
+    private static final BooleanProperty NARROW_INLET = BooleanProperty.create("narrow_inlet");
+
     public static final VoxelShape AABB = Block.box(2, 0, 2, 14, 12, 14);
     public static final VoxelShape AABB_TALL = Block.box(2, 0, 2, 14, 16, 14);
     public static final VoxelShape AABB_N = Block.box(4, 4, 0, 12, 12, 12);
@@ -80,7 +82,8 @@ public class SimpleChuteBlock
             .setValue(SimpleChuteBlock.FACING, Direction.DOWN)
             .setValue(SimpleChuteBlock.WATERLOGGED, false)
             .setValue(SimpleChuteBlock.ENABLED, true)
-            .setValue(SimpleChuteBlock.TALL, false));
+            .setValue(SimpleChuteBlock.TALL, false)
+            .setValue(NARROW_INLET, false));
     }
 
     @Override
@@ -95,7 +98,7 @@ public class SimpleChuteBlock
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(SimpleChuteBlock.FACING, SimpleChuteBlock.WATERLOGGED, SimpleChuteBlock.ENABLED, SimpleChuteBlock.TALL);
+        builder.add(SimpleChuteBlock.FACING, SimpleChuteBlock.WATERLOGGED, SimpleChuteBlock.ENABLED, SimpleChuteBlock.TALL, NARROW_INLET);
     }
 
     @Override
@@ -292,9 +295,19 @@ public class SimpleChuteBlock
                 .setValue(SimpleChuteBlock.FACING, facing)
                 .setValue(SimpleChuteBlock.ENABLED, !level.hasNeighborSignal(pos));
         } else {
-            result = result.setValue(SimpleChuteBlock.TALL, tall);
+            result = withInletModel(result.setValue(SimpleChuteBlock.TALL, tall), level, pos);
         }
         return result;
+    }
+
+    /** 细管入口只参与选模，碰撞仍由 TALL 决定。 */
+    public static BlockState withInletModel(BlockState state, BlockGetter level, BlockPos pos) {
+        BlockState above = level.getBlockState(pos.above());
+        boolean narrowOutlet = above.is(ModBlocks.MAGNETIC_CHUTE) || above.is(ModBlocks.SIMPLE_MAGNETIC_CHUTE)
+            || above.is(ModBlocks.SIMPLE_CHUTE) && above.getValue(NARROW_INLET);
+        boolean narrow = OverflowChuteBlock.hasOverflowPort(above, Direction.DOWN)
+            || narrowOutlet && ChuteBlock.getFacing(above) == Direction.DOWN;
+        return state.setValue(NARROW_INLET, narrow && !ChutePlates.hasPlate(level, pos, Direction.UP));
     }
 
     // 防止流体流动时破坏溜槽

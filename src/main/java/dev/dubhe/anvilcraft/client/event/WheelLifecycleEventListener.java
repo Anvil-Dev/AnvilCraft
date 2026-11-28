@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.client.event;
 
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.anvilcraft.lib.v2.wheel.api.WheelMenuBuilder;
 import dev.anvilcraft.lib.v2.wheel.api.WheelMenuModel;
 import dev.anvilcraft.lib.v2.wheel.api.WheelSelectionEffect;
@@ -9,7 +8,6 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder;
 import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder.ModelRenderTarget;
-import dev.dubhe.anvilcraft.block.utility.redstone.MountedRedstone;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.support.HammerPreviewState;
 import dev.dubhe.anvilcraft.client.support.HammerWheelIconRenderer;
@@ -37,6 +35,7 @@ import dev.dubhe.anvilcraft.network.SwitchResonateModePacket;
 import dev.dubhe.anvilcraft.network.TerminalBalanceModePacket;
 import dev.dubhe.anvilcraft.network.multiple.MultiphasePackets;
 import dev.dubhe.anvilcraft.saved.setting.mode.BalanceMode;
+import dev.dubhe.anvilcraft.util.StateUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -129,7 +128,9 @@ public class WheelLifecycleEventListener {
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft client = Minecraft.getInstance();
         ClientLevel level = client.level;
-        if (level == null) return;
+        if (level == null) {
+            return;
+        }
         long gameTime = level.getGameTime();
         WheelLifecycleEventListener.openPendingHammerWheel(client, gameTime);
         WheelLifecycleEventListener.openMultiphaseWheel(gameTime);
@@ -152,16 +153,28 @@ public class WheelLifecycleEventListener {
     ) {
         Minecraft client = Minecraft.getInstance();
         LocalPlayer player = client.player;
-        if (player == null) return false;
+        if (player == null) {
+            return false;
+        }
         if (property == null) {
             return WheelLifecycleEventListener.interactWithHammer(player, level, targetPos, hand, hitVec);
         }
-        if (!player.getAbilities().mayBuild) return false;
-        if (!AnvilHammerItem.ableToUseAnvilHammer(level, targetPos, player)) return false;
-        if (WheelLifecycleEventListener.hammerWheelCache != null) return true;
+        if (!player.getAbilities().mayBuild) {
+            return false;
+        }
+        if (!AnvilHammerItem.ableToUseAnvilHammer(level, targetPos, player)) {
+            return false;
+        }
+        if (WheelLifecycleEventListener.hammerWheelCache != null) {
+            return true;
+        }
         List<BlockState> possibleStates = possibleStatesFac.get();
-        if (possibleStates.isEmpty()) return true;
-        if (client.getCameraEntity() == null) return false;
+        if (possibleStates.isEmpty()) {
+            return true;
+        }
+        if (client.getCameraEntity() == null) {
+            return false;
+        }
         if (WheelLifecycleEventListener.hammerKeyTime < 0) {
             WheelLifecycleEventListener.hammerKeyTime = gameTime;
         }
@@ -192,9 +205,15 @@ public class WheelLifecycleEventListener {
     }
 
     private static void openPendingHammerWheel(Minecraft client, long gameTime) {
-        if (WheelLifecycleEventListener.hammerKeyWasDown || client.screen != null || !client.options.keyUse.isDown()) return;
-        if (WheelLifecycleEventListener.hammerWheelCache == null || WheelLifecycleEventListener.hammerWheelCache.isEmpty()) return;
-        if (gameTime - WheelLifecycleEventListener.hammerKeyTime < 3) return;
+        if (WheelLifecycleEventListener.hammerKeyWasDown || client.screen != null || !client.options.keyUse.isDown()) {
+            return;
+        }
+        if (WheelLifecycleEventListener.hammerWheelCache == null || WheelLifecycleEventListener.hammerWheelCache.isEmpty()) {
+            return;
+        }
+        if (gameTime - WheelLifecycleEventListener.hammerKeyTime < 3) {
+            return;
+        }
         WheelLifecycleEventListener.CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.hammerWheelCache.get());
         WheelLifecycleEventListener.hammerKeyWasDown = true;
     }
@@ -285,34 +304,23 @@ public class WheelLifecycleEventListener {
         List<BlockState> possibleStates,
         Vec2 camera
     ) {
-        Level level = Objects.requireNonNull(Minecraft.getInstance().level);
+        var level = Objects.requireNonNull(Minecraft.getInstance().level);
         BlockState initialState = level.getBlockState(targetPos);
         WheelLifecycleEventListener.hammerPreview = new HammerPreviewState(targetPos, initialState, possibleStates);
-        int slotsPerPage = initialState.getBlock() instanceof MountedRedstone
-            ? BlockStateProperties.HORIZONTAL_FACING.getPossibleValues().size() : possibleStates.size();
+        int slotsPerPage = StateUtil.hasHammerPages(initialState, property) ? 4 : possibleStates.size();
         WheelMenuBuilder builder = WheelMenuBuilder.create().slotsPerPage(slotsPerPage);
-        possibleStates
-            .forEach(state -> {
-                ModelRenderTarget modelTarget = state.getBlock() instanceof IMultiPartBlockModelHolder holder
-                                                ? holder.getModelRenderTarget(level, targetPos, initialState, state)
-                                                : new ModelRenderTarget(targetPos, state);
-                HammerWheelIconRenderer icon = new HammerWheelIconRenderer(Minecraft.getInstance().level, modelTarget);
-                String name = property.getName(Util.cast(state.getValue(property)));
-                Component label = Component.literal(name);
-                if (state.getBlock() instanceof MountedRedstone) {
-                    String face = state.getValue(MountedRedstone.ATTACHMENT).getName();
-                    String direction = MountedRedstone.inputDirection(state).getName();
-                    name = face + "_" + direction;
-                    label = Component.translatable("screen.anvilcraft.button.direction." + face).append(" / ")
-                        .append(Component.translatable("screen.anvilcraft.button.direction." + direction));
-                }
-                builder.action(
-                    name,
-                    label,
-                    (graphics, _, _, _) -> icon.render(graphics, camera),
-                    _ -> WheelLifecycleEventListener.sendHammerChangeBlockPacketToServer(state, targetPos)
-                );
-            });
+        for (int index = 0; index < possibleStates.size(); index++) {
+            BlockState state = possibleStates.get(index);
+            ModelRenderTarget modelTarget = state.getBlock() instanceof IMultiPartBlockModelHolder holder
+                ? holder.getModelRenderTarget(level, targetPos, initialState, state) : new ModelRenderTarget(targetPos, state);
+            HammerWheelIconRenderer icon = new HammerWheelIconRenderer(level, modelTarget);
+            builder.action(
+                Integer.toString(index),
+                HammerWheelLabel.describe(state, property),
+                (graphics, _, _, _) -> icon.render(graphics, camera),
+                _ -> WheelLifecycleEventListener.sendHammerChangeBlockPacketToServer(state, targetPos)
+            );
+        }
         return builder.build();
     }
 
@@ -608,8 +616,12 @@ public class WheelLifecycleEventListener {
     @SubscribeEvent
     public static void onKeyInput(InputEvent.Key event) {
         Minecraft client = Minecraft.getInstance();
-        if (client.player == null) return;
-        if (ModKeyMappings.shouldIgnoreForDebugChord(event.getAction())) return;
+        if (client.player == null) {
+            return;
+        }
+        if (ModKeyMappings.shouldIgnoreForDebugChord(event.getAction())) {
+            return;
+        }
         if (client.options.keyUse.matches(event.getKeyEvent())) {
             WheelLifecycleEventListener.processHammerPress(client, event.getAction());
         }
@@ -629,7 +641,9 @@ public class WheelLifecycleEventListener {
     @SubscribeEvent
     public static void onKeyInput(InputEvent.MouseButton.Post event) {
         Minecraft client = Minecraft.getInstance();
-        if (client.player == null) return;
+        if (client.player == null) {
+            return;
+        }
         if (client.options.keyUse.matchesMouse(new MouseButtonEvent(0, 0, event.getMouseButtonInfo()))) {
             WheelLifecycleEventListener.processHammerPress(client, event.getAction());
         }
@@ -647,7 +661,9 @@ public class WheelLifecycleEventListener {
     }
 
     private static void processHammerPress(Minecraft client, int action) {
-        if (client.level == null) return;
+        if (client.level == null) {
+            return;
+        }
         if (action == GLFW.GLFW_RELEASE) {
             if (WheelLifecycleEventListener.hammerKeyWasDown) {
                 WheelLifecycleEventListener.CONTROLLER.onHoldKeyReleased();
@@ -669,7 +685,9 @@ public class WheelLifecycleEventListener {
             WheelLifecycleEventListener.hammerInteraction = null;
             return;
         }
-        if (Minecraft.getInstance().screen != null) return;
+        if (Minecraft.getInstance().screen != null) {
+            return;
+        }
         if (action == GLFW.GLFW_PRESS) {
             if (!WheelLifecycleEventListener.hammerKeyWasDown) {
                 WheelLifecycleEventListener.hammerKeyTime = client.level.getGameTime();

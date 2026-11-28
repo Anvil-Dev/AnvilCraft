@@ -3,7 +3,9 @@ package dev.dubhe.anvilcraft.mixin.compat;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.dubhe.anvilcraft.api.block.INegativeShapeBlock;
 import dev.dubhe.anvilcraft.block.RuinsBlock;
+import dev.dubhe.anvilcraft.client.building.BuildingRodPlacementAnimation;
 import dev.dubhe.anvilcraft.client.event.NegativeShapeModelEventListener;
+import dev.dubhe.anvilcraft.client.support.HammerPreviewState;
 import net.caffeinemc.mods.sodium.client.render.model.AbstractBlockRenderContext;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
@@ -36,6 +38,10 @@ abstract class SodiumBlockOcclusionCacheMixin {
 
     @Inject(method = "shouldDrawSide", at = @At("HEAD"), cancellable = true)
     private void preserveNegativeShapeFace(Direction facing, CallbackInfoReturnable<Boolean> cir) {
+        if (BuildingRodPlacementAnimation.hidesNeighbor(this.pos, facing) || HammerPreviewState.hidesNeighbor(this.pos, facing)) {
+            cir.setReturnValue(true);
+            return;
+        }
         BlockState selfState = this.state;
         if (selfState.getBlock() instanceof INegativeShapeBlock<?> block) {
             BlockPos adjacent = this.pos.relative(facing);

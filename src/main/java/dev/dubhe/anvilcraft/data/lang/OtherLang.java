@@ -13,10 +13,13 @@ public class OtherLang {
         provider.add("map.anvilcraft.overseer.natural_spawn", "Natural spawning");
         provider.add("map.anvilcraft.overseer.spawner_spawn", "Spawner spawning");
 
-        provider.add("anvilcraft.music.mun.above_the_moon_dust_loop", "Above the Moon Dust");
-        provider.add("anvilcraft.music.mun.far_side_glow_loop", "Far Side Glow");
-        provider.add("sound.anvilcraft.music.mun.above_the_moon_dust", "Above the Moon Dust");
+        provider.add("anvilcraft.music.mun.above_the_mun_dust", "Above the Mun Dust");
+        provider.add("anvilcraft.music.mun.far_side_glow", "Far Side Glow");
+        provider.add("anvilcraft.music.mun.beyond_the_horizon", "Beyond the Horizon");
+        provider.add("anvilcraft.music.mun.munlight", "Munlight");
+        provider.add("sound.anvilcraft.music.mun.above_the_mun_dust", "Above the Mun Dust");
         provider.add("sound.anvilcraft.music.mun.far_side_glow", "Far Side Glow");
+        provider.add("sound.anvilcraft.music.mun.beyond_the_horizon", "Beyond the Horizon");
         provider.add("sound.anvilcraft.music.mun.munlight", "Munlight");
         provider.add("subtitles.anvilcraft.auto_enchanting_table.use", "Auto Enchanting Table used");
         provider.add("tooltip.anvilcraft.auto_enchanting_table.jade.working_progress", "Enchanting Progress: %s");

@@ -76,6 +76,12 @@ public class ModRenderPipelines {
         .withLocation(AnvilCraft.of("pipeline/building_rod_ghost"))
         .build();
 
+    // 交接期间由已写入深度的地形显示真实颜色。
+    public static final RenderPipeline BUILDING_ROD_PLACED = BUILDING_ROD_GHOST.toBuilder()
+        .withLocation(AnvilCraft.of("pipeline/building_rod_placed"))
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN, false))
+        .build();
+
     public static final RenderPipeline OVERWORLD_LIKE_SKY_RING = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
         .withVertexShader(AnvilCraft.of("core/overworld_like_sky_ring"))
         .withFragmentShader(AnvilCraft.of("core/overworld_like_sky_ring"))
@@ -342,6 +348,7 @@ public class ModRenderPipelines {
         event.registerPipeline(ModRenderPipelines.PLACEMENT_GHOST);
         event.registerPipeline(ModRenderPipelines.OVERWORLD_LIKE_SKY_RING);
         event.registerPipeline(ModRenderPipelines.BUILDING_ROD_GHOST);
+        event.registerPipeline(ModRenderPipelines.BUILDING_ROD_PLACED);
         event.registerPipeline(ModRenderPipelines.LASER_TRANSLUCENT);
         event.registerPipeline(ModRenderPipelines.LASER_SOLID);
         event.registerPipeline(ModRenderPipelines.LIGHTNING);

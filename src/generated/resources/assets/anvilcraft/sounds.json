@@ -54,10 +54,18 @@
     ],
     "subtitle": "subtitles.anvilcraft.giant_anvil_shock"
   },
-  "music.mun.above_the_moon_dust": {
+  "music.mun.above_the_mun_dust": {
     "sounds": [
       {
-        "name": "anvilcraft:music/mun/above_the_moon_dust_loop",
+        "name": "anvilcraft:music/mun/above_the_mun_dust",
+        "stream": true
+      }
+    ]
+  },
+  "music.mun.beyond_the_horizon": {
+    "sounds": [
+      {
+        "name": "anvilcraft:music/mun/beyond_the_horizon",
         "stream": true
       }
     ]
@@ -65,7 +73,7 @@
   "music.mun.far_side_glow": {
     "sounds": [
       {
-        "name": "anvilcraft:music/mun/far_side_glow_loop",
+        "name": "anvilcraft:music/mun/far_side_glow",
         "stream": true
       }
     ]

@@ -161,7 +161,7 @@ public final class StructureScannerFiles {
             if (properties != null) {
                 state = properties.apply(state);
             }
-            Rotation rotation = imported == null ? switch (scanner.getDirection()) {
+            Rotation rotation = imported == null ? switch (scanner.getScanDirection()) {
                 case SOUTH -> Rotation.CLOCKWISE_180;
                 case WEST -> Rotation.CLOCKWISE_90;
                 case EAST -> Rotation.COUNTERCLOCKWISE_90;
@@ -179,7 +179,7 @@ public final class StructureScannerFiles {
             if (captured != null) {
                 BlueprintPlacement transform = new BlueprintPlacement(BlockPos.ZERO, rotation, Mirror.NONE);
                 var bounds = transform.bounds(snapshot.size());
-                BlockPos anchor = switch (scanner.getDirection()) {
+                BlockPos anchor = switch (scanner.getScanDirection()) {
                     case SOUTH -> new BlockPos(previewSize.getX() - 1, 0, previewSize.getZ() - 1);
                     case WEST -> new BlockPos(previewSize.getX() - 1, 0, 0);
                     case EAST -> new BlockPos(0, 0, previewSize.getZ() - 1);

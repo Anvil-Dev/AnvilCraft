@@ -4,6 +4,7 @@ import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import dev.dubhe.anvilcraft.integration.iris.IrisState;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -14,13 +15,22 @@ import java.util.OptionalInt;
 final class BuildingRodGhostMesh implements AutoCloseable {
     private final GpuBuffer vertices;
     private final int indexCount;
+    private final VertexFormat format;
+    private final boolean shaders = IrisState.isShaderEnabled();
+    private final int generation = IrisState.shaderGeneration();
 
     BuildingRodGhostMesh(MeshData mesh) {
         try (mesh) {
             this.vertices = RenderSystem.getDevice().createBuffer(() -> "AnvilCraft building projection",
                 GpuBuffer.USAGE_VERTEX, mesh.vertexBuffer());
+            this.format = mesh.drawState().format();
             this.indexCount = mesh.drawState().indexCount();
         }
+    }
+
+    boolean matchesPipeline() {
+        return this.format == BuildingRodRenderTypes.BLOCK_GHOST.format() && this.shaders == IrisState.isShaderEnabled()
+            && this.generation == IrisState.shaderGeneration();
     }
 
     void draw(Matrix4f pose) {

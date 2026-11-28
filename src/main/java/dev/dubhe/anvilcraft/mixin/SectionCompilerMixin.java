@@ -2,9 +2,9 @@ package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import dev.dubhe.anvilcraft.api.hammer.IHasHammerEffect;
+import dev.dubhe.anvilcraft.client.building.BuildingRodPlacementAnimation;
+import dev.dubhe.anvilcraft.client.support.HammerPreviewState;
 import dev.dubhe.anvilcraft.client.support.MagnetAnvilAnimation;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.BlockQuadOutput;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
@@ -51,11 +51,8 @@ public abstract class SectionCompilerMixin {
         long seed,
         Operation<Void> original
     ) {
-        if (MagnetAnvilAnimation.hidesBlock(pos, blockState)) return;
-        if (Minecraft.getInstance().screen instanceof IHasHammerEffect hammerEffect
-            && hammerEffect.shouldSkipRebuildBlock()
-            && hammerEffect.hiddenBlockPos().equals(pos)
-        ) {
+        if (BuildingRodPlacementAnimation.hidesBlock(pos) || HammerPreviewState.hidesBlock(pos)
+            || MagnetAnvilAnimation.hidesBlock(pos, blockState)) {
             return;
         }
         original.call(
