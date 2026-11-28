@@ -24,6 +24,10 @@ items:
 <item id="anvilcraft:redstone_wire"/>
 </row>
 
+<info>
+部分红石元件放置时默认平放，手持<ref item="anvilcraft:anvil_hammer"/>右击并按住，滚动滚轮切换安装面或选项，再将光标移到对应的预览上选择，松开右键即可应用
+</info>
+
 # <ref item="anvilcraft:block_comparator"/>
 
 <recipe id="anvilcraft:block_comparator"/>

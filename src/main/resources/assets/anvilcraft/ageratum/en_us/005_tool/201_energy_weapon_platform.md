@@ -46,9 +46,8 @@ If the first item in the recipe has enchantments, the finished product inherits 
 
 <recipe id="anvilcraft:energy_weapon_make/anvil_railgun"/>
 
-1. Carry an anvil in your inventory or hold one in your free hand. The Railgun uses the held anvil first and accepts every anvil except the <ref item="anvilcraft:spectral_anvil"/>.
-2. Hold right-click to charge and release to fire one anvil. A shot needs at least 20% charge. Full charge takes 25 ticks (1.25 seconds). Each level of Quick Charge reduces the previous level's charge time by 10%.
-3. A longer charge increases projectile speed, damage and power consumption.
+1. Used like a <ref item="minecraft:bow"/>, but fires anvils as ammo
+2. The Quick Charge enchantment shortens the charging time
 
 <info>
 Against large mobs, it may deal both impact damage and anvil landing damage consecutively
