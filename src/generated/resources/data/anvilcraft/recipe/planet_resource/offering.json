@@ -29,6 +29,10 @@
         "weight": 40
       },
       {
+        "id": "minecraft:lapis_lazuli",
+        "weight": 25
+      },
+      {
         "id": "anvilcraft:royal_steel_ingot",
         "weight": 5
       },
