@@ -34,8 +34,7 @@ Can be used with <ref item="anvilcraft:heat_collector"/> to generate power
 
 # Breaking Blocks
 
-- Has wither-like destructive capability, breaking all transparent and opaque blocks in its path
-- Breaking **does not produce** drops
+- Has wither-level destructive capability, breaking all transparent and opaque blocks in its path
 - Breaking speed is shown in the table below
 
 |  Level  | Breaking Speed (blocks/s) |

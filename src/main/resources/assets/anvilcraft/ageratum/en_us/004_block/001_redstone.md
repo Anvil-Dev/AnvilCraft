@@ -24,6 +24,10 @@ items:
 <item id="anvilcraft:redstone_wire"/>
 </row>
 
+<info>
+Some redstone components lie flat when placed. While holding right-click with an <ref item="anvilcraft:anvil_hammer"/>, scroll the mouse wheel to switch mounting faces or options, then move the cursor over the corresponding preview to select it and release right-click to apply
+</info>
+
 # <ref item="anvilcraft:block_comparator"/>
 
 <recipe id="anvilcraft:block_comparator"/>
