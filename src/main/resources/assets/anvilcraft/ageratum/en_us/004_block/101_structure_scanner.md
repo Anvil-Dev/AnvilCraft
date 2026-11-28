@@ -36,10 +36,12 @@ Open the GUI:
 3. Enter a structure name (optional), and place a marker item to the right of the **Confirm** button (optional)
 4. Click **Confirm Record Structure** to save
 
-## Auto Save
+## Redstone Scanning
 
-1. <ref item="anvilcraft:structure_disk"/>s can be inserted and removed through chutes and other logistics blocks
-2. Save when receiving a redstone signal
+When the scanner first receives power, it captures the entire scan area immediately. Cut and restore power to take another snapshot.
+
+- With no disk inserted, open the scanner to view the snapshot on the right. Insert a <ref item="anvilcraft:structure_disk"/> to save it manually.
+- With a disk inserted and the output slot empty, the scanner writes the snapshot to the disk and clears the preview. Chutes and other logistics blocks can insert and extract disks.
 
 ---
 

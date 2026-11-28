@@ -1,9 +1,13 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.block.workstation.StructureScannerBlock;
 import dev.dubhe.anvilcraft.building.BlueprintCapture;
 import dev.dubhe.anvilcraft.building.BlueprintMultiblocks;
+import dev.dubhe.anvilcraft.building.BlueprintTicks;
 import dev.dubhe.anvilcraft.building.StoragePreviewSnapshot;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -19,6 +23,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
@@ -32,6 +37,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -41,12 +47,16 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class StructureScannerBlockEntity extends BaseMachineBlockEntity implements MenuProvider {
+    private static final DateTimeFormatter AUTO_NAME_FORMAT = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+
     // 物品栏处理器: 槽位0=磁盘输入, 槽位1=输出
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(2) {
         @Override
@@ -231,6 +241,9 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
     @Getter
     private final List<CachedBlockData> scannedBlocks = new ArrayList<>();
     
+    @Getter
+    private @Nullable SignalScan signalScan;
+
     private long lastScanTick = 0;  // 上次扫描的tick
     
     // 自动保存相关
@@ -247,20 +260,47 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
     }
 
     public record CapturedEntityData(Vec3 pos, BlockPos blockPos, CompoundTag nbt) {
+        private static final Codec<CapturedEntityData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Vec3.CODEC.fieldOf("pos").forGetter(CapturedEntityData::pos),
+            BlockPos.CODEC.fieldOf("blockPos").forGetter(CapturedEntityData::blockPos),
+            CompoundTag.CODEC.fieldOf("nbt").forGetter(CapturedEntityData::nbt)
+        ).apply(instance, CapturedEntityData::new));
+    }
+
+    /** 方块沿用扫描缓存，实体、计划刻和坐标朝向也必须固定在同一红石上升沿。 */
+    public record SignalScan(
+        Direction facing, boolean upsideDown, List<CapturedEntityData> entities, List<BlueprintTicks.Entry> ticks, long time
+    ) {
+        private void save(ValueOutput output) {
+            output.store("facing", Direction.CODEC, this.facing);
+            output.putBoolean("upsideDown", this.upsideDown);
+            output.store("entities", CapturedEntityData.CODEC.listOf(), this.entities);
+            CompoundTag tag = new CompoundTag();
+            BlueprintTicks.write(tag, this.ticks);
+            output.store("ticks", CompoundTag.CODEC, tag);
+            output.putLong("time", this.time);
+        }
+
+        private static SignalScan load(ValueInput input) {
+            return new SignalScan(input.read("facing", Direction.CODEC).orElse(Direction.NORTH), input.getBooleanOr("upsideDown", false),
+                input.read("entities", CapturedEntityData.CODEC.listOf()).orElse(List.of()),
+                input.read("ticks", CompoundTag.CODEC).map(BlueprintTicks::read).orElse(List.of()), input.getLongOr("time", 0));
+        }
     }
     
     /**
      * 是否正在扫描或已完成扫描
      */
     public boolean hasStartedScanning() {
-        return this.isScanning || !this.scannedBlocks.isEmpty();
+        return this.isScanning || this.signalScan != null || !this.scannedBlocks.isEmpty();
     }
     
     /**
      * 是否完成所有扫描
      */
     public boolean isScanComplete() {
-        return !this.isScanning && this.currentScanLayer >= this.rangeY.get() && !this.scannedBlocks.isEmpty();
+        return !this.isScanning && this.currentScanLayer >= this.rangeY.get()
+            && (!this.scannedBlocks.isEmpty() || this.signalScan != null && !this.signalScan.entities().isEmpty());
     }
     
     /**
@@ -318,10 +358,12 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
             this.scanNextLayer();
         }
         
-        // 检查是否有待执行的自动保存
-        if (this.pendingAutoSave && !this.isScanning && !this.scannedBlocks.isEmpty()) {
-            // 扫描已完成，执行保存
-            this.performAutoSave();
+        // 旧存档可能在逐层扫描尚未完成时保存了写盘请求。
+        if (this.pendingAutoSave && this.isScanComplete()) {
+            this.pendingAutoSave = false;
+            this.writeAutoDisk(level, this.autoSaveStructureName);
+            this.autoSaveStructureName = "";
+            this.setChanged();
         }
     }
     
@@ -334,6 +376,8 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         }
         
         // 如果已经在扫描中，重置扫描
+        this.signalScan = null;
+        this.pendingAutoSave = false;
         this.isScanning = true;
         this.currentScanLayer = 0;
         this.scannedBlocks.clear();
@@ -359,44 +403,14 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         }
     }
     
-    /**
-     * 调度自动保存（在扫描完成后执行）
-     */
-    public void scheduleAutoSave(String structureName) {
-        this.pendingAutoSave = true;
-        this.autoSaveStructureName = structureName;
+    private void writeAutoDisk(Level level, String name) {
+        try {
+            StructureSaveUtil.saveStructureToDisk(level, this, name);
+        } catch (IllegalArgumentException exception) {
+            AnvilCraft.LOGGER.warn("Cannot record structure scanner snapshot at {}", this.worldPosition, exception);
+        }
     }
-    
-    /**
-     * 执行自动保存
-     */
-    private void performAutoSave() {
-        if (this.level == null || this.level.isClientSide()) {
-            return;
-        }
-        
-        // 重置标志
-        this.pendingAutoSave = false;
-        
-        // 检查是否放入了结构磁盘
-        if (this.itemHandler.getResource(0).isEmpty()) {
-            return;
-        }
-        
-        // 检查输出槽位是否为空
-        if (!this.itemHandler.getResource(1).isEmpty()) {
-            return;
-        }
-        
-        // 保存结构到磁盘
-        StructureSaveUtil.saveStructureToDisk(
-            this.level, this, this.autoSaveStructureName
-        );
-        
-        // 清空结构名称
-        this.autoSaveStructureName = "";
-    }
-    
+
     /**
      * 扫描下一层
      */
@@ -405,49 +419,80 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
             return;
         }
         
+        Set<BlockPos> captured = new HashSet<>();
+        for (CachedBlockData data : this.scannedBlocks) {
+            captured.add(new BlockPos(data.x(), data.y(), data.z()));
+        }
+        this.scanLayer(this.level, this.currentScanLayer, captured);
+        this.lastScanTick = this.level.getGameTime();
+        this.currentScanLayer++;
+        if (this.currentScanLayer >= this.rangeY.get()) {
+            this.isScanning = false;
+        }
+        this.syncScan();
+    }
+
+    public void scanOnSignal(ServerLevel level) {
+        if (!this.isDiskEmpty() && this.hasOutput()) {
+            return;
+        }
+        var area = this.getScanBounds();
+        BlockPos origin = BlockPos.containing(area.minX, area.minY, area.minZ);
+        var bounds = BoundingBox.fromCorners(origin, BlockPos.containing(area.maxX - 1, area.maxY - 1, area.maxZ - 1));
+        this.scannedBlocks.clear();
+        Set<BlockPos> captured = new HashSet<>();
+        for (int y = 0; y < this.rangeY.get(); y++) {
+            this.scanLayer(level, y, captured);
+        }
+        var ticks = BlueprintTicks.capture(level, bounds).stream().map(tick -> tick.at(tick.pos().subtract(origin))).toList();
+        this.signalScan = new SignalScan(this.getDirection(), this.isScannerUpsideDown(),
+            this.captureWorldEntities(), ticks, level.getGameTime());
+        this.isScanning = false;
+        this.pendingAutoSave = false;
+        this.currentScanLayer = this.rangeY.get();
+        this.syncScan();
+        if (!this.isDiskEmpty() && this.isScanComplete()) {
+            this.writeAutoDisk(level, "auto-" + LocalDateTime.now().format(AUTO_NAME_FORMAT));
+        }
+    }
+
+    private void syncScan() {
+        this.setChanged();
+        if (this.level != null && !this.level.isClientSide()) {
+            this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
+        }
+    }
+
+    private void scanLayer(Level level, int y, Set<BlockPos> captured) {
         final int rangeX = this.rangeX.get();
-        final int rangeY = this.rangeY.get();
         final int rangeZ = this.rangeZ.get();
         final int halfRangeX = rangeX / 2;
         
-        Set<BlockPos> captured = new HashSet<>();
-        for (CachedBlockData data : this.scannedBlocks) captured.add(new BlockPos(data.x(), data.y(), data.z()));
         // 扫描当前层的所有方块
         for (int x = 0; x < rangeX; x++) {
-            for (int z = 1; z < rangeZ + 1; z++) {
-                BlockPos worldPos = this.calculateWorldPos(x, this.currentScanLayer, z - 1, halfRangeX);
-                BlockState blockState = this.level.getBlockState(worldPos);
+            for (int z = 0; z < rangeZ; z++) {
+                BlockPos worldPos = this.calculateWorldPos(x, y, z, halfRangeX);
+                BlockState blockState = level.getBlockState(worldPos);
                 
                 if (!blockState.isAir() && BlueprintMultiblocks.shouldRecord(blockState)) {
                     BlueprintMultiblocks.forEachPart(worldPos, blockState, (partPos, generated) -> {
                         BlockPos preview = this.worldBlockToPreview(partPos, halfRangeX).offset(0, 0, 1);
-                        if (!captured.add(preview)) return;
-                        BlockState actual = this.level.getBlockState(partPos);
+                        if (!captured.add(preview)) {
+                            return;
+                        }
+                        BlockState actual = level.getBlockState(partPos);
                         BlockState recorded = actual.isAir() ? generated : actual;
-                        var entity = this.level.getBlockEntity(partPos);
+                        var entity = level.getBlockEntity(partPos);
                         CompoundTag nbt = entity == null ? null : StoragePreviewSnapshot.captureBlockEntity(entity);
                         this.scannedBlocks.add(new CachedBlockData(preview.getX(), preview.getY(), preview.getZ(), recorded, nbt));
                     });
                 }
             }
         }
-        
-        this.lastScanTick = this.level.getGameTime();
-        this.setChanged();
-
-        this.currentScanLayer++;
-        if (this.currentScanLayer >= rangeY) this.isScanning = false;
-
-        // 每扫描一层就同步到客户端
-        if (this.level != null && !this.level.isClientSide()) {
-            this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
-        }
     }
-    
-    /**
-     * 计算世界坐标
-     */
+
     public void clearScan() {
+        this.signalScan = null;
         this.isScanning = false;
         this.currentScanLayer = 0;
         this.scannedBlocks.clear();
@@ -479,6 +524,10 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
     }
 
     public List<CapturedEntityData> captureEntities() {
+        return this.signalScan == null ? this.captureWorldEntities() : this.signalScan.entities();
+    }
+
+    private List<CapturedEntityData> captureWorldEntities() {
         List<CapturedEntityData> captured = new ArrayList<>();
         if (this.level == null) {
             return captured;
@@ -499,6 +548,14 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
             captured.add(new CapturedEntityData(previewPos, previewBlockPos, entityNbt.copy()));
         }
         return captured;
+    }
+
+    public Direction getScanDirection() {
+        return this.signalScan == null ? this.getDirection() : this.signalScan.facing();
+    }
+
+    public boolean isScanUpsideDown() {
+        return this.signalScan == null ? this.isScannerUpsideDown() : this.signalScan.upsideDown();
     }
 
     public boolean isScannerUpsideDown() {
@@ -711,6 +768,9 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
                 if (data.nbt() != null) blockOutput.store("nbt", CompoundTag.CODEC, data.nbt());
             }
         }
+        if (this.signalScan != null) {
+            this.signalScan.save(output.child("signalScan"));
+        }
         output.putBoolean("pendingAutoSave", this.pendingAutoSave);
         output.putString("autoSaveStructureName", this.autoSaveStructureName);
     }
@@ -744,6 +804,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
                 .ifPresent(state -> this.scannedBlocks.add(new CachedBlockData(x, y, z, state,
                     blockInput.read("nbt", CompoundTag.CODEC).orElse(null))));
         }
+        this.signalScan = input.child("signalScan").map(SignalScan::load).orElse(null);
         this.pendingAutoSave = input.getBooleanOr("pendingAutoSave", false);
         this.autoSaveStructureName = input.getStringOr("autoSaveStructureName", "");
     }

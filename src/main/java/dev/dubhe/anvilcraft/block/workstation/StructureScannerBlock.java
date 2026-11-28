@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -36,9 +37,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class StructureScannerBlock extends BaseEntityBlock implements IHammerRemovable {
     public static final MapCodec<StructureScannerBlock> CODEC = BlockBehaviour.simpleCodec(StructureScannerBlock::new);
@@ -169,61 +167,19 @@ public class StructureScannerBlock extends BaseEntityBlock implements IHammerRem
     protected void neighborChanged(
         BlockState state, Level level, BlockPos pos,
         Block neighborBlock, @Nullable Orientation orientation, boolean movedByPiston) {
-        if (level.isClientSide()) {
+        if (!(level instanceof ServerLevel serverLevel)) {
             return;
         }
-        
         boolean powered = level.hasNeighborSignal(pos);
-        boolean wasPowered = state.getValue(StructureScannerBlock.POWERED);
-        
-        // 更新红石状态
-        if (powered != wasPowered) {
-            level.setBlock(pos, state.setValue(StructureScannerBlock.POWERED, powered), 2);
+        if (powered == state.getValue(POWERED)) {
+            return;
         }
-        
-        // 收到红石信号时，自动执行扫描并保存
-        if (powered && !wasPowered) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof StructureScannerBlockEntity scannerEntity) {
-                // 执行自动扫描和保存
-                this.autoScanAndSave(level, scannerEntity);
-            }
+        level.setBlock(pos, state.setValue(POWERED, powered), Block.UPDATE_CLIENTS);
+        if (powered && level.getBlockEntity(pos) instanceof StructureScannerBlockEntity scanner) {
+            scanner.scanOnSignal(serverLevel);
         }
     }
-    
-    /**
-     * 自动扫描并保存结构到磁盘
-     */
-    @SuppressWarnings("unused")
-    private void autoScanAndSave(Level level, StructureScannerBlockEntity scannerEntity) {
-        // 检查是否有磁盘
-        if (scannerEntity.isDiskEmpty()) {
-            return;
-        }
-        
-        // 检查输出槽位是否为空
-        if (scannerEntity.hasOutput()) {
-            return;
-        }
-        
-        // 检查是否已经在扫描
-        if (scannerEntity.isScanning()) {
-            return;
-        }
-        
-        // 生成结构名称（使用年月日时分格式：auto-202605221430）
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
-        String structureName = "auto-" + now.format(formatter);
-        
-        // 开始扫描
-        scannerEntity.startScanning();
-        
-        // 等待扫描完成后保存（需要延迟执行）
-        // 这里使用一个简单的策略：在 tickServer 中检查扫描完成状态
-        scannerEntity.scheduleAutoSave(structureName);
-    }
-    
+
     @Override
     public BlockState playerWillDestroy(
         Level level, BlockPos pos, BlockState state, Player player) {
