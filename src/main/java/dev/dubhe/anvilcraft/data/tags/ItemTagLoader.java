@@ -33,6 +33,15 @@ public class ItemTagLoader {
             .getInternalBuilder()
             .remove(TagEntry.element(BuiltInRegistries.ITEM.getKey(Items.WITHER_ROSE)));
 
+        provider.addTag(ModItemTags.COPPER_BLOCKS)
+            .add(findResourceKey(Items.COPPER_BLOCK))
+            .add(findResourceKey(Items.EXPOSED_COPPER))
+            .add(findResourceKey(Items.WEATHERED_COPPER))
+            .add(findResourceKey(Items.OXIDIZED_COPPER))
+            .add(findResourceKey(Items.WAXED_COPPER_BLOCK))
+            .add(findResourceKey(Items.WAXED_EXPOSED_COPPER))
+            .add(findResourceKey(Items.WAXED_WEATHERED_COPPER))
+            .add(findResourceKey(Items.WAXED_OXIDIZED_COPPER));
         provider.addTag(ModItemTags.PLATES)
             .add(findResourceKey(Items.HEAVY_WEIGHTED_PRESSURE_PLATE))
             .add(findResourceKey(Items.LIGHT_WEIGHTED_PRESSURE_PLATE));

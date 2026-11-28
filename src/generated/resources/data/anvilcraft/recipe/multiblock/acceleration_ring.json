@@ -20,7 +20,7 @@
     ],
     "mapping": {
       "0": {
-        "blocks": "#c:storage_blocks/copper"
+        "blocks": "#anvilcraft:copper_blocks"
       },
       "A": {
         "blocks": "anvilcraft:heavy_iron_block"

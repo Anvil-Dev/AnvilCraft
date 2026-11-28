@@ -99,6 +99,7 @@ public class ModBlockTags {
     public static final TagKey<Block> STORAGE_BLOCKS_EXP_GEM = bindC("storage_blocks/exp_gem");
     public static final TagKey<Block> STORAGE_BLOCKS_AMBER = bindC("storage_blocks/amber");
     public static final TagKey<Block> STORAGE_BLOCKS_RESIN = bindC("storage_blocks/resin");
+    public static final TagKey<Block> COPPER_BLOCKS = ModBlockTags.bind("copper_blocks");
     public static final TagKey<Block> STORAGE_BLOCKS_TRANSCENDIUM = bindC("storage_blocks/transcendium");
     public static final TagKey<Block> STORAGE_BLOCKS_FROST_METAL = bindC("storage_blocks/frost_metal");
 
