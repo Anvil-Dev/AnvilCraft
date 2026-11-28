@@ -182,7 +182,7 @@ public final class BuildingRodService {
             return;
         }
         if (!(held.getItem() instanceof BlockItem) && !held.is(ModItems.FILTER)) {
-            BuildingRodFluids.place(player, first, last);
+            BuildingRodFluids.place(player, first, last, seed);
             return;
         }
         List<Group> groups = held.is(ModItems.FILTER) ? BuildingRodPattern.plan(player, held, first, last, face, seed)
@@ -191,7 +191,7 @@ public final class BuildingRodService {
             message(player, "blocked");
             return;
         }
-        commit(player, groups, false, false);
+        commit(player, groups, seed);
     }
 
     public static List<Cell> preview(Player player, BlockPos first, BlockPos last, Direction face, @Nullable BlockHitResult hit) {
@@ -265,7 +265,7 @@ public final class BuildingRodService {
             }
             var undoBounds = placements.getFirst().bounds(snapshot.size());
             undoBounds.encapsulate(placements.getLast().bounds(snapshot.size()));
-            boolean complete = commit(player, allGroups, partial, true, declared, ticks, undoBounds);
+            boolean complete = commit(player, allGroups, partial, true, declared, ticks, undoBounds, 0);
             if (complete) PacketDistributor.sendToPlayer(player, new BuildingRodResultPacket(true));
         } catch (ConstructionBlueprintException | IllegalArgumentException exception) {
             message(player, "invalid_structure");
@@ -546,14 +546,14 @@ public final class BuildingRodService {
         return BuildingBlockMaterial.materialCount(state);
     }
 
-    static boolean commit(ServerPlayer player, List<Group> groups, boolean partial, boolean quiet) {
-        return commit(player, groups, partial, quiet, Map.of(), List.of(), null);
+    static boolean commit(ServerPlayer player, List<Group> groups, long seed) {
+        return commit(player, groups, false, false, Map.of(), List.of(), null, seed);
     }
 
     private static boolean commit(
         ServerPlayer player, List<Group> groups, boolean partial, boolean quiet,
         Map<BlockPos, BlockState> declared, List<BlueprintTicks.Entry> ticks,
-        @Nullable BoundingBox undoBounds
+        @Nullable BoundingBox undoBounds, long seed
     ) {
         if (BuildingRodUndo.hasPendingRefund(player)) {
             message(player, "undo_partial");
@@ -666,8 +666,16 @@ public final class BuildingRodService {
         placedGroups.forEach(group -> placedMaterials.putAll(group.blockMaterials));
         List<Map.Entry<Entity, CompoundTag>> spawned = new ArrayList<>();
         List<Cell> finalCells = hasMultipart ? cells.stream().filter(cell -> projected.get(cell.pos()) == cell).toList() : cells;
+        Map<BlockPos, BlockState> beforeStates = new LinkedHashMap<>();
+        if (!quiet) {
+            for (Cell cell : cells) {
+                beforeStates.put(cell.pos(), player.level().getBlockState(cell.pos()));
+            }
+        }
         Runnable place = () -> {
-            for (Cell cell : cells) BuildingCommit.set(player.level(), cell.pos(), cell.state());
+            for (Cell cell : cells) {
+                BuildingCommit.set(player.level(), cell.pos(), cell.state());
+            }
             for (Cell cell : finalCells) {
                 BlockEntity blockEntity = player.level().getBlockEntity(cell.pos());
                 if (blockEntity == null && cell.state().is(Blocks.MOVING_PISTON)) {
@@ -726,7 +734,14 @@ public final class BuildingRodService {
         if (quiet) BuildingCommit.activate(player.level(), finalCells, ticks);
         else BuildingCommit.activate(player.level(), finalCells);
         BuildingRodMaterialBook.give(player, shortages);
-        finishPlacement(player, cells.size());
+        List<BuildingRodResultPacket.Change> changes = new ArrayList<>();
+        beforeStates.forEach((pos, before) -> {
+            var actual = player.level().getBlockState(pos);
+            if (actual != before && !actual.isAir()) {
+                changes.add(new BuildingRodResultPacket.Change(pos, actual));
+            }
+        });
+        finishPlacement(player, cells.size(), seed, changes);
         if (quiet || !placedMaterials.isEmpty()) playPlacementSounds(player, cells, quiet);
         return !missing && blockedGroups.isEmpty();
     }
@@ -779,11 +794,11 @@ public final class BuildingRodService {
         }
     }
 
-    static void finishPlacement(ServerPlayer player, int blocks) {
+    static void finishPlacement(ServerPlayer player, int blocks, long seed, List<BuildingRodResultPacket.Change> changes) {
         BuildingRodItem.consume(player, BuildingRodItem.heldRod(player), blocks);
         player.getInventory().setChanged();
         player.containerMenu.broadcastChanges();
-        PacketDistributor.sendToPlayer(player, new BuildingRodResultPacket(false));
+        PacketDistributor.sendToPlayer(player, new BuildingRodResultPacket(false, ItemStack.EMPTY, seed, changes));
     }
 
     static boolean canModify(Player player, BlockPos pos) {

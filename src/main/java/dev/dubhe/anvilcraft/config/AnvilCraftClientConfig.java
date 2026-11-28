@@ -266,19 +266,19 @@ public class AnvilCraftClientConfig {
 
         @Comment("Controls the shortest silence before the first Mun music track (in seconds)")
         @BoundedDiscrete(min = 0, max = 3600)
-        public int munMusicFirstSilenceMinSeconds = 30;
+        public int munMusicFirstSilenceMinSeconds = 60;
 
         @Comment("Controls the longest silence before the first Mun music track (in seconds)")
         @BoundedDiscrete(min = 0, max = 3600)
-        public int munMusicFirstSilenceMaxSeconds = 90;
+        public int munMusicFirstSilenceMaxSeconds = 180;
 
         @Comment("Controls the shortest silence between Mun music tracks (in seconds)")
         @BoundedDiscrete(min = 0, max = 3600)
-        public int munMusicNextSilenceMinSeconds = 60;
+        public int munMusicNextSilenceMinSeconds = 300;
 
         @Comment("Controls the longest silence between Mun music tracks (in seconds)")
         @BoundedDiscrete(min = 0, max = 3600)
-        public int munMusicNextSilenceMaxSeconds = 180;
+        public int munMusicNextSilenceMaxSeconds = 600;
     }
 
     @SerializedName("UI & HUD")

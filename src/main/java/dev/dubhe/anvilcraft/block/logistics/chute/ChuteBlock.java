@@ -479,6 +479,7 @@ public class ChuteBlock extends WaterloggedChuteBlock implements HammerRotateBeh
                 .setValue(SimpleChuteBlock.TALL, tall)
                 .setValue(SimpleChuteBlock.ENABLED, !level.hasNeighborSignal(pos))
                 .setValue(SimpleChuteBlock.WATERLOGGED, level.getFluidState(pos).getType() == Fluids.WATER);
+            result = SimpleChuteBlock.withInletModel(result, level, pos);
         }
         return result;
     }

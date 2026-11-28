@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.api.injection.wheel.IWheelWidgetExtension;
 import dev.dubhe.anvilcraft.client.event.WheelLifecycleEventListener;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.support.HammerPreviewState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.core.BlockPos;
@@ -32,6 +33,8 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 public abstract class WheelScreenMixin implements IHasHammerEffect {
     @Unique
     private @Nullable HammerPreviewState anvilcraft$hammerPreview;
+    @Unique
+    private int anvilcraft$pageSlot;
     @Shadow
     @Final
     private WheelMenuModel model;
@@ -81,6 +84,7 @@ public abstract class WheelScreenMixin implements IHasHammerEffect {
             return;
         }
         if (this.model.pageCount() > 1) {
+            this.anvilcraft$pageSlot = Math.max(0, this.wheelWidget.getCurrentSectionIndex());
             return;
         }
         cir.setReturnValue(this.wheelWidget.mouseScrolled(mouseX, mouseY, scrollX, scrollY));
@@ -91,7 +95,14 @@ public abstract class WheelScreenMixin implements IHasHammerEffect {
         double mouseX, double mouseY, double scrollX, double scrollY, CallbackInfoReturnable<Boolean> cir
     ) {
         if (scrollY != 0 && this.anvilcraft$hammerPreview != null && this.wheelWidget != null && this.model.pageCount() > 1) {
+            int first = this.currentPageIndex * this.model.slotsPerPage();
             this.wheelWidget.checkMousePos(mouseX, mouseY);
+            if (this.wheelWidget.getCurrentSectionIndex() < 0) {
+                int lastSlot = this.model.rootEntries().size() - first - 1;
+                this.wheelWidget.setCurrentIndex(Math.min(this.anvilcraft$pageSlot, lastSlot));
+            }
+            ((IWheelWidgetExtension) this.wheelWidget).anvilcraft$holdSelection(mouseX, mouseY);
+            this.anvilcraft$hammerPreview.select(first + this.wheelWidget.getCurrentSectionIndex());
         }
     }
 
@@ -113,6 +124,10 @@ public abstract class WheelScreenMixin implements IHasHammerEffect {
         this.anvilcraft$hammerPreview.begin();
         if (this.wheelWidget != null) {
             this.wheelWidget.setCurrentIndex(this.anvilcraft$hammerPreview.currentIndex() % this.model.slotsPerPage());
+            var client = Minecraft.getInstance();
+            var window = client.getWindow();
+            ((IWheelWidgetExtension) this.wheelWidget).anvilcraft$holdSelection(
+                client.mouseHandler.getScaledXPos(window), client.mouseHandler.getScaledYPos(window));
         }
     }
 
@@ -129,9 +144,22 @@ public abstract class WheelScreenMixin implements IHasHammerEffect {
         }
     }
 
+    @Inject(method = "triggerSelectedOrClose", at = @At("HEAD"), cancellable = true)
+    private void anvilcraft$blockHammerActionDuringClose(CallbackInfo ci) {
+        if (this.anvilcraft$hammerPreview != null && this.wheelWidget != null && this.wheelWidget.isClosingAnimationStarted()) {
+            ci.cancel();
+        }
+    }
+
     @Inject(method = "removed", at = @At("HEAD"))
     private void anvilcraft$endHammerPreview(CallbackInfo ci) {
-        if (this.anvilcraft$hammerPreview != null) this.anvilcraft$hammerPreview.end();
+        if (this.anvilcraft$hammerPreview != null) {
+            this.anvilcraft$hammerPreview.end();
+            if (this.wheelWidget != null) {
+                // 关闭动画的最后一帧仍会访问控件，此时屏幕即将释放背景缓冲。
+                this.wheelWidget.setFrostedBackground(null);
+            }
+        }
     }
 
     @Override

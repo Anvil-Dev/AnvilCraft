@@ -44,7 +44,9 @@ public abstract class WheelWidgetMixin implements IWheelWidgetExtension {
 
     @Inject(method = "renderFrostedBackground", at = @At("HEAD"))
     private void anvilcraft$separateDiscFromBackground(GuiGraphicsExtractor graphics, float progress, CallbackInfo callback) {
-        if (this.frostedBackground != null && progress > 0) WheelBackgroundCapture.afterDisc(graphics);
+        if (this.frostedBackground != null && progress > 0) {
+            WheelBackgroundCapture.afterDisc(graphics);
+        }
     }
 
     @Override
@@ -60,7 +62,14 @@ public abstract class WheelWidgetMixin implements IWheelWidgetExtension {
         double scrollY,
         CallbackInfoReturnable<Boolean> cir
     ) {
-        if (!WheelLifecycleEventListener.isHammerWheelOpen() || scrollY == 0.0) return;
+        if (!WheelLifecycleEventListener.isHammerWheelOpen() || scrollY == 0) {
+            return;
+        }
+        this.anvilcraft$holdSelection(mouseX, mouseY);
+    }
+
+    @Override
+    public void anvilcraft$holdSelection(double mouseX, double mouseY) {
         this.anvilcraft$keepScrolledSelection = true;
         this.anvilcraft$scrollMouseX = mouseX;
         this.anvilcraft$scrollMouseY = mouseY;
@@ -68,7 +77,9 @@ public abstract class WheelWidgetMixin implements IWheelWidgetExtension {
 
     @Inject(method = "checkMousePos(DD)V", at = @At("HEAD"), cancellable = true)
     private void keepHammerScrollSelection(double mouseX, double mouseY, CallbackInfo ci) {
-        if (!WheelLifecycleEventListener.isHammerWheelOpen() || !this.anvilcraft$keepScrolledSelection) return;
+        if (!WheelLifecycleEventListener.isHammerWheelOpen() || !this.anvilcraft$keepScrolledSelection) {
+            return;
+        }
         double deltaX = mouseX - this.anvilcraft$scrollMouseX;
         double deltaY = mouseY - this.anvilcraft$scrollMouseY;
         if (deltaX * deltaX + deltaY * deltaY > 4.0) {

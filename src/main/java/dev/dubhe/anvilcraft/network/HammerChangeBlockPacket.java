@@ -8,7 +8,6 @@ import dev.dubhe.anvilcraft.api.event.HammerChangeBlockEvent;
 import dev.dubhe.anvilcraft.block.entity.LensBlockEntity;
 import dev.dubhe.anvilcraft.block.logistics.chute.ChuteBlock;
 import dev.dubhe.anvilcraft.block.utility.redstone.BlockComparatorBlock;
-import dev.dubhe.anvilcraft.block.utility.redstone.MountedRedstone;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import dev.dubhe.anvilcraft.util.StateUtil;
@@ -49,10 +48,9 @@ public record HammerChangeBlockPacket(BlockPos pos, BlockState state) implements
             return;
         }
         BlockState blockState = level.getBlockState(this.pos);
-        BlockState targetState = this.state;
-        if (blockState.getBlock() instanceof MountedRedstone && targetState.is(blockState.getBlock())) {
-            targetState = blockState.setValue(MountedRedstone.ATTACHMENT, targetState.getValue(MountedRedstone.ATTACHMENT))
-                .setValue(BlockStateProperties.HORIZONTAL_FACING, targetState.getValue(BlockStateProperties.HORIZONTAL_FACING));
+        BlockState targetState = StateUtil.applyHammerProperties(blockState, this.state);
+        if (targetState == blockState) {
+            return;
         }
         boolean stateVerified = StateUtil.verifyPossibleStatesForProperty(blockState, targetState);
         boolean hasHammer = player.getMainHandItem().getItem() instanceof AnvilHammerItem

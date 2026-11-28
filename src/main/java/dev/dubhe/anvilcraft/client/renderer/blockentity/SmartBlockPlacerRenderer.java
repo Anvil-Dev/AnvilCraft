@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.state.SmartBlockPlacerRe
 import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import dev.dubhe.anvilcraft.client.selection.SelectionModel;
 import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
+import dev.dubhe.anvilcraft.client.support.HammerPreviewEntity;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.mixin.client.ItemLayerTransformInvoker;
 import dev.dubhe.anvilcraft.mixin.client.ItemStackRenderStateAccessor;
@@ -180,7 +181,9 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             double forwardDist = delta.x * facing.getStepX() + delta.z * facing.getStepZ();
             double lateralDist = delta.x * right.getStepX() + delta.z * right.getStepZ();
             // 倒置时底座绕 X 轴翻转，局部 X 轴方向相反
-            if (upsideDown) lateralDist = -lateralDist;
+            if (upsideDown) {
+                lateralDist = -lateralDist;
+            }
             double verticalDist = upsideDown ? -delta.y : delta.y;
 
             float baseSwing = (float) Math.toDegrees(Math.atan2(lateralDist, forwardDist));
@@ -261,10 +264,11 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
 
         boolean animationActive = entity.isAnimationActive();
         BlockPos animationTargetPos = entity.getClientAnimationTargetPos();
-        if (!animationActive || level == null) {
+        boolean preview = HammerPreviewEntity.isExtracting();
+        if (!preview && (!animationActive || level == null)) {
             entity.setClientAnimationTargetPos(null);
             entity.setClientRetractSoundPlayed(false);
-        } else {
+        } else if (!preview && level != null) {
             if (animationTargetPos == null) {
                 animationTargetPos = this.getNextTargetPosition(entity, level, facing, upsideDown);
                 if (animationTargetPos != null) {
@@ -310,7 +314,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         for (StandaloneModelKey<BlockStateModel> key : List.of(BASE_MODEL, UPPERARM_MODEL, FOREARM_MODEL, CLAW_MODEL, CLAW_OPEN_MODEL)) {
             state.models.put(SelectionModel.standalone(key), FeatureRendererSupport.initialize(key, entity));
         }
-        this.extractHeldContent(entity.getCurrentHeldBlock(), state, level, partialTick, cameraPosition);
+        this.extractHeldContent(preview ? null : entity.getCurrentHeldBlock(), state, level, partialTick, cameraPosition);
     }
 
     @Override
@@ -371,7 +375,9 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         StandaloneModelKey<BlockStateModel> currentClawModel = shouldClawBeOpen ? CLAW_OPEN_MODEL : CLAW_MODEL;
         consumer.accept(currentClawModel, poseStack);
 
-        if (shouldClawBeOpen) heldContent.run();
+        if (shouldClawBeOpen) {
+            heldContent.run();
+        }
 
         poseStack.popPose();
         poseStack.popPose();
@@ -386,8 +392,9 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
         boolean upsideDown = state.getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
         Level level = entity.getLevel();
-        BlockPos target = entity.isAnimationActive() ? entity.getClientAnimationTargetPos() : null;
-        if (entity.isAnimationActive() && target == null && level != null) {
+        boolean animated = entity.isAnimationActive() && !HammerPreviewEntity.isExtracting();
+        BlockPos target = animated ? entity.getClientAnimationTargetPos() : null;
+        if (animated && target == null && level != null) {
             target = this.getNextTargetPosition(entity, level, facing, upsideDown);
         }
         float progress = target == null ? 0 : entity.getAnimationProgress(partialTick);
@@ -405,7 +412,9 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
 
     private void applyBaseTransform(PoseStack poseStack, Direction facing, boolean upsideDown) {
         poseStack.translate(0.5, 1.5, 0.5);
-        if (upsideDown) poseStack.mulPose(Axis.XP.rotationDegrees(180f));
+        if (upsideDown) {
+            poseStack.mulPose(Axis.XP.rotationDegrees(180f));
+        }
         this.applyHorizontalRotation(poseStack, facing, upsideDown);
         poseStack.translate(0, upsideDown ? 0.5 : -1.5, 0);
     }
@@ -516,7 +525,9 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         state.blockEntityState = null;
         state.blockEntityRenderer = null;
         state.itemTransform.identity();
-        if (held == null) return;
+        if (held == null) {
+            return;
+        }
         held.ifLeft(stack -> this.itemModelResolver.updateForTopItem(state.item, stack, HELD_ITEM_CONTEXT, level, null, 0));
         held.ifRight(block -> {
             ItemStack item = new ItemStack(block.state().getBlock());
@@ -545,7 +556,9 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             state.blockModel = model;
             BlockEntity entity = block.be();
             if (entity != null) {
-                if (!entity.hasLevel() && level != null) entity.setLevel(level);
+                if (!entity.hasLevel() && level != null) {
+                    entity.setLevel(level);
+                }
                 this.extractHeldBlockEntity(entity, state, partialTick, cameraPosition);
             }
         });
@@ -554,7 +567,9 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     @SuppressWarnings("unchecked")
     private void extractHeldBlockEntity(BlockEntity entity, SmartBlockPlacerRenderState state, float partialTick, Vec3 cameraPosition) {
         var renderer = Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(entity);
-        if (renderer == null) return;
+        if (renderer == null) {
+            return;
+        }
         state.blockEntityRenderer = (BlockEntityRenderer<BlockEntity, BlockEntityRenderState>) renderer;
         state.blockEntityState = state.blockEntityRenderer.createRenderState();
         state.blockEntityRenderer.extractRenderState(entity, state.blockEntityState, partialTick, cameraPosition, null);
@@ -571,7 +586,9 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         pose.scale(0.65F, 0.65F, 0.65F);
         state.item.submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
         pose.mulPose(state.itemTransform);
-        if (state.blockModel != null) state.blockModel.submitMultiLayer(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+        if (state.blockModel != null) {
+            state.blockModel.submitMultiLayer(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+        }
         if (state.blockEntityRenderer != null && state.blockEntityState != null) {
             state.blockEntityRenderer.submit(state.blockEntityState, pose, collector, camera);
         }

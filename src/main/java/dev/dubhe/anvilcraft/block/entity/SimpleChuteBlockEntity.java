@@ -66,6 +66,18 @@ public class SimpleChuteBlockEntity extends PlatedChuteBlockEntity
     }
 
     @Override
+    public void onLoad() {
+        super.onLoad();
+        if (this.level != null && !this.level.isClientSide()) {
+            BlockState state = this.getBlockState();
+            BlockState updated = SimpleChuteBlock.withInletModel(state, this.level, this.worldPosition);
+            if (updated != state) {
+                this.level.setBlock(this.worldPosition, updated, Block.UPDATE_CLIENTS);
+            }
+        }
+    }
+
+    @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         output.putInt("Cooldown", this.cooldown);

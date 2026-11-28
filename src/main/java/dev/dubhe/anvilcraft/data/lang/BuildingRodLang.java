@@ -25,6 +25,13 @@ public final class BuildingRodLang {
         provider.add("message.anvilcraft.building_rod.missing_book", "Missing materials; carry a book to receive a material list");
         provider.add("message.anvilcraft.building_rod.nothing_to_undo", "No placement to undo");
         provider.add("message.anvilcraft.building_rod.undone", "Last placement undone");
+        provider.add("screen.anvilcraft.building_rod.selection.block", "%1$s block (%2$s)");
+        provider.add("screen.anvilcraft.building_rod.selection.blocks", "%1$s blocks (%2$s)");
+        provider.add("screen.anvilcraft.building_rod.selection.cancel", "cancel");
+        provider.add("screen.anvilcraft.building_rod.selection.click", "%1$s to %2$s, %3$s to %4$s");
+        provider.add("screen.anvilcraft.building_rod.selection.keep", "keep selection");
+        provider.add("screen.anvilcraft.building_rod.selection.place", "place");
+        provider.add("screen.anvilcraft.building_rod.selection.release", "%1$s to %2$s, release %3$s to %4$s");
         provider.add("screen.anvilcraft.building_rod.selection_size", "%s × %s × %s");
         provider.add("item.anvilcraft.building_rod.fluids",
             "Buckets can fill areas and waterlog blocks; renewable fluids cost 2 B per fill, supplied by inventory or linked storage");

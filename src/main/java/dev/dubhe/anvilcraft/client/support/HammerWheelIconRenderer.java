@@ -3,18 +3,13 @@ package dev.dubhe.anvilcraft.client.support;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder.ModelRenderTarget;
-import dev.dubhe.anvilcraft.client.selection.ModelBlockSelection;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.level.CardinalLighting;
 import net.minecraft.world.level.ColorResolver;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -37,10 +32,11 @@ public final class HammerWheelIconRenderer {
         this.level = new WeakReference<>(new IconLevel(level, target));
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     public void render(GuiGraphicsExtractor graphics, Vec2 camera) {
         Minecraft client = Minecraft.getInstance();
-        if (client.level == null) return;
+        if (client.level == null) {
+            return;
+        }
         final float menuScale = AnvilCraft.CLIENT_CONFIG.ui.anvilHammerWheelScale;
         IconLevel iconLevel = this.level.get();
         if (iconLevel == null || iconLevel.parent != client.level) {
@@ -52,21 +48,10 @@ public final class HammerWheelIconRenderer {
         pose.mulPose(Axis.XP.rotationDegrees(camera.x));
         pose.mulPose(Axis.YP.rotationDegrees(camera.y + 180));
 
-        BlockEntity entity = client.level.getBlockEntity(this.target.pos());
-        BlockEntityRenderer renderer = entity != null && entity.getBlockState().is(this.target.state().getBlock())
-            ? client.getBlockEntityRenderDispatcher().getRenderer(entity) : null;
-        BlockEntityRenderState entityState = renderer == null ? null : renderer.createRenderState();
-        if (entityState != null) {
-            BlockState original = entity.getBlockState();
-            try {
-                entity.setBlockState(this.target.state());
-                renderer.extractRenderState(entity, entityState, client.getDeltaTracker().getGameTimeDeltaPartialTick(true),
-                    client.gameRenderer.getGameRenderState().levelRenderState.cameraRenderState.pos, null);
-                entityState.lightCoords = LightCoordsUtil.pack(15, 0);
-                for (var part : ModelBlockSelection.rendererParts(entity, 0)) bounds = bounds.minmax(part.bounds());
-            } finally {
-                entity.setBlockState(original);
-            }
+        var entity = HammerPreviewEntity.extract(client.level.getBlockEntity(this.target.pos()), this.target.state(),
+            client.getDeltaTracker().getGameTimeDeltaPartialTick(true), client.gameRenderer.getMainCamera(), true);
+        if (entity != null && entity.bounds() != null) {
+            bounds = bounds.minmax(entity.bounds());
         }
 
         var rotation = pose.last().pose();
@@ -89,8 +74,8 @@ public final class HammerWheelIconRenderer {
             new Matrix4f(pose.last().pose()).translate(-0.5f, -0.5f, -0.5f),
             Math.round(-extent), Math.round(-extent), Math.round(extent), Math.round(extent),
             scale * resolution, Shapes.empty(), 0, (collector, modelPose) -> {
-                if (entityState != null) {
-                    renderer.submit(entityState, modelPose, collector,
+                if (entity != null) {
+                    entity.submit(modelPose, collector,
                         client.gameRenderer.getGameRenderState().levelRenderState.cameraRenderState);
                 }
             });
@@ -106,17 +91,17 @@ public final class HammerWheelIconRenderer {
             super(parent);
             this.parent = parent;
             this.target = target;
-            if (target.state().getBlock() instanceof AbstractMultiPartBlock<?> block) {
-                this.addParts(block, target.state());
-            } else {
-                this.setBlockState(BlockPos.ZERO, target.state());
+            for (var part : target.parts()) {
+                this.setBlockState(part.pos().subtract(target.pos()), part.state());
             }
             var client = Minecraft.getInstance();
             var renderer = new ModelBlockRenderer(false, true, client.getBlockColors());
             var collector = new AABB.Builder();
             for (BlockPos pos : BlockPos.betweenClosed(this.getMinPos().orElseThrow(), this.getMaxPos().orElseThrow())) {
                 BlockState state = this.getBlockState(pos);
-                if (state.isAir()) continue;
+                if (state.isAir()) {
+                    continue;
+                }
                 renderer.tesselateBlock((x, y, z, quad, instance) -> {
                     for (int vertex = 0; vertex < 4; vertex++) {
                         collector.include(new Vector3f(quad.position(vertex)).add(x, y, z));
@@ -125,12 +110,6 @@ public final class HammerWheelIconRenderer {
                     client.getModelManager().getBlockStateModelSet().get(state), state.getSeed(pos));
             }
             this.bounds = collector.isDefined() ? collector.build() : new AABB(BlockPos.ZERO);
-        }
-
-        private <P extends Enum<P>> void addParts(AbstractMultiPartBlock<P> block, BlockState state) {
-            for (P part : block.getParts()) {
-                this.setBlockState(BlockPos.ZERO.offset(block.offsetFrom(state, part)), block.placedState(part, state));
-            }
         }
 
         @Override

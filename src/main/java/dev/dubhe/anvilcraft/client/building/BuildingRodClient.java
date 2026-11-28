@@ -15,10 +15,12 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.BuildingRodItem;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.network.BuildingRodPacket;
+import dev.dubhe.anvilcraft.network.BuildingRodResultPacket;
 import dev.dubhe.anvilcraft.util.BlockPlacementPicking;
 import dev.dubhe.anvilcraft.util.StructureLoadUtil;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.InputQuirks;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -46,6 +48,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.StringJoiner;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public final class BuildingRodClient {
@@ -183,7 +186,7 @@ public final class BuildingRodClient {
         if (mc.options.keyUse.isDown() && !useHeld) press();
         if (!mc.options.keyUse.isDown() && useHeld) release();
         controls();
-        if (first != null) {
+        if (snapshot != null && first != null) {
             BoundingBox bounds = selectionBounds();
             mc.gui.setOverlayMessage(bounds == null ? Component.empty()
                 : Component.translatable("screen.anvilcraft.building_rod.selection_size",
@@ -343,6 +346,10 @@ public final class BuildingRodClient {
             if (traditional()) BuildingRodTraditionalControls.finishSelection();
             return;
         } else if (target != null) {
+            var level = Minecraft.getInstance().level;
+            if (level != null) {
+                BuildingRodPlacementAnimation.remember(level, patternSeed, placementPreview());
+            }
             BuildingRodItemRenderer.preparePlacement();
             Minecraft.getInstance().getConnection().send(new BuildingRodPacket(
                 first, target, firstHit == null ? face : firstHit.getDirection(),
@@ -352,8 +359,14 @@ public final class BuildingRodClient {
         clearSelection();
     }
 
+    public static void placementConfirmed(long seed, List<BuildingRodResultPacket.Change> changes) {
+        BuildingRodPlacementAnimation.confirm(seed, changes);
+    }
+
     private static void clearSelection() {
-        if (first != null) Minecraft.getInstance().gui.setOverlayMessage(Component.empty(), false);
+        if (snapshot != null && first != null) {
+            Minecraft.getInstance().gui.setOverlayMessage(Component.empty(), false);
+        }
         first = null;
         firstHit = null;
         target = null;
@@ -648,11 +661,17 @@ public final class BuildingRodClient {
 
     @SubscribeEvent
     public static void overlay(RenderGuiEvent.Post event) {
+        if (snapshot == null && first != null) {
+            renderMaterialOverlay(event.getGuiGraphics());
+            return;
+        }
         if (traditional()) {
             BuildingRodTraditionalOverlay.render(event.getGuiGraphics());
             return;
         }
-        if (snapshot == null || (!locked && !active())) return;
+        if (snapshot == null || (!locked && !active())) {
+            return;
+        }
         Minecraft mc = Minecraft.getInstance();
         Component text;
         if (!locked && !traditional()) {
@@ -686,6 +705,58 @@ public final class BuildingRodClient {
             event.getGuiGraphics().centeredText(mc.font, line, event.getGuiGraphics().guiWidth() / 2, y, 0xFFFFFFFF);
             y += 10;
         }
+    }
+
+    private static void renderMaterialOverlay(GuiGraphicsExtractor graphics) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.screen != null || mc.options.hideGui || !active()) {
+            return;
+        }
+        ItemStack material = BuildingRodItem.material(mc.player);
+        if (!BuildingRodItem.isPlacementMaterial(material)) {
+            return;
+        }
+        int center = graphics.guiWidth() / 2;
+        int iconX = center + 7;
+        int iconY = graphics.guiHeight() / 2 + 3;
+        var pose = graphics.pose();
+        pose.pushMatrix();
+        pose.translate(iconX, iconY);
+        pose.scale(0.7f, 0.7f);
+        graphics.item(material, 0, 0);
+        pose.popMatrix();
+        int count = placementPreview().size();
+        int color = count == 0 ? 0xFFFF5577 : 0xFFFFFFFF;
+        graphics.centeredText(mc.font, Integer.toString(count), iconX + 6, iconY + 10, color);
+
+        BoundingBox bounds = selectionBounds();
+        Component summary = Component.translatable(count == 1 ? "screen.anvilcraft.building_rod.selection.block"
+            : "screen.anvilcraft.building_rod.selection.blocks", count, bounds == null ? "–" : dimensions(bounds));
+        boolean keep = distanceHeld && useHeld;
+        String hint = useHeld ? "screen.anvilcraft.building_rod.selection.release" : "screen.anvilcraft.building_rod.selection.click";
+        Component action = Component.translatable(keep ? "screen.anvilcraft.building_rod.selection.keep"
+            : "screen.anvilcraft.building_rod.selection.place").withColor(0x55FFFF);
+        Component controls = Component.translatable(hint, mc.options.keyAttack.getTranslatedKeyMessage(),
+            Component.translatable("screen.anvilcraft.building_rod.selection.cancel").withColor(0x55CCFF),
+            mc.options.keyUse.getTranslatedKeyMessage(), action);
+        int feedbackOffset = Math.max(Math.max(mc.gui.leftHeight, mc.gui.rightHeight) + 9, 68);
+        int bottom = graphics.guiHeight() - feedbackOffset - 7 - mc.font.lineHeight;
+        graphics.centeredText(mc.font, summary, center, bottom - mc.font.lineHeight - 2, color);
+        graphics.centeredText(mc.font, controls, center, bottom, 0xFFFFFFFF);
+    }
+
+    private static String dimensions(BoundingBox bounds) {
+        StringJoiner spans = new StringJoiner("×");
+        if (bounds.getXSpan() > 1) {
+            spans.add(Integer.toString(bounds.getXSpan()));
+        }
+        if (bounds.getYSpan() > 1) {
+            spans.add(Integer.toString(bounds.getYSpan()));
+        }
+        if (bounds.getZSpan() > 1) {
+            spans.add(Integer.toString(bounds.getZSpan()));
+        }
+        return spans.length() == 0 ? "1×1" : spans.toString();
     }
 
     static Component traditionalHint() {

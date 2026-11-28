@@ -37,6 +37,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Getter
@@ -50,14 +51,11 @@ public class StorageBlockEntity extends BlockEntity {
     }
 
     public void setId(UUID id) {
-        if (this.id != null) {
+        if (id.equals(this.id)) {
             return;
         }
-        this.id = id;
-        this.invalidateItemPorts(this.id);
+        this.updateStorageId(id);
         this.setChanged();
-        TerminalSourceManager.registerIfApplicable(this);
-        StorageComparatorManager.registerIfApplicable(this);
         if (this.level != null) {
             BlockState state = this.getBlockState();
             this.level.sendBlockUpdated(this.getBlockPos(), state, state, Block.UPDATE_ALL);
@@ -65,12 +63,43 @@ public class StorageBlockEntity extends BlockEntity {
     }
 
     public void clearId() {
+        this.updateStorageId(null);
+        this.setChanged();
+    }
+
+    private void updateStorageId(@Nullable UUID id) {
         final UUID previousId = this.id;
         TerminalSourceManager.unregisterIfApplicable(this);
         StorageComparatorManager.unregisterIfApplicable(this);
-        this.id = null;
+        this.id = id;
+        if (id != null) {
+            TerminalSourceManager.registerIfApplicable(this);
+            StorageComparatorManager.registerIfApplicable(this);
+        }
+        if (!Objects.equals(previousId, id)) {
+            this.invalidateStorageCapabilities();
+            this.invalidateItemPorts(id);
+        }
         this.invalidateItemPorts(previousId);
-        this.setChanged();
+    }
+
+    private void invalidateStorageCapabilities() {
+        if (!(this.level instanceof ServerLevel level)) {
+            return;
+        }
+        BlockState state = this.getBlockState();
+        if (state.getBlock() instanceof AbstractMultiPartBlock<?> block) {
+            this.invalidatePartCapabilities(level, state, block);
+        } else {
+            this.invalidateCapabilities();
+        }
+    }
+
+    private <P extends Enum<P>> void invalidatePartCapabilities(ServerLevel level, BlockState state, AbstractMultiPartBlock<P> block) {
+        // 外部设备在所连接的部件坐标缓存库存，即使该部件自身没有方块实体。
+        for (P part : block.getParts()) {
+            level.invalidateCapabilities(this.getBlockPos().offset(block.offsetFrom(state, part)));
+        }
     }
 
     private void invalidateItemPorts(@Nullable UUID storageId) {
@@ -88,21 +117,17 @@ public class StorageBlockEntity extends BlockEntity {
 
     @Override
     protected void loadAdditional(ValueInput input) {
-        final UUID previousId = this.id;
-        StorageComparatorManager.unregisterIfApplicable(this);
-        // 信任加载的数据
-        input.read("storage_id", UUIDUtil.CODEC).ifPresent(id -> this.id = id);
-        TerminalSourceManager.registerIfApplicable(this);
-        StorageComparatorManager.registerIfApplicable(this);
-        this.invalidateItemPorts(previousId);
-        if (!java.util.Objects.equals(previousId, this.id)) {
-            this.invalidateItemPorts(this.id);
-        }
+        input.read("storage_id", UUIDUtil.CODEC).ifPresent(this::updateStorageId);
     }
 
     @Override
     public void onLoad() {
         super.onLoad();
+        if (this.id == null && this.level instanceof ServerLevel) {
+            this.setId(UUID.randomUUID());
+            return;
+        }
+        this.invalidateStorageCapabilities();
         TerminalSourceManager.registerIfApplicable(this);
         StorageComparatorManager.registerIfApplicable(this);
         this.invalidateItemPorts(this.id);
@@ -113,6 +138,7 @@ public class StorageBlockEntity extends BlockEntity {
         TerminalSourceManager.unregisterIfApplicable(this);
         StorageComparatorManager.unregisterIfApplicable(this);
         super.onChunkUnloaded();
+        this.invalidateStorageCapabilities();
         this.invalidateItemPorts(this.id);
     }
 
@@ -121,6 +147,7 @@ public class StorageBlockEntity extends BlockEntity {
         TerminalSourceManager.unregisterIfApplicable(this);
         StorageComparatorManager.unregisterIfApplicable(this);
         super.setRemoved();
+        this.invalidateStorageCapabilities();
         this.invalidateItemPorts(this.id);
     }
 
@@ -150,7 +177,9 @@ public class StorageBlockEntity extends BlockEntity {
         if (ref == null || ref.type() != this.storageType) {
             return;
         }
-        this.setId(ref.id().orElse(UUID.randomUUID()));
+        if (this.id == null || ref.id().isPresent()) {
+            this.setId(ref.id().orElseGet(UUID::randomUUID));
+        }
     }
 
     @Override
