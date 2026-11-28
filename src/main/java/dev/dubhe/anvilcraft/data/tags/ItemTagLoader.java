@@ -37,6 +37,15 @@ public class ItemTagLoader {
             .addElement(ItemTagLoader.findId(Items.STONECUTTER))
             .addElement(ModBlocks.BATCH_CUTTER.getId());
 
+        provider.rawBuilder(ModItemTags.COPPER_BLOCKS)
+            .addElement(ItemTagLoader.findId(Items.COPPER_BLOCK))
+            .addElement(ItemTagLoader.findId(Items.EXPOSED_COPPER))
+            .addElement(ItemTagLoader.findId(Items.WEATHERED_COPPER))
+            .addElement(ItemTagLoader.findId(Items.OXIDIZED_COPPER))
+            .addElement(ItemTagLoader.findId(Items.WAXED_COPPER_BLOCK))
+            .addElement(ItemTagLoader.findId(Items.WAXED_EXPOSED_COPPER))
+            .addElement(ItemTagLoader.findId(Items.WAXED_WEATHERED_COPPER))
+            .addElement(ItemTagLoader.findId(Items.WAXED_OXIDIZED_COPPER));
         provider.rawBuilder(ModItemTags.PLATES)
             .addElement(ItemTagLoader.findId(Items.HEAVY_WEIGHTED_PRESSURE_PLATE))
             .addElement(ItemTagLoader.findId(Items.LIGHT_WEIGHTED_PRESSURE_PLATE));

@@ -101,8 +101,8 @@ public class ModBlockTags {
     public static final TagKey<Block> STORAGE_BLOCKS_RUBY = ModBlockTags.bindC("storage_blocks/ruby");
     public static final TagKey<Block> STORAGE_BLOCKS_EXP_GEM = ModBlockTags.bindC("storage_blocks/exp_gem");
     public static final TagKey<Block> STORAGE_BLOCKS_AMBER = ModBlockTags.bindC("storage_blocks/amber");
-    /// 本模组的树脂块是捕捉生物的功能方块，不是原版树脂的储存方块，因此不能挂到 c: 公共标签上
     public static final TagKey<Block> STORAGE_BLOCKS_RESIN = ModBlockTags.bind("storage_blocks/resin");
+    public static final TagKey<Block> COPPER_BLOCKS = ModBlockTags.bind("copper_blocks");
     public static final TagKey<Block> STORAGE_BLOCKS_TRANSCENDIUM = ModBlockTags.bindC("storage_blocks/transcendium");
     public static final TagKey<Block> STORAGE_BLOCKS_FROST_METAL = ModBlockTags.bindC("storage_blocks/frost_metal");
 

@@ -20,6 +20,15 @@ public class BlockTagLoader {
     ///
     /// @param provider 提供器
     public static void init(RegistrumTagsProvider<Block> provider) {
+        provider.rawBuilder(ModBlockTags.COPPER_BLOCKS)
+            .addElement(BlockTagLoader.findId(Blocks.COPPER_BLOCK))
+            .addElement(BlockTagLoader.findId(Blocks.EXPOSED_COPPER))
+            .addElement(BlockTagLoader.findId(Blocks.WEATHERED_COPPER))
+            .addElement(BlockTagLoader.findId(Blocks.OXIDIZED_COPPER))
+            .addElement(BlockTagLoader.findId(Blocks.WAXED_COPPER_BLOCK))
+            .addElement(BlockTagLoader.findId(Blocks.WAXED_EXPOSED_COPPER))
+            .addElement(BlockTagLoader.findId(Blocks.WAXED_WEATHERED_COPPER))
+            .addElement(BlockTagLoader.findId(Blocks.WAXED_OXIDIZED_COPPER));
         provider.rawBuilder(ModBlockTags.REDSTONE_TORCH)
             .addElement(BlockTagLoader.findId(Blocks.REDSTONE_WALL_TORCH))
             .addElement(BlockTagLoader.findId(Blocks.REDSTONE_TORCH));
